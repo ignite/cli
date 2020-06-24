@@ -38,6 +38,7 @@ var appCmd = &cobra.Command{
  %% cd %[1]v
  %% starport serve
 
+NOTE: add -v flag for advanced use.
 `
 		fmt.Printf(message, appName)
 	},

@@ -40,30 +40,37 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if err := cmdInit.Run(); err != nil {
 		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
 	}
-	fmt.Printf("🎨 Created a web front-end: cd ui && npm i && npm run serve\n")
-	fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
+	fmt.Printf("🎨 Created a web front-end.\n")
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start")
 	if verbose {
+		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
 		cmdTendermint.Stdout = os.Stdout
+	} else {
+		fmt.Printf("🌍 Running a %[1]v app with Tendermint on default ports.\n", appName)
 	}
 	if err := cmdTendermint.Start(); err != nil {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
 	}
-	fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
 	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server")
 	if verbose {
+		fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
 		cmdREST.Stdout = os.Stdout
 	}
 	if err := cmdREST.Start(); err != nil {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vcli rest-server", appName))
 	}
-	fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
+	if verbose {
+		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
+	}
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../ui/dist")
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
 	go func() {
 		http.ListenAndServe(":12345", router)
 	}()
+	if !verbose {
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/start\n\n")
+	}
 	return cmdTendermint, cmdREST
 }
 
