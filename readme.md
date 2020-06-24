@@ -4,18 +4,6 @@ Code scaffolding tool `starport` for Cosmos SDK applications.
 
 ## Installation
 
-### macOS
-
-```
-brew install tendermint/tap/starport
-```
-
-### GNU/Linux
-
-Will be released as a Snap soon. Use `git clone` until then.
-
-### Build locally
-
 ```
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
