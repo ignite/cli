@@ -1,0 +1,7 @@
+build
+.DS_Store
+ui/node_modules
+ui/dist
+dist
+packrd
+*-packr.go

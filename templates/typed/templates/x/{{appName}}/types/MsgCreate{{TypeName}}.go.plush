@@ -1,0 +1,47 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/google/uuid"
+)
+
+var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
+
+type MsgCreate<%= title(TypeName) %> struct {
+  ID      string
+  Creator sdk.AccAddress `json:"creator" yaml:"creator"`<%= for (field) in Fields { %>
+  <%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>" yaml:"<%= field.Name %>"`<% } %>
+}
+
+func NewMsgCreate<%= title(TypeName) %>(creator sdk.AccAddress<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) MsgCreate<%= title(TypeName) %> {
+  return MsgCreate<%= title(TypeName) %>{
+    ID: uuid.New().String(),
+		Creator: creator,<%= for (field) in Fields { %>
+    <%= title(field.Name) %>: <%= field.Name %>,<% } %>
+	}
+}
+
+func (msg MsgCreate<%= title(TypeName) %>) Route() string {
+  return RouterKey
+}
+
+func (msg MsgCreate<%= title(TypeName) %>) Type() string {
+  return "Create<%= title(TypeName) %>"
+}
+
+func (msg MsgCreate<%= title(TypeName) %>) GetSigners() []sdk.AccAddress {
+  return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
+}
+
+func (msg MsgCreate<%= title(TypeName) %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg MsgCreate<%= title(TypeName) %>) ValidateBasic() error {
+  if msg.Creator.Empty() {
+    return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
+  }
+  return nil
+}

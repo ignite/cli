@@ -1,0 +1,22 @@
+{
+  "name": "ui",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "core-js": "^3.6.5",
+    "reconnecting-websocket": "^4.4.0",
+    "vue": "^2.6.11",
+    "vue-json-pretty": "^1.6.3",
+    "vue-router": "^3.2.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^4.4.0",
+    "@vue/cli-plugin-router": "^4.4.0",
+    "@vue/cli-service": "^4.4.0",
+    "vue-template-compiler": "^2.6.11"
+  }
+}

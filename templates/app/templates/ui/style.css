@@ -1,0 +1,23 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter&family=Fira+Code&display=swap");
+
+body {
+  font-family: "Inter", sans-serif;
+}
+
+code {
+  font-family: "Fira Code", monospace;
+}
+
+input {
+  display: block;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  max-width: 20rem;
+}
+
+.container {
+  max-width: 40rem;
+  width: 100%;
+  margin-left: auto;
+  margin-right: auto;
+}

@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title><%= title(AppName) %></title>
+    <link rel="stylesheet" href="style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <h1><%= title(AppName) %></h1>
+      <button class="account-create">Create a new account</button>
+      <button class="account-request-tokens">Request tokens</button>
+      <p class="account-address">
+        <em>
+          Create an account and request some tokens before creating items.
+        </em>
+      </p>
+      <p class="account-balance"></p>
+      <!-- this line is used by startport scaffolding # 4 -->
+      <script src="script.js"></script>
+    </div>
+  </body>
+</html>
