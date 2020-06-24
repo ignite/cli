@@ -14,7 +14,7 @@ ui:
 	@rm -rf ui/dist
 	@which npm 1>/dev/null && cd ui && npm install 1>/dev/null && npm run build 1>/dev/null
 
-install: build ui
+install: ui build
 	@go install -mod=readonly ./...
 
 cli: build

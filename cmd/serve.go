@@ -46,7 +46,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
 		cmdTendermint.Stdout = os.Stdout
 	} else {
-		fmt.Printf("🌍 Running a %[1]v app with Tendermint on default ports.\n", appName)
+		fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", appName)
 	}
 	if err := cmdTendermint.Start(); err != nil {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
@@ -64,12 +64,15 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	}
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../ui/dist")
+	router.HandleFunc("/chain_id", func(w http.ResponseWriter, r *http.Request) {
+		fmt.Fprintf(w, appName)
+	})
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
 	go func() {
 		http.ListenAndServe(":12345", router)
 	}()
 	if !verbose {
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/start\n\n")
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
 	return cmdTendermint, cmdREST
 }
