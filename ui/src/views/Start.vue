@@ -25,7 +25,7 @@
         </p>
       </div>
       <div class="window">
-        ~$: starport tx {{ chain_id }} create-user "Alice" alice@example.org
+        ~$: starport tx {{ chain_id }} create-user Alice alice@example.org
         --from=me
       </div>
       <div class="narrow">
@@ -62,17 +62,28 @@
             </div>
           </div>
         </a>
+        <h2 id="front-end">Front-end</h2>
+        <p>Starport generated a simple web application inside <code>./ui</code> directory that can interact with your blockchain. In a new terminal window inside your project's directory run the following command:</p>
+      </div>
+      <div class="window">
+        ~$: cd ui && npm i && npm run serve
+      </div>
+      <div class="narrow">
+        <p>When the build is finished, open <a href="localhost:1234" target="_blank">a new browser tab</a> to see the application.</p>
       </div>
     </div>
   </div>
 </template>
 
 <style scoped>
+a {
+  color: inherit;
+}
 code {
   font-family: monospace;
 }
 .container {
-  padding: 4rem 1rem 4rem;
+  padding: 4rem 1rem 12rem;
   max-width: 900px;
   width: 100%;
   margin-left: auto;
@@ -178,11 +189,11 @@ export default {
   components: {
     LogoTendermint,
     LogoCosmosSdk,
-    TerminalWindow,
+    TerminalWindow
   },
   data() {
     return {
-      chain_id: "{{chain_id}}",
+      chain_id: "{{chain_id}}"
     };
   },
   async created() {
@@ -191,6 +202,6 @@ export default {
     } catch {
       console.log("Can't fetch /chain_id");
     }
-  },
+  }
 };
 </script>
