@@ -41,7 +41,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
 	}
 	fmt.Printf("🎨 Created a web front-end.\n")
-	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start")
+	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 	if verbose {
 		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
 		cmdTendermint.Stdout = os.Stdout
@@ -51,7 +51,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if err := cmdTendermint.Start(); err != nil {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
 	}
-	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server")
+	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 	if verbose {
 		fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
 		cmdREST.Stdout = os.Stdout
@@ -86,7 +86,7 @@ var serveCmd = &cobra.Command{
 		go func() {
 			for {
 				select {
-				case _ = <-w.Event:
+				case <-w.Event:
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
 					cmdt, cmdr = startServe(verbose)
