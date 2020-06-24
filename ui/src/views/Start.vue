@@ -25,7 +25,7 @@
         </p>
       </div>
       <div class="window">
-        ~$: starport tx {{ chain_id }} create-user Alice alice@example.org
+        ~$: {{ chain_id }}cli tx {{ chain_id }} create-user Alice alice@example.org
         --from=me
       </div>
       <div class="narrow">
