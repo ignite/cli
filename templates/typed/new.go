@@ -32,9 +32,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
-	ctx.Set("title", func(s string) string {
-		return strings.Title(s)
-	})
+	ctx.Set("title", strings.Title)
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
@@ -45,15 +43,14 @@ func New(opts *Options) (*genny.Generator, error) {
 		return strconv
 	})
 	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", fmt.Sprintf("%s", opts.AppName)))
-	g.Transformer(genny.Replace("{{typeName}}", fmt.Sprintf("%s", opts.TypeName)))
-	g.Transformer(genny.Replace("{{TypeName}}", fmt.Sprintf("%s", strings.Title(opts.TypeName))))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
+	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
+	g.Transformer(genny.Replace("{{TypeName}}", opts.TypeName))
 	return g, nil
 }
 
 const placeholder = "// this line is used by starport scaffolding"
 const placeholder2 = "// this line is used by starport scaffolding # 2"
-const placeholder3 = "// this line is used by starport scaffolding # 3"
 const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
 
 func handlerModify(opts *Options) genny.RunFn {
@@ -230,10 +227,10 @@ func uiIndexModify(opts *Options) genny.RunFn {
 			<div class="type-%[1]v-list-%[1]v"></div>
       <h3>Create a new %[1]v:</h3>`, opts.TypeName)
 		for _, field := range opts.Fields {
-			template = template + fmt.Sprintf(`
+			template += fmt.Sprintf(`
 			<input placeholder="%[1]v" class="type-%[2]v-field-%[1]v" type="text" />`, field.Name, opts.TypeName)
 		}
-		template = template + fmt.Sprintf(`
+		template += fmt.Sprintf(`
 			<button class="type-%[1]v-create">Create %[1]v</button>
 		`, opts.TypeName) + "  " + placeholder4
 		content := strings.Replace(f.String(), placeholder4, template, 1)
@@ -251,7 +248,7 @@ func uiScriptModify(opts *Options) genny.RunFn {
 		}
 		fields := ""
 		for _, field := range opts.Fields {
-			fields = fields + fmt.Sprintf("\"%[1]v\", ", field.Name)
+			fields += fmt.Sprintf("\"%[1]v\", ", field.Name)
 		}
 		template := `%[1]v
 	["%[2]v", [%[3]v]],`
