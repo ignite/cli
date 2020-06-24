@@ -65,7 +65,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../ui/dist")
 	router.HandleFunc("/chain_id", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprintf(w, appName)
+		fmt.Fprint(w, appName)
 	})
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
 	go func() {
