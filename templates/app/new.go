@@ -1,7 +1,6 @@
 package app
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -20,10 +19,9 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("Denom", opts.Denom)
-	ctx.Set("title", func(s string) string {
-		return strings.Title(s)
-	})
+	ctx.Set("title", strings.Title)
+
 	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", fmt.Sprintf("%s", opts.AppName)))
+	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	return g, nil
 }
