@@ -1,9 +1,9 @@
 brews:
-  - name: "cosm"
+  - name: "starport"
     description: "CLI tool for developing Cosmos SDK apps."
-    homepage: "https://github.com/allinbits/cosm"
+    homepage: "https://github.com/tendermint/starport"
     github:
-      owner: "allinbits"
+      owner: "tendermint"
       name: "homebrew-tap"
     install: |
-      bin.install "cosm"
+      bin.install "starport"

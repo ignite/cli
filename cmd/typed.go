@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/allinbits/cosm/templates/typed"
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/templates/typed"
 )
 
 var typedCmd = &cobra.Command{

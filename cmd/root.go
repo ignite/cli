@@ -12,7 +12,7 @@ import (
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cosmos",
+	Use:   "starport",
 	Short: "A tool for scaffolding out Cosmos applications",
 }
 

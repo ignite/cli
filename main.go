@@ -1,6 +1,6 @@
 package main
 
-import "github.com/allinbits/cosm/cmd"
+import "github.com/tendermint/starport/cmd"
 
 func main() {
 	cmd.Execute()

@@ -32,7 +32,7 @@ const requestTokens = () => {
 };
 
 const types = [
-  // this line is used by startport scaffolding
+  // this line is used by starport scaffolding
 ];
 
 const init = () => {

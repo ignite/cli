@@ -6,9 +6,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/allinbits/cosm/templates/app"
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/templates/app"
 )
 
 var appCmd = &cobra.Command{

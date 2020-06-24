@@ -1,4 +1,4 @@
-module github.com/allinbits/cosm
+module github.com/tendermint/starport
 
 go 1.14
 

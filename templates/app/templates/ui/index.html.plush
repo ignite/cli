@@ -16,7 +16,7 @@
         </em>
       </p>
       <p class="account-balance"></p>
-      <!-- this line is used by startport scaffolding # 4 -->
+      <!-- this line is used by starport scaffolding # 4 -->
       <script src="script.js"></script>
     </div>
   </body>
