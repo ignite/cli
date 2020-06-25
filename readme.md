@@ -18,16 +18,10 @@ git clone https://github.com/tendermint/starport && cd starport && make
 
 ## Creating an application
 
-```
-starport app [modulePath]
-```
-
-This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package.
-
-To create a new application called `blog`, run:
+This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, run:
 
 ```
-starport app github.com/example/blog
+starport app github.com/your-github-id/blog
 ```
 
 ## Running an application
