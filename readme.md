@@ -51,7 +51,3 @@ starport type post title body
 This command generates a type `Post` with two fields: `title` and `body`.
 
 To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=me`.
-
-## Front-end application
-
-By default the generator creates a front-end application in `ui` directory. If you have Node.js installed, run `cd ui && npm i && npm run serve` to launch the app. With this app you can generate accounts, request tokens from a faucet, list and create objects generated with `starport type`.
