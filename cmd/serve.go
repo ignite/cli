@@ -16,6 +16,9 @@ import (
 
 func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule()
+	cmdNpm := exec.Command("npm", "run", "dev")
+	cmdNpm.Dir = "frontend"
+	cmdNpm.Start()
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
 	if verbose {
@@ -40,7 +43,6 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if err := cmdInit.Run(); err != nil {
 		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
 	}
-	fmt.Printf("🎨 Created a web front-end.\n")
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 	if verbose {
 		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
@@ -90,6 +92,7 @@ var serveCmd = &cobra.Command{
 			for {
 				select {
 				case <-w.Event:
+					exec.Command("/bin/sh", "-c", "kill -9 $(lsof -i:8080 -t)").Run()
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
 					cmdt, cmdr = startServe(verbose)
@@ -103,7 +106,10 @@ var serveCmd = &cobra.Command{
 		if err := w.AddRecursive("."); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Ignore("./ui"); err != nil {
+		if err := w.Ignore("./frontend"); err != nil {
+			log.Fatalln(err)
+		}
+		if err := w.Ignore("./.git"); err != nil {
 			log.Fatalln(err)
 		}
 		if err := w.Start(time.Millisecond * 100); err != nil {

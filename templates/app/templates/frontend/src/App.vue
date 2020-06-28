@@ -1,6 +1,6 @@
 <template>
   <div>
-    <layout />
+    <router-view />
   </div>
 </template>
 
@@ -14,11 +14,9 @@ body {
 </style>
 
 <script>
-import Layout from "@/components/Layout";
-
 export default {
-  components: {
-    Layout,
+  created() {
+    this.$store.dispatch("init");
   },
 };
 </script>

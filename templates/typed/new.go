@@ -22,8 +22,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	g.RunFn((typesQuerierModify(opts)))
 	g.RunFn((keeperQuerierModify(opts)))
 	g.RunFn((clientRestRestModify(opts)))
-	g.RunFn((uiIndexModify(opts)))
-	g.RunFn((uiScriptModify(opts)))
+	g.RunFn((frontendSrcStoreAppModify(opts)))
 	if err := g.Box(packr.New("typed/templates", "./templates")); err != nil {
 		return g, err
 	}
@@ -45,7 +44,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
-	g.Transformer(genny.Replace("{{TypeName}}", opts.TypeName))
+	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
 	return g, nil
 }
 
@@ -215,44 +214,19 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 	}
 }
 
-func uiIndexModify(opts *Options) genny.RunFn {
+func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "ui/index.html"
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := fmt.Sprintf(`
-			<h2>List of "%[1]v" items</h2>
-			<div class="type-%[1]v-list-%[1]v"></div>
-      <h3>Create a new %[1]v:</h3>`, opts.TypeName)
-		for _, field := range opts.Fields {
-			template += fmt.Sprintf(`
-			<input placeholder="%[1]v" class="type-%[2]v-field-%[1]v" type="text" />`, field.Name, opts.TypeName)
-		}
-		template += fmt.Sprintf(`
-			<button class="type-%[1]v-create">Create %[1]v</button>
-		`, opts.TypeName) + "  " + placeholder4
-		content := strings.Replace(f.String(), placeholder4, template, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func uiScriptModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := "ui/script.js"
+		path := "frontend/src/store/app.js"
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 		fields := ""
 		for _, field := range opts.Fields {
-			fields += fmt.Sprintf("\"%[1]v\", ", field.Name)
+			fields += fmt.Sprintf(`"%[1]v", `, field.Name)
 		}
-		template := `%[1]v
-	["%[2]v", [%[3]v]],`
-		replacement := fmt.Sprintf(template, placeholder, opts.TypeName, fields)
+		replacement := fmt.Sprintf(`%[1]v
+		{ type: "%[2]v", fields: [%[3]v] },`, placeholder, opts.TypeName, fields)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
