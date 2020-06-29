@@ -8,8 +8,68 @@
           application. Your app is built on top of Tendermint Core engine and
           uses Cosmos SDK.
         </p>
+        <h2>Components</h2>
+        <a
+          :href="running.frontend && 'http://localhost:8080'"
+          target="_blank"
+          class="card"
+          v-if="running.frontend || env.node_js"
+          :style="{'background-color': running.frontend ? 'rgb(255, 234, 250)' : 'rgba(0,0,0,.05)', '--color-primary': running.frontend ? 'rgb(251, 80, 210)' : 'rgba(0,0,0,0.25)'}"
+        >
+          <logo-spaceship class="card__logo" />
+          <div class="card__desc">
+            <div class="card__desc__h1">User interface</div>
+            <div class="card__desc__p">
+              <span v-if="running.frontend">The front-end of your app. A Vue application is running on port <span class="card__desc__tag">8080</span></span>
+              <span v-else>Loading...</span>
+            </div>
+          </div>
+        </a>
+        <a
+          target="_blank"
+          class="card"
+          v-if="!running.frontend && !env.node_js"
+          :style="{'background-color': running.frontend ? 'rgb(255, 234, 250)' : 'rgba(0,0,0,.05)', '--color-primary': running.frontend ? 'rgb(251, 80, 210)' : 'rgba(0,0,0,0.25)'}"
+        >
+          <logo-spaceship class="card__logo" />
+          <div class="card__desc">
+            <div class="card__desc__h1">User interface</div>
+            <div class="card__desc__p">
+              <span>Can't find npm. Please, make sure Node.js is installed.</span>
+            </div>
+          </div>
+        </a>
+        <a
+          href="http://localhost:1317"
+          target="_blank"
+          class="card"
+          :style="{'background-color': running.api ? '#edefff' : 'rgba(0,0,0,.05)', '--color-primary': running.api ? 'rgb(80, 100, 251)' : 'rgba(0,0,0,0.25)'}"
+        >
+          <logo-cosmos-sdk class="card__logo" />
+          <div class="card__desc">
+            <div class="card__desc__h1">Cosmos</div>
+            <div class="card__desc__p">
+              <span v-if="running.api">The back-end of your app. Cosmos API is running locally on port <span class="card__desc__tag">1317</span></span>
+              <span v-else>Loading...</span>
+            </div>
+          </div>
+        </a>
+        <a
+          href="http://localhost:26657"
+          target="_blank"
+          class="card"
+          :style="{'background-color': running.rpc ? '#edf8eb' : 'rgba(0,0,0,.05)', '--color-primary': running.rpc ? 'rgb(0, 187, 0)' : 'rgba(0,0,0,0.25)'}"
+        >
+          <logo-tendermint class="card__logo" />
+          <div class="card__desc">
+            <div class="card__desc__h1">Tendermint</div>
+            <div class="card__desc__p">
+              <span v-if="running.rpc">The consensus engine. Tendermint API is running on port <span class="card__desc__tag">26657</span></span>
+              <span v-else>Loading...</span>
+            </div>
+          </div>
+        </a>
         <h2>Next steps</h2>
-        <p>It's time to add features to it!</p>
         <p>
           Keep the terminal window open, open a new one and run the following
           command to create a new type:
@@ -25,51 +85,10 @@
         </p>
       </div>
       <div class="window">
-        ~$: {{ chain_id }}cli tx {{ chain_id }} create-user Alice alice@example.org
+        ~$: {{ env.chain_id }}cli tx {{ env.chain_id }} create-user Alice alice@example.org
         --from=me
       </div>
       <div class="narrow">
-        <h2>Block viewer</h2>
-        <terminal-window />
-        <h2>Components</h2>
-        <a
-          href="http://localhost:26657"
-          target="_blank"
-          class="card"
-          style="background-color: #edf8eb; --color-primary: rgb(0, 187, 0)"
-        >
-          <logo-tendermint class="card__logo" />
-          <div class="card__desc">
-            <div class="card__desc__h1">Tendermint</div>
-            <div class="card__desc__p">
-              Tendermint RPC is running locally on port
-              <span class="card__desc__tag">26657</span>
-            </div>
-          </div>
-        </a>
-        <a
-          href="http://localhost:1317"
-          target="_blank"
-          class="card"
-          style="background-color: #edefff; --color-primary: rgb(80, 100, 251)"
-        >
-          <logo-cosmos-sdk class="card__logo" />
-          <div class="card__desc">
-            <div class="card__desc__h1">Cosmos</div>
-            <div class="card__desc__p">
-              Cosmos REST API is running locally on port
-              <span class="card__desc__tag">1317</span>
-            </div>
-          </div>
-        </a>
-        <h2 id="front-end">Front-end</h2>
-        <p>Starport generated a simple web application inside <code>./ui</code> directory that can interact with your blockchain. In a new terminal window inside your project's directory run the following command:</p>
-      </div>
-      <div class="window">
-        ~$: cd ui && npm i && npm run serve
-      </div>
-      <div class="narrow">
-        <p>When the build is finished, open <a href="localhost:1234" target="_blank">a new browser tab</a> to see the application.</p>
       </div>
     </div>
   </div>
@@ -134,7 +153,7 @@ code {
   display: flex;
   margin: 2rem 0;
   text-decoration: none;
-  transition: transform 0.2s;
+  transition: all 0.2s;
   color: inherit;
   align-items: center;
   color: var(--color-primary);
@@ -183,25 +202,65 @@ code {
 import axios from "axios";
 import LogoTendermint from "@/components/LogoTendermint.vue";
 import LogoCosmosSdk from "@/components/LogoCosmosSdk.vue";
+import LogoSpaceship from "@/components/LogoSpaceship.vue";
 import TerminalWindow from "@/components/TerminalWindow.vue";
 
 export default {
   components: {
     LogoTendermint,
     LogoCosmosSdk,
-    TerminalWindow
+    TerminalWindow,
+    LogoSpaceship
   },
   data() {
     return {
-      chain_id: "{{chain_id}}"
+      env: {
+        chain_id: "{{chain_id}}",
+        node_js: false
+      },
+      running: {
+        rpc: true,
+        api: true,
+        frontend: false
+      },
+      timer: null
     };
   },
-  async created() {
-    try {
-      this.chain_id = (await axios.get("/chain_id")).data;
-    } catch {
-      console.log("Can't fetch /chain_id");
+  methods: {
+    async areServersRunning() {
+      try {
+        await axios.get("/api");
+        this.running.api = true;
+      } catch {
+        this.running.api = false;
+      }
+      try {
+        await axios.get("/rpc");
+        this.running.rpc = true;
+      } catch {
+        this.running.rpc = false;
+      }
+      try {
+        await axios.get("/frontend");
+        this.running.frontend = true;
+      } catch {
+        this.running.frontend = false;
+      }
     }
+  },
+  async created() {
+    this.timer = setInterval(async () => {
+      this.areServersRunning();
+    }, 1000);
+    axios.get("/api/node_info");
+    try {
+      this.env = (await axios.get("/env")).data;
+    } catch {
+      console.log("Can't fetch /env");
+    }
+  },
+  beforeDestroy() {
+    clearInterval(this.timer);
   }
 };
 </script>

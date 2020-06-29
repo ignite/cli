@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,10 +15,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
+// Env ...
+type Env struct {
+	ChainID string `json:"chain_id"`
+	NodeJS  bool   `json:"node_js"`
+}
+
+func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule()
 	cmdNpm := exec.Command("npm", "run", "dev")
 	cmdNpm.Dir = "frontend"
+	if verbose {
+		cmdNpm.Stdout = os.Stdout
+	}
 	cmdNpm.Start()
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
@@ -66,8 +76,45 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	}
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../ui/dist")
-	router.HandleFunc("/chain_id", func(w http.ResponseWriter, r *http.Request) {
-		fmt.Fprint(w, appName)
+	router.HandleFunc("/env", func(w http.ResponseWriter, r *http.Request) {
+		env := Env{appName, isCommandAvailable("node")}
+		js, err := json.Marshal(env)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.Write(js)
+	})
+	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
+		res, err := http.Get("http://localhost:1317/node_info")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else if res.StatusCode == 200 {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	})
+	router.HandleFunc("/rpc", func(w http.ResponseWriter, r *http.Request) {
+		res, err := http.Get("http://localhost:26657")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else if res.StatusCode == 200 {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
+	})
+	router.HandleFunc("/frontend", func(w http.ResponseWriter, r *http.Request) {
+		res, err := http.Get("http://localhost:8080")
+		if err != nil {
+			w.WriteHeader(http.StatusInternalServerError)
+		} else if res.StatusCode == 200 {
+			w.WriteHeader(http.StatusOK)
+		} else {
+			w.WriteHeader(http.StatusInternalServerError)
+		}
 	})
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
 	go func() {
@@ -76,7 +123,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if !verbose {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
-	return cmdTendermint, cmdREST
+	return cmdTendermint, cmdREST, cmdNpm
 }
 
 var serveCmd = &cobra.Command{
@@ -85,17 +132,19 @@ var serveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		cmdt, cmdr := startServe(verbose)
+		cmdt, cmdr, cmdn := startServe(verbose)
 		w := watcher.New()
 		w.SetMaxEvents(1)
 		go func() {
 			for {
 				select {
 				case <-w.Event:
-					exec.Command("/bin/sh", "-c", "kill -9 $(lsof -i:8080 -t)").Run()
+					// TODO: Find a better way to kill a node server
+					// exec.Command("/bin/sh", "-c", "kill -9 $(lsof -i:8080 -t)").Run()
+					cmdn.Process.Kill()
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr = startServe(verbose)
+					cmdt, cmdr, cmdn = startServe(verbose)
 				case err := <-w.Error:
 					log.Fatalln(err)
 				case <-w.Closed:
@@ -106,14 +155,19 @@ var serveCmd = &cobra.Command{
 		if err := w.AddRecursive("."); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Ignore("./frontend"); err != nil {
-			log.Fatalln(err)
-		}
-		if err := w.Ignore("./.git"); err != nil {
+		if err := w.Ignore("./frontend", "./.git"); err != nil {
 			log.Fatalln(err)
 		}
 		if err := w.Start(time.Millisecond * 100); err != nil {
 			log.Fatalln(err)
 		}
 	},
+}
+
+func isCommandAvailable(name string) bool {
+	cmd := exec.Command("/bin/sh", "-c", "command -v "+name)
+	if err := cmd.Run(); err != nil {
+		return false
+	}
+	return true
 }
