@@ -21,7 +21,7 @@
             <div class="card__desc__h1">User interface</div>
             <div class="card__desc__p">
               <span v-if="running.frontend">The front-end of your app. A Vue application is running on port <span class="card__desc__tag">8080</span></span>
-              <span v-else>Loading...</span>
+              <span v-else>To start the app, run: <code>cd frontend && npm run dev</code></span>
             </div>
           </div>
         </a>

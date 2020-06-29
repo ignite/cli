@@ -21,14 +21,8 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *exec.Cmd) {
+func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule()
-	cmdNpm := exec.Command("npm", "run", "dev")
-	cmdNpm.Dir = "frontend"
-	if verbose {
-		cmdNpm.Stdout = os.Stdout
-	}
-	cmdNpm.Start()
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
 	if verbose {
@@ -123,7 +117,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *exec.Cmd) {
 	if !verbose {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
-	return cmdTendermint, cmdREST, cmdNpm
+	return cmdTendermint, cmdREST
 }
 
 var serveCmd = &cobra.Command{
@@ -132,19 +126,16 @@ var serveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		cmdt, cmdr, cmdn := startServe(verbose)
+		cmdt, cmdr := startServe(verbose)
 		w := watcher.New()
 		w.SetMaxEvents(1)
 		go func() {
 			for {
 				select {
 				case <-w.Event:
-					// TODO: Find a better way to kill a node server
-					// exec.Command("/bin/sh", "-c", "kill -9 $(lsof -i:8080 -t)").Run()
-					cmdn.Process.Kill()
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr, cmdn = startServe(verbose)
+					cmdt, cmdr = startServe(verbose)
 				case err := <-w.Error:
 					log.Fatalln(err)
 				case <-w.Closed:
@@ -155,7 +146,10 @@ var serveCmd = &cobra.Command{
 		if err := w.AddRecursive("."); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Ignore("./frontend", "./.git"); err != nil {
+		if err := w.Ignore("./frontend"); err != nil {
+			log.Fatalln(err)
+		}
+		if err := w.Ignore("./.git"); err != nil {
 			log.Fatalln(err)
 		}
 		if err := w.Start(time.Millisecond * 100); err != nil {
