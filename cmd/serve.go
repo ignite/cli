@@ -23,11 +23,8 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *gocmd.Cmd) {
+func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule()
-	cmdNpm := gocmd.NewCmd("npm", "run", "dev")
-	cmdNpm.Dir = "frontend"
-	cmdNpm.Start()
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
 	if verbose {
@@ -87,12 +84,12 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *gocmd.Cmd) {
 	})
 	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
 		res, err := http.Get("http://localhost:1317/node_info")
-		if err != nil {
+		if err != nil || res.StatusCode != 200 {
 			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("500 error"))
 		} else if res.StatusCode == 200 {
 			w.WriteHeader(http.StatusOK)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
+			w.Write([]byte("200 ok"))
 		}
 	})
 	router.HandleFunc("/rpc", func(w http.ResponseWriter, r *http.Request) {
@@ -122,7 +119,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *gocmd.Cmd) {
 	if !verbose {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
-	return cmdTendermint, cmdREST, cmdNpm
+	return cmdTendermint, cmdREST
 }
 
 var serveCmd = &cobra.Command{
@@ -131,12 +128,15 @@ var serveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		cmdt, cmdr, cmdn := startServe(verbose)
+		cmdNpm := gocmd.NewCmd("npm", "run", "dev")
+		cmdNpm.Dir = "frontend"
+		cmdNpm.Start()
+		cmdt, cmdr := startServe(verbose)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
 		go func() {
 			<-c
-			cmdn.Stop()
+			cmdNpm.Stop()
 			cmdr.Process.Kill()
 			cmdt.Process.Kill()
 			os.Exit(0)
@@ -147,12 +147,11 @@ var serveCmd = &cobra.Command{
 			for {
 				select {
 				case <-w.Event:
-					cmdn.Stop()
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr, cmdn = startServe(verbose)
+					cmdt, cmdr = startServe(verbose)
 				case err := <-w.Error:
-					log.Fatalln(err)
+					log.Println(err)
 				case <-w.Closed:
 					return
 				}

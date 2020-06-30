@@ -22,22 +22,22 @@ func faucetHandler(cliCtx context.CLIContext) http.HandlerFunc {
 		decoder := json.NewDecoder(r.Body)
 		decoderErr := decoder.Decode(&claim)
 		if decoderErr != nil {
-			panic(decoderErr)
+			log.Println(decoderErr)
 		}
 		// make sure address is bech32
 		readableAddress, decodedAddress, decodeErr := bech32.DecodeAndConvert(claim.Address)
 		if decodeErr != nil {
-			panic(decodeErr)
+			log.Println(decodeErr)
 		}
 		// re-encode the address in bech32
 		encodedAddress, encodeErr := bech32.ConvertAndEncode(readableAddress, decodedAddress)
 		if encodeErr != nil {
-			panic(encodeErr)
+			log.Println(encodeErr)
 		}
 		cmd := exec.Command("<%= AppName %>cli", "tx", "send", "me", encodedAddress, "1<%= Denom %>", "-y")
 		_, err := cmd.Output()
 		if err != nil {
-			log.Fatal(fmt.Sprintf("%s", err))
+			log.Println(fmt.Sprintf("%s", err))
 		}
 		rest.PostProcessResponse(w, cliCtx, encodedAddress)
 	}
