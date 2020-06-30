@@ -7,8 +7,10 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"time"
 
+	gocmd "github.com/go-cmd/cmd"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
 	"github.com/radovskyb/watcher"
@@ -21,8 +23,11 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
+func startServe(verbose bool) (*exec.Cmd, *exec.Cmd, *gocmd.Cmd) {
 	appName, _ := getAppAndModule()
+	cmdNpm := gocmd.NewCmd("npm", "run", "dev")
+	cmdNpm.Dir = "frontend"
+	cmdNpm.Start()
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
 	if verbose {
@@ -117,7 +122,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if !verbose {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
-	return cmdTendermint, cmdREST
+	return cmdTendermint, cmdREST, cmdNpm
 }
 
 var serveCmd = &cobra.Command{
@@ -126,16 +131,26 @@ var serveCmd = &cobra.Command{
 	Args:  cobra.ExactArgs(0),
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, _ := cmd.Flags().GetBool("verbose")
-		cmdt, cmdr := startServe(verbose)
+		cmdt, cmdr, cmdn := startServe(verbose)
+		c := make(chan os.Signal, 1)
+		signal.Notify(c, os.Interrupt)
+		go func() {
+			<-c
+			cmdn.Stop()
+			cmdr.Process.Kill()
+			cmdt.Process.Kill()
+			os.Exit(0)
+		}()
 		w := watcher.New()
 		w.SetMaxEvents(1)
 		go func() {
 			for {
 				select {
 				case <-w.Event:
+					cmdn.Stop()
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr = startServe(verbose)
+					cmdt, cmdr, cmdn = startServe(verbose)
 				case err := <-w.Error:
 					log.Fatalln(err)
 				case <-w.Closed:

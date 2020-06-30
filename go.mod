@@ -3,6 +3,7 @@ module github.com/tendermint/starport
 go 1.14
 
 require (
+	github.com/go-cmd/cmd v1.2.0
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/packr/v2 v2.8.0

@@ -21,7 +21,7 @@
             <div class="card__desc__h1">User interface</div>
             <div class="card__desc__p">
               <span v-if="running.frontend">The front-end of your app. A Vue application is running on port <span class="card__desc__tag">8080</span></span>
-              <span v-else>To start the app, run: <code>cd frontend && npm run dev</code></span>
+              <span v-else>Loading...</code></span>
             </div>
           </div>
         </a>
@@ -35,7 +35,7 @@
           <div class="card__desc">
             <div class="card__desc__h1">User interface</div>
             <div class="card__desc__p">
-              <span>Can't find npm. Please, make sure Node.js is installed.</span>
+              <span>Can't start UI, because Node.js is not found.</span>
             </div>
           </div>
         </a>
