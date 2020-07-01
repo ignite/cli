@@ -166,7 +166,7 @@ var serveCmd = &cobra.Command{
 		if err := w.AddRecursive("./x"); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Start(time.Millisecond * 100); err != nil {
+		if err := w.Start(time.Millisecond * 1000); err != nil {
 			log.Fatalln(err)
 		}
 	},
