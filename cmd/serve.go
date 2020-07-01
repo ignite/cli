@@ -157,13 +157,13 @@ var serveCmd = &cobra.Command{
 				}
 			}
 		}()
-		if err := w.AddRecursive("."); err != nil {
+		if err := w.AddRecursive("./app"); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Ignore("./frontend"); err != nil {
+		if err := w.AddRecursive("./cmd"); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.Ignore("./.git"); err != nil {
+		if err := w.AddRecursive("./x"); err != nil {
 			log.Fatalln(err)
 		}
 		if err := w.Start(time.Millisecond * 100); err != nil {
