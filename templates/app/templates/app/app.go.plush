@@ -18,7 +18,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
 	"github.com/cosmos/cosmos-sdk/x/bank"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
 	"github.com/cosmos/cosmos-sdk/x/staking"
@@ -36,7 +35,6 @@ var (
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
-		distr.AppModuleBasic{},
 		params.AppModuleBasic{},
 		supply.AppModuleBasic{},
 		<%= AppName %>.AppModuleBasic{},
@@ -44,7 +42,6 @@ var (
 
 	maccPerms = map[string][]string{
 		auth.FeeCollectorName:     nil,
-		distr.ModuleName:          nil,
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 	}
@@ -74,7 +71,6 @@ type NewApp struct {
 	accountKeeper  auth.AccountKeeper
 	bankKeeper     bank.Keeper
 	stakingKeeper  staking.Keeper
-	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
 	<%= AppName %>Keeper <%= AppName %>.Keeper
@@ -97,7 +93,7 @@ func NewInitApp(
 	bApp.SetAppVersion(version.Version)
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, distr.StoreKey, params.StoreKey, <%= AppName %>.StoreKey)
+		supply.StoreKey, params.StoreKey, <%= AppName %>.StoreKey)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -114,7 +110,6 @@ func NewInitApp(
 	app.subspaces[auth.ModuleName] = app.paramsKeeper.Subspace(auth.DefaultParamspace)
 	app.subspaces[bank.ModuleName] = app.paramsKeeper.Subspace(bank.DefaultParamspace)
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
-	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
@@ -144,19 +139,8 @@ func NewInitApp(
 		app.subspaces[staking.ModuleName],
 	)
 
-	app.distrKeeper = distr.NewKeeper(
-		app.cdc,
-		keys[distr.StoreKey],
-		app.subspaces[distr.ModuleName],
-		&stakingKeeper,
-		app.supplyKeeper,
-		auth.FeeCollectorName,
-		app.ModuleAccountAddrs(),
-	)
-
 	app.stakingKeeper = *stakingKeeper.SetHooks(
-		staking.NewMultiStakingHooks(
-			app.distrKeeper.Hooks()),
+		staking.NewMultiStakingHooks(),
 	)
 
 	app.<%= AppName %>Keeper = <%= AppName %>.NewKeeper(
@@ -170,16 +154,13 @@ func NewInitApp(
 		auth.NewAppModule(app.accountKeeper),
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
 		<%= AppName %>.NewAppModule(app.<%= AppName %>Keeper, app.bankKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
 	)
 
-	app.mm.SetOrderBeginBlockers(distr.ModuleName)
 	app.mm.SetOrderEndBlockers(staking.ModuleName)
 
 	app.mm.SetOrderInitGenesis(
-		distr.ModuleName,
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
