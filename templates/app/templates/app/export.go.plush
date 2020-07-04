@@ -9,7 +9,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 )
 
@@ -154,16 +153,4 @@ func (app *NewApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []str
 	iter.Close()
 
 	_ = app.stakingKeeper.ApplyAndReturnValidatorSetUpdates(ctx)
-
-	/* Handle slashing state. */
-
-	// reset start height on signing infos
-	app.slashingKeeper.IterateValidatorSigningInfos(
-		ctx,
-		func(addr sdk.ConsAddress, info slashing.ValidatorSigningInfo) (stop bool) {
-			info.StartHeight = 0
-			app.slashingKeeper.SetValidatorSigningInfo(ctx, addr, info)
-			return false
-		},
-	)
 }

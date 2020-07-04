@@ -22,7 +22,6 @@ import (
 	distr "github.com/cosmos/cosmos-sdk/x/distribution"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
 	"github.com/cosmos/cosmos-sdk/x/params"
-	"github.com/cosmos/cosmos-sdk/x/slashing"
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"<%= ModulePath + "/x/" + AppName %>"
@@ -40,7 +39,6 @@ var (
 		staking.AppModuleBasic{},
 		distr.AppModuleBasic{},
 		params.AppModuleBasic{},
-		slashing.AppModuleBasic{},
 		supply.AppModuleBasic{},
 		<%= AppName %>.AppModuleBasic{},
 	)
@@ -78,7 +76,6 @@ type NewApp struct {
 	accountKeeper  auth.AccountKeeper
 	bankKeeper     bank.Keeper
 	stakingKeeper  staking.Keeper
-	slashingKeeper slashing.Keeper
 	distrKeeper    distr.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
@@ -102,7 +99,7 @@ func NewInitApp(
 	bApp.SetAppVersion(version.Version)
 
 	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, distr.StoreKey, slashing.StoreKey, params.StoreKey, <%= AppName %>.StoreKey)
+		supply.StoreKey, distr.StoreKey, params.StoreKey, <%= AppName %>.StoreKey)
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -120,7 +117,6 @@ func NewInitApp(
 	app.subspaces[bank.ModuleName] = app.paramsKeeper.Subspace(bank.DefaultParamspace)
 	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
 	app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
-	app.subspaces[slashing.ModuleName] = app.paramsKeeper.Subspace(slashing.DefaultParamspace)
 
 	app.accountKeeper = auth.NewAccountKeeper(
 		app.cdc,
@@ -160,17 +156,9 @@ func NewInitApp(
 		app.ModuleAccountAddrs(),
 	)
 
-	app.slashingKeeper = slashing.NewKeeper(
-		app.cdc,
-		keys[slashing.StoreKey],
-		&stakingKeeper,
-		app.subspaces[slashing.ModuleName],
-	)
-
 	app.stakingKeeper = *stakingKeeper.SetHooks(
 		staking.NewMultiStakingHooks(
-			app.distrKeeper.Hooks(),
-			app.slashingKeeper.Hooks()),
+			app.distrKeeper.Hooks()),
 	)
 
 	app.<%= AppName %>Keeper = <%= AppName %>.NewKeeper(
@@ -185,13 +173,11 @@ func NewInitApp(
 		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
-		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 		<%= AppName %>.NewAppModule(app.<%= AppName %>Keeper, app.bankKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-		slashing.NewAppModule(app.slashingKeeper, app.accountKeeper, app.stakingKeeper),
 	)
 
-	app.mm.SetOrderBeginBlockers(distr.ModuleName, slashing.ModuleName)
+	app.mm.SetOrderBeginBlockers(distr.ModuleName)
 	app.mm.SetOrderEndBlockers(staking.ModuleName)
 
 	app.mm.SetOrderInitGenesis(
@@ -199,7 +185,6 @@ func NewInitApp(
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
-		slashing.ModuleName,
 		<%= AppName %>.ModuleName,
 		supply.ModuleName,
 		genutil.ModuleName,
