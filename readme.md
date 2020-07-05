@@ -16,6 +16,8 @@ brew install tendermint/tap/starport
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
 
+Requirements: Go 1.14 and Node.js (optional, used to build the welcome screen).
+
 ## Creating an application
 
 This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, run:
