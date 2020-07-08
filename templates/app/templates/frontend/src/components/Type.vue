@@ -95,9 +95,12 @@ button {
   line-height: 1.5;
   grid-template-columns: 15% 1fr;
   grid-template-rows: 1fr;
+  word-break: break-all;
 }
 .item__field__key {
   color: rgba(0, 0, 0, 0.25);
+  word-break: keep-all;
+  overflow: hidden;
 }
 button:focus {
   opacity: 0.85;
@@ -155,16 +158,16 @@ import IconRefresh from "@/components/IconRefresh.vue";
 export default {
   props: ["value"],
   components: {
-    IconRefresh,
+    IconRefresh
   },
   data: function() {
     return {
       fields: {},
-      flight: false,
+      flight: false
     };
   },
   created() {
-    (this.value.fields || []).forEach((field) => {
+    (this.value.fields || []).forEach(field => {
       this.$set(this.fields, field, "");
     });
   },
@@ -173,10 +176,10 @@ export default {
       return this.$store.state.data[this.value.type] || [];
     },
     valid() {
-      return Object.values(this.fields).every((el) => {
+      return Object.values(this.fields).every(el => {
         return el.trim().length > 0;
       });
-    },
+    }
   },
   methods: {
     title(string) {
@@ -188,11 +191,11 @@ export default {
         const payload = { type: this.value.type, fields: this.fields };
         await this.$store.dispatch("instanceCreate", payload);
         this.flight = false;
-        Object.keys(this.fields).forEach((f) => {
+        Object.keys(this.fields).forEach(f => {
           this.fields[f] = "";
         });
       }
-    },
-  },
+    }
+  }
 };
 </script>
