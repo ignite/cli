@@ -17,13 +17,17 @@ const API = "http://localhost:8080";
 export default new Vuex.Store({
   state: {
     app,
+    wallet: {},
     account: {},
     chain_id: "",
     data: {},
   },
   mutations: {
-    accountCreate(state, account) {
+    accountUpdate(state, { account }) {
       state.account = account;
+    },
+    walletUpdate(state, { wallet }) {
+      state.wallet = wallet;
     },
     chainIdSet(state, { chain_id }) {
       state.chain_id = chain_id;
@@ -36,7 +40,6 @@ export default new Vuex.Store({
   },
   actions: {
     async init({ dispatch, state }) {
-      dispatch("accountCreate");
       await dispatch("chainIdFetch");
       state.app.types.forEach(({ type }) => {
         dispatch("instanceListFetch", { type });
@@ -46,11 +49,20 @@ export default new Vuex.Store({
       const node_info = (await axios.get(`${API}/node_info`)).data.node_info;
       commit("chainIdSet", { chain_id: node_info.network });
     },
-    async accountCreate({ commit }) {
-      const mnemonic = bip39.generateMnemonic();
-      const wallet = createWalletFromMnemonic(mnemonic);
-      await axios.post(`${API}/faucet`, { address: wallet.address });
-      commit("accountCreate", { wallet, mnemonic });
+    async accountSignIn({ commit }, { mnemonic }) {
+      return new Promise(async (resolve, reject) => {
+        const wallet = createWalletFromMnemonic(mnemonic);
+        const url = `${API}/auth/accounts/${wallet.address}`;
+        const acc = (await axios.get(url)).data;
+        if (acc.result.value.address === wallet.address) {
+          const account = acc.result.value;
+          commit("accountUpdate", { account });
+          commit("walletUpdate", { wallet });
+          resolve(account);
+        } else {
+          reject("Account doesn't exist.");
+        }
+      });
     },
     async instanceListFetch({ state, commit }, { type }) {
       const { chain_id } = state;
@@ -60,7 +72,7 @@ export default new Vuex.Store({
     },
     instanceCreate({ state, dispatch, commit }, { fields, type }) {
       return new Promise((resolve, reject) => {
-        const wallet = state.account.wallet;
+        const wallet = state.wallet;
         const chain_id = state.chain_id;
         axios.get(`${API}/auth/accounts/${wallet.address}`).then(({ data }) => {
           const account = data.result.value;
