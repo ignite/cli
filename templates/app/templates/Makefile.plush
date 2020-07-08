@@ -3,7 +3,6 @@ PACKAGES=$(shell go list ./... | grep -v '/simulation')
 VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
 COMMIT := $(shell git log -1 --format='%H')
 
-# TODO: Update the ldflags with the app, client & server names
 ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=NewApp \
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=<%= AppName %>d \
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=<%= AppName %>cli \
@@ -22,12 +21,20 @@ go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
 		GO111MODULE=on go mod verify
 
-# Uncomment when you have some tests
-# test:
-# 	@go test -mod=readonly $(PACKAGES)
+init-pre:
+	rm -rf ~/.<%= AppName %>cli
+	rm -rf ~/.<%= AppName %>d
+	<%= AppName %>d init mynode --chain-id <%= AppName %>
+	<%= AppName %>cli config keyring-backend test
 
-# look into .golangci.yml for enabling / disabling linters
-lint:
-	@echo "--> Running linter"
-	@golangci-lint run
-	@go mod verify
+init-user:
+	<%= AppName %>cli keys add user --output json 2>&1
+
+init-post:
+	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user -a) 1000token,100000000stake
+	<%= AppName %>cli config chain-id <%= AppName %>
+	<%= AppName %>cli config output json
+	<%= AppName %>cli config indent true
+	<%= AppName %>cli config trust-node true
+	<%= AppName %>d gentx --name user --keyring-backend test
+	<%= AppName %>d collect-gentxs

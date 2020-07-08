@@ -42,12 +42,29 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		log.Fatal("Error in building the application. Please, check ./Makefile")
 	}
 	fmt.Printf("💫 Initializing the chain...\n")
-	cmdInit := exec.Command("/bin/sh", "-c", "sh init.sh")
-	if verbose {
-		cmdInit.Stdout = os.Stdout
-	}
-	if err := cmdInit.Run(); err != nil {
+	cmdInitPre := exec.Command("make", "init-pre")
+	if err := cmdInitPre.Run(); err != nil {
 		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
+	}
+	if verbose {
+		cmdInitPre.Stdout = os.Stdout
+	}
+	userString, err := exec.Command("make", "init-user", "-s").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	var userJSON map[string]interface{}
+	json.Unmarshal(userString, &userJSON)
+	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
+	cmdInitPost := exec.Command("make", "init-post")
+	if err := cmdInitPost.Run(); err != nil {
+		log.Fatal(err)
+	}
+	if verbose {
+		cmdInitPost.Stdout = os.Stdout
+	}
+	if verbose {
+		cmdInitPost.Stdout = os.Stdout
 	}
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 	if verbose {
