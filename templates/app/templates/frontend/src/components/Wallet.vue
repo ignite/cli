@@ -7,7 +7,7 @@
           type="text"
           v-model="password"
           class="password__input"
-          placeholder="Password"
+          placeholder="Password (mnemonic)"
         />
         <div
           :class="[
