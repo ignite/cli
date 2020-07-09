@@ -27,11 +27,15 @@ init-pre:
 	<%= AppName %>d init mynode --chain-id <%= AppName %>
 	<%= AppName %>cli config keyring-backend test
 
-init-user:
-	<%= AppName %>cli keys add user --output json 2>&1
+init-user1:
+	<%= AppName %>cli keys add user1 --output json 2>&1
+
+init-user2:
+	<%= AppName %>cli keys add user2 --output json 2>&1
 
 init-post:
-	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user -a) 1000token,100000000stake
+	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user1 -a) 1000token,100000000stake
+	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user1 -a) 500token
 	<%= AppName %>cli config chain-id <%= AppName %>
 	<%= AppName %>cli config output json
 	<%= AppName %>cli config indent true
