@@ -35,10 +35,10 @@ init-user2:
 
 init-post:
 	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user1 -a) 1000token,100000000stake
-	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user1 -a) 500token
+	<%= AppName %>d add-genesis-account $$(<%= AppName %>cli keys show user2 -a) 500token
 	<%= AppName %>cli config chain-id <%= AppName %>
 	<%= AppName %>cli config output json
 	<%= AppName %>cli config indent true
 	<%= AppName %>cli config trust-node true
-	<%= AppName %>d gentx --name user --keyring-backend test
+	<%= AppName %>d gentx --name user1 --keyring-backend test
 	<%= AppName %>d collect-gentxs

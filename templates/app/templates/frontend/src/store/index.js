@@ -6,7 +6,6 @@ import {
   signTx,
   createBroadcastTx,
 } from "@tendermint/sig";
-import * as bip39 from "bip39";
 import app from "./app.js";
 
 Vue.use(Vuex);
@@ -32,9 +31,9 @@ export default new Vuex.Store({
     chainIdSet(state, { chain_id }) {
       state.chain_id = chain_id;
     },
-    instanceSet(state, { instanceList, type }) {
+    entitySet(state, { type, body }) {
       const updated = {};
-      updated[type] = instanceList;
+      updated[type] = body;
       state.data = { ...state.data, ...updated };
     },
   },
@@ -42,7 +41,7 @@ export default new Vuex.Store({
     async init({ dispatch, state }) {
       await dispatch("chainIdFetch");
       state.app.types.forEach(({ type }) => {
-        dispatch("instanceListFetch", { type });
+        dispatch("entityFetch", { type });
       });
     },
     async chainIdFetch({ commit }) {
@@ -64,13 +63,13 @@ export default new Vuex.Store({
         }
       });
     },
-    async instanceListFetch({ state, commit }, { type }) {
+    async entityFetch({ state, commit }, { type }) {
       const { chain_id } = state;
       const url = `${API}/${chain_id}/${type}`;
-      const instanceList = (await axios.get(url)).data.result;
-      commit("instanceSet", { type, instanceList });
+      const body = (await axios.get(url)).data.result;
+      commit("entitySet", { type, body });
     },
-    instanceCreate({ state, dispatch, commit }, { fields, type }) {
+    async entitySubmit({ state }, { type, body }) {
       return new Promise((resolve, reject) => {
         const wallet = state.wallet;
         const chain_id = state.chain_id;
@@ -87,7 +86,7 @@ export default new Vuex.Store({
               from: wallet.address,
             },
             creator: wallet.address,
-            ...fields,
+            ...body,
           };
           axios.post(`${API}/${chain_id}/${type}`, req).then(({ data }) => {
             const tx = data.value;
@@ -99,7 +98,6 @@ export default new Vuex.Store({
               },
             };
             axios.post(`${API}/txs`, txBroadcast, params).then(() => {
-              this.dispatch("instanceListFetch", { type });
               resolve(true);
             });
           });

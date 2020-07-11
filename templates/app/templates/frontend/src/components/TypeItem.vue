@@ -1,71 +1,42 @@
 <template>
   <div>
-    <div class="container">
-      <div class="narrow">
-        <div class="h1">List of {{ value.type }} items</div>
-        <div class="item" v-for="instance in instanceList" :key="instance.id">
-          <div class="item__field" v-for="(value, key) in instance" :key="key">
-            <div class="item__field__key">{{ key }}:</div>
-            <div class="item__field__value">
-              {{ value }}
-            </div>
-          </div>
+    <app-text type="h2">List of {{ value.type }} items</app-text>
+    <div class="item" v-for="instance in instanceList" :key="instance.id">
+      <div class="item__field" v-for="(value, key) in instance" :key="key">
+        <div class="item__field__key">{{ key }}:</div>
+        <div class="item__field__value">
+          {{ value }}
         </div>
-        <div class="card__empty" v-if="instanceList.length < 1">
-          There are no {{ value.type }} items yet. Create one using the form
-          below.
-        </div>
-        <div class="h1">New {{ value.type }}</div>
-        <div v-for="field in value.fields" :key="field">
-          <input
-            v-model="fields[field]"
-            type="text"
-            :placeholder="title(field)"
-            :disabled="flight"
-          />
-        </div>
-        <button
-          :class="['button', `button__valid__${!!valid && !flight}`]"
-          @click="submit"
-        >
-          Create {{ value.type }}
-          <div class="button__label" v-if="flight">
-            <div class="button__label__icon">
-              <icon-refresh />
-            </div>
-            Sending transaction...
-          </div>
-        </button>
       </div>
     </div>
+    <div class="card__empty" v-if="instanceList.length < 1">
+      There are no {{ value.type }} items yet. Create one using the form below.
+    </div>
+    <app-text type="h2">New {{ value.type }}</app-text>
+    <div v-for="field in value.fields" :key="field">
+      <app-input
+        v-model="fields[field]"
+        type="text"
+        :placeholder="title(field)"
+        :disabled="flight"
+      />
+    </div>
+    <button
+      :class="['button', `button__valid__${!!valid && !flight}`]"
+      @click="submit"
+    >
+      Create {{ value.type }}
+      <div class="button__label" v-if="flight">
+        <div class="button__label__icon">
+          <icon-refresh />
+        </div>
+        Sending transaction...
+      </div>
+    </button>
   </div>
 </template>
 
 <style scoped>
-.h1 {
-  font-weight: 800;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-input {
-  border: none;
-  font-size: inherit;
-  padding: 0.75rem 1rem;
-  margin-bottom: 0.5rem;
-  width: 100%;
-  max-width: 500px;
-  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-  border-radius: 6px;
-  box-sizing: border-box;
-  background: rgba(0, 0, 0, 0);
-  font-family: inherit;
-}
-input:focus {
-  outline: none;
-  border-radius: 4px;
-  box-shadow: 0 0 0 2.5px #8eb4f9;
-}
 button {
   background: none;
   border: none;
@@ -106,7 +77,7 @@ button:focus {
   opacity: 0.85;
   outline: none;
 }
-button:active {
+.button.button__valid__true:active {
   opacity: 0.65;
 }
 .button__label {
@@ -153,21 +124,16 @@ button:active {
 </style>
 
 <script>
-import IconRefresh from "@/components/IconRefresh.vue";
-
 export default {
   props: ["value"],
-  components: {
-    IconRefresh
-  },
   data: function() {
     return {
       fields: {},
-      flight: false
+      flight: false,
     };
   },
   created() {
-    (this.value.fields || []).forEach(field => {
+    (this.value.fields || []).forEach((field) => {
       this.$set(this.fields, field, "");
     });
   },
@@ -176,10 +142,10 @@ export default {
       return this.$store.state.data[this.value.type] || [];
     },
     valid() {
-      return Object.values(this.fields).every(el => {
+      return Object.values(this.fields).every((el) => {
         return el.trim().length > 0;
       });
-    }
+    },
   },
   methods: {
     title(string) {
@@ -188,14 +154,15 @@ export default {
     async submit() {
       if (this.valid && !this.flight) {
         this.flight = true;
-        const payload = { type: this.value.type, fields: this.fields };
-        await this.$store.dispatch("instanceCreate", payload);
+        const payload = { type: this.value.type, body: this.fields };
+        await this.$store.dispatch("entitySubmit", payload);
+        await this.$store.dispatch("entityFetch", payload);
         this.flight = false;
-        Object.keys(this.fields).forEach(f => {
+        Object.keys(this.fields).forEach((f) => {
           this.fields[f] = "";
         });
       }
-    }
-  }
+    },
+  },
 };
 </script>
