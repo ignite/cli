@@ -1,8 +1,13 @@
 package cmd
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -15,6 +20,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/radovskyb/watcher"
 	"github.com/spf13/cobra"
+	sr "github.com/tendermint/starport/pkg/cmdsteprunner"
+	"github.com/tendermint/starport/pkg/lineprefixer"
 )
 
 // Env ...
@@ -23,51 +30,112 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
+// ctx for cancellation
+// controlling stdout, stderr for testability.
+func startServe(ctx context.Context, stdout, stderr io.Writer, isVerbose bool) (*exec.Cmd, *exec.Cmd) {
+	// outOption logs step outputs (both regular and error) with a prefix for each log line
+	// in the verbose mode.
+	//
+	// prefixing with line is helpful to debug long logs.
+	//
+	// we can also customize this func to color/style the lines or prefixes.
+	outOption := func(prefix string) sr.StepOption {
+		var stdout io.Writer = lineprefixer.NewWriter(prefix, stdout)
+		var stderr io.Writer = lineprefixer.NewWriter(prefix, stderr)
+		if !isVerbose {
+			stdout = ioutil.Discard
+			stderr = ioutil.Discard
+		}
+		return sr.StepStdouterr(stdout, stderr)
+	}
+	// initMessagePrinter is a shortcut to register a hook to the StepPreExec in order to
+	// only print a message.
+	initMessagePrinter := func(message string) func() error {
+		fmt.Fprint(stdout, message)
+		return nil
+
+	}
+	// proxyError is a shortcut to register a hook to the StepAfterExec in order to
+	// replace command's execution error with a dummy(hidden) error.
+	proxyError := func(message string) func(error) error {
+		// err arg can be utilized to provide more details.
+		// for ex exitErr := err.(*cmd.ExitError: https://golang.org/pkg/os/exec/#ExitError),
+		// do something with the exit code to provide more detail to returned error.
+		return func(err error) error {
+			if err != nil {
+				return errors.New(message)
+			}
+			return nil
+		}
+	}
+
+	// NOTE: the above three funcs can be placed under a util pkg (pkg/a-util-pkg) in order to
+	// reduce code from this package so it can be easier to read and understand main
+	// functionality here.
+
+	// userBuf keeps user data to be used later.
+	userBuf := &bytes.Buffer{}
+
+	// list of steps to run.
+	steps := []sr.Step{
+		sr.NewStep(
+			sr.StepCommand("go", "mod", "tidy"),
+			outOption("tidy: "),
+			sr.StepPreExec(initMessagePrinter("\n📦 Installing dependencies...\n")),
+			sr.StepAfterExec(proxyError("Error running go mod tidy. Please, check ./go.mod")),
+		),
+		sr.NewStep(
+			sr.StepCommand("make"),
+			outOption("all: "),
+			sr.StepPreExec(initMessagePrinter("🚧 Building the application...\n")),
+			sr.StepAfterExec(proxyError("Error in building the application. Please, check ./Makefile")),
+		),
+		sr.NewStep(
+			sr.StepCommand("make", "init-pre"),
+			outOption("init pre: "),
+			sr.StepPreExec(initMessagePrinter("💫 Initializing the chain...\n")),
+			sr.StepAfterExec(proxyError("Error in initializing the chain. Please, check ./init.sh")),
+		),
+		sr.NewStep(
+			sr.StepCommand("make", "init-user", "-s"),
+			outOption("init user: "),
+			sr.StepStdout(userBuf), // this overwrites the given stdout in the above line but not stderr by intention.
+			sr.StepAfterExec(func(err error) error {
+				if err != nil { // if command exited with a non-zero code, nothing to do.
+					return err
+				}
+				var user map[string]interface{}
+				if err := json.NewDecoder(userBuf).Decode(&user); err != nil {
+					return err
+				}
+				fmt.Fprintf(stdout, "🙂 Created an account. Password (mnemonic): %[1]v\n", user["mnemonic"])
+				return nil
+			}),
+		),
+		sr.NewStep(
+			sr.StepCommand("make", "init-post"),
+			outOption("init post: "),
+		),
+	}
+
+	// New(options...) can have options to optionally run steps in parallel or for ex. continue
+	// to other steps if previous one exited with a failure.
+	r := sr.New()
+
+	// ctx for cancallation. if context is cancalled by a timeout or programatically, next steps should not run
+	// and current one should be interrupted. intrreption specially useful when we may want to use cmdsteprunner
+	// for 'serve' functionality (starting long running servers).
+	if err := r.Run(ctx, steps...); err != nil {
+		// instead of this we should return with the error and Fatal in the caller function.
+		// because a Fatal will end the program and we need to use it carefully. returning error
+		// helps to testability as well.
+		log.Fatal(err)
+	}
+
+	// NOTE: following code not relavent to this proposal.
 	appName, _ := getAppAndModule()
-	fmt.Printf("\n📦 Installing dependencies...\n")
-	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
-	if verbose {
-		cmdMod.Stdout = os.Stdout
-	}
-	if err := cmdMod.Run(); err != nil {
-		log.Fatal("Error running go mod tidy. Please, check ./go.mod")
-	}
-	fmt.Printf("🚧 Building the application...\n")
-	cmdMake := exec.Command("/bin/sh", "-c", "make")
-	if verbose {
-		cmdMake.Stdout = os.Stdout
-	}
-	if err := cmdMake.Run(); err != nil {
-		log.Fatal("Error in building the application. Please, check ./Makefile")
-	}
-	fmt.Printf("💫 Initializing the chain...\n")
-	cmdInitPre := exec.Command("make", "init-pre")
-	if err := cmdInitPre.Run(); err != nil {
-		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
-	}
-	if verbose {
-		cmdInitPre.Stdout = os.Stdout
-	}
-	userString, err := exec.Command("make", "init-user", "-s").Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	var userJSON map[string]interface{}
-	json.Unmarshal(userString, &userJSON)
-	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
-	cmdInitPost := exec.Command("make", "init-post")
-	if err := cmdInitPost.Run(); err != nil {
-		log.Fatal(err)
-	}
-	if verbose {
-		cmdInitPost.Stdout = os.Stdout
-	}
-	if verbose {
-		cmdInitPost.Stdout = os.Stdout
-	}
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
-	if verbose {
+	if isVerbose {
 		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
 		cmdTendermint.Stdout = os.Stdout
 	} else {
@@ -77,14 +145,14 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
 	}
 	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
-	if verbose {
+	if isVerbose {
 		fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
 		cmdREST.Stdout = os.Stdout
 	}
 	if err := cmdREST.Start(); err != nil {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vcli rest-server", appName))
 	}
-	if verbose {
+	if isVerbose {
 		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
 	}
 	router := mux.NewRouter()
@@ -133,7 +201,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	go func() {
 		http.ListenAndServe(":12345", router)
 	}()
-	if !verbose {
+	if !isVerbose {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
 	return cmdTendermint, cmdREST
@@ -148,11 +216,14 @@ var serveCmd = &cobra.Command{
 		cmdNpm := gocmd.NewCmd("npm", "run", "dev")
 		cmdNpm.Dir = "frontend"
 		cmdNpm.Start()
-		cmdt, cmdr := startServe(verbose)
+		ctx, cancel := context.WithCancel(context.Background())
+		defer cancel()
+		cmdt, cmdr := startServe(ctx, os.Stdout, os.Stderr, verbose)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
 		go func() {
 			<-c
+			// later in other PR, we can use cancel() here to cancel long running procceses.
 			cmdNpm.Stop()
 			cmdr.Process.Kill()
 			cmdt.Process.Kill()
@@ -166,7 +237,7 @@ var serveCmd = &cobra.Command{
 				case <-w.Event:
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr = startServe(verbose)
+					cmdt, cmdr = startServe(ctx, os.Stdout, os.Stderr, verbose)
 				case err := <-w.Error:
 					log.Println(err)
 				case <-w.Closed:
