@@ -49,12 +49,18 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	if verbose {
 		cmdInitPre.Stdout = os.Stdout
 	}
-	userString, err := exec.Command("make", "init-user", "-s").Output()
+	userString1, err := exec.Command("make", "init-user1", "-s").Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 	var userJSON map[string]interface{}
-	json.Unmarshal(userString, &userJSON)
+	json.Unmarshal(userString1, &userJSON)
+	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
+	userString2, err := exec.Command("make", "init-user2", "-s").Output()
+	if err != nil {
+		log.Fatal(err)
+	}
+	json.Unmarshal(userString2, &userJSON)
 	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
 	cmdInitPost := exec.Command("make", "init-post")
 	if err := cmdInitPost.Run(); err != nil {

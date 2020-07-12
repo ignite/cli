@@ -86,7 +86,7 @@
       </div>
       <div class="window">
         ~$: {{ env.chain_id }}cli tx {{ env.chain_id }} create-user Alice alice@example.org
-        --from=me
+        --from=user1
       </div>
       <div class="narrow">
       </div>
