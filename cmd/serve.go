@@ -11,7 +11,7 @@ import (
 	"time"
 
 	gocmd "github.com/go-cmd/cmd"
-	"github.com/gobuffalo/packr/v2"
+	packr "github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
 	"github.com/radovskyb/watcher"
 	"github.com/spf13/cobra"
@@ -196,9 +196,6 @@ var serveCmd = &cobra.Command{
 }
 
 func isCommandAvailable(name string) bool {
-	cmd := exec.Command("/bin/sh", "-c", "command -v "+name)
-	if err := cmd.Run(); err != nil {
-		return false
-	}
-	return true
+	_, err := exec.LookPath(name)
+	return err == nil
 }
