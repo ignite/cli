@@ -10,12 +10,16 @@ import (
 	"github.com/tendermint/starport/templates/typed"
 )
 
+func init() {
+	typedCmd.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+}
+
 var typedCmd = &cobra.Command{
 	Use:   "type [typeName] [field1] [field2] ...",
 	Short: "Generates CRUD actions for type",
 	Args:  cobra.MinimumNArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
-		appName, modulePath := getAppAndModule()
+		appName, modulePath := getAppAndModule(appPath)
 		var fields []typed.Field
 		for _, f := range args[1:] {
 			fs := strings.Split(f, ":")
