@@ -196,8 +196,8 @@ export default {
       return this.$store.state.account;
     },
     address() {
-      const { wallet } = this.$store.state;
-      const address = wallet && wallet.address;
+      const { client } = this.$store.state;
+      const address = client && client.senderAddress;
       return address;
     },
     mnemonicValid() {

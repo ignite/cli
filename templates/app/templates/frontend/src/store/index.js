@@ -1,12 +1,12 @@
 import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
-import {
-  createWalletFromMnemonic,
-  signTx,
-  createBroadcastTx,
-} from "@tendermint/sig";
 import app from "./app.js";
+import {
+  Secp256k1Pen,
+  SigningCosmosClient,
+  makeSignBytes,
+} from "@cosmjs/sdk38";
 
 Vue.use(Vuex);
 
@@ -20,6 +20,7 @@ export default new Vuex.Store({
     account: {},
     chain_id: "",
     data: {},
+    client: null,
   },
   mutations: {
     accountUpdate(state, { account }) {
@@ -36,6 +37,9 @@ export default new Vuex.Store({
       updated[type] = body;
       state.data = { ...state.data, ...updated };
     },
+    clientUpdate(state, { client }) {
+      state.client = client;
+    },
   },
   actions: {
     async init({ dispatch, state }) {
@@ -50,13 +54,16 @@ export default new Vuex.Store({
     },
     async accountSignIn({ commit }, { mnemonic }) {
       return new Promise(async (resolve, reject) => {
-        const wallet = createWalletFromMnemonic(mnemonic);
-        const url = `${API}/auth/accounts/${wallet.address}`;
+        const wallet = await Secp256k1Pen.fromMnemonic(mnemonic);
+        const address = wallet.address("cosmos");
+        const url = `${API}/auth/accounts/${address}`;
         const acc = (await axios.get(url)).data;
-        if (acc.result.value.address === wallet.address) {
+        if (acc.result.value.address === address) {
           const account = acc.result.value;
+          const client = new SigningCosmosClient(API, address, wallet);
           commit("accountUpdate", { account });
           commit("walletUpdate", { wallet });
+          commit("clientUpdate", { client });
           resolve(account);
         } else {
           reject("Account doesn't exist.");
@@ -69,40 +76,34 @@ export default new Vuex.Store({
       const body = (await axios.get(url)).data.result;
       commit("entitySet", { type, body });
     },
+    async accountUpdate({ state, commit }) {
+      const url = `${API}/auth/accounts/${state.client.senderAddress}`;
+      const acc = (await axios.get(url)).data;
+      const account = acc.result.value;
+      commit("accountUpdate", { account });
+    },
     async entitySubmit({ state }, { type, body }) {
-      return new Promise((resolve, reject) => {
-        const wallet = state.wallet;
-        const chain_id = state.chain_id;
-        axios.get(`${API}/auth/accounts/${wallet.address}`).then(({ data }) => {
-          const account = data.result.value;
-          const meta = {
-            sequence: `${account.sequence}`,
-            account_number: `${account.account_number}`,
-            chain_id,
-          };
-          const req = {
-            base_req: {
-              chain_id,
-              from: wallet.address,
-            },
-            creator: wallet.address,
-            ...body,
-          };
-          axios.post(`${API}/${chain_id}/${type}`, req).then(({ data }) => {
-            const tx = data.value;
-            const stdTx = signTx(tx, meta, wallet);
-            const txBroadcast = createBroadcastTx(stdTx, "block");
-            const params = {
-              headers: {
-                "Content-Type": "application/json",
-              },
-            };
-            axios.post(`${API}/txs`, txBroadcast, params).then(() => {
-              resolve(true);
-            });
-          });
-        });
-      });
+      const { accountNumber, sequence } = await state.client.getNonce();
+      const address = state.client.senderAddress;
+      const chain_id = await state.client.getChainId();
+      const req = {
+        base_req: { chain_id, from: address },
+        creator: address,
+        ...body,
+      };
+      const { data } = await axios.post(`${API}/${chain_id}/${type}`, req);
+      const { msg, fee, memo } = data.value;
+      const signBytes = makeSignBytes(
+        msg,
+        fee,
+        chain_id,
+        memo,
+        `${accountNumber}`,
+        `${sequence}`
+      );
+      const signatures = [await state.wallet.sign(signBytes)];
+      const signedTx = { msg: msg, fee, memo, signatures };
+      return await state.client.postTx(signedTx);
     },
   },
 });
