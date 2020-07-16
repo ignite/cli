@@ -22,8 +22,8 @@ go.sum: go.mod
 		GO111MODULE=on go mod verify
 
 init-pre:
-	rm -rf ~/.<%= BinaryNamePrefix %>cli
-	rm -rf ~/.<%= BinaryNamePrefix %>d
+	rm -rf ~/.<%= AppName %>cli
+	rm -rf ~/.<%= AppName %>d
 	<%= BinaryNamePrefix %>d init mynode --chain-id <%= AppName %>
 	<%= BinaryNamePrefix %>cli config keyring-backend test
 
