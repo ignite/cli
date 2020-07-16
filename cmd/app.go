@@ -4,10 +4,10 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/templates/app"
 )
 
@@ -15,21 +15,22 @@ var appCmd = &cobra.Command{
 	Use:   "app [github.com/org/repo]",
 	Short: "Generates an empty application",
 	Args:  cobra.ExactArgs(1),
-	Run: func(cmd *cobra.Command, args []string) {
-		denom, _ := cmd.Flags().GetString("denom")
-		var appName string
-		if t := strings.Split(args[0], "/"); len(t) > 0 {
-			appName = t[len(t)-1]
+	RunE: func(cmd *cobra.Command, args []string) error {
+		path, err := gomodulepath.Parse(args[0])
+		if err != nil {
+			return err
 		}
+		denom, _ := cmd.Flags().GetString("denom")
 		g, _ := app.New(&app.Options{
-			ModulePath: args[0],
-			AppName:    appName,
-			Denom:      denom,
+			ModulePath:       path.RawPath,
+			AppName:          path.Package,
+			BinaryNamePrefix: path.Root,
+			Denom:            denom,
 		})
 		run := genny.WetRunner(context.Background())
 		run.With(g)
 		pwd, _ := os.Getwd()
-		run.Root = pwd + "/" + appName
+		run.Root = pwd + "/" + path.Root
 		run.Run()
 		message := `
 ⭐️ Successfully created a Cosmos app '%[1]v'.
@@ -40,6 +41,7 @@ var appCmd = &cobra.Command{
 
 NOTE: add -v flag for advanced use.
 `
-		fmt.Printf(message, appName)
+		fmt.Printf(message, path.Root)
+		return nil
 	},
 }
