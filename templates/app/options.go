@@ -2,9 +2,10 @@ package app
 
 // Options ...
 type Options struct {
-	AppName    string
-	ModulePath string
-	Denom      string
+	AppName          string
+	BinaryNamePrefix string
+	ModulePath       string
+	Denom            string
 }
 
 // Validate that options are usuable

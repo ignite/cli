@@ -8,7 +8,6 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
-	"strings"
 	"time"
 
 	gocmd "github.com/go-cmd/cmd"
@@ -26,7 +25,6 @@ type Env struct {
 
 func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule()
-	appName = strings.ReplaceAll(appName, "-", "")
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
 	if verbose {
