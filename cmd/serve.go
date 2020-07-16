@@ -8,10 +8,11 @@ import (
 	"os"
 	"os/exec"
 	"os/signal"
+	"path/filepath"
 	"time"
 
 	gocmd "github.com/go-cmd/cmd"
-	packr "github.com/gobuffalo/packr/v2"
+	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
 	"github.com/radovskyb/watcher"
 	"github.com/spf13/cobra"
@@ -23,10 +24,11 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
-	appName, _ := getAppAndModule()
+func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
+	appName, _ := getAppAndModule(path)
 	fmt.Printf("\n📦 Installing dependencies...\n")
 	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
+	cmdMod.Dir = path
 	if verbose {
 		cmdMod.Stdout = os.Stdout
 	}
@@ -35,6 +37,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	}
 	fmt.Printf("🚧 Building the application...\n")
 	cmdMake := exec.Command("/bin/sh", "-c", "make")
+	cmdMake.Dir = path
 	if verbose {
 		cmdMake.Stdout = os.Stdout
 	}
@@ -43,26 +46,32 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	}
 	fmt.Printf("💫 Initializing the chain...\n")
 	cmdInitPre := exec.Command("make", "init-pre")
+	cmdInitPre.Dir = path
 	if err := cmdInitPre.Run(); err != nil {
 		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
 	}
 	if verbose {
 		cmdInitPre.Stdout = os.Stdout
 	}
-	userString1, err := exec.Command("make", "init-user1", "-s").Output()
+	cmdUserString1 := exec.Command("make", "init-user1", "-s")
+	cmdUserString1.Dir = path
+	userString1, err := cmdUserString1.Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 	var userJSON map[string]interface{}
 	json.Unmarshal(userString1, &userJSON)
 	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
-	userString2, err := exec.Command("make", "init-user2", "-s").Output()
+	cmdUserString2 := exec.Command("make", "init-user2", "-s")
+	cmdUserString2.Dir = path
+	userString2, err := cmdUserString2.Output()
 	if err != nil {
 		log.Fatal(err)
 	}
 	json.Unmarshal(userString2, &userJSON)
 	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
 	cmdInitPost := exec.Command("make", "init-post")
+	cmdInitPost.Dir = path
 	if err := cmdInitPost.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -73,6 +82,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		cmdInitPost.Stdout = os.Stdout
 	}
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+	cmdTendermint.Dir = path
 	if verbose {
 		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
 		cmdTendermint.Stdout = os.Stdout
@@ -83,6 +93,7 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
 	}
 	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+	cmdREST.Dir = path
 	if verbose {
 		fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
 		cmdREST.Stdout = os.Stdout
@@ -145,6 +156,12 @@ func startServe(verbose bool) (*exec.Cmd, *exec.Cmd) {
 	return cmdTendermint, cmdREST
 }
 
+var appPath string
+
+func init() {
+	serveCmd.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+}
+
 var serveCmd = &cobra.Command{
 	Use:   "serve",
 	Short: "Launches a reloading server",
@@ -152,9 +169,9 @@ var serveCmd = &cobra.Command{
 	Run: func(cmd *cobra.Command, args []string) {
 		verbose, _ := cmd.Flags().GetBool("verbose")
 		cmdNpm := gocmd.NewCmd("npm", "run", "dev")
-		cmdNpm.Dir = "frontend"
+		cmdNpm.Dir = filepath.Join(appPath, "frontend")
 		cmdNpm.Start()
-		cmdt, cmdr := startServe(verbose)
+		cmdt, cmdr := startServe(appPath, verbose)
 		c := make(chan os.Signal, 1)
 		signal.Notify(c, os.Interrupt)
 		go func() {
@@ -172,7 +189,7 @@ var serveCmd = &cobra.Command{
 				case <-w.Event:
 					cmdr.Process.Kill()
 					cmdt.Process.Kill()
-					cmdt, cmdr = startServe(verbose)
+					cmdt, cmdr = startServe(appPath, verbose)
 				case err := <-w.Error:
 					log.Println(err)
 				case <-w.Closed:
@@ -180,13 +197,13 @@ var serveCmd = &cobra.Command{
 				}
 			}
 		}()
-		if err := w.AddRecursive("./app"); err != nil {
+		if err := w.AddRecursive(filepath.Join(appPath, "./app")); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.AddRecursive("./cmd"); err != nil {
+		if err := w.AddRecursive(filepath.Join(appPath, "./cmd")); err != nil {
 			log.Fatalln(err)
 		}
-		if err := w.AddRecursive("./x"); err != nil {
+		if err := w.AddRecursive(filepath.Join(appPath, "./x")); err != nil {
 			log.Fatalln(err)
 		}
 		if err := w.Start(time.Millisecond * 1000); err != nil {

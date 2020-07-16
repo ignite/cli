@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -33,8 +34,8 @@ func init() {
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
 
-func getAppAndModule() (string, string) {
-	goModFile, err := ioutil.ReadFile("go.mod")
+func getAppAndModule(path string) (string, string) {
+	goModFile, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
 	if err != nil {
 		log.Fatal(err)
 	}
