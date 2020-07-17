@@ -13,7 +13,7 @@ jobs:
         with:
           node-version: 14
           registry-url: 'https://registry.npmjs.org'
-          scope: ilgooz
+          scope: tendermint
       - run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
       - run: ./scripts/npm-publish
         env:

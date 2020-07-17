@@ -1,5 +1,5 @@
 {
-  "name": "@ilgooz/st",
+  "name": "@tendermint/starport",
   "version": "0.0.0",
   "description": "starport",
   "scripts": {
