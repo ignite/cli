@@ -1,0 +1,4 @@
+#!/bin/bash
+
+sed -i "s/\"version\": \".*\"/\"version\": \"$RELEASE_VERSION\"/g" ./.npm/package.json
+npm publish --access public ./.npm
