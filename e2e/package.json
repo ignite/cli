@@ -1,0 +1,27 @@
+{
+  "name": "e2e",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "ava"
+  },
+  "author": "",
+  "license": "ISC",
+  "ava": {
+    "timeout": "2m",
+    "extensions": [
+      "ts"
+    ],
+    "require": [
+      "ts-node/register"
+    ]
+  },
+  "devDependencies": {
+    "ava": "^3.10.1",
+    "puppeteer": "^5.1.0",
+    "tmp": "^0.2.1",
+    "ts-node": "^8.10.2",
+    "typescript": "^3.9.6"
+  }
+}
