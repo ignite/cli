@@ -1,0 +1,54 @@
+name: Test-E2E
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+
+      - name: Set up Node
+        uses: actions/setup-node@v2-beta
+        with:
+          node-version: "14"
+
+      - name: Set up packr2
+        run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Build UI
+        working-directory: ${{ env.working-directory }}
+        run: make ui
+
+      - name: Run packr2
+        working-directory: ${{ env.working-directory }}
+        run: |
+          export GOPATH=$GITHUB_WORKSPACE/go
+          export PATH=$PATH:$GOPATH
+          cd starport/interface/cli/starport
+          packr2 -v
+
+      - name: Install Starport
+        working-directory: ${{ env.working-directory }}
+        run: |
+          go install ./...
+
+      - name: Run E2E Tests
+        working-directory: ${{ env.working-directory }}
+        run: "scripts/test-e2e"
