@@ -15,8 +15,6 @@ jobs:
           registry-url: 'https://registry.npmjs.org'
           scope: ilgooz
       - run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
-      - run: echo $RELEASE_VERSION
-      - run: echo ${{secrets.NPM_TOKEN}}
       - run: ./scripts/npm-publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
