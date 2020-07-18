@@ -1,0 +1,20 @@
+{
+  "name": "@tendermint/starport",
+  "version": "0.0.0",
+  "description": "starport",
+  "scripts": {
+    "preinstall": "node lib/install.js"
+  },
+  "bin": {
+    "starport": "bin/index"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "decompress": "^4.2.1",
+    "download": "^8.0.0",
+    "home-path": "^1.0.7",
+    "ora": "^4.0.4",
+    "tmp": "^0.2.1"
+  }
+}

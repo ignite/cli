@@ -1,0 +1,20 @@
+name: Publish to NPM
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v1
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+          registry-url: 'https://registry.npmjs.org'
+          scope: tendermint
+      - run: echo ::set-env name=RELEASE_VERSION::${GITHUB_REF#refs/*/}
+      - run: ./scripts/npm-publish
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}

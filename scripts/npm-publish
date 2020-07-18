@@ -1,0 +1,7 @@
+#!/bin/bash
+
+# replace package's version to release version at package.json.
+sed -i "s/\"version\": \".*\"/\"version\": \"$RELEASE_VERSION\"/g" ./.npm/package.json
+
+# publish!
+npm publish --access public ./.npm
