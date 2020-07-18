@@ -2,16 +2,11 @@ package cmd
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/templates/add"
 )
-
-func init() {
-	typedCmd.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-}
 
 var addCmd = &cobra.Command{
 	Use:   "add [feature]",
@@ -26,6 +21,6 @@ var addCmd = &cobra.Command{
 		run := genny.WetRunner(context.Background())
 		run.With(g)
 		run.Run()
-		fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
+		// fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 	},
 }
