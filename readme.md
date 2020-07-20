@@ -4,6 +4,11 @@ Starport is the easiest way to build blockchains. It is a developer-friendly int
 
 ## Installation
 
+### NPM
+```
+npm i -g @tendermint/starport
+```
+
 ### macOS with Homebrew
 
 ```
