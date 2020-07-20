@@ -23,6 +23,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"<%= ModulePath + "/x/" + AppName %>"
+  // this line is used by starport scaffolding
 )
 
 const appName = "app"
@@ -38,6 +39,7 @@ var (
 		params.AppModuleBasic{},
 		supply.AppModuleBasic{},
 		<%= AppName %>.AppModuleBasic{},
+    // this line is used by starport scaffolding # 2
 	)
 
 	maccPerms = map[string][]string{
@@ -74,7 +76,7 @@ type NewApp struct {
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
 	<%= AppName %>Keeper <%= AppName %>.Keeper
-
+  // this line is used by starport scaffolding # 3
 	mm *module.Manager
 
 	sm *module.SimulationManager
@@ -92,8 +94,15 @@ func NewInitApp(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
 
-	keys := sdk.NewKVStoreKeys(bam.MainStoreKey, auth.StoreKey, staking.StoreKey,
-		supply.StoreKey, params.StoreKey, <%= AppName %>.StoreKey)
+	keys := sdk.NewKVStoreKeys(
+    bam.MainStoreKey,
+    auth.StoreKey,
+    staking.StoreKey,
+		supply.StoreKey,
+    params.StoreKey,
+    <%= AppName %>.StoreKey,
+    // this line is used by starport scaffolding # 5
+  )
 
 	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
 
@@ -149,6 +158,8 @@ func NewInitApp(
 		keys[<%= AppName %>.StoreKey],
 	)
 
+  // this line is used by starport scaffolding # 4
+
 	app.mm = module.NewManager(
 		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
 		auth.NewAppModule(app.accountKeeper),
@@ -156,6 +167,7 @@ func NewInitApp(
 		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
 		<%= AppName %>.NewAppModule(app.<%= AppName %>Keeper, app.bankKeeper),
 		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
+    // this line is used by starport scaffolding # 6
 	)
 
 	app.mm.SetOrderEndBlockers(staking.ModuleName)
@@ -167,6 +179,7 @@ func NewInitApp(
 		<%= AppName %>.ModuleName,
 		supply.ModuleName,
 		genutil.ModuleName,
+    // this line is used by starport scaffolding # 7
 	)
 
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
