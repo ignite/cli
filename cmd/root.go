@@ -16,7 +16,7 @@ import (
 
 const (
 	analyticsEndpoint = "https://analytics.starport.cloud"
-	analyticsKey      = "pWSXBMIF3tQsHTtA63Lb63zAfIA80Bhy"
+	analyticsKey      = "ib6mwzNSLW6qIFRTyftezJL8cX4jWkQY"
 )
 
 var (
