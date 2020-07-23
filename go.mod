@@ -12,11 +12,11 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/gorilla/mux v1.7.4
+	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
 	github.com/karrick/godirwalk v1.15.6 // indirect
 	github.com/pkg/errors v0.8.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rogpeppe/go-internal v1.6.0 // indirect
-	github.com/segmentio/analytics-go v3.1.0+incompatible
 	github.com/segmentio/backo-go v0.0.0-20200129164019-23eae7c10bd3 // indirect
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/spf13/cobra v1.0.0

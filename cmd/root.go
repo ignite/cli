@@ -9,14 +9,14 @@ import (
 	"strings"
 
 	"github.com/Pallinder/go-randomdata"
-	"github.com/segmentio/analytics-go"
+	"github.com/ilgooz/analytics-go"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/pkg/analyticsutil"
 )
 
 const (
 	analyticsEndpoint = "https://analytics.starport.cloud"
-	analyticsKey      = "ib6mwzNSLW6qIFRTyftezJL8cX4jWkQY"
+	analyticsKey      = "pWSXBMIF3tQsHTtA63Lb63zAfIA80Bhy"
 )
 
 var (
@@ -35,14 +35,28 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	defer func() {
 		if r := recover(); r != nil {
-			sendAnalytics(true, fmt.Errorf("%s", r))
+			sendAnalytics(Metric{
+				Err: fmt.Errorf("%s", r),
+			})
 			fmt.Println(r)
 			os.Exit(1)
 		}
 	}()
-	sendAnalytics(false, nil)
+	analyticsc = analyticsutil.New(analyticsEndpoint, analyticsKey)
+	// TODO add version of new installation.
+	name, hadLogin := prepLoginName()
+	analyticsc.Login(name, "todo-version")
+	if !hadLogin {
+		sendAnalytics(Metric{
+			IsInstallation: true,
+		})
+	}
+	sendAnalytics(Metric{})
 	err := rootCmd.Execute()
-	sendAnalytics(true, err)
+	sendAnalytics(Metric{
+		IsExecutionDone: true,
+		Err:             err,
+	})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -56,10 +70,6 @@ func init() {
 	serveCmd.Flags().BoolP("verbose", "v", false, "Verbose output")
 	appCmd.Flags().StringP("denom", "d", "token", "Token denomination")
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	analyticsc = analyticsutil.New(analyticsEndpoint, analyticsKey)
-	// TODO add starport version.
-	analyticsc.Login(loginName(), "todo")
 }
 
 func getAppAndModule(path string) (string, string) {
@@ -76,37 +86,61 @@ func getAppAndModule(path string) (string, string) {
 	return appName, modulePath
 }
 
-func loginName() string {
+func prepLoginName() (name string, hadLogin bool) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "any"
+		return "any", false
 	}
 	anonPath := filepath.Join(home, starportDir, starportAnonIdentity)
 	data, err := ioutil.ReadFile(anonPath)
-	if len(data) == 0 {
-		name := randomdata.SillyName()
-		ioutil.WriteFile(anonPath, []byte(name), 0644)
-		return name
+	if len(data) != 0 {
+		return string(data), true
 	}
-	return string(data)
+	name = randomdata.SillyName()
+	ioutil.WriteFile(anonPath, []byte(name), 0644)
+	return name, false
 }
 
-func sendAnalytics(isDone bool, err error) {
-	hook := "pre"
-	if isDone {
-		hook = "post"
+type Metric struct {
+	IsInstallation  bool
+	IsExecutionDone bool
+	Err             error
+}
+
+func sendAnalytics(m Metric) {
+	commandExecStatus := "pre"
+	if m.IsExecutionDone {
+		commandExecStatus = "post"
 	}
-	props := analytics.NewProperties().
-		Set("name", strings.Join(os.Args, " ")).
-		Set("hook", hook)
-	if err != nil {
-		props.Set("err", err.Error())
+	fullCommand := os.Args
+	var rootCommand string
+	if len(os.Args) > 1 { // first is starport (binary name).
+		rootCommand = os.Args[1]
 	}
+	props := analytics.NewProperties()
+	if !m.IsInstallation {
+		props.Set("action", rootCommand)
+		props.Set("label", strings.Join(fullCommand, " "))
+		props.Set("commandExecStatus", commandExecStatus)
+	}
+	if m.Err != nil {
+		props.Set("error", m.Err.Error())
+	}
+	var category string
+	switch {
+	case m.IsInstallation:
+		category = "install"
+	case m.Err == nil:
+		category = "success"
+	case m.Err != nil:
+		category = "error"
+	}
+	props.Set("category", category)
 	analyticsc.Track(analytics.Track{
-		Event:      "command",
+		Event:      category,
 		Properties: props,
 	})
-	if isDone {
+	if m.IsExecutionDone {
 		// flush the message in the queue and close the client.
 		analyticsc.Close()
 	}

@@ -3,10 +3,12 @@
 package analyticsutil
 
 import (
+	"io/ioutil"
+	"log"
 	"os"
 	"runtime"
 
-	"github.com/segmentio/analytics-go"
+	"github.com/ilgooz/analytics-go"
 )
 
 // Client is an analytics client.
@@ -21,6 +23,7 @@ func New(endpoint, key string) *Client {
 	// err is for validation, can be ignored.
 	client, _ := analytics.NewWithConfig(key, analytics.Config{
 		Endpoint: endpoint,
+		Logger:   analytics.StdLogger(log.New(ioutil.Discard, "", log.LstdFlags)),
 	})
 	return &Client{
 		Client: client,
@@ -31,9 +34,20 @@ func New(endpoint, key string) *Client {
 func (c *Client) Login(name, starportVersion string) error {
 	c.loginName = name
 	hostname, _ := os.Hostname()
-	return c.Client.Enqueue(analytics.Identify{
+	if err := c.Client.Enqueue(analytics.Identify{
 		UserId: name,
 		Traits: analytics.NewTraits().
+			SetName(hostname).
+			Set("hostname", hostname).
+			Set("platform", runtime.GOOS).
+			Set("arch", runtime.GOARCH).
+			Set("starport_version", starportVersion),
+	}); err != nil {
+		return err
+	}
+	return c.Track(analytics.Track{
+		Event: "user",
+		Properties: analytics.NewProperties().
 			SetName(hostname).
 			Set("hostname", hostname).
 			Set("platform", runtime.GOOS).
