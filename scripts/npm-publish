@@ -3,7 +3,7 @@
 # replace package's version to release version at package.json.
 sed -i "s/\"version\": \".*\"/\"version\": \"$RELEASE_VERSION\"/g" ./.npm/package.json
 
-cp README.md .npm/
+cp readme.md .npm/
 
 # publish!
 npm publish --access public ./.npm
