@@ -122,25 +122,27 @@ func addMetric(m Metric) {
 	if len(os.Args) > 1 { // first is starport (binary name).
 		rootCommand = os.Args[1]
 	}
-	var event string
+	var (
+		category string
+		event    string
+	)
 	props := analytics.NewProperties()
 	switch {
 	case m.IsInstallation:
-		event = "install"
+		category = "install"
 	case m.Err == nil:
-		event = "success"
+		category = "success"
 	case m.Err != nil:
-		event = "error"
+		category = "error"
 		props.Set("value", m.Err.Error())
 	}
 	if m.IsInstallation {
-		props.Set("action", m.Login)
+		event = m.Login
 	} else {
-		props.
-			Set("action", rootCommand).
-			Set("label", strings.Join(fullCommand, " "))
+		event = rootCommand
+		props.Set("label", strings.Join(fullCommand, " "))
 	}
-	props.Set("category", event)
+	props.Set("category", category)
 	analyticsc.Track(analytics.Track{
 		Event:      event,
 		Properties: props,
