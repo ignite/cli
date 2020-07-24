@@ -42,3 +42,5 @@ init-post:
 	<%= BinaryNamePrefix %>cli config trust-node true
 	<%= BinaryNamePrefix %>d gentx --name user1 --keyring-backend test
 	<%= BinaryNamePrefix %>d collect-gentxs
+
+init: init-pre init-user1 init-user2 init-post
