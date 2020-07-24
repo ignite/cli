@@ -21,6 +21,8 @@ go.sum: go.mod
 		@echo "--> Ensure dependencies have not been modified"
 		GO111MODULE=on go mod verify
 
+init: init-pre init-user1 init-user2 init-post
+
 init-pre:
 	rm -rf ~/.<%= AppName %>cli
 	rm -rf ~/.<%= AppName %>d
