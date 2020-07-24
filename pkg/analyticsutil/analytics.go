@@ -34,20 +34,9 @@ func New(endpoint, key string) *Client {
 func (c *Client) Login(name, starportVersion string) error {
 	c.loginName = name
 	hostname, _ := os.Hostname()
-	if err := c.Client.Enqueue(analytics.Identify{
+	return c.Client.Enqueue(analytics.Identify{
 		UserId: name,
 		Traits: analytics.NewTraits().
-			SetName(hostname).
-			Set("hostname", hostname).
-			Set("platform", runtime.GOOS).
-			Set("arch", runtime.GOARCH).
-			Set("starport_version", starportVersion),
-	}); err != nil {
-		return err
-	}
-	return c.Track(analytics.Track{
-		Event: "user",
-		Properties: analytics.NewProperties().
 			SetName(hostname).
 			Set("hostname", hostname).
 			Set("platform", runtime.GOOS).

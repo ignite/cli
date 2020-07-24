@@ -35,9 +35,10 @@ var rootCmd = &cobra.Command{
 func Execute() {
 	defer func() {
 		if r := recover(); r != nil {
-			sendAnalytics(Metric{
+			addMetric(Metric{
 				Err: fmt.Errorf("%s", r),
 			})
+			analyticsc.Close()
 			fmt.Println(r)
 			os.Exit(1)
 		}
@@ -47,16 +48,19 @@ func Execute() {
 	name, hadLogin := prepLoginName()
 	analyticsc.Login(name, "todo-version")
 	if !hadLogin {
-		sendAnalytics(Metric{
+		addMetric(Metric{
+			Login:          name,
 			IsInstallation: true,
 		})
 	}
-	sendAnalytics(Metric{})
+	if len(os.Args) > 1 && os.Args[1] == "serve" {
+		addMetric(Metric{})
+	}
 	err := rootCmd.Execute()
-	sendAnalytics(Metric{
-		IsExecutionDone: true,
-		Err:             err,
+	addMetric(Metric{
+		Err: err,
 	})
+	analyticsc.Close()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -102,46 +106,43 @@ func prepLoginName() (name string, hadLogin bool) {
 }
 
 type Metric struct {
-	IsInstallation  bool
-	IsExecutionDone bool
-	Err             error
+	// IsInstallation sets metrics type as an installation metric.
+	IsInstallation bool
+
+	// Err sets metrics type as an error metric.
+	Err error
+
+	// Login is the name of anon user.
+	Login string
 }
 
-func sendAnalytics(m Metric) {
-	commandExecStatus := "pre"
-	if m.IsExecutionDone {
-		commandExecStatus = "post"
-	}
+func addMetric(m Metric) {
 	fullCommand := os.Args
 	var rootCommand string
 	if len(os.Args) > 1 { // first is starport (binary name).
 		rootCommand = os.Args[1]
 	}
+	var event string
 	props := analytics.NewProperties()
-	if !m.IsInstallation {
-		props.Set("action", rootCommand)
-		props.Set("label", strings.Join(fullCommand, " "))
-		props.Set("commandExecStatus", commandExecStatus)
-	}
-	if m.Err != nil {
-		props.Set("error", m.Err.Error())
-	}
-	var category string
 	switch {
 	case m.IsInstallation:
-		category = "install"
+		event = "install"
 	case m.Err == nil:
-		category = "success"
+		event = "success"
 	case m.Err != nil:
-		category = "error"
+		event = "error"
+		props.Set("value", m.Err.Error())
 	}
-	props.Set("category", category)
+	if m.IsInstallation {
+		props.Set("action", m.Login)
+	} else {
+		props.
+			Set("action", rootCommand).
+			Set("label", strings.Join(fullCommand, " "))
+	}
+	props.Set("category", event)
 	analyticsc.Track(analytics.Track{
-		Event:      category,
+		Event:      event,
 		Properties: props,
 	})
-	if m.IsExecutionDone {
-		// flush the message in the queue and close the client.
-		analyticsc.Close()
-	}
 }
