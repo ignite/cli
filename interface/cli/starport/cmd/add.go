@@ -1,4 +1,4 @@
-package cmd
+package starportcmd
 
 import (
 	"context"
