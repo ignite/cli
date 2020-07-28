@@ -4,7 +4,7 @@ Starport is the easiest way to build blockchains. It is a developer-friendly int
 
 Overview: https://www.youtube.com/watch?v=rmbPjCGDXek
 
-## Installation
+## Install
 
 ### NPM
 ```
@@ -23,9 +23,10 @@ brew install tendermint/tap/starport
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
 
-Requirements: Go 1.14 and Node.js (optional, used to build the welcome screen).
+Requirements: Go 1.14 and Node.js (optional but highly recommended, used for the welcome screen and web app scaffolding).
 
-## Creating an application
+## Get started
+### Create an application
 
 This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, run:
 
@@ -33,7 +34,7 @@ This command creates an empty template for a Cosmos SDK application. By default 
 starport app github.com/your-github-id/blog
 ```
 
-## Running an application
+### Run an application
 
 ```
 starport serve
@@ -43,7 +44,7 @@ To start the server, go into you application's directory and run `starport serve
 
 Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
 
-## Creating types
+## Create data types
 
 ```
 starport type [typeName] [field1] [field2:bool] ...
@@ -60,3 +61,19 @@ starport type post title body
 This command generates a type `Post` with two fields: `title` and `body`.
 
 To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=me`.
+
+## More tutorials
+* [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
+* [Poll tutorial](https://www.notion.so/Starport-Poll-406c136cef48435795a5ef02692cd299): build a voting application with a web-based UI
+* [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
+* [Blog (from scratch) tutorial](https://www.notion.so/Starport-Blog-f928931b7d4e423992d1a105cd5f5ea2): learn how Starport works by building a blog without scaffolding
+
+## Questions & comments
+For questions and support please join the #starport channel in the [Cosmos Community Discord](https://discord.com/invite/W8trcGV). The issue list of this repo is exclusively for bug reports and feature requests.
+
+## Stay in touch
+Starport is a product built by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+
+* [Twitter](https://twitter.com/tendermint_team)
+* [Blog](https://medium.com/tendermint)
+* [Jobs](https://tendermint.com/careers)
