@@ -18,6 +18,65 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var appPath string
+
+func NewServe() *cobra.Command {
+	c := &cobra.Command{
+		Use:   "serve",
+		Short: "Launches a reloading server",
+		Args:  cobra.ExactArgs(0),
+		Run:   serveHandler,
+	}
+	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+	return c
+}
+
+func serveHandler(cmd *cobra.Command, args []string) {
+	verbose, _ := cmd.Flags().GetBool("verbose")
+	cmdNpm := gocmd.NewCmd("npm", "run", "dev")
+	cmdNpm.Dir = filepath.Join(appPath, "frontend")
+	cmdNpm.Start()
+	cmdt, cmdr := startServe(appPath, verbose)
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	go func() {
+		<-c
+		cmdNpm.Stop()
+		cmdr.Process.Kill()
+		cmdt.Process.Kill()
+		os.Exit(0)
+	}()
+	w := watcher.New()
+	w.SetMaxEvents(1)
+	go func() {
+		for {
+			select {
+			case <-w.Event:
+				cmdr.Process.Kill()
+				cmdt.Process.Kill()
+				cmdt, cmdr = startServe(appPath, verbose)
+			case err := <-w.Error:
+				log.Println(err)
+			case <-w.Closed:
+				return
+			}
+		}
+	}()
+	if err := w.AddRecursive(filepath.Join(appPath, "./app")); err != nil {
+		log.Fatalln(err)
+	}
+	if err := w.AddRecursive(filepath.Join(appPath, "./cmd")); err != nil {
+		log.Fatalln(err)
+	}
+	if err := w.AddRecursive(filepath.Join(appPath, "./x")); err != nil {
+		log.Fatalln(err)
+	}
+	if err := w.Start(time.Millisecond * 1000); err != nil {
+		log.Fatalln(err)
+	}
+}
+
 // Env ...
 type Env struct {
 	ChainID string `json:"chain_id"`
@@ -154,62 +213,6 @@ func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
 	return cmdTendermint, cmdREST
-}
-
-var appPath string
-
-func init() {
-	serveCmd.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-}
-
-var serveCmd = &cobra.Command{
-	Use:   "serve",
-	Short: "Launches a reloading server",
-	Args:  cobra.ExactArgs(0),
-	Run: func(cmd *cobra.Command, args []string) {
-		verbose, _ := cmd.Flags().GetBool("verbose")
-		cmdNpm := gocmd.NewCmd("npm", "run", "dev")
-		cmdNpm.Dir = filepath.Join(appPath, "frontend")
-		cmdNpm.Start()
-		cmdt, cmdr := startServe(appPath, verbose)
-		c := make(chan os.Signal, 1)
-		signal.Notify(c, os.Interrupt)
-		go func() {
-			<-c
-			cmdNpm.Stop()
-			cmdr.Process.Kill()
-			cmdt.Process.Kill()
-			os.Exit(0)
-		}()
-		w := watcher.New()
-		w.SetMaxEvents(1)
-		go func() {
-			for {
-				select {
-				case <-w.Event:
-					cmdr.Process.Kill()
-					cmdt.Process.Kill()
-					cmdt, cmdr = startServe(appPath, verbose)
-				case err := <-w.Error:
-					log.Println(err)
-				case <-w.Closed:
-					return
-				}
-			}
-		}()
-		if err := w.AddRecursive(filepath.Join(appPath, "./app")); err != nil {
-			log.Fatalln(err)
-		}
-		if err := w.AddRecursive(filepath.Join(appPath, "./cmd")); err != nil {
-			log.Fatalln(err)
-		}
-		if err := w.AddRecursive(filepath.Join(appPath, "./x")); err != nil {
-			log.Fatalln(err)
-		}
-		if err := w.Start(time.Millisecond * 1000); err != nil {
-			log.Fatalln(err)
-		}
-	},
 }
 
 func isCommandAvailable(name string) bool {
