@@ -15,12 +15,11 @@ func New() *cobra.Command {
 		Use:   "starport",
 		Short: "A tool for scaffolding out Cosmos applications",
 	}
-	c.AddCommand(appCmd)
+	c.AddCommand(NewApp())
 	c.AddCommand(typedCmd)
 	c.AddCommand(NewServe())
 	c.AddCommand(addCmd)
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	appCmd.Flags().StringP("denom", "d", "token", "Token denomination")
 	return c
 }
 
