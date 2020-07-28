@@ -44,7 +44,7 @@ To start the server, go into you application's directory and run `starport serve
 
 Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
 
-## Create data types
+### Create data types
 
 ```
 starport type [typeName] [field1] [field2:bool] ...
