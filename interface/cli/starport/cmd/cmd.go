@@ -17,10 +17,9 @@ func New() *cobra.Command {
 	}
 	c.AddCommand(appCmd)
 	c.AddCommand(typedCmd)
-	c.AddCommand(serveCmd)
+	c.AddCommand(NewServe())
 	c.AddCommand(addCmd)
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	serveCmd.Flags().BoolP("verbose", "v", false, "Verbose output")
 	appCmd.Flags().StringP("denom", "d", "token", "Token denomination")
 	return c
 }
