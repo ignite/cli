@@ -12,7 +12,7 @@ import (
 // New ...
 func New(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
-	if err := g.Box(packr.New("app/templates", "./templates/app/templates")); err != nil {
+	if err := g.Box(packr.New("app/templates", "./templates")); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
