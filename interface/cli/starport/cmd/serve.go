@@ -1,8 +1,11 @@
 package starportcmd
 
 import (
+	"bytes"
+	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
@@ -14,8 +17,11 @@ import (
 	gocmd "github.com/go-cmd/cmd"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
+	"github.com/pkg/errors"
 	"github.com/radovskyb/watcher"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/pkg/cmdrunner/step"
 )
 
 var appPath string
@@ -85,61 +91,92 @@ type Env struct {
 
 func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 	appName, _ := getAppAndModule(path)
-	fmt.Printf("\n📦 Installing dependencies...\n")
-	cmdMod := exec.Command("/bin/sh", "-c", "go mod tidy")
-	cmdMod.Dir = path
+
+	var (
+		steps step.Steps
+
+		stdout = ioutil.Discard
+		stderr = ioutil.Discard
+
+		mnemonic = &bytes.Buffer{}
+	)
 	if verbose {
-		cmdMod.Stdout = os.Stdout
+		stdout = os.Stdout
+		stderr = os.Stderr
 	}
-	if err := cmdMod.Run(); err != nil {
-		log.Fatal("Error running go mod tidy. Please, check ./go.mod")
+
+	steps.Add(step.New(
+		step.Exec("go", "mod", "tidy"),
+		step.PreExec(func() error {
+			if !isCommandAvailable("go") {
+				return errors.New("go must be avaiable in your path")
+			}
+			fmt.Println("\n📦 Installing dependencies...")
+			return nil
+		}),
+		step.PostExec(func(exitErr error) error {
+			return errors.Wrap(exitErr, "cannot install go modules")
+		}),
+	))
+	steps.Add(step.New(
+		step.Exec("make"),
+		step.PreExec(func() error {
+			if !isCommandAvailable("make") {
+				return errors.New("make must be avaiable in your path")
+			}
+			fmt.Println("🚧 Building the application...")
+			return nil
+		}),
+		step.PostExec(func(exitErr error) error {
+			return errors.Wrap(exitErr, "cannot build your app")
+		}),
+	))
+	steps.Add(step.New(
+		step.Exec("make", "init-pre"),
+		step.PreExec(func() error {
+			fmt.Println("💫 Initializing the chain...")
+			return nil
+		}),
+		step.PostExec(func(exitErr error) error {
+			return errors.Wrap(exitErr, "cannot initialize the chain")
+		}),
+	))
+	for _, user := range []string{"user1", "user2"} {
+		steps.Add(step.New(
+			step.Exec("make", fmt.Sprintf("init-%s", user), "-s"),
+			step.PostExec(func(exitErr error) error {
+				if exitErr != nil {
+					return errors.Wrapf(exitErr, "cannot create %s account", user)
+				}
+				var user struct {
+					Mnemonic string `json:"mnemonic"`
+				}
+				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
+					return err
+				}
+				mnemonic.Reset()
+				fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+				return nil
+			}),
+			step.Stdout(mnemonic),
+		))
 	}
-	fmt.Printf("🚧 Building the application...\n")
-	cmdMake := exec.Command("/bin/sh", "-c", "make")
-	cmdMake.Dir = path
-	if verbose {
-		cmdMake.Stdout = os.Stdout
+	steps.Add(step.New(
+		step.Exec("make", "init-post"),
+	))
+
+	runnerOpts := []cmdrunner.Option{
+		cmdrunner.DefaultStdout(stdout),
+		cmdrunner.DefaultStderr(stderr),
+		cmdrunner.DefaultWorkdir(path),
 	}
-	if err := cmdMake.Run(); err != nil {
-		log.Fatal("Error in building the application. Please, check ./Makefile")
-	}
-	fmt.Printf("💫 Initializing the chain...\n")
-	cmdInitPre := exec.Command("make", "init-pre")
-	cmdInitPre.Dir = path
-	if err := cmdInitPre.Run(); err != nil {
-		log.Fatal("Error in initializing the chain. Please, check ./init.sh")
-	}
-	if verbose {
-		cmdInitPre.Stdout = os.Stdout
-	}
-	cmdUserString1 := exec.Command("make", "init-user1", "-s")
-	cmdUserString1.Dir = path
-	userString1, err := cmdUserString1.Output()
-	if err != nil {
+
+	if err := cmdrunner.
+		New(runnerOpts...).
+		Run(context.Background(), steps...); err != nil {
 		log.Fatal(err)
 	}
-	var userJSON map[string]interface{}
-	json.Unmarshal(userString1, &userJSON)
-	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
-	cmdUserString2 := exec.Command("make", "init-user2", "-s")
-	cmdUserString2.Dir = path
-	userString2, err := cmdUserString2.Output()
-	if err != nil {
-		log.Fatal(err)
-	}
-	json.Unmarshal(userString2, &userJSON)
-	fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", userJSON["mnemonic"])
-	cmdInitPost := exec.Command("make", "init-post")
-	cmdInitPost.Dir = path
-	if err := cmdInitPost.Run(); err != nil {
-		log.Fatal(err)
-	}
-	if verbose {
-		cmdInitPost.Stdout = os.Stdout
-	}
-	if verbose {
-		cmdInitPost.Stdout = os.Stdout
-	}
+
 	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 	cmdTendermint.Dir = path
 	if verbose {
