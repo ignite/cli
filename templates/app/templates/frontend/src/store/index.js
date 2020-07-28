@@ -83,7 +83,10 @@ export default new Vuex.Store({
       commit("accountUpdate", { account });
     },
     async entitySubmit({ state }, { type, body }) {
-      const { accountNumber, sequence } = await state.client.getNonce();
+      const accountURL = `${API}/auth/accounts/${state.client.senderAddress}`;
+      const account = (await axios.get(accountURL)).data.result.value;
+      const accountNumber = account.account_number;
+      const sequence = account.sequence;
       const address = state.client.senderAddress;
       const chain_id = await state.client.getChainId();
       const req = {
