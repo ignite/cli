@@ -10,7 +10,7 @@ import (
 	"github.com/tendermint/starport/templates/typed"
 )
 
-func NewTyped() *cobra.Command {
+func NewType() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "type [typeName] [field1] [field2] ...",
 		Short: "Generates CRUD actions for type",
@@ -21,7 +21,7 @@ func NewTyped() *cobra.Command {
 	return c
 }
 
-func typedHandler(cmd *cobra.Command, args []string) {
+func typeHandler(cmd *cobra.Command, args []string) {
 	appName, modulePath := getAppAndModule(appPath)
 	var fields []typed.Field
 	for _, f := range args[1:] {
