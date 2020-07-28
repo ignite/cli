@@ -15,7 +15,7 @@ func NewType() *cobra.Command {
 		Use:   "type [typeName] [field1] [field2] ...",
 		Short: "Generates CRUD actions for type",
 		Args:  cobra.MinimumNArgs(1),
-		Run:   typedHandler,
+		Run:   typeHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	return c
