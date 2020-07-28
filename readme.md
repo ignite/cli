@@ -60,7 +60,7 @@ starport type post title body
 
 This command generates a type `Post` with two fields: `title` and `body`.
 
-To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=me`.
+To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=user1`.
 
 ## More tutorials
 * [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
