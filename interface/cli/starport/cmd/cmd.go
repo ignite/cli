@@ -16,7 +16,7 @@ func New() *cobra.Command {
 		Short: "A tool for scaffolding out Cosmos applications",
 	}
 	c.AddCommand(NewApp())
-	c.AddCommand(typedCmd)
+	c.AddCommand(NewTyped())
 	c.AddCommand(NewServe())
 	c.AddCommand(addCmd)
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
