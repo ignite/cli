@@ -105,7 +105,7 @@ func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
 	}
 	router := mux.NewRouter()
-	devUI := packr.New("ui/dist", "../ui/dist")
+	devUI := packr.New("ui/dist", "../../../../ui/dist")
 	router.HandleFunc("/env", func(w http.ResponseWriter, r *http.Request) {
 		env := Env{appName, isCommandAvailable("node")}
 		js, err := json.Marshal(env)

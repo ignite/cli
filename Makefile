@@ -6,7 +6,7 @@ mod:
 build: mod
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@packr2
-	@go build -mod=readonly -o build/starport main.go
+	@go build -mod=readonly -o build/ ./interface/cli/...
 	@packr2 clean
 	@go mod tidy
 
