@@ -70,7 +70,7 @@ To add a post run `blogcli tx blog create-post "My title" "This is a blog" --fro
 starport add wasm
 ```
 
-Adds smart contracts with [CosmWasm](https://www.cosmwasm.com/). Follow a short [smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108) to get started.
+Adds smart contracts with [CosmWasm](https://docs.cosmwasm.com). Follow a short [smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108) to get started.
 
 ## More tutorials
 
