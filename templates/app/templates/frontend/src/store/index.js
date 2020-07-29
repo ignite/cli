@@ -46,7 +46,7 @@ export default new Vuex.Store({
     async accountSignIn({ commit }, { mnemonic }) {
       return new Promise(async (resolve, reject) => {
         const wallet = await Secp256k1Wallet.fromMnemonic(mnemonic);
-        const { address } = wallet;
+        const [{ address }] = await wallet.getAccounts();
         const url = `${API}/auth/accounts/${address}`;
         const acc = (await axios.get(url)).data;
         if (acc.result.value.address === address) {
