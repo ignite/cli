@@ -7,8 +7,8 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/templates/app"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/templates/app"
 )
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized

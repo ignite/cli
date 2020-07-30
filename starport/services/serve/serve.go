@@ -17,8 +17,8 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
 	"github.com/radovskyb/watcher"
-	"github.com/tendermint/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 type App struct {

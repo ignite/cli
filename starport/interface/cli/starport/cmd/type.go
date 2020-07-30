@@ -7,7 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/templates/typed"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 func NewType() *cobra.Command {

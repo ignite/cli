@@ -8,7 +8,7 @@ import (
 
 	"github.com/Pallinder/go-randomdata"
 	"github.com/ilgooz/analytics-go"
-	"github.com/tendermint/starport/pkg/analyticsutil"
+	"github.com/tendermint/starport/starport/pkg/analyticsutil"
 )
 
 const (

@@ -6,7 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/spf13/cobra"
-	starportserve "github.com/tendermint/starport/services/serve"
+	starportserve "github.com/tendermint/starport/starport/services/serve"
 )
 
 var appPath string
