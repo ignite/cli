@@ -14,11 +14,16 @@ const (
 	appNodeInfoEndpoint = "/node_info"
 )
 
-// serviceStatus keeps the state of development environment and services needed
-// for development.
+// serviceStatusResponse holds the status of development environment and http services
+// needed for development.
+type statusResponse struct {
+	Status serviceStatus `json:"status"`
+	Env    env           `json:"env"`
+}
+
+// serviceStatus holds the availibity status of http services.
 type serviceStatus struct {
-	Env                    env  `json:"env"`
-	IsConsensusEngineAlive bool `json:"is_consensus_engine__alive"`
+	IsConsensusEngineAlive bool `json:"is_consensus_engine_alive"`
 	IsMyAppBackendAlive    bool `json:"is_my_app_backend_alive"`
 	IsMyAppFrontendAlive   bool `json:"is_my_app_frontend_alive"`
 }
@@ -27,11 +32,6 @@ type serviceStatus struct {
 type env struct {
 	ChainID string `json:"chain_id"`
 	NodeJS  bool   `json:"node_js"`
-}
-
-// serviceStatusResponse is the status response message returned to client.
-type serviceStatusResponse struct {
-	Status serviceStatus `json:"status"`
 }
 
 // development handler builder.
@@ -64,8 +64,9 @@ func (d *development) devAssetsHandler() http.Handler {
 func (d *development) statusHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var (
-			env                                               = d.env()
-			engineStatus, appBackendStatus, appFrontendStatus bool
+			engineStatus,
+			appBackendStatus,
+			appFrontendStatus bool
 		)
 		g := &errgroup.Group{}
 		g.Go(func() (err error) {
@@ -85,13 +86,15 @@ func (d *development) statusHandler() http.Handler {
 			return
 		}
 
-		status := serviceStatus{
-			Env:                    env,
-			IsConsensusEngineAlive: engineStatus,
-			IsMyAppBackendAlive:    appBackendStatus,
-			IsMyAppFrontendAlive:   appFrontendStatus,
+		resp := statusResponse{
+			Env: d.env(),
+			Status: serviceStatus{
+				IsConsensusEngineAlive: engineStatus,
+				IsMyAppBackendAlive:    appBackendStatus,
+				IsMyAppFrontendAlive:   appFrontendStatus,
+			},
 		}
-		xhttp.ResponseJSON(w, http.StatusOK, serviceStatusResponse{status})
+		xhttp.ResponseJSON(w, http.StatusOK, resp)
 	})
 }
 

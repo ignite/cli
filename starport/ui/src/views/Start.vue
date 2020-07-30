@@ -230,13 +230,13 @@ export default {
     async setStatusState() {
       try {
         const { data } = await axios.get("/status");
-        const { status } = data;
+        const { status, env } = data;
         this.running = {
-            rpc: status.is_consensus_engine__alive,
+            rpc: status.is_consensus_engine_alive,
             api: status.is_my_app_backend_alive,
             frontend: status.is_my_app_frontend_alive,
         };
-        this.env = status.env;
+        this.env = env;
       } catch {
         this.running = {
             rpc: false,
