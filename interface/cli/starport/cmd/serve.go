@@ -14,7 +14,6 @@ import (
 	"path/filepath"
 	"time"
 
-	gocmd "github.com/go-cmd/cmd"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
 	"github.com/pkg/errors"
@@ -31,56 +30,75 @@ func NewServe() *cobra.Command {
 		Use:   "serve",
 		Short: "Launches a reloading server",
 		Args:  cobra.ExactArgs(0),
-		Run:   serveHandler,
+		RunE:  serveHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
-func serveHandler(cmd *cobra.Command, args []string) {
+func serveHandler(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
-	cmdNpm := gocmd.NewCmd("npm", "run", "dev")
-	cmdNpm.Dir = filepath.Join(appPath, "frontend")
-	cmdNpm.Start()
-	cancel := startServe(appPath, verbose)
 	appName, _ := getAppAndModule(appPath)
-	go runDevServer(appName, verbose)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt)
+	app := App{
+		Name: appName,
+		Path: appPath,
+	}
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
+	quit := make(chan os.Signal, 1)
+	signal.Notify(quit, os.Interrupt)
 	go func() {
-		<-c
-		cmdNpm.Stop()
+		<-quit
 		cancel()
-		os.Exit(0)
 	}()
+
+	err := Serve(ctx, app, verbose)
+	if err == context.Canceled {
+		return nil
+	}
+	return err
+}
+
+type App struct {
+	Name string
+	Path string
+}
+
+func Serve(ctx context.Context, app App, verbose bool) error {
+	cmdNpm := exec.CommandContext(ctx, "npm", "run", "dev")
+	cmdNpm.Dir = filepath.Join(app.Path, "frontend")
+	cmdNpm.Start()
+	serveCtx, cancel := context.WithCancel(ctx)
+	startServe(serveCtx, app, verbose) // TODO handle error
+	go runDevServer(app.Name, verbose)
 	w := watcher.New()
 	w.SetMaxEvents(1)
 	go func() {
 		for {
 			select {
+			case <-ctx.Done():
+				w.Close()
 			case <-w.Event:
 				cancel()
-				cancel = startServe(appPath, verbose)
+				serveCtx, cancel = context.WithCancel(ctx)
+				startServe(serveCtx, app, verbose) // TODO handle error
 			case err := <-w.Error:
 				log.Println(err)
-			case <-w.Closed:
-				return
 			}
 		}
 	}()
-	if err := w.AddRecursive(filepath.Join(appPath, "./app")); err != nil {
+	if err := w.AddRecursive(filepath.Join(app.Path, "./app")); err != nil {
 		log.Fatalln(err)
 	}
-	if err := w.AddRecursive(filepath.Join(appPath, "./cmd")); err != nil {
+	if err := w.AddRecursive(filepath.Join(app.Path, "./cmd")); err != nil {
 		log.Fatalln(err)
 	}
-	if err := w.AddRecursive(filepath.Join(appPath, "./x")); err != nil {
+	if err := w.AddRecursive(filepath.Join(app.Path, "./x")); err != nil {
 		log.Fatalln(err)
 	}
-	if err := w.Start(time.Millisecond * 1000); err != nil {
-		log.Fatalln(err)
-	}
+	return w.Start(time.Millisecond * 1000)
 }
 
 // Env ...
@@ -89,9 +107,7 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(path string, verbose bool) context.CancelFunc {
-	appName, _ := getAppAndModule(path)
-
+func startServe(ctx context.Context, app App, verbose bool) error {
 	var (
 		steps step.Steps
 
@@ -168,28 +184,28 @@ func startServe(path string, verbose bool) context.CancelFunc {
 	if err := cmdrunner.
 		New(cmdrunner.DefaultStdout(stdout),
 			cmdrunner.DefaultStderr(stderr),
-			cmdrunner.DefaultWorkdir(path)).
-		Run(context.Background(), steps...); err != nil {
+			cmdrunner.DefaultWorkdir(app.Path)).
+		Run(ctx, steps...); err != nil {
 		log.Fatal(err)
 	}
 
 	var servers step.Steps
 	servers.Add(step.New(
-		step.Exec(fmt.Sprintf("%[1]vd", appName), "start"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+		step.Exec(fmt.Sprintf("%[1]vd", app.Name), "start"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 		step.InExec(func() error {
 			if verbose {
 				fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
 			} else {
-				fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", appName)
+				fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", app.Name)
 			}
 			return nil
 		}),
 		step.PostExec(func(exitErr error) error {
-			return errors.Wrapf(exitErr, "cannot run %[1]vd start", appName)
+			return errors.Wrapf(exitErr, "cannot run %[1]vd start", app.Name)
 		}),
 	))
 	servers.Add(step.New(
-		step.Exec(fmt.Sprintf("%[1]vcli", appName), "rest-server"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+		step.Exec(fmt.Sprintf("%[1]vcli", app.Name), "rest-server"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
 		step.InExec(func() error {
 			if verbose {
 				fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
@@ -197,7 +213,7 @@ func startServe(path string, verbose bool) context.CancelFunc {
 			return nil
 		}),
 		step.PostExec(func(exitErr error) error {
-			return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", appName)
+			return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", app.Name)
 		}),
 	))
 
@@ -205,18 +221,10 @@ func startServe(path string, verbose bool) context.CancelFunc {
 		cmdrunner.RunParallel(),
 		cmdrunner.DefaultStdout(stdout),
 		cmdrunner.DefaultStderr(stderr),
-		cmdrunner.DefaultWorkdir(path),
+		cmdrunner.DefaultWorkdir(app.Path),
 	)
-
-	ctx, cancel := context.WithCancel(context.Background())
-	go func() {
-		if err := serverRunner.Run(ctx, servers...); err != nil {
-			if _, ok := errors.Cause(err).(*exec.ExitError); !ok {
-				log.Fatal(err)
-			}
-		}
-	}()
-	return cancel
+	go serverRunner.Run(ctx, servers...) // TODO handle err
+	return nil
 }
 
 func runDevServer(appName string, verbose bool) error {
