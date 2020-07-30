@@ -44,6 +44,8 @@ func serveHandler(cmd *cobra.Command, args []string) {
 	cmdNpm.Dir = filepath.Join(appPath, "frontend")
 	cmdNpm.Start()
 	cancel := startServe(appPath, verbose)
+	appName, _ := getAppAndModule(appPath)
+	go runDevServer(appName, verbose)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
@@ -199,19 +201,29 @@ func startServe(path string, verbose bool) context.CancelFunc {
 		}),
 	))
 
+	serverRunner := cmdrunner.New(
+		cmdrunner.RunParallel(),
+		cmdrunner.DefaultStdout(stdout),
+		cmdrunner.DefaultStderr(stderr),
+		cmdrunner.DefaultWorkdir(path),
+	)
+
 	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		if err := serverRunner.Run(ctx, servers...); err != nil {
+			if _, ok := errors.Cause(err).(*exec.ExitError); !ok {
+				log.Fatal(err)
+			}
+		}
+	}()
+	return cancel
+}
 
-	if err := cmdrunner.
-		New(cmdrunner.RunParallel(),
-			cmdrunner.DefaultStdout(stdout),
-			cmdrunner.DefaultStderr(stderr),
-			cmdrunner.DefaultWorkdir(path)).
-		Run(ctx, servers...); err != nil {
-		log.Fatal(err)
-	}
-
+func runDevServer(appName string, verbose bool) error {
 	if verbose {
 		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
+	} else {
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../../../../ui/dist")
@@ -256,13 +268,7 @@ func startServe(path string, verbose bool) context.CancelFunc {
 		}
 	})
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
-	go func() {
-		http.ListenAndServe(":12345", router)
-	}()
-	if !verbose {
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
-	}
-	return cancel
+	return http.ListenAndServe(":12345", router)
 }
 
 func isCommandAvailable(name string) bool {
