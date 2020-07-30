@@ -59,12 +59,6 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	return w.Start(time.Millisecond * 1000)
 }
 
-// Env ...
-type Env struct {
-	ChainID string `json:"chain_id"`
-	NodeJS  bool   `json:"node_js"`
-}
-
 func startServe(ctx context.Context, app App, verbose bool) error {
 	var (
 		steps step.Steps
@@ -191,7 +185,13 @@ func runDevServer(app App, verbose bool) error {
 	} else {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
-	return http.ListenAndServe(":12345", newDevHandler(app))
+	conf := Config{
+		EngineAddr:            "http://localhost:26657",
+		AppBackendAddr:        "http://localhost:1317",
+		AppFrontendAddr:       "http://localhost:8080",
+		DevFrontendAssetsPath: "../../ui/dist",
+	} // TODO get vals from const
+	return http.ListenAndServe(":12345", newDevHandler(app, conf))
 }
 
 func isCommandAvailable(name string) bool {
