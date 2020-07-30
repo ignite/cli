@@ -4,8 +4,8 @@ import (
 	"fmt"
 	"os"
 
-	starportcmd "github.com/tendermint/starport/interface/cli/starport/cmd"
-	"github.com/tendermint/starport/pkg/analyticsutil"
+	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
+	"github.com/tendermint/starport/starport/pkg/analyticsutil"
 )
 
 func main() {

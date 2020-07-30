@@ -5,7 +5,7 @@ import (
 	"io"
 	"os/exec"
 
-	"github.com/tendermint/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"golang.org/x/sync/errgroup"
 )
 

@@ -5,7 +5,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/templates/add"
+	"github.com/tendermint/starport/starport/templates/add"
 )
 
 func NewAdd() *cobra.Command {

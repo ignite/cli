@@ -6,13 +6,13 @@ mod:
 build: mod
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@packr2
-	@go build -mod=readonly -o build/ ./interface/cli/...
+	@go build -mod=readonly -o build/ ./starport/interface/cli/...
 	@packr2 clean
 	@go mod tidy
 
 ui:
-	@rm -rf ui/dist
-	-@which npm 1>/dev/null && cd ui && npm install 1>/dev/null && npm run build 1>/dev/null
+	@rm -rf starport/ui/dist
+	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
 
 install: ui build
 	@go install -mod=readonly ./...
