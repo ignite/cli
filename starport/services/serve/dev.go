@@ -1,57 +1,106 @@
 package starportserve
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
+	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
+	"github.com/tendermint/starport/starport/pkg/xhttp"
+	"golang.org/x/sync/errgroup"
 )
 
-// newDevHandler creates a new development server handler.
-func newDevHandler(app App) http.Handler {
+const (
+	appNodeInfoEndpoint = "/node_info"
+)
+
+// serviceStatusResponse holds the status of development environment and http services
+// needed for development.
+type statusResponse struct {
+	Status serviceStatus `json:"status"`
+	Env    env           `json:"env"`
+}
+
+// serviceStatus holds the availibity status of http services.
+type serviceStatus struct {
+	IsConsensusEngineAlive bool `json:"is_consensus_engine_alive"`
+	IsMyAppBackendAlive    bool `json:"is_my_app_backend_alive"`
+	IsMyAppFrontendAlive   bool `json:"is_my_app_frontend_alive"`
+}
+
+// env holds info about development environment.
+type env struct {
+	ChainID string `json:"chain_id"`
+	NodeJS  bool   `json:"node_js"`
+}
+
+// development handler builder.
+type development struct {
+	app  App
+	conf Config
+}
+
+// Config used to configure development handler.
+type Config struct {
+	EngineAddr            string
+	AppBackendAddr        string
+	AppFrontendAddr       string
+	DevFrontendAssetsPath string
+}
+
+// newDevHandler creates a new development server handler for app by given conf.
+func newDevHandler(app App, conf Config) http.Handler {
+	dev := &development{app, conf}
 	router := mux.NewRouter()
-	devUI := packr.New("ui/dist", "../../ui/dist")
-	router.HandleFunc("/env", func(w http.ResponseWriter, r *http.Request) {
-		env := Env{app.Name, isCommandAvailable("node")}
-		js, err := json.Marshal(env)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+	router.Handle("/status", dev.statusHandler()).Methods(http.MethodGet)
+	router.PathPrefix("/").Handler(dev.devAssetsHandler()).Methods(http.MethodGet)
+	return router
+}
+
+func (d *development) devAssetsHandler() http.Handler {
+	return http.FileServer(packr.New("ui/dist", d.conf.DevFrontendAssetsPath))
+}
+
+func (d *development) statusHandler() http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		var (
+			engineStatus,
+			appBackendStatus,
+			appFrontendStatus bool
+		)
+		g := &errgroup.Group{}
+		g.Go(func() (err error) {
+			engineStatus, err = httpstatuschecker.Check(d.conf.EngineAddr)
+			return
+		})
+		g.Go(func() (err error) {
+			appBackendStatus, err = httpstatuschecker.Check(d.conf.AppBackendAddr + appNodeInfoEndpoint)
+			return
+		})
+		g.Go(func() (err error) {
+			appFrontendStatus, err = httpstatuschecker.Check(d.conf.AppFrontendAddr)
+			return
+		})
+		if err := g.Wait(); err != nil {
+			xhttp.ResponseJSON(w, http.StatusInternalServerError, xhttp.NewErrorResponse(err))
 			return
 		}
-		w.Header().Set("Content-Type", "application/json")
-		w.Write(js)
-	})
-	router.HandleFunc("/api", func(w http.ResponseWriter, r *http.Request) {
-		res, err := http.Get("http://localhost:1317/node_info")
-		if err != nil || res.StatusCode != 200 {
-			w.WriteHeader(http.StatusInternalServerError)
-			w.Write([]byte("500 error"))
-		} else if res.StatusCode == 200 {
-			w.WriteHeader(http.StatusOK)
-			w.Write([]byte("200 ok"))
+
+		resp := statusResponse{
+			Env: d.env(),
+			Status: serviceStatus{
+				IsConsensusEngineAlive: engineStatus,
+				IsMyAppBackendAlive:    appBackendStatus,
+				IsMyAppFrontendAlive:   appFrontendStatus,
+			},
 		}
+		xhttp.ResponseJSON(w, http.StatusOK, resp)
 	})
-	router.HandleFunc("/rpc", func(w http.ResponseWriter, r *http.Request) {
-		res, err := http.Get("http://localhost:26657")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		} else if res.StatusCode == 200 {
-			w.WriteHeader(http.StatusOK)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	})
-	router.HandleFunc("/frontend", func(w http.ResponseWriter, r *http.Request) {
-		res, err := http.Get("http://localhost:8080")
-		if err != nil {
-			w.WriteHeader(http.StatusInternalServerError)
-		} else if res.StatusCode == 200 {
-			w.WriteHeader(http.StatusOK)
-		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-		}
-	})
-	router.PathPrefix("/").Handler(http.FileServer(devUI))
-	return router
+}
+
+func (d *development) env() env {
+	return env{
+		d.app.Name,
+		isCommandAvailable("node"),
+	}
 }

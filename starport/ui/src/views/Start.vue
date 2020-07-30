@@ -227,34 +227,29 @@ export default {
     };
   },
   methods: {
-    async areServersRunning() {
+    async setStatusState() {
       try {
-        await axios.get("/api");
-        this.running.api = true;
+        const { data } = await axios.get("/status");
+        const { status, env } = data;
+        this.running = {
+            rpc: status.is_consensus_engine_alive,
+            api: status.is_my_app_backend_alive,
+            frontend: status.is_my_app_frontend_alive,
+        };
+        this.env = env;
       } catch {
-        this.running.api = false;
-      }
-      try {
-        await axios.get("/rpc");
-        this.running.rpc = true;
-      } catch {
-        this.running.rpc = false;
-      }
-      try {
-        await axios.get("/frontend");
-        this.running.frontend = true;
-      } catch {
-        this.running.frontend = false;
+        this.running = {
+            rpc: false,
+            api: false,
+            frontend: false,
+        };
       }
     }
   },
   async created() {
-    this.timer = setInterval(async () => {
-      this.areServersRunning();
-    }, 1000);
-    axios.get("/api/node_info");
+    this.timer = setInterval(this.setStatusState.bind(this), 1000);
     try {
-      this.env = (await axios.get("/env")).data;
+      await this.setStatusState();
     } catch {
       console.log("Can't fetch /env");
     }
