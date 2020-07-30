@@ -5,6 +5,7 @@ import "io"
 type Step struct {
 	Exec     Execution
 	PreExec  func() error
+	InExec   func() error
 	PostExec func(error) error
 	Stdout   io.Writer
 	Stderr   io.Writer
@@ -14,7 +15,11 @@ type Step struct {
 type Option func(*Step)
 
 func New(options ...Option) *Step {
-	s := &Step{}
+	s := &Step{
+		PreExec:  func() error { return nil },
+		InExec:   func() error { return nil },
+		PostExec: func(exitErr error) error { return exitErr },
+	}
 	for _, o := range options {
 		o(s)
 	}
@@ -35,6 +40,12 @@ func Exec(command string, args ...string) Option {
 func PreExec(hook func() error) Option {
 	return func(s *Step) {
 		s.PreExec = hook
+	}
+}
+
+func InExec(hook func() error) Option {
+	return func(s *Step) {
+		s.InExec = hook
 	}
 }
 
@@ -66,11 +77,4 @@ type Steps []*Step
 
 func (s *Steps) Add(step *Step) {
 	*s = append(*s, step)
-}
-
-// Parallel enables running a step in parallel with others.
-// a parallel step only started if previous non-parallel steps are has
-// been complated their execution.
-func Parallel() Option {
-	return func(s *Step) {}
 }

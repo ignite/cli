@@ -6,12 +6,14 @@ import (
 	"os/exec"
 
 	"github.com/tendermint/starport/pkg/cmdrunner/step"
+	"golang.org/x/sync/errgroup"
 )
 
 type Runner struct {
-	stdout  io.Writer
-	stderr  io.Writer
-	workdir string
+	stdout      io.Writer
+	stderr      io.Writer
+	workdir     string
+	runParallel bool
 }
 
 type Option func(*Runner)
@@ -34,6 +36,12 @@ func DefaultWorkdir(path string) Option {
 	}
 }
 
+func RunParallel() Option {
+	return func(r *Runner) {
+		r.runParallel = true
+	}
+}
+
 func New(options ...Option) *Runner {
 	r := &Runner{}
 	for _, o := range options {
@@ -49,35 +57,44 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		// returning an err.
 		panic("no steps to run")
 	}
+	g, ctx := errgroup.WithContext(ctx)
 	for _, s := range steps {
 		if err := ctx.Err(); err != nil {
 			return err
 		}
-		if s.PreExec != nil {
-			if err := s.PreExec(); err != nil {
+		if err := s.PreExec(); err != nil {
+			return err
+		}
+		c := r.newCommand(ctx, s)
+		startErr := c.Start()
+		if startErr != nil {
+			if err := s.PostExec(startErr); err != nil {
 				return err
 			}
+			continue
 		}
-		execErr := r.runStep(ctx, s)
-		if s.PostExec != nil {
-			if err := s.PostExec(execErr); err != nil {
+		if err := s.InExec(); err != nil {
+			return err
+		}
+		if r.runParallel {
+			g.Go(func() error {
+				return s.PostExec(c.Wait())
+			})
+		} else {
+			if err := s.PostExec(c.Wait()); err != nil {
 				return err
 			}
-		}
-		if execErr != nil {
-			return execErr
 		}
 	}
-	return nil
+	return g.Wait()
 }
 
-func (r *Runner) runStep(ctx context.Context, s *step.Step) error {
+func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
 	if s.Exec.Command == "" {
 		// this is a programmer error so better to panic instead of
 		// returning an err.
 		panic("empty command")
 	}
-	c := exec.CommandContext(ctx, s.Exec.Command, s.Exec.Args...)
 	var (
 		stdout = s.Stdout
 		stderr = s.Stderr
@@ -92,11 +109,9 @@ func (r *Runner) runStep(ctx context.Context, s *step.Step) error {
 	if dir == "" {
 		dir = r.workdir
 	}
+	c := exec.CommandContext(ctx, s.Exec.Command, s.Exec.Args...)
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
-	if err := c.Start(); err != nil {
-		return err
-	}
-	return c.Wait()
+	return c
 }

@@ -43,14 +43,15 @@ func serveHandler(cmd *cobra.Command, args []string) {
 	cmdNpm := gocmd.NewCmd("npm", "run", "dev")
 	cmdNpm.Dir = filepath.Join(appPath, "frontend")
 	cmdNpm.Start()
-	cmdt, cmdr := startServe(appPath, verbose)
+	cancel := startServe(appPath, verbose)
+	appName, _ := getAppAndModule(appPath)
+	go runDevServer(appName, verbose)
 	c := make(chan os.Signal, 1)
 	signal.Notify(c, os.Interrupt)
 	go func() {
 		<-c
 		cmdNpm.Stop()
-		cmdr.Process.Kill()
-		cmdt.Process.Kill()
+		cancel()
 		os.Exit(0)
 	}()
 	w := watcher.New()
@@ -59,9 +60,8 @@ func serveHandler(cmd *cobra.Command, args []string) {
 		for {
 			select {
 			case <-w.Event:
-				cmdr.Process.Kill()
-				cmdt.Process.Kill()
-				cmdt, cmdr = startServe(appPath, verbose)
+				cancel()
+				cancel = startServe(appPath, verbose)
 			case err := <-w.Error:
 				log.Println(err)
 			case <-w.Closed:
@@ -89,7 +89,7 @@ type Env struct {
 	NodeJS  bool   `json:"node_js"`
 }
 
-func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
+func startServe(path string, verbose bool) context.CancelFunc {
 	appName, _ := getAppAndModule(path)
 
 	var (
@@ -152,7 +152,7 @@ func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 					Mnemonic string `json:"mnemonic"`
 				}
 				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
-					return err
+					return errors.Wrap(err, "cannot decode mnemonic")
 				}
 				mnemonic.Reset()
 				fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
@@ -165,40 +165,65 @@ func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 		step.Exec("make", "init-post"),
 	))
 
-	runnerOpts := []cmdrunner.Option{
-		cmdrunner.DefaultStdout(stdout),
-		cmdrunner.DefaultStderr(stderr),
-		cmdrunner.DefaultWorkdir(path),
-	}
-
 	if err := cmdrunner.
-		New(runnerOpts...).
+		New(cmdrunner.DefaultStdout(stdout),
+			cmdrunner.DefaultStderr(stderr),
+			cmdrunner.DefaultWorkdir(path)).
 		Run(context.Background(), steps...); err != nil {
 		log.Fatal(err)
 	}
 
-	cmdTendermint := exec.Command(fmt.Sprintf("%[1]vd", appName), "start") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
-	cmdTendermint.Dir = path
-	if verbose {
-		fmt.Printf("🌍 Running a server at http://localhost:26657 (Tendermint)\n")
-		cmdTendermint.Stdout = os.Stdout
-	} else {
-		fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", appName)
-	}
-	if err := cmdTendermint.Start(); err != nil {
-		log.Fatal(fmt.Sprintf("Error in running %[1]vd start", appName), err)
-	}
-	cmdREST := exec.Command(fmt.Sprintf("%[1]vcli", appName), "rest-server") //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
-	cmdREST.Dir = path
-	if verbose {
-		fmt.Printf("🌍 Running a server at http://localhost:1317 (LCD)\n")
-		cmdREST.Stdout = os.Stdout
-	}
-	if err := cmdREST.Start(); err != nil {
-		log.Fatal(fmt.Sprintf("Error in running %[1]vcli rest-server", appName))
-	}
+	var servers step.Steps
+	servers.Add(step.New(
+		step.Exec(fmt.Sprintf("%[1]vd", appName), "start"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+		step.InExec(func() error {
+			if verbose {
+				fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
+			} else {
+				fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", appName)
+			}
+			return nil
+		}),
+		step.PostExec(func(exitErr error) error {
+			return errors.Wrapf(exitErr, "cannot run %[1]vd start", appName)
+		}),
+	))
+	servers.Add(step.New(
+		step.Exec(fmt.Sprintf("%[1]vcli", appName), "rest-server"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+		step.InExec(func() error {
+			if verbose {
+				fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
+			}
+			return nil
+		}),
+		step.PostExec(func(exitErr error) error {
+			return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", appName)
+		}),
+	))
+
+	serverRunner := cmdrunner.New(
+		cmdrunner.RunParallel(),
+		cmdrunner.DefaultStdout(stdout),
+		cmdrunner.DefaultStderr(stderr),
+		cmdrunner.DefaultWorkdir(path),
+	)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	go func() {
+		if err := serverRunner.Run(ctx, servers...); err != nil {
+			if _, ok := errors.Cause(err).(*exec.ExitError); !ok {
+				log.Fatal(err)
+			}
+		}
+	}()
+	return cancel
+}
+
+func runDevServer(appName string, verbose bool) error {
 	if verbose {
 		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
+	} else {
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
 	}
 	router := mux.NewRouter()
 	devUI := packr.New("ui/dist", "../../../../ui/dist")
@@ -243,13 +268,7 @@ func startServe(path string, verbose bool) (*exec.Cmd, *exec.Cmd) {
 		}
 	})
 	router.PathPrefix("/").Handler(http.FileServer(devUI))
-	go func() {
-		http.ListenAndServe(":12345", router)
-	}()
-	if !verbose {
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
-	}
-	return cmdTendermint, cmdREST
+	return http.ListenAndServe(":12345", router)
 }
 
 func isCommandAvailable(name string) bool {
