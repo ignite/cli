@@ -7,6 +7,7 @@ import (
 	"github.com/gorilla/mux"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -62,19 +63,24 @@ func (d *development) devAssetsHandler() http.Handler {
 
 func (d *development) statusHandler() http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		env := d.env()
-		engineStatus, err := httpstatuschecker.Check(d.conf.EngineAddr)
-		if err != nil {
-			xhttp.ResponseJSON(w, http.StatusInternalServerError, xhttp.NewErrorResponse(err))
+		var (
+			env                                               = d.env()
+			engineStatus, appBackendStatus, appFrontendStatus bool
+		)
+		g := &errgroup.Group{}
+		g.Go(func() (err error) {
+			engineStatus, err = httpstatuschecker.Check(d.conf.EngineAddr)
 			return
-		}
-		appBackendStatus, err := httpstatuschecker.Check(d.conf.AppBackendAddr + appNodeInfoEndpoint)
-		if err != nil {
-			xhttp.ResponseJSON(w, http.StatusInternalServerError, xhttp.NewErrorResponse(err))
+		})
+		g.Go(func() (err error) {
+			appBackendStatus, err = httpstatuschecker.Check(d.conf.AppBackendAddr + appNodeInfoEndpoint)
 			return
-		}
-		appFrontendStatus, err := httpstatuschecker.Check(d.conf.AppFrontendAddr)
-		if err != nil {
+		})
+		g.Go(func() (err error) {
+			appFrontendStatus, err = httpstatuschecker.Check(d.conf.AppFrontendAddr)
+			return
+		})
+		if err := g.Wait(); err != nil {
 			xhttp.ResponseJSON(w, http.StatusInternalServerError, xhttp.NewErrorResponse(err))
 			return
 		}
