@@ -1,18 +1,18 @@
 #!/bin/bash
 
-make && \
+make 1>/dev/null && \
 
 rm -rf tmp && mkdir tmp && cd tmp
 
 echo "=> Creating an app"
-starport app github.com/tendermint/blog 1>/dev/null
+../../build/starport app github.com/tendermint/blog 1>/dev/null
 cd blog
 
 echo "=> Creating a type"
-starport type post title body 1>/dev/null
+../../build/starport type post title body 1>/dev/null
 
 echo "=> Startig a server"
-starport serve 1>/dev/null &
+../../build/starport serve 1>/dev/null &
 pid=$!
 sleep 20
 
