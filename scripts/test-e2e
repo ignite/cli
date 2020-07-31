@@ -1,5 +1,6 @@
 #!/bin/bash
 
+mkdir build
 make 1>/dev/null && \
 
 rm -rf tmp && mkdir tmp && cd tmp
