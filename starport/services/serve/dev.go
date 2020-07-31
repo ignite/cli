@@ -6,6 +6,7 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"golang.org/x/sync/errgroup"
 )
@@ -101,6 +102,6 @@ func (d *development) statusHandler() http.Handler {
 func (d *development) env() env {
 	return env{
 		d.app.Name,
-		isCommandAvailable("node"),
+		xexec.IsCommandAvailable("node"),
 	}
 }

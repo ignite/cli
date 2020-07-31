@@ -17,6 +17,7 @@ import (
 	"github.com/radovskyb/watcher"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 )
 
 type App struct {
@@ -76,7 +77,7 @@ func startServe(ctx context.Context, app App, verbose bool) error {
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
-			if !isCommandAvailable("go") {
+			if !xexec.IsCommandAvailable("go") {
 				return errors.New("go must be avaiable in your path")
 			}
 			fmt.Println("\n📦 Installing dependencies...")
@@ -89,7 +90,7 @@ func startServe(ctx context.Context, app App, verbose bool) error {
 	steps.Add(step.New(
 		step.Exec("make"),
 		step.PreExec(func() error {
-			if !isCommandAvailable("make") {
+			if !xexec.IsCommandAvailable("make") {
 				return errors.New("make must be avaiable in your path")
 			}
 			fmt.Println("🚧 Building the application...")
@@ -192,9 +193,4 @@ func runDevServer(app App, verbose bool) error {
 		DevFrontendAssetsPath: "../../ui/dist",
 	} // TODO get vals from const
 	return http.ListenAndServe(":12345", newDevHandler(app, conf))
-}
-
-func isCommandAvailable(name string) bool {
-	_, err := exec.LookPath(name)
-	return err == nil
 }
