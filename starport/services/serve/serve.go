@@ -9,7 +9,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"path/filepath"
 
 	"github.com/pkg/errors"
@@ -25,9 +24,13 @@ type App struct {
 }
 
 func Serve(ctx context.Context, app App, verbose bool) error {
-	cmdNpm := exec.CommandContext(ctx, "npm", "run", "dev")
-	cmdNpm.Dir = filepath.Join(app.Path, "frontend")
-	cmdNpm.Start()
+	go cmdrunner.
+		New().
+		Run(ctx, step.New(
+			step.Exec("npm", "run", "dev"),
+			step.Workdir(filepath.Join(app.Path, "frontend")),
+		))
+
 	serveCtx, cancel := context.WithCancel(ctx)
 	startServe(serveCtx, app, verbose) // TODO handle error
 	go runDevServer(app, verbose)
