@@ -12,12 +12,13 @@ import (
 )
 
 type watcher struct {
-	wt       *wt.Watcher
-	workdir  string
-	onChange func()
-	interval time.Duration
-	ctx      context.Context
-	done     *sync.WaitGroup
+	wt           *wt.Watcher
+	workdir      string
+	ignoreHidden bool
+	onChange     func()
+	interval     time.Duration
+	ctx          context.Context
+	done         *sync.WaitGroup
 }
 
 // Option used to configure watcher.
@@ -44,6 +45,13 @@ func PollingInterval(d time.Duration) Option {
 	}
 }
 
+// IgnoreHidden ignores hidden(dot) files.
+func IgnoreHidden() Option {
+	return func(w *watcher) {
+		w.ignoreHidden = true
+	}
+}
+
 // Watch starts watching changes on the paths. options are used to configure the
 // behaviour of watch operation.
 func Watch(ctx context.Context, paths []string, options ...Option) error {
@@ -59,6 +67,7 @@ func Watch(ctx context.Context, paths []string, options ...Option) error {
 	for _, o := range options {
 		o(w)
 	}
+	w.wt.IgnoreHiddenFiles(w.ignoreHidden)
 	w.addPaths(paths...)
 	w.done.Add(1)
 	go w.listen()
