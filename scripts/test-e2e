@@ -6,14 +6,15 @@ make 1>/dev/null && \
 rm -rf tmp && mkdir tmp && cd tmp
 
 echo "=> Creating an app"
-starport app github.com/tendermint/blog 1>/dev/null
+starport app github.com/tendermint/blog
 cd blog
+ls
 
 echo "=> Creating a type"
-starport type post title body 1>/dev/null
+starport type post title body
 
 echo "=> Startig a server"
-starport serve 1>/dev/null &
+starport serve &
 pid=$!
 sleep 20
 
