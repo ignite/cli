@@ -4,24 +4,26 @@ make 1>/dev/null && \
 
 rm -rf tmp && mkdir tmp && cd tmp
 
-echo "=> Creating an app"
-../../build/starport app github.com/tendermint/blog 1>/dev/null
-cd blog
+which starport
 
-echo "=> Creating a type"
-../../build/starport type post title body 1>/dev/null
+# echo "=> Creating an app"
+# ../../build/starport app github.com/tendermint/blog 1>/dev/null
+# cd blog
 
-echo "=> Startig a server"
-../../build/starport serve 1>/dev/null &
-pid=$!
-sleep 20
+# echo "=> Creating a type"
+# ../../build/starport type post title body 1>/dev/null
 
-echo "=> Creating a blog post"
-blogcli tx blog create-post foo bar --from user1 -y
-sleep 10
+# echo "=> Startig a server"
+# ../../build/starport serve 1>/dev/null &
+# pid=$!
+# sleep 20
 
-echo "=> Listing blog posts"
-blogcli q blog list-post
+# echo "=> Creating a blog post"
+# blogcli tx blog create-post foo bar --from user1 -y
+# sleep 10
 
-echo "=> Shutting down the server"
-kill -s SIGINT $pid
+# echo "=> Listing blog posts"
+# blogcli q blog list-post
+
+# echo "=> Shutting down the server"
+# kill -s SIGINT $pid
