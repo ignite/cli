@@ -11,12 +11,11 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"time"
 
 	"github.com/pkg/errors"
-	"github.com/radovskyb/watcher"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
 
@@ -32,32 +31,18 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	serveCtx, cancel := context.WithCancel(ctx)
 	startServe(serveCtx, app, verbose) // TODO handle error
 	go runDevServer(app, verbose)
-	w := watcher.New()
-	w.SetMaxEvents(1)
-	go func() {
-		for {
-			select {
-			case <-ctx.Done():
-				w.Close()
-			case <-w.Event:
-				cancel()
-				serveCtx, cancel = context.WithCancel(ctx)
-				startServe(serveCtx, app, verbose) // TODO handle error
-			case err := <-w.Error:
-				log.Println(err)
-			}
-		}
-	}()
-	if err := w.AddRecursive(filepath.Join(app.Path, "./app")); err != nil {
-		log.Fatalln(err)
+
+	changeHook := func() {
+		cancel()
+		serveCtx, cancel = context.WithCancel(ctx)
+		startServe(serveCtx, app, verbose) // TODO handle error
 	}
-	if err := w.AddRecursive(filepath.Join(app.Path, "./cmd")); err != nil {
-		log.Fatalln(err)
-	}
-	if err := w.AddRecursive(filepath.Join(app.Path, "./x")); err != nil {
-		log.Fatalln(err)
-	}
-	return w.Start(time.Millisecond * 1000)
+	return fswatcher.Watch(
+		ctx,
+		[]string{"app", "cmd", "x"},
+		fswatcher.Workdir(app.Path),
+		fswatcher.OnChange(changeHook),
+	)
 }
 
 func startServe(ctx context.Context, app App, verbose bool) error {
