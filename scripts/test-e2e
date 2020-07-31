@@ -18,11 +18,11 @@ pid=$!
 sleep 20
 
 echo "=> Creating a blog post"
-blogcli tx blog create-post foo bar --from user1 -y
+~/go/bin/blogcli tx blog create-post foo bar --from user1 -y
 sleep 10
 
 echo "=> Listing blog posts"
-blogcli q blog list-post
+~/go/bin/blogcli q blog list-post
 
 echo "=> Shutting down the server"
 kill -s SIGINT $pid
