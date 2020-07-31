@@ -1,0 +1,14 @@
+name: Test E2E
+
+on: [pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Test Build
+        run: ./scripts/test-e2e
