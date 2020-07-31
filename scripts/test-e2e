@@ -1,5 +1,7 @@
 #!/bin/bash
 
+make && \
+
 rm -rf tmp && mkdir tmp && cd tmp
 
 echo "=> Creating an app"
