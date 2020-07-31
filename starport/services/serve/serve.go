@@ -23,22 +23,30 @@ type App struct {
 	Path string
 }
 
+type starportServe struct {
+	ctx     context.Context
+	app     App
+	verbose bool
+}
+
+// Serve serves user apps.
 func Serve(ctx context.Context, app App, verbose bool) error {
-	go cmdrunner.
-		New().
-		Run(ctx, step.New(
-			step.Exec("npm", "run", "dev"),
-			step.Workdir(filepath.Join(app.Path, "frontend")),
-		))
+	s := &starportServe{
+		ctx:     ctx,
+		app:     app,
+		verbose: verbose,
+	}
 
 	serveCtx, cancel := context.WithCancel(ctx)
-	startServe(serveCtx, app, verbose) // TODO handle error
-	go runDevServer(app, verbose)
+	s.serve(serveCtx) // TODO handle error
+
+	go s.watchAppFrontend()
+	go s.runDevServer()
 
 	changeHook := func() {
 		cancel()
 		serveCtx, cancel = context.WithCancel(ctx)
-		startServe(serveCtx, app, verbose) // TODO handle error
+		s.serve(serveCtx) // TODO handle error
 	}
 	return fswatcher.Watch(
 		ctx,
@@ -48,20 +56,35 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	)
 }
 
-func startServe(ctx context.Context, app App, verbose bool) error {
+func (s *starportServe) serve(ctx context.Context) error {
 	var (
-		steps step.Steps
-
 		stdout = ioutil.Discard
 		stderr = ioutil.Discard
-
-		mnemonic = &bytes.Buffer{}
 	)
-	if verbose {
+	if s.verbose {
 		stdout = os.Stdout
 		stderr = os.Stderr
 	}
+	opts := []cmdrunner.Option{
+		cmdrunner.DefaultStdout(stdout),
+		cmdrunner.DefaultStderr(stderr),
+		cmdrunner.DefaultWorkdir(s.app.Path),
+	}
 
+	if err := cmdrunner.
+		New(opts...).
+		Run(ctx, s.buildSteps()...); err != nil {
+		log.Fatal(err)
+	}
+
+	go cmdrunner.
+		New(append(opts, cmdrunner.RunParallel())...).
+		Run(ctx, s.serverSteps()...) // TODO handle err
+	return nil
+}
+
+func (s *starportServe) buildSteps() (steps step.Steps) {
+	mnemonic := &bytes.Buffer{}
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
@@ -121,55 +144,50 @@ func startServe(ctx context.Context, app App, verbose bool) error {
 	steps.Add(step.New(
 		step.Exec("make", "init-post"),
 	))
+	return
+}
 
-	if err := cmdrunner.
-		New(cmdrunner.DefaultStdout(stdout),
-			cmdrunner.DefaultStderr(stderr),
-			cmdrunner.DefaultWorkdir(app.Path)).
-		Run(ctx, steps...); err != nil {
-		log.Fatal(err)
-	}
-
-	var servers step.Steps
-	servers.Add(step.New(
-		step.Exec(fmt.Sprintf("%[1]vd", app.Name), "start"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+func (s *starportServe) serverSteps() (steps step.Steps) {
+	steps.Add(step.New(
+		step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
 		step.InExec(func() error {
-			if verbose {
+			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
 			} else {
-				fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", app.Name)
+				fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", s.app.Name)
 			}
 			return nil
 		}),
 		step.PostExec(func(exitErr error) error {
-			return errors.Wrapf(exitErr, "cannot run %[1]vd start", app.Name)
+			return errors.Wrapf(exitErr, "cannot run %[1]vd start", s.app.Name)
 		}),
 	))
-	servers.Add(step.New(
-		step.Exec(fmt.Sprintf("%[1]vcli", app.Name), "rest-server"), //nolint:gosec // Subprocess launched with function call as argument or cmd arguments
+	steps.Add(step.New(
+		step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
 		step.InExec(func() error {
-			if verbose {
+			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
 			}
 			return nil
 		}),
 		step.PostExec(func(exitErr error) error {
-			return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", app.Name)
+			return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", s.app.Name)
 		}),
 	))
-
-	serverRunner := cmdrunner.New(
-		cmdrunner.RunParallel(),
-		cmdrunner.DefaultStdout(stdout),
-		cmdrunner.DefaultStderr(stderr),
-		cmdrunner.DefaultWorkdir(app.Path),
-	)
-	go serverRunner.Run(ctx, servers...) // TODO handle err
-	return nil
+	return
 }
 
-func runDevServer(app App, verbose bool) error {
-	if verbose {
+func (s *starportServe) watchAppFrontend() {
+	cmdrunner.
+		New().
+		Run(s.ctx, step.New(
+			step.Exec("npm", "run", "dev"),
+			step.Workdir(filepath.Join(s.app.Path, "frontend")),
+		))
+}
+
+func (s *starportServe) runDevServer() error {
+	if s.verbose {
 		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
 	} else {
 		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
@@ -180,5 +198,5 @@ func runDevServer(app App, verbose bool) error {
 		AppFrontendAddr:       "http://localhost:8080",
 		DevFrontendAssetsPath: "../../ui/dist",
 	} // TODO get vals from const
-	return http.ListenAndServe(":12345", newDevHandler(app, conf))
+	return http.ListenAndServe(":12345", newDevHandler(s.app, conf))
 }
