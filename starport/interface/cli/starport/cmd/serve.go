@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/signal"
 
@@ -42,6 +43,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 
 	err := starportserve.Serve(ctx, app, verbose)
 	if err == context.Canceled {
+		fmt.Println("aborted")
 		return nil
 	}
 	return err
