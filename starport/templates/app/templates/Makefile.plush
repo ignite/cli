@@ -34,8 +34,8 @@ init-user2:
 	<%= BinaryNamePrefix %>cli keys add user2 --output json 2>&1
 
 init-post:
-	<%= BinaryNamePrefix %>d add-genesis-account $$(<%= BinaryNamePrefix %>cli keys show user1 -a) 1000token,100000000stake
-	<%= BinaryNamePrefix %>d add-genesis-account $$(<%= BinaryNamePrefix %>cli keys show user2 -a) 500token
+	<%= BinaryNamePrefix %>d add-genesis-account $$(<%= BinaryNamePrefix %>cli keys show user1 -a) 1000<%= Denom %>,100000000stake
+	<%= BinaryNamePrefix %>d add-genesis-account $$(<%= BinaryNamePrefix %>cli keys show user2 -a) 500<%= Denom %>
 	<%= BinaryNamePrefix %>cli config chain-id <%= AppName %>
 	<%= BinaryNamePrefix %>cli config output json
 	<%= BinaryNamePrefix %>cli config indent true
