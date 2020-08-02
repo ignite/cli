@@ -6,6 +6,7 @@ type Options struct {
 	BinaryNamePrefix string
 	ModulePath       string
 	Denom            string
+	Prefix           string
 }
 
 // Validate that options are usuable
