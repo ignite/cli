@@ -21,7 +21,7 @@ func NewApp() *cobra.Command {
 		RunE:  appHandler,
 	}
 	c.Flags().StringP("denom", "d", "token", "Token denomination")
-	c.Flags().String("prefix", "cosmos", "Address prefix")
+	c.Flags().String("address-prefix", "cosmos", "Address prefix")
 	return c
 }
 
@@ -31,13 +31,13 @@ func appHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	denom, _ := cmd.Flags().GetString("denom")
-	prefix, _ := cmd.Flags().GetString("prefix")
+	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
 	g, _ := app.New(&app.Options{
 		ModulePath:       path.RawPath,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,
 		Denom:            denom,
-		Prefix:           prefix,
+		AddressPrefix:    addressPrefix,
 	})
 	run := genny.WetRunner(context.Background())
 	run.With(g)

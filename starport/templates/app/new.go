@@ -20,7 +20,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("Denom", opts.Denom)
-	ctx.Set("Prefix", opts.Prefix)
+	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("title", strings.Title)
 
 	g.Transformer(plushgen.Transformer(ctx))

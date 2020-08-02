@@ -5,12 +5,12 @@ import (
 )
 
 var (
-	AccountAddressPrefix   = "<%= Prefix %>"
-	AccountPubKeyPrefix    = "<%= Prefix %>pub"
-	ValidatorAddressPrefix = "<%= Prefix %>valoper"
-	ValidatorPubKeyPrefix  = "<%= Prefix %>valoperpub"
-	ConsNodeAddressPrefix  = "<%= Prefix %>valcons"
-	ConsNodePubKeyPrefix   = "<%= Prefix %>valconspub"
+	AccountAddressPrefix   = "<%= AddressPrefix %>"
+	AccountPubKeyPrefix    = "<%= AddressPrefix %>pub"
+	ValidatorAddressPrefix = "<%= AddressPrefix %>valoper"
+	ValidatorPubKeyPrefix  = "<%= AddressPrefix %>valoperpub"
+	ConsNodeAddressPrefix  = "<%= AddressPrefix %>valcons"
+	ConsNodePubKeyPrefix   = "<%= AddressPrefix %>valconspub"
 )
 
 func SetConfig() {
