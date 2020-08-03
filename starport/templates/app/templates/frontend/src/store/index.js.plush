@@ -2,11 +2,12 @@ import Vue from "vue";
 import Vuex from "vuex";
 import axios from "axios";
 import app from "./app.js";
-import { Secp256k1Wallet, SigningCosmosClient } from "@cosmjs/launchpad";
+import { Secp256k1Wallet, SigningCosmosClient, makeCosmoshubPath } from "@cosmjs/launchpad";
 
 Vue.use(Vuex);
 
 const API = "http://localhost:8080";
+const ADDRESS_PREFIX = "<%= AddressPrefix %>"
 
 export default new Vuex.Store({
   state: {
@@ -45,7 +46,7 @@ export default new Vuex.Store({
     },
     async accountSignIn({ commit }, { mnemonic }) {
       return new Promise(async (resolve, reject) => {
-        const wallet = await Secp256k1Wallet.fromMnemonic(mnemonic);
+        const wallet = await Secp256k1Wallet.fromMnemonic(mnemonic, makeCosmoshubPath(0), ADDRESS_PREFIX);
         const [{ address }] = await wallet.getAccounts();
         const url = `${API}/auth/accounts/${address}`;
         const acc = (await axios.get(url)).data;
