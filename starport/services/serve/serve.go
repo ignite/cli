@@ -45,6 +45,7 @@ type starportServe struct {
 	app            App
 	version        version
 	verbose        bool
+	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 }
 
@@ -69,10 +70,6 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		return s.runDevServer(ctx)
 	})
 	g.Go(func() error {
-		var (
-			serveCtx    context.Context
-			serveCancel context.CancelFunc
-		)
 		s.refreshServe()
 		for {
 			select {
@@ -80,10 +77,8 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 				return ctx.Err()
 
 			case <-s.serveRefresher:
-				if serveCancel != nil {
-					serveCancel()
-				}
-				serveCtx, serveCancel = context.WithCancel(ctx)
+				var serveCtx context.Context
+				serveCtx, s.serveCancel = context.WithCancel(ctx)
 				if err := s.serve(serveCtx); err != nil && err != context.Canceled {
 					return err
 				}
@@ -97,6 +92,9 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 }
 
 func (s *starportServe) refreshServe() {
+	if s.serveCancel != nil {
+		s.serveCancel()
+	}
 	s.serveRefresher <- struct{}{}
 }
 
