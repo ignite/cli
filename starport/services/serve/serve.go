@@ -10,13 +10,17 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strings"
 	"time"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/tendermint/starport/starport/pkg/xos"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -33,8 +37,14 @@ type App struct {
 	Path string
 }
 
+type version struct {
+	tag  string
+	hash string
+}
+
 type starportServe struct {
 	app     App
+	version version
 	verbose bool
 }
 
@@ -44,6 +54,11 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		app:     app,
 		verbose: verbose,
 	}
+	v, err := s.appVersion()
+	if err != nil && err != git.ErrRepositoryNotExists {
+		return err
+	}
+	s.version = v
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -122,7 +137,25 @@ func (s *starportServe) serve(ctx context.Context) error {
 }
 
 func (s *starportServe) buildSteps() (steps step.Steps) {
-	mnemonic := &bytes.Buffer{}
+	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
+	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
+	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
+	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
+	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
+	var (
+		// no-dash app name.
+		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
+		ndappd   = ndapp + "d"
+		ndappcli = ndapp + "cli"
+
+		appd   = s.app.Name + "d"
+		appcli = s.app.Name + "cli"
+	)
+	var (
+		user1Key = &bytes.Buffer{}
+		user2Key = &bytes.Buffer{}
+		mnemonic = &bytes.Buffer{}
+	)
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
@@ -136,32 +169,25 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			return errors.Wrap(exitErr, "cannot install go modules")
 		}),
 	))
+	steps.Add(step.New(step.Exec("go", "mod", "verify")))
+	cwd, _ := os.Getwd()
+	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd))))
+	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appcli))))
 	steps.Add(step.New(
-		step.Exec("make"),
+		step.Exec(appd, "init", "mynode", "--chain-id", ndapp),
 		step.PreExec(func() error {
-			if !xexec.IsCommandAvailable("make") {
-				return errors.New("make must be avaiable in your path")
-			}
-			fmt.Println("🚧 Building the application...")
-			return nil
-		}),
-		step.PostExec(func(exitErr error) error {
-			return errors.Wrap(exitErr, "cannot build your app")
+			return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
 		}),
 	))
 	steps.Add(step.New(
-		step.Exec("make", "init-pre"),
+		step.Exec(appcli, "config", "keyring-backend", "test"),
 		step.PreExec(func() error {
-			fmt.Println("💫 Initializing the chain...")
-			return nil
-		}),
-		step.PostExec(func(exitErr error) error {
-			return errors.Wrap(exitErr, "cannot initialize the chain")
+			return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
 		}),
 	))
 	for _, user := range []string{"user1", "user2"} {
 		steps.Add(step.New(
-			step.Exec("make", fmt.Sprintf("init-%s", user), "-s"),
+			step.Exec(appcli, "keys", "add", user, "--output", "json"),
 			step.PostExec(func(exitErr error) error {
 				if exitErr != nil {
 					return errors.Wrapf(exitErr, "cannot create %s account", user)
@@ -169,6 +195,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				var user struct {
 					Mnemonic string `json:"mnemonic"`
 				}
+				fmt.Println(string(mnemonic.Bytes()))
 				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
 					return errors.Wrap(err, "cannot decode mnemonic")
 				}
@@ -176,12 +203,43 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
 				return nil
 			}),
-			step.Stdout(mnemonic),
+			step.Stderr(mnemonic), // TODO why mnemonic comes from stderr?
 		))
 	}
 	steps.Add(step.New(
-		step.Exec("make", "init-post"),
+		step.Exec(appcli, "keys", "show", "user1", "-a"),
+		step.PostExec(func(err error) error {
+			if err != nil {
+				return err
+			}
+			// TODO dynamic denom
+			return cmdrunner.
+				New().
+				Run(context.Background(), step.New(
+					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user1Key.String()), "1000token,100000000stake")))
+		}),
+		step.Stdout(user1Key),
 	))
+	steps.Add(step.New(
+		step.Exec(appcli, "keys", "show", "user2", "-a"),
+		step.PostExec(func(err error) error {
+			if err != nil {
+				return err
+			}
+			// TODO dynamic denom
+			return cmdrunner.
+				New().
+				Run(context.Background(), step.New(
+					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user2Key.String()), "500token")))
+		}),
+		step.Stdout(user2Key),
+	))
+	steps.Add(step.New(step.Exec(appcli, "config", "chain-id", ndapp)))
+	steps.Add(step.New(step.Exec(appcli, "config", "output", "json")))
+	steps.Add(step.New(step.Exec(appcli, "config", "indent", "true")))
+	steps.Add(step.New(step.Exec(appcli, "config", "trust-node", "true")))
+	steps.Add(step.New(step.Exec(appd, "gentx", "--name", "user1", "--keyring-backend", "test")))
+	steps.Add(step.New(step.Exec(appd, "collect-gentxs")))
 	return
 }
 
@@ -251,4 +309,21 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 		return nil
 	}
 	return err
+}
+
+func (s *starportServe) appVersion() (v version, err error) {
+	repo, err := git.PlainOpen(s.app.Path)
+	if err != nil {
+		return version{}, err
+	}
+	iter, err := repo.Tags()
+	if err != nil {
+		return version{}, err
+	}
+	err = iter.ForEach(func(ref *plumbing.Reference) error {
+		v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
+		v.hash = ref.Hash().String()
+		return nil
+	})
+	return
 }
