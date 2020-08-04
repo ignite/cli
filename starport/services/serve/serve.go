@@ -14,7 +14,6 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -43,16 +42,18 @@ type version struct {
 }
 
 type starportServe struct {
-	app     App
-	version version
-	verbose bool
+	app            App
+	version        version
+	verbose        bool
+	serveRefresher chan struct{}
 }
 
 // Serve serves user apps.
 func Serve(ctx context.Context, app App, verbose bool) error {
 	s := &starportServe{
-		app:     app,
-		verbose: verbose,
+		app:            app,
+		verbose:        verbose,
+		serveRefresher: make(chan struct{}, 1),
 	}
 	v, err := s.appVersion()
 	if err != nil && err != git.ErrRepositoryNotExists {
@@ -67,41 +68,46 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	g.Go(func() error {
 		return s.runDevServer(ctx)
 	})
-
-	var (
-		serveCtx    context.Context
-		serveCancel context.CancelFunc
-		serveErr    = make(chan error, 1)
-	)
-	serve := func() {
-		if serveCancel != nil {
-			serveCancel()
-		}
-		serveCtx, serveCancel = context.WithCancel(ctx)
-		if err := s.serve(serveCtx); err != nil && err != context.Canceled {
-			serveErr <- err
-		}
-	}
-	go serve()
-
 	g.Go(func() error {
-		select {
-		case err := <-serveErr:
-			return err
-		case <-ctx.Done():
-			return ctx.Err()
+		var (
+			serveCtx    context.Context
+			serveCancel context.CancelFunc
+		)
+		s.refreshServe()
+		for {
+			select {
+			case <-ctx.Done():
+				return ctx.Err()
+
+			case <-s.serveRefresher:
+				if serveCancel != nil {
+					serveCancel()
+				}
+				serveCtx, serveCancel = context.WithCancel(ctx)
+				if err := s.serve(serveCtx); err != nil && err != context.Canceled {
+					return err
+				}
+			}
 		}
 	})
 	g.Go(func() error {
-		return fswatcher.Watch(
-			ctx,
-			appBackendWatchPaths,
-			fswatcher.Workdir(app.Path),
-			fswatcher.OnChange(serve),
-			fswatcher.IgnoreHidden(),
-		)
+		return s.watchAppBackend(ctx)
 	})
 	return g.Wait()
+}
+
+func (s *starportServe) refreshServe() {
+	s.serveRefresher <- struct{}{}
+}
+
+func (s *starportServe) watchAppBackend(ctx context.Context) error {
+	return fswatcher.Watch(
+		ctx,
+		appBackendWatchPaths,
+		fswatcher.Workdir(s.app.Path),
+		fswatcher.OnChange(s.refreshServe),
+		fswatcher.IgnoreHidden(),
+	)
 }
 
 func (s *starportServe) serve(ctx context.Context) error {
@@ -195,7 +201,6 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				var user struct {
 					Mnemonic string `json:"mnemonic"`
 				}
-				fmt.Println(string(mnemonic.Bytes()))
 				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
 					return errors.Wrap(err, "cannot decode mnemonic")
 				}
@@ -320,10 +325,11 @@ func (s *starportServe) appVersion() (v version, err error) {
 	if err != nil {
 		return version{}, err
 	}
-	err = iter.ForEach(func(ref *plumbing.Reference) error {
-		v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-		v.hash = ref.Hash().String()
-		return nil
-	})
-	return
+	ref, err := iter.Next()
+	if err != nil {
+		return version{}, err
+	}
+	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
+	v.hash = ref.Hash().String()
+	return v, nil
 }
