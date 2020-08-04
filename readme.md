@@ -83,7 +83,7 @@ Adds smart contracts with [CosmWasm](https://docs.cosmwasm.com). Follow a short 
 
 For questions and support please join the #starport channel in the [Cosmos Community Discord](https://discord.com/invite/W8trcGV). The issue list of this repo is exclusively for bug reports and feature requests.
 
-# Contributing
+## Contributing
 
 `develop` contains the latest version. Please branch of from `develop` and create a PR.
 
