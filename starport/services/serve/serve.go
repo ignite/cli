@@ -15,6 +15,7 @@ import (
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -31,6 +32,9 @@ var (
 		"cmd",
 		"x",
 	}
+
+	errorColor = color.Red.Render
+	infoColor  = color.Yellow.Render
 )
 
 type App struct {
@@ -83,9 +87,16 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 			case <-s.serveRefresher:
 				var serveCtx context.Context
 				serveCtx, s.serveCancel = context.WithCancel(ctx)
-				if err := s.serve(serveCtx); err != nil && err != context.Canceled {
-					return err
+				err := s.serve(serveCtx)
+				if err == nil || err == context.Canceled {
+					continue
 				}
+				if _, ok := err.(*CannotBuildAppError); ok {
+					fmt.Fprintf(os.Stderr, "%s\n", errorColor(err.Error()))
+					fmt.Printf("%s\n", infoColor("waiting for a fix before retrying..."))
+					continue
+				}
+				return err
 			}
 		}
 	})
@@ -158,7 +169,15 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 
 		appd   = s.app.Name + "d"
 		appcli = s.app.Name + "cli"
+
+		buildErr = &bytes.Buffer{}
 	)
+	captureBuildErr := func(exitErr error) error {
+		if exitErr != nil {
+			return &CannotBuildAppError{Log: buildErr.String()}
+		}
+		return nil
+	}
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
@@ -168,14 +187,25 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			fmt.Println("\n📦 Installing dependencies...")
 			return nil
 		}),
-		step.PostExec(func(exitErr error) error {
-			return errors.Wrap(exitErr, "cannot install go modules")
-		}),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
 	))
 	steps.Add(step.New(step.Exec("go", "mod", "verify")))
 	cwd, _ := os.Getwd()
-	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd))))
-	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appcli))))
+	steps.Add(step.New(
+		step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd)),
+		step.PreExec(func() error {
+			fmt.Println("\n🛠️  Building the app...")
+			return nil
+		}),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
+	))
+	steps.Add(step.New(
+		step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appcli)),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
+	))
 	steps.Add(step.New(
 		step.Exec(appd, "init", "mynode", "--chain-id", ndapp),
 		step.PreExec(func() error {
@@ -322,4 +352,12 @@ func (s *starportServe) appVersion() (v version, err error) {
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
 	return v, nil
+}
+
+type CannotBuildAppError struct {
+	Log string
+}
+
+func (e *CannotBuildAppError) Error() string {
+	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Log)
 }
