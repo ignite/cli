@@ -190,12 +190,16 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 		step.PostExec(captureBuildErr),
 		step.Stderr(buildErr),
 	))
-	steps.Add(step.New(step.Exec("go", "mod", "verify")))
+	steps.Add(step.New(
+		step.Exec("go", "mod", "verify"),
+	))
+
 	cwd, _ := os.Getwd()
+
 	steps.Add(step.New(
 		step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd)),
 		step.PreExec(func() error {
-			fmt.Println("\n🛠️  Building the app...")
+			fmt.Println("🛠️  Building the app...")
 			return nil
 		}),
 		step.PostExec(captureBuildErr),
