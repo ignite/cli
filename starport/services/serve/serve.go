@@ -21,6 +21,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
+	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -44,6 +45,7 @@ type version struct {
 
 type starportServe struct {
 	app            App
+	conf           starportconf.Config
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -51,9 +53,10 @@ type starportServe struct {
 }
 
 // Serve serves user apps.
-func Serve(ctx context.Context, app App, verbose bool) error {
+func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool) error {
 	s := &starportServe{
 		app:            app,
+		conf:           conf,
 		verbose:        verbose,
 		serveRefresher: make(chan struct{}, 1),
 	}
@@ -156,11 +159,6 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 		appd   = s.app.Name + "d"
 		appcli = s.app.Name + "cli"
 	)
-	var (
-		user1Key = &bytes.Buffer{}
-		user2Key = &bytes.Buffer{}
-		mnemonic = &bytes.Buffer{}
-	)
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
@@ -190,59 +188,49 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
 		}),
 	))
-	for _, user := range []string{"user1", "user2"} {
+	for _, account := range s.conf.Accounts {
+		account := account
+		var (
+			key      = &bytes.Buffer{}
+			mnemonic = &bytes.Buffer{}
+		)
 		steps.Add(step.New(
-			step.Exec(appcli, "keys", "add", user, "--output", "json"),
+			step.Exec(appcli, "keys", "add", account.Name, "--output", "json"),
 			step.PostExec(func(exitErr error) error {
 				if exitErr != nil {
-					return errors.Wrapf(exitErr, "cannot create %s account", user)
+					return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
 				}
 				var user struct {
 					Mnemonic string `json:"mnemonic"`
 				}
-				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
+				if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
 					return errors.Wrap(err, "cannot decode mnemonic")
 				}
-				mnemonic.Reset()
 				fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
 				return nil
 			}),
 			step.Stderr(mnemonic), // TODO why mnemonic comes from stderr?
 		))
+		steps.Add(step.New(
+			step.Exec(appcli, "keys", "show", account.Name, "-a"),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				coins := strings.Join(account.Coins, ",")
+				return cmdrunner.
+					New().
+					Run(context.Background(), step.New(
+						step.Exec(appd, "add-genesis-account", strings.TrimSpace(key.String()), coins)))
+			}),
+			step.Stdout(key),
+		))
 	}
-	steps.Add(step.New(
-		step.Exec(appcli, "keys", "show", "user1", "-a"),
-		step.PostExec(func(err error) error {
-			if err != nil {
-				return err
-			}
-			// TODO dynamic denom
-			return cmdrunner.
-				New().
-				Run(context.Background(), step.New(
-					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user1Key.String()), "1000token,100000000stake")))
-		}),
-		step.Stdout(user1Key),
-	))
-	steps.Add(step.New(
-		step.Exec(appcli, "keys", "show", "user2", "-a"),
-		step.PostExec(func(err error) error {
-			if err != nil {
-				return err
-			}
-			// TODO dynamic denom
-			return cmdrunner.
-				New().
-				Run(context.Background(), step.New(
-					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user2Key.String()), "500token")))
-		}),
-		step.Stdout(user2Key),
-	))
 	steps.Add(step.New(step.Exec(appcli, "config", "chain-id", ndapp)))
 	steps.Add(step.New(step.Exec(appcli, "config", "output", "json")))
 	steps.Add(step.New(step.Exec(appcli, "config", "indent", "true")))
 	steps.Add(step.New(step.Exec(appcli, "config", "trust-node", "true")))
-	steps.Add(step.New(step.Exec(appd, "gentx", "--name", "user1", "--keyring-backend", "test")))
+	steps.Add(step.New(step.Exec(appd, "gentx", "--name", s.conf.Accounts[0].Name, "--keyring-backend", "test")))
 	steps.Add(step.New(step.Exec(appd, "collect-gentxs")))
 	return
 }
