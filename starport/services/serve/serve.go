@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-git/go-git/v5"
@@ -247,9 +248,16 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 }
 
 func (s *starportServe) serverSteps() (steps step.Steps) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		wg.Wait()
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
+	}()
 	steps.Add(step.New(
 		step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
 		step.InExec(func() error {
+			defer wg.Done()
 			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
 			} else {
@@ -264,6 +272,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	steps.Add(step.New(
 		step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
 		step.InExec(func() error {
+			defer wg.Done()
 			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
 			}
@@ -286,11 +295,6 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 }
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
-	if s.verbose {
-		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
-	} else {
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
-	}
 	conf := Config{
 		EngineAddr:            "http://localhost:26657",
 		AppBackendAddr:        "http://localhost:1317",
