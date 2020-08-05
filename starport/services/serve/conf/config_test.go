@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseUserConfig(t *testing.T) {
+func TestParse(t *testing.T) {
 	confyml := `
 accounts:
   - name: me
@@ -16,9 +16,9 @@ accounts:
     coins: ["5000token"]
 `
 
-	conf, err := ParseUserConfig(strings.NewReader(confyml))
+	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, UserConfig{
+	require.Equal(t, Config{
 		Accounts: []Account{
 			{
 				Name:  "me",
