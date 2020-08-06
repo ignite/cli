@@ -3,9 +3,10 @@ package <%= AppName %>
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= AppName %>/types"
+	"<%= ModulePath %>/x/<%= AppName %>/keeper"
 )
 
-func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k Keeper, msg MsgCreate<%= title(TypeName) %>) (*sdk.Result, error) {
+func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreate<%= title(TypeName) %>) (*sdk.Result, error) {
 	var <%= TypeName %> = types.<%= title(TypeName) %>{
 		Creator: msg.Creator,
 		ID:      msg.ID,<%= for (field) in Fields { %>
