@@ -27,5 +27,5 @@ require (
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
-	golang.org/x/sys v0.0.0-20200803210538-64077c9b5642 // indirect
+	golang.org/x/sys v0.0.0-20200806060901-a37d78b92225 // indirect
 )

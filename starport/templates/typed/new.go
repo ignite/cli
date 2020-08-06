@@ -14,7 +14,6 @@ import (
 func New(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(handlerModify(opts))
-	g.RunFn(aliasModify(opts))
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn((typesCodecModify(opts)))
 	g.RunFn((clientCliTxModify(opts)))
@@ -60,31 +59,10 @@ func handlerModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-		case MsgCreate%[2]v:
+		case types.MsgCreate%[2]v:
 			return handleMsgCreate%[2]v(ctx, k, msg)`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func aliasModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/alias.go", opts.AppName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		content := f.String() + fmt.Sprintf(`
-var (
-	NewMsgCreate%[1]v = types.NewMsgCreate%[1]v
-)
-
-type (
-	MsgCreate%[1]v = types.MsgCreate%[1]v
-)
-		`, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
