@@ -65,10 +65,22 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		if err := s.PreExec(); err != nil {
 			return err
 		}
+		runPostExec := func(processErr error) error {
+			// if context is canceled, then we can ignore exit error of the
+			// process because it should be exited because of the cancellation.
+			var err error
+			ctxErr := ctx.Err()
+			if ctxErr != nil {
+				err = ctxErr
+			} else {
+				err = processErr
+			}
+			return s.PostExec(err)
+		}
 		c := r.newCommand(ctx, s)
 		startErr := c.Start()
 		if startErr != nil {
-			if err := s.PostExec(startErr); err != nil {
+			if err := runPostExec(startErr); err != nil {
 				return err
 			}
 			continue
@@ -78,10 +90,10 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		}
 		if r.runParallel {
 			g.Go(func() error {
-				return s.PostExec(c.Wait())
+				return runPostExec(c.Wait())
 			})
 		} else {
-			if err := s.PostExec(c.Wait()); err != nil {
+			if err := runPostExec(c.Wait()); err != nil {
 				return err
 			}
 		}

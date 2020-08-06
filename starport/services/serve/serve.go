@@ -11,15 +11,18 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
+	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -29,6 +32,9 @@ var (
 		"cmd",
 		"x",
 	}
+
+	errorColor = color.Red.Render
+	infoColor  = color.Yellow.Render
 )
 
 type App struct {
@@ -43,6 +49,7 @@ type version struct {
 
 type starportServe struct {
 	app            App
+	conf           starportconf.Config
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -50,9 +57,10 @@ type starportServe struct {
 }
 
 // Serve serves user apps.
-func Serve(ctx context.Context, app App, verbose bool) error {
+func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool) error {
 	s := &starportServe{
 		app:            app,
+		conf:           conf,
 		verbose:        verbose,
 		serveRefresher: make(chan struct{}, 1),
 	}
@@ -77,9 +85,19 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 				return ctx.Err()
 
 			case <-s.serveRefresher:
-				var serveCtx context.Context
+				var (
+					serveCtx context.Context
+					buildErr *CannotBuildAppError
+				)
 				serveCtx, s.serveCancel = context.WithCancel(ctx)
-				if err := s.serve(serveCtx); err != nil && err != context.Canceled {
+				err := s.serve(serveCtx)
+				switch {
+				case err == nil:
+				case errors.Is(err, context.Canceled):
+				case errors.As(err, &buildErr):
+					fmt.Fprintf(os.Stderr, "%s\n", errorColor(err.Error()))
+					fmt.Printf("%s\n", infoColor("waiting for a fix before retrying..."))
+				default:
 					return err
 				}
 			}
@@ -129,15 +147,9 @@ func (s *starportServe) serve(ctx context.Context) error {
 		return err
 	}
 
-	if err := cmdrunner.
+	return cmdrunner.
 		New(append(opts, cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps()...); err != nil {
-		if _, ok := errors.Cause(err).(*exec.ExitError); ok {
-			return nil
-		}
-		return err
-	}
-	return nil
+		Run(ctx, s.serverSteps()...)
 }
 
 func (s *starportServe) buildSteps() (steps step.Steps) {
@@ -154,12 +166,16 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 
 		appd   = s.app.Name + "d"
 		appcli = s.app.Name + "cli"
+
+		buildErr = &bytes.Buffer{}
 	)
-	var (
-		user1Key = &bytes.Buffer{}
-		user2Key = &bytes.Buffer{}
-		mnemonic = &bytes.Buffer{}
-	)
+	captureBuildErr := func(err error) error {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
+			return &CannotBuildAppError{Log: buildErr.String()}
+		}
+		return err
+	}
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
 		step.PreExec(func() error {
@@ -169,14 +185,31 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			fmt.Println("\n📦 Installing dependencies...")
 			return nil
 		}),
-		step.PostExec(func(exitErr error) error {
-			return errors.Wrap(exitErr, "cannot install go modules")
-		}),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
 	))
-	steps.Add(step.New(step.Exec("go", "mod", "verify")))
+	steps.Add(step.New(
+		step.Exec("go", "mod", "verify"),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
+	))
+
 	cwd, _ := os.Getwd()
-	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd))))
-	steps.Add(step.New(step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appcli))))
+
+	steps.Add(step.New(
+		step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appd)),
+		step.PreExec(func() error {
+			fmt.Println("🛠️  Building the app...")
+			return nil
+		}),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
+	))
+	steps.Add(step.New(
+		step.Exec("go", "install", "-mod", "readonly", "-ldflags", ldflags, filepath.Join(cwd, "cmd", appcli)),
+		step.PostExec(captureBuildErr),
+		step.Stderr(buildErr),
+	))
 	steps.Add(step.New(
 		step.Exec(appd, "init", "mynode", "--chain-id", ndapp),
 		step.PreExec(func() error {
@@ -189,67 +222,64 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
 		}),
 	))
-	for _, user := range []string{"user1", "user2"} {
+	for _, account := range s.conf.Accounts {
+		account := account
+		var (
+			key      = &bytes.Buffer{}
+			mnemonic = &bytes.Buffer{}
+		)
 		steps.Add(step.New(
-			step.Exec(appcli, "keys", "add", user, "--output", "json"),
+			step.Exec(appcli, "keys", "add", account.Name, "--output", "json"),
 			step.PostExec(func(exitErr error) error {
 				if exitErr != nil {
-					return errors.Wrapf(exitErr, "cannot create %s account", user)
+					return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
 				}
 				var user struct {
 					Mnemonic string `json:"mnemonic"`
 				}
-				if err := json.Unmarshal(mnemonic.Bytes(), &user); err != nil {
+				if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
 					return errors.Wrap(err, "cannot decode mnemonic")
 				}
-				mnemonic.Reset()
 				fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
 				return nil
 			}),
 			step.Stderr(mnemonic), // TODO why mnemonic comes from stderr?
 		))
+		steps.Add(step.New(
+			step.Exec(appcli, "keys", "show", account.Name, "-a"),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				coins := strings.Join(account.Coins, ",")
+				return cmdrunner.
+					New().
+					Run(context.Background(), step.New(
+						step.Exec(appd, "add-genesis-account", strings.TrimSpace(key.String()), coins)))
+			}),
+			step.Stdout(key),
+		))
 	}
-	steps.Add(step.New(
-		step.Exec(appcli, "keys", "show", "user1", "-a"),
-		step.PostExec(func(err error) error {
-			if err != nil {
-				return err
-			}
-			// TODO dynamic denom
-			return cmdrunner.
-				New().
-				Run(context.Background(), step.New(
-					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user1Key.String()), "1000token,100000000stake")))
-		}),
-		step.Stdout(user1Key),
-	))
-	steps.Add(step.New(
-		step.Exec(appcli, "keys", "show", "user2", "-a"),
-		step.PostExec(func(err error) error {
-			if err != nil {
-				return err
-			}
-			// TODO dynamic denom
-			return cmdrunner.
-				New().
-				Run(context.Background(), step.New(
-					step.Exec(appd, "add-genesis-account", strings.TrimSpace(user2Key.String()), "500token")))
-		}),
-		step.Stdout(user2Key),
-	))
 	steps.Add(step.New(step.Exec(appcli, "config", "chain-id", ndapp)))
 	steps.Add(step.New(step.Exec(appcli, "config", "output", "json")))
 	steps.Add(step.New(step.Exec(appcli, "config", "indent", "true")))
 	steps.Add(step.New(step.Exec(appcli, "config", "trust-node", "true")))
-	steps.Add(step.New(step.Exec(appd, "gentx", "--name", "user1", "--keyring-backend", "test")))
+	steps.Add(step.New(step.Exec(appd, "gentx", "--name", s.conf.Accounts[0].Name, "--keyring-backend", "test")))
 	steps.Add(step.New(step.Exec(appd, "collect-gentxs")))
 	return
 }
 
 func (s *starportServe) serverSteps() (steps step.Steps) {
+	var wg sync.WaitGroup
+	wg.Add(2)
+	go func() {
+		wg.Wait()
+		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
+	}()
 	steps.Add(step.New(
 		step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
 		step.InExec(func() error {
+			defer wg.Done()
 			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
 			} else {
@@ -264,6 +294,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	steps.Add(step.New(
 		step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
 		step.InExec(func() error {
+			defer wg.Done()
 			if s.verbose {
 				fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
 			}
@@ -286,11 +317,6 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 }
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
-	if s.verbose {
-		fmt.Printf("🔧 Running dev interface at http://localhost:12345\n\n")
-	} else {
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
-	}
 	conf := Config{
 		EngineAddr:            "http://localhost:26657",
 		AppBackendAddr:        "http://localhost:1317",
@@ -308,7 +334,7 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 		sv.Shutdown(shutdownCtx)
 	}()
 	err := sv.ListenAndServe()
-	if err == http.ErrServerClosed {
+	if errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
 	return err
@@ -330,4 +356,12 @@ func (s *starportServe) appVersion() (v version, err error) {
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
 	return v, nil
+}
+
+type CannotBuildAppError struct {
+	Log string
+}
+
+func (e *CannotBuildAppError) Error() string {
+	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Log)
 }
