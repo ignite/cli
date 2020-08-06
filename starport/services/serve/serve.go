@@ -71,9 +71,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	s.version = v
 
 	g, ctx := errgroup.WithContext(ctx)
-	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
-	})
+	//g.Go(func() error {
+	//return s.watchAppFrontend(ctx)
+	//})
 	g.Go(func() error {
 		return s.runDevServer(ctx)
 	})
@@ -147,15 +147,9 @@ func (s *starportServe) serve(ctx context.Context) error {
 		return err
 	}
 
-	err := cmdrunner.
+	return cmdrunner.
 		New(append(opts, cmdrunner.RunParallel())...).
 		Run(ctx, s.serverSteps()...)
-
-	var exitErr *exec.ExitError
-	if errors.As(err, &exitErr) {
-		return nil
-	}
-	return err
 }
 
 func (s *starportServe) buildSteps() (steps step.Steps) {
@@ -175,11 +169,12 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 
 		buildErr = &bytes.Buffer{}
 	)
-	captureBuildErr := func(exitErr error) error {
-		if exitErr != nil {
+	captureBuildErr := func(err error) error {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) {
 			return &CannotBuildAppError{Log: buildErr.String()}
 		}
-		return nil
+		return err
 	}
 	steps.Add(step.New(
 		step.Exec("go", "mod", "tidy"),
