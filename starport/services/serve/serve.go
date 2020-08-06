@@ -71,9 +71,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	s.version = v
 
 	g, ctx := errgroup.WithContext(ctx)
-	//g.Go(func() error {
-	//return s.watchAppFrontend(ctx)
-	//})
+	g.Go(func() error {
+		return s.watchAppFrontend(ctx)
+	})
 	g.Go(func() error {
 		return s.runDevServer(ctx)
 	})
