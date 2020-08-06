@@ -85,18 +85,21 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 				return ctx.Err()
 
 			case <-s.serveRefresher:
-				var serveCtx context.Context
+				var (
+					serveCtx context.Context
+					buildErr *CannotBuildAppError
+				)
 				serveCtx, s.serveCancel = context.WithCancel(ctx)
 				err := s.serve(serveCtx)
-				if err == nil || err == context.Canceled {
-					continue
-				}
-				if _, ok := err.(*CannotBuildAppError); ok {
+				switch {
+				case err == nil:
+				case errors.Is(err, context.Canceled):
+				case errors.As(err, &buildErr):
 					fmt.Fprintf(os.Stderr, "%s\n", errorColor(err.Error()))
 					fmt.Printf("%s\n", infoColor("waiting for a fix before retrying..."))
-					continue
+				default:
+					return err
 				}
-				return err
 			}
 		}
 	})
@@ -144,15 +147,15 @@ func (s *starportServe) serve(ctx context.Context) error {
 		return err
 	}
 
-	if err := cmdrunner.
+	err := cmdrunner.
 		New(append(opts, cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps()...); err != nil {
-		if _, ok := errors.Cause(err).(*exec.ExitError); ok {
-			return nil
-		}
-		return err
+		Run(ctx, s.serverSteps()...)
+
+	var exitErr *exec.ExitError
+	if errors.As(err, &exitErr) {
+		return nil
 	}
-	return nil
+	return err
 }
 
 func (s *starportServe) buildSteps() (steps step.Steps) {
@@ -336,7 +339,7 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 		sv.Shutdown(shutdownCtx)
 	}()
 	err := sv.ListenAndServe()
-	if err == http.ErrServerClosed {
+	if errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
 	return err
