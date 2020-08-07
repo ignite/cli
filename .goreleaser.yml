@@ -1,3 +1,6 @@
+builds:
+  - main: ./starport/interface/cli/starport
+
 brews:
   - name: "starport"
     description: "CLI tool for developing Cosmos SDK apps."
