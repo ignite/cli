@@ -411,9 +411,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 			step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
 			step.InExec(func() error {
 				defer wg.Done()
-				if s.verbose {
-					fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
-				}
+				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
 				return nil
 			}),
 			step.PostExec(func(exitErr error) error {
