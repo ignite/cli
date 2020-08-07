@@ -81,5 +81,8 @@ func (p *Prefixer) Gen(s ...interface{}) string {
 	if p.convertUppercase {
 		prefix = strings.ToUpper(prefix)
 	}
-	return color.C256(p.color).Sprintf(prefix)
+	if p.color != 0 {
+		return color.C256(p.color).Sprint(prefix)
+	}
+	return prefix
 }
