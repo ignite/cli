@@ -44,6 +44,8 @@ starport serve
 
 To start the server, go into you application's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.
 
+`starport serve` uses `config.yml` to initialize your application, make sure you have it in your project directory (see [Configure](#configure)).
+
 Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
 
 ### Create data types
@@ -68,6 +70,16 @@ To add a post run `blogcli tx blog create-post "My title" "This is a blog" --fro
 ### Configure
 
 Initialization parameters of your app are stored in `config.yml`.
+
+The simple configuration file includes a list of accounts and their initial coins:
+
+```
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["500token"]
+```
 
 #### `accounts`
 
