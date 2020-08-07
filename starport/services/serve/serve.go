@@ -79,9 +79,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	//g.Go(func() error {
-	//return s.watchAppFrontend(ctx)
-	//})
+	g.Go(func() error {
+		return s.watchAppFrontend(ctx)
+	})
 	g.Go(func() error {
 		return s.runDevServer(ctx)
 	})
@@ -390,7 +390,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	wg.Add(2)
 	go func() {
 		wg.Wait()
-		fmt.Fprintln(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n")
+		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n\n")
 	}()
 	steps.Add(step.New(step.NewOptions().
 		Add(
