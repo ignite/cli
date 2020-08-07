@@ -31,7 +31,7 @@ jobs:
         run: make ui
 
       - name: Run packr2
-        run: GO111MODULE=on packr2
+        run: "GO111MODULE=on cd starport/interface/cli/starport && packr2"
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
