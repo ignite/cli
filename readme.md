@@ -64,6 +64,20 @@ This command generates a type `Post` with two fields: `title` and `body`.
 
 To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=user1`.
 
+
+### Configure
+
+Initialization parameters of your app are stored in `config.yml`.
+
+#### `accounts`
+
+A list of user accounts created during genesis of your application.
+
+| Key   | Required | Type            | Description                                       |
+| ----- | -------- | --------------- | ------------------------------------------------- |
+| name  | Y        | String          | Local name of the key pair                        |
+| coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
+
 ### Add smart contract support
 
 ```
