@@ -2,6 +2,7 @@ package starportserve
 
 import (
 	"io"
+	"os"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -15,7 +16,8 @@ var prefixes = map[logType]struct {
 	Color uint8
 }{
 	logStarport: {"starport", 202},
-	logAppd:     {"%sd", 203},
+	logBuild:    {"build", 203},
+	logAppd:     {"%sd", 204},
 	logAppcli:   {"%scli", 205},
 }
 
@@ -24,13 +26,27 @@ type logType int
 
 const (
 	logStarport logType = iota
+	logBuild
 	logAppd
 	logAppcli
 )
 
-// defaultStd configures default stdout, stderr for cmdrunner steps by logTypes.
-func (s *starportServe) defaultStd(logType logType) []step.Option {
-	std := func(w io.Writer) *lineprefixer.Writer {
+// std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.
+func (s *starportServe) stdSteps(logType logType) []step.Option {
+	std := s.stdLog(logType)
+	return []step.Option{
+		step.Stdout(std.out),
+		step.Stderr(std.err),
+	}
+}
+
+type std struct {
+	out, err io.Writer
+}
+
+// std returns the stdout and stderr to output logs by logType.
+func (s *starportServe) stdLog(logType logType) std {
+	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		var (
 			prefix    = prefixes[logType]
 			prefixStr string
@@ -44,8 +60,16 @@ func (s *starportServe) defaultStd(logType logType) []step.Option {
 		}
 		return lineprefixer.NewWriter(w, prefixStr)
 	}
-	return []step.Option{
-		step.Stdout(std(s.stdout)),
-		step.Stderr(std(s.stderr)),
+	var (
+		stdout io.Writer = prefixed(s.stdout)
+		stderr io.Writer = prefixed(s.stderr)
+	)
+	if logType == logStarport && !s.verbose {
+		stdout = os.Stdout
+		stderr = os.Stderr
+	}
+	return std{
+		out: stdout,
+		err: stderr,
 	}
 }

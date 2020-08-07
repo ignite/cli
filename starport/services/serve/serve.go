@@ -79,9 +79,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
-	})
+	//g.Go(func() error {
+	//return s.watchAppFrontend(ctx)
+	//})
 	g.Go(func() error {
 		return s.runDevServer(ctx)
 	})
@@ -103,8 +103,8 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 				case err == nil:
 				case errors.Is(err, context.Canceled):
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(os.Stderr, "%s\n", errorColor(err.Error()))
-					fmt.Printf("%s\n", infoColor("waiting for a fix before retrying..."))
+					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
 				}
@@ -183,12 +183,12 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				if !xexec.IsCommandAvailable("go") {
 					return errors.New("go must be avaiable in your path")
 				}
-				fmt.Println("\n📦 Installing dependencies...")
+				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
 				return nil
 			}),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.defaultStd(logStarport)...).
+		Add(s.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
 	steps.Add(step.New(step.NewOptions().
@@ -200,7 +200,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.defaultStd(logStarport)...).
+		Add(s.stdSteps(logBuild)...).
 		Add(step.Stderr(buildErr))...,
 	))
 
@@ -216,12 +216,12 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				filepath.Join(cwd, "cmd", appd),
 			),
 			step.PreExec(func() error {
-				fmt.Println("🛠️  Building the app...")
+				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
 				return nil
 			}),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.defaultStd(logStarport)...).
+		Add(s.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
 	steps.Add(step.New(step.NewOptions().
@@ -235,7 +235,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.defaultStd(logStarport)...).
+		Add(s.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
 	steps.Add(step.New(step.NewOptions().
@@ -250,7 +250,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
 			}),
 		).
-		Add(s.defaultStd(logAppd)...)...,
+		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -264,7 +264,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
 			}),
 		).
-		Add(s.defaultStd(logAppd)...)...,
+		Add(s.stdSteps(logAppd)...)...,
 	))
 	for _, account := range s.conf.Accounts {
 		account := account
@@ -291,11 +291,11 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 					if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
 						return errors.Wrap(err, "cannot decode mnemonic")
 					}
-					fmt.Printf("🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+					fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
 					return nil
 				}),
 			).
-			Add(s.defaultStd(logAppcli)...).
+			Add(s.stdSteps(logAppcli)...).
 			Add(step.Stderr(mnemonic))..., // TODO why mnemonic comes from stderr?
 		))
 		steps.Add(step.New(step.NewOptions().
@@ -322,11 +322,11 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 								key,
 								coins,
 							)).
-							Add(s.defaultStd(logAppd)...)...,
+							Add(s.stdSteps(logAppd)...)...,
 						))
 				}),
 			).
-			Add(s.defaultStd(logAppcli)...).
+			Add(s.stdSteps(logAppcli)...).
 			Add(step.Stdout(key))...,
 		))
 	}
@@ -337,7 +337,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			"chain-id",
 			ndapp,
 		)).
-		Add(s.defaultStd(logAppcli)...)...,
+		Add(s.stdSteps(logAppcli)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
@@ -346,7 +346,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			"output",
 			"json",
 		)).
-		Add(s.defaultStd(logAppcli)...)...,
+		Add(s.stdSteps(logAppcli)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
@@ -355,7 +355,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			"indent",
 			"true",
 		)).
-		Add(s.defaultStd(logAppcli)...)...,
+		Add(s.stdSteps(logAppcli)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
@@ -364,7 +364,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			"trust-node",
 			"true",
 		)).
-		Add(s.defaultStd(logAppcli)...)...,
+		Add(s.stdSteps(logAppcli)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
@@ -373,14 +373,14 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			"--name", s.conf.Accounts[0].Name,
 			"--keyring-backend", "test",
 		)).
-		Add(s.defaultStd(logAppd)...)...,
+		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
 			appd,
 			"collect-gentxs",
 		)).
-		Add(s.defaultStd(logAppd)...)...,
+		Add(s.stdSteps(logAppd)...)...,
 	))
 	return
 }
@@ -390,25 +390,21 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	wg.Add(2)
 	go func() {
 		wg.Wait()
-		fmt.Printf("\n🚀 Get started: http://localhost:12345/\n\n")
+		fmt.Fprintln(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n")
 	}()
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
 			step.InExec(func() error {
 				defer wg.Done()
-				if s.verbose {
-					fmt.Println("🌍 Running a server at http://localhost:26657 (Tendermint)")
-				} else {
-					fmt.Printf("🌍 Running a Cosmos '%[1]v' app with Tendermint.\n", s.app.Name)
-				}
+				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
 				return nil
 			}),
 			step.PostExec(func(exitErr error) error {
 				return errors.Wrapf(exitErr, "cannot run %[1]vd start", s.app.Name)
 			}),
 		).
-		Add(s.defaultStd(logAppd)...)...,
+		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -416,7 +412,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 			step.InExec(func() error {
 				defer wg.Done()
 				if s.verbose {
-					fmt.Println("🌍 Running a server at http://localhost:1317 (LCD)")
+					fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
 				}
 				return nil
 			}),
@@ -424,7 +420,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 				return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", s.app.Name)
 			}),
 		).
-		Add(s.defaultStd(logAppcli)...)...,
+		Add(s.stdSteps(logAppcli)...)...,
 	))
 	return
 }
