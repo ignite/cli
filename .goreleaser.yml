@@ -1,5 +1,5 @@
 builds:
-  - main: "./starport/interface/cli/starport/*.go"
+  - main: ./starport/interface/cli/starport
 
 brews:
   - name: "starport"
