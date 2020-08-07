@@ -1,0 +1,4 @@
+#!/bin/bash
+
+# a development mode entrypoint to Starport cli.
+go run ./starport/interface/cli/starport "$@"
