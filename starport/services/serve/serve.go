@@ -437,7 +437,7 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 		EngineAddr:            "http://localhost:26657",
 		AppBackendAddr:        "http://localhost:1317",
 		AppFrontendAddr:       "http://localhost:8080",
-		DevFrontendAssetsPath: "../../ui/dist",
+		DevFrontendAssetsPath: "./ui/dist",
 	} // TODO get vals from const
 	sv := &http.Server{
 		Addr:    ":12345",

@@ -59,7 +59,7 @@ func newDevHandler(app App, conf Config) http.Handler {
 }
 
 func (d *development) devAssetsHandler() http.Handler {
-	return http.FileServer(packr.New("ui/dist", d.conf.DevFrontendAssetsPath))
+	return http.FileServer(packr.New("ui/dist", "./ui/dist"))
 }
 
 func (d *development) statusHandler() http.Handler {

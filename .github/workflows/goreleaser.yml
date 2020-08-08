@@ -8,8 +8,8 @@ jobs:
   goreleaser:
     runs-on: ubuntu-latest
     env:
-      working-directory: go/src/github.com/tendermint/starport 
-    
+      working-directory: go/src/github.com/tendermint/starport
+
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
@@ -32,7 +32,7 @@ jobs:
 
       - name: Build UI
         working-directory: ${{ env.working-directory }}
-        run:  make ui
+        run: make ui
 
       - name: Run packr2
         working-directory: ${{ env.working-directory }}
@@ -40,6 +40,8 @@ jobs:
           export GOPATH=$GITHUB_WORKSPACE/go
           export PATH=$PATH:$GOPATH
           cd starport/interface/cli/starport
+          packr2 -v
+          cd ../../services/serve
           packr2 -v
 
       - name: Run GoReleaser
