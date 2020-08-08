@@ -1,0 +1,3 @@
+#!/bin/bash
+
+statik -src=starport/ui/dist -dest=starport/ui/dist-go

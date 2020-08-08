@@ -434,14 +434,17 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
 	conf := Config{
-		EngineAddr:            "http://localhost:26657",
-		AppBackendAddr:        "http://localhost:1317",
-		AppFrontendAddr:       "http://localhost:8080",
-		DevFrontendAssetsPath: "../../ui/dist",
+		EngineAddr:      "http://localhost:26657",
+		AppBackendAddr:  "http://localhost:1317",
+		AppFrontendAddr: "http://localhost:8080",
 	} // TODO get vals from const
+	handler, err := newDevHandler(s.app, conf)
+	if err != nil {
+		return err
+	}
 	sv := &http.Server{
 		Addr:    ":12345",
-		Handler: newDevHandler(s.app, conf),
+		Handler: handler,
 	}
 	go func() {
 		<-ctx.Done()
@@ -449,7 +452,7 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 		defer cancel()
 		sv.Shutdown(shutdownCtx)
 	}()
-	err := sv.ListenAndServe()
+	err = sv.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
