@@ -41,7 +41,7 @@ jobs:
           export PATH=$PATH:$GOPATH
           cd starport/interface/cli/starport
           packr2 -v
-          cd ../../services/serve
+          cd ../../../services/serve
           packr2 -v
 
       - name: Run GoReleaser
