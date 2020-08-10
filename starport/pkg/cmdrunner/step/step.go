@@ -14,6 +14,17 @@ type Step struct {
 
 type Option func(*Step)
 
+type Options []Option
+
+func NewOptions() Options {
+	return Options{}
+}
+
+func (o Options) Add(options ...Option) Options {
+	o = append(o, options...)
+	return o
+}
+
 func New(options ...Option) *Step {
 	s := &Step{
 		PreExec:  func() error { return nil },

@@ -44,6 +44,8 @@ starport serve
 
 To start the server, go into you application's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.
 
+`starport serve` uses `config.yml` to initialize your application, make sure you have it in your project directory (see [Configure](#configure)).
+
 Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
 
 ### Create data types
@@ -64,6 +66,30 @@ This command generates a type `Post` with two fields: `title` and `body`.
 
 To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=user1`.
 
+
+### Configure
+
+Initialization parameters of your app are stored in `config.yml`.
+
+The simple configuration file includes a list of accounts and their initial coins:
+
+```
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+  - name: you
+    coins: ["500token"]
+```
+
+#### `accounts`
+
+A list of user accounts created during genesis of your application.
+
+| Key   | Required | Type            | Description                                       |
+| ----- | -------- | --------------- | ------------------------------------------------- |
+| name  | Y        | String          | Local name of the key pair                        |
+| coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
+
 ### Add smart contract support
 
 ```
@@ -75,9 +101,9 @@ Adds smart contracts with [CosmWasm](https://docs.cosmwasm.com). Follow a short 
 ## More tutorials
 
 - [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
-- [Poll tutorial](https://www.notion.so/Starport-Poll-406c136cef48435795a5ef02692cd299): build a voting application with a web-based UI
+- [Poll tutorial](https://tutorials.cosmos.network/starport-polling-app/): build a voting application with a web-based UI
 - [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
-- [Blog (from scratch) tutorial](https://www.notion.so/Starport-Blog-f928931b7d4e423992d1a105cd5f5ea2): learn how Starport works by building a blog without scaffolding
+- [Blog (from scratch) tutorial](https://tutorials.cosmos.network/starport-blog/01-index.html): learn how Starport works by building a blog without scaffolding
 
 ## Questions & comments
 

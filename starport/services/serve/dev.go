@@ -3,12 +3,15 @@ package starportserve
 import (
 	"net/http"
 
-	"github.com/gobuffalo/packr/v2"
 	"github.com/gorilla/mux"
+	"github.com/rakyll/statik/fs"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"golang.org/x/sync/errgroup"
+
+	// register dev ui for statik filesystem.
+	_ "github.com/tendermint/starport/starport/ui/dist-go/statik"
 )
 
 const (
@@ -39,27 +42,35 @@ type env struct {
 type development struct {
 	app  App
 	conf Config
+	uifs http.FileSystem
 }
 
 // Config used to configure development handler.
 type Config struct {
-	EngineAddr            string
-	AppBackendAddr        string
-	AppFrontendAddr       string
-	DevFrontendAssetsPath string
+	EngineAddr      string
+	AppBackendAddr  string
+	AppFrontendAddr string
 }
 
 // newDevHandler creates a new development server handler for app by given conf.
-func newDevHandler(app App, conf Config) http.Handler {
-	dev := &development{app, conf}
+func newDevHandler(app App, conf Config) (http.Handler, error) {
+	uifs, err := fs.New()
+	if err != nil {
+		return nil, err
+	}
+	dev := &development{
+		app:  app,
+		conf: conf,
+		uifs: uifs,
+	}
 	router := mux.NewRouter()
 	router.Handle("/status", dev.statusHandler()).Methods(http.MethodGet)
 	router.PathPrefix("/").Handler(dev.devAssetsHandler()).Methods(http.MethodGet)
-	return router
+	return router, nil
 }
 
 func (d *development) devAssetsHandler() http.Handler {
-	return http.FileServer(packr.New("ui/dist", d.conf.DevFrontendAssetsPath))
+	return http.FileServer(d.uifs)
 }
 
 func (d *development) statusHandler() http.Handler {

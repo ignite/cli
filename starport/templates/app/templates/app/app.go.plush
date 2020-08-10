@@ -23,6 +23,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/staking"
 	"github.com/cosmos/cosmos-sdk/x/supply"
 	"<%= ModulePath + "/x/" + AppName %>"
+	<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"
+	<%= AppName %>types "<%= ModulePath %>/x/<%= AppName %>/types"
   // this line is used by starport scaffolding
 )
 
@@ -75,7 +77,7 @@ type NewApp struct {
 	stakingKeeper  staking.Keeper
 	supplyKeeper   supply.Keeper
 	paramsKeeper   params.Keeper
-	<%= AppName %>Keeper <%= AppName %>.Keeper
+	<%= AppName %>Keeper <%= AppName %>keeper.Keeper
   // this line is used by starport scaffolding # 3
 	mm *module.Manager
 
@@ -100,7 +102,7 @@ func NewInitApp(
     staking.StoreKey,
 		supply.StoreKey,
     params.StoreKey,
-    <%= AppName %>.StoreKey,
+    <%= AppName %>types.StoreKey,
     // this line is used by starport scaffolding # 5
   )
 
@@ -152,10 +154,10 @@ func NewInitApp(
 		staking.NewMultiStakingHooks(),
 	)
 
-	app.<%= AppName %>Keeper = <%= AppName %>.NewKeeper(
+	app.<%= AppName %>Keeper = <%= AppName %>keeper.NewKeeper(
 		app.bankKeeper,
 		app.cdc,
-		keys[<%= AppName %>.StoreKey],
+		keys[<%= AppName %>types.StoreKey],
 	)
 
   // this line is used by starport scaffolding # 4
@@ -176,7 +178,7 @@ func NewInitApp(
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
-		<%= AppName %>.ModuleName,
+		<%= AppName %>types.ModuleName,
 		supply.ModuleName,
 		genutil.ModuleName,
     // this line is used by starport scaffolding # 7

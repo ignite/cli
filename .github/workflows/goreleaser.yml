@@ -4,38 +4,48 @@ on:
   push:
     tags:
       - "*"
-
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport 
+    
     steps:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
           go-version: 1.14
 
-      - name: Set up packr2
-        run: go get -u github.com/gobuffalo/packr/v2/packr2
-
       - name: Set up Node
         uses: actions/setup-node@v2-beta
         with:
           node-version: "14"
 
+      - name: Set up packr2
+        run: go get -u github.com/gobuffalo/packr/v2/packr2
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          path: ${{ env.working-directory }}
           fetch-depth: 0
 
       - name: Build UI
-        run: make ui
+        working-directory: ${{ env.working-directory }}
+        run:  make ui
 
       - name: Run packr2
-        run: GO111MODULE=on packr2
+        working-directory: ${{ env.working-directory }}
+        run: |
+          export GOPATH=$GITHUB_WORKSPACE/go
+          export PATH=$PATH:$GOPATH
+          cd starport/interface/cli/starport
+          packr2 -v
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:
+          workdir: ${{ env.working-directory }}
           version: latest
           args: release --rm-dist
         env:
