@@ -470,7 +470,7 @@ func (s *starportServe) appVersion() (v version, err error) {
 	}
 	ref, err := iter.Next()
 	if err != nil {
-		return version{}, err
+		return version{}, nil
 	}
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
