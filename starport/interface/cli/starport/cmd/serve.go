@@ -6,11 +6,8 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	starportserve "github.com/tendermint/starport/starport/services/serve"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
 var appPath string
@@ -35,16 +32,6 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		Path: appPath,
 	}
 
-	confFile, err := xos.OpenFirst(starportconf.FileNames...)
-	if err != nil {
-		return errors.Wrap(err, "config file cannot be found")
-	}
-	defer confFile.Close()
-	conf, err := starportconf.Parse(confFile)
-	if err != nil {
-		return errors.Wrap(err, "config file is not valid")
-	}
-
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -55,7 +42,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	err = starportserve.Serve(ctx, app, conf, verbose)
+	err := starportserve.Serve(ctx, app, verbose)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil
