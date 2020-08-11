@@ -144,14 +144,9 @@ func (s *starportServe) serve(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	confFile, err := xos.OpenFirst(starportconf.FileNames...)
+	conf, err := s.config()
 	if err != nil {
-		return errors.Wrap(err, "config file cannot be found")
-	}
-	defer confFile.Close()
-	conf, err := starportconf.Parse(confFile)
-	if err != nil {
-		return errors.Wrap(err, "config file is not valid")
+		return &CannotBuildAppError{err}
 	}
 
 	if err := cmdrunner.
@@ -185,7 +180,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	captureBuildErr := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			return &CannotBuildAppError{Log: buildErr.String()}
+			return &CannotBuildAppError{errors.New(buildErr.String())}
 		}
 		return err
 	}
@@ -498,10 +493,20 @@ func (s *starportServe) appVersion() (v version, err error) {
 	return v, nil
 }
 
+func (s *starportServe) config() (starportconf.Config, error) {
+	confFile, err := xos.OpenFirst(starportconf.FileNames...)
+	if err != nil {
+		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
+	}
+	defer confFile.Close()
+	conf, err := starportconf.Parse(confFile)
+	return conf, errors.Wrap(err, "config file is not valid")
+}
+
 type CannotBuildAppError struct {
-	Log string
+	Err error
 }
 
 func (e *CannotBuildAppError) Error() string {
-	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Log)
+	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
 }
