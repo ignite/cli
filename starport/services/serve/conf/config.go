@@ -36,7 +36,7 @@ func Parse(r io.Reader) (Config, error) {
 // validate validates user config.
 func validate(conf Config) error {
 	if len(conf.Accounts) == 0 {
-		errors.New("at least 1 account is needed")
+		return errors.New("at least 1 account is needed")
 	}
 	return nil
 }
