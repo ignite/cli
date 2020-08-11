@@ -494,7 +494,11 @@ func (s *starportServe) appVersion() (v version, err error) {
 }
 
 func (s *starportServe) config() (starportconf.Config, error) {
-	confFile, err := xos.OpenFirst(starportconf.FileNames...)
+	var paths []string
+	for _, name := range starportconf.FileNames {
+		paths = append(paths, filepath.Join(s.app.Path, name))
+	}
+	confFile, err := xos.OpenFirst(paths...)
 	if err != nil {
 		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
 	}
