@@ -28,11 +28,11 @@ import (
 )
 
 var (
-	appBackendWatchPaths = []string{
+	appBackendWatchPaths = append([]string{
 		"app",
 		"cmd",
 		"x",
-	}
+	}, starportconf.FileNames...)
 
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
