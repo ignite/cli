@@ -88,6 +88,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	g.Go(func() error {
 		s.refreshServe()
 		for {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -140,7 +143,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 	}
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps()...); err != nil {
+		Run(ctx, s.buildSteps(ctx)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -148,7 +151,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps() (steps step.Steps) {
+func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
@@ -315,7 +318,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 					key := strings.TrimSpace(key.String())
 					return cmdrunner.
 						New().
-						Run(context.Background(), step.New(step.NewOptions().
+						Run(ctx, step.New(step.NewOptions().
 							Add(step.Exec(
 								appd,
 								"add-genesis-account",
@@ -394,7 +397,10 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	}()
 	steps.Add(step.New(step.NewOptions().
 		Add(
-			step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
+			step.Exec(
+				fmt.Sprintf("%[1]vd", s.app.Name),
+				"start",
+			),
 			step.InExec(func() error {
 				defer wg.Done()
 				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
@@ -408,7 +414,10 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(
-			step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
+			step.Exec(
+				fmt.Sprintf("%[1]vcli", s.app.Name),
+				"rest-server",
+			),
 			step.InExec(func() error {
 				defer wg.Done()
 				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
