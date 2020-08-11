@@ -28,11 +28,11 @@ import (
 )
 
 var (
-	appBackendWatchPaths = []string{
+	appBackendWatchPaths = append([]string{
 		"app",
 		"cmd",
 		"x",
-	}
+	}, starportconf.FileNames...)
 
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
@@ -50,7 +50,6 @@ type version struct {
 
 type starportServe struct {
 	app            App
-	conf           starportconf.Config
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -59,10 +58,9 @@ type starportServe struct {
 }
 
 // Serve serves user apps.
-func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool) error {
+func Serve(ctx context.Context, app App, verbose bool) error {
 	s := &starportServe{
 		app:            app,
-		conf:           conf,
 		verbose:        verbose,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
@@ -141,9 +139,19 @@ func (s *starportServe) serve(ctx context.Context) error {
 	opts := []cmdrunner.Option{
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	conf, err := s.config()
+	if err != nil {
+		return &CannotBuildAppError{err}
+	}
+
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps(ctx)...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf, cwd)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -151,7 +159,8 @@ func (s *starportServe) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
+func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config, cwd string) (
+	steps step.Steps) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
@@ -171,7 +180,7 @@ func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
 	captureBuildErr := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			return &CannotBuildAppError{Log: buildErr.String()}
+			return &CannotBuildAppError{errors.New(buildErr.String())}
 		}
 		return err
 	}
@@ -206,8 +215,6 @@ func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
 		Add(s.stdSteps(logBuild)...).
 		Add(step.Stderr(buildErr))...,
 	))
-
-	cwd, _ := os.Getwd()
 
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -269,7 +276,7 @@ func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
-	for _, account := range s.conf.Accounts {
+	for _, account := range conf.Accounts {
 		account := account
 		var (
 			key      = &bytes.Buffer{}
@@ -373,7 +380,7 @@ func (s *starportServe) buildSteps(ctx context.Context) (steps step.Steps) {
 		Add(step.Exec(
 			appd,
 			"gentx",
-			"--name", s.conf.Accounts[0].Name,
+			"--name", conf.Accounts[0].Name,
 			"--keyring-backend", "test",
 		)).
 		Add(s.stdSteps(logAppd)...)...,
@@ -486,10 +493,20 @@ func (s *starportServe) appVersion() (v version, err error) {
 	return v, nil
 }
 
+func (s *starportServe) config() (starportconf.Config, error) {
+	confFile, err := xos.OpenFirst(starportconf.FileNames...)
+	if err != nil {
+		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
+	}
+	defer confFile.Close()
+	conf, err := starportconf.Parse(confFile)
+	return conf, errors.Wrap(err, "config file is not valid")
+}
+
 type CannotBuildAppError struct {
-	Log string
+	Err error
 }
 
 func (e *CannotBuildAppError) Error() string {
-	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Log)
+	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
 }
