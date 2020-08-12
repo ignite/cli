@@ -19,6 +19,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewType())
 	c.AddCommand(NewServe())
 	c.AddCommand(NewAdd())
+	c.AddCommand(NewVersion())
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	return c
 }
