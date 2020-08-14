@@ -15,7 +15,7 @@ require (
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.7.4
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
-	github.com/karrick/godirwalk v1.15.8 // indirect
+	github.com/karrick/godirwalk v1.16.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
