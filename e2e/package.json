@@ -9,7 +9,7 @@
   "author": "",
   "license": "ISC",
   "ava": {
-    "timeout": "2m",
+    "timeout": "10m",
     "extensions": [
       "ts"
     ],
