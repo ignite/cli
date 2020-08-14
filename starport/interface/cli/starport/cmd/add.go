@@ -35,7 +35,7 @@ func addHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if ok {
-		return errors.New("wasm alread addded")
+		return errors.New("CosmWasm is already added.")
 	}
 	appName, _ := getAppAndModule(appPath)
 	g, _ := add.New(&add.Options{
@@ -46,7 +46,6 @@ func addHandler(cmd *cobra.Command, args []string) error {
 	run.With(g)
 	run.Run()
 	return nil
-	// fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 }
 
 func isWasmAdded(appPath string) (bool, error) {
