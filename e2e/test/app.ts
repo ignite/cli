@@ -60,6 +60,7 @@ test('serve app with CosmWasm', async t => {
   // add CosmWasm. 
   await exec('starport add wasm', { cwd: appPath });
 
+  // serve should be OK and there should not be any runtime errors during serve.
   await new Promise(async (resolve, reject) => {
     let stderr = "";
     const serveproc = spawn("starport", ["serve", "--verbose"], { cwd: appPath });
@@ -76,6 +77,7 @@ test('serve app with CosmWasm', async t => {
       }
     });
 
+    // try to reach to App through API to see if it works properly. 
     await retry(async (bail, no) => {
       const res = await fetch(`${cosmosAddr}`)
       if (res.status != 404) {
