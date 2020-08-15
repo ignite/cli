@@ -26,6 +26,7 @@ require (
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.5.1
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
+	go.hein.dev/go-version v0.1.0
 	golang.org/x/crypto v0.0.0-20200728195943-123391ffb6de // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect

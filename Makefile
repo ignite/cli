@@ -7,7 +7,7 @@ build: mod
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@packr2
 	@mkdir -p build/
-	@go build -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Commit=$(git rev-parse --short HEAD)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly -o build/ ./starport/interface/cli/...
+	@go build -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Version=$(git describe --tags)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly -o build/ ./starport/interface/cli/...
 	@packr2 clean
 	@go mod tidy
 
@@ -16,10 +16,10 @@ ui:
 	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
 
 install: ui build
-	@go install  -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Commit=$(git rev-parse --short HEAD)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly ./...
+	@go install  -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Version=$(git describe --tags)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly ./...
 
 cli: build
-	@go install  -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Commit=$(git rev-parse --short HEAD)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly ./...
+	@go install  -ldflags "-X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Version=$(git describe --tags)' -X 'github.com/tendermint/starport/starport/interface/cli/starport/cmd.Date=$(date)'" -mod=readonly ./...
 
 lint:
 	golangci-lint run --out-format=tab --issues-exit-code=0
