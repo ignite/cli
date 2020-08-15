@@ -10,7 +10,7 @@ var (
 	Output    = "yaml"
 	Date      = "unknown"
 	Commit    = "none"
-	Version   = "dev"
+	Version   = "unset"
 	Shortened = false
 )
 
