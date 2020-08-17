@@ -22,7 +22,7 @@
       />
     </div>
     <button
-      :class="['button', `button__valid__${!!valid && !flight}`]"
+      :class="['button', `button__valid__${!!valid && !flight && hasAddress}`]"
       @click="submit"
     >
       Create {{ value.type }}
@@ -126,7 +126,7 @@ button:focus {
 <script>
 export default {
   props: ["value"],
-  data: function() {
+  data: function () {
     return {
       fields: {},
       flight: false,
@@ -138,6 +138,9 @@ export default {
     });
   },
   computed: {
+    hasAddress() {
+      return !!this.$store.state.account.address;
+    },
     instanceList() {
       return this.$store.state.data[this.value.type] || [];
     },
@@ -152,7 +155,7 @@ export default {
       return string.charAt(0).toUpperCase() + string.slice(1);
     },
     async submit() {
-      if (this.valid && !this.flight) {
+      if (this.valid && !this.flight && this.hasAddress) {
         this.flight = true;
         const payload = { type: this.value.type, body: this.fields };
         await this.$store.dispatch("entitySubmit", payload);

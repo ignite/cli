@@ -36,6 +36,10 @@ This command creates an empty template for a Cosmos SDK application. By default 
 starport app github.com/your-github-id/blog
 ```
 
+| Flag               | Default  | Description                |
+| ------------------ | -------- | -------------------------- |
+| `--address-prefix` | `cosmos` | Prefix, used for addresses |
+
 ### Run an application
 
 ```
@@ -47,6 +51,11 @@ To start the server, go into you application's directory and run `starport serve
 `starport serve` uses `config.yml` to initialize your application, make sure you have it in your project directory (see [Configure](#configure)).
 
 Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
+
+| Flag        | Default | Description                          |
+| ----------- | ------- | ------------------------------------ |
+| `--verbose` | `false` | Enable verbose output from processes |
+| `--path`    |         | Path to the project                  |
 
 ### Create data types
 
