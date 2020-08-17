@@ -8,6 +8,7 @@ import (
 
 var (
 	Output    = "yaml"
+	Commit 	  = "unknown"
 	Date      = "unknown"
 	Version   = "unset"
 	Shortened = false
@@ -20,7 +21,7 @@ func NewVersion() *cobra.Command {
 		Short: "Version will output the current build information",
 		Long:  ``,
 		Run: func(_ *cobra.Command, _ []string) {
-			resp := goVersion.FuncWithOutput(Shortened, Version, Date, Output)
+			resp := goVersion.FuncWithOutput(Shortened, Commit, Version, Date, Output)
 			fmt.Print(resp)
 		},
 	}
