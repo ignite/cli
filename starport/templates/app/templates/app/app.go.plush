@@ -28,7 +28,7 @@ import (
   // this line is used by starport scaffolding
 )
 
-const appName = "app"
+const appName = "<%= AppName %>"
 
 var (
 	DefaultCLIHome = os.ExpandEnv("$HOME/.<%= AppName %>cli")
