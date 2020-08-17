@@ -34,6 +34,8 @@ var (
 		"x",
 	}, starportconf.FileNames...)
 
+	vuePath = "vue"
+
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
 )
@@ -440,12 +442,34 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 }
 
 func (s *starportServe) watchAppFrontend(ctx context.Context) error {
+	vueFullPath := filepath.Join(s.app.Path, vuePath)
+	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
+		return nil
+	}
+	frontendErr := &bytes.Buffer{}
+	postExec := func(err error) error {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
+			fmt.Fprintf(s.stdLog(logStarport).err, "%s\n%s",
+				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
+		}
+		return nil // ignore errors.
+	}
 	return cmdrunner.
-		New().
-		Run(ctx, step.New(
-			step.Exec("npm", "run", "dev"),
-			step.Workdir(filepath.Join(s.app.Path, "frontend")),
-		))
+		New(
+			cmdrunner.DefaultWorkdir(vueFullPath),
+			cmdrunner.DefaultStderr(frontendErr),
+		).
+		Run(ctx,
+			step.New(
+				step.Exec("npm", "i"),
+				step.PostExec(postExec),
+			),
+			step.New(
+				step.Exec("npm", "run", "serve"),
+				step.PostExec(postExec),
+			),
+		)
 }
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
