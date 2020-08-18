@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -18,6 +19,7 @@ var (
 	devXAuthor    = &object.Signature{
 		Name:  "DevX Team @ Tendermint",
 		Email: "devx@tendermint.com",
+		When:  time.Now(),
 	}
 )
 
