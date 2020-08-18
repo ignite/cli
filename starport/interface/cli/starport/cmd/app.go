@@ -15,10 +15,10 @@ import (
 )
 
 var (
-	commitMessage = "initialized w/ Starport"
+	commitMessage = "Initialized with Starport"
 	devXAuthor    = &object.Signature{
-		Name:  "DevX Team @ Tendermint",
-		Email: "devx@tendermint.com",
+		Name:  "Developer Experience team at Tendermint",
+		Email: "hello@tendermint.com",
 		When:  time.Now(),
 	}
 )
