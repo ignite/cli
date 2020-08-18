@@ -5,10 +5,20 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/app"
+)
+
+var (
+	commitMessage = "initialized w/ Starport"
+	devXAuthor    = &object.Signature{
+		Name:  "DevX Team @ Tendermint",
+		Email: "devx@tendermint.com",
+	}
 )
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized
@@ -44,6 +54,9 @@ func appHandler(cmd *cobra.Command, args []string) error {
 	pwd, _ := os.Getwd()
 	run.Root = pwd + "/" + path.Root
 	run.Run()
+	if err := initGit(path.Root); err != nil {
+		return err
+	}
 	message := `
 ⭐️ Successfully created a Cosmos app '%[1]v'.
 👉 Get started with the following commands:
@@ -55,4 +68,23 @@ NOTE: add -v flag for advanced use.
 `
 	fmt.Printf(message, path.Root)
 	return nil
+}
+
+func initGit(path string) error {
+	repo, err := git.PlainInit(path, false)
+	if err != nil {
+		return err
+	}
+	wt, err := repo.Worktree()
+	if err != nil {
+		return err
+	}
+	if _, err := wt.Add("."); err != nil {
+		return err
+	}
+	_, err = wt.Commit(commitMessage, &git.CommitOptions{
+		All:    true,
+		Author: devXAuthor,
+	})
+	return err
 }
