@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/build"
 	"io"
 	"io/ioutil"
 	"net/http"
@@ -132,27 +133,14 @@ func (s *starportServe) checkSystem() error {
 		return errors.New("go must be avaiable in your path")
 	}
 	// chekc if Go's bin added to System's path.
-	rawgopath := &bytes.Buffer{}
-	return cmdrunner.
-		New().
-		Run(context.Background(), step.New(
-			step.Exec("go", "env", "GOPATH"),
-			step.PostExec(func(err error) error {
-				if err != nil {
-					return err
-				}
-				gopath := strings.TrimSpace(rawgopath.String())
-				gobinpath := path.Join(gopath, "bin")
-				systempath := strings.Split(os.Getenv("PATH"), ":")
-				for _, binpath := range systempath {
-					if binpath == gobinpath {
-						return nil
-					}
-				}
-				return errors.New("$(go env GOPATH)/bin must be added to your path (https://golang.org/doc/gopath_code.html#GOPATH)")
-			}),
-			step.Stdout(rawgopath),
-		))
+	gobinpath := path.Join(build.Default.GOPATH, "bin")
+	systempath := strings.Split(os.Getenv("PATH"), ":")
+	for _, binpath := range systempath {
+		if binpath == gobinpath {
+			return nil
+		}
+	}
+	return errors.New("$(go env GOPATH)/bin must be added to your path (https://golang.org/doc/gopath_code.html#GOPATH)")
 }
 
 func (s *starportServe) refreshServe() {
