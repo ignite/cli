@@ -194,7 +194,7 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 
 func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "frontend/src/store/app.js"
+		path := "vue/src/store/app.js"
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
