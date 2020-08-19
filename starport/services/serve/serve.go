@@ -134,13 +134,10 @@ func (s *starportServe) checkSystem() error {
 	}
 	// chekc if Go's bin added to System's path.
 	gobinpath := path.Join(build.Default.GOPATH, "bin")
-	systempath := strings.Split(os.Getenv("PATH"), ":")
-	for _, binpath := range systempath {
-		if binpath == gobinpath {
-			return nil
-		}
+	if err := xos.IsInPath(gobinpath); err != nil {
+		return errors.New("$(go env GOPATH)/bin must be added to your path (https://golang.org/doc/gopath_code.html#GOPATH)")
 	}
-	return errors.New("$(go env GOPATH)/bin must be added to your path (https://golang.org/doc/gopath_code.html#GOPATH)")
+	return nil
 }
 
 func (s *starportServe) refreshServe() {
