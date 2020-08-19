@@ -17,6 +17,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -260,6 +261,39 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 			),
 			step.PreExec(func() error {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
+			}),
+			step.PostExec(func(err error) error {
+				// overwrite Genesis with user configs.
+				if err != nil {
+					return err
+				}
+				if conf.Genesis == nil {
+					return nil
+				}
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				file, err := os.OpenFile(path, os.O_RDWR, 644)
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				var genesis map[string]interface{}
+				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
+					return err
+				}
+				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
+					return err
+				}
+				if err := file.Truncate(0); err != nil {
+					return err
+				}
+				if _, err := file.Seek(0, 0); err != nil {
+					return err
+				}
+				return json.NewEncoder(file).Encode(&genesis)
 			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,

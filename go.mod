@@ -15,6 +15,7 @@ require (
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.7.4
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
+	github.com/imdario/mergo v0.3.11
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
@@ -30,5 +31,5 @@ require (
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200625001655-4c5254603344 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
-	golang.org/x/sys v0.0.0-20200817155316-9781c653f443 // indirect
+	golang.org/x/sys v0.0.0-20200819035508-9a32b3aa38f5 // indirect
 )
