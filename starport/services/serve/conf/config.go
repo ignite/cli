@@ -15,7 +15,8 @@ var (
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
-	Accounts []Account `yaml:"accounts"`
+	Accounts []Account              `yaml:"accounts"`
+	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
 // Account holds the options related to setting up Cosmos wallets.
