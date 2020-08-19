@@ -130,12 +130,12 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 func (s *starportServe) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
-		return errors.New("go must be avaiable in your path")
+		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
 	}
-	// chekc if Go's bin added to System's path.
+	// check if Go's bin added to System's path.
 	gobinpath := path.Join(build.Default.GOPATH, "bin")
 	if err := xos.IsInPath(gobinpath); err != nil {
-		return errors.New("$(go env GOPATH)/bin must be added to your path (https://golang.org/doc/gopath_code.html#GOPATH)")
+		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
 	}
 	return nil
 }
