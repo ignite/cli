@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/build"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -78,6 +80,9 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
+	if err := s.checkSystem(); err != nil {
+		return err
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -119,6 +124,21 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		return s.watchAppBackend(ctx)
 	})
 	return g.Wait()
+}
+
+// checkSystem checks if developer's work environment comply must to have
+// dependencies and pre-conditions.
+func (s *starportServe) checkSystem() error {
+	// check if Go has installed.
+	if !xexec.IsCommandAvailable("go") {
+		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
+	}
+	// check if Go's bin added to System's path.
+	gobinpath := path.Join(build.Default.GOPATH, "bin")
+	if err := xos.IsInPath(gobinpath); err != nil {
+		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
+	}
+	return nil
 }
 
 func (s *starportServe) refreshServe() {
@@ -195,9 +215,6 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				"tidy",
 			),
 			step.PreExec(func() error {
-				if !xexec.IsCommandAvailable("go") {
-					return errors.New("go must be avaiable in your path")
-				}
 				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
 				return nil
 			}),
