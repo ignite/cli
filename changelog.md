@@ -7,6 +7,7 @@
 * Configure `genesis.json` through `genesis` field in `config.yml`
 * Initialize git repository on `app` scaffolding
 * Check Go and GOPATH when running `serve`
+* Added `version` command
 
 ### Changes:
 
@@ -19,6 +20,7 @@
 * Failure to start the frontend doesn't prevent Starport from running
 * Changes to `config.yml` trigger reinitialization of the app
 * Running `starport add wasm` multiple times no longer breaks the app
+* Running `starport add type...` multiple times no longer breaks the app
 
 ## `v0.0.10-rc.X`
 
