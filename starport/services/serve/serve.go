@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/build"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -17,6 +19,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -77,6 +80,9 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
+	if err := s.checkSystem(); err != nil {
+		return err
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -118,6 +124,21 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		return s.watchAppBackend(ctx)
 	})
 	return g.Wait()
+}
+
+// checkSystem checks if developer's work environment comply must to have
+// dependencies and pre-conditions.
+func (s *starportServe) checkSystem() error {
+	// check if Go has installed.
+	if !xexec.IsCommandAvailable("go") {
+		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
+	}
+	// check if Go's bin added to System's path.
+	gobinpath := path.Join(build.Default.GOPATH, "bin")
+	if err := xos.IsInPath(gobinpath); err != nil {
+		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
+	}
+	return nil
 }
 
 func (s *starportServe) refreshServe() {
@@ -194,9 +215,6 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				"tidy",
 			),
 			step.PreExec(func() error {
-				if !xexec.IsCommandAvailable("go") {
-					return errors.New("go must be avaiable in your path")
-				}
 				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
 				return nil
 			}),
@@ -260,6 +278,39 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 			),
 			step.PreExec(func() error {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
+			}),
+			step.PostExec(func(err error) error {
+				// overwrite Genesis with user configs.
+				if err != nil {
+					return err
+				}
+				if conf.Genesis == nil {
+					return nil
+				}
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				file, err := os.OpenFile(path, os.O_RDWR, 644)
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				var genesis map[string]interface{}
+				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
+					return err
+				}
+				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
+					return err
+				}
+				if err := file.Truncate(0); err != nil {
+					return err
+				}
+				if _, err := file.Seek(0, 0); err != nil {
+					return err
+				}
+				return json.NewEncoder(file).Encode(&genesis)
 			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
