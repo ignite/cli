@@ -5,11 +5,13 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"go/build"
 	"io"
 	"io/ioutil"
 	"net/http"
 	"os"
 	"os/exec"
+	"path"
 	"path/filepath"
 	"strings"
 	"sync"
@@ -17,6 +19,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -28,11 +31,13 @@ import (
 )
 
 var (
-	appBackendWatchPaths = []string{
+	appBackendWatchPaths = append([]string{
 		"app",
 		"cmd",
 		"x",
-	}
+	}, starportconf.FileNames...)
+
+	vuePath = "vue"
 
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
@@ -50,7 +55,6 @@ type version struct {
 
 type starportServe struct {
 	app            App
-	conf           starportconf.Config
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -59,10 +63,9 @@ type starportServe struct {
 }
 
 // Serve serves user apps.
-func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool) error {
+func Serve(ctx context.Context, app App, verbose bool) error {
 	s := &starportServe{
 		app:            app,
-		conf:           conf,
 		verbose:        verbose,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
@@ -77,6 +80,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
+	if err := s.checkSystem(); err != nil {
+		return err
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -88,6 +94,9 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	g.Go(func() error {
 		s.refreshServe()
 		for {
+			if ctx.Err() != nil {
+				return ctx.Err()
+			}
 			select {
 			case <-ctx.Done():
 				return ctx.Err()
@@ -117,6 +126,21 @@ func Serve(ctx context.Context, app App, conf starportconf.Config, verbose bool)
 	return g.Wait()
 }
 
+// checkSystem checks if developer's work environment comply must to have
+// dependencies and pre-conditions.
+func (s *starportServe) checkSystem() error {
+	// check if Go has installed.
+	if !xexec.IsCommandAvailable("go") {
+		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
+	}
+	// check if Go's bin added to System's path.
+	gobinpath := path.Join(build.Default.GOPATH, "bin")
+	if err := xos.IsInPath(gobinpath); err != nil {
+		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
+	}
+	return nil
+}
+
 func (s *starportServe) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
@@ -138,9 +162,19 @@ func (s *starportServe) serve(ctx context.Context) error {
 	opts := []cmdrunner.Option{
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
+
+	cwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	conf, err := s.config()
+	if err != nil {
+		return &CannotBuildAppError{err}
+	}
+
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps()...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf, cwd)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -148,7 +182,8 @@ func (s *starportServe) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps() (steps step.Steps) {
+func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config, cwd string) (
+	steps step.Steps) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
@@ -168,7 +203,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 	captureBuildErr := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) {
-			return &CannotBuildAppError{Log: buildErr.String()}
+			return &CannotBuildAppError{errors.New(buildErr.String())}
 		}
 		return err
 	}
@@ -180,9 +215,6 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 				"tidy",
 			),
 			step.PreExec(func() error {
-				if !xexec.IsCommandAvailable("go") {
-					return errors.New("go must be avaiable in your path")
-				}
 				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
 				return nil
 			}),
@@ -203,8 +235,6 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 		Add(s.stdSteps(logBuild)...).
 		Add(step.Stderr(buildErr))...,
 	))
-
-	cwd, _ := os.Getwd()
 
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -249,6 +279,39 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 			step.PreExec(func() error {
 				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
 			}),
+			step.PostExec(func(err error) error {
+				// overwrite Genesis with user configs.
+				if err != nil {
+					return err
+				}
+				if conf.Genesis == nil {
+					return nil
+				}
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				file, err := os.OpenFile(path, os.O_RDWR, 644)
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				var genesis map[string]interface{}
+				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
+					return err
+				}
+				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
+					return err
+				}
+				if err := file.Truncate(0); err != nil {
+					return err
+				}
+				if _, err := file.Seek(0, 0); err != nil {
+					return err
+				}
+				return json.NewEncoder(file).Encode(&genesis)
+			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
@@ -266,7 +329,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
-	for _, account := range s.conf.Accounts {
+	for _, account := range conf.Accounts {
 		account := account
 		var (
 			key      = &bytes.Buffer{}
@@ -315,7 +378,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 					key := strings.TrimSpace(key.String())
 					return cmdrunner.
 						New().
-						Run(context.Background(), step.New(step.NewOptions().
+						Run(ctx, step.New(step.NewOptions().
 							Add(step.Exec(
 								appd,
 								"add-genesis-account",
@@ -370,7 +433,7 @@ func (s *starportServe) buildSteps() (steps step.Steps) {
 		Add(step.Exec(
 			appd,
 			"gentx",
-			"--name", s.conf.Accounts[0].Name,
+			"--name", conf.Accounts[0].Name,
 			"--keyring-backend", "test",
 		)).
 		Add(s.stdSteps(logAppd)...)...,
@@ -394,7 +457,10 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	}()
 	steps.Add(step.New(step.NewOptions().
 		Add(
-			step.Exec(fmt.Sprintf("%[1]vd", s.app.Name), "start"),
+			step.Exec(
+				fmt.Sprintf("%[1]vd", s.app.Name),
+				"start",
+			),
 			step.InExec(func() error {
 				defer wg.Done()
 				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
@@ -408,7 +474,10 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(
-			step.Exec(fmt.Sprintf("%[1]vcli", s.app.Name), "rest-server"),
+			step.Exec(
+				fmt.Sprintf("%[1]vcli", s.app.Name),
+				"rest-server",
+			),
 			step.InExec(func() error {
 				defer wg.Done()
 				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
@@ -424,12 +493,34 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 }
 
 func (s *starportServe) watchAppFrontend(ctx context.Context) error {
+	vueFullPath := filepath.Join(s.app.Path, vuePath)
+	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
+		return nil
+	}
+	frontendErr := &bytes.Buffer{}
+	postExec := func(err error) error {
+		var exitErr *exec.ExitError
+		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
+			fmt.Fprintf(s.stdLog(logStarport).err, "%s\n%s",
+				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
+		}
+		return nil // ignore errors.
+	}
 	return cmdrunner.
-		New().
-		Run(ctx, step.New(
-			step.Exec("npm", "run", "dev"),
-			step.Workdir(filepath.Join(s.app.Path, "frontend")),
-		))
+		New(
+			cmdrunner.DefaultWorkdir(vueFullPath),
+			cmdrunner.DefaultStderr(frontendErr),
+		).
+		Run(ctx,
+			step.New(
+				step.Exec("npm", "i"),
+				step.PostExec(postExec),
+			),
+			step.New(
+				step.Exec("npm", "run", "serve"),
+				step.PostExec(postExec),
+			),
+		)
 }
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
@@ -470,17 +561,31 @@ func (s *starportServe) appVersion() (v version, err error) {
 	}
 	ref, err := iter.Next()
 	if err != nil {
-		return version{}, err
+		return version{}, nil
 	}
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
 	return v, nil
 }
 
+func (s *starportServe) config() (starportconf.Config, error) {
+	var paths []string
+	for _, name := range starportconf.FileNames {
+		paths = append(paths, filepath.Join(s.app.Path, name))
+	}
+	confFile, err := xos.OpenFirst(paths...)
+	if err != nil {
+		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
+	}
+	defer confFile.Close()
+	conf, err := starportconf.Parse(confFile)
+	return conf, errors.Wrap(err, "config file is not valid")
+}
+
 type CannotBuildAppError struct {
-	Log string
+	Err error
 }
 
 func (e *CannotBuildAppError) Error() string {
-	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Log)
+	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
 }

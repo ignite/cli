@@ -15,7 +15,8 @@ var (
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
-	Accounts []Account `yaml:"accounts"`
+	Accounts []Account              `yaml:"accounts"`
+	Genesis  map[string]interface{} `yaml:"genesis"`
 }
 
 // Account holds the options related to setting up Cosmos wallets.
@@ -36,7 +37,7 @@ func Parse(r io.Reader) (Config, error) {
 // validate validates user config.
 func validate(conf Config) error {
 	if len(conf.Accounts) == 0 {
-		errors.New("at least 1 account is needed")
+		return errors.New("at least 1 account is needed")
 	}
 	return nil
 }

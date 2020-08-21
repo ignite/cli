@@ -71,6 +71,7 @@ func appModify(opts *Options) genny.RunFn {
 	}
 	wasmConfig := wasmWrap.Wasm
 	supportedFeatures := "staking"
+	app.subspaces[wasm.ModuleName] = app.paramsKeeper.Subspace(wasm.DefaultParamspace)
 	app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.subspaces[wasm.ModuleName], app.accountKeeper, app.bankKeeper, app.stakingKeeper, wasmRouter, wasmDir, wasmConfig, supportedFeatures, nil, nil)`
 		content = strings.Replace(content, placeholder4, template4, 1)
 
