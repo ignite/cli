@@ -5,6 +5,7 @@ import (
 	"os"
 
 	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
+	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/analyticsutil"
 )
 
@@ -22,7 +23,7 @@ func main() {
 	analyticsc = analyticsutil.New(analyticsEndpoint, analyticsKey)
 	// TODO add version of new installation.
 	name, hadLogin := prepLoginName()
-	analyticsc.Login(name, "todo-version")
+	analyticsc.Login(name, version.Version)
 	if !hadLogin {
 		addMetric(Metric{
 			Login:          name,
