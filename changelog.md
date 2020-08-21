@@ -2,8 +2,6 @@
 
 ## `develop`
 
-## `v0.0.10-rc.3`
-
 ### Features:
 
 * Added `version` command
@@ -11,6 +9,8 @@
 ### Fixes:
 
 * Running `starport add type...` multiple times no longer breaks the app
+
+## `v0.0.10-rc.3`
 
 ### Features:
 
