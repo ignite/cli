@@ -4,6 +4,16 @@
 
 ### Features:
 
+* Added `version` command
+
+### Fixes:
+
+* Running `starport add type...` multiple times no longer breaks the app
+
+## `v0.0.10-rc.3`
+
+### Features:
+
 * Configure `genesis.json` through `genesis` field in `config.yml`
 * Initialize git repository on `app` scaffolding
 * Check Go and GOPATH when running `serve`
