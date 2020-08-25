@@ -15,14 +15,21 @@ var (
 // Config is the user given configuration to do additional setup
 // during serve.
 type Config struct {
-	Accounts []Account              `yaml:"accounts"`
-	Genesis  map[string]interface{} `yaml:"genesis"`
+	Accounts  []Account              `yaml:"accounts"`
+	Validator Validator              `yaml:"validator"`
+	Genesis   map[string]interface{} `yaml:"genesis"`
 }
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name  string   `yaml:"name"`
 	Coins []string `yaml:"coins"`
+}
+
+// Validator holds info related to validator settings.
+type Validator struct {
+	Name   string `yaml:"name"`
+	Staked string `yaml:"staked"`
 }
 
 // Parse parses config.yml into UserConfig.

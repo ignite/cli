@@ -433,8 +433,9 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(step.Exec(
 			appd,
 			"gentx",
-			"--name", conf.Accounts[0].Name,
+			"--name", conf.Validator.Name,
 			"--keyring-backend", "test",
+			"--amount", conf.Validator.Staked,
 		)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
