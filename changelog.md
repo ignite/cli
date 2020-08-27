@@ -5,6 +5,7 @@
 ### Features:
 
 * Added `version` command
+* Added support for _validator_ configuration in _config.yml_.
 
 ### Fixes:
 
