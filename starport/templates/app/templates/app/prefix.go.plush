@@ -4,13 +4,16 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-var (
+const (
 	AccountAddressPrefix   = "<%= AddressPrefix %>"
-	AccountPubKeyPrefix    = "<%= AddressPrefix %>pub"
-	ValidatorAddressPrefix = "<%= AddressPrefix %>valoper"
-	ValidatorPubKeyPrefix  = "<%= AddressPrefix %>valoperpub"
-	ConsNodeAddressPrefix  = "<%= AddressPrefix %>valcons"
-	ConsNodePubKeyPrefix   = "<%= AddressPrefix %>valconspub"
+)
+
+var (
+	AccountPubKeyPrefix    = AccountAddressPrefix + "pub"
+	ValidatorAddressPrefix = AccountAddressPrefix + "valoper"
+	ValidatorPubKeyPrefix  = AccountAddressPrefix + "valoperpub"
+	ConsNodeAddressPrefix  = AccountAddressPrefix + "valcons"
+	ConsNodePubKeyPrefix   = AccountAddressPrefix + "valconspub"
 )
 
 func SetConfig() {
