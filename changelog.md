@@ -10,6 +10,7 @@
 ### Fixes:
 
 * Running `starport add type...` multiple times no longer breaks the app
+* Running `appcli tx app create-x` now checks for all required args. -#173.
 
 ## `v0.0.10-rc.3`
 
