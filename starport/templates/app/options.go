@@ -5,7 +5,6 @@ type Options struct {
 	AppName          string
 	BinaryNamePrefix string
 	ModulePath       string
-	Denom            string
 	AddressPrefix    string
 }
 
