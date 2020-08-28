@@ -83,6 +83,9 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	if err := s.checkSystem(); err != nil {
 		return err
 	}
+	if err := s.migrateOlder(ctx); err != nil {
+		return err
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -139,6 +142,28 @@ func (s *starportServe) checkSystem() error {
 		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
 	}
 	return nil
+}
+
+// migrateOlder migrates apps generated with older version of Starport,
+// to the current version to make them compatible with the updated `serve` command.
+func (s *starportServe) migrateOlder(ctx context.Context) error {
+	// migrate:
+	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultWorkdir(s.app.Path),
+		).
+		Run(ctx,
+			step.New(
+				step.Exec(
+					"go",
+					"mod",
+					"edit",
+					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
+				),
+			),
+		)
+
 }
 
 func (s *starportServe) refreshServe() {
@@ -478,6 +503,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 			step.Exec(
 				fmt.Sprintf("%[1]vcli", s.app.Name),
 				"rest-server",
+				"--unsafe-cors",
 			),
 			step.InExec(func() error {
 				defer wg.Done()
