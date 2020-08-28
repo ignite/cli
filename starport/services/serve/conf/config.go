@@ -1,10 +1,10 @@
 package starportconf
 
 import (
+	"fmt"
 	"io"
 
 	"github.com/goccy/go-yaml"
-	"github.com/pkg/errors"
 )
 
 var (
@@ -44,7 +44,19 @@ func Parse(r io.Reader) (Config, error) {
 // validate validates user config.
 func validate(conf Config) error {
 	if len(conf.Accounts) == 0 {
-		return errors.New("at least 1 account is needed")
+		return &ValidationError{"at least 1 account is needed"}
+	}
+	if conf.Validator.Name == "" {
+		return &ValidationError{"validator is required"}
 	}
 	return nil
+}
+
+// ValidationError is returned when a configuration is invalid.
+type ValidationError struct {
+	Message string
+}
+
+func (e *ValidationError) Error() string {
+	return fmt.Sprintf("config is not valid: %s", e.Message)
 }

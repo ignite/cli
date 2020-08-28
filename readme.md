@@ -85,11 +85,15 @@ Initialization parameters of your app are stored in `config.yml`.
 The simple configuration file includes a list of accounts and their initial coins:
 
 ```
+version: 1
 accounts:
-  - name: me
+  - name: user1
     coins: ["1000token", "100000000stake"]
-  - name: you
+  - name: user2
     coins: ["500token"]
+validator:
+  name: user1
+  staked: "100000000stake"
 ```
 
 #### `accounts`
@@ -100,6 +104,15 @@ A list of user accounts created during genesis of your application.
 | ----- | -------- | --------------- | ------------------------------------------------- |
 | name  | Y        | String          | Local name of the key pair                        |
 | coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
+
+#### `validator`
+
+A property that describes your local validator. `name` should be one of the names, specified in the `accounts` array. The account should have enough tokens for staking purposes.
+
+| Key    | Required | Type   | Description                                                                         |
+| ------ | -------- | ------ | ----------------------------------------------------------------------------------- |
+| name   | Y        | String | Name of one the accounts                                                            |
+| staked | Y        | String | Amount of coins staked by your validator, should be >= 10^6 (e.g. "100000000stake") |
 
 ### Add smart contract support
 
