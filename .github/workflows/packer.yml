@@ -38,9 +38,6 @@ jobs:
           make
           sudo make install
 
-      - name: Build
-        run: go get github.com/mkaczanowski/packer-builder-arm
-
       - name: Fetch packer
         run: wget https://releases.hashicorp.com/packer/1.6.2/packer_1.6.2_linux_amd64.zip && unzip -d . packer_1.6.2_linux_amd64.zip
 
