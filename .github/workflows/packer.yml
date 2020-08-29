@@ -16,7 +16,12 @@ jobs:
         uses: actions/checkout@v1
 
       - name: get packer-builder-arm
-        run: go get github.com/mkaczanowski/packer-builder-arm
+        run: |
+          git clone https://github.com/mkaczanowski/packer-builder-arm
+          cd packer-builder-arm
+          go mod download
+          go build
+          go install
 
       - name: Setup backports
         run: sudo /bin/bash -c 'echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list'
