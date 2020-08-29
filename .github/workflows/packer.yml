@@ -1,13 +1,9 @@
 name: Packer
 
-
-
 on:
   push:
     tags:
       - "*"
-
-
 
 jobs:
   packer:
