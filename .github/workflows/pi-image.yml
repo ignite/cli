@@ -9,7 +9,7 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name: Build image and upload it
+      - name: Build starport.img raspberry pi image
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
         
       - name: Upload artifacts  
