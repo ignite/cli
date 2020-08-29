@@ -51,4 +51,4 @@ jobs:
           df -h
 
       - name: Build image
-        run: sudo ./packer build images/starport.yml
+        run: sudo ./packer build images/starport.json
