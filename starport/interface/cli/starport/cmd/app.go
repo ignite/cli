@@ -66,7 +66,7 @@ func appHandler(cmd *cobra.Command, args []string) error {
  %% cd %[1]v
  %% starport serve
 
-NOTE: add -v flag for advanced use.
+NOTE: add --verbose flag for verbose (detailed) output.
 `
 	fmt.Printf(message, path.Root)
 	return nil
