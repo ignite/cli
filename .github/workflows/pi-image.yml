@@ -3,13 +3,13 @@ on: [push, pull_request]
 
 jobs:
   build:
-    name: Build starport Pi image
+    name: Starport Pi Image
     runs-on: ubuntu-latest
     steps:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name: Build starport.img raspberry pi image
+      - name: Build starport.img with packer-builder-arm
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
         
       - name: Upload artifacts  
