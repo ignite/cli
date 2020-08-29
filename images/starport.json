@@ -9,7 +9,7 @@
     "file_target_extension": "tar.gz",
     "image_build_method": "new",
     "image_path": "starport-pi.img",
-    "image_size": "4G",
+    "image_size": "6G",
     "image_type": "dos",
     "image_partitions": [
       {
