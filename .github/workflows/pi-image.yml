@@ -1,3 +1,7 @@
+# This workflow makes a 64 bit Raspberry Pi Arch Linux Image.  
+# It does not have the security issues mentioned here: https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/running-in-production.md#validator-signing-on-32-bit-architectures-or-arm
+# Later, more devices will be supported, as well. 
+
 name: Pi Image
 on: [push, pull_request]
 
@@ -9,11 +13,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name: Build starport.img with packer-builder-arm
+      - name: Build starport-pi.img with packer-builder-arm
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
         
       - name: Upload artifacts  
         uses: actions/upload-artifact@v2
         with:
           name: Starport PI
-          path: starport.img
+          path: starport-pi.img
