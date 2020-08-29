@@ -9,10 +9,11 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v1
 
-      - name: Build image
+      - name: Build image and upload it
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
-
-      - uses: actions/upload-artifact@v2
-            with:
-              name: Starport PI
-              path: starport.img
+        
+      - name: Upload artifacts  
+        uses: actions/upload-artifact@v2
+        with:
+          name: Starport PI
+          path: starport.img
