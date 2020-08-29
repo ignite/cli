@@ -1,15 +1,52 @@
-name: Packer
-
-on:
-  push:
-    tags:
-      - "*"
+name: Pi Image
+on: [push, pull_request]
 
 jobs:
-  packer:
+  build:
+    name: Build starport image
     runs-on: ubuntu-latest
     steps:
+      - name: Set up Go 1.15
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+        id: go
+
       - name: Check out code
-        uses: actions/checkout@v1
-      - name: Build the starpoort PI3/4 image
-        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
+        uses: actions/checkout
+
+      - name: get packer-builder-arm
+        run: go get github.com/mkaczanowski/packer-builder-arm
+
+      - name: Setup backports
+        run: sudo /bin/bash -c 'echo "deb http://archive.ubuntu.com/ubuntu trusty-backports main restricted universe multiverse" >> /etc/apt/sources.list'
+
+      - name: Fetch additional packages
+        run: sudo apt-get update && sudo apt-get install fdisk gdisk qemu-user-static libarchive-tools tar autoconf make qemu
+
+      - name: Install newer bsdtar manually
+        run: |
+          wget https://www.libarchive.org/downloads/libarchive-3.3.2.tar.gz
+          tar xzf libarchive-3.3.2.tar.gz
+          cd libarchive-3.3.2
+          ./configure
+          make
+          sudo make install
+
+      - name: Build
+        run: go get github.com/mkaczanowski/packer-builder-arm
+
+      - name: Fetch packer
+        run: wget https://releases.hashicorp.com/packer/1.6.2/packer_1.6.2_linux_amd64.zip && unzip -d . packer_1.6.2_linux_amd64.zip
+
+      - name: Free disk space
+        run: |
+          df -h
+          sudo swapoff -a
+          sudo rm -f /swapfile
+          sudo apt clean
+          docker rmi $(docker image ls -aq)
+          df -h
+
+      - name: Build image
+        run: sudo ./packer build images/starport.yml
