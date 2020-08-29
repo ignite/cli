@@ -1,0 +1,19 @@
+name: Pi Image
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build starport Pi image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v1
+
+      - name: Build image
+        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
+
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v2
+            with:
+              name: Starport PI
+              path: starport.img
