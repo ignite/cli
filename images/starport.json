@@ -49,6 +49,10 @@
       "type": "shell",
       "inline": [
         "pacman -S go docker git base-devel npm --noconfirm --needed",
+        "mkdir /go",
+        "export PATH=$PATH:/go/bin",
+        "export GOPATH=/go",
+        "go get -u github.com/gobuffalo/packr/v2/packr2",
         "git clone https://github.com/tendermint/starport",
         "cd starport",
         "go mod vendor",
