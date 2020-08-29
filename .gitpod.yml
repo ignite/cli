@@ -2,5 +2,7 @@ image: gitpod/workspace-full
 tasks:
   - command: export VUE_APP_API_URL=$(gp url 1317)
 ports:
+  - port: 1317
+  - port: 26657
   - port: 8080
     onOpen: open-browser
