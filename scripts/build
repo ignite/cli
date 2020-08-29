@@ -1,7 +1,11 @@
 #!/bin/bash
 
-rm -rf ./build
-mkdir ./build
+# ensure GOPATH and GOPATH/bin set.
+gopath=$(go env GOPATH)
+if [[ $PATH != *$gopath/bin* ]]; then
+    echo 'export PATH=$PATH:$gopath/bin' >> $HOME/.bashrc
+    . $HOME/.bashrc
+fi
 
 # build the dependencies..
 echo "building the ui..."
@@ -11,16 +15,12 @@ rm -rf starport/ui/dist
     npm run build >/dev/null)
 
 echo packing the ui...
-go build -o build github.com/gobuffalo/packr/v2/packr2 >/dev/null
+go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
 (cd ./starport/interface/cli/starport && \
-    ../../../../build/packr2)
+    packr2)
 
 # build Starport.
 echo installing starport...
-go build -o build -mod=readonly ./... 1>/dev/null
-
-# add starport alias.
-echo 'alias starport="$PWD/build/starport"' >> $HOME/.bashrc
-. $HOME/.bashrc
+go install -mod=readonly ./... 1>/dev/null
 
 echo done!
