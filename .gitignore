@@ -1,4 +1,4 @@
-build
+build/
 dist
 packrd
 *-packr.go

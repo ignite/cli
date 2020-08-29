@@ -1,0 +1,26 @@
+#!/bin/bash
+
+rm -rf ./build
+mkdir ./build
+
+# build the dependencies..
+echo "building the ui..."
+rm -rf starport/ui/dist
+(cd starport/ui && \
+    npm i >/dev/null && \
+    npm run build >/dev/null)
+
+echo packing the ui...
+go build -o build github.com/gobuffalo/packr/v2/packr2 >/dev/null
+(cd ./starport/interface/cli/starport && \
+    ../../../../build/packr2)
+
+# build Starport.
+echo installing starport...
+go build -o build -mod=readonly ./... 1>/dev/null
+
+# add starport alias.
+echo 'alias starport="$PWD/build/starport"' >> $HOME/.bashrc
+. $HOME/.bashrc
+
+echo done!
