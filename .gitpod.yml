@@ -1,3 +1,3 @@
 image: gitpod/workspace-full
 tasks:
-  - command: gp env VUE_APP_API_URL=$$(gp url 1317)
+  - command: gp env VUE_APP_API_URL=foo
