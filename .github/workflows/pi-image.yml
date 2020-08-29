@@ -23,7 +23,7 @@ jobs:
             sudo mv pishrink.sh /usr/local/bin
             
       - name: Shrink starport-pi.img
-        run: pishrink.sh -Z -v -r -a starport-pi.img
+        run: sudo pishrink.sh -Z -v -r -a starport-pi.img
     
       - name: Upload artifacts  
         uses: actions/upload-artifact@v2
