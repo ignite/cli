@@ -15,9 +15,18 @@ jobs:
 
       - name: Build starport-pi.img with packer-builder-arm
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
-        
+      
+      - name: Install PiShrink
+        run: |
+            wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+            chmod +x pishrink.sh
+            sudo mv pishrink.sh /usr/local/bin
+            
+      - name: Shrink starport-pi.img
+        run: pishrink.sh -Z -v -r -a starport-pi.img
+    
       - name: Upload artifacts  
         uses: actions/upload-artifact@v2
         with:
           name: Starport PI
-          path: starport-pi.img
+          path: starport-pi.img.xz
