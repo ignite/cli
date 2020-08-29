@@ -5,7 +5,7 @@
 ### Features:
 
 * Add ARM64 releases.
-* packer image definition for raspi 3 and 4
+* OS Image Generation for Raspberry Pi 3 and 4
 * Added `version` command
 * Added support for _validator_ configuration in _config.yml_.
 
