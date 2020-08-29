@@ -1,4 +1,11 @@
-packer:
+on:
+  push:
+    tags:
+      - "*"
+
+
+
+jobs:
   name: Packer
   runs-on: ubuntu-latest
   steps:
