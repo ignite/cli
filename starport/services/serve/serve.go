@@ -116,6 +116,12 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 				case errors.Is(err, context.Canceled):
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+
+					var validationErr *starportconf.ValidationError
+					if errors.As(err, &validationErr) {
+						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+					}
+
 					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
@@ -605,8 +611,7 @@ func (s *starportServe) config() (starportconf.Config, error) {
 		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
 	}
 	defer confFile.Close()
-	conf, err := starportconf.Parse(confFile)
-	return conf, errors.Wrap(err, "config file is not valid")
+	return starportconf.Parse(confFile)
 }
 
 type CannotBuildAppError struct {
@@ -615,4 +620,8 @@ type CannotBuildAppError struct {
 
 func (e *CannotBuildAppError) Error() string {
 	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
+}
+
+func (e *CannotBuildAppError) Unwrap() error {
+	return e.Err
 }
