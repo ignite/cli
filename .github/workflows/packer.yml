@@ -1,0 +1,8 @@
+packer:
+  name: Packer
+  runs-on: ubuntu-latest
+  steps:
+    - name: Check out code
+      uses: actions/checkout@v1
+    - name: Build the starpoort PI3/4 image
+      run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build images/starport.json
