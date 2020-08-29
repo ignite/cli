@@ -10,6 +10,7 @@
 
 ### Changes:
 
+* verbose is --verbose, not -v, in the cli
 * Renamed `frontend` directory to `vue`
 * Added first E2E tests (for `app` and `add wasm` subcommands)
 
