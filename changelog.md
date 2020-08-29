@@ -12,6 +12,7 @@
 * Running `starport add type...` multiple times no longer breaks the app
 * Running `appcli tx app create-x` now checks for all required args. -#173.
 * Removed unused `--denom` flag from the `app` command. It previously has moved as a prop to the `config.yml` under `accounts` section.
+* Disabled proxy server in the Vue app (this was causing to some compatibilitiy issues) and enabled CORS for `appcli rest-server` instead.
 
 
 ## `v0.0.10-rc.3`
