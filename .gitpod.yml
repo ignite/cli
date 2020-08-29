@@ -1,4 +1,4 @@
 image: gitpod/workspace-full
 tasks:
   - env: gp env VUE_APP_API_URL=$(gp url 1317)
-    test: touch file
+    hello: touch file
