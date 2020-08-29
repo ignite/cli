@@ -57,12 +57,12 @@
     },
     {
       "type": "file",
-      "source": "scripts/resizerootfs",
+      "source": "images/resizerootfs",
       "destination": "/tmp"
     },
     {
       "type": "shell",
-      "script": "scripts/bootstrap_resizerootfs.sh"
+      "script": "images/bootstrap_resizerootfs.sh"
     }
   ]
 }

@@ -1,0 +1,26 @@
+#!/bin/sh
+
+set -x
+
+roottmp=$(lsblk -l -o NAME,MOUNTPOINT | grep '/$')
+rootpart=/dev/${roottmp%% */}
+rootdev=/dev/$(echo "${roottmp}" | awk '{split($0,a,"p"); print a[1]}')
+cnt=$(echo "${rootpart}" | awk '{split($0,a,"p"); print a[2]}')
+
+flock "${rootdev}" sfdisk -f "${rootdev}" -N "${cnt}" <<EOF
+,+
+EOF
+
+sleep 5
+
+udevadm settle
+
+sleep 5
+
+flock "${rootdev}" partprobe "${rootdev}"
+
+mount -o remount,rw "${rootpart}"
+
+resize2fs "${rootpart}"
+
+exit 0
