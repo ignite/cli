@@ -51,6 +51,7 @@
         "pacman -S go docker git base-devel npm --noconfirm --needed",
         "git clone https://github.com/tendermint/starport",
         "cd starport",
+        "go mod vendor",
         "make build",
         "make install"
       ]
