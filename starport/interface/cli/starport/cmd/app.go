@@ -32,7 +32,6 @@ func NewApp() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  appHandler,
 	}
-	c.Flags().StringP("denom", "d", "token", "Token denomination")
 	c.Flags().String("address-prefix", "cosmos", "Address prefix")
 	return c
 }
@@ -42,13 +41,11 @@ func appHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	denom, _ := cmd.Flags().GetString("denom")
 	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
 	g, _ := app.New(&app.Options{
 		ModulePath:       path.RawPath,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,
-		Denom:            denom,
 		AddressPrefix:    addressPrefix,
 	})
 	run := genny.WetRunner(context.Background())
@@ -66,7 +63,7 @@ func appHandler(cmd *cobra.Command, args []string) error {
  %% cd %[1]v
  %% starport serve
 
-NOTE: add -v flag for advanced use.
+NOTE: add --verbose flag for verbose (detailed) output.
 `
 	fmt.Printf(message, path.Root)
 	return nil

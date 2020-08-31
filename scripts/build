@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# ensure GOPATH and GOPATH/bin set.
+gopath=$(go env GOPATH)
+if [[ $PATH != *$gopath/bin* ]]; then
+    echo 'export PATH=$PATH:$gopath/bin' >> $HOME/.bashrc
+    . $HOME/.bashrc
+fi
+
+# build the dependencies..
+echo "building the ui..."
+rm -rf starport/ui/dist
+(cd starport/ui && \
+    npm i >/dev/null && \
+    npm run build >/dev/null)
+
+echo packing the ui...
+go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
+(cd ./starport/interface/cli/starport && \
+    packr2)
+
+# build Starport.
+echo installing starport...
+go install -mod=readonly ./... 1>/dev/null
+
+echo done!

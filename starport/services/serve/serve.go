@@ -83,6 +83,9 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	if err := s.checkSystem(); err != nil {
 		return err
 	}
+	if err := s.migrateOlder(ctx); err != nil {
+		return err
+	}
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
@@ -113,6 +116,12 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 				case errors.Is(err, context.Canceled):
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+
+					var validationErr *starportconf.ValidationError
+					if errors.As(err, &validationErr) {
+						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+					}
+
 					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
@@ -141,6 +150,28 @@ func (s *starportServe) checkSystem() error {
 	return nil
 }
 
+// migrateOlder migrates apps generated with older version of Starport,
+// to the current version to make them compatible with the updated `serve` command.
+func (s *starportServe) migrateOlder(ctx context.Context) error {
+	// migrate:
+	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultWorkdir(s.app.Path),
+		).
+		Run(ctx,
+			step.New(
+				step.Exec(
+					"go",
+					"mod",
+					"edit",
+					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
+				),
+			),
+		)
+
+}
+
 func (s *starportServe) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
@@ -167,6 +198,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	rootPath := filepath.Join(cwd, s.app.Path)
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -174,7 +206,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps(ctx, conf, cwd)...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf, rootPath)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -433,8 +465,9 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(step.Exec(
 			appd,
 			"gentx",
-			"--name", conf.Accounts[0].Name,
+			"--name", conf.Validator.Name,
 			"--keyring-backend", "test",
+			"--amount", conf.Validator.Staked,
 		)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
@@ -477,6 +510,7 @@ func (s *starportServe) serverSteps() (steps step.Steps) {
 			step.Exec(
 				fmt.Sprintf("%[1]vcli", s.app.Name),
 				"rest-server",
+				"--unsafe-cors",
 			),
 			step.InExec(func() error {
 				defer wg.Done()
@@ -578,8 +612,7 @@ func (s *starportServe) config() (starportconf.Config, error) {
 		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
 	}
 	defer confFile.Close()
-	conf, err := starportconf.Parse(confFile)
-	return conf, errors.Wrap(err, "config file is not valid")
+	return starportconf.Parse(confFile)
 }
 
 type CannotBuildAppError struct {
@@ -588,4 +621,8 @@ type CannotBuildAppError struct {
 
 func (e *CannotBuildAppError) Error() string {
 	return fmt.Sprintf("cannot build app:\n\n\t%s", e.Err)
+}
+
+func (e *CannotBuildAppError) Unwrap() error {
+	return e.Err
 }

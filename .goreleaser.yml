@@ -1,5 +1,7 @@
 builds:
   - main: ./starport/interface/cli/starport
+    ldflags:
+      - -s -w -X github.com/tendermint/starport/starport/internal/version.Version={{.Tag}} -X github.com/tendermint/starport/starport/internal/version.Date={{.Date}}
 
 brews:
   - name: "starport"
