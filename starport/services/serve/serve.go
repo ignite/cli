@@ -198,6 +198,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	rootPath := filepath.Join(cwd, s.app.Path)
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -205,7 +206,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps(ctx, conf, cwd)...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf, rootPath)...); err != nil {
 		return err
 	}
 	return cmdrunner.
