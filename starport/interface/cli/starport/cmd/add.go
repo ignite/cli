@@ -11,6 +11,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/add"
 )
 
@@ -37,10 +38,13 @@ func addHandler(cmd *cobra.Command, args []string) error {
 	if ok {
 		return errors.New("CosmWasm is already added.")
 	}
-	appName, _ := getAppAndModule(appPath)
+	path, err := gomodulepath.Parse(getModule(appPath))
+	if err != nil {
+		return err
+	}
 	g, _ := add.New(&add.Options{
 		Feature: args[0],
-		AppName: appName,
+		AppName: path.Package,
 	})
 	run := genny.WetRunner(context.Background())
 	run.With(g)
