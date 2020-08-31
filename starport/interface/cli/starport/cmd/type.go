@@ -12,6 +12,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -27,9 +28,12 @@ func NewType() *cobra.Command {
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
-	appName, modulePath := getAppAndModule(appPath)
+	path, err := gomodulepath.Parse(getModule(appPath))
+	if err != nil {
+		return err
+	}
 	typeName := args[0]
-	ok, err := isTypeCreated(appPath, appName, typeName)
+	ok, err := isTypeCreated(appPath, path.Package, typeName)
 	if err != nil {
 		return err
 	}
@@ -56,8 +60,8 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 		fields = append(fields, field)
 	}
 	g, _ := typed.New(&typed.Options{
-		ModulePath: modulePath,
-		AppName:    appName,
+		ModulePath: path.RawPath,
+		AppName:    path.Package,
 		TypeName:   typeName,
 		Fields:     fields,
 	})
