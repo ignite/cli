@@ -1,8 +1,6 @@
 image: gitpod/workspace-full
 tasks:
-  - command: export VUE_APP_API_URL=$(gp url 1317)
-  - command: export VUE_APP_WEB_URL=$(gp url 8080)
-  - command: export VUE_APP_RPC_URL=$(gp url 26657)
+  - command: export VUE_APP_RPC_URL=$(gp url 26657) VUE_APP_WEB_URL=$(gp url 8080) VUE_APP_API_URL=$(gp url 1317)
 ports:
   - port: 1317
   - port: 26657
