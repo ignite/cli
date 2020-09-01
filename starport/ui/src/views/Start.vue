@@ -10,7 +10,7 @@
         </p>
         <h2>Components</h2>
         <a
-          :href="running.frontend && 'http://localhost:8080'"
+          :href="running.frontend && (env.web || 'http://localhost:8080')"
           target="_blank"
           class="card"
           v-if="running.frontend || env.node_js"
@@ -40,7 +40,7 @@
           </div>
         </a>
         <a
-          href="http://localhost:1317"
+          :href="env.api || 'http://localhost:1317'"
           target="_blank"
           class="card"
           :style="{'background-color': running.api ? '#edefff' : 'rgba(0,0,0,.05)', '--color-primary': running.api ? 'rgb(80, 100, 251)' : 'rgba(0,0,0,0.25)'}"
@@ -55,7 +55,7 @@
           </div>
         </a>
         <a
-          href="http://localhost:26657"
+          :href="env.rpc || 'http://localhost:26657'"
           target="_blank"
           class="card"
           :style="{'background-color': running.rpc ? '#edf8eb' : 'rgba(0,0,0,.05)', '--color-primary': running.rpc ? 'rgb(0, 187, 0)' : 'rgba(0,0,0,0.25)'}"
@@ -210,20 +210,23 @@ export default {
     LogoTendermint,
     LogoCosmosSdk,
     TerminalWindow,
-    LogoSpaceship
+    LogoSpaceship,
   },
   data() {
     return {
       env: {
         chain_id: "{{chain_id}}",
-        node_js: false
+        node_js: false,
+        rpc: "",
+        api: "",
+        web: "",
       },
       running: {
         rpc: true,
         api: true,
-        frontend: false
+        frontend: false,
       },
-      timer: null
+      timer: null,
     };
   },
   methods: {
@@ -232,19 +235,19 @@ export default {
         const { data } = await axios.get("/status");
         const { status, env } = data;
         this.running = {
-            rpc: status.is_consensus_engine_alive,
-            api: status.is_my_app_backend_alive,
-            frontend: status.is_my_app_frontend_alive,
+          rpc: status.is_consensus_engine_alive,
+          api: status.is_my_app_backend_alive,
+          frontend: status.is_my_app_frontend_alive,
         };
         this.env = env;
       } catch {
         this.running = {
-            rpc: false,
-            api: false,
-            frontend: false,
+          rpc: false,
+          api: false,
+          frontend: false,
         };
       }
-    }
+    },
   },
   async created() {
     this.timer = setInterval(this.setStatusState.bind(this), 1000);
@@ -256,6 +259,6 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.timer);
-  }
+  },
 };
 </script>
