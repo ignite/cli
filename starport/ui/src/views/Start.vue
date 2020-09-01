@@ -10,7 +10,7 @@
         </p>
         <h2>Components</h2>
         <a
-          :href="running.frontend && (env.web || 'http://localhost:8080')"
+          :href="running.frontend && ((env.custom_url && prefixURL(env.custom_url, '8080')) || 'http://localhost:8080')"
           target="_blank"
           class="card"
           v-if="running.frontend || env.node_js"
@@ -40,7 +40,7 @@
           </div>
         </a>
         <a
-          :href="env.api || 'http://localhost:1317'"
+          :href="(env.custom_url && prefixURL(custom_url, '1317')) || 'http://localhost:1317'"
           target="_blank"
           class="card"
           :style="{'background-color': running.api ? '#edefff' : 'rgba(0,0,0,.05)', '--color-primary': running.api ? 'rgb(80, 100, 251)' : 'rgba(0,0,0,0.25)'}"
@@ -55,7 +55,7 @@
           </div>
         </a>
         <a
-          :href="env.rpc || 'http://localhost:26657'"
+          :href="(env.custom_url && prefixURL(custom_url, '26657')) || 'http://localhost:26657'"
           target="_blank"
           class="card"
           :style="{'background-color': running.rpc ? '#edf8eb' : 'rgba(0,0,0,.05)', '--color-primary': running.rpc ? 'rgb(0, 187, 0)' : 'rgba(0,0,0,0.25)'}"
@@ -217,9 +217,7 @@ export default {
       env: {
         chain_id: "{{chain_id}}",
         node_js: false,
-        rpc: "",
-        api: "",
-        web: "",
+        custom_url: "",
       },
       running: {
         rpc: true,
@@ -230,6 +228,9 @@ export default {
     };
   },
   methods: {
+    prefixURL(url, prefix) {
+      return `${prefix}-${new URL(url).hostname}`;
+    },
     async setStatusState() {
       try {
         const { data } = await axios.get("/status");

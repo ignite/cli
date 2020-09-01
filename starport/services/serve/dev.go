@@ -35,11 +35,9 @@ type serviceStatus struct {
 
 // env holds info about development environment.
 type env struct {
-	ChainID string `json:"chain_id"`
-	NodeJS  bool   `json:"node_js"`
-	API     string `json:"api"`
-	Web     string `json:"web"`
-	RPC     string `json:"rpc"`
+	ChainID   string `json:"chain_id"`
+	NodeJS    bool   `json:"node_js"`
+	CustomURL string `json:"custom_url"`
 }
 
 // development handler builder.
@@ -118,8 +116,6 @@ func (d *development) env() env {
 	return env{
 		d.app.Name,
 		xexec.IsCommandAvailable("node"),
-		os.Getenv("VUE_APP_API_URL"),
-		os.Getenv("VUE_APP_WEB_URL"),
-		os.Getenv("VUE_APP_RPC_URL"),
+		os.Getenv("CUSTOM_URL"),
 	}
 }
