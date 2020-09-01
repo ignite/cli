@@ -229,7 +229,8 @@ export default {
   },
   methods: {
     prefixURL(url, prefix) {
-      return `${prefix}-${new URL(url).hostname}`;
+      const newURL = new URL(url);
+      return `${newURL.protocol}:/${prefix}-${newURL.hostname}`;
     },
     async setStatusState() {
       try {
