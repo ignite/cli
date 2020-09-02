@@ -7,6 +7,7 @@ import (
 	"os/signal"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	starportserve "github.com/tendermint/starport/starport/services/serve"
 )
 
@@ -26,9 +27,12 @@ func NewServe() *cobra.Command {
 
 func serveHandler(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
-	appName, _ := getAppAndModule(appPath)
+	path, err := gomodulepath.Parse(getModule(appPath))
+	if err != nil {
+		return err
+	}
 	app := starportserve.App{
-		Name: appName,
+		Name: path.Root,
 		Path: appPath,
 	}
 
@@ -42,7 +46,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	err := starportserve.Serve(ctx, app, verbose)
+	err = starportserve.Serve(ctx, app, verbose)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil
