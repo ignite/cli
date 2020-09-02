@@ -1,6 +1,7 @@
 image: gitpod/workspace-full
 tasks:
-  - init: export VUE_APP_CUSTOM_URL=$(gp url) && make
+  - command: export VUE_APP_CUSTOM_URL=$(gp url)
+  - init: make
 ports:
   - port: 1317
   - port: 26657
