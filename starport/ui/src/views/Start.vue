@@ -102,7 +102,7 @@ code {
   font-family: monospace;
 }
 .container {
-  padding: 4rem 1rem 12rem;
+  padding: 0 1rem 12rem;
   max-width: 900px;
   width: 100%;
   margin-left: auto;
@@ -118,6 +118,7 @@ h1 {
   font-weight: 800;
   font-size: 5rem;
   line-height: 0.9;
+  margin-top: 0;
 }
 h2 {
   margin-top: 4rem;
