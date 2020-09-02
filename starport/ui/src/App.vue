@@ -16,6 +16,10 @@ body {
 button:hover {
   cursor: pointer;
 }
+
+a:visited {
+  color: inherit;
+}
 </style>
 
 <script>

@@ -5,8 +5,18 @@
     </div>
     <div class="nav__main">
       <div class="tabs">
-        <button class="tabs__item -is-active">Welcome</button>
-        <button class="tabs__item">Blocks</button>
+        <router-link
+          class="tabs__item"
+          to="/"
+        >
+          Welcome
+        </router-link>
+        <router-link
+          class="tabs__item"
+          to="/blocks"
+        >
+          Blocks
+        </router-link>
       </div>
     </div>
   </nav>
@@ -21,8 +31,7 @@ nav {
 
 .tabs__item {
   display: block;
-  background: transparent;
-  border: none;
+  text-decoration: none;
 
   font-size: 1.8rem;
   font-weight: 400;
