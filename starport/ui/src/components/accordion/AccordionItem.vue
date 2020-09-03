@@ -1,11 +1,11 @@
 <template>
   <div
     :id="groupId + '-' + itemData.id"
-    class="item" 
+    class="accord-item" 
     :class="{'-is-active': itemData.isActive}"
   >
     <div
-      class="item__trigger"
+      class="accord-item__trigger"
       @click="toggle"
       role="button"
     >
@@ -18,7 +18,7 @@
       @before-leave="startTransition"
       @after-leave="endTransition"
     >
-      <div v-if="itemData.isActive" class="item__contents">
+      <div v-if="itemData.isActive" class="accord-item__contents">
         <slot name="contents"></slot>
       </div>
     </transition>
@@ -43,6 +43,22 @@ export default {
         return childNode
       })
     },
+    setParentState(node, parentTag, toState=undefined)  {
+      const isTargetParent = node.$options._componentTag === parentTag
+      const isTableWrapper = node.$options._componentTag === 'TableWrapper'
+
+      if (!isTargetParent && !isTableWrapper) {
+        this.setParentState(node.$parent, parentTag, toState)
+      }
+      
+      if (node.isActive !== undefined) {
+        if (toState === undefined) {
+          node.isActive = !node.isActive
+        } else {
+          node.isActive = toState
+        }
+      }
+    },
     toggle(event) {
       if (this.multiple) {
         this.itemData.isActive = !this.itemData.isActive
@@ -58,8 +74,10 @@ export default {
           
           if (isClickedItem) {
             accordItem.itemData.isActive = !accordItem.itemData.isActive
+            this.setParentState(accordItem, 'TableRowWrapper')
           } else {
             accordItem.itemData.isActive = false
+            this.setParentState(accordItem, 'TableRowWrapper', false)
           }
         })
       }) 
@@ -77,10 +95,10 @@ export default {
 
 <style scoped>
 
-.item__trigger:hover {
+.accord-item__trigger:hover {
   cursor: pointer;
 }
-.item__contents {
+.accord-item__contents {
   overflow: hidden;
 }
 

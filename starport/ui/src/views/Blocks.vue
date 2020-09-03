@@ -37,7 +37,8 @@ import InnerTable from '@/components/table/InnerTable'
 
 import Accordion from '@/components/accordion/Accordion'
 import AccordionItem from '@/components/accordion/AccordionItem'
-// import { accordionDataTemplate } from '@/components/accordion/Accordion'
+
+import ReconnectingWebSocket from "reconnecting-websocket";
 
 export default {
   components: {
@@ -56,14 +57,27 @@ export default {
         { id: 2, isActive: false }
       ]
     }
-  }
+  },
+  // created() {
+  //   let ws = new ReconnectingWebSocket("wss://rpc.nylira.net:443/websocket", [], { WebSocket: WebSocket });
+  //   ws.onopen = function() {
+  //     ws.send(
+  //       JSON.stringify({
+  //         jsonrpc: "2.0",
+  //         method: "subscribe",
+  //         id: "1",
+  //         params: ["tm.event = 'NewBlock'"]
+  //       })
+  //     );
+  //   };
+  //   ws.onmessage = function(msg) {
+  //     let msgData = JSON.parse(msg.data);
+  //     console.log(msgData);
+  //   };    
+  // }
 }
 </script>
 
 <style scoped>
-
-.panel {
-  background-color: rgba(0,0,0, 0.05);
-}
 
 </style>

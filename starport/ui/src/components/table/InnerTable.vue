@@ -63,4 +63,47 @@ export default {
 
 <style scoped>
 
+.panel {
+  background-color: silver;
+}
+
+.panel.table__panel {
+  padding-top: 1rem;
+  /* padding-bottom: 1rem; */
+}
+
+.panel .panel__top {
+  padding-left: 1rem;
+  padding-right: 1rem; 
+}
+
+.panel .panel__top p {
+  margin: 0 0 1rem 0;
+}
+
+.panel >>> .table__row {
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+.panel >>> .table__row:last-child {
+  padding-bottom: 0.5rem;
+}
+.panel >>> .table__row.-is-active {
+  background-color: seashell;
+}
+.panel >>> .table__row.-is-active:last-child {
+  padding-bottom: 0;
+}
+
+.panel >>> .table__cells.-header {
+  padding-left: 1rem;
+  padding-right: 1rem;  
+}
+.panel >>> .table__cells {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  padding-left: 0;
+  padding-right: 0;  
+}
+
 </style>
