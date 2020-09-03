@@ -2,7 +2,7 @@
   <div
     :id="groupId + '-' + itemData.id"
     class="item" 
-    :class="{'is-active': itemData.isActive}"
+    :class="{'-is-active': itemData.isActive}"
   >
     <div
       class="item__trigger"
@@ -80,10 +80,8 @@ export default {
 .item__trigger:hover {
   cursor: pointer;
 }
-
 .item__contents {
   overflow: hidden;
-  background-color: whitesmoke;
 }
 
 .transition-enter-active, .transition-leave-active {

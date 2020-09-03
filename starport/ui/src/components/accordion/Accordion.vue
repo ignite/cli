@@ -12,10 +12,10 @@ export default {
     AccordionItem,
   },
   props: {
-    content: {
-      type: Array,
-      required: true
-    },
+    // content: {
+    //   type: Array,
+    //   required: true
+    // },
     multiple: {
       type: Boolean,
       default: false
