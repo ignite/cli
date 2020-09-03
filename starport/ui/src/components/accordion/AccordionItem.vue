@@ -18,7 +18,7 @@
       @before-leave="startTransition"
       @after-leave="endTransition"
     >
-      <div v-if="itemData.isActive" class="accord-item__contents">
+      <div v-if="localItemData.isActive" class="accord-item__contents">
         <slot name="contents"></slot>
       </div>
     </transition>
@@ -28,6 +28,11 @@
 <script>
 export default {
   props: ['itemData', 'multiple', 'groupId'],
+  data() {
+    return {
+      localItemData: this.itemData
+    }
+  },
   methods: {
     getAccordionWrapper(node) {
       if (node.$el.id !== this.groupId) {
@@ -61,7 +66,7 @@ export default {
     },
     toggle(event) {
       if (this.multiple) {
-        this.itemData.isActive = !this.itemData.isActive
+        this.localItemData.isActive = !this.localItemData.isActive
         return
       }
       
@@ -73,10 +78,10 @@ export default {
           const isClickedItem = accordItem.$el.id === event.currentTarget.parentElement.id
           
           if (isClickedItem) {
-            accordItem.itemData.isActive = !accordItem.itemData.isActive
+            accordItem.localItemData.isActive = !accordItem.localItemData.isActive
             this.setParentState(accordItem, 'TableRowWrapper')
           } else {
-            accordItem.itemData.isActive = false
+            accordItem.localItemData.isActive = false
             this.setParentState(accordItem, 'TableRowWrapper', false)
           }
         })
@@ -89,7 +94,7 @@ export default {
     endTransition(el) {
       el.style.height = ''
     }
-  }  
+  }
 }
 </script>
 

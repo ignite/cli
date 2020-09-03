@@ -1,20 +1,28 @@
 <template>
   <div>
 
-    <TableWrapper :tableHeads="['Time', 'Height', 'Proposer', 'Block Hash', 'Txs']">
+    <div class="temp" v-if="messages.length == 0">Waiting for blocks...</div>
+
+    <TableWrapper v-else :tableHeads="['Time', 'Height', 'Proposer', 'Block Hash', 'Txs']">
       
       <Accordion :id="tableGroupId"> 
         <TableRowWrapper
-          v-for="item in exampleDataTwo"
-          :key="item.id"                    
+          v-for="msg in messagesForTable"
+          :key="msg.tableData.id"                    
         >   
           <AccordionItem
-            :itemData="item"
+            :itemData="msg.tableData"
             :groupId="tableGroupId"
           >
             <TableRowCellsGroup 
               slot="trigger" 
-              :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']"
+              :tableCells="[
+                msg.blockMsg.time,
+                msg.blockMsg.height,
+                msg.blockMsg.proposer,
+                msg.blockMsg.blockHash,
+                msg.blockMsg.txs,
+              ]"
             />     
             <div slot="contents">
               <InnerTable :parentGroupId="tableGroupId" />
@@ -52,29 +60,70 @@ export default {
   data() {
     return {
       tableGroupId: 'blocks-table',
+      messages: [],
       exampleDataTwo: [
         { id: 1, isActive: false },
         { id: 2, isActive: false }
       ]
     }
   },
-  // created() {
-  //   let ws = new ReconnectingWebSocket("wss://rpc.nylira.net:443/websocket", [], { WebSocket: WebSocket });
-  //   ws.onopen = function() {
-  //     ws.send(
-  //       JSON.stringify({
-  //         jsonrpc: "2.0",
-  //         method: "subscribe",
-  //         id: "1",
-  //         params: ["tm.event = 'NewBlock'"]
-  //       })
-  //     );
-  //   };
-  //   ws.onmessage = function(msg) {
-  //     let msgData = JSON.parse(msg.data);
-  //     console.log(msgData);
-  //   };    
-  // }
+  computed: {
+    messagesForTable() {
+      if (this.messages.length > 0) {
+        return this.messages.map((message) => {
+          const {
+            time,
+            height,
+            proposer_address,
+            app_hash,
+            num_txs
+          } = message.header
+
+          return {
+            blockMsg: {
+              time: time.slice(0,5),
+              height,
+              proposer: proposer_address.slice(0,5),
+              blockHash: app_hash.slice(0,10),
+              txs: num_txs          
+            },
+            tableData: {
+              id: height,
+              isActive: false
+            }
+          }          
+        })        
+      }
+    }
+  },  
+  created() {
+    let ws = new ReconnectingWebSocket("wss://rpc.nylira.net:443/websocket", [], { WebSocket: WebSocket });
+    ws.onopen = function() {
+      ws.send(
+        JSON.stringify({
+          jsonrpc: "2.0",
+          method: "subscribe",
+          id: "1",
+          params: ["tm.event = 'NewBlock'"]
+        })
+      );
+    };
+    ws.onmessage = (msg) => {
+      const { result } = JSON.parse(msg.data)
+
+      if (result.data && result.events) {
+        const { data, events } = result        
+        const { data: txsData, header } = data.value.block
+        
+        this.messages.push({
+          header,          
+          txs: txsData.txs
+        })
+      }
+
+      // console.log(this.messages)
+    }
+  }
 }
 </script>
 
