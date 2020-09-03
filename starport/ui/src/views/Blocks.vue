@@ -1,82 +1,46 @@
 <template>
   <div>
 
-    <table-wrapper :tableHeads="['Time', 'Height', 'Proposer', 'Block Hash', 'Txs']">
-      <table-row-wrapper>
-        <Accordion
-          id="accordion-example-1"
-          :content="exampleData2"
-        > 
-          <TableRowCellsGroup slot="trigger" :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']" />        
-        </Accordion>
-      </table-row-wrapper>
-    </table-wrapper>
-
-    <!-- <div class="table">
-      <div class="table__row -row-group -header">
-        <div class="table__col">Time</div>
-        <div class="table__col">Height</div>
-        <div class="table__col">Proposer</div>
-        <div class="table__col">Block Hash</div>
-        <div class="table__col">Txs</div>
-      </div>
-      <div 
-        class="table__row"
-        v-for="n in 5"
-        :key="n"
-      >
-        <div class="-row-group">
-          <div class="table__col">16s ago</div>
-          <div class="table__col">3111975</div>
-          <div class="table__col">stake.fish</div>
-          <div class="table__col">BBE79CF80CD...70A9F9F436A</div>
-          <div class="table__col">3</div>
-        </div>
-      </div>
-
-      <Accordion id="accordion-example-1" :content="exampleData2" /> 
+    <TableWrapper :tableHeads="['Time', 'Height', 'Proposer', 'Block Hash', 'Txs']">
       
-      <div class="table__row">
-        <div class="-row-group">
-          <div class="table__col">16s ago</div>
-          <div class="table__col">3111975</div>
-          <div class="table__col">stake.fish</div>
-          <div class="table__col">BBE79CF80CD...70A9F9F436A</div>
-          <div class="table__col">3</div>
-        </div>
-
-        <div class="table__panel panel">
-          <div class="panel__top">
-            <p>Transactions</p>
-          </div>
-          <div class="panel__table">
-            <div class="table">
-              <div class="table__row -row-group -panel -header">
-                <div class="table__col">TxHash</div>
-                <div class="table__col">Result</div>
-                <div class="table__col">Fee</div>
-                <div class="table__col">Gas</div>
-                <div class="table__col">Msgs</div>
-              </div>        
-              <div 
-                class="table__row"
-                v-for="n in 5"
-                :key="n"
-              >
-                <div class="-row-group -panel">
-                  <div class="table__col">BBEXTDADF...25SDFS...</div>
-                  <div class="table__col">Success</div>
-                  <div class="table__col">0.000001 ATOM</div>
-                  <div class="table__col">106,019 / 200,000</div>
-                  <div class="table__col">2</div>
+      <Accordion
+        :id="'accordion-example-1'"
+        :content="exampleDataTwo"
+      > 
+        <TableRowWrapper
+          v-for="item in exampleDataTwo"
+          :key="item.id"                    
+        >   
+          <AccordionItem
+            :itemData="item"
+            :groupId="'accordion-example-1'"
+          >
+            <TableRowCellsGroup 
+              slot="trigger" 
+              :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']"
+            />     
+            <div slot="contents">
+              <div class="table__panel panel">
+                <div class="panel__top">
+                  <p>Transactions</p>
                 </div>
-              </div>    
+                <div class="panel__table">
+                  <TableWrapper :tableHeads="['TxHash', 'Result', 'Fee', 'Gas', 'Msgs']">
+                    <TableRowWrapper v-for="n in 5" :key="n">
+                      <TableRowCellsGroup            
+                        :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']"
+                      />                            
+                    </TableRowWrapper>
+                  </TableWrapper>
+                </div>
+              </div>               
             </div>
-          </div>
-        </div>
-      </div>
+          </AccordionItem>     
+        </TableRowWrapper>   
+                
+      </Accordion>
 
-    </div> -->
+    </TableWrapper>
 
   </div>
 </template>
@@ -87,6 +51,7 @@ import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
 
 import Accordion from '@/components/accordion/Accordion'
+import AccordionItem from '@/components/accordion/AccordionItem'
 import { accordionDataTemplate } from '@/components/accordion/Accordion'
 
 export default {
@@ -94,48 +59,26 @@ export default {
     TableWrapper,
     TableRowWrapper,    
     TableRowCellsGroup,
-    Accordion
+    Accordion,
+    AccordionItem
   },
   data() {
     return {
-      exampleData2: [
+      exampleData: [[
         accordionDataTemplate({
           id: 1,
           active: false,
-          title: `<TableRowCellsGroup :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']" />`,
-          content: `
-            <div class="table__panel panel">
-              <div class="panel__top">
-                <p>Transactions</p>
-              </div>
-              <div class="panel__table">
-                <div class="table">
-                  <div class="table__row -row-group -panel -header">
-                    <div class="table__col">TxHash</div>
-                    <div class="table__col">Result</div>
-                    <div class="table__col">Fee</div>
-                    <div class="table__col">Gas</div>
-                    <div class="table__col">Msgs</div>
-                  </div>        
-                  <div 
-                    class="table__row"
-                    v-for="n in 5"
-                    :key="n"
-                  >
-                    <div class="-row-group -panel">
-                      <div class="table__col">BBEXTDADF...25SDFS...</div>
-                      <div class="table__col">Success</div>
-                      <div class="table__col">0.000001 ATOM</div>
-                      <div class="table__col">106,019 / 200,000</div>
-                      <div class="table__col">2</div>
-                    </div>
-                  </div>    
-                </div>
-              </div>
-            </div>          
-          `
         })
-      ]      
+      ],[
+        accordionDataTemplate({
+          id: 1,
+          active: false,
+        })
+      ]],
+      exampleDataTwo: [
+        { id: 1, isActive: false },
+        { id: 2, isActive: false }
+      ]
     }
   }
 }

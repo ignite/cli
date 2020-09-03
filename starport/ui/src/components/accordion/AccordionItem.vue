@@ -1,47 +1,73 @@
 <template>
   <div
-    :id="groupId + '-' + item.id"
-    class="accordion-item" 
-    :class="{'is-active': item.active}"
+    :id="groupId + '-' + itemData.id"
+    class="item" 
+    :class="{'is-active': itemData.isActive}"
   >
-    <dt class="accordion-item-title">
-      <!-- <button @click="toggle" class="accordion-item-trigger"> -->
-        <div @click="toggle">
-        <slot name="trigger"></slot>
-        </div>
-      <!-- </button> -->
-    </dt>
+    <div
+      class="item__trigger"
+      @click="toggle"
+      role="button"
+    >
+      <slot name="trigger"></slot>
+    </div>
     <transition
-      name="accordion-item"
+      name="transition"
       @enter="startTransition"
       @after-enter="endTransition"
       @before-leave="startTransition"
-      @after-leave="endTransition">
-      <dd v-if="item.active" class="accordion-item-details">
-        <div v-html="item.content" class="accordion-item-details-inner"></div>
-      </dd>
+      @after-leave="endTransition"
+    >
+      <div v-if="itemData.isActive" class="item__contents">
+        <slot name="contents"></slot>
+      </div>
     </transition>
   </div>  
 </template>
 
 <script>
 export default {
-  props: ['item', 'multiple', 'groupId'],
+  props: ['itemData', 'multiple', 'groupId'],
   methods: {
-    toggle(event) {
-      if (this.multiple) this.item.active = !this.item.active
-      else {
-        this.$parent.$children.forEach((item, index) => {
-          if (item.$el.id === event.currentTarget.parentElement.parentElement.id) item.item.active = !item.item.active
-          else item.item.active = false
-        }) 
+    getAccordionWrapper(node) {
+      if (node.$el.id !== this.groupId) {
+        this.getAccordionWrapper(node.$parent)
       }
+      return node.$parent
     },
-    
+    getAccordionItem(parentNode) {  
+      return parentNode.$children.map(childNode => {
+        if (childNode.groupId !== this.groupId) {
+          getAccordionItem(childNode.$el)
+        }
+        return childNode
+      })
+    },
+    toggle(event) {
+      if (this.multiple) {
+        this.itemData.isActive = !this.itemData.isActive
+        return
+      }
+      
+      const $accordionWrapper = this.getAccordionWrapper(this.$parent)
+      
+      $accordionWrapper.$children.forEach((item) => {
+        const $accordItem = this.getAccordionItem(item)
+        $accordItem.forEach((accordItem) => {
+          const isClickedItem = accordItem.$el.id === event.currentTarget.parentElement.id
+          
+          if (isClickedItem) {
+            accordItem.itemData.isActive = !accordItem.itemData.isActive
+          } else {
+            accordItem.itemData.isActive = false
+          }
+        })
+      }) 
+      
+    },
     startTransition(el) {
       el.style.height = el.scrollHeight + 'px'
     },
-    
     endTransition(el) {
       el.style.height = ''
     }
@@ -51,17 +77,20 @@ export default {
 
 <style scoped>
 
+.item__trigger:hover {
+  cursor: pointer;
+}
 
-.accordion-item-details {
+.item__contents {
   overflow: hidden;
   background-color: whitesmoke;
 }
 
-.accordion-item-enter-active, .accordion-item-leave-active {
+.transition-enter-active, .transition-leave-active {
   will-change: height;
   transition: height 0.2s ease;
 }
-.accordion-item-enter, .accordion-item-leave-to {
+.transition-enter, .transition-leave-to {
   height: 0 !important;
 }
 

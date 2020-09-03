@@ -1,17 +1,7 @@
 <template>
-  <dl class="accordion box" role="presentation">
-    <accordion-item
-      v-for="item in content"
-      :multiple="multiple"
-      :item="item"
-      :groupId="groupId"
-      :key="item.id"
-    >
-      <template slot="trigger">
-        <slot name="trigger"></slot>
-      </template>
-    </accordion-item>
-  </dl>  
+  <div class="accordion box">
+    <slot/>
+  </div>  
 </template>
 
 <script>
@@ -43,15 +33,11 @@ export default {
 
 export function accordionDataTemplate({
   id,
-  active,
-  title,
-  content
+  active
 }) {
   return {
     id,
-    active,
-    title,
-    content
+    active
   }
 }
 </script>
