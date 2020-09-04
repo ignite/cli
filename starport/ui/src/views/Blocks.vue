@@ -38,6 +38,8 @@
 </template>
 
 <script>
+import axios from "axios"
+
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
@@ -75,7 +77,7 @@ export default {
             time,
             height,
             proposer_address,
-            app_hash,
+            last_block_id,
             num_txs
           } = message.header
 
@@ -84,7 +86,7 @@ export default {
               time: time.slice(0,5),
               height,
               proposer: proposer_address.slice(0,5),
-              blockHash: app_hash.slice(0,10),
+              blockHash: last_block_id.hash.slice(0,10),
               txs: num_txs          
             },
             tableData: {
@@ -114,12 +116,44 @@ export default {
       if (result.data && result.events) {
         const { data, events } = result        
         const { data: txsData, header } = data.value.block
+
+        console.log(result)
         
         this.messages.push({
           header,          
           txs: txsData.txs
         })
-      }
+
+         axios.post('https://stargate.cosmos.network/txs/decode', {
+            tx: "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
+          })
+            .then(function (response) {
+              console.log(response);
+            })
+            .catch(function (error) {
+              console.log(error);
+            });     
+        }         
+
+
+      //   if (txsData.txs && txsData.txs.length > 0) {
+      //     // axios({
+      //     //   method: 'post',
+      //     //   url: 'https://lcd.nylira.net/txs/decode', {
+      //     //     "tx": "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
+      //     //   }
+      //     // })
+      //     axios.post('localhost:1317/txs/decode', {
+      //       tx: "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
+      //     })
+      //       .then(function (response) {
+      //         console.log(response);
+      //       })
+      //       .catch(function (error) {
+      //         console.log(error);
+      //       });     
+      //   }        
+      // }
 
       // console.log(this.messages)
     }
