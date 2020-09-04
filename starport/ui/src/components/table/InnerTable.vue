@@ -47,9 +47,9 @@ export default {
     Accordion,
     AccordionItem
   },
-  props: [
-    'parentGroupId'
-  ],
+  props: {
+    parentGroupId: { type: String, require: true }
+  },
   data() {
     return {
       exampleData: [

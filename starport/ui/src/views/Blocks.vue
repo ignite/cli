@@ -13,6 +13,7 @@
           <AccordionItem
             :itemData="msg.tableData"
             :groupId="tableGroupId"
+            :isDisabled="msg.blockMsg.txs<=0"
           >
             <TableRowCellsGroup 
               slot="trigger" 
@@ -24,8 +25,10 @@
                 msg.blockMsg.txs,
               ]"
             />     
-            <div slot="contents">
-              <InnerTable :parentGroupId="tableGroupId" />
+            <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
+              <InnerTable 
+                :parentGroupId="tableGroupId"
+              /> <!-- todo: filter & format data to pass into component -->
             </div>
           </AccordionItem>     
         </TableRowWrapper>   
@@ -79,16 +82,19 @@ export default {
             time,
             height,
             proposer_address,
-            last_block_id,
             num_txs
           } = message.header
+
+          const {
+            hash
+          } = message.blockMeta.block_id
 
           return {
             blockMsg: {
               time: time.slice(0,5),
               height,
               proposer: proposer_address.slice(0,5),
-              blockHash: last_block_id.hash.slice(0,10),
+              blockHash: hash.slice(0,10),
               txs: num_txs          
             },
             tableData: {
@@ -130,11 +136,11 @@ export default {
           try {
             return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
           } catch (err) {
-            console.error(err)
+            console.error(txEncoded, err)
           }        
         }       
 
-        const messageTemplate = {
+        const messageHolder = {
           header,
           txs: txsData.txs,
           blockMeta: null,
@@ -144,24 +150,19 @@ export default {
 
         fetchBlockMeta()
           .then(blockMeta => {
-            // todo: filter blockMeta
-            messageTemplate.blockMeta = blockMeta
+            messageHolder.blockMeta = blockMeta.data.result.block_meta
 
             if (txsData.txs && txsData.txs.length > 0) {
               const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded))
               
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                // todo: filter txsDecodedData
-                messageTemplate.txsDecoded.push(txResolved)
+                messageHolder.txsDecoded.push(txResolved.data.result)
               }))
             }    
 
-            console.log(messageTemplate)
+            console.log(messageHolder)
 
-            this.messages.push({
-              header,          
-              txs: txsData.txs
-            })                  
+            this.messages.push(messageHolder)                  
           })   
    
       }         
