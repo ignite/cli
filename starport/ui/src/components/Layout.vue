@@ -43,6 +43,10 @@
   -webkit-overflow-scrolling: touch;  
 }
 
+.navbar {
+  position: sticky;
+  top: 0;
+}
 .navbar__logo {
   height: var(--g-offset-top);
 
