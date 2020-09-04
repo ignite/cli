@@ -62,6 +62,8 @@ export default {
   data() {
     return {
       tableGroupId: 'blocks-table',
+      tendermintRootUrl: 'rpc.nylira.net',
+      cosmosRootUrl: 'localhost:1317',
       messages: [],
       exampleDataTwo: [
         { id: 1, isActive: false },
@@ -99,7 +101,7 @@ export default {
     }
   },  
   created() {
-    let ws = new ReconnectingWebSocket("wss://rpc.nylira.net:443/websocket", [], { WebSocket: WebSocket });
+    let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {
       ws.send(
         JSON.stringify({
@@ -117,45 +119,52 @@ export default {
         const { data, events } = result        
         const { data: txsData, header } = data.value.block
 
-        console.log(result)
-        
-        this.messages.push({
-          header,          
-          txs: txsData.txs
-        })
+        async function fetchBlockMeta() {
+          try {
+            return await axios.get(`https://rpc.nylira.net/block?${header.height}`)
+          } catch (err) {
+            console.error(err)
+          }
+        }
+        async function fetchDecodedTx(txEncoded) {
+          try {
+            return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
+          } catch (err) {
+            console.error(err)
+          }        
+        }       
 
-         axios.post('https://stargate.cosmos.network/txs/decode', {
-            tx: "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
-          })
-            .then(function (response) {
-              console.log(response);
-            })
-            .catch(function (error) {
-              console.log(error);
-            });     
-        }         
+        const messageTemplate = {
+          header,
+          txs: txsData.txs,
+          blockMeta: null,
+          txsDecoded: []
+        }
 
 
-      //   if (txsData.txs && txsData.txs.length > 0) {
-      //     // axios({
-      //     //   method: 'post',
-      //     //   url: 'https://lcd.nylira.net/txs/decode', {
-      //     //     "tx": "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
-      //     //   }
-      //     // })
-      //     axios.post('localhost:1317/txs/decode', {
-      //       tx: "xwEoKBapCkCoo2GaChSRuxWbpd1Fxvwngu5AbPwKmIqcCBIU+PZHD8ycVQqyCGByfrBrWV+wf1UaDgoFdWF0b20SBTY2ODM2EhMKDQoFdWF0b20SBDI0MTkQ1PMFGmoKJuta6YchAq31w1uhLWL5p9xbDiyOp8Z61Bs4R5IvBAal61+afdX5EkCPaGQwOpcSiGafPCYV29UfXm+d/Le3sx0HqBUq2C5kXnoJw6IVlcyi5upRLdXptso/3XnubzUeRCbZVRn0XO7b"
-      //     })
-      //       .then(function (response) {
-      //         console.log(response);
-      //       })
-      //       .catch(function (error) {
-      //         console.log(error);
-      //       });     
-      //   }        
-      // }
+        fetchBlockMeta()
+          .then(blockMeta => {
+            // todo: filter blockMeta
+            messageTemplate.blockMeta = blockMeta
 
-      // console.log(this.messages)
+            if (txsData.txs && txsData.txs.length > 0) {
+              const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded))
+              
+              txsDecoded.forEach(txRes => txRes.then(txResolved => {
+                // todo: filter txsDecodedData
+                messageTemplate.txsDecoded.push(txResolved)
+              }))
+            }    
+
+            console.log(messageTemplate)
+
+            this.messages.push({
+              header,          
+              txs: txsData.txs
+            })                  
+          })   
+   
+      }         
     }
   }
 }
