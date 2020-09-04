@@ -1,5 +1,3 @@
-// +build !test_amino
-
 package params
 
 import (

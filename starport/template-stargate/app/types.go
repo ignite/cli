@@ -8,7 +8,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/module"
 )
 
 // App implements the common methods for a Cosmos SDK-based application
@@ -40,7 +39,4 @@ type CosmosApp interface {
 
 	// All the registered module account addreses.
 	ModuleAccountAddrs() map[string]bool
-
-	// Helper for the simulation framework.
-	SimulationManager() *module.SimulationManager
 }
