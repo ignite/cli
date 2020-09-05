@@ -4,20 +4,20 @@
       <p>Transactions</p>
     </div>
     <div class="panel__table">
-      <TableWrapper :tableHeads="['TxHash', 'Result', 'Fee', 'Gas', 'Msgs']">
+      <TableWrapper :tableHeads="['TxHash', 'Fee', 'Gas', 'Msgs']">
 
         <Accordion :id="'accordion-subTable-'+parentGroupId">
           <TableRowWrapper
-            v-for="item in exampleData"
-            :key="item.id"                          
+            v-for="msg in messagesForTable"
+            :key="msg.tableData.id"                          
           >
             <AccordionItem
-              :itemData="item"
+              :itemData="msg.tableData"
               :groupId="parentGroupId"
             >            
               <TableRowCellsGroup      
                 slot="trigger"       
-                :tableCells="['16s ago', '3111975', 'stake.fish', 'BBE79CF80CD...70A9F9F436A', '3']"
+                :tableCells="msg.txMsg"
               />                      
               <div slot="contents">
                 <p>testing 123</p>
@@ -48,7 +48,9 @@ export default {
     AccordionItem
   },
   props: {
-    parentGroupId: { type: String, require: true }
+    parentGroupId: { type: String, require: true },
+    // tableCells: { type: Array, require: true },
+    rowItems: { type: Array, require: true }
   },
   data() {
     return {
@@ -57,7 +59,30 @@ export default {
         { id: 2, isActive: false }
       ]
     }
-  }  
+  },
+  computed: {
+    messagesForTable() {
+      return this.rowItems.map(item => {
+        const {
+          fee,
+          msg
+        } = item
+
+        return {
+          txMsg: {
+            hash: 'fakehashtestingssdf', // temp
+            fee: fee.amount[0].amount, // temp
+            gas: fee.gas, // temp
+            msg: msg.length
+          },
+          tableData: {
+            id: item.signatures[0].signature, // temp
+            isActive: false
+          },
+        }
+      })
+    }
+  }
 }
 </script>
 
@@ -104,6 +129,22 @@ export default {
   padding-bottom: 0.5rem;
   padding-left: 0;
   padding-right: 0;  
+}
+
+/* temporary table styling */
+.panel__table >>> .table__cells .table__col:nth-child(1) {
+  flex-grow: 1;
+  width: auto;
+}
+.panel__table >>> .table__cells .table__col:nth-child(2) {
+  width: 15%;
+}
+.panel__table >>> .table__cells .table__col:nth-child(3) {
+  width: 15%;
+}
+.panel__table >>> .table__cells .table__col:nth-child(4) {
+  flex-grow: 0;
+  width: 15%;
 }
 
 </style>

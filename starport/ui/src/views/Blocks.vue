@@ -28,6 +28,7 @@
             <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
               <InnerTable 
                 :parentGroupId="tableGroupId"
+                :rowItems="msg.txs"
               /> <!-- todo: filter & format data to pass into component -->
             </div>
           </AccordionItem>     
@@ -100,7 +101,8 @@ export default {
             tableData: {
               id: height,
               isActive: false
-            }
+            },
+            txs: message.txsDecoded
           }          
         })        
       }
