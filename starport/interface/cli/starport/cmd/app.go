@@ -1,26 +1,10 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
-	"os"
-	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/app"
-)
-
-var (
-	commitMessage = "Initialized with Starport"
-	devXAuthor    = &object.Signature{
-		Name:  "Developer Experience team at Tendermint",
-		Email: "hello@tendermint.com",
-		When:  time.Now(),
-	}
+	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized
@@ -37,23 +21,11 @@ func NewApp() *cobra.Command {
 }
 
 func appHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(args[0])
-	if err != nil {
-		return err
-	}
+	name := args[0]
 	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
-	g, _ := app.New(&app.Options{
-		ModulePath:       path.RawPath,
-		AppName:          path.Package,
-		BinaryNamePrefix: path.Root,
-		AddressPrefix:    addressPrefix,
-	})
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	pwd, _ := os.Getwd()
-	run.Root = pwd + "/" + path.Root
-	run.Run()
-	if err := initGit(path.Root); err != nil {
+	sc := scaffolder.New(name)
+	path, err := sc.Init(scaffolder.AddressPrefix(addressPrefix))
+	if err != nil {
 		return err
 	}
 	message := `
@@ -65,25 +37,6 @@ func appHandler(cmd *cobra.Command, args []string) error {
 
 NOTE: add --verbose flag for verbose (detailed) output.
 `
-	fmt.Printf(message, path.Root)
+	fmt.Printf(message, path)
 	return nil
-}
-
-func initGit(path string) error {
-	repo, err := git.PlainInit(path, false)
-	if err != nil {
-		return err
-	}
-	wt, err := repo.Worktree()
-	if err != nil {
-		return err
-	}
-	if _, err := wt.Add("."); err != nil {
-		return err
-	}
-	_, err = wt.Commit(commitMessage, &git.CommitOptions{
-		All:    true,
-		Author: devXAuthor,
-	})
-	return err
 }
