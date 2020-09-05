@@ -20,7 +20,9 @@
                 :tableCells="msg.txMsg"
               />                      
               <div slot="contents">
-                <p>testing 123</p>
+                <SideTabList
+                  :list="getFmtMsgForInnerTable(msg.msgs)"
+                />
               </div>                    
             </AccordionItem>
           </TableRowWrapper>
@@ -35,6 +37,7 @@
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
+import SideTabList from '@/components/table/SideTabList'
 
 import Accordion from '@/components/accordion/Accordion'
 import AccordionItem from '@/components/accordion/AccordionItem'
@@ -44,6 +47,7 @@ export default {
     TableWrapper,
     TableRowWrapper,    
     TableRowCellsGroup,
+    SideTabList,
     Accordion,
     AccordionItem
   },
@@ -69,18 +73,44 @@ export default {
         } = item
 
         return {
-          txMsg: {
-            hash: 'fakehashtestingssdf', // temp
-            fee: fee.amount[0].amount, // temp
-            gas: fee.gas, // temp
-            msg: msg.length
-          },
+          txMsg: [
+            'fakehashtestingssdf', // temp
+            fee.amount[0].amount, // temp
+            fee.gas, // temp
+            msg.length
+          ],
+          msgs: msg.map(({
+            type,
+            value
+          }) => ({
+            type: type.replace('cosmos-sdk/', ''),
+            amount: value.amount.amount+value.amount.denom,
+            delegator: value.delegator_address,
+            validator: value.validator_address,
+          })),
           tableData: {
             id: item.signatures[0].signature, // temp
             isActive: false
           },
         }
       })
+    }
+  },
+  methods: {
+    getFmtMsgForInnerTable(msgs) {
+      return msgs.map(({
+        type,
+        amount,
+        delegator,
+        validator
+      }) => ({
+        title: type,
+        subItems: [
+          { title: 'Delegator', content: delegator },
+          { title: 'Validator', content: validator },
+          { title: 'Amount', content: amount },
+        ]
+      }))
     }
   }
 }

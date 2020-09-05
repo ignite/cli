@@ -20,4 +20,9 @@ export default {
   background-color: snow;
 }
 
+.table__row >>> .accord-item__contents .side-tab-list {
+  margin-top: 1rem;
+  padding-bottom: 1rem;
+}
+
 </style>
