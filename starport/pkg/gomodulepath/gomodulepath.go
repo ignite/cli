@@ -4,9 +4,12 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"io/ioutil"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 )
 
@@ -44,6 +47,19 @@ func Parse(rawpath string) (Path, error) {
 		Package: packageName,
 	}
 	return p, nil
+}
+
+// ParseFile parses Go module path of an app resides at path.
+func ParseFile(path string) (Path, error) {
+	gomod, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
+	if err != nil {
+		return Path{}, err
+	}
+	parsed, err := modfile.Parse("", gomod, nil)
+	if err != nil {
+		return Path{}, err
+	}
+	return Parse(parsed.Module.Mod.Path)
 }
 
 func validateModulePath(path string) error {

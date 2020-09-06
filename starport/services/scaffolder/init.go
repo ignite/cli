@@ -37,14 +37,14 @@ func AddressPrefix(prefix string) InitOption {
 	}
 }
 
-// Init initializes a new app with given options.
+// Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(options ...InitOption) (path string, err error) {
+func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err error) {
 	opts := &initOptions{}
 	for _, o := range options {
 		o(opts)
 	}
-	pathInfo, err := gomodulepath.Parse(s.name)
+	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
