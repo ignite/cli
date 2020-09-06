@@ -23,7 +23,7 @@ func NewApp() *cobra.Command {
 func appHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
-	sc := scaffolder.New(appPath)
+	sc := scaffolder.New("")
 	path, err := sc.Init(name, scaffolder.AddressPrefix(addressPrefix))
 	if err != nil {
 		return err
