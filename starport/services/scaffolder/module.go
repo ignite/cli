@@ -1,4 +1,4 @@
-package starportcmd
+package scaffolder
 
 import (
 	"context"
@@ -10,7 +10,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/add"
 )
@@ -20,36 +19,29 @@ const (
 	apppkg     = "app"
 )
 
-func NewAdd() *cobra.Command {
-	c := &cobra.Command{
-		Use:   "add [feature]",
-		Short: "Adds a feature to a project.",
-		Args:  cobra.MinimumNArgs(1),
-		RunE:  addHandler,
-	}
-	return c
-}
-
-func addHandler(cmd *cobra.Command, args []string) error {
-	ok, err := isWasmAdded(appPath)
+// AddModule adds sepecified module with name to the scaffolded app.
+func (s *Scaffolder) AddModule(name string) error {
+	ok, err := isWasmAdded(s.path)
 	if err != nil {
 		return err
 	}
 	if ok {
 		return errors.New("CosmWasm is already added.")
 	}
-	path, err := gomodulepath.Parse(getModule(appPath))
+	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
 		return err
 	}
-	g, _ := add.New(&add.Options{
-		Feature: args[0],
+	g, err := add.New(&add.Options{
+		Feature: name,
 		AppName: path.Package,
 	})
+	if err != nil {
+		return err
+	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	run.Run()
-	return nil
+	return run.Run()
 }
 
 func isWasmAdded(appPath string) (bool, error) {
