@@ -5,17 +5,17 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-func NewAdd() *cobra.Command {
+func NewModuleImport() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "add [feature]",
-		Short: "Adds a feature to a project.",
+		Use:   "import [feature]",
+		Short: "Imports a new module to app.",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  addHandler,
+		RunE:  importModuleHandler,
 	}
 	return c
 }
 
-func addHandler(cmd *cobra.Command, args []string) error {
+func importModuleHandler(cmd *cobra.Command, args []string) error {
 	sc := scaffolder.New(appPath)
 	return sc.AddModule(args[0])
 }
