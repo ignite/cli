@@ -1,6 +1,8 @@
 package starportcmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
@@ -16,6 +18,11 @@ func NewModuleImport() *cobra.Command {
 }
 
 func importModuleHandler(cmd *cobra.Command, args []string) error {
+	name := args[0]
 	sc := scaffolder.New(appPath)
-	return sc.AddModule(args[0])
+	if err := sc.AddModule(name); err != nil {
+		return err
+	}
+	fmt.Printf("\n🎉 Imported module `%s`.\n\n", name)
+	return nil
 }
