@@ -35,11 +35,11 @@ test('generate an app with CosmWasm and verify', async t => {
   await exec('starport app github.com/e2e/e2e', { cwd: workdir.name });
 
   // add CosmWasm. 
-  await exec('starport add wasm', { cwd: appPath });
+  await exec('starport module import wasm', { cwd: appPath });
 
   // cannot add CosmWasm again. 
   try {
-    await exec('starport add wasm', { cwd: appPath });
+    await exec('starport module import wasm', { cwd: appPath });
     t.fail("cannot add wasm twice")
   } catch(e) {
   }
@@ -58,7 +58,7 @@ test('serve app with CosmWasm', async t => {
   await exec('starport app github.com/e2e/e2e', { cwd: workdir.name });
 
   // add CosmWasm. 
-  await exec('starport add wasm', { cwd: appPath });
+  await exec('starport module import wasm', { cwd: appPath });
 
   // serve should be OK and there should not be any runtime errors during serve.
   await new Promise(async (resolve, reject) => {
