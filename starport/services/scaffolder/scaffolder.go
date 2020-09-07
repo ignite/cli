@@ -4,15 +4,13 @@ package scaffolder
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
-	// name is app's name
-	name string
+	// path is app's path on the filesystem.
+	path string
 }
 
-// New creates a new Scaffolder for given app name.
-// app name can be belong to an existent app or the one wished
-// to be initialized.
-func New(name string) *Scaffolder {
+// New initializes a new Scaffolder for app at path.
+func New(path string) *Scaffolder {
 	return &Scaffolder{
-		name: name,
+		path: path,
 	}
 }
