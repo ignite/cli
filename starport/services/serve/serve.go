@@ -323,7 +323,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				if err != nil {
 					return err
 				}
-				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				path := filepath.Join(home, "."+ndappd, "config/genesis.json")
 				file, err := os.OpenFile(path, os.O_RDWR, 644)
 				if err != nil {
 					return err
