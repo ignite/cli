@@ -48,6 +48,32 @@ type App struct {
 	Path string
 }
 
+func (a App) noDashName() string {
+	return strings.ReplaceAll(a.Name, "-", "")
+}
+
+func (a App) d() string {
+	return a.Name + "d"
+}
+
+func (a App) cli() string {
+	return a.Name + "cli"
+}
+
+func (a App) nd() string {
+	return a.noDashName() + "d"
+}
+
+func (a App) ncli() string {
+	return a.noDashName() + "cli"
+}
+
+// root returns the root path of app.
+func (a App) root() string {
+	cwd, _ := os.Getwd()
+	return filepath.Join(cwd, a.Path)
+}
+
 type version struct {
 	tag  string
 	hash string
@@ -55,6 +81,7 @@ type version struct {
 
 type starportServe struct {
 	app            App
+	plugin         Plugin
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -71,19 +98,29 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
-	var err error
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return err
-	}
+
 	if verbose {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
+
+	var err error
+
+	s.version, err = s.appVersion()
+	if err != nil && err != git.ErrRepositoryNotExists {
+		return err
+	}
+
+	s.plugin, err = s.pickPlugin()
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+
 	if err := s.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.migrateOlder(ctx); err != nil {
+	if err := s.plugin.Migrate(ctx); err != nil {
 		return err
 	}
 
@@ -150,28 +187,6 @@ func (s *starportServe) checkSystem() error {
 	return nil
 }
 
-// migrateOlder migrates apps generated with older version of Starport,
-// to the current version to make them compatible with the updated `serve` command.
-func (s *starportServe) migrateOlder(ctx context.Context) error {
-	// migrate:
-	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultWorkdir(s.app.Path),
-		).
-		Run(ctx,
-			step.New(
-				step.Exec(
-					"go",
-					"mod",
-					"edit",
-					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
-				),
-			),
-		)
-
-}
-
 func (s *starportServe) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
@@ -194,11 +209,6 @@ func (s *starportServe) serve(ctx context.Context) error {
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	rootPath := filepath.Join(cwd, s.app.Path)
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -206,7 +216,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps(ctx, conf, rootPath)...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -214,7 +224,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config, cwd string) (
+func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config) (
 	steps step.Steps) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
@@ -222,14 +232,6 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
 	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
 	var (
-		// no-dash app name.
-		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
-		ndappd   = ndapp + "d"
-		ndappcli = ndapp + "cli"
-
-		appd   = s.app.Name + "d"
-		appcli = s.app.Name + "cli"
-
 		buildErr = &bytes.Buffer{}
 	)
 	captureBuildErr := func(err error) error {
@@ -268,48 +270,34 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(step.Stderr(buildErr))...,
 	))
 
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appd),
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
+	// install the app.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
+			return nil
+		}),
 	))
+	for _, execOption := range s.plugin.Install(ctx, ldflags) {
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				execOption,
+				step.PostExec(captureBuildErr),
+			).
+			Add(s.stdSteps(logStarport)...).
+			Add(step.Stderr(buildErr))...,
+		))
+	}
+
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appcli),
-			),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				appd,
+				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", ndapp,
+				"--chain-id", s.app.d(),
 			),
 			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
+				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", s.app.nd()))
 			}),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
@@ -323,7 +311,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				if err != nil {
 					return err
 				}
-				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				path := filepath.Join(home, "."+s.app.d(), "config/genesis.json")
 				file, err := os.OpenFile(path, os.O_RDWR, 644)
 				if err != nil {
 					return err
@@ -350,13 +338,13 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				appcli,
+				s.app.cli(),
 				"config",
 				"keyring-backend",
 				"test",
 			),
 			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
+				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", s.app.ncli()))
 			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
@@ -370,7 +358,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				step.Exec(
-					appcli,
+					s.app.cli(),
 					"keys",
 					"add",
 					account.Name,
@@ -396,7 +384,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				step.Exec(
-					appcli,
+					s.app.cli(),
 					"keys",
 					"show",
 					account.Name,
@@ -412,7 +400,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 						New().
 						Run(ctx, step.New(step.NewOptions().
 							Add(step.Exec(
-								appd,
+								s.app.d(),
 								"add-genesis-account",
 								key,
 								coins,
@@ -427,16 +415,16 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	}
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appcli,
+			s.app.cli(),
 			"config",
 			"chain-id",
-			ndapp,
+			s.app.nd(),
 		)).
 		Add(s.stdSteps(logAppcli)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appcli,
+			s.app.cli(),
 			"config",
 			"output",
 			"json",
@@ -445,7 +433,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appcli,
+			s.app.cli(),
 			"config",
 			"indent",
 			"true",
@@ -454,7 +442,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appcli,
+			s.app.cli(),
 			"config",
 			"trust-node",
 			"true",
@@ -463,7 +451,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appd,
+			s.app.d(),
 			"gentx",
 			"--name", conf.Validator.Name,
 			"--keyring-backend", "test",
@@ -473,7 +461,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appd,
+			s.app.d(),
 			"collect-gentxs",
 		)).
 		Add(s.stdSteps(logAppd)...)...,

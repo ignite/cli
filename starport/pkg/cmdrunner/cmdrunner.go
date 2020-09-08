@@ -101,11 +101,24 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	return g.Wait()
 }
 
-func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
+type Executor interface {
+	Wait() error
+	Start() error
+}
+
+type dummyExecutor struct{}
+
+func (s *dummyExecutor) Start() error {
+	return nil
+}
+
+func (s *dummyExecutor) Wait() error {
+	return nil
+}
+
+func (r *Runner) newCommand(ctx context.Context, s *step.Step) Executor {
 	if s.Exec.Command == "" {
-		// this is a programmer error so better to panic instead of
-		// returning an err.
-		panic("empty command")
+		return &dummyExecutor{}
 	}
 	var (
 		stdout = s.Stdout
