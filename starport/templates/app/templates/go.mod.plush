@@ -1,4 +1,4 @@
-module <%= AppName %>
+module <%= ModulePath %>
  
 go 1.14
 

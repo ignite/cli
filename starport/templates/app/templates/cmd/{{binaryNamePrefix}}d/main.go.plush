@@ -3,7 +3,7 @@ package main
 import (
 	"os"
 
-	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>/cmd"
+	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
 )
 
 func main() {
