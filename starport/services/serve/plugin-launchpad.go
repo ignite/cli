@@ -2,6 +2,7 @@ package starportserve
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -58,4 +59,15 @@ func (p *launchpadPlugin) Install(ctx context.Context, ldflags string) []step.Op
 			filepath.Join(p.app.root(), "cmd", p.app.cli()),
 		),
 	}
+}
+
+func (p *launchpadPlugin) StoragePaths() []string {
+	return []string{
+		fmt.Sprintf(".%s", p.app.nd()),
+		fmt.Sprintf(".%s", p.app.ncli()),
+	}
+}
+
+func (p *launchpadPlugin) GenesisPath() string {
+	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
 }

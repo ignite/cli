@@ -18,6 +18,12 @@ type Plugin interface {
 
 	// Install returns the installation's step.Exec configuration.
 	Install(ctx context.Context, ldflags string) []step.Option
+
+	// StoragePaths returns a list of where persistent data kept.
+	StoragePaths() []string
+
+	// GenesisPath returns path of genesis.json.
+	GenesisPath() string
 }
 
 type CosmosMajorVersion int

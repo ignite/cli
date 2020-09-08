@@ -2,6 +2,7 @@ package starportserve
 
 import (
 	"context"
+	"fmt"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -35,4 +36,14 @@ func (p *stargatePlugin) Install(ctx context.Context, ldflags string) []step.Opt
 			filepath.Join(p.app.root(), "cmd", p.app.d()),
 		),
 	}
+}
+
+func (p *stargatePlugin) StoragePaths() []string {
+	return []string{
+		p.app.nd(),
+	}
+}
+
+func (p *stargatePlugin) GenesisPath() string {
+	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
 }

@@ -43,37 +43,6 @@ var (
 	infoColor  = color.Yellow.Render
 )
 
-type App struct {
-	Name string
-	Path string
-}
-
-func (a App) noDashName() string {
-	return strings.ReplaceAll(a.Name, "-", "")
-}
-
-func (a App) d() string {
-	return a.Name + "d"
-}
-
-func (a App) cli() string {
-	return a.Name + "cli"
-}
-
-func (a App) nd() string {
-	return a.noDashName() + "d"
-}
-
-func (a App) ncli() string {
-	return a.noDashName() + "cli"
-}
-
-// root returns the root path of app.
-func (a App) root() string {
-	cwd, _ := os.Getwd()
-	return filepath.Join(cwd, a.Path)
-}
-
 type version struct {
 	tag  string
 	hash string
@@ -288,17 +257,27 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		))
 	}
 
+	// cleanup persistent data from previous `serve`.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			for _, path := range s.plugin.StoragePaths() {
+				if err := xos.RemoveAllUnderHome(path); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
+	))
+
+	// init node.
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
 				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", s.app.d(),
+				"--chain-id", s.app.nd(),
 			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", s.app.nd()))
-			}),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
 				if err != nil {
@@ -311,7 +290,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				if err != nil {
 					return err
 				}
-				path := filepath.Join(home, "."+s.app.d(), "config/genesis.json")
+				path := filepath.Join(home, s.plugin.GenesisPath())
 				file, err := os.OpenFile(path, os.O_RDWR, 644)
 				if err != nil {
 					return err
@@ -335,6 +314,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
+
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
@@ -343,9 +323,6 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				"keyring-backend",
 				"test",
 			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", s.app.ncli()))
-			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
