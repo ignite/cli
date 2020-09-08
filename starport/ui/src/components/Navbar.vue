@@ -1,14 +1,46 @@
 <template>
-  <div>
-    <div class="container">
-      <div class="item">Console</div>
-      <div class="item">Welcome</div>
+  <nav>
+    <div class="nav__logo">
+      <slot />
     </div>
-  </div>
+    <div class="nav__main">
+      <div class="tabs">
+        <router-link
+          class="tabs__item"
+          to="/"
+        >
+          Welcome
+        </router-link>
+        <router-link
+          class="tabs__item"
+          to="/blocks"
+        >
+          Blocks
+        </router-link>
+      </div>
+    </div>
+  </nav>
 </template>
 
 <style scoped>
-.container {
-  display: flex;
+
+nav {
+  position: sticky;
+  top: 0;
 }
+
+.tabs__item {
+  display: block;
+  text-decoration: none;
+
+  font-size: 1.8rem;
+  font-weight: 400;
+}
+.tabs__item:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.tabs__item.-is-active {
+  font-weight: 600;
+}
+
 </style>
