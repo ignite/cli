@@ -2,6 +2,7 @@ package starportserve
 
 import (
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
@@ -34,8 +35,9 @@ type serviceStatus struct {
 
 // env holds info about development environment.
 type env struct {
-	ChainID string `json:"chain_id"`
-	NodeJS  bool   `json:"node_js"`
+	ChainID         string `json:"chain_id"`
+	NodeJS          bool   `json:"node_js"`
+	VueAppCustomURL string `json:"vue_app_custom_url"`
 }
 
 // development handler builder.
@@ -114,5 +116,6 @@ func (d *development) env() env {
 	return env{
 		d.app.Name,
 		xexec.IsCommandAvailable("node"),
+		os.Getenv("VUE_APP_CUSTOM_URL"),
 	}
 }
