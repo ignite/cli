@@ -29,7 +29,7 @@
               <InnerTable 
                 :parentGroupId="tableGroupId"
                 :rowItems="msg.txs"
-              /> <!-- todo: filter & format data to pass into component -->
+              /> 
             </div>
           </AccordionItem>     
         </TableRowWrapper>   
@@ -123,6 +123,8 @@ export default {
     ws.onmessage = (msg) => {
       const { result } = JSON.parse(msg.data)
 
+      // console.log(this.tendermintRootUrl)
+
       if (result.data && result.events) {
         const { data, events } = result        
         const { data: txsData, header } = data.value.block
@@ -136,11 +138,23 @@ export default {
         }
         async function fetchDecodedTx(txEncoded) {
           try {
+            /* TODO: Some txEncoded is illformatted? */
             return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
           } catch (err) {
             console.error(txEncoded, err)
           }        
-        }       
+        }   
+        
+        /* TODO: Proposer address is in HEX format? Decoding API is required? */
+        // async function fetchValidator() {
+        //   try {
+        //     console.log(header)
+        //     return await axios.get(`https://lcd.nylira.net/staking/validators/${header.proposer_address}`)
+        //   } catch (err) {
+        //     console.error(err)
+        //   }   
+        // }
+        // fetchValidator().then(validator => console.log(validator))
 
         const messageHolder = {
           header,
@@ -165,7 +179,7 @@ export default {
             console.log(messageHolder)
 
             this.messages.push(messageHolder)                  
-          })   
+          })
    
       }         
     }
