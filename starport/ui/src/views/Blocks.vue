@@ -13,6 +13,7 @@
           <AccordionItem
             :itemData="msg.tableData"
             :groupId="tableGroupId"
+            :isDisabled="msg.blockMsg.txs<=0"
           >
             <TableRowCellsGroup 
               slot="trigger" 
@@ -24,8 +25,11 @@
                 msg.blockMsg.txs,
               ]"
             />     
-            <div slot="contents">
-              <InnerTable :parentGroupId="tableGroupId" />
+            <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
+              <InnerTable 
+                :parentGroupId="tableGroupId"
+                :rowItems="msg.txs"
+              /> <!-- todo: filter & format data to pass into component -->
             </div>
           </AccordionItem>     
         </TableRowWrapper>   
@@ -38,6 +42,8 @@
 </template>
 
 <script>
+import axios from "axios"
+
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
@@ -60,6 +66,8 @@ export default {
   data() {
     return {
       tableGroupId: 'blocks-table',
+      tendermintRootUrl: 'rpc.nylira.net',
+      cosmosRootUrl: 'localhost:1317',
       messages: [],
       exampleDataTwo: [
         { id: 1, isActive: false },
@@ -75,29 +83,33 @@ export default {
             time,
             height,
             proposer_address,
-            app_hash,
             num_txs
           } = message.header
+
+          const {
+            hash
+          } = message.blockMeta.block_id
 
           return {
             blockMsg: {
               time: time.slice(0,5),
               height,
               proposer: proposer_address.slice(0,5),
-              blockHash: app_hash.slice(0,10),
+              blockHash: hash.slice(0,10),
               txs: num_txs          
             },
             tableData: {
               id: height,
               isActive: false
-            }
+            },
+            txs: message.txsDecoded
           }          
         })        
       }
     }
   },  
   created() {
-    let ws = new ReconnectingWebSocket("wss://rpc.nylira.net:443/websocket", [], { WebSocket: WebSocket });
+    let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {
       ws.send(
         JSON.stringify({
@@ -114,14 +126,48 @@ export default {
       if (result.data && result.events) {
         const { data, events } = result        
         const { data: txsData, header } = data.value.block
-        
-        this.messages.push({
-          header,          
-          txs: txsData.txs
-        })
-      }
 
-      // console.log(this.messages)
+        async function fetchBlockMeta() {
+          try {
+            return await axios.get(`https://rpc.nylira.net/block?${header.height}`)
+          } catch (err) {
+            console.error(err)
+          }
+        }
+        async function fetchDecodedTx(txEncoded) {
+          try {
+            return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
+          } catch (err) {
+            console.error(txEncoded, err)
+          }        
+        }       
+
+        const messageHolder = {
+          header,
+          txs: txsData.txs,
+          blockMeta: null,
+          txsDecoded: []
+        }
+
+
+        fetchBlockMeta()
+          .then(blockMeta => {
+            messageHolder.blockMeta = blockMeta.data.result.block_meta
+
+            if (txsData.txs && txsData.txs.length > 0) {
+              const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded))
+              
+              txsDecoded.forEach(txRes => txRes.then(txResolved => {
+                messageHolder.txsDecoded.push(txResolved.data.result)
+              }))
+            }    
+
+            console.log(messageHolder)
+
+            this.messages.push(messageHolder)                  
+          })   
+   
+      }         
     }
   }
 }

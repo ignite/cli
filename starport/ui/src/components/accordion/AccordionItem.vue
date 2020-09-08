@@ -2,7 +2,10 @@
   <div
     :id="groupId + '-' + itemData.id"
     class="accord-item" 
-    :class="{'-is-active': itemData.isActive}"
+    :class="[
+      itemData.isActive ? '-is-active' : '',
+      isDisabled ? '-is-disabled' : ''
+    ]"
   >
     <div
       class="accord-item__trigger"
@@ -27,7 +30,12 @@
 
 <script>
 export default {
-  props: ['itemData', 'multiple', 'groupId'],
+  props: {
+    itemData: { type: Object, required: true },
+    isDisabled: { type: Boolean, default: false },
+    groupId: { type: String, required: true },
+    multiple: { type: Boolean, default: false }
+  },
   data() {
     return {
       localItemData: this.itemData
@@ -69,6 +77,7 @@ export default {
         this.localItemData.isActive = !this.localItemData.isActive
         return
       }
+      if (this.isDisabled) return
       
       const $accordionWrapper = this.getAccordionWrapper(this.$parent)
       
@@ -100,7 +109,7 @@ export default {
 
 <style scoped>
 
-.accord-item__trigger:hover {
+.accord-item:not(.-is-disabled) .accord-item__trigger:hover {
   cursor: pointer;
 }
 .accord-item__contents {
