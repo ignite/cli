@@ -17,6 +17,8 @@ require (
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
 	github.com/imdario/mergo v0.3.11
 	github.com/karrick/godirwalk v1.16.1 // indirect
+	github.com/mattn/go-isatty v0.0.12 // indirect
+	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
@@ -25,12 +27,13 @@ require (
 	github.com/sirupsen/logrus v1.6.0 // indirect
 	github.com/spf13/cobra v1.0.0
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/stretchr/testify v1.5.1
+	github.com/stretchr/testify v1.6.1
 	github.com/xtgo/uuid v0.0.0-20140804021211-a0b114877d4c // indirect
 	golang.org/x/crypto v0.0.0-20200820211705-5c72a883971a // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/sys v0.0.0-20200905004654-be1d3432aa8f // indirect
+	golang.org/x/text v0.3.3 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
