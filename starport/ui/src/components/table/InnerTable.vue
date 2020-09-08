@@ -83,10 +83,12 @@ export default {
             type,
             value
           }) => ({
-            type: type.replace('cosmos-sdk/', ''),
-            amount: value.amount.amount+value.amount.denom,
+            type: this.getMsgType(type),
+            amount: this.getAmount(value.amount),
             delegator: value.delegator_address,
             validator: value.validator_address,
+            from: value.from_address,
+            to: value.to_address
           })),
           tableData: {
             id: item.signatures[0].signature, // temp
@@ -97,20 +99,43 @@ export default {
     }
   },
   methods: {
+    getAmount(amountObj) {
+      return amountObj.amount 
+        ? amountObj.amount+amountObj.denom
+        : amountObj[0].amount+amountObj[0].denom
+    },
     getFmtMsgForInnerTable(msgs) {
       return msgs.map(({
         type,
         amount,
         delegator,
-        validator
-      }) => ({
-        title: type,
-        subItems: [
-          { title: 'Delegator', content: delegator },
-          { title: 'Validator', content: validator },
-          { title: 'Amount', content: amount },
-        ]
-      }))
+        validator,
+        from,
+        to
+      }) => {
+        const fromType = type === 'MsgSend' ? {
+          title: 'From', content: from
+        } : {
+          title: 'Delegator', content: delegator
+        }
+        const toType = type === 'MsgSend' ? {
+          title: 'To', content: to
+        } : {
+          title: 'Validator', content: validator
+        }
+
+        return {
+          title: type,
+          subItems: [
+            fromType,
+            toType,
+            { title: 'Amount', content: amount },
+          ]
+        }
+      })
+    },
+    getMsgType(type) {
+      return type.replace('cosmos-sdk/', '')
     }
   }
 }
