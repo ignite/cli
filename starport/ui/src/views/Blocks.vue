@@ -10,7 +10,8 @@
       >
         <TableRowWrapper
           v-for="msg in messagesForTable"
-          :key="msg.tableData.id"        
+          :key="msg.tableData.id"  
+          :rowId="msg.blockMsg.blockHash"      
           :isWithInnerSheet="true" 
         >   
           <TableRowCellsGroup 

@@ -85,6 +85,7 @@ export default {
 
 <style scoped>
 
+/* sheet */
 .sheet {
   width: 100%;
   height: 100%;
@@ -146,7 +147,7 @@ export default {
   flex-grow: 1;
 }
 
-
+/* cards__container */
 .cards-container__top {
   margin-bottom: 1rem;
 }
@@ -160,6 +161,7 @@ export default {
   box-shadow: -2px 0 6px rgba(0,0,0,.05);
 }
 
+/* card */
 .card__container:not(:last-child) {
   border-bottom: 1px solid var(--c-theme-secondary);
   margin-bottom: 1.25rem;

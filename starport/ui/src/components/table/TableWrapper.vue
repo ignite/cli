@@ -10,7 +10,7 @@
     
     <div 
       v-if="containsInnerSheet"
-      :class="['table__sheet', isSheetActive ? '-is-active' : '']"
+      :class="['table__sheet', sheetState.isActive ? '-is-active' : '']"
     >
       <TableSheet />
     </div>
@@ -37,7 +37,12 @@ export default {
   },
   data() {
     return {
-      isSheetActive: false
+      sheetState: {
+        isActive: false
+      },
+      rowState: {
+        activeRowId: null
+      }
     }
   }
 }
@@ -115,9 +120,7 @@ export default {
   transition: transform ease-out .25s;
   will-change: transform;
 }
-.table__sheet.-is-active {
-  padding-left: 1rem;
-  
+.table__sheet.-is-active {  
   transform: translate3d(0%,0,0);
   transition: transform ease-out .25s;
   will-change: transform;
