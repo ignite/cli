@@ -3,7 +3,7 @@
 
     <div class="temp" v-if="messages.length == 0">Waiting for blocks...</div>
 
-    <TableWrapper v-else :tableHeads="['Time', 'Height', 'Proposer', 'Block Hash', 'Txs']">
+    <TableWrapper v-else :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']">
       
       <Accordion :id="tableGroupId"> 
         <TableRowWrapper
@@ -18,11 +18,11 @@
             <TableRowCellsGroup 
               slot="trigger" 
               :tableCells="[
-                msg.blockMsg.time,
                 msg.blockMsg.height,
+                msg.blockMsg.txs,
                 msg.blockMsg.proposer,
                 msg.blockMsg.blockHash,
-                msg.blockMsg.txs,
+                msg.blockMsg.time,
               ]"
             />     
             <div v-if="msg.blockMsg.txs.length > 0" slot="contents">

@@ -31,7 +31,7 @@
 }
 .container__left {
   padding-left: var(--g-margin);
-  width: 30vw;  
+  width: 15vw;  
   max-width: 320px;  
 }
 .container__right {

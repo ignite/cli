@@ -1,5 +1,5 @@
 <template>
-  <div class="table">
+  <div class="table -border">
 
     <RowCells
       :isTableHead="true"
@@ -30,6 +30,10 @@ export default {
 
 <style scoped>
 
+.table.-border {
+  border: 1px solid var(--c-theme-secondary);
+}
+
 .table >>> .table__cells {
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
@@ -44,16 +48,16 @@ export default {
   width: 15%;
 }
 .table >>> .table__cells .table__col:nth-child(2) {
-  width: 15%;
+  width: 10%;
 }
 .table >>> .table__cells .table__col:nth-child(3) {
-  width: 15%;
+  width: 20%;
 }
 .table >>> .table__cells .table__col:nth-child(4) {
   flex-grow: 1;
 }
 .table >>> .table__cells .table__col:nth-child(5) {
-  width: 5%;
+  width: 10%;
 }
 
 /* temporary table styling */

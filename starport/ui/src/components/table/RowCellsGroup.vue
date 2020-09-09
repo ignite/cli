@@ -27,7 +27,7 @@ export default {
 .table__cells.-header {
   padding-bottom: 0.5rem;
   margin-bottom: 1rem;
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--c-theme-secondary);
 }
 
 </style>
