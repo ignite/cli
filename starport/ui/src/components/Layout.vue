@@ -39,6 +39,7 @@
   max-width: 1024px;
   margin-top: var(--g-offset-top);  
   margin-right: auto;
+  margin-left: auto;
   flex-grow: 1;
   -webkit-overflow-scrolling: touch;  
 }
@@ -54,12 +55,12 @@
   align-items: center;
 }
 .navbar__logo h1 {
-  font-size: 1.5rem;
+  font-size: 1.25rem;
   font-weight: 800;
   margin-right: 0.5rem;
 }
 .navbar__logo p {
-  font-size: 1.4rem;
+  font-size: 1.25rem;
 }
 </style>
 

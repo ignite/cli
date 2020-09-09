@@ -17,7 +17,7 @@ export default {
 <style scoped>
 
 .table__row.-is-active {
-  background-color: snow;
+  background-color: var(--c-bg-secondary);
 }
 
 .table__row >>> .accord-item__contents .side-tab-list {

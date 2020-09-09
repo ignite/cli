@@ -138,7 +138,6 @@ export default {
         }
         async function fetchDecodedTx(txEncoded) {
           try {
-            /* TODO: Some txEncoded is illformatted? */
             return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
           } catch (err) {
             console.error(txEncoded, err)

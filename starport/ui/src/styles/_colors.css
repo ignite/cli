@@ -1,0 +1,35 @@
+:root {
+  /*-- lv.1 - material --*/
+  --c-grey-black: black;
+  --c-grey-0: #1b1b1b;
+  --c-grey-1: #505050;    
+  --c-grey-2: #6d6d6d;  
+  --c-grey-3: #dadada;  
+  --c-grey-4: #e8e8e8;  
+  --c-grey-5: #f4f4f4;  
+  --c-grey-white: white;  
+
+  /*-- lv.2 - base --*/
+  --c-dark-primary: var(--c-grey-0);
+  --c-dark-secondary: var(--c-grey-1);
+  --c-light-primary: var(--c-grey-5);
+  --c-light-secondary: var(--c-grey-4);
+  --c-black: var(--c-grey-black);
+  --c-white: var(--c-grey-white);
+}
+:root {
+  /*-- lv.3 - color modes / themes --*/
+  --c-theme-primary: var(--c-light-primary);
+  --c-theme-secondary: var(--c-light-secondary);
+  --c-contrast-primary: var(--c-dark-primary);
+  --c-contrast-secondary: var(--c-dark-secondary);
+  --c-grey: var(--c-grey-3);
+  --c-highlight: var(--c-black);  
+}
+:root {
+  /*-- lv.4 - tokens --*/
+  --c-txt-primary: var(--c-contrast-primary);
+  --c-txt-secondary: var(--c-contrast-secondary);
+  --c-bg-primary: var(--c-theme-white);
+  --c-bg-secondary: var(--c-theme-primary);
+}

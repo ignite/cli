@@ -15,7 +15,6 @@
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
 import Accordion from '@/components/accordion/Accordion'
-// import { accordionDataTemplate } from '@/components/accordion/Accordion'
 
 export default {
   components: {

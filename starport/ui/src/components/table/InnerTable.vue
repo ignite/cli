@@ -144,12 +144,11 @@ export default {
 <style scoped>
 
 .panel {
-  background-color: silver;
+  background-color: var(--c-theme-secondary);
 }
 
 .panel.table__panel {
   padding-top: 1rem;
-  /* padding-bottom: 1rem; */
 }
 
 .panel .panel__top {
@@ -169,7 +168,8 @@ export default {
   padding-bottom: 0.5rem;
 }
 .panel >>> .table__row.-is-active {
-  background-color: seashell;
+  /* background-color: var(--); */
+  background-color: var(--c-grey-3);
 }
 .panel >>> .table__row.-is-active:last-child {
   padding-bottom: 0;
