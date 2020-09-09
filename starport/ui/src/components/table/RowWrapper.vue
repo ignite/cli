@@ -15,6 +15,7 @@
 <script>
 export default {
   props: {
+    rowData: { type: Object },
     rowId: { type: String },
     isWithInnerSheet: { type: Boolean, default: false }
   },
@@ -27,7 +28,7 @@ export default {
     isRowActive() {
       if (this.$parent) {
         const $table = this.getParentTableNode(this.$parent)
-        const activeRowId = $table.rowState.activeRowId
+        const activeRowId = $table.rowStore.activeRowId
         return activeRowId === this.rowId
       }
 
@@ -35,6 +36,15 @@ export default {
     }
   },
   methods: {
+    setTableRowStore(tableNode, isToActive=false, payload=null) {
+      if (isToActive) {
+        tableNode.rowStore.activeRowId = payload.rowId
+        tableNode.rowStore.activeRowData = payload.rowData
+      } else {
+        tableNode.rowStore.activeRowId = null
+        tableNode.rowStore.activeRowData = null
+      }
+    },
     getParentTableNode(parentNode) {
       if (parentNode) {
         if (parentNode.$refs.table === undefined) this.getParentTableNode(parentNode.$parent)
@@ -45,20 +55,20 @@ export default {
     },
     handleClick() {
       const $table = this.getParentTableNode(this.$parent)
-      const activeRowId = $table.rowState.activeRowId
-      const isSheetActive = $table.sheetState.isActive
+      const activeRowId = $table.rowStore.activeRowId
+      const isSheetActive = $table.sheetStore.isActive
       const isActiveRowClicked = activeRowId === this.rowId
       
       if (isSheetActive) {
         if (isActiveRowClicked) {
-          $table.sheetState.isActive = false
-          $table.rowState.activeRowId = null
+          $table.sheetStore.isActive = false
+          this.setTableRowStore($table)
         } else {
-          $table.rowState.activeRowId = this.rowId
+          this.setTableRowStore($table, true, { rowId: this.rowId, rowData: this.rowData })
         }
       } else {
-        $table.sheetState.isActive = true
-        $table.rowState.activeRowId = this.rowId
+        $table.sheetStore.isActive = true
+        this.setTableRowStore($table, true, { rowId: this.rowId, rowData: this.rowData })
       }
     }
   }

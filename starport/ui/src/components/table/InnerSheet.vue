@@ -1,19 +1,21 @@
 <template>
+  <div v-if="!blockData">waiting for block data...</div>
   <div 
+    v-else
     :class="['sheet']"
     ref="tableInnerSheet"
   >
     <div class="sheet__top -container -border-btm">
-      <h3 class="sheet__heading">Block #3,290,279</h3>
+      <h3 class="sheet__heading">Block #{{blockData.blockMsg.height}}</h3>
     </div>
     <div class="sheet__sub -container -border-btm">
       <div class="sheet__entry">
         <span class="sheet__entry-label">Hash</span>
-        <p class="sheet__entry-content">BBE79CF80CD48AC8308D5611653E1FFDD48F819C251F4FF795FDD70A9F9F436A</p>
+        <p class="sheet__entry-content">{{blockData.blockMsg.blockHash}}</p>
       </div>
       <div class="sheet__entry">
         <span class="sheet__entry-label">Time</span>
-        <p class="sheet__entry-content">9 Sep 2020, 2:45:24am UTC (50 seconds ago)</p>
+        <p class="sheet__entry-content">{{blockData.blockMsg.time}}</p>
       </div>
     </div>
     <div class="sheet__main -container">
@@ -22,46 +24,47 @@
           <h4 class="cards-container__label">Transactions</h4>
         </div>
 
-        <div class="cards-container__card">
-          <div class="card">
+        <!-- transactions -->
+        <div 
+          v-if="blockData.blockMsg.txs>0 && blockData.txs.length>0"
+          class="cards-container__card"
+        >
+          <div 
+            v-for="tx in messagesForTable"
+            :key="tx.tableData.id"
+            class="card"
+          >
             <div class="card__container">
               <div class="sheet__entry">
                 <span class="sheet__entry-label">TxHash</span>
-                <p class="sheet__entry-content">37549643B101E3D1FBD3955032A4FCEFBC720950A6A1E592C11E555F079FFF15</p>
+                <p class="sheet__entry-content">{{tx.txMsg.hash}}</p>
               </div>
               <div class="sheet__entry">
                 <span class="sheet__entry-label">Status</span>
-                <p class="sheet__entry-content">Success</p>
+                <p class="sheet__entry-content">{{tx.txMsg.status}}</p>
               </div>
               <div class="sheet__entry">
                 <span class="sheet__entry-label">Fee</span>
-                <p class="sheet__entry-content">0.000750ATOM</p>
+                <p class="sheet__entry-content">{{tx.txMsg.fee}}</p>
               </div>
               <div class="sheet__entry">
                 <span class="sheet__entry-label">Gas</span>
-                <p class="sheet__entry-content">41432</p>
+                <p class="sheet__entry-content">{{tx.txMsg.gas}}</p>
               </div>
               <div class="sheet__entry">
                 <span class="sheet__entry-label">Memo</span>
-                <p class="sheet__entry-content">Testing 123</p>
+                <p class="sheet__entry-content">{{tx.txMsg.memo}}</p>
               </div>
             </div>
             <div class="card__container">
               <SideTabList
-                :list="[
-                  {
-                    title: 'Send',
-                    subItems: [
-                      { title: 'Delegator', content: 'cosmos1hvsdf03tl6w5pnfvfv5g8uphjd4wfw2hsucxnd' },
-                      { title: 'Validator', content: 'cosmosvaloper1hvsdf03tl6w5pnfvfv5g8uphjd4wfw2h' },
-                      { title: 'Reward Amount', content: '0.000012 ATOM' },
-                    ]
-                  }
-                ]"
+                :list="getFmtMsgForInnerTable(tx.msgs)"
               />                   
             </div>
           </div>
         </div>
+        <div v-else-if="blockData.blockMsg.txs>0 && blockData.txs.length<=0">🚨 Error fetching transaction data</div>
+        <div v-else>No transactions are included</div>
 
       </div>
     </div>
@@ -72,6 +75,9 @@
 import SideTabList from '@/components/table/SideTabList'
 
 export default {
+  props: {
+    blockData: { type: Object }
+  },
   components: {
     SideTabList
   },
@@ -79,7 +85,83 @@ export default {
     return {
       isActive: false
     }
-  }
+  },
+  computed: {
+    messagesForTable() {
+      return this.blockData.txs.map(item => {
+        const {
+          fee,
+          msg,
+          memo
+        } = item
+
+        return {
+          txMsg: {
+            hash: 'faketransactionhashfornow', // temp
+            status: 'Fakestatus', // temp
+            fee: fee.amount[0].amount, // temp
+            gas: fee.gas, // temp
+            memo: memo && memo.length>0 ? memo : 'N/A'
+          },
+          msgs: msg.map(({
+            type,
+            value
+          }) => ({
+            type: this.getMsgType(type),
+            amount: this.getAmount(value.amount),
+            delegator: value.delegator_address,
+            validator: value.validator_address,
+            from: value.from_address,
+            to: value.to_address
+          })),
+          tableData: {
+            id: item.signatures[0].signature, // temp
+            isActive: false
+          },
+        }
+      })
+    }    
+  },
+  methods: {
+    getAmount(amountObj) {
+      return amountObj.amount 
+        ? amountObj.amount+amountObj.denom
+        : amountObj[0].amount+amountObj[0].denom
+    },
+    getFmtMsgForInnerTable(msgs) {
+      return msgs.map(({
+        type,
+        amount,
+        delegator,
+        validator,
+        from,
+        to
+      }) => {
+        const fromType = type === 'MsgSend' ? {
+          title: 'From', content: from
+        } : {
+          title: 'Delegator', content: delegator
+        }
+        const toType = type === 'MsgSend' ? {
+          title: 'To', content: to
+        } : {
+          title: 'Validator', content: validator
+        }
+
+        return {
+          title: type,
+          subItems: [
+            fromType,
+            toType,
+            { title: 'Amount', content: amount },
+          ]
+        }
+      })
+    },
+    getMsgType(type) {
+      return type.replace('cosmos-sdk/', '')
+    }
+  }  
 }
 </script>
 

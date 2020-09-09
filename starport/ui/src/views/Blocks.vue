@@ -11,6 +11,7 @@
         <TableRowWrapper
           v-for="msg in messagesForTable"
           :key="msg.tableData.id"  
+          :rowData="msg"
           :rowId="msg.blockMsg.blockHash"      
           :isWithInnerSheet="true" 
         >   
@@ -19,8 +20,8 @@
               msg.blockMsg.height,
               msg.blockMsg.txs,
               msg.blockMsg.proposer,
-              msg.blockMsg.blockHash,
-              msg.blockMsg.time,
+              msg.blockMsg.blockHash_sliced,
+              msg.blockMsg.time_formatted,
             ]"
           />     
         </TableRowWrapper>     
@@ -111,10 +112,12 @@ export default {
 
           return {
             blockMsg: {
-              time: time.slice(0,5),
+              time_formatted: time.slice(0,5),
+              time: time,
               height,
               proposer: proposer_address.slice(0,5),
-              blockHash: hash.slice(0,10),
+              blockHash_sliced: hash.slice(0,20),
+              blockHash: hash,
               txs: num_txs          
             },
             tableData: {

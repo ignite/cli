@@ -10,9 +10,9 @@
     
     <div 
       v-if="containsInnerSheet"
-      :class="['table__sheet', sheetState.isActive ? '-is-active' : '']"
+      :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
     >
-      <TableSheet />
+      <TableSheet :blockData="rowStore.activeRowData" />
     </div>
 
   </div>
@@ -37,11 +37,12 @@ export default {
   },
   data() {
     return {
-      sheetState: {
-        isActive: false
+      sheetStore: {
+        isActive: false,
       },
-      rowState: {
-        activeRowId: null
+      rowStore: {
+        activeRowId: null,
+        activeRowData: null
       }
     }
   }
