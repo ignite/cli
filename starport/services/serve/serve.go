@@ -246,7 +246,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 			return nil
 		}),
 	))
-	for _, execOption := range s.plugin.Install(ctx, ldflags) {
+	for _, execOption := range s.plugin.InstallCommands(ldflags) {
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				execOption,
@@ -311,21 +311,16 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				}
 				return json.NewEncoder(file).Encode(&genesis)
 			}),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				return s.plugin.PostInit()
+			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
 
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				s.app.cli(),
-				"config",
-				"keyring-backend",
-				"test",
-			),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
 	for _, account := range conf.Accounts {
 		account := account
 		var (
@@ -334,13 +329,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		)
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					s.app.cli(),
-					"keys",
-					"add",
-					account.Name,
-					"--output", "json",
-				),
+				s.plugin.AddUserCommand(account.Name),
 				step.PostExec(func(exitErr error) error {
 					if exitErr != nil {
 						return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
@@ -356,17 +345,12 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				}),
 			).
 			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stderr(mnemonic))..., // TODO why mnemonic comes from stderr?
+			// Stargate pipes from stdout, Launchpad pipes from stderr.
+			Add(step.Stderr(mnemonic), step.Stdout(mnemonic))...,
 		))
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					s.app.cli(),
-					"keys",
-					"show",
-					account.Name,
-					"-a",
-				),
+				s.plugin.ShowAccountCommand(account.Name),
 				step.PostExec(func(err error) error {
 					if err != nil {
 						return err
@@ -390,50 +374,16 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 			Add(step.Stdout(key))...,
 		))
 	}
+
+	for _, execOption := range s.plugin.ConfigCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption).
+			Add(s.stdSteps(logAppcli)...)...,
+		))
+	}
+
 	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.cli(),
-			"config",
-			"chain-id",
-			s.app.nd(),
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.cli(),
-			"config",
-			"output",
-			"json",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.cli(),
-			"config",
-			"indent",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.cli(),
-			"config",
-			"trust-node",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.d(),
-			"gentx",
-			"--name", conf.Validator.Name,
-			"--keyring-backend", "test",
-			"--amount", conf.Validator.Staked,
-		)).
+		Add(s.plugin.GentxCommand(conf)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
@@ -448,46 +398,23 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 
 func (s *starportServe) serverSteps() (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(len(s.plugin.StartCommands()))
 	go func() {
 		wg.Wait()
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+		fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n\n")
 	}()
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vd", s.app.Name),
-				"start",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+	for _, execOption := range s.plugin.StartCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption...).
+			Add(step.InExec(func() error {
+				wg.Done()
 				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vd start", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vcli", s.app.Name),
-				"rest-server",
-				"--unsafe-cors",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
-				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
+			})).
+			Add(s.stdSteps(logAppd)...)...,
+		))
+	}
 	return
 }
 

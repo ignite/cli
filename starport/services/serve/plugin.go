@@ -6,7 +6,10 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
+
+// TODO omit -cli log messages for Stargate.
 
 type Plugin interface {
 	// Name of a Cosmos version.
@@ -16,8 +19,26 @@ type Plugin interface {
 	// to the current version to make them compatible with the updated `serve` command.
 	Migrate(context.Context) error
 
-	// Install returns the installation's step.Exec configuration.
-	Install(ctx context.Context, ldflags string) []step.Option
+	// InstallCommands returns step.Exec configurations to install app.
+	InstallCommands(ldflags string) []step.Option
+
+	// AddUserCommand returns step.Exec configuration to add users.
+	AddUserCommand(accountName string) step.Option
+
+	// ShowAccountCommand returns step.Exec configuration to run show account.
+	ShowAccountCommand(accountName string) step.Option
+
+	// ConfigCommands returns step.Exec configuration for config commands.
+	ConfigCommands() []step.Option
+
+	// GentxCommand returns step.Exec configuration for gentx command.
+	GentxCommand(starportconf.Config) step.Option
+
+	// PostInit hook.
+	PostInit() error
+
+	// StartCommands returns step.Exec configuration to start servers.
+	StartCommands() [][]step.Option
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string

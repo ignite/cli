@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"path/filepath"
 
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
 type launchpadPlugin struct {
@@ -42,7 +44,7 @@ func (p *launchpadPlugin) Migrate(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) Install(ctx context.Context, ldflags string) []step.Option {
+func (p *launchpadPlugin) InstallCommands(ldflags string) []step.Option {
 	return []step.Option{
 		step.Exec(
 			"go",
@@ -58,6 +60,97 @@ func (p *launchpadPlugin) Install(ctx context.Context, ldflags string) []step.Op
 			"-ldflags", ldflags,
 			filepath.Join(p.app.root(), "cmd", p.app.cli()),
 		),
+	}
+}
+
+func (p *launchpadPlugin) AddUserCommand(accountName string) step.Option {
+	return step.Exec(
+		p.app.cli(),
+		"keys",
+		"add",
+		accountName,
+		"--output", "json",
+		"--keyring-backend", "test",
+	)
+}
+
+func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
+	return step.Exec(
+		p.app.cli(),
+		"keys",
+		"show",
+		accountName,
+		"-a",
+		"--keyring-backend", "test",
+	)
+}
+
+func (p *launchpadPlugin) ConfigCommands() []step.Option {
+	return []step.Option{
+		step.Exec(
+			p.app.cli(),
+			"config",
+			"chain-id",
+			p.app.nd(),
+		),
+		step.Exec(
+			p.app.cli(),
+			"config",
+			"output",
+			"json",
+		),
+		step.Exec(
+			p.app.cli(),
+			"config",
+			"indent",
+			"true",
+		),
+		step.Exec(
+			p.app.cli(),
+			"config",
+			"trust-node",
+			"true",
+		),
+	}
+}
+
+func (p *launchpadPlugin) GentxCommand(conf starportconf.Config) step.Option {
+	return step.Exec(
+		p.app.d(),
+		"gentx",
+		"--name", conf.Validator.Name,
+		"--keyring-backend", "test",
+		"--amount", conf.Validator.Staked,
+	)
+}
+
+func (p *launchpadPlugin) PostInit() error {
+	return nil
+}
+
+func (p *launchpadPlugin) StartCommands() [][]step.Option {
+	return [][]step.Option{
+		step.NewOptions().
+			Add(
+				step.Exec(
+					p.app.d(),
+					"start",
+				),
+				step.PostExec(func(exitErr error) error {
+					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
+				}),
+			),
+		step.NewOptions().
+			Add(
+				step.Exec(
+					p.app.cli(),
+					"rest-server",
+					"--unsafe-cors",
+				),
+				step.PostExec(func(exitErr error) error {
+					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
+				}),
+			),
 	}
 }
 
