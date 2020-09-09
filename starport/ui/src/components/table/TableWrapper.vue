@@ -1,18 +1,29 @@
 <template>
-  <div class="table" ref="table">
+  <div 
+    :class="['table', sheetStore.isActive ? '-is-collapsed' : '']"
+    ref="table"
+  >
 
-    <RowCells
-      :isTableHead="true"
-      :tableCells="tableHeads"
-    />
-
-    <slot/>
-    
     <div 
       v-if="containsInnerSheet"
       :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
     >
       <TableSheet :blockData="rowStore.activeRowData" />
+    </div>    
+
+    <div 
+      :class="['table__head']"
+    >
+      <RowCells
+        :isTableHead="true"
+        :tableCells="tableHeads"
+      />
+    </div>
+
+    <div :class="['table__rows-wrapper']">
+      <div>
+        <slot/>
+      </div>
     </div>
 
   </div>
@@ -60,6 +71,7 @@ export default {
 }
 .table {
   position: relative;
+  height: inherit;
 }
 
 .table >>> .table__cells {
@@ -111,10 +123,14 @@ export default {
 
 .table__sheet {
   position: absolute;
+  /* position: sticky; */
   top: 0;
   right: 0;
-  width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3)));
+  width: 70%;
+  /* width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3))); */
+  /* width: 100%; */
   height: 100%;  
+  /* height: 80vh; */
   background-color: var(--c-bg-primary);
 
   transform: translate3d(100%, 0, 0);
@@ -126,5 +142,31 @@ export default {
   transition: transform ease-out .25s;
   will-change: transform;
 }
+
+.table__rows-wrapper {
+  min-height: inherit;
+  max-height: inherit;
+  overflow-y: scroll;
+}
+
+/* .table__sheet >>> .sheet {
+  width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3)));
+  margin-left: auto;
+} */
+.table.-is-collapsed {
+  --tc-w-1: 40%;
+  --tc-w-2: 20%;
+  --tc-w-3: 40%;
+}
+.table.-is-collapsed .table__rows-wrapper,
+.table.-is-collapsed .table__head {
+  width: 30%;
+  overflow-x: hidden;
+}
+.table.-is-collapsed .table__rows-wrapper >>> .table__row .table__cells .table__col:nth-last-child(-n+2),
+.table.-is-collapsed .table__head >>> .table__cells .table__col:nth-last-child(-n+2) {
+  display: none;
+}
+
 
 </style>
