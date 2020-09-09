@@ -3,40 +3,58 @@
 
     <div class="temp" v-if="messages.length == 0">Waiting for blocks...</div>
 
-    <TableWrapper v-else :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']">
-      
-      <Accordion :id="tableGroupId"> 
+    <div v-else class="table-wrapper">
+      <TableWrapper 
+        :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
+        :containsInnerSheet="true"
+      >
         <TableRowWrapper
           v-for="msg in messagesForTable"
-          :key="msg.tableData.id"                    
+          :key="msg.tableData.id"        
+          :isWithInnerSheet="true" 
         >   
-          <AccordionItem
-            :itemData="msg.tableData"
-            :groupId="tableGroupId"
-            :isDisabled="msg.blockMsg.txs<=0"
-          >
-            <TableRowCellsGroup 
-              slot="trigger" 
-              :tableCells="[
-                msg.blockMsg.height,
-                msg.blockMsg.txs,
-                msg.blockMsg.proposer,
-                msg.blockMsg.blockHash,
-                msg.blockMsg.time,
-              ]"
-            />     
-            <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
-              <InnerTable 
-                :parentGroupId="tableGroupId"
-                :rowItems="msg.txs"
-              /> 
-            </div>
-          </AccordionItem>     
-        </TableRowWrapper>   
-                
-      </Accordion>
-
-    </TableWrapper>
+          <TableRowCellsGroup 
+            :tableCells="[
+              msg.blockMsg.height,
+              msg.blockMsg.txs,
+              msg.blockMsg.proposer,
+              msg.blockMsg.blockHash,
+              msg.blockMsg.time,
+            ]"
+          />     
+        </TableRowWrapper>     
+        
+        <!-- <Accordion :id="tableGroupId"> 
+          <TableRowWrapper
+            v-for="msg in messagesForTable"
+            :key="msg.tableData.id"                    
+          >   
+            <AccordionItem
+              :itemData="msg.tableData"
+              :groupId="tableGroupId"
+              :isDisabled="msg.blockMsg.txs<=0"
+            >
+              <TableRowCellsGroup 
+                slot="trigger" 
+                :tableCells="[
+                  msg.blockMsg.height,
+                  msg.blockMsg.txs,
+                  msg.blockMsg.proposer,
+                  msg.blockMsg.blockHash,
+                  msg.blockMsg.time,
+                ]"
+              />     
+              <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
+                <InnerTable 
+                  :parentGroupId="tableGroupId"
+                  :rowItems="msg.txs"
+                /> 
+              </div>
+            </AccordionItem>     
+          </TableRowWrapper>   
+        </Accordion> -->
+      </TableWrapper>
+    </div>
 
   </div>
 </template>
@@ -187,5 +205,11 @@ export default {
 </script>
 
 <style scoped>
+
+.table-wrapper {
+  max-height: 80vh;
+  overflow: hidden;
+  border: 1px solid var(--c-theme-secondary);
+}
 
 </style>

@@ -1,5 +1,5 @@
 <template>
-  <div class="table -border">
+  <div class="table" ref="table">
 
     <RowCells
       :isTableHead="true"
@@ -7,6 +7,13 @@
     />
 
     <slot/>
+    
+    <div 
+      v-if="containsInnerSheet"
+      :class="['table__sheet', isSheetActive ? '-is-active' : '']"
+    >
+      <TableSheet />
+    </div>
 
   </div>
 </template>
@@ -14,50 +21,68 @@
 <script>
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
+import TableSheet from './InnerSheet'
 import Accordion from '@/components/accordion/Accordion'
 
 export default {
   components: {
     RowWrapper,
     RowCells,
+    TableSheet,
     Accordion
   },
   props: {
     tableHeads: { type: Array, required: true },
+    containsInnerSheet: { type: Boolean, default: false }
+  },
+  data() {
+    return {
+      isSheetActive: false
+    }
   }
 }
 </script>
 
 <style scoped>
 
-.table.-border {
-  border: 1px solid var(--c-theme-secondary);
+.table {
+  --tc-w-1: 10%;
+  --tc-w-2: 5%;
+  --tc-w-3: 15%;
+  --tc-w-4: 1;
+  --tc-w-5: 10%;
+}
+.table {
+  position: relative;
 }
 
 .table >>> .table__cells {
   padding-top: 0.8rem;
   padding-bottom: 0.8rem;
 }
-.table >>> .table__cells{
+.table >>> .table__cells:first-child {
+  padding-top: 0.8rem;
+}
+.table >>> .table__cells {
   padding-left: 1rem;
   padding-right: 1rem;
 }
 
 /* temporary table styling */
 .table >>> .table__cells .table__col:nth-child(1) {
-  width: 15%;
+  width: var(--tc-w-1);
 }
 .table >>> .table__cells .table__col:nth-child(2) {
-  width: 10%;
+  width: var(--tc-w-2);
 }
 .table >>> .table__cells .table__col:nth-child(3) {
-  width: 20%;
+  width: var(--tc-w-3);
 }
 .table >>> .table__cells .table__col:nth-child(4) {
-  flex-grow: 1;
+  flex-grow: var(--tc-w-4);
 }
 .table >>> .table__cells .table__col:nth-child(5) {
-  width: 10%;
+  width: var(--tc-w-5);
 }
 
 /* temporary table styling */
@@ -77,5 +102,25 @@ export default {
   width: 5%;
 }
 
+
+.table__sheet {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3)));
+  height: 100%;  
+  background-color: var(--c-bg-primary);
+
+  transform: translate3d(100%, 0, 0);
+  transition: transform ease-out .25s;
+  will-change: transform;
+}
+.table__sheet.-is-active {
+  padding-left: 1rem;
+  
+  transform: translate3d(0%,0,0);
+  transition: transform ease-out .25s;
+  will-change: transform;
+}
 
 </style>

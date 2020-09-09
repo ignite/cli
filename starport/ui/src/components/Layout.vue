@@ -36,7 +36,7 @@
 }
 .container__right {
   padding-right: var(--g-margin);
-  max-width: 1024px;
+  max-width: 1280px;
   margin-top: var(--g-offset-top);  
   margin-right: auto;
   margin-left: auto;

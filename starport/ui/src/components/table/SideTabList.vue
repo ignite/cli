@@ -38,6 +38,7 @@ export default {
 
 p {
   margin: 0;
+  font-size: 0.875rem;
 }
 
 .container {
@@ -49,23 +50,33 @@ p {
 .container__right {
   flex-grow: 1;
 }
+.container__left p {
+  color: var(--c-txt-secondary);
+  margin-top: 1px;
+}
 
 .list__title {
-  border-bottom: 1px solid black;
+  border-bottom: 1px solid var(--c-theme-secondary);
   padding-bottom: 0.5rem;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
+  
+  font-size: 1rem;
+  font-weight: 600;
 }
 .list__item {
   display: flex;
 }
 .list__item:not(:last-child) {
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.625rem;
 }
 .list__item-content:first-child {
-  width: 20%;
+  width: 25%;
 }
 .list__item-content:last-child {
   flex-grow: 1;
+}
+.list__item-content.-title {
+  color: var(--c-txt-grey);
 }
 
 </style>
