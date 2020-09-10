@@ -116,7 +116,7 @@ export default {
               time: time,
               height,
               proposer: proposer_address.slice(0,5),
-              blockHash_sliced: hash.slice(0,20),
+              blockHash_sliced: `${hash.slice(0,30)}...`,
               blockHash: hash,
               txs: num_txs          
             },
@@ -130,6 +130,15 @@ export default {
       }
     }
   },  
+  // methods: {
+  //   getTimeDifference(timeStamp) {
+  //     const currentTime = new Date().toISOString()
+  //     const inputTimeStamp = new Date(timeStamp).toISOString()
+  //     const timeDiff = currentTime - inputTimeStamp
+
+  //     console.log(Math.floor(timeDiff / 1000))      
+  //   }
+  // },
   created() {
     let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {
