@@ -55,6 +55,10 @@ p {
   margin-top: 1px;
 }
 
+.list:not(:last-child) {
+  margin-bottom: 1.8rem;
+}
+
 .list__title {
   border-bottom: 1px solid var(--c-theme-secondary);
   padding-bottom: 0.5rem;
