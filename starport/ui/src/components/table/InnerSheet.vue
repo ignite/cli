@@ -25,41 +25,42 @@
         </div>
 
         <!-- transactions -->
-        <div 
-          v-if="blockData.blockMsg.txs>0 && blockData.txs.length>0"
-          class="cards-container__card"
-        >
+        <div v-if="blockData.blockMsg.txs>0 && blockData.txs.length>0">
           <div 
             v-for="tx in messagesForTable"
-            :key="tx.tableData.id"
-            class="card"
+            :key="tx.tableData.id"          
+            class="cards-container__card"
           >
-            <div class="card__container">
-              <div class="sheet__entry">
-                <span class="sheet__entry-label">TxHash</span>
-                <p class="sheet__entry-content">{{tx.txMsg.hash}}</p>
+            <div 
+              class="card"
+            >
+              <div class="card__container">
+                <div class="sheet__entry">
+                  <span class="sheet__entry-label">TxHash</span>
+                  <p class="sheet__entry-content">{{tx.txMsg.hash}}</p>
+                </div>
+                <div class="sheet__entry">
+                  <span class="sheet__entry-label">Status</span>
+                  <p class="sheet__entry-content">{{tx.txMsg.status}}</p>
+                </div>
+                <div class="sheet__entry">
+                  <span class="sheet__entry-label">Fee</span>
+                  <p class="sheet__entry-content">{{tx.txMsg.fee}}</p>
+                </div>
+                <div class="sheet__entry">
+                  <span class="sheet__entry-label">Gas</span>
+                  <p class="sheet__entry-content">{{tx.txMsg.gas}}</p>
+                </div>
+                <div class="sheet__entry">
+                  <span class="sheet__entry-label">Memo</span>
+                  <p class="sheet__entry-content">{{tx.txMsg.memo}}</p>
+                </div>
               </div>
-              <div class="sheet__entry">
-                <span class="sheet__entry-label">Status</span>
-                <p class="sheet__entry-content">{{tx.txMsg.status}}</p>
+              <div class="card__container">
+                <SideTabList
+                  :list="getFmtMsgForInnerTable(tx.msgs)"
+                />                   
               </div>
-              <div class="sheet__entry">
-                <span class="sheet__entry-label">Fee</span>
-                <p class="sheet__entry-content">{{tx.txMsg.fee}}</p>
-              </div>
-              <div class="sheet__entry">
-                <span class="sheet__entry-label">Gas</span>
-                <p class="sheet__entry-content">{{tx.txMsg.gas}}</p>
-              </div>
-              <div class="sheet__entry">
-                <span class="sheet__entry-label">Memo</span>
-                <p class="sheet__entry-content">{{tx.txMsg.memo}}</p>
-              </div>
-            </div>
-            <div class="card__container">
-              <SideTabList
-                :list="getFmtMsgForInnerTable(tx.msgs)"
-              />                   
             </div>
           </div>
         </div>
@@ -172,9 +173,26 @@ export default {
   width: 100%;
   height: 100%;
   background-color: var(--c-bg-primary);
+  overflow-y: scroll;
+  padding-bottom: 1.5rem;
+  box-sizing: border-box;
   
   border-left: 1px solid var(--c-theme-secondary);
   box-shadow: -2px 0 6px rgba(0,0,0,.05);
+}
+.sheet::-webkit-scrollbar { /* width */
+  width: 6px;
+}
+.sheet::-webkit-scrollbar-track { /* Track */
+  box-shadow: inset 0 0 1px var(--c-bg-grey); 
+  background: var(--c-bg-secondary); 
+}
+.sheet::-webkit-scrollbar-thumb { /* Handle */
+  background: var(--c-bg-grey); 
+  border-radius: 10px;
+}
+.sheet::-webkit-scrollbar-thumb:hover { /* Handle on hover */
+  background: var(--c-contrast-secondary); 
 }
 
 .sheet__top,
@@ -241,6 +259,9 @@ export default {
   padding: 1rem 1.25rem 1.5rem 1.25rem;
   border: 1px solid var(--c-theme-secondary);
   box-shadow: -2px 0 6px rgba(0,0,0,.05);
+}
+.cards-container__card:not(:last-child) {
+  margin-bottom: 1rem;
 }
 
 /* card */

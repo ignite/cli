@@ -199,7 +199,7 @@ export default {
 
             console.log(messageHolder)
 
-            this.messages.push(messageHolder)                  
+            this.messages.unshift(messageHolder)                  
           })
    
       }         

@@ -3,7 +3,7 @@
   --c-grey-black: black;
   --c-grey-0: #1b1b1b;
   --c-grey-1: #505050;    
-  --c-grey-2: #6d6d6d;  
+  --c-grey-2: #a4a4a4;  
   --c-grey-3: #dadada;  
   --c-grey-4: #e8e8e8;  
   --c-grey-5: #f9f9f9;  
@@ -35,4 +35,5 @@
   --c-txt-grey: var(--c-grey);
   --c-bg-primary: var(--c-theme-white);
   --c-bg-secondary: var(--c-theme-primary);
+  --c-bg-grey: var(--c-grey);
 }

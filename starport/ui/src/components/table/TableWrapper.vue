@@ -123,14 +123,10 @@ export default {
 
 .table__sheet {
   position: absolute;
-  /* position: sticky; */
   top: 0;
   right: 0;
   width: 70%;
-  /* width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3))); */
-  /* width: 100%; */
   height: 100%;  
-  /* height: 80vh; */
   background-color: var(--c-bg-primary);
 
   transform: translate3d(100%, 0, 0);
@@ -144,15 +140,27 @@ export default {
 }
 
 .table__rows-wrapper {
+  height: inherit;
   min-height: inherit;
   max-height: inherit;
   overflow-y: scroll;
 }
+.table__rows-wrapper::-webkit-scrollbar { /* width */
+  width: 6px;
+}
+.table__rows-wrapper::-webkit-scrollbar-track { /* Track */
+  box-shadow: inset 0 0 1px var(--c-bg-grey); 
+  background: var(--c-bg-secondary); 
+}
+.table__rows-wrapper::-webkit-scrollbar-thumb { /* Handle */
+  background: var(--c-bg-grey); 
+  border-radius: 10px;
+}
+.table__rows-wrapper::-webkit-scrollbar-thumb:hover { /* Handle on hover */
+  background: var(--c-contrast-secondary); 
+}
 
-/* .table__sheet >>> .sheet {
-  width: calc(100% - (var(--tc-w-1) + var(--tc-w-2) + var(--tc-w-3)));
-  margin-left: auto;
-} */
+
 .table.-is-collapsed {
   --tc-w-1: 40%;
   --tc-w-2: 20%;
