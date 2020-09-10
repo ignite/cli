@@ -37,9 +37,9 @@ import (
 	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
 	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
 	appparams "<%= ModulePath %>/app/params"
-	//*"<%= ModulePath + "/x/" + AppName %>"*/
-	//*<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"*/
-	//*<%= AppName %>types "<%= ModulePath %>/x/<%= AppName %>/types"*/
+	"<%= ModulePath + "/x/" + AppName %>"
+	<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"
+	<%= AppName %>types "<%= ModulePath %>/x/<%= AppName %>/types"
 )
 
 var (
@@ -57,7 +57,7 @@ var (
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		params.AppModuleBasic{},
-		//<%= AppName %>.AppModuleBasic{},
+		<%= AppName %>.AppModuleBasic{},
 	)
 
 	// module account permissions
@@ -92,7 +92,7 @@ type App struct {
 	BankKeeper    bankkeeper.Keeper
 	StakingKeeper stakingkeeper.Keeper
 	ParamsKeeper  paramskeeper.Keeper
-	//<%= AppName %>Keeper <%= AppName %>keeper.Keeper
+	<%= AppName %>Keeper <%= AppName %>keeper.Keeper
 
 
 	// the module manager
@@ -154,9 +154,9 @@ func New(
 		stakingtypes.NewMultiStakingHooks(),
 	)
 
-	//app.<%= AppName %>Keeper = <%= AppName %>keeper.NewKeeper(
-	//	appCodec, app.BankKeeper, keys[<%= AppName %>types.StoreKey],
-	//)
+	app.<%= AppName %>Keeper = *<%= AppName %>keeper.NewKeeper(
+        appCodec, keys[<%= AppName %>types.StoreKey], keys[<%= AppName %>types.MemStoreKey],
+	)
 
 	// NOTE: Any module instantiated in the module manager that is later modified
 	// must be passed by reference here.
@@ -170,7 +170,7 @@ func New(
 		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
 		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
 		params.NewAppModule(app.ParamsKeeper),
-		//<%= AppName %>.NewAppModule(app.<%= AppName %>Keeper, app.BankKeeper),
+		<%= AppName %>.NewAppModule(appCodec, app.<%= AppName %>Keeper),
 	)
 
 	// During begin block slashing happens after distr.BeginBlocker so that
@@ -189,7 +189,7 @@ func New(
 	app.mm.SetOrderInitGenesis(
 		authtypes.ModuleName, stakingtypes.ModuleName, banktypes.ModuleName,
 		genutiltypes.ModuleName,
-		//<%= AppName %>types.ModuleName,
+		<%= AppName %>types.ModuleName,
 	)
 
 	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
