@@ -1,0 +1,17 @@
+package types
+
+import (
+	"github.com/cosmos/cosmos-sdk/codec"
+)
+
+func RegisterCodec(cdc *codec.LegacyAmino) {
+}
+
+var (
+	amino = codec.New()
+)
+
+func init() {
+	RegisterCodec(amino)
+	amino.Seal()
+}
