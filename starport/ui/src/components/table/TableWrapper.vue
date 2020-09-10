@@ -3,29 +3,34 @@
     :class="['table', sheetStore.isActive ? '-is-collapsed' : '']"
     ref="table"
   >
-
-    <div 
-      v-if="containsInnerSheet"
-      :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
-    >
-      <TableSheet :blockData="rowStore.activeRowData" />
-    </div>    
-
-    <div 
-      :class="['table__head']"
-    >
-      <RowCells
-        :isTableHead="true"
-        :tableCells="tableHeads"
-      />
+    <div class="table__utils">
+      <button @click="handleSheetClose">╳</button>
     </div>
+    <div class="table__wrapper">
 
-    <div :class="['table__rows-wrapper']">
-      <div>
-        <slot/>
+      <div 
+        v-if="containsInnerSheet"
+        :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
+      >
+        <TableSheet :blockData="rowStore.activeRowData" />
+      </div>    
+
+      <div 
+        :class="['table__head']"
+      >
+        <RowCells
+          :isTableHead="true"
+          :tableCells="tableHeads"
+        />
       </div>
-    </div>
 
+      <div :class="['table__rows-wrapper']">
+        <div>
+          <slot/>
+        </div>
+      </div>
+
+    </div>
   </div>
 </template>
 
@@ -56,6 +61,13 @@ export default {
         activeRowData: null
       }
     }
+  },
+  methods: {
+    handleSheetClose() {
+      this.sheetStore.isActive = false
+      this.rowStore.activeRowId = null
+      this.activeRowData = null
+    }
   }
 }
 </script>
@@ -72,6 +84,23 @@ export default {
 .table {
   position: relative;
   height: inherit;
+}
+
+.table__utils {
+  width: 100%;
+  display: flex;
+  justify-content: flex-end;
+}
+.table__utils button {
+  padding: 0.5rem;
+  opacity: 0;
+}
+
+.table__wrapper {
+  position: relative;
+  height: inherit;
+  border: 1px solid var(--c-theme-secondary);    
+  overflow: hidden;
 }
 
 .table >>> .table__cells {
@@ -174,6 +203,10 @@ export default {
 .table.-is-collapsed .table__rows-wrapper >>> .table__row .table__cells .table__col:nth-last-child(-n+2),
 .table.-is-collapsed .table__head >>> .table__cells .table__col:nth-last-child(-n+2) {
   display: none;
+}
+.table.-is-collapsed .table__utils button {
+  opacity: 1;
+  transition: opacity .3s;
 }
 
 

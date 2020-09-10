@@ -213,8 +213,6 @@ export default {
 .table-wrapper {
   max-height: 80vh;
   height: 80vh;
-  overflow: hidden;
-  border: 1px solid var(--c-theme-secondary);
 }
 
 </style>

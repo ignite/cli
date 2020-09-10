@@ -6,7 +6,7 @@
           <navbar>
             <div class="navbar__logo">
               <h1>Starport</h1>    
-              <p>Dev Tool</p>
+              <p>DevTools</p>
             </div>          
           </navbar>
         </div>
@@ -37,7 +37,7 @@
 .container__right {
   padding-right: var(--g-margin);
   max-width: 1280px;
-  margin-top: var(--g-offset-top);  
+  margin-top: calc(var(--g-offset-top) - 2rem);  
   margin-right: auto;
   margin-left: auto;
   flex-grow: 1;
