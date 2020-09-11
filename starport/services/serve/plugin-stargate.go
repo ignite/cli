@@ -90,6 +90,7 @@ func (p *stargatePlugin) PostInit() error {
 		return err
 	}
 	config.Set("api.enable", true)
+	config.Set("api.enabled-unsafe-cors", true)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
