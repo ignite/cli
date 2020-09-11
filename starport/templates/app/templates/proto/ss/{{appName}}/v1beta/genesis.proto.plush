@@ -1,0 +1,9 @@
+syntax = "proto3";
+package <%= AppName %>.<%= AppName %>.v1beta1;
+
+option go_package = "<%= ModulePath %>/x/<%= AppName %>/types";
+
+// GenesisState defines the capability module's genesis state.
+message GenesisState {
+}
+

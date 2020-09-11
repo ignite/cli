@@ -1,209 +1,220 @@
 package app
 
 import (
-	"encoding/json"
 	"io"
 	"os"
+
+	"github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/std"
 
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmos "github.com/tendermint/tendermint/libs/os"
 	dbm "github.com/tendermint/tm-db"
 
-	bam "github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/baseapp"
+	"github.com/cosmos/cosmos-sdk/client/rpc"
 	"github.com/cosmos/cosmos-sdk/codec"
-	"github.com/cosmos/cosmos-sdk/simapp"
+	"github.com/cosmos/cosmos-sdk/server/api"
+	"github.com/cosmos/cosmos-sdk/testutil/testdata"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/module"
 	"github.com/cosmos/cosmos-sdk/version"
 	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/ante"
+	authrest "github.com/cosmos/cosmos-sdk/x/auth/client/rest"
+	authkeeper "github.com/cosmos/cosmos-sdk/x/auth/keeper"
+	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	"github.com/cosmos/cosmos-sdk/x/bank"
+	bankkeeper "github.com/cosmos/cosmos-sdk/x/bank/keeper"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/cosmos/cosmos-sdk/x/genutil"
+	genutiltypes "github.com/cosmos/cosmos-sdk/x/genutil/types"
 	"github.com/cosmos/cosmos-sdk/x/params"
+	paramskeeper "github.com/cosmos/cosmos-sdk/x/params/keeper"
+	paramstypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/cosmos/cosmos-sdk/x/staking"
-	"github.com/cosmos/cosmos-sdk/x/supply"
+	stakingkeeper "github.com/cosmos/cosmos-sdk/x/staking/keeper"
+	stakingtypes "github.com/cosmos/cosmos-sdk/x/staking/types"
+	appparams "<%= ModulePath %>/app/params"
 	"<%= ModulePath + "/x/" + AppName %>"
 	<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"
 	<%= AppName %>types "<%= ModulePath %>/x/<%= AppName %>/types"
-  // this line is used by starport scaffolding
 )
 
-const appName = "<%= AppName %>"
-
 var (
-	DefaultCLIHome = os.ExpandEnv("$HOME/.<%= AppName %>cli")
-	DefaultNodeHome = os.ExpandEnv("$HOME/.<%= AppName %>d")
+	// DefaultNodeHome default home directories for the application daemon
+	DefaultNodeHome = func(appName string) string {
+		return os.ExpandEnv("$HOME/<%= AppName %>d")
+	}
+
+	// ModuleBasics defines the module BasicManager is in charge of setting up basic,
+	// non-dependant module elements, such as codec registration
+	// and genesis verification.
 	ModuleBasics = module.NewBasicManager(
 		genutil.AppModuleBasic{},
 		auth.AppModuleBasic{},
 		bank.AppModuleBasic{},
 		staking.AppModuleBasic{},
 		params.AppModuleBasic{},
-		supply.AppModuleBasic{},
 		<%= AppName %>.AppModuleBasic{},
-    // this line is used by starport scaffolding # 2
 	)
 
+	// module account permissions
 	maccPerms = map[string][]string{
-		auth.FeeCollectorName:     nil,
-		staking.BondedPoolName:    {supply.Burner, supply.Staking},
-		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
+		authtypes.FeeCollectorName:     nil,
+		stakingtypes.BondedPoolName:    {authtypes.Burner, authtypes.Staking},
+		stakingtypes.NotBondedPoolName: {authtypes.Burner, authtypes.Staking},
 	}
 )
 
-func MakeCodec() *codec.Codec {
-	var cdc = codec.New()
+// Gaia extends an ABCI application, but with most of its parameters exported.
+// They are exported for convenience in creating helper functions, as object
+// capabilities aren't needed for testing.
+type App struct {
+	*baseapp.BaseApp
 
-	ModuleBasics.RegisterCodec(cdc)
-	sdk.RegisterCodec(cdc)
-	codec.RegisterCrypto(cdc)
+	appName string
 
-	return cdc.Seal()
-}
-
-type NewApp struct {
-	*bam.BaseApp
-	cdc *codec.Codec
+	cdc               *codec.LegacyAmino
+	appCodec          codec.Marshaler
+	interfaceRegistry types.InterfaceRegistry
 
 	invCheckPeriod uint
 
-	keys  map[string]*sdk.KVStoreKey
-	tKeys map[string]*sdk.TransientStoreKey
+	// keys to access the substores
+	keys    map[string]*sdk.KVStoreKey
+	tkeys   map[string]*sdk.TransientStoreKey
+	memKeys map[string]*sdk.MemoryStoreKey
 
-	subspaces map[string]params.Subspace
-
-	accountKeeper  auth.AccountKeeper
-	bankKeeper     bank.Keeper
-	stakingKeeper  staking.Keeper
-	supplyKeeper   supply.Keeper
-	paramsKeeper   params.Keeper
+	// keepers
+	AccountKeeper authkeeper.AccountKeeper
+	BankKeeper    bankkeeper.Keeper
+	StakingKeeper stakingkeeper.Keeper
+	ParamsKeeper  paramskeeper.Keeper
 	<%= AppName %>Keeper <%= AppName %>keeper.Keeper
-  // this line is used by starport scaffolding # 3
-	mm *module.Manager
 
-	sm *module.SimulationManager
+
+	// the module manager
+	mm *module.Manager
 }
 
-var _ simapp.App = (*NewApp)(nil)
+// New returns a reference to an initialized Gaia.
+// NewSimApp returns a reference to an initialized SimApp.
+func New(
+	appName string, logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
+	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig, baseAppOptions ...func(*baseapp.BaseApp),
+) *App {
 
-func NewInitApp(
-	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool,
-	invCheckPeriod uint, baseAppOptions ...func(*bam.BaseApp),
-) *NewApp {
-	cdc := MakeCodec()
+	appCodec := encodingConfig.Marshaler
+	cdc := encodingConfig.Amino
+	interfaceRegistry := encodingConfig.InterfaceRegistry
 
-	bApp := bam.NewBaseApp(appName, logger, db, auth.DefaultTxDecoder(cdc), baseAppOptions...)
+	bApp := baseapp.NewBaseApp(appName, logger, db, encodingConfig.TxConfig.TxDecoder(), baseAppOptions...)
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetAppVersion(version.Version)
+	bApp.GRPCQueryRouter().SetInterfaceRegistry(interfaceRegistry)
+	bApp.GRPCQueryRouter().RegisterSimulateService(bApp.Simulate, interfaceRegistry, std.DefaultPublicKeyCodec{})
 
 	keys := sdk.NewKVStoreKeys(
-    bam.MainStoreKey,
-    auth.StoreKey,
-    staking.StoreKey,
-		supply.StoreKey,
-    params.StoreKey,
-    <%= AppName %>types.StoreKey,
-    // this line is used by starport scaffolding # 5
-  )
+		authtypes.StoreKey, banktypes.StoreKey, paramstypes.StoreKey, stakingtypes.StoreKey, //<%= AppName %>types.StoreKey, 
+	)
+	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 
-	tKeys := sdk.NewTransientStoreKeys(staking.TStoreKey, params.TStoreKey)
-
-	var app = &NewApp{
-		BaseApp:        bApp,
-		cdc:            cdc,
-		invCheckPeriod: invCheckPeriod,
-		keys:           keys,
-		tKeys:          tKeys,
-		subspaces:      make(map[string]params.Subspace),
+	app := &App{
+		BaseApp:           bApp,
+		appName:           appName,
+		cdc:               cdc,
+		appCodec:          appCodec,
+		interfaceRegistry: interfaceRegistry,
+		invCheckPeriod:    invCheckPeriod,
+		keys:              keys,
+		tkeys:             tkeys,
 	}
 
-	app.paramsKeeper = params.NewKeeper(app.cdc, keys[params.StoreKey], tKeys[params.TStoreKey])
-	app.subspaces[auth.ModuleName] = app.paramsKeeper.Subspace(auth.DefaultParamspace)
-	app.subspaces[bank.ModuleName] = app.paramsKeeper.Subspace(bank.DefaultParamspace)
-	app.subspaces[staking.ModuleName] = app.paramsKeeper.Subspace(staking.DefaultParamspace)
+	app.ParamsKeeper = initParamsKeeper(appCodec, cdc, keys[paramstypes.StoreKey], tkeys[paramstypes.TStoreKey])
 
-	app.accountKeeper = auth.NewAccountKeeper(
-		app.cdc,
-		keys[auth.StoreKey],
-		app.subspaces[auth.ModuleName],
-		auth.ProtoBaseAccount,
+	// set the BaseApp's parameter store
+	bApp.SetParamStore(app.ParamsKeeper.Subspace(baseapp.Paramspace).WithKeyTable(paramskeeper.ConsensusParamsKeyTable()))
+
+	// add keepers
+	app.AccountKeeper = authkeeper.NewAccountKeeper(
+		appCodec, keys[authtypes.StoreKey], app.GetSubspace(authtypes.ModuleName), authtypes.ProtoBaseAccount, maccPerms,
+	)
+	app.BankKeeper = bankkeeper.NewBaseKeeper(
+		appCodec, keys[banktypes.StoreKey], app.AccountKeeper, app.GetSubspace(banktypes.ModuleName), app.ModuleAccountAddrs(),
+	)
+	stakingKeeper := stakingkeeper.NewKeeper(
+		appCodec, keys[stakingtypes.StoreKey], app.AccountKeeper, app.BankKeeper, app.GetSubspace(stakingtypes.ModuleName),
 	)
 
-	app.bankKeeper = bank.NewBaseKeeper(
-		app.accountKeeper,
-		app.subspaces[bank.ModuleName],
-		app.ModuleAccountAddrs(),
+	// register the staking hooks
+	// NOTE: stakingKeeper above is passed by reference, so that it will contain these hooks
+	app.StakingKeeper = *stakingKeeper.SetHooks(
+		stakingtypes.NewMultiStakingHooks(),
 	)
 
-	app.supplyKeeper = supply.NewKeeper(
-		app.cdc,
-		keys[supply.StoreKey],
-		app.accountKeeper,
-		app.bankKeeper,
-		maccPerms,
+	app.<%= AppName %>Keeper = *<%= AppName %>keeper.NewKeeper(
+        appCodec, keys[<%= AppName %>types.StoreKey], keys[<%= AppName %>types.MemStoreKey],
 	)
 
-	stakingKeeper := staking.NewKeeper(
-		app.cdc,
-		keys[staking.StoreKey],
-		app.supplyKeeper,
-		app.subspaces[staking.ModuleName],
-	)
-
-	app.stakingKeeper = *stakingKeeper.SetHooks(
-		staking.NewMultiStakingHooks(),
-	)
-
-	app.<%= AppName %>Keeper = <%= AppName %>keeper.NewKeeper(
-		app.bankKeeper,
-		app.cdc,
-		keys[<%= AppName %>types.StoreKey],
-	)
-
-  // this line is used by starport scaffolding # 4
+	// NOTE: Any module instantiated in the module manager that is later modified
+	// must be passed by reference here.
 
 	app.mm = module.NewManager(
-		genutil.NewAppModule(app.accountKeeper, app.stakingKeeper, app.BaseApp.DeliverTx),
-		auth.NewAppModule(app.accountKeeper),
-		bank.NewAppModule(app.bankKeeper, app.accountKeeper),
-		supply.NewAppModule(app.supplyKeeper, app.accountKeeper),
-		<%= AppName %>.NewAppModule(app.<%= AppName %>Keeper, app.bankKeeper),
-		staking.NewAppModule(app.stakingKeeper, app.accountKeeper, app.supplyKeeper),
-    // this line is used by starport scaffolding # 6
+		genutil.NewAppModule(
+			app.AccountKeeper, app.StakingKeeper, app.BaseApp.DeliverTx,
+			encodingConfig.TxConfig,
+		),
+		auth.NewAppModule(appCodec, app.AccountKeeper, nil),
+		bank.NewAppModule(appCodec, app.BankKeeper, app.AccountKeeper),
+		staking.NewAppModule(appCodec, app.StakingKeeper, app.AccountKeeper, app.BankKeeper),
+		params.NewAppModule(app.ParamsKeeper),
+		<%= AppName %>.NewAppModule(appCodec, app.<%= AppName %>Keeper),
 	)
 
-	app.mm.SetOrderEndBlockers(staking.ModuleName)
+	// During begin block slashing happens after distr.BeginBlocker so that
+	// there is nothing left over in the validator fee pool, so as to keep the
+	// CanWithdrawInvariant invariant.
+	// NOTE: staking module is required if HistoricalEntries param > 0
+	app.mm.SetOrderBeginBlockers(
+		stakingtypes.ModuleName,
+	)
 
+	// NOTE: The genutils moodule must occur after staking so that pools are
+	// properly initialized with tokens from genesis accounts.
+	// NOTE: Capability module must occur first so that it can initialize any capabilities
+	// so that other modules that want to create or claim capabilities afterwards in InitChain
+	// can do so safely.
 	app.mm.SetOrderInitGenesis(
-		staking.ModuleName,
-		auth.ModuleName,
-		bank.ModuleName,
+		authtypes.ModuleName, stakingtypes.ModuleName, banktypes.ModuleName,
+		genutiltypes.ModuleName,
 		<%= AppName %>types.ModuleName,
-		supply.ModuleName,
-		genutil.ModuleName,
-    // this line is used by starport scaffolding # 7
 	)
 
-	app.mm.RegisterRoutes(app.Router(), app.QueryRouter())
+	app.mm.RegisterRoutes(app.Router(), app.QueryRouter(), encodingConfig.Amino)
+	app.mm.RegisterQueryServices(app.GRPCQueryRouter())
 
+	// add test gRPC service for testing gRPC queries in isolation
+	testdata.RegisterTestServiceServer(app.GRPCQueryRouter(), testdata.TestServiceImpl{})
+
+	// initialize stores
+	app.MountKVStores(keys)
+	app.MountTransientStores(tkeys)
+
+	// initialize BaseApp
 	app.SetInitChainer(app.InitChainer)
 	app.SetBeginBlocker(app.BeginBlocker)
-	app.SetEndBlocker(app.EndBlocker)
-
 	app.SetAnteHandler(
-		auth.NewAnteHandler(
-			app.accountKeeper,
-			app.supplyKeeper,
-			auth.DefaultSigVerificationGasConsumer,
+		ante.NewAnteHandler(
+			app.AccountKeeper, app.BankKeeper, ante.DefaultSigVerificationGasConsumer,
+			encodingConfig.TxConfig.SignModeHandler(),
 		),
 	)
-
-	app.MountKVStores(keys)
-	app.MountTransientStores(tKeys)
+	app.SetEndBlocker(app.EndBlocker)
 
 	if loadLatest {
-		err := app.LoadLatestVersion(app.keys[bam.MainStoreKey])
-		if err != nil {
+		if err := app.LoadLatestVersion(); err != nil {
 			tmos.Exit(err.Error())
 		}
 	}
@@ -211,53 +222,117 @@ func NewInitApp(
 	return app
 }
 
-type GenesisState map[string]json.RawMessage
+// Name returns the name of the App
+func (app *App) Name() string { return app.BaseApp.Name() }
 
-func NewDefaultGenesisState() GenesisState {
-	return ModuleBasics.DefaultGenesis()
-}
-
-func (app *NewApp) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
-	var genesisState simapp.GenesisState
-
-	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
-
-	return app.mm.InitGenesis(ctx, genesisState)
-}
-
-func (app *NewApp) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
+// BeginBlocker application updates every begin block
+func (app *App) BeginBlocker(ctx sdk.Context, req abci.RequestBeginBlock) abci.ResponseBeginBlock {
 	return app.mm.BeginBlock(ctx, req)
 }
 
-func (app *NewApp) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
+// EndBlocker application updates every end block
+func (app *App) EndBlocker(ctx sdk.Context, req abci.RequestEndBlock) abci.ResponseEndBlock {
 	return app.mm.EndBlock(ctx, req)
 }
 
-func (app *NewApp) LoadHeight(height int64) error {
-	return app.LoadVersion(height, app.keys[bam.MainStoreKey])
+// InitChainer application update at chain initialization
+func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
+	var genesisState GenesisState
+	app.cdc.MustUnmarshalJSON(req.AppStateBytes, &genesisState)
+	return app.mm.InitGenesis(ctx, app.appCodec, genesisState)
 }
 
-func (app *NewApp) ModuleAccountAddrs() map[string]bool {
+// LoadHeight loads a particular height
+func (app *App) LoadHeight(height int64) error {
+	return app.LoadVersion(height)
+}
+
+// ModuleAccountAddrs returns all the app's module account addresses.
+func (app *App) ModuleAccountAddrs() map[string]bool {
 	modAccAddrs := make(map[string]bool)
 	for acc := range maccPerms {
-		modAccAddrs[supply.NewModuleAddress(acc).String()] = true
+		modAccAddrs[authtypes.NewModuleAddress(acc).String()] = true
 	}
 
 	return modAccAddrs
 }
 
-func (app *NewApp) Codec() *codec.Codec {
+// LegacyAmino returns SimApp's amino codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *App) LegacyAmino() *codec.LegacyAmino {
 	return app.cdc
 }
 
-func (app *NewApp) SimulationManager() *module.SimulationManager {
-	return app.sm
+// AppCodec returns Gaia's app codec.
+//
+// NOTE: This is solely to be used for testing purposes as it may be desirable
+// for modules to register their own custom testing types.
+func (app *App) AppCodec() codec.Marshaler {
+	return app.appCodec
 }
 
+// InterfaceRegistry returns Gaia's InterfaceRegistry
+func (app *App) InterfaceRegistry() types.InterfaceRegistry {
+	return app.interfaceRegistry
+}
+
+// GetKey returns the KVStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) GetKey(storeKey string) *sdk.KVStoreKey {
+	return app.keys[storeKey]
+}
+
+// GetTKey returns the TransientStoreKey for the provided store key.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) GetTKey(storeKey string) *sdk.TransientStoreKey {
+	return app.tkeys[storeKey]
+}
+
+// GetMemKey returns the MemStoreKey for the provided mem key.
+//
+// NOTE: This is solely used for testing purposes.
+func (app *App) GetMemKey(storeKey string) *sdk.MemoryStoreKey {
+	return app.memKeys[storeKey]
+}
+
+// GetSubspace returns a param subspace for a given module name.
+//
+// NOTE: This is solely to be used for testing purposes.
+func (app *App) GetSubspace(moduleName string) paramstypes.Subspace {
+	subspace, _ := app.ParamsKeeper.GetSubspace(moduleName)
+	return subspace
+}
+
+// RegisterAPIRoutes registers all application module routes with the provided
+// API server.
+func (app *App) RegisterAPIRoutes(apiSvr *api.Server) {
+	clientCtx := apiSvr.ClientCtx
+	rpc.RegisterRoutes(clientCtx, apiSvr.Router)
+	authrest.RegisterTxRoutes(clientCtx, apiSvr.Router)
+	ModuleBasics.RegisterRESTRoutes(clientCtx, apiSvr.Router)
+	ModuleBasics.RegisterGRPCRoutes(apiSvr.ClientCtx, apiSvr.GRPCRouter)
+}
+
+// GetMaccPerms returns a copy of the module account permissions
 func GetMaccPerms() map[string][]string {
-	modAccPerms := make(map[string][]string)
+	dupMaccPerms := make(map[string][]string)
 	for k, v := range maccPerms {
-		modAccPerms[k] = v
+		dupMaccPerms[k] = v
 	}
-	return modAccPerms
+	return dupMaccPerms
+}
+
+// initParamsKeeper init params keeper and its subspaces
+func initParamsKeeper(appCodec codec.BinaryMarshaler, legacyAmino *codec.LegacyAmino, key, tkey sdk.StoreKey) paramskeeper.Keeper {
+	paramsKeeper := paramskeeper.NewKeeper(appCodec, legacyAmino, key, tkey)
+
+	paramsKeeper.Subspace(authtypes.ModuleName)
+	paramsKeeper.Subspace(banktypes.ModuleName)
+	paramsKeeper.Subspace(stakingtypes.ModuleName)
+
+	return paramsKeeper
 }
