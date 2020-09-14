@@ -9,14 +9,10 @@
       <h3 class="sheet__heading">Block #{{blockData.blockMsg.height}}</h3>
     </div>
     <div class="sheet__sub -container -border-btm">
-      <div class="sheet__entry">
-        <span class="sheet__entry-label">Hash</span>
-        <p class="sheet__entry-content">{{blockData.blockMsg.blockHash}}</p>
-      </div>
-      <div class="sheet__entry">
-        <span class="sheet__entry-label">Time</span>
-        <p class="sheet__entry-content">{{blockData.blockMsg.time}}</p>
-      </div>
+      <ListWrapper :listItems="[
+        { headText: 'Hash', contentText: blockData.blockMsg.blockHash },
+        { headText: 'Time', contentText: blockData.blockMsg.time },
+      ]" />      
     </div>
     <div class="sheet__main -container">
       <div class="cards-container">
@@ -31,37 +27,7 @@
             :key="tx.tableData.id"          
             class="cards-container__card"
           >
-            <div 
-              class="card"
-            >
-              <div class="card__container">
-                <div class="sheet__entry">
-                  <span class="sheet__entry-label">TxHash</span>
-                  <p class="sheet__entry-content">{{tx.txMsg.hash}}</p>
-                </div>
-                <div class="sheet__entry">
-                  <span class="sheet__entry-label">Status</span>
-                  <p class="sheet__entry-content">{{tx.txMsg.status}}</p>
-                </div>
-                <div class="sheet__entry">
-                  <span class="sheet__entry-label">Fee</span>
-                  <p class="sheet__entry-content">{{tx.txMsg.fee}}</p>
-                </div>
-                <div class="sheet__entry">
-                  <span class="sheet__entry-label">Gas</span>
-                  <p class="sheet__entry-content">{{tx.txMsg.gas}}</p>
-                </div>
-                <div class="sheet__entry">
-                  <span class="sheet__entry-label">Memo</span>
-                  <p class="sheet__entry-content">{{tx.txMsg.memo}}</p>
-                </div>
-              </div>
-              <div class="card__container">
-                <SideTabList
-                  :list="getFmtMsgForInnerTable(tx.msgs)"
-                />                   
-              </div>
-            </div>
+            <TxCard :txData="tx" />
           </div>
         </div>
         <div v-else-if="blockData.blockMsg.txs>0 && blockData.txs.length<=0">🚨 Error fetching transaction data</div>
@@ -74,13 +40,17 @@
 
 <script>
 import SideTabList from '@/components/table/SideTabList'
+import ListWrapper from '@/components/list/ListWrapper'
+import TxCard from '@/modules/TxCard'
 
 export default {
   props: {
     blockData: { type: Object }
   },
   components: {
-    SideTabList
+    SideTabList,
+    ListWrapper,
+    TxCard
   },
   data() {
     return {
@@ -128,36 +98,6 @@ export default {
       return amountObj.amount 
         ? amountObj.amount+amountObj.denom
         : amountObj[0].amount+amountObj[0].denom
-    },
-    getFmtMsgForInnerTable(msgs) {
-      return msgs.map(({
-        type,
-        amount,
-        delegator,
-        validator,
-        from,
-        to
-      }) => {
-        const fromType = type === 'MsgSend' ? {
-          title: 'From', content: from
-        } : {
-          title: 'Delegator', content: delegator
-        }
-        const toType = type === 'MsgSend' ? {
-          title: 'To', content: to
-        } : {
-          title: 'Validator', content: validator
-        }
-
-        return {
-          title: type,
-          subItems: [
-            fromType,
-            toType,
-            { title: 'Amount', content: amount },
-          ]
-        }
-      })
     },
     getMsgType(type) {
       return type.replace('cosmos-sdk/', '')
@@ -227,24 +167,6 @@ export default {
 
 .sheet__heading {
   font-size: 1rem;
-}
-
-.sheet__entry {
-  display: flex;
-}
-.sheet__entry:not(:last-child) {
-  margin-bottom: 0.8rem;
-}
-.sheet__entry span,
-.sheet__entry p  {
-  font-size: 0.875rem;
-}
-.sheet__entry *:first-child {
-  width: 15%;
-  color: var(--c-txt-grey);
-}
-.sheet__entry *:last-child {
-  flex-grow: 1;
 }
 
 /* cards__container */
