@@ -23,7 +23,7 @@ a:visited {
 </style>
 
 <script>
-import Layout from "@/components/Layout";
+import Layout from "@/layouts/Layout";
 
 export default {
   components: {

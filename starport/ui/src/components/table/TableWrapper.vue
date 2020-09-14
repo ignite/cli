@@ -4,10 +4,11 @@
     ref="table"
   >
     <div class="table__utils">
-      <button @click="handleSheetClose">╳</button>
+      <button v-if="containsInnerSheet" @click="handleSheetClose">╳</button>
     </div>
-    <div class="table__wrapper">
 
+    <div class="table__wrapper">
+      <!-- inner sheet (for individual block data) -->
       <div 
         v-if="containsInnerSheet"
         :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
@@ -15,21 +16,16 @@
         <TableSheet :blockData="rowStore.activeRowData" />
       </div>    
 
-      <div 
-        :class="['table__head']"
-      >
+      <!-- main table content -->
+      <div :class="['table__head']">
         <RowCells
           :isTableHead="true"
           :tableCells="tableHeads"
         />
       </div>
-
       <div :class="['table__rows-wrapper']">
-        <div>
-          <slot/>
-        </div>
+        <div><slot/></div>
       </div>
-
     </div>
   </div>
 </template>
@@ -38,18 +34,16 @@
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
 import TableSheet from './InnerSheet'
-import Accordion from '@/components/accordion/Accordion'
 
 export default {
   components: {
     RowWrapper,
     RowCells,
-    TableSheet,
-    Accordion
+    TableSheet
   },
   props: {
     tableHeads: { type: Array, required: true },
-    containsInnerSheet: { type: Boolean, default: false }
+    containsInnerSheet: { type: Boolean, default: true }
   },
   data() {
     return {
@@ -132,23 +126,6 @@ export default {
   width: var(--tc-w-5);
 }
 
-/* temporary table styling */
-.table >>> .table__cells.-panel .table__col:nth-child(1) {
-  flex-grow: 1;  
-}
-.table >>> .table__cells.-panel .table__col:nth-child(2) {
-  width: 15%;
-}
-.table >>> .table__cells.-panel .table__col:nth-child(3) {
-  width: 20%;
-}
-.table >>> .table__cells.-panel .table__col:nth-child(4) {
-  width: 15%;
-}
-.table >>> .table__cells.-panel .table__col:nth-child(5) {
-  width: 5%;
-}
-
 
 .table__sheet {
   position: absolute;
@@ -157,7 +134,8 @@ export default {
   width: 70%;
   height: 100%;  
   background-color: var(--c-bg-primary);
-
+}
+.table__sheet {  
   transform: translate3d(100%, 0, 0);
   transition: transform ease-out .25s;
   will-change: transform;
