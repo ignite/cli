@@ -84,7 +84,7 @@ func (p *stargatePlugin) PostInit() error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(home, p.app.nd(), "config/app.toml")
+	path := filepath.Join(home, fmt.Sprintf(".%s/config/app.toml", p.app.nd()))
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -122,5 +122,5 @@ func (p *stargatePlugin) StoragePaths() []string {
 }
 
 func (p *stargatePlugin) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
+	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
 }
