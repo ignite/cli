@@ -278,6 +278,9 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				"mynode",
 				"--chain-id", s.app.nd(),
 			),
+			step.PreExec(func() error {
+				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", s.app.nd()))
+			}),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
 				if err != nil {
