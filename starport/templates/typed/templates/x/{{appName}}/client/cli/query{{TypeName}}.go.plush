@@ -15,12 +15,35 @@ func GetCmdList<%= title(TypeName) %>(queryRoute string, cdc *codec.Codec) *cobr
 		Short: "list all <%= TypeName %>",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
-			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/"+types.QueryList<%= title(TypeName) %>, queryRoute), nil)
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s", queryRoute, types.QueryList<%= title(TypeName) %>), nil)
 			if err != nil {
 				fmt.Printf("could not list <%= title(TypeName) %>\n%s\n", err.Error())
 				return nil
 			}
 			var out []types.<%= title(TypeName) %>
+			cdc.MustUnmarshalJSON(res, &out)
+			return cliCtx.PrintOutput(out)
+		},
+	}
+}
+
+func GetCmdGet<%= title(TypeName) %>(queryRoute string, cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "get-<%= TypeName %> [key]",
+		Short: "Get a <%= TypeName %> by key",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+
+			key := args[0]
+
+			res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/%s/%s", queryRoute, types.QueryGet<%= title(TypeName) %>, key), nil)
+
+			if err != nil {
+				fmt.Printf("could not get <%= title(TypeName) %> with key %s\n%s\n", key, err.Error())
+				return nil
+			}
+			var out types.<%= title(TypeName) %>
 			cdc.MustUnmarshalJSON(res, &out)
 			return cliCtx.PrintOutput(out)
 		},

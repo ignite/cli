@@ -13,6 +13,17 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> ty
 	store.Set(key, value)
 }
 
+func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %>Key string) {
+	store := ctx.KVStore(k.storeKey)
+	var <%= TypeName %> types.<%= title(TypeName) %>
+	byteKey := []byte(types.<%= title(TypeName) %>Prefix + <%= TypeName %>Key)
+	err := k.cdc.UnmarshalBinaryLengthPrefixed(store.Get(byteKey), &<%= TypeName %>)
+	if err != nil {
+		return <%= TypeName %>, err
+	}
+	return <%= TypeName %>, nil
+}
+
 func list<%= title(TypeName) %>(ctx sdk.Context, k Keeper) ([]byte, error) {
   var <%= TypeName %>List []types.<%= title(TypeName) %>
   store := ctx.KVStore(k.storeKey)
