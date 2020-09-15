@@ -8,6 +8,7 @@
         :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
         :tableId="tableId"        
         :containsInnerSheet="true"
+        @sheet-closed="handleSheetClose"
       >
         <BlockSheet slot="innerSheet" :blockData="highlightedBlock.data"/>
         <TableRowWrapper
@@ -137,6 +138,9 @@ export default {
         })
         setTableRowStore(true, { rowId: rowId, rowData: rowData })
       }
+    },
+    handleSheetClose() {
+      this.setHighlightedBlock(null)
     }
   },
   created() {

@@ -48,7 +48,6 @@ export default {
   },
   computed: {
     ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock' ]),
     fmtIsTableSheetActive() {
       return this.isTableSheetActive(this.tableId)
     }
@@ -58,13 +57,13 @@ export default {
       'createTable',
       'setTableSheetState',
     ]),    
-    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),    
     handleSheetClose() {
       this.setTableSheetState({
         tableId: this.tableId,
         sheetState: false
       })
-      this.setHighlightedBlock(null)         
+
+      this.$emit('sheet-closed')
     }
   },
   created() {
