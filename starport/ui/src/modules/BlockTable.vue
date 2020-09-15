@@ -8,9 +8,7 @@
         :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
         :containsInnerSheet="true"
       >
-        <!-- <BlockSheet slot="innerSheet" :blockData=""/> -->
         <TableRowWrapper
-          slot="tableContent"
           v-for="msg in messagesForTable"
           :key="msg.tableData.id"  
           :rowData="msg"
@@ -27,36 +25,6 @@
             ]"
           />     
         </TableRowWrapper>     
-        
-        <!-- <Accordion :id="tableGroupId"> 
-          <TableRowWrapper
-            v-for="msg in messagesForTable"
-            :key="msg.tableData.id"                    
-          >   
-            <AccordionItem
-              :itemData="msg.tableData"
-              :groupId="tableGroupId"
-              :isDisabled="msg.blockMsg.txs<=0"
-            >
-              <TableRowCellsGroup 
-                slot="trigger" 
-                :tableCells="[
-                  msg.blockMsg.height,
-                  msg.blockMsg.txs,
-                  msg.blockMsg.proposer,
-                  msg.blockMsg.blockHash,
-                  msg.blockMsg.time,
-                ]"
-              />     
-              <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
-                <InnerTable 
-                  :parentGroupId="tableGroupId"
-                  :rowItems="msg.txs"
-                /> 
-              </div>
-            </AccordionItem>     
-          </TableRowWrapper>   
-        </Accordion> -->
       </TableWrapper>
     </div>
 
@@ -70,21 +38,23 @@ import ReconnectingWebSocket from "reconnecting-websocket"
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
-import BlockSheet from '@/modules/BlockSheet'
 
 export default {
   components: {
     TableWrapper,
     TableRowWrapper,    
     TableRowCellsGroup,
-    BlockSheet
   },
   data() {
     return {
       tableGroupId: 'blocks-table',
       tendermintRootUrl: 'rpc.nylira.net',
       cosmosRootUrl: 'localhost:1317',
-      messages: []
+      messages: [],
+      exampleDataTwo: [
+        { id: 1, isActive: false },
+        { id: 2, isActive: false }
+      ]
     }
   },
   computed: {

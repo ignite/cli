@@ -13,6 +13,7 @@
         v-if="containsInnerSheet"
         :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
       >
+        <!-- <slot name="innerSheet"/> -->
         <TableSheet :blockData="rowStore.activeRowData" />
       </div>    
 
@@ -24,7 +25,7 @@
         />
       </div>
       <div :class="['table__rows-wrapper']">
-        <div><slot/></div>
+        <div><slot name="tableContent"/></div>
       </div>
     </div>
   </div>

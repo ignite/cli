@@ -10,9 +10,7 @@
       ]" />
     </div>
     <div class="tx-card__container">
-      <SideTabList
-        :list="getFmtMsgForInnerTable(txData.msgs)"
-      />                   
+      <SideTabList :list="getFmtMsgForInnerTable(txData.msgs)"/>                   
     </div>
   </div>  
 </template>
