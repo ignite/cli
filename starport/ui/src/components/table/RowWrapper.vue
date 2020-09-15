@@ -21,12 +21,6 @@ export default {
     rowId: { type: String },
     isRowActive: { type: Boolean, default: false },
     isWithInnerSheet: { type: Boolean, default: false }
-  },
-  computed: {
-    ...mapGetters('cosmos/blocks', [
-      'highlightedBlock',
-      'isTableSheetActive'
-    ]),    
   }
 }
 </script>

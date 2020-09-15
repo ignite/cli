@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="['table', isTableSheetActive ? '-is-collapsed' : '']"
+    :class="['table', fmtIsTableSheetActive ? '-is-collapsed' : '']"
     ref="table"
   >
     <div class="table__utils">
@@ -11,7 +11,7 @@
       <!-- inner sheet (for individual block data) -->
       <div 
         v-if="containsInnerSheet"
-        :class="['table__sheet', isTableSheetActive ? '-is-active' : '']"
+        :class="['table__sheet', fmtIsTableSheetActive ? '-is-active' : '']"
       >
         <!-- <slot name="innerSheet"/> -->
         <TableSheet :blockData="highlightedBlock.data" />
@@ -46,23 +46,32 @@ export default {
   },
   props: {
     tableHeads: { type: Array, required: true },
+    tableId: { type: String, required: true },
     containsInnerSheet: { type: Boolean, default: true }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [
-      'highlightedBlock',
-      'isTableSheetActive'
-    ])    
+    ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock' ]),
+    fmtIsTableSheetActive() {
+      return this.isTableSheetActive(this.tableId)
+    }
   },
   methods: {
-    ...mapMutations('cosmos/blocks', [
-      'setHighlightedBlock',
-      'setTableSheetState'
+    ...mapMutations('cosmos', [
+      'createTable',
+      'setTableSheetState',
     ]),    
+    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),    
     handleSheetClose() {
-      this.setTableSheetState(false)
+      this.setTableSheetState({
+        tableId: this.tableId,
+        sheetState: false
+      })
       this.setHighlightedBlock(null)         
     }
+  },
+  created() {
+    this.createTable(this.tableId)
   }
 }
 </script>

@@ -6,6 +6,7 @@
     <div v-else class="table-wrapper">
       <TableWrapper 
         :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
+        :tableId="tableId"        
         :containsInnerSheet="true"
       >
         <!-- <BlockSheet slot="innerSheet" :blockData=""/> -->
@@ -57,14 +58,19 @@ export default {
       tableGroupId: 'blocks-table',
       tendermintRootUrl: 'rpc.nylira.net',
       cosmosRootUrl: 'localhost:1317',
-      messages: []
+      messages: [],
+      tableId: 'cosmosBlocksExplorer'
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [
-      'highlightedBlock',
-      'isTableSheetActive'
-    ]),        
+    ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock' ]),
+    fmtIsTableSheetActive() {
+      return this.isTableSheetActive(this.tableId)
+    },    
+    fmtTargetTable() {
+      return this.targetTable(this.tableId)
+    },
     messagesForTable() {
       if (this.messages.length > 0) {
         return this.messages.map((message) => {
@@ -100,10 +106,8 @@ export default {
     }
   },  
   methods: {
-    ...mapMutations('cosmos/blocks', [
-      'setHighlightedBlock',
-      'setTableSheetState'
-    ]),
+    ...mapMutations('cosmos', [ 'setTableSheetState' ]),
+    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),
     handleRowClick(rowId, rowData) {
       const setTableRowStore = (isToActive=false, payload) => {
         const highlightBlockPayload = isToActive ? {
@@ -116,15 +120,21 @@ export default {
 
       const isActiveRowClicked = this.highlightedBlock.id === rowId
       
-      if (this.isTableSheetActive) {
+      if (this.fmtIsTableSheetActive) {
         if (isActiveRowClicked) {
-          this.setTableSheetState(false)
+          this.setTableSheetState({
+            tableId: this.tableId,
+            sheetState: false
+          })
           setTableRowStore()
         } else {
           setTableRowStore(true, { rowId: rowId, rowData: rowData })
         }
       } else {
-        this.setTableSheetState(true)
+        this.setTableSheetState({
+          tableId: this.tableId,
+          sheetState: true
+        })
         setTableRowStore(true, { rowId: rowId, rowData: rowData })
       }
     }

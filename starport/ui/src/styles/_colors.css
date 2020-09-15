@@ -28,6 +28,9 @@
   --c-theme-white: var(--c-white);
   --c-theme-black: var(--c-black);  
 }
+/* TODO: implement dark theme colors */
+/* :root[data-c-theme="dark"] {} */
+
 :root {
   /*-- lv.4 - tokens --*/
   --c-txt-primary: var(--c-contrast-primary);
