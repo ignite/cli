@@ -7,11 +7,14 @@ const blocks = {
         id: null,
         data: null
       }
-    }
+    },
+    entries: []
   },
   getters: {
     highlightedBlock: state => state.table.highlightedBlock,
-    isTableSheetActive: state => state.table.isSheetActive
+    isTableSheetActive: state => state.table.isSheetActive,
+    blockEntries: state => state.entries,
+    blockByHeight: state => height => state.entries.filter(block => block.height === height)
   },
   mutations: {
     /**
@@ -34,9 +37,20 @@ const blocks = {
      */    
     setTableSheetState(state, tableState) {
       state.table.isSheetActive = tableState
+    },
+    /**
+     * @param {object} block
+     * TODO: define shape of block object
+     */    
+    addBlockEntry(state, block) {
+      state.entries.unshift(block)
     }    
   },
-  actions: {}
+  actions: {
+    addBlockEntry({ commit }, block) {
+      commit('addBlockEntry', block)
+    }
+  }
 }
 
 export default {

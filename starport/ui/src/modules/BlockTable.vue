@@ -1,19 +1,25 @@
 <template>
   <div>
 
-    <div class="temp" v-if="messages.length == 0">Waiting for blocks...</div>
+    <div class="temp" v-if="blockEntries.length == 0">Waiting for blocks...</div>
 
     <div v-else class="table-wrapper">
       <TableWrapper 
         :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
+        :tableId="tableId"        
         :containsInnerSheet="true"
+        @sheet-closed="handleSheetClose"
       >
+        <BlockSheet slot="innerSheet" :blockData="highlightedBlock.data"/>
         <TableRowWrapper
+          slot="tableContent"
           v-for="msg in messagesForTable"
           :key="msg.tableData.id"  
           :rowData="msg"
-          :rowId="msg.blockMsg.blockHash"      
+          :rowId="msg.blockMsg.blockHash"   
+          :isRowActive="msg.blockMsg.blockHash === highlightedBlock.id"   
           :isWithInnerSheet="true" 
+          @row-clicked="handleRowClick"
         >   
           <TableRowCellsGroup 
             :tableCells="[
@@ -32,18 +38,21 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations, mapActions } from 'vuex'
 import axios from "axios"
 import ReconnectingWebSocket from "reconnecting-websocket"
 
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
 import TableRowCellsGroup from '@/components/table/RowCellsGroup'
+import BlockSheet from '@/modules/BlockSheet'
 
 export default {
   components: {
     TableWrapper,
     TableRowWrapper,    
     TableRowCellsGroup,
+    BlockSheet
   },
   data() {
     return {
@@ -51,16 +60,21 @@ export default {
       tendermintRootUrl: 'rpc.nylira.net',
       cosmosRootUrl: 'localhost:1317',
       messages: [],
-      exampleDataTwo: [
-        { id: 1, isActive: false },
-        { id: 2, isActive: false }
-      ]
+      tableId: 'cosmosBlocksExplorer'
     }
   },
   computed: {
+    ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blockEntries', 'blockByHeight' ]),
+    fmtIsTableSheetActive() {
+      return this.isTableSheetActive(this.tableId)
+    },    
+    fmtTargetTable() {
+      return this.targetTable(this.tableId)
+    },
     messagesForTable() {
-      if (this.messages.length > 0) {
-        return this.messages.map((message) => {
+      if (this.blockEntries.length > 0) {
+        return this.blockEntries.map((message) => {
           const {
             time,
             height,
@@ -92,16 +106,45 @@ export default {
       }
     }
   },  
-  // methods: {
-  //   getTimeDifference(timeStamp) {
-  //     const currentTime = new Date().toISOString()
-  //     const inputTimeStamp = new Date(timeStamp).toISOString()
-  //     const timeDiff = currentTime - inputTimeStamp
+  methods: {
+    ...mapMutations('cosmos', [ 'setTableSheetState' ]),
+    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),
+    ...mapActions('cosmos/blocks', [ 'addBlockEntry' ]),
+    handleRowClick(rowId, rowData) {
+      const setTableRowStore = (isToActive=false, payload) => {
+        const highlightBlockPayload = isToActive ? {
+          id: payload.rowId,
+          data: payload.rowData
+        } : null
+        
+        this.setHighlightedBlock(highlightBlockPayload)
+      }
 
-  //     console.log(Math.floor(timeDiff / 1000))      
-  //   }
-  // },
-  created() {
+      const isActiveRowClicked = this.highlightedBlock.id === rowId
+      
+      if (this.fmtIsTableSheetActive) {
+        if (isActiveRowClicked) {
+          this.setTableSheetState({
+            tableId: this.tableId,
+            sheetState: false
+          })
+          setTableRowStore()
+        } else {
+          setTableRowStore(true, { rowId: rowId, rowData: rowData })
+        }
+      } else {
+        this.setTableSheetState({
+          tableId: this.tableId,
+          sheetState: true
+        })
+        setTableRowStore(true, { rowId: rowId, rowData: rowData })
+      }
+    },
+    handleSheetClose() {
+      this.setHighlightedBlock(null)
+    }
+  },
+  mounted() {
     let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {
       ws.send(
@@ -115,8 +158,6 @@ export default {
     };
     ws.onmessage = (msg) => {
       const { result } = JSON.parse(msg.data)
-
-      // console.log(this.tendermintRootUrl)
 
       if (result.data && result.events) {
         const { data, events } = result        
@@ -148,7 +189,8 @@ export default {
         // }
         // fetchValidator().then(validator => console.log(validator))
 
-        const messageHolder = {
+        const blockHolder = {
+          height: '',
           header,
           txs: txsData.txs,
           blockMeta: null,
@@ -158,19 +200,22 @@ export default {
 
         fetchBlockMeta()
           .then(blockMeta => {
-            messageHolder.blockMeta = blockMeta.data.result.block_meta
+            blockHolder.height = blockMeta.data.result.block_meta.header.height
+            blockHolder.blockMeta = blockMeta.data.result.block_meta
 
             if (txsData.txs && txsData.txs.length > 0) {
               const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded))
               
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                messageHolder.txsDecoded.push(txResolved.data.result)
+                blockHolder.txsDecoded.push(txResolved.data.result)
               }))
             }    
 
-            console.log(messageHolder)
-
-            this.messages.unshift(messageHolder)                  
+            /* TODO: refactor the WS connection */
+            // this guards duplicated block pushed into vuex for now
+            if (this.blockByHeight(blockHolder.height).length<=0) {
+              this.addBlockEntry(blockHolder)
+            }
           })
    
       }         

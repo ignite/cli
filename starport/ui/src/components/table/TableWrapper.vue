@@ -67,6 +67,7 @@ export default {
     }
   },
   created() {
+    /* TODO: this should probably not be inside of created */
     this.createTable(this.tableId)
   }
 }
