@@ -9,6 +9,8 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/app"
 )
@@ -48,6 +50,24 @@ func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err 
 	if err != nil {
 		return "", err
 	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	absRoot := filepath.Join(pwd, pathInfo.Root)
+	if err := s.generate(pathInfo, absRoot, opts); err != nil {
+		return "", err
+	}
+	if err := s.protoc(absRoot); err != nil {
+		return "", err
+	}
+	if err := initGit(pathInfo.Root); err != nil {
+		return "", err
+	}
+	return pathInfo.Root, nil
+}
+
+func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string, opts *initOptions) error {
 	g, err := app.New(&app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
@@ -55,22 +75,43 @@ func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err 
 		AddressPrefix:    opts.addressPrefix,
 	})
 	if err != nil {
-		return "", err
+		return err
 	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
+	run.Root = absRoot
+	return run.Run()
+}
+
+// TODO warn if protoc isn't installed.
+func (s *Scaffolder) protoc(absRoot string) error {
+	scriptPath := filepath.Join(absRoot, "scripts/protocgen")
+	if err := os.Chmod(scriptPath, 0700); err != nil {
+		return err
 	}
-	run.Root = filepath.Join(pwd, pathInfo.Root)
-	if err := run.Run(); err != nil {
-		return "", err
-	}
-	if err := initGit(pathInfo.Root); err != nil {
-		return "", err
-	}
-	return pathInfo.Root, nil
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+			cmdrunner.DefaultWorkdir(absRoot),
+		).
+		Run(context.Background(),
+			// installs the gocosmos plugin with the version specified under the
+			// go.mod of the app.
+			step.New(
+				step.Exec(
+					"go",
+					"get",
+					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
+				),
+			),
+			// generate pb files.
+			step.New(
+				step.Exec(
+					"/bin/bash",
+					scriptPath,
+				),
+			),
+		)
 }
 
 func initGit(path string) error {

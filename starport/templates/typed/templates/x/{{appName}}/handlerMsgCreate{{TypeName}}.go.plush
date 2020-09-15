@@ -6,13 +6,8 @@ import (
 	"<%= ModulePath %>/x/<%= AppName %>/keeper"
 )
 
-func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg types.MsgCreate<%= title(TypeName) %>) (*sdk.Result, error) {
-	var <%= TypeName %> = types.<%= title(TypeName) %>{
-		Creator: msg.Creator,
-		ID:      msg.ID,<%= for (field) in Fields { %>
-    <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
-	}
-	k.Create<%= title(TypeName) %>(ctx, <%= TypeName %>)
+func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, <%= TypeName %> *types.Msg<%= title(TypeName) %>) (*sdk.Result, error) {
+	k.Create<%= title(TypeName) %>(ctx, *<%= TypeName %>)
 
-	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+	return &sdk.Result{Events: ctx.EventManager().ABCIEvents()}, nil
 }

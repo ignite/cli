@@ -6,8 +6,12 @@ import (
 	"github.com/cosmos/cosmos-sdk/client"
 )
 
+const (
+    MethodGet = "GET"
+)
+
 // RegisterRoutes registers <%= AppName %>-related REST handlers to a router
-func RegisterRoutes(ctx client.Context, r *mux.Router) {
-  // this line is used by starport scaffolding
+func RegisterRoutes(clientCtx client.Context, r *mux.Router) {
+    // this line is used by starport scaffolding
 }
 

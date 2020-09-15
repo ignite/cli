@@ -57,7 +57,14 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	})
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	return run.Run()
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return s.protoc(pwd)
 }
 func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, "x", appName, "types"))
@@ -79,7 +86,7 @@ func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error
 				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
 					return true
 				}
-				if strings.Title(typeName) != typeSpec.Name.Name {
+				if "Msg"+strings.Title(typeName) != typeSpec.Name.Name {
 					return true
 				}
 				isCreated = true
