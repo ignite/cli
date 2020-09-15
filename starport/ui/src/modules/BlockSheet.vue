@@ -1,9 +1,9 @@
 <template>
   <div v-if="!blockData">waiting for block data...</div>
+  
   <div 
     v-else
     :class="['sheet']"
-    ref="tableInnerSheet"
   >
     <div class="sheet__top -container -border-btm">
       <h3 class="sheet__heading">Block #{{blockData.blockMsg.height}}</h3>
@@ -184,6 +184,13 @@ export default {
 }
 .cards-container__card:not(:last-child) {
   margin-bottom: 1rem;
+}
+
+/* card */
+.card__container:not(:last-child) {
+  border-bottom: 1px solid var(--c-theme-secondary);
+  margin-bottom: 1.25rem;
+  padding-bottom: 1.25rem;
 }
 
 </style>

@@ -9,7 +9,7 @@
         :tableId="tableId"        
         :containsInnerSheet="true"
       >
-        <!-- <BlockSheet slot="innerSheet" :blockData=""/> -->
+        <BlockSheet slot="innerSheet" :blockData="highlightedBlock.data"/>
         <TableRowWrapper
           slot="tableContent"
           v-for="msg in messagesForTable"

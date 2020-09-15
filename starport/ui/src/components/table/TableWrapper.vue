@@ -13,8 +13,7 @@
         v-if="containsInnerSheet"
         :class="['table__sheet', fmtIsTableSheetActive ? '-is-active' : '']"
       >
-        <!-- <slot name="innerSheet"/> -->
-        <TableSheet :blockData="highlightedBlock.data" />
+        <slot name="innerSheet"/>
       </div>    
 
       <!-- main table content -->
@@ -36,13 +35,11 @@ import { mapGetters, mapMutations } from 'vuex'
 
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
-import TableSheet from './InnerSheet'
 
 export default {
   components: {
     RowWrapper,
-    RowCells,
-    TableSheet
+    RowCells
   },
   props: {
     tableHeads: { type: Array, required: true },
