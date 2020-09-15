@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="['table', sheetStore.isActive ? '-is-collapsed' : '']"
+    :class="['table', isTableSheetActive ? '-is-collapsed' : '']"
     ref="table"
   >
     <div class="table__utils">
@@ -11,10 +11,10 @@
       <!-- inner sheet (for individual block data) -->
       <div 
         v-if="containsInnerSheet"
-        :class="['table__sheet', sheetStore.isActive ? '-is-active' : '']"
+        :class="['table__sheet', isTableSheetActive ? '-is-active' : '']"
       >
         <!-- <slot name="innerSheet"/> -->
-        <TableSheet :blockData="rowStore.activeRowData" />
+        <TableSheet :blockData="highlightedBlock.data" />
       </div>    
 
       <!-- main table content -->
@@ -32,6 +32,8 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
+
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
 import TableSheet from './InnerSheet'
@@ -46,22 +48,20 @@ export default {
     tableHeads: { type: Array, required: true },
     containsInnerSheet: { type: Boolean, default: true }
   },
-  data() {
-    return {
-      sheetStore: {
-        isActive: false,
-      },
-      rowStore: {
-        activeRowId: null,
-        activeRowData: null
-      }
-    }
+  computed: {
+    ...mapGetters('cosmos/blocks', [
+      'highlightedBlock',
+      'isTableSheetActive'
+    ])    
   },
   methods: {
+    ...mapMutations('cosmos/blocks', [
+      'setHighlightedBlock',
+      'setTableSheetState'
+    ]),    
     handleSheetClose() {
-      this.sheetStore.isActive = false
-      this.rowStore.activeRowId = null
-      this.activeRowData = null
+      this.setTableSheetState(false)
+      this.setHighlightedBlock(null)         
     }
   }
 }

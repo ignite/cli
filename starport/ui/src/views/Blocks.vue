@@ -27,36 +27,6 @@
             ]"
           />     
         </TableRowWrapper>     
-        
-        <!-- <Accordion :id="tableGroupId"> 
-          <TableRowWrapper
-            v-for="msg in messagesForTable"
-            :key="msg.tableData.id"                    
-          >   
-            <AccordionItem
-              :itemData="msg.tableData"
-              :groupId="tableGroupId"
-              :isDisabled="msg.blockMsg.txs<=0"
-            >
-              <TableRowCellsGroup 
-                slot="trigger" 
-                :tableCells="[
-                  msg.blockMsg.height,
-                  msg.blockMsg.txs,
-                  msg.blockMsg.proposer,
-                  msg.blockMsg.blockHash,
-                  msg.blockMsg.time,
-                ]"
-              />     
-              <div v-if="msg.blockMsg.txs.length > 0" slot="contents">
-                <InnerTable 
-                  :parentGroupId="tableGroupId"
-                  :rowItems="msg.txs"
-                /> 
-              </div>
-            </AccordionItem>     
-          </TableRowWrapper>   
-        </Accordion> -->
       </TableWrapper>
     </div>
 

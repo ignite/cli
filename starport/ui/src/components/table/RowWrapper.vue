@@ -13,62 +13,49 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
+
 export default {
   props: {
     rowData: { type: Object },
     rowId: { type: String },
     isWithInnerSheet: { type: Boolean, default: false }
   },
-  data() {
-    return {
-      isActive: false
-    }
-  },
   computed: {
+    ...mapGetters('cosmos/blocks', [
+      'highlightedBlock',
+      'isTableSheetActive'
+    ]),    
     isRowActive() {
-      if (this.$parent) {
-        const $table = this.getParentTableNode(this.$parent)
-        const activeRowId = $table.rowStore.activeRowId
-        return activeRowId === this.rowId
-      }
-
-      return false
+      return this.highlightedBlock.id === this.rowId
     }
   },
   methods: {
-    setTableRowStore(tableNode, isToActive=false, payload=null) {
-      if (isToActive) {
-        tableNode.rowStore.activeRowId = payload.rowId
-        tableNode.rowStore.activeRowData = payload.rowData
-      } else {
-        tableNode.rowStore.activeRowId = null
-        tableNode.rowStore.activeRowData = null
-      }
-    },
-    getParentTableNode(parentNode) {
-      if (parentNode) {
-        if (parentNode.$refs.table === undefined) this.getParentTableNode(parentNode.$parent)
-        return parentNode
-      }
-
-      return null
+    ...mapMutations('cosmos/blocks', [
+      'setHighlightedBlock',
+      'setTableSheetState'
+    ]),
+    setTableRowStore(isToActive=false, payload) {
+      const highlightBlockPayload = isToActive ? {
+        id: payload.rowId,
+        data: payload.rowData
+      } : null
+      
+      this.setHighlightedBlock(highlightBlockPayload)
     },
     handleClick() {
-      const $table = this.getParentTableNode(this.$parent)
-      const activeRowId = $table.rowStore.activeRowId
-      const isSheetActive = $table.sheetStore.isActive
-      const isActiveRowClicked = activeRowId === this.rowId
+      const isActiveRowClicked = this.isRowActive
       
-      if (isSheetActive) {
+      if (this.isTableSheetActive) {
         if (isActiveRowClicked) {
-          $table.sheetStore.isActive = false
-          this.setTableRowStore($table)
+          this.setTableSheetState(false)
+          this.setTableRowStore()
         } else {
-          this.setTableRowStore($table, true, { rowId: this.rowId, rowData: this.rowData })
+          this.setTableRowStore(true, { rowId: this.rowId, rowData: this.rowData })
         }
       } else {
-        $table.sheetStore.isActive = true
-        this.setTableRowStore($table, true, { rowId: this.rowId, rowData: this.rowData })
+        this.setTableSheetState(true)
+        this.setTableRowStore(true, { rowId: this.rowId, rowData: this.rowData })
       }
     }
   }
