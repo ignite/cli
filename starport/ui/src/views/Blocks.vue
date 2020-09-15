@@ -14,8 +14,10 @@
           v-for="msg in messagesForTable"
           :key="msg.tableData.id"  
           :rowData="msg"
-          :rowId="msg.blockMsg.blockHash"      
+          :rowId="msg.blockMsg.blockHash"   
+          :isRowActive="msg.blockMsg.blockHash === highlightedBlock.id"   
           :isWithInnerSheet="true" 
+          @row-clicked="handleRowClick"
         >   
           <TableRowCellsGroup 
             :tableCells="[
@@ -34,6 +36,7 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations } from 'vuex'
 import axios from "axios"
 import ReconnectingWebSocket from "reconnecting-websocket"
 
@@ -58,6 +61,10 @@ export default {
     }
   },
   computed: {
+    ...mapGetters('cosmos/blocks', [
+      'highlightedBlock',
+      'isTableSheetActive'
+    ]),        
     messagesForTable() {
       if (this.messages.length > 0) {
         return this.messages.map((message) => {
@@ -92,15 +99,36 @@ export default {
       }
     }
   },  
-  // methods: {
-  //   getTimeDifference(timeStamp) {
-  //     const currentTime = new Date().toISOString()
-  //     const inputTimeStamp = new Date(timeStamp).toISOString()
-  //     const timeDiff = currentTime - inputTimeStamp
+  methods: {
+    ...mapMutations('cosmos/blocks', [
+      'setHighlightedBlock',
+      'setTableSheetState'
+    ]),
+    handleRowClick(rowId, rowData) {
+      const setTableRowStore = (isToActive=false, payload) => {
+        const highlightBlockPayload = isToActive ? {
+          id: payload.rowId,
+          data: payload.rowData
+        } : null
+        
+        this.setHighlightedBlock(highlightBlockPayload)
+      }
 
-  //     console.log(Math.floor(timeDiff / 1000))      
-  //   }
-  // },
+      const isActiveRowClicked = this.highlightedBlock.id === rowId
+      
+      if (this.isTableSheetActive) {
+        if (isActiveRowClicked) {
+          this.setTableSheetState(false)
+          setTableRowStore()
+        } else {
+          setTableRowStore(true, { rowId: rowId, rowData: rowData })
+        }
+      } else {
+        this.setTableSheetState(true)
+        setTableRowStore(true, { rowId: rowId, rowData: rowData })
+      }
+    }
+  },
   created() {
     let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {

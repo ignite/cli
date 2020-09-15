@@ -6,7 +6,7 @@
       isWithInnerSheet ? '-is-button' : ''
     ]"
     :role="isWithInnerSheet ? 'button' : ''"
-    @click="handleClick"
+    @click="$emit('row-clicked', rowId, rowData)"
   >
     <slot/>
   </div>
@@ -19,6 +19,7 @@ export default {
   props: {
     rowData: { type: Object },
     rowId: { type: String },
+    isRowActive: { type: Boolean, default: false },
     isWithInnerSheet: { type: Boolean, default: false }
   },
   computed: {
@@ -26,38 +27,6 @@ export default {
       'highlightedBlock',
       'isTableSheetActive'
     ]),    
-    isRowActive() {
-      return this.highlightedBlock.id === this.rowId
-    }
-  },
-  methods: {
-    ...mapMutations('cosmos/blocks', [
-      'setHighlightedBlock',
-      'setTableSheetState'
-    ]),
-    setTableRowStore(isToActive=false, payload) {
-      const highlightBlockPayload = isToActive ? {
-        id: payload.rowId,
-        data: payload.rowData
-      } : null
-      
-      this.setHighlightedBlock(highlightBlockPayload)
-    },
-    handleClick() {
-      const isActiveRowClicked = this.isRowActive
-      
-      if (this.isTableSheetActive) {
-        if (isActiveRowClicked) {
-          this.setTableSheetState(false)
-          this.setTableRowStore()
-        } else {
-          this.setTableRowStore(true, { rowId: this.rowId, rowData: this.rowData })
-        }
-      } else {
-        this.setTableSheetState(true)
-        this.setTableRowStore(true, { rowId: this.rowId, rowData: this.rowData })
-      }
-    }
   }
 }
 </script>
