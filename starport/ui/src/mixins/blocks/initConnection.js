@@ -6,7 +6,8 @@ export default {
   data() {
     return {
       TEMP_ENV: {
-        COSMOS_RPC: 'rpc.nylira.net',
+        STARGATE_RPC: 'localhost:26657',
+        COSMOS_RPC: 'rpc.nylira.net:443',
         LCD: 'localhost:1317'
       }
     }
@@ -18,7 +19,8 @@ export default {
     ...mapActions('cosmos/blocks', [ 'addBlockEntry' ]),
   },
   mounted() {
-    let ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket })
+    // const ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket })
+    const ws = new ReconnectingWebSocket(`ws://${this.TEMP_ENV.STARGATE_RPC}/websocket`)
 
     ws.onopen = function() {
       ws.send(
@@ -33,6 +35,8 @@ export default {
     
     ws.onmessage = (msg) => {
       const { result } = JSON.parse(msg.data)
+
+      // console.log(result)
 
       /* TODO: move block processors into ./helpers mixins */
       if (result.data && result.events) {
@@ -67,7 +71,10 @@ export default {
 
         const blockHolder = {
           height: '',
-          header,
+          header: {
+            ...header,
+            num_txs: header.num_txs ? header.num_txs : txsData.txs.length // temp
+          },
           txs: txsData.txs,
           blockMeta: null,
           txsDecoded: []
