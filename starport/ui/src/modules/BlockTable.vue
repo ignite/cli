@@ -56,10 +56,10 @@ export default {
   },
   data() {
     return {
-      tableGroupId: 'blocks-table',
-      tendermintRootUrl: 'rpc.nylira.net',
-      cosmosRootUrl: 'localhost:1317',
-      messages: [],
+      TEMP_ENV: {
+        COSMOS_RPC: 'rpc.nylira.net',
+        LCD: 'localhost:1317'
+      },
       tableId: 'cosmosBlocksExplorer'
     }
   },
@@ -145,7 +145,7 @@ export default {
     }
   },
   mounted() {
-    let ws = new ReconnectingWebSocket(`wss://${this.tendermintRootUrl}:443/websocket`, [], { WebSocket: WebSocket });
+    let ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket });
     ws.onopen = function() {
       ws.send(
         JSON.stringify({
@@ -163,16 +163,16 @@ export default {
         const { data, events } = result        
         const { data: txsData, header } = data.value.block
 
-        async function fetchBlockMeta() {
+        async function fetchBlockMeta(cosmosUrl) {
           try {
-            return await axios.get(`https://rpc.nylira.net/block?${header.height}`)
+            return await axios.get(`https://${cosmosUrl}/block?${header.height}`)
           } catch (err) {
             console.error(err)
           }
         }
-        async function fetchDecodedTx(txEncoded) {
+        async function fetchDecodedTx(txEncoded, lcdUrl) {
           try {
-            return await axios.post(`http://localhost:1317/txs/decode`, { tx: txEncoded }) 
+            return await axios.post(`http://${lcdUrl}/txs/decode`, { tx: txEncoded }) 
           } catch (err) {
             console.error(txEncoded, err)
           }        
@@ -197,14 +197,13 @@ export default {
           txsDecoded: []
         }
 
-
-        fetchBlockMeta()
+        fetchBlockMeta(this.TEMP_ENV.COSMOS_RPC)
           .then(blockMeta => {
             blockHolder.height = blockMeta.data.result.block_meta.header.height
             blockHolder.blockMeta = blockMeta.data.result.block_meta
 
             if (txsData.txs && txsData.txs.length > 0) {
-              const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded))
+              const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded, this.TEMP_ENV.LCD))
               
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
                 blockHolder.txsDecoded.push(txResolved.data.result)
