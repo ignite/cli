@@ -67,8 +67,9 @@ export default {
     }
   },
   created() {
-    /* TODO: this should probably not be inside of created */
-    this.createTable(this.tableId)
+    if (!this.targetTable(this.tableId)) {
+      this.createTable(this.tableId)
+    }
   }
 }
 </script>

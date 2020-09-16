@@ -4,6 +4,19 @@
   </div>
 </template>
 
+<script>
+import initBlockConnection from '@/mixins/blocks/initConnection'
+
+import Layout from "@/layouts/Layout"
+
+export default {
+  mixins: [initBlockConnection],
+  components: {
+    Layout,
+  }
+};
+</script>
+
 <style>
 body {
   margin: 0;
@@ -19,15 +32,4 @@ button:hover {
 a:visited {
   color: inherit;
 }
-
 </style>
-
-<script>
-import Layout from "@/layouts/Layout";
-
-export default {
-  components: {
-    Layout,
-  },
-};
-</script>

@@ -39,6 +39,8 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
+import blockHelpers from '@/mixins/blocks/helpers'
+
 import axios from "axios"
 import ReconnectingWebSocket from "reconnecting-websocket"
 
@@ -48,6 +50,7 @@ import TableRowCellsGroup from '@/components/table/RowCellsGroup'
 import BlockSheet from '@/modules/BlockSheet'
 
 export default {
+  mixins: [blockFormatter],
   components: {
     TableWrapper,
     TableRowWrapper,    
@@ -56,16 +59,12 @@ export default {
   },
   data() {
     return {
-      TEMP_ENV: {
-        COSMOS_RPC: 'rpc.nylira.net',
-        LCD: 'localhost:1317'
-      },
       tableId: 'cosmosBlocksExplorer'
     }
   },
   computed: {
     ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blockEntries', 'blockByHeight' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blockEntries' ]),
     fmtIsTableSheetActive() {
       return this.isTableSheetActive(this.tableId)
     },    
@@ -73,37 +72,7 @@ export default {
       return this.targetTable(this.tableId)
     },
     messagesForTable() {
-      if (this.blockEntries.length > 0) {
-        return this.blockEntries.map((message) => {
-          const {
-            time,
-            height,
-            proposer_address,
-            num_txs
-          } = message.header
-
-          const {
-            hash
-          } = message.blockMeta.block_id
-
-          return {
-            blockMsg: {
-              time_formatted: time.slice(0,5),
-              time: time,
-              height,
-              proposer: proposer_address.slice(0,5),
-              blockHash_sliced: `${hash.slice(0,30)}...`,
-              blockHash: hash,
-              txs: num_txs          
-            },
-            tableData: {
-              id: height,
-              isActive: false
-            },
-            txs: message.txsDecoded
-          }          
-        })        
-      }
+      return this.$_blockFormatter().blockForTable(this.blockEntries)
     }
   },  
   methods: {
@@ -142,82 +111,6 @@ export default {
     },
     handleSheetClose() {
       this.setHighlightedBlock(null)
-    }
-  },
-  mounted() {
-    let ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket });
-    ws.onopen = function() {
-      ws.send(
-        JSON.stringify({
-          jsonrpc: "2.0",
-          method: "subscribe",
-          id: "1",
-          params: ["tm.event = 'NewBlock'"]
-        })
-      );
-    };
-    ws.onmessage = (msg) => {
-      const { result } = JSON.parse(msg.data)
-
-      if (result.data && result.events) {
-        const { data, events } = result        
-        const { data: txsData, header } = data.value.block
-
-        async function fetchBlockMeta(cosmosUrl) {
-          try {
-            return await axios.get(`https://${cosmosUrl}/block?${header.height}`)
-          } catch (err) {
-            console.error(err)
-          }
-        }
-        async function fetchDecodedTx(txEncoded, lcdUrl) {
-          try {
-            return await axios.post(`http://${lcdUrl}/txs/decode`, { tx: txEncoded }) 
-          } catch (err) {
-            console.error(txEncoded, err)
-          }        
-        }   
-        
-        /* TODO: Proposer address is in HEX format? Decoding API is required? */
-        // async function fetchValidator() {
-        //   try {
-        //     console.log(header)
-        //     return await axios.get(`https://lcd.nylira.net/staking/validators/${header.proposer_address}`)
-        //   } catch (err) {
-        //     console.error(err)
-        //   }   
-        // }
-        // fetchValidator().then(validator => console.log(validator))
-
-        const blockHolder = {
-          height: '',
-          header,
-          txs: txsData.txs,
-          blockMeta: null,
-          txsDecoded: []
-        }
-
-        fetchBlockMeta(this.TEMP_ENV.COSMOS_RPC)
-          .then(blockMeta => {
-            blockHolder.height = blockMeta.data.result.block_meta.header.height
-            blockHolder.blockMeta = blockMeta.data.result.block_meta
-
-            if (txsData.txs && txsData.txs.length > 0) {
-              const txsDecoded = txsData.txs.map(txEncoded => fetchDecodedTx(txEncoded, this.TEMP_ENV.LCD))
-              
-              txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                blockHolder.txsDecoded.push(txResolved.data.result)
-              }))
-            }    
-
-            /* TODO: refactor the WS connection */
-            // this guards duplicated block pushed into vuex for now
-            if (this.blockByHeight(blockHolder.height).length<=0) {
-              this.addBlockEntry(blockHolder)
-            }
-          })
-   
-      }         
     }
   }
 }

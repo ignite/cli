@@ -76,7 +76,7 @@ export default {
      */        
     createTable(state, tableId) {
       if (state.tables.filter(table => table.id === tableId).length>0) {
-        console.error(`TableId ${tableId} has been registered. Please register the table with another tableId.`)
+        console.warn(`TableId ${tableId} has been registered. Please register the table with another tableId.`)
         return 
       }
       
