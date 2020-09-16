@@ -50,7 +50,7 @@ import TableRowCellsGroup from '@/components/table/RowCellsGroup'
 import BlockSheet from '@/modules/BlockSheet'
 
 export default {
-  mixins: [blockFormatter],
+  mixins: [blockHelpers],
   components: {
     TableWrapper,
     TableRowWrapper,    
