@@ -117,7 +117,7 @@ A property that describes your local validator. `name` should be one of the name
 ### Add smart contract support
 
 ```
-starport add wasm
+starport module import wasm
 ```
 
 Adds smart contracts with [CosmWasm](https://docs.cosmwasm.com). Follow a short [smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108) to get started.

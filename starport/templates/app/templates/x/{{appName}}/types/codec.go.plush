@@ -4,17 +4,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 )
 
-// RegisterCodec registers concrete types on codec
-func RegisterCodec(cdc *codec.Codec) {
-  // this line is used by starport scaffolding
+func RegisterCodec(cdc *codec.LegacyAmino) {
 }
 
-// ModuleCdc defines the module codec
-var ModuleCdc *codec.Codec
+var (
+	amino = codec.New()
+)
 
 func init() {
-	ModuleCdc = codec.New()
-	RegisterCodec(ModuleCdc)
-	codec.RegisterCrypto(ModuleCdc)
-	ModuleCdc.Seal()
+	RegisterCodec(amino)
+	amino.Seal()
 }

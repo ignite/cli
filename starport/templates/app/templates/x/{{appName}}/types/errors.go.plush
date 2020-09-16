@@ -1,9 +1,12 @@
 package types
 
+// DONTCOVER
+
 import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+// x/<%= AppName %> module sentinel errors
 var (
-	ErrInvalid = sdkerrors.Register(ModuleName, 1, "custom error message")
+	ErrSample = sdkerrors.Register(ModuleName, 1100, "sample error")
 )
