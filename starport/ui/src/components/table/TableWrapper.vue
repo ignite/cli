@@ -8,15 +8,12 @@
     </div>
 
     <div class="table__wrapper">
-      <!-- inner sheet (for individual block data) -->
-      <div 
-        v-if="containsInnerSheet"
+      <div v-if="containsInnerSheet"
         :class="['table__sheet', fmtIsTableSheetActive ? '-is-active' : '']"
       >
         <slot name="innerSheet"/>
       </div>    
 
-      <!-- main table content -->
       <div :class="['table__head']">
         <RowCells
           :isTableHead="true"
@@ -44,7 +41,7 @@ export default {
   props: {
     tableHeads: { type: Array, required: true },
     tableId: { type: String, required: true },
-    containsInnerSheet: { type: Boolean, default: true }
+    containsInnerSheet: { type: Boolean, default: false }
   },
   computed: {
     ...mapGetters('cosmos', [ 'targetTable', 'isTableSheetActive' ]),

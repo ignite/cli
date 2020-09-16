@@ -2,7 +2,6 @@ const blocks = {
   namespaced: true,
   state: {
     table: {
-      isSheetActive: false,
       highlightedBlock: {
         id: null,
         data: null
@@ -12,7 +11,6 @@ const blocks = {
   },
   getters: {
     highlightedBlock: state => state.table.highlightedBlock,
-    isTableSheetActive: state => state.table.isSheetActive,
     blockEntries: state => state.entries,
     blockByHeight: state => height => state.entries.filter(block => block.height === height)
   },
