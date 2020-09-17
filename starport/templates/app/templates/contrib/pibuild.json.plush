@@ -43,7 +43,7 @@
     },
     {
       "type": "file",
-      "source": "<%= AppName %>/<%= AppName %>d.service",
+      "source": "contrib/<%= AppName %>d.service",
       "destination": "/etc/systemd/system/<%= AppName %>d.service"
     },
     {
