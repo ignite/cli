@@ -1,0 +1,60 @@
+# This is a basic workflow that is manually triggered
+
+name: {{appName}}
+
+# Controls when the action will run. Workflow runs when manually triggered using the UI
+# or API.
+on: [push, pull_request]
+
+
+# This workflow makes a 64 bit Raspberry Pi Ubuntu Server Image.
+# It does not have the security issues mentioned here: https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/running-in-production.md#validator-signing-on-32-bit-architectures-or-arm
+# Later, more devices will be supported, as well.
+
+
+jobs:
+  build:
+    name: {{appName}} Pi Image
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out {{appName}}
+        uses: actions/checkout@v2
+
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Compile {{appName}}
+        run: |
+          go mod vendor
+          mkdir build
+          go build -mod=readonly -o build/{{binaryNamePrefix}}d ./cmd/{{appName}}
+          go build -mod=readonly -o build/{{binaryNamePrefix}}cli ./cmd/{{binaryNamePrefix}}cli
+        env:
+          GOOS: linux
+          GOARCH: arm64
+
+      - name: Upload {{appName}} Arm64 Binaries
+        uses: actions/upload-artifact@v2
+        with:
+          name: {{appName}} arm64
+          path: build/
+
+      - name: Build {{appName}}.img
+        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build {{appName}}/{{appName}}.json
+
+      - name: Install PiShrink
+        run: |
+          wget https://raw.githubusercontent.com/Drewsif/PiShrink/master/pishrink.sh
+          chmod +x pishrink.sh
+          sudo mv pishrink.sh /usr/local/bin
+
+      - name: Shrink gaia.img
+        run: sudo pishrink.sh -a -Z -v {{appName}}.img
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: {{appName}} PI
+          path: {{appName}}.img.xz
