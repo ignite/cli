@@ -1,5 +1,5 @@
 [Unit]
-Description=gaiad
+Description=<%= AppName %>
 Requires=network-online.target
 After=network-online.target
 
