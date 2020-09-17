@@ -65,7 +65,7 @@
         "apt update",
         "apt install -y curl wget jq",
         "chmod +x /usr/bin/<%= AppName %>d",
-        "mkdir -p /<%= AppName %>/config"
+        "mkdir -p /<%= AppName %>/config",
         "systemctl enable <%= AppName %>d"
       ]
     }
