@@ -8,7 +8,7 @@
     "file_target_extension": "xz",
     "file_unarchive_cmd": ["xz", "--decompress", "$ARCHIVE_PATH"],
     "image_build_method": "reuse",
-    "image_path": "gaia.img",
+    "image_path": "<%= AppName %>.img",
     "image_size": "3.1G",
     "image_type": "dos",
     "image_partitions": [
@@ -43,18 +43,18 @@
     },
     {
       "type": "file",
-      "source": "gaia/gaiad.service",
-      "destination": "/etc/systemd/system/gaiad.service"
+      "source": "<%= AppName %>/<%= AppName %>d.service",
+      "destination": "/etc/systemd/system/<%= AppName %>d.service"
     },
     {
       "type": "file",
-      "source": "gaia/gaia/build/gaiad",
-      "destination": "/usr/bin/gaiad"
+      "source": "build/<%= AppName %>d",
+      "destinatiormn": "/usr/bin/<%= AppName %>d"
     },
     {
       "type": "file",
-      "source": "gaia/gaia/build/gaiacli",
-      "destination": "/usr/bin/gaiacli"
+      "source": "build/<%= AppName %>cli",
+      "destination": "/usr/bin/<%= AppName %>cli"
     },
     {
       "type": "shell",
@@ -63,11 +63,10 @@
         "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
         "echo 'nameserver 1.1.1.1' >> /etc/resolv.conf",
         "apt update",
-        "apt install -y curl wget",
-        "mkdir -p /gaia/config",
-        "wget -O /gaia/config/genesis.json https://github.com/desmos-labs/morpheus/raw/master/genesis.json",
-        "chmod +x /usr/bin/gaiad",
-        "systemctl enable gaiad"
+        "apt install -y curl wget jq",
+        "chmod +x /usr/bin/<%= AppName %>d",
+        "mkdir -p /<%= AppName %>/config"
+        "systemctl enable <%= AppName %>d"
       ]
     }
   ],
