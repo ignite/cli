@@ -1,5 +1,10 @@
 # Changelog
 
+### Features:
+
+* Pi Image Generation for chains generated with Starport
+
+
 ## `v0.0.10`
 
 ### Features:
