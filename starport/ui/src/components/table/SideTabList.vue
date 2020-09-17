@@ -45,8 +45,9 @@ p.side-tab-list__content-title {
   padding-bottom: 0.5rem;
   margin-bottom: 0.625rem;
   
-  font-size: 1rem;
+  /* font-size: 1rem; */
   font-weight: 600;
+  color: var(--c-txt-secondary);
 }
 
 </style>

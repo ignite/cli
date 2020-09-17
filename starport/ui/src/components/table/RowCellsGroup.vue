@@ -24,9 +24,15 @@ export default {
 .table__cells {
   display: flex;
 }
-.table__cells.-header {
-  padding-bottom: 0.5rem;
-  border-bottom: 1px solid var(--c-theme-secondary);
+div.table__cells.-header {
+  padding-top: 1.25rem;
+  padding-bottom: 1rem;
+  /* border-bottom: 1px solid var(--c-theme-secondary); */
+  color: var(--c-txt-secondary);
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+}
+div.table__cells:not(.-header) {
   color: var(--c-txt-grey);
 }
 

@@ -15,4 +15,10 @@ export default {
 }
 </script>
 
-<style scoped></style>
+<style scoped>
+
+  div {
+    margin-top: -1.25rem;  
+  }
+
+</style>

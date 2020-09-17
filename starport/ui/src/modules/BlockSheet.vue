@@ -112,23 +112,26 @@ export default {
 .sheet {
   width: 100%;
   height: 100%;
-  background-color: var(--c-bg-primary);
+  background-color: var(--c-bg-third);
   overflow-y: scroll;
-  padding-bottom: 1.5rem;
+  overflow-x: hidden;
+  padding-bottom: 2.5rem;
   box-sizing: border-box;
   
-  border-left: 1px solid var(--c-theme-secondary);
-  box-shadow: -2px 0 6px rgba(0,0,0,.05);
+  /* border-left: 1px solid var(--c-theme-secondary); */
+  /* box-shadow: -2px 0 6px rgba(0,0,0,.05); */
+  border-radius: 8px;
+  color: var(--c-txt-grey);
 }
 .sheet::-webkit-scrollbar { /* width */
   width: 6px;
 }
 .sheet::-webkit-scrollbar-track { /* Track */
-  box-shadow: inset 0 0 1px var(--c-bg-grey); 
-  background: var(--c-bg-secondary); 
+  /* box-shadow: inset 0 0 1px var(--c-bg-grey);  */
+  background: var(--c-bg-third); 
 }
 .sheet::-webkit-scrollbar-thumb { /* Handle */
-  background: var(--c-bg-grey); 
+  background: var(--c-bg-secondary); 
   border-radius: 10px;
 }
 .sheet::-webkit-scrollbar-thumb:hover { /* Handle on hover */
@@ -139,23 +142,26 @@ export default {
 .sheet__sub {
   position: relative;
 }
+.sheet__sub {
+  margin-left: 4px;
+}
 .sheet .-container {
-  padding-left: 1rem;
-  padding-right: 1rem;
+  padding-left: 2rem;
+  padding-right: 2rem;
 }
 .sheet .-border-btm:after {
   content: '';
   position: absolute;
   bottom: 0;
-  left: 1rem;
-  width: calc(100% - 2rem);
+  left: 1.5rem;
+  width: calc(100% - 3.5rem);
   height: 1px;
   background-color: var(--c-theme-secondary);
 }
 
 .sheet .sheet__top {
-  padding-top: 0.8rem;
-  padding-bottom: 0.8rem;
+  padding-top: 1.25rem;
+  padding-bottom: 1rem;
 }
 .sheet .sheet__sub {
   padding-top: 1rem;
@@ -166,7 +172,8 @@ export default {
 }
 
 .sheet__heading {
-  font-size: 1rem;
+  font-size: 1.25rem;
+  color: var(--c-txt-primary);
 }
 
 /* cards__container */
@@ -174,13 +181,17 @@ export default {
   margin-bottom: 1rem;
 }
 .cards-container__label {
-  font-size: 0.9375rem;
-  color: var(--c-txt-grey);
+  font-size: 0.875rem;
+  color: var(--c-txt-primary);
+  font-weight: 500;
+  margin-left: 4px;
 }
 .cards-container__card {
-  padding: 1rem 1.25rem 1.5rem 1.25rem;
-  border: 1px solid var(--c-theme-secondary);
-  box-shadow: -2px 0 6px rgba(0,0,0,.05);
+  padding: 1.5rem 1.5rem 2rem 1.5rem;
+  /* border: 1px solid var(--c-theme-secondary); */
+  /* box-shadow: -2px 0 6px rgba(0,0,0,.05); */
+  background-color: var(--c-bg-primary);
+  border-radius: 8px;
 }
 .cards-container__card:not(:last-child) {
   margin-bottom: 1rem;

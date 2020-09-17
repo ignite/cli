@@ -118,9 +118,13 @@ export default {
 
 <style scoped>
 
+.temp {
+  margin-top: 1.5rem;
+}
+
 .table-wrapper {
-  max-height: 80vh;
-  height: 80vh;
+  max-height: 86vh;
+  height: 86vh;
 }
 
 </style>
