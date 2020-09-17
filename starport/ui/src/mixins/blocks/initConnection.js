@@ -6,8 +6,8 @@ export default {
   data() {
     return {
       TEMP_ENV: {
-        STARGATE_RPC: 'localhost:26657',
-        COSMOS_RPC: 'rpc.nylira.net:443',
+        // COSMOS_RPC: 'rpc.nylira.net',
+        COSMOS_RPC: 'localhost:26657',
         LCD: 'localhost:1317'
       }
     }
@@ -19,8 +19,8 @@ export default {
     ...mapActions('cosmos/blocks', [ 'addBlockEntry' ]),
   },
   mounted() {
-    // const ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket })
-    const ws = new ReconnectingWebSocket(`ws://${this.TEMP_ENV.STARGATE_RPC}/websocket`)
+    // let ws = new ReconnectingWebSocket(`wss://${this.TEMP_ENV.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket })
+    const ws = new ReconnectingWebSocket(`ws://${this.TEMP_ENV.COSMOS_RPC}/websocket`)
 
     ws.onopen = function() {
       ws.send(
@@ -45,7 +45,8 @@ export default {
 
         async function fetchBlockMeta(cosmosUrl) {
           try {
-            return await axios.get(`https://${cosmosUrl}/block?${header.height}`)
+            return await axios.get(`http://${cosmosUrl}/block?${header.height}`)
+            // return await axios.get(`https://${cosmosUrl}/block?${header.height}`)
           } catch (err) {
             console.error(err)
           }

@@ -81,7 +81,7 @@ export default {
 }
 
 .texts-field {
-  max-width: 796px;
+  max-width: 850px;
 }
 .texts-field p {
   font-size: 1.125rem;
@@ -116,14 +116,14 @@ export default {
 }
 .texts-field code {
   display: inline-block;
-  background: var(--c-bg-secondary);
+  background: var(--c-bg-third);
   padding: 1.5rem 1.85rem;
 }
 .texts-field code + a {
   margin-left: 2rem;
 }
 .texts-field .card {
-  background: var(--c-bg-secondary);
+  background: var(--c-bg-third);
   padding: 1.125rem 1.25rem;
   box-sizing: border-box;
   display: flex;

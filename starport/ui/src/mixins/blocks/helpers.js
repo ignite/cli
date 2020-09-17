@@ -1,3 +1,5 @@
+import moment from 'moment'
+
 export default {
   methods: {
     $_blockFormatter() {
@@ -22,10 +24,10 @@ export default {
 
               return {
                 blockMsg: {
-                  time_formatted: time.slice(0,5),
+                  time_formatted: moment(time).fromNow(true),
                   time: time,
                   height,
-                  proposer: proposer_address.slice(0,5),
+                  proposer: `${proposer_address.slice(0,10)}...`,
                   blockHash_sliced: `${hash.slice(0,30)}...`,
                   blockHash: hash,
                   txs: num_txs          

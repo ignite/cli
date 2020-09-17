@@ -27,14 +27,22 @@ export default {
 
 <style scoped>
 
+.table__row {
+  border-radius: 8px;
+  font-size: 0.9rem;
+}
 .table__row.-is-active {
-  background-color: var(--c-bg-secondary);
+  background-color: var(--c-bg-primary);
+}
+.table__row.-is-active >>> .table__cells {
+  color: var(--c-txt-primary);
+  font-weight: 500;
 }
 .table__row.-is-button {
   cursor: pointer;
 }
 .table__row:hover {
-  background-color: var(--c-bg-secondary);
+  background-color: var(--c-bg-primary);
   transition: background-color .3s;
 }
 .table__row { transition: background-color .3s; }

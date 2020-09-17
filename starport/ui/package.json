@@ -9,6 +9,7 @@
   "dependencies": {
     "axios": "^0.19.2",
     "core-js": "^3.6.5",
+    "moment": "^2.28.0",
     "reconnecting-websocket": "^4.4.0",
     "vue": "^2.6.11",
     "vue-json-pretty": "^1.6.3",

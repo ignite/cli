@@ -29,20 +29,33 @@ nav {
   top: 0;
 }
 
+.nav__main {
+  margin-top: -1rem;
+}
+
 .tabs__item {
   display: block;
   text-decoration: none;
 
-  font-size: 1.5rem;
-  font-weight: 400;
-  color: var(--c-txt-secondary);
+  font-size: 1.25rem;
+  font-weight: 300;
+  color: var(--c-txt-grey);
+
+  padding: 0.85rem 0 0.85rem 1.5rem;
+  border-radius: 8px;
+  transition: background-color .3s;
+}
+.tabs__item:hover {
+  background-color: var(--c-bg-third);
+  transition: background-color .3s;
 }
 .tabs__item:not(:last-child) {
-  margin-bottom: 1rem;
+  margin-bottom: 0.5rem;
 }
 .tabs__item.router-link-exact-active {
   font-weight: 600;
-  color: var(--c-txt-primary);
+  color: var(--c-txt-secondary);
+  background-color: var(--c-bg-third);
 }
 
 </style>
