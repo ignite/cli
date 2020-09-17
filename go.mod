@@ -5,7 +5,6 @@ go 1.14
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/bmizerany/assert v0.0.0-20160611221934-b7ed37b82869 // indirect
-	github.com/cosmos/cosmos-sdk v0.39.1
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/genny v0.6.0
