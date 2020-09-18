@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 	"os"
 	"path/filepath"
 	"time"
@@ -12,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -103,6 +105,12 @@ func (s *Scaffolder) protoc(absRoot string) error {
 					"get",
 					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
 				),
+				step.PreExec(func() error {
+					if !xexec.IsCommandAvailable("protoc") {
+						return errors.New("protoc needs to be avaiable in your system. please check: https://grpc.io/docs/protoc-installation")
+					}
+					return nil
+				}),
 			),
 			// generate pb files.
 			step.New(
