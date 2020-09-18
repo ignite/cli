@@ -98,7 +98,7 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		return s.watchAppFrontend(ctx)
 	})
 	g.Go(func() error {
-		return s.runDevServer(ctx)
+		return s.runDevServer(ctx, s.plugin.Name())
 	})
 	g.Go(func() error {
 		s.refreshServe()
@@ -449,8 +449,9 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *starportServe) runDevServer(ctx context.Context) error {
+func (s *starportServe) runDevServer(ctx context.Context, sdkVersion string) error {
 	conf := Config{
+		SdkVersion:      sdkVersion,
 		EngineAddr:      "http://localhost:26657",
 		AppBackendAddr:  "http://localhost:1317",
 		AppFrontendAddr: "http://localhost:8080",
