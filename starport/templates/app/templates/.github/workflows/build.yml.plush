@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        arch: arm64, riscv64, amd64
+        arch: [arm64, riscv64, amd64]
     name: <%= AppName %> for ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2

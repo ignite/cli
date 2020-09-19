@@ -14,3 +14,7 @@ curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash
 chmod +x /usr/bin/<%= AppName %>d /usr/bin/<%= AppName %>cli
 mkdir -p /<%= AppName %>/config
 systemctl enable <%= AppName %>d
+export NVM_DIR="$HOME/.nvm"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"
+nvm i node

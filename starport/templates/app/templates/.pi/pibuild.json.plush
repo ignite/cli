@@ -74,15 +74,9 @@
     {
       "type": "shell",
       "inline": [
-        "bash /tmp/image.bash"
-      ]
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "nvm i node",
+        "bash /tmp/image.bash",
         "rm /tmp/zt-gpg-key /tmp/image.bash"
-          ]
+      ]
     }
   ],
   "post-processors": []
