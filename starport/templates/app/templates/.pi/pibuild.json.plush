@@ -74,7 +74,7 @@
     {
       "type": "shell",
       "inline": [
-        "bash image.bash"
+        "bash /tmp/image.bash"
       ]
     },
     {
