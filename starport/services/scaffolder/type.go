@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -49,7 +50,11 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 			Datatype: datatype,
 		})
 	}
-	g, _ := typed.New(&typed.Options{
+	version, err := cosmosver.Detect(s.path)
+	if err != nil {
+		return err
+	}
+	g, _ := typed.New(string(version), &typed.Options{
 		ModulePath: path.RawPath,
 		AppName:    path.Package,
 		TypeName:   stype,
@@ -59,6 +64,7 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	run.With(g)
 	return run.Run()
 }
+
 func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, "x", appName, "types"))
 	if err != nil {

@@ -15,6 +15,7 @@ func NewType() *cobra.Command {
 		RunE:  typeHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	addSdkVersionFlag(c)
 	return c
 }
 
