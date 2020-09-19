@@ -20,13 +20,7 @@ func NewType() *cobra.Command {
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
-	version, err := sdkVersion(cmd)
-	if err != nil {
-		return err
-	}
-	sc := scaffolder.New(appPath,
-		scaffolder.SdkVersion(version),
-	)
+	sc := scaffolder.New(appPath)
 	if err := sc.AddType(args[0], args[1:]...); err != nil {
 		return err
 	}
