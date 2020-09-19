@@ -20,6 +20,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/imdario/mergo"
+	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -472,10 +473,15 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appd,
-			"collect-gentxs",
-		)).
+		Add(
+			step.Exec(
+				appd,
+				"collect-gentxs",
+			),
+			step.PostExec(func(error) error {
+				return s.configtoml(ndappd)
+			}),
+		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
 	return
@@ -625,4 +631,25 @@ func (e *CannotBuildAppError) Error() string {
 
 func (e *CannotBuildAppError) Unwrap() error {
 	return e.Err
+}
+
+func (s *starportServe) configtoml(appnd string) error {
+	// TODO find a better way in order to not delete comments in the toml.yml
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(home, "."+appnd, "config/config.toml")
+	config, err := toml.LoadFile(path)
+	if err != nil {
+		return err
+	}
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+	return err
 }

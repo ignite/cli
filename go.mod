@@ -17,6 +17,7 @@ require (
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
 	github.com/imdario/mergo v0.3.11
 	github.com/karrick/godirwalk v1.16.1 // indirect
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
