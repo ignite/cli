@@ -42,7 +42,7 @@ jobs:
           path: build/
 
       - name: Build <%= AppName %>.img
-        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build contrib/pibuild.json
+        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/pibuild.json
 
       - name: Install PiShrink
         run: |

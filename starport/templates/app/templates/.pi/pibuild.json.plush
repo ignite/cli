@@ -43,13 +43,18 @@
     },
     {
       "type": "file",
-      "source": "contrib/<%= AppName %>d.service",
+      "source": ".pi/<%= AppName %>d.service",
       "destination": "/etc/systemd/system/<%= AppName %>d.service"
     },
     {
       "type": "file",
-      "source": "contrib/zt-gpg-key",
+      "source": ".pi/zt-gpg-key",
       "destination": "/tmp/zt-gpg-key"
+    },
+    {
+      "type": "file",
+      "source": ".pi/image.bash",
+      "destination": "/tmp/image.bash"
     },
     {
       "type": "file",
@@ -69,23 +74,14 @@
     {
       "type": "shell",
       "inline": [
-        "mv /etc/resolv.conf /etc/resolv.conf.bk",
-        "echo "deb https://download.zerotier.com/debian/buster buster main" >/etc/apt/sources.list.d/zerotier.list",
-        "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
-        "echo 'nameserver 1.1.1.1' >> /etc/resolv.conf",
-        "apt-key add /tmp/zt-gpg-key",
-        "apt update",
-        "apt install -y curl wget jq zerotier-one",
-        "curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.35.3/install.sh | bash",
-        "chmod +x /usr/bin/<%= AppName %>d",
-        "mkdir -p /<%= AppName %>/config",
-        "systemctl enable <%= AppName %>d"
+        bash image.bash
       ]
     },
     {
       "type": "shell",
       "inline": [
-        "nvm i node"
+        "nvm i node",
+        "rm /tmp/zt-gpg-key /tmp/image.bash"
           ]
     }
   ],
