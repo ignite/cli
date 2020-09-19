@@ -17,14 +17,22 @@ func NewApp() *cobra.Command {
 		RunE:  appHandler,
 	}
 	c.Flags().String("address-prefix", "cosmos", "Address prefix")
+	addSdkVersionFlag(c)
 	return c
 }
 
 func appHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
-	sc := scaffolder.New("")
-	path, err := sc.Init(name, scaffolder.AddressPrefix(addressPrefix))
+	version, err := sdkVersion(cmd)
+	if err != nil {
+		return err
+	}
+	sc := scaffolder.New("",
+		scaffolder.AddressPrefix(addressPrefix),
+		scaffolder.SdkVersion(version),
+	)
+	path, err := sc.Init(name)
 	if err != nil {
 		return err
 	}

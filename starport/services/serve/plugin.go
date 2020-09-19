@@ -2,10 +2,9 @@ package starportserve
 
 import (
 	"context"
-	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
@@ -47,45 +46,15 @@ type Plugin interface {
 	GenesisPath() string
 }
 
-type CosmosMajorVersion int
-
-const (
-	Launchpad CosmosMajorVersion = iota
-	Stargate
-)
-
-const (
-	tendermintPath                = "github.com/tendermint/tendermint"
-	cosmosStargateTendermintMajor = "v0.34.0"
-)
-
-// detectCosmos dedects major version of Cosmos.
-func (s *starportServe) detectCosmos() (CosmosMajorVersion, error) {
-	parsed, err := gomodule.ParseAt(s.app.Path)
-	if err != nil {
-		return 0, err
-	}
-	for _, r := range parsed.Require {
-		v := r.Mod
-		if v.Path == tendermintPath {
-			if strings.HasPrefix(v.Version, cosmosStargateTendermintMajor) {
-				return Stargate, nil
-			}
-			break
-		}
-	}
-	return Launchpad, nil
-}
-
 func (s *starportServe) pickPlugin() (Plugin, error) {
-	version, err := s.detectCosmos()
+	version, err := cosmosver.Detect(s.app.Path)
 	if err != nil {
 		return nil, err
 	}
 	switch version {
-	case Launchpad:
+	case cosmosver.Launchpad:
 		return newLaunchpadPlugin(s.app), nil
-	case Stargate:
+	case cosmosver.Stargate:
 		return newStargatePlugin(s.app), nil
 	}
 	panic("unknown cosmos version")

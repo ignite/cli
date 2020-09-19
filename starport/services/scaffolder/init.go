@@ -22,37 +22,18 @@ var (
 	}
 )
 
-// InitOption configures scaffolding.
-type InitOption func(*initOptions)
-
-// initOptions keeps set of options to apply scaffolding.
-type initOptions struct {
-	addressPrefix string
-}
-
-// AddressPrefix configures address prefix for the app.
-func AddressPrefix(prefix string) InitOption {
-	return func(o *initOptions) {
-		o.addressPrefix = prefix
-	}
-}
-
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err error) {
-	opts := &initOptions{}
-	for _, o := range options {
-		o(opts)
-	}
+func (s *Scaffolder) Init(name string) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
-	g, err := app.New(&app.Options{
+	g, err := app.New(string(s.options.sdkVersion), &app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		BinaryNamePrefix: pathInfo.Root,
-		AddressPrefix:    opts.addressPrefix,
+		AddressPrefix:    s.options.addressPrefix,
 	})
 	if err != nil {
 		return "", err

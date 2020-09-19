@@ -15,11 +15,18 @@ func NewType() *cobra.Command {
 		RunE:  typeHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	addSdkVersionFlag(c)
 	return c
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
-	sc := scaffolder.New(appPath)
+	version, err := sdkVersion(cmd)
+	if err != nil {
+		return err
+	}
+	sc := scaffolder.New(appPath,
+		scaffolder.SdkVersion(version),
+	)
 	if err := sc.AddType(args[0], args[1:]...); err != nil {
 		return err
 	}

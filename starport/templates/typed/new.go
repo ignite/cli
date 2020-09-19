@@ -11,7 +11,7 @@ import (
 )
 
 // New ...
-func New(opts *Options) (*genny.Generator, error) {
+func New(sdkVersion string, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(handlerModify(opts))
 	g.RunFn(typesKeyModify(opts))
@@ -22,7 +22,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	g.RunFn((keeperQuerierModify(opts)))
 	g.RunFn((clientRestRestModify(opts)))
 	g.RunFn((frontendSrcStoreAppModify(opts)))
-	if err := g.Box(packr.New("typed/templates", "./templates")); err != nil {
+	if err := g.Box(packr.New("typed/templates", sdkVersion)); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
