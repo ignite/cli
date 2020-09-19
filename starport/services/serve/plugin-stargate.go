@@ -79,6 +79,13 @@ func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
 }
 
 func (p *stargatePlugin) PostInit() error {
+	if err := p.apptoml(); err != nil {
+		return err
+	}
+	return p.configtoml()
+}
+
+func (p *stargatePlugin) apptoml() error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -91,6 +98,28 @@ func (p *stargatePlugin) PostInit() error {
 	}
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+	return err
+}
+
+func (p *stargatePlugin) configtoml() error {
+	// TODO find a better way in order to not delete comments in the toml.yml
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	path := filepath.Join(home, p.app.nd(), "config/config.toml")
+	config, err := toml.LoadFile(path)
+	if err != nil {
+		return err
+	}
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
