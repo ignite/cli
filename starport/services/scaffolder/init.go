@@ -107,7 +107,7 @@ func (s *Scaffolder) protoc(absRoot string) error {
 				),
 				step.PreExec(func() error {
 					if !xexec.IsCommandAvailable("protoc") {
-						return errors.New("protoc needs to be avaiable in your system. please check: https://grpc.io/docs/protoc-installation")
+						return errors.New("Starport requires protoc installed.\nPlease, follow instructions on https://grpc.io/docs/protoc-installation")
 					}
 					return nil
 				}),
