@@ -57,6 +57,11 @@
       "destination": "/usr/bin/<%= AppName %>cli"
     },
     {
+          "type": "file",
+          "source": "vue/",
+          "destination": "vue/"
+    },
+    {
       "type": "shell",
       "inline": [
         "mv /etc/resolv.conf /etc/resolv.conf.bk",
@@ -76,7 +81,7 @@
       "inline": [
         "npm i node"
           ]
-    },
+    }
   ],
   "post-processors": []
 }
