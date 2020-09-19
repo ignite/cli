@@ -8,6 +8,10 @@ Overview: https://www.youtube.com/watch?v=rmbPjCGDXek
 
 ## Install
 
+### In browser
+
+➡️ Check out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in browser-based IDE</a>. Fastest way to get started! `starport` binary is already installed, just create an application and start hacking!
+
 ### NPM
 
 ```
