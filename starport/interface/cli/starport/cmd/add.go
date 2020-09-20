@@ -27,7 +27,7 @@ validArgs := []string{ "wasm" }
 
 	c := &cobra.Command{
 		Use:   "add [feature]",
-		Short: "Adds features like wasm sto your blockchain",
+		Short: "Adds features like wasm to your blockchain",
 		Long: "Use starport add wasm to add support for webassembly smart contracts to your blockchain.",
 		Args:  cobra.ExactValidArgs(1),
 		ValidArgs: validArgs,
