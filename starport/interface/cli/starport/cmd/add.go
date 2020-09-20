@@ -25,6 +25,7 @@ func NewAdd() *cobra.Command {
 		Use:   "add [feature]",
 		Short: "Adds a feature to a project.",
 		Args:  cobra.MinimumNArgs(1),
+		ValidArgs: []string{"wasm"},
 		RunE:  addHandler,
 	}
 	return c
