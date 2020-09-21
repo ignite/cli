@@ -451,6 +451,7 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
 	conf := Config{
+		SdkVersion:      s.plugin.Name(),
 		EngineAddr:      "http://localhost:26657",
 		AppBackendAddr:  "http://localhost:1317",
 		AppFrontendAddr: "http://localhost:8080",

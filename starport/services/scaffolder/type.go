@@ -54,15 +54,34 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	if err != nil {
 		return err
 	}
-	g, _ := typed.New(string(version), &typed.Options{
-		ModulePath: path.RawPath,
-		AppName:    path.Package,
-		TypeName:   stype,
-		Fields:     tfields,
-	})
+
+	var (
+		g    *genny.Generator
+		opts = &typed.Options{
+			ModulePath: path.RawPath,
+			AppName:    path.Package,
+			TypeName:   stype,
+			Fields:     tfields,
+		}
+	)
+	if version == cosmosver.Launchpad {
+		g, err = typed.NewLaunchpad(opts)
+	} else {
+		g, err = typed.NewStargate(opts)
+	}
+	if err != nil {
+		return err
+	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	return run.Run()
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return s.protoc(pwd, version)
 }
 
 func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error) {
@@ -85,7 +104,7 @@ func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error
 				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
 					return true
 				}
-				if strings.Title(typeName) != typeSpec.Name.Name {
+				if "Msg"+strings.Title(typeName) != typeSpec.Name.Name {
 					return true
 				}
 				isCreated = true

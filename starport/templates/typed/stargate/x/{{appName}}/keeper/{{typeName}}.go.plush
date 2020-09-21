@@ -3,25 +3,26 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= AppName %>/types"
-  "github.com/cosmos/cosmos-sdk/codec"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
-func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
-	store := ctx.KVStore(k.storeKey)
-	key := []byte(types.<%= title(TypeName) %>Prefix + <%= TypeName %>.ID)
-	value := k.cdc.MustMarshalBinaryLengthPrefixed(<%= TypeName %>)
-	store.Set(key, value)
+func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.Msg<%= title(TypeName) %>) {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
+	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key), b)
 }
 
-func list<%= title(TypeName) %>(ctx sdk.Context, k Keeper) ([]byte, error) {
-  var <%= TypeName %>List []types.<%= title(TypeName) %>
-  store := ctx.KVStore(k.storeKey)
-  iterator := sdk.KVStorePrefixIterator(store, []byte(types.<%= title(TypeName) %>Prefix))
-  for ; iterator.Valid(); iterator.Next() {
-    var <%= TypeName %> types.<%= title(TypeName) %>
-    k.cdc.MustUnmarshalBinaryLengthPrefixed(store.Get(iterator.Key()), &<%= TypeName %>)
-    <%= TypeName %>List = append(<%= TypeName %>List, <%= TypeName %>)
-  }
-  res := codec.MustMarshalJSONIndent(k.cdc, <%= TypeName %>List)
-  return res, nil
+func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (msgs []types.Msg<%= title(TypeName) %>) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var msg types.Msg<%= title(TypeName) %>
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
+        msgs = append(msgs, msg)
+	}
+
+    return
 }

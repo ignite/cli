@@ -3,12 +3,18 @@ package rest
 import (
 	"net/http"
 
-	"github.com/cosmos/cosmos-sdk/client/context"
-	"github.com/cosmos/cosmos-sdk/types/rest"
-	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+    "github.com/gorilla/mux"
+
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/rest"
 	"<%= ModulePath %>/x/<%= AppName %>/types"
 )
+
+func registerTxHandlers(clientCtx client.Context, r *mux.Router) {
+    r.HandleFunc("/<%= AppName %>/<%= TypeName %>", create<%= title(TypeName) %>Handler(clientCtx)).Methods("POST")
+}
 
 type create<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
@@ -17,23 +23,26 @@ type create<%= title(TypeName) %>Request struct {
 	<% } %>
 }
 
-func create<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFunc {
+func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		var req create<%= title(TypeName) %>Request
-		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
 		}
+
 		baseReq := req.BaseReq.Sanitize()
 		if !baseReq.ValidateBasic(w) {
 			return
 		}
+
 		creator, err := sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreate<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
-		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
+
+		msg := types.NewMsg<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }

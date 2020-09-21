@@ -7,7 +7,7 @@ import (
 	"github.com/spf13/cobra"
 
 	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
+	// "github.com/cosmos/cosmos-sdk/client/flags"
 	// sdk "github.com/cosmos/cosmos-sdk/types"
 
 	"<%= ModulePath %>/x/<%= AppName %>/types"
@@ -16,7 +16,7 @@ import (
 // GetQueryCmd returns the cli query commands for this module
 func GetQueryCmd(queryRoute string) *cobra.Command {
 	// Group <%= AppName %> queries under a subcommand
-	<%= AppName %>QueryCmd := &cobra.Command{
+	cmd := &cobra.Command{
 		Use:                        types.ModuleName,
 		Short:                      fmt.Sprintf("Querying commands for the %s module", types.ModuleName),
 		DisableFlagParsing:         true,
@@ -24,8 +24,8 @@ func GetQueryCmd(queryRoute string) *cobra.Command {
 		RunE:                       client.ValidateCmd,
 	}
 
-    flags.AddQueryFlagsToCmd(<%= AppName %>QueryCmd)
+    // this line is used by starport scaffolding
 
-	return <%= AppName %>QueryCmd
+	return cmd 
 }
 

@@ -28,9 +28,10 @@ type statusResponse struct {
 
 // serviceStatus holds the availibity status of http services.
 type serviceStatus struct {
-	IsConsensusEngineAlive bool `json:"is_consensus_engine_alive"`
-	IsMyAppBackendAlive    bool `json:"is_my_app_backend_alive"`
-	IsMyAppFrontendAlive   bool `json:"is_my_app_frontend_alive"`
+	SdkVersion             string `json:"sdk_version"`
+	IsConsensusEngineAlive bool   `json:"is_consensus_engine_alive"`
+	IsMyAppBackendAlive    bool   `json:"is_my_app_backend_alive"`
+	IsMyAppFrontendAlive   bool   `json:"is_my_app_frontend_alive"`
 }
 
 // env holds info about development environment.
@@ -49,6 +50,7 @@ type development struct {
 
 // Config used to configure development handler.
 type Config struct {
+	SdkVersion      string
 	EngineAddr      string
 	AppBackendAddr  string
 	AppFrontendAddr string
@@ -103,6 +105,7 @@ func (d *development) statusHandler() http.Handler {
 		resp := statusResponse{
 			Env: d.env(),
 			Status: serviceStatus{
+				SdkVersion:             d.conf.SdkVersion,
 				IsConsensusEngineAlive: engineStatus,
 				IsMyAppBackendAlive:    appBackendStatus,
 				IsMyAppFrontendAlive:   appFrontendStatus,

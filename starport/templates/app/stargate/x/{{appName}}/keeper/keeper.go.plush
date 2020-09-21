@@ -12,13 +12,13 @@ import (
 
 type (
 	Keeper struct {
-		cdc      codec.BinaryMarshaler
+		cdc      codec.Marshaler
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 	}
 )
 
-func NewKeeper(cdc codec.BinaryMarshaler, storeKey, memKey sdk.StoreKey) *Keeper {
+func NewKeeper(cdc codec.Marshaler, storeKey, memKey sdk.StoreKey) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
@@ -26,6 +26,6 @@ func NewKeeper(cdc codec.BinaryMarshaler, storeKey, memKey sdk.StoreKey) *Keeper
 	}
 }
 
-func logger(ctx sdk.Context) log.Logger {
+func (k Keeper) Logger(ctx sdk.Context) log.Logger {
 	return ctx.Logger().With("module", fmt.Sprintf("x/%s", types.ModuleName))
 }

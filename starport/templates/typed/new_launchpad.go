@@ -5,53 +5,29 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
-// New ...
-func New(sdkVersion string, opts *Options) (*genny.Generator, error) {
-	g := genny.New()
-	g.RunFn(handlerModify(opts))
-	g.RunFn(typesKeyModify(opts))
-	g.RunFn((typesCodecModify(opts)))
-	g.RunFn((clientCliTxModify(opts)))
-	g.RunFn((clientCliQueryModify(opts)))
-	g.RunFn((typesQuerierModify(opts)))
-	g.RunFn((keeperQuerierModify(opts)))
-	g.RunFn((clientRestRestModify(opts)))
-	g.RunFn((frontendSrcStoreAppModify(opts)))
-	if err := g.Box(packr.New("typed/templates", sdkVersion)); err != nil {
-		return g, err
-	}
-	ctx := plush.NewContext()
-	ctx.Set("AppName", opts.AppName)
-	ctx.Set("TypeName", opts.TypeName)
-	ctx.Set("ModulePath", opts.ModulePath)
-	ctx.Set("Fields", opts.Fields)
-	ctx.Set("title", strings.Title)
-	ctx.Set("strconv", func() bool {
-		strconv := false
-		for _, field := range opts.Fields {
-			if field.Datatype != "string" {
-				strconv = true
-			}
-		}
-		return strconv
-	})
-	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
-	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
-	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
-	return g, nil
+type typedLaunchpad struct {
 }
 
-const placeholder = "// this line is used by starport scaffolding"
-const placeholder2 = "// this line is used by starport scaffolding # 2"
-const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
+// New ...
+func NewLaunchpad(opts *Options) (*genny.Generator, error) {
+	t := typedLaunchpad{}
+	g := genny.New()
+	g.RunFn(t.handlerModify(opts))
+	g.RunFn(t.typesKeyModify(opts))
+	g.RunFn(t.typesCodecModify(opts))
+	g.RunFn(t.clientCliTxModify(opts))
+	g.RunFn(t.clientCliQueryModify(opts))
+	g.RunFn(t.typesQuerierModify(opts))
+	g.RunFn(t.keeperQuerierModify(opts))
+	g.RunFn(t.clientRestRestModify(opts))
+	g.RunFn(frontendSrcStoreAppModify(opts))
+	return g, box(string(cosmosver.Launchpad), opts, g)
+}
 
-func handlerModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/handler.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -68,7 +44,7 @@ func handlerModify(opts *Options) genny.RunFn {
 	}
 }
 
-func typesKeyModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) typesKeyModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/key.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -85,7 +61,7 @@ const (
 	}
 }
 
-func typesCodecModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -101,7 +77,7 @@ func typesCodecModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientCliTxModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) clientCliTxModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -117,7 +93,7 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientCliQueryModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) clientCliQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -133,7 +109,7 @@ func clientCliQueryModify(opts *Options) genny.RunFn {
 	}
 }
 
-func typesQuerierModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) typesQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/querier.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -149,7 +125,7 @@ const (QueryList%[2]v = "list-%[1]v")
 	}
 }
 
-func keeperQuerierModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) keeperQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/keeper/querier.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -175,7 +151,7 @@ func keeperQuerierModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientRestRestModify(opts *Options) genny.RunFn {
+func (t *typedLaunchpad) clientRestRestModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -186,25 +162,6 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 	r.HandleFunc("/%[2]v/%[4]v", list%[3]vHandler(cliCtx, "%[2]v")).Methods("GET")
 	r.HandleFunc("/%[2]v/%[4]v", create%[3]vHandler(cliCtx)).Methods("POST")`
 		replacement := fmt.Sprintf(template, placeholder, opts.AppName, strings.Title(opts.TypeName), opts.TypeName)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := "vue/src/store/app.js"
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		fields := ""
-		for _, field := range opts.Fields {
-			fields += fmt.Sprintf(`"%[1]v", `, field.Name)
-		}
-		replacement := fmt.Sprintf(`%[1]v
-		{ type: "%[2]v", fields: [%[3]v] },`, placeholder, opts.TypeName, fields)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
