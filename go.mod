@@ -17,6 +17,7 @@ require (
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
 	github.com/imdario/mergo v0.3.11
 	github.com/karrick/godirwalk v1.16.1 // indirect
+	github.com/pelletier/go-toml v1.2.0
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
@@ -31,6 +32,6 @@ require (
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
-	golang.org/x/sys v0.0.0-20200918174421-af09f7315aff // indirect
+	golang.org/x/sys v0.0.0-20200917073148-efd3b9a0ff20 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
