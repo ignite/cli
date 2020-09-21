@@ -5,59 +5,51 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
-	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
-const placeholder = "// this line is used by starport scaffolding"
-const placeholder2 = "// this line is used by starport scaffolding # 2"
-const placeholder3 = "// this line is used by starport scaffolding # 3"
-const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
-
-// New ...
-func New(opts *Options) (*genny.Generator, error) {
-	g := genny.New()
-	g.RunFn(handlerModify(opts))
-	g.RunFn(typesKeyModify(opts))
-	g.RunFn(typesCodecModify(opts))
-	g.RunFn(typesCodecImportModify(opts))
-	g.RunFn(typesCodecInterfaceModify(opts))
-	g.RunFn(protoRPCImportModify(opts))
-	g.RunFn(protoRPCModify(opts))
-	g.RunFn(protoRPCMessageModify(opts))
-	g.RunFn(clientCliTxModify(opts))
-	g.RunFn(clientCliQueryModify(opts))
-	g.RunFn((typesQuerierModify(opts)))
-	g.RunFn(keeperQuerierModify(opts))
-	g.RunFn(clientRestRestModify(opts))
-	g.RunFn(frontendSrcStoreAppModify(opts))
-	if err := g.Box(packr.New("typed/templates", "./templates")); err != nil {
-		return g, err
-	}
-	ctx := plush.NewContext()
-	ctx.Set("AppName", opts.AppName)
-	ctx.Set("TypeName", opts.TypeName)
-	ctx.Set("ModulePath", opts.ModulePath)
-	ctx.Set("Fields", opts.Fields)
-	ctx.Set("title", strings.Title)
-	ctx.Set("strconv", func() bool {
-		strconv := false
-		for _, field := range opts.Fields {
-			if field.Datatype != "string" {
-				strconv = true
-			}
-		}
-		return strconv
-	})
-	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
-	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
-	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
-	return g, nil
+type typedStargate struct {
 }
 
-func protoRPCImportModify(opts *Options) genny.RunFn {
+// New ...
+func NewStargate(opts *Options) (*genny.Generator, error) {
+	t := typedStargate{}
+	g := genny.New()
+	g.RunFn(t.handlerModify(opts))
+	g.RunFn(t.typesKeyModify(opts))
+	g.RunFn(t.typesCodecModify(opts))
+	g.RunFn(t.typesCodecImportModify(opts))
+	g.RunFn(t.typesCodecInterfaceModify(opts))
+	g.RunFn(t.protoRPCImportModify(opts))
+	g.RunFn(t.protoRPCModify(opts))
+	g.RunFn(t.protoRPCMessageModify(opts))
+	g.RunFn(t.clientCliTxModify(opts))
+	g.RunFn(t.clientCliQueryModify(opts))
+	g.RunFn(t.typesQuerierModify(opts))
+	g.RunFn(t.keeperQuerierModify(opts))
+	g.RunFn(t.clientRestRestModify(opts))
+	g.RunFn(frontendSrcStoreAppModify(opts))
+	return g, box(string(cosmosver.Stargate), opts, g)
+}
+
+func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/handler.go", opts.AppName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+case *types.Msg%[2]v:
+return handleMsgCreate%[2]v(ctx, k, msg)`
+		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoRPCImportModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -76,7 +68,7 @@ import "%s/v1beta/%s.proto";`
 	}
 }
 
-func protoRPCModify(opts *Options) genny.RunFn {
+func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -96,7 +88,7 @@ func protoRPCModify(opts *Options) genny.RunFn {
 	}
 }
 
-func protoRPCMessageModify(opts *Options) genny.RunFn {
+func (t *typedStargate) protoRPCMessageModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -124,24 +116,7 @@ message QueryAll%sResponse {
 	}
 }
 
-func handlerModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.AppName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := `%[1]v
-case *types.Msg%[2]v:
-return handleMsgCreate%[2]v(ctx, k, msg)`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func typesKeyModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesKeyModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/keys.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -158,7 +133,7 @@ const (
 	}
 }
 
-func typesCodecImportModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesCodecImportModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -174,7 +149,7 @@ sdk "github.com/cosmos/cosmos-sdk/types"`
 	}
 }
 
-func typesCodecModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesCodecModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -190,7 +165,7 @@ cdc.RegisterConcrete(Msg%[2]v{}, "%[3]v/Create%[2]v", nil)`
 	}
 }
 
-func typesCodecInterfaceModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesCodecInterfaceModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -208,7 +183,7 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	}
 }
 
-func clientCliTxModify(opts *Options) genny.RunFn {
+func (t *typedStargate) clientCliTxModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -227,7 +202,7 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientCliQueryModify(opts *Options) genny.RunFn {
+func (t *typedStargate) clientCliQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -246,7 +221,7 @@ func clientCliQueryModify(opts *Options) genny.RunFn {
 	}
 }
 
-func typesQuerierModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/querier.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -262,7 +237,7 @@ const (QueryList%[2]v = "list-%[1]v")
 	}
 }
 
-func keeperQuerierModify(opts *Options) genny.RunFn {
+func (t *typedStargate) keeperQuerierModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/keeper/querier.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -288,7 +263,7 @@ func keeperQuerierModify(opts *Options) genny.RunFn {
 	}
 }
 
-func clientRestRestModify(opts *Options) genny.RunFn {
+func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.AppName)
 		f, err := r.Disk.Find(path)
@@ -300,25 +275,6 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 	registerTxHandlers(clientCtx, r)
 `
 		replacement := fmt.Sprintf(template, placeholder)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := "vue/src/store/app.js"
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		fields := ""
-		for _, field := range opts.Fields {
-			fields += fmt.Sprintf(`"%[1]v", `, field.Name)
-		}
-		replacement := fmt.Sprintf(`%[1]v
-{ type: "%[2]v", fields: [%[3]v] },`, placeholder, opts.TypeName, fields)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

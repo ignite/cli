@@ -12,6 +12,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/templates/app"
@@ -26,28 +27,9 @@ var (
 	}
 )
 
-// InitOption configures scaffolding.
-type InitOption func(*initOptions)
-
-// initOptions keeps set of options to apply scaffolding.
-type initOptions struct {
-	addressPrefix string
-}
-
-// AddressPrefix configures address prefix for the app.
-func AddressPrefix(prefix string) InitOption {
-	return func(o *initOptions) {
-		o.addressPrefix = prefix
-	}
-}
-
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err error) {
-	opts := &initOptions{}
-	for _, o := range options {
-		o(opts)
-	}
+func (s *Scaffolder) Init(name string) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -57,10 +39,10 @@ func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err 
 		return "", err
 	}
 	absRoot := filepath.Join(pwd, pathInfo.Root)
-	if err := s.generate(pathInfo, absRoot, opts); err != nil {
+	if err := s.generate(pathInfo, absRoot); err != nil {
 		return "", err
 	}
-	if err := s.protoc(absRoot); err != nil {
+	if err := s.protoc(absRoot, s.options.sdkVersion); err != nil {
 		return "", err
 	}
 	if err := initGit(pathInfo.Root); err != nil {
@@ -69,12 +51,12 @@ func (s *Scaffolder) Init(name string, options ...InitOption) (path string, err 
 	return pathInfo.Root, nil
 }
 
-func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string, opts *initOptions) error {
-	g, err := app.New(&app.Options{
+func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
+	g, err := app.New(string(s.options.sdkVersion), &app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		BinaryNamePrefix: pathInfo.Root,
-		AddressPrefix:    opts.addressPrefix,
+		AddressPrefix:    s.options.addressPrefix,
 	})
 	if err != nil {
 		return err
@@ -85,8 +67,10 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string, opts *
 	return run.Run()
 }
 
-// TODO warn if protoc isn't installed.
-func (s *Scaffolder) protoc(absRoot string) error {
+func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) error {
+	if version != cosmosver.Stargate {
+		return nil
+	}
 	scriptPath := filepath.Join(absRoot, "scripts/protocgen")
 	if err := os.Chmod(scriptPath, 0700); err != nil {
 		return err

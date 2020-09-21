@@ -6,11 +6,15 @@ package scaffolder
 type Scaffolder struct {
 	// path is app's path on the filesystem.
 	path string
+
+	// options to configure scaffolding.
+	options *scaffoldingOptions
 }
 
 // New initializes a new Scaffolder for app at path.
-func New(path string) *Scaffolder {
+func New(path string, options ...Option) *Scaffolder {
 	return &Scaffolder{
-		path: path,
+		path:    path,
+		options: newOptions(options...),
 	}
 }

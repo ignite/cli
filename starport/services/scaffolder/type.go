@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -49,12 +50,28 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 			Datatype: datatype,
 		})
 	}
-	g, _ := typed.New(&typed.Options{
-		ModulePath: path.RawPath,
-		AppName:    path.Package,
-		TypeName:   stype,
-		Fields:     tfields,
-	})
+	version, err := cosmosver.Detect(s.path)
+	if err != nil {
+		return err
+	}
+
+	var (
+		g    *genny.Generator
+		opts = &typed.Options{
+			ModulePath: path.RawPath,
+			AppName:    path.Package,
+			TypeName:   stype,
+			Fields:     tfields,
+		}
+	)
+	if version == cosmosver.Launchpad {
+		g, err = typed.NewLaunchpad(opts)
+	} else {
+		g, err = typed.NewStargate(opts)
+	}
+	if err != nil {
+		return err
+	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
 	if err := run.Run(); err != nil {
@@ -64,8 +81,9 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	if err != nil {
 		return err
 	}
-	return s.protoc(pwd)
+	return s.protoc(pwd, version)
 }
+
 func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, "x", appName, "types"))
 	if err != nil {
