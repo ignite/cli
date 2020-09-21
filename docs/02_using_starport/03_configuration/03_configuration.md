@@ -47,3 +47,5 @@ You can change the first prefix by changing the `AccountAddressPrefix` variable 
 - The `config.yml` defines your genesis accounts and validators.
 - It lets you bootrstrap your blockchain with different tokens and specify the amount of each in the first block.
 - Changing the prefix for addresses can be done in the `/app/prefix.go` file.
+
+[◀️ Previous - Genesis File](../../02_using_starport/02_genesis_file/02_genesis_file.md) [▶️ Next - What are Modules](../../03_modules/01_what_are_modules/01_what_are_modules.md)  

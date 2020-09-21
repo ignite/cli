@@ -17,3 +17,4 @@ More formal specification of Tendermint can be found on https://github.com/tende
 
 For the Cosmos SDK the specification explain more details about the Storage on the blockchain, Bech32 address information as well as Module specification and can be found on https://docs.cosmos.network/master/spec/.
 
+[◀️ Previous - Introduction](../../01_introduction/01_starport_introduction/introduction.md) [▶️ Next - Development Mode](../../01_introduction/03_development_mode/03_development_mode.md)  

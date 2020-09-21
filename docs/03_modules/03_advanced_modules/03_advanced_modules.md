@@ -67,3 +67,4 @@ This is only a starting collection for available modules on the Cosmos SDK. Many
 - The modules allow extended behaviours such as polling, releasing shares to certain entities, changing the blockchain, smart contracts or slashing validators for misbehavior.
 - Modules are developed by the teams behind Cosmos but also decentralized, modules can be created by any entity.
 
+[◀️ Previous - Basic Modules](../../03_modules/02_basic_modules/02_basic_modules.md) [▶️ Next - Smart Modules](../../03_modules/04_smart_modules/04_smart_modules.md)  

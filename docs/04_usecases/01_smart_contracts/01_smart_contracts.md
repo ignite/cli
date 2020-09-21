@@ -24,3 +24,5 @@ In the next chapter, we will be looking into creating and uploading a Smart Cont
 - Smart contracts need to be deterministic in output.
 - The most Smart contracts run on the Ethereum virtual machine.
 - Starport and Cosmos support smart contracts but also smart modules.
+
+[◀️ Previous - Your own Module](../../03_modules/05_your_own_module/05_your_own_module.md) [▶️ Next - CW20](../../04_usecases/03_cw20/03_cw20.md)  

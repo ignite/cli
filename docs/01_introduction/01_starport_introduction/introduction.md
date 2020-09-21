@@ -45,3 +45,6 @@ The most basic set of modules that are created with starport are `auth`, `bank`,
 - Starport and Cosmos are written in Go
 - Today, Cosmos SDK has a unique position worldwide of the most successful blockchains being built with it.
 - A combination of different modules on the Cosmos SDK will create different technology opportunities of a blockchain.
+
+
+[▶️ Next - Documentation](../../01_introduction/02_documentation_specification/02_documentation_specification.md)  
