@@ -1,3 +1,5 @@
+SHELL := /bin/bash
+
 UNAME_OS := $(shell uname -s)
 UNAME_ARCH := $(shell uname -m)
 
@@ -39,11 +41,11 @@ lint:
 	golangci-lint run --out-format=tab --issues-exit-code=0
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
 
-export PATH := $(PATH):$(HOME)/bin
-
 protoc-install:
 ifeq (, $(shell which protoc))
 	@echo "installing protoc..."
+	echo "export PATH=${PATH}:${HOME}/bin" >> ~/.bash_profile
+	source ~/.bash_profile
 	curl -LOs ${PB_REL}/download/v${PROTOC_VERSION}/${PROTOC_ZIP}
 	unzip ${PROTOC_ZIP} bin/protoc 
 	mkdir -p ${HOME}/bin
