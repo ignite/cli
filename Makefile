@@ -42,11 +42,12 @@ lint:
 protoc-install:
 ifeq (, $(shell which protoc))
 	@echo "installing protoc..."
+	export PATH="${PATH}:${HOME}/bin"
 	curl -LOs ${PB_REL}/download/v${PROTOC_VERSION}/${PROTOC_ZIP}
 	unzip ${PROTOC_ZIP} bin/protoc 
+	mkdir -p ${HOME}/bin
 	mv bin/protoc ${HOME}/bin
 	rm ${PROTOC_ZIP}
-	export PATH="${PATH}:${HOME}/bin"
 	protoc --version
 endif
 
