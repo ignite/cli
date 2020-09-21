@@ -4,7 +4,7 @@
 
 *Create your own blockchain - from star to ecosystem*
 
-## Structure
+## Guide 🔎
 
 1. Introduction  
    1. [Introduction](01_introduction/01_starport_introduction/introduction.md)  
