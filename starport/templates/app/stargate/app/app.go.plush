@@ -117,7 +117,7 @@ func New(
 	bApp.GRPCQueryRouter().RegisterSimulateService(bApp.Simulate, interfaceRegistry, std.DefaultPublicKeyCodec{})
 
 	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, paramstypes.StoreKey, stakingtypes.StoreKey, //<%= AppName %>types.StoreKey, 
+		authtypes.StoreKey, banktypes.StoreKey, paramstypes.StoreKey, stakingtypes.StoreKey, <%= AppName %>types.StoreKey, 
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 
