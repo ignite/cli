@@ -1,13 +1,19 @@
 import Vue from "vue";
 import VueRouter from "vue-router";
-import Start from "@/views/Start.vue";
+// import Start from "@/views/Start.vue";
+import Welcome from "@/views/Welcome.vue";
+import Blocks from "@/views/Blocks.vue";
 
 Vue.use(VueRouter);
 
 const routes = [
   {
     path: "/",
-    component: Start,
+    component: Welcome,
+  },
+  {
+    path: "/blocks",
+    component: Blocks,
   },
 ];
 
