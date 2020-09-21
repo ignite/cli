@@ -85,6 +85,44 @@ export default {
         }
       },
       /**
+       * @param {array} txs
+       * TODO: define shape of block object
+       */    
+      txForCard(txs, chainId) {
+        return txs.map(item => {
+          const {
+            fee,
+            msg,
+            memo
+          } = item
+  
+          return {
+            txMsg: {
+              hash: 'faketransactionhashfornow', // temp
+              status: 'Fakestatus', // temp
+              fee: fee.amount[0] ? fee.amount[0].amount : 'N/A', // temp
+              gas: fee.gas, // temp
+              memo: memo && memo.length>0 ? memo : 'N/A'
+            },
+            msgs: msg.map(({
+              type,
+              value
+            }) => ({
+              type: this.getMsgType(type, chainId),
+              amount: value.amount ? this.getAmount(value.amount) : 'N/A',
+              delegator: value.delegator_address ? value.delegator_address : 'N/A',
+              validator: value.validator_address ? value.validator_address : 'N/A',
+              from: value.from_address,
+              to: value.to_address
+            })),
+            tableData: {
+              id: item.signatures[0].signature, // temp
+              isActive: false
+            },
+          }
+        })
+      },      
+      /**
        * @param {array} blockEntries
        * TODO: define shape of block object
        */          
@@ -96,7 +134,23 @@ export default {
         return {
           hideBlocksWithoutTxs
         }
-      }
+      },
+      /**
+       * @param {object} amountObj
+       * TODO: define shape of amount object
+       */             
+      getAmount(amountObj) {
+        return amountObj.amount 
+          ? amountObj.amount+amountObj.denom
+          : amountObj[0].amount+amountObj[0].denom
+      },
+      /**
+       * @param {string} type
+       * @param {string} prefix
+       */             
+      getMsgType(type, prefix) {
+        return type.replace(prefix+'/', '')
+      }      
     }
   }
 }

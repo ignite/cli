@@ -39,6 +39,10 @@
 </template>
 
 <script>
+import { mapGetters } from 'vuex'
+
+import blockHelpers from '@/mixins/blocks/helpers'
+
 import SideTabList from '@/components/table/SideTabList'
 import ListWrapper from '@/components/list/ListWrapper'
 import TxCard from '@/modules/TxCard'
@@ -58,51 +62,22 @@ export default {
     }
   },
   computed: {
+    /*
+     *
+     * Vuex 
+     *
+     */    
+    ...mapGetters('cosmos/blocks', [ 'chainId' ]),
+    /*
+     *
+     * Local 
+     *
+     */    
     messagesForTable() {
-      return this.blockData.txs.map(item => {
-        const {
-          fee,
-          msg,
-          memo
-        } = item
-
-        return {
-          txMsg: {
-            hash: 'faketransactionhashfornow', // temp
-            status: 'Fakestatus', // temp
-            fee: fee.amount[0].amount, // temp
-            gas: fee.gas, // temp
-            memo: memo && memo.length>0 ? memo : 'N/A'
-          },
-          msgs: msg.map(({
-            type,
-            value
-          }) => ({
-            type: this.getMsgType(type),
-            amount: this.getAmount(value.amount),
-            delegator: value.delegator_address,
-            validator: value.validator_address,
-            from: value.from_address,
-            to: value.to_address
-          })),
-          tableData: {
-            id: item.signatures[0].signature, // temp
-            isActive: false
-          },
-        }
-      })
+      return blockHelpers.blockFormatter()
+        .txForCard(this.blockData.txs, this.chainId)
     }    
-  },
-  methods: {
-    getAmount(amountObj) {
-      return amountObj.amount 
-        ? amountObj.amount+amountObj.denom
-        : amountObj[0].amount+amountObj[0].denom
-    },
-    getMsgType(type) {
-      return type.replace('cosmos-sdk/', '')
-    }
-  }  
+  }
 }
 </script>
 

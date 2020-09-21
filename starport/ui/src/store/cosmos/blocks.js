@@ -4,6 +4,7 @@ import blockHelpers from '@/mixins/blocks/helpers'
 export default {
   namespaced: true,
   state: {
+    chainId: null,
     table: {
       highlightedBlock: {
         id: null,
@@ -16,7 +17,8 @@ export default {
   getters: {
     highlightedBlock: state => state.table.highlightedBlock,
     blockEntries: state => state.entries,
-    blockByHeight: state => height => state.entries.filter(block => block.height === height)
+    blockByHeight: state => height => state.entries.filter(block => block.height === height),
+    chainId: state => state.chainId
   },
   mutations: {
     /**
@@ -41,12 +43,18 @@ export default {
       state.table.isSheetActive = tableState
     },
     /**
+     * @param {string} chainId
+     */    
+    setChainId(state, chainId) {
+      if (!state.chainId || state.chainId.length<=0) state.chainId = chainId
+    }, 
+    /**
      * @param {object} block
      * TODO: define shape of block object
-     */    
+     */     
     addBlockEntry(state, block) {
       state.entries.unshift(block)
-    }, 
+    },        
     addErrorBlock(state, {
       blockHeight,
       errLog
@@ -134,6 +142,7 @@ export default {
               // this guards duplicated block pushed into blockEntries
               if (getters.blockByHeight(blockHolder.block.height).length<=0) {
                 commit('addBlockEntry', blockHolder.block)
+                commit('setChainId', blockHolder.block.header.chain_id)
               }
             })
         }         

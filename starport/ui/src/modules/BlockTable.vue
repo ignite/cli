@@ -77,8 +77,18 @@ export default {
     }
   },
   computed: {
+    /*
+     *
+     * Vuex 
+     *
+     */
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blockEntries' ]),
+    /*
+     *
+     * Local
+     * 
+     */    
     fmtIsTableSheetActive() {
       return this.isTableSheetActive(this.tableId)
     },    
@@ -107,9 +117,19 @@ export default {
     }
   },  
   methods: {
+    /*
+     *
+     * Vuex 
+     *
+     */    
     ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
     ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),
     ...mapActions('cosmos/blocks', [ 'addBlockEntry' ]),
+    /*
+     *
+     * Local 
+     *
+     */      
     handleRowClick(rowId, rowData) {
       const setTableRowStore = (isToActive=false, payload) => {
         const highlightBlockPayload = isToActive ? {
