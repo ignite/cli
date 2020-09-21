@@ -1,4 +1,18 @@
-all: install
+UNAME_OS := $(shell uname -s)
+UNAME_ARCH := $(shell uname -m)
+
+
+PROTOC_VERSION := 3.12.1
+PB_REL := "https://github.com/protocolbuffers/protobuf/releases"
+
+ifeq ($(UNAME_OS),Linux)
+  PROTOC_ZIP := protoc-${PROTOC_VERSION}-linux-x86_64.zip
+endif
+ifeq ($(UNAME_OS),Darwin)
+  PROTOC_ZIP := protoc-${PROTOC_VERSION}-osx-x86_64.zip
+endif
+
+all: protoc-install install
 
 mod:
 	@go mod tidy
@@ -24,6 +38,18 @@ cli: build
 lint:
 	golangci-lint run --out-format=tab --issues-exit-code=0
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+
+protoc-install:
+ifeq (, $(shell which protoc))
+	@echo "installing protoc..."
+	curl -LOs ${PB_REL}/download/v${PROTOC_VERSION}/${PROTOC_ZIP}
+	unzip ${PROTOC_ZIP} bin/protoc 
+	mv bin/protoc ${HOME}/bin
+	rm ${PROTOC_ZIP}
+	export PATH="${PATH}:${HOME}/bin"
+	protoc --version
+endif
+
 .PHONY: lint
 	
 .PHONY: all mod build ui install
