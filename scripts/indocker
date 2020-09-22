@@ -1,0 +1,71 @@
+#!/bin/bash
+
+function build {
+    echo "building container..."
+    docker build -t starport -f - > /dev/null . << EOF
+FROM golang:1.15.2-buster
+
+WORKDIR /apps
+
+RUN apt update && \
+    apt-get install -y \
+        build-essential \
+        ca-certificates \
+        unzip \
+        curl \
+        git
+
+RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
+    apt-get install -y nodejs
+
+RUN curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.12.1/protoc-3.12.1-linux-x86_64.zip -o protoc.zip && \
+    unzip protoc.zip -d /usr/local && \
+    rm protoc.zip 
+
+RUN echo '\n\
+export GOPATH=/go \n\
+export PATH=\$PATH:\$GOPATH/bin \n\
+alias a="cd /apps" \n\
+alias s="cd \$GOPATH/src/github.com/tendermint/starport" \n\
+alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -r *) && rm -rf /apps/*" \n\
+alias i="(s && ./scripts/build)"' > ~/.bashrc
+EOF
+}
+
+function run {
+    docker kill starport > /dev/null 2>&1
+    docker rm starport > /dev/null 2>&1
+    docker run \
+        --name starport \
+        -d \
+        -p 12345:12345 \
+        -p 8080:8080 \
+        -p 26657:26657 \
+        -p 1317:1317 \
+        -v $PWD:/go/src/github.com/tendermint/starport \
+        starport /bin/bash -c "trap : TERM INT; sleep infinity & wait" \
+            > /dev/null
+}
+
+case "$1" in
+    # build the development container.
+    build) build
+        ;;
+
+    # restart the development container.
+    reset) run
+        ;;
+
+    # attach to development container but start if not already running.
+    *)
+        is_running=$(docker ps -q -f status=running -f name=^/starport$)
+        if [[ -z $is_running ]]; then run; fi    
+        docker exec -ti starport /bin/bash
+        ;;
+esac
+
+# in container commands:
+#  i install starport
+#  s cd into starport's source code
+#  a cd into apps dir
+#  c cleanup previous app installations
