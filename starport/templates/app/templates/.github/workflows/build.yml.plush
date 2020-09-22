@@ -18,21 +18,25 @@ jobs:
     name: <%= AppName %> for ${{ matrix.targetos }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup go
         uses: actions/setup-go@v1
         with:
           go-version: 1.15
         env:
           GOOS: ${{ matrix.targetos }}
+
       - name: Compile
         run: |
           mkdir build
           go build -mod=mod -o build/<%= BinaryNamePrefix %>d ./cmd/<%= BinaryNamePrefix %>d
           go build -mod=mod -o build/<%= BinaryNamePrefix %>cli ./cmd/<%= BinaryNamePrefix %>cli
+
       - uses: actions/upload-artifact@v2
         with:
           name: <%= AppName %> ${{ matrix.targetos }}
           path: build
+
   linux:
     runs-on: ubuntu-latest
     strategy:
@@ -41,17 +45,20 @@ jobs:
     name: <%= AppName %> for ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2
+
       - name: Setup go
         uses: actions/setup-go@v1
         with:
           go-version: 1.15
         env:
           GOARCH: ${{ matrix.arch }}
+
       - name: Compile
         run: |
           mkdir build
           go build -mod=mod -o build/<%= BinaryNamePrefix %>d ./cmd/<%= BinaryNamePrefix %>d
           go build -mod=mod -o build/<%= BinaryNamePrefix %>cli ./cmd/<%= BinaryNamePrefix %>cli
+
       - uses: actions/upload-artifact@v2
         with:
           name: <%= AppName %> ${{ matrix.arch }}
