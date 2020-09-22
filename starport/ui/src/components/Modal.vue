@@ -140,10 +140,11 @@
   height: 100vh;
 }
 .sidebar__content {
-  background: white;
+  background: var(--c-bg-primary);
   position: absolute;
   pointer-events: all;
-  overflow-y: scroll;
+  /* overflow-y: scroll; */
+  overflow-y: auto;
   -webkit-overflow-scrolling: touch;
   width: 100%;
   height: 100%;

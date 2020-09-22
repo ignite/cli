@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="layout">
     <div class="container">
       <div class="container__left">
         <div class="navbar">
@@ -17,20 +17,25 @@
         </div>
       </div>
     </div>
-    <Modal :width="'40vw'" :visible="visible" v-if="visible" @visible="visible = $event">
+    <Modal :visible="visible" v-if="visible" @visible="visible = $event">
       <div v-if="modalTrigger === 'ham'" class="sheet -nav">
         <div class="sheet__main">
-          <router-link
-            class="tab"
-            to="/"
-          >Welcome</router-link>
-          <router-link
-            class="tab -flex"
-            to="/blocks"
-          >Blocks</router-link>          
+          <div class="sheet__links">
+            <div class="sheet__links-headline">
+              <Headline>Pages</Headline> 
+            </div>
+            <router-link
+              class="tab"
+              to="/"
+            >Welcome</router-link>
+            <router-link
+              class="tab -flex"
+              to="/blocks"
+            >Blocks</router-link>          
+          </div>
         </div>
         <div class="sheet__sub">
-          <p>test</p>
+          <BackendIndicators/>
         </div>
       </div>
     </Modal>    
@@ -40,17 +45,21 @@
 <script>
 import Navbar from '@/components/Navbar'
 import Modal from '@/components/Modal'
+import BackendIndicators from '@/modules/BackendIndicators'
+import Headline from '@/components/typography/Headline'
 
 export default {
+  components: {
+    Navbar,
+    Modal,
+    BackendIndicators,
+    Headline
+  },  
   data() {
     return {
       visible: false,
       modalTrigger: 'ham'
     }
-  },
-  components: {
-    Navbar,
-    Modal
   },
   methods: {
     handleHamClick() {
@@ -62,7 +71,7 @@ export default {
 </script>
 
 <style scoped>
-.container {
+.layout {
   --g-margin: 3rem;
   --g-offset-top: 10rem;
 }
@@ -88,9 +97,8 @@ export default {
   flex-grow: 1;
   -webkit-overflow-scrolling: touch;  
 }
-
 @media only screen and (max-width: 1200px) {
-  .container {
+  .layout {
     --g-margin: 2rem;
     --g-offset-top: 5rem;
   }  
@@ -112,10 +120,6 @@ export default {
     max-width: 100%;
     box-sizing: border-box;
   }
-}
-
-.sidesheet {
-  
 }
 
 
@@ -145,4 +149,47 @@ export default {
     justify-content: center;
   }
 }
+
+
+.sheet {
+  height: 100%;
+  padding: 2rem var(--g-margin);
+  box-sizing: border-box;
+  overflow-x: hidden;
+  /* display: flex;
+  flex-direction: column;
+  justify-content: space-between; */
+}
+.sheet__main {
+  margin-bottom: 6rem;
+}
+.sheet__links-headline {
+  margin-bottom: 1.5rem;
+}
+
+.tab {
+  position: relative;
+  display: block;
+  text-decoration: none;
+
+  font-size: 1.5rem;
+  font-weight: 400;
+  color: var(--c-txt-grey);
+
+  transition: color .3s;
+}
+.tab:hover {
+  color: var(--c-txt-primary);
+  transition: color .3s;
+}
+.tab:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.tab.router-link-exact-active {
+  pointer-events: none;  
+  font-weight: 800;
+  color: var(--c-txt-primary);
+}
+
+
 </style>
