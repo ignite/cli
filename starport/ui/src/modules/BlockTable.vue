@@ -177,6 +177,10 @@ export default {
 
 <style scoped>
 
+.table-wrapper {
+  --table-height: 86vh;
+}
+
 .empty-view {
   width: 100%;
   height: 100%;
@@ -190,8 +194,8 @@ export default {
 }
 
 .table-wrapper {
-  max-height: 86vh;
-  height: 86vh;
+  max-height: var(--table-height);
+  height: var(--table-height);
 }
 
 .table-wrapper__utils {
@@ -200,5 +204,11 @@ export default {
 .table-wrapper__utils-btn {
   font-size: 0.875rem;
   color: var(--c-txt-grey);
+}
+
+@media only screen and (max-width: 1200px) {
+  .table-wrapper {
+    --table-height: 80vh;
+  }
 }
 </style>
