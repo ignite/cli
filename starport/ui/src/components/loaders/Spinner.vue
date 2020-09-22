@@ -1,5 +1,5 @@
 <!--
--- Referenced from: https://tobiasahlin.com/spinkit/
+-- Referenced from: https://loading.io/css/
 -->
 <template>
   <div class="lds-ring"><div></div><div></div><div></div><div></div></div>
