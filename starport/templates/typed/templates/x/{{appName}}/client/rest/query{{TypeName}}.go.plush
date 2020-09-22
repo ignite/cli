@@ -6,6 +6,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
+	"github.com/gorilla/mux"
+
 )
 
 func list<%= title(TypeName) %>Handler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
@@ -21,7 +23,10 @@ func list<%= title(TypeName) %>Handler(cliCtx context.CLIContext, storeName stri
 
 func get<%= title(TypeName) %>Handler(cliCtx context.CLIContext, storeName string) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/get-<%= TypeName %>", storeName), nil)
+		vars := mux.Vars(r)
+		key := vars["key"]
+
+		res, _, err := cliCtx.QueryWithData(fmt.Sprintf("custom/%s/get-<%= TypeName %>/%s", storeName, key), nil)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusNotFound, err.Error())
 			return
