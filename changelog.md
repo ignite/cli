@@ -10,12 +10,15 @@
 
 ### Features:
 
+* Add ARM64 releases.
+* OS Image Generation for Raspberry Pi 3 and 4
 * Added `version` command
 * Added support for _validator_ configuration in _config.yml_.
 * Starport can be launched on Gitpod
 
 ### Fixes:
 
+* Compile with go1.15
 * Running `starport add type...` multiple times no longer breaks the app
 * Running `appcli tx app create-x` now checks for all required args. -#173.
 * Removed unused `--denom` flag from the `app` command. It previously has moved as a prop to the `config.yml` under `accounts` section.
