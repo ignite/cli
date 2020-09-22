@@ -9,6 +9,7 @@
 * Added `version` command
 * Added support for _validator_ configuration in _config.yml_.
 * Starport can be launched on Gitpod
+* Added `make clean`
 
 ### Fixes:
 
