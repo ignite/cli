@@ -89,39 +89,58 @@ export default {
        * TODO: define shape of block object
        */    
       txForCard(txs, chainId) {
-        return txs.map(item => {
+        return txs.map(tx => {
           const {
             fee,
-            msg,
-            memo
-          } = item
+            memo,
+            msg,            
+            signatures
+          } = tx
   
           return {
-            txMsg: {
-              hash: 'faketransactionhashfornow', // temp
-              status: 'Fakestatus', // temp
-              fee: fee.amount[0] ? fee.amount[0].amount : 'N/A', // temp
-              gas: fee.gas, // temp
-              memo: memo && memo.length>0 ? memo : 'N/A'
-            },
-            msgs: msg.map(({
-              type,
-              value
-            }) => ({
-              type: this.getMsgType(type, chainId),
-              amount: value.amount ? this.getAmount(value.amount) : 'N/A',
-              delegator: value.delegator_address ? value.delegator_address : 'N/A',
-              validator: value.validator_address ? value.validator_address : 'N/A',
-              from: value.from_address,
-              to: value.to_address
-            })),
+            meta: this.txMeta({ fee, memo }),
+            msgs: msg.map(msg => this.txMsg(msg, chainId)),
             tableData: {
-              id: item.signatures[0].signature, // temp
+              id: tx.signatures[0].signature, // temp
               isActive: false
             },
           }
         })
       },      
+      /**
+       * @param {object} metaData
+       * @param {string} metaData[].fee
+       * @param {string} metaData[].memo
+       * TODO: define shape of block object
+       */                
+      txMeta({fee, memo}) {
+        return {
+          'Fee': fee.amount[0] ? fee.amount[0].amount : 'N/A', // temp
+          'Gas': fee.gas, // temp
+          'Memo': memo && memo.length>0 ? memo : 'N/A'          
+        }
+      },
+      /**
+       * @param {object} msg
+       * @param {string} msg[].type
+       * @param {object} msg[].value
+       * @param {string} chainId
+       * TODO: define shape of block object
+       */                
+      txMsg({ type, value }, chainId) {
+        function fmtMsgKey(msgKey) {
+          return msgKey.charAt(0).toUpperCase() + msgKey.slice(1)
+        }
+
+        const msgHolder = {
+          type: this.getMsgType(type, chainId)
+        }
+        for (const [key, msg] of Object.entries(value)) {
+          msgHolder[fmtMsgKey(key)] = msg
+        }
+
+        return msgHolder
+      },
       /**
        * @param {array} blockEntries
        * TODO: define shape of block object

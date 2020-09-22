@@ -1,16 +1,10 @@
 <template>
   <div class="tx-card">
     <div class="tx-card__container">
-      <ListWrapper :listItems="[
-        { headText: 'TxHash', contentText: txData.txMsg.hash },
-        { headText: 'Status', contentText: txData.txMsg.status },
-        { headText: 'Fee', contentText: txData.txMsg.fee },
-        { headText: 'Gas', contentText: txData.txMsg.gas },
-        { headText: 'Memo', contentText: txData.txMsg.memo }
-      ]" />
+      <ListWrapper :listItems="getFmtTxMeta(txData.meta)" />
     </div>
     <div class="tx-card__container">
-      <SideTabList :list="getFmtMsgForInnerTable(txData.msgs)"/>                   
+      <SideTabList :list="getFmtTxMsg(txData.msgs)"/>                   
     </div>
   </div>  
 </template>
@@ -21,41 +15,31 @@ import ListWrapper from '@/components/list/ListWrapper'
 
 export default {
   props: {
-    txData: { type: Object, required: true }
-    // TODO: add validator
+    txData: { type: Object, required: true } // TODO: add validator
   },  
   components: {
     SideTabList,
     ListWrapper
   },  
   methods: {
-    getFmtMsgForInnerTable(msgs) {
-      return msgs.map(({
-        type,
-        amount,
-        delegator,
-        validator,
-        from,
-        to
-      }) => {
-        const fromType = type === 'MsgSend' ? {
-          title: 'From', content: from
-        } : {
-          title: 'Delegator', content: delegator
-        }
-        const toType = type === 'MsgSend' ? {
-          title: 'To', content: to
-        } : {
-          title: 'Validator', content: validator
+    getFmtTxMeta(txMeta) {
+      const fmtTxMeta = []
+      for (const [key, val] of Object.entries(txMeta)) {
+        fmtTxMeta.push({ headText: key, contentText: val })
+      }      
+      return fmtTxMeta
+    },
+    getFmtTxMsg(msgs) {
+      return msgs.map((msg) => {
+        const fmtSubItems = []
+        for (const [key, val] of Object.entries(msg)) {
+          if (key !== 'type')
+            fmtSubItems.push({ headText: key, contentText: val })
         }
 
         return {
-          title: type,
-          subItems: [
-            fromType,
-            toType,
-            { title: 'Amount', content: amount },
-          ]
+          title: msg.type,
+          subItems: fmtSubItems
         }
       })
     },    

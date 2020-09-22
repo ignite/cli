@@ -12,10 +12,7 @@
         >
           <p class="side-tab-list__content-title">{{item.title}}</p>
           <ListWrapper 
-            :listItems="item.subItems.map(subItem => ({
-              headText:subItem.title,
-              contentText: subItem.content
-            }))" />   
+            :listItems="item.subItems" />   
         </div>   
       </div>    
     </ListItem>
