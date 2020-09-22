@@ -273,7 +273,7 @@ export default {
 
 @media only screen and (max-width: 992px) {
   .table {
-    min-width: 950px;
+    min-width: 850px;
   }
   .table.-is-collapsed .table__main {
     width: 320px;

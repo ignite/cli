@@ -21,11 +21,12 @@ export default {
     listItems: {
       type: Array,
       default: [],
-      validator: function(value) {
-        return value
-          .filter(item => item?.headText && item?.contentText)
-          .length === value.length
-      }      
+      // validator: function(value) {
+      //   console.log(value.length)
+      //   return value
+      //     .filter(item => item?.headText && item?.contentText)
+      //     .length === value.length
+      // }      
     }
   },
   components: {

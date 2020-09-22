@@ -19,8 +19,16 @@
 
 <script>
 export default {
+  // TODO: implement direction options
   props: {
-    content: { type: String, required: true }
+    content: { type: String, required: true },
+    direction: {
+      type: String,
+      default: 'right',
+      validator: function(value) {
+        return ['top', 'right'].indexOf(value) !== -1
+      }     
+    }
   },
   data() {
     return {
