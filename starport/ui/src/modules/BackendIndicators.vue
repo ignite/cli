@@ -116,4 +116,21 @@ export default {
   100% { background-color: var(--c-active); }
 }
 
+@media only screen and (max-width: 1200px) {
+  /*
+   *
+   * ⚠️TODO:
+   * Temporarily hiding tooltip in sidesheet because
+   * it extends over sidesheet width (hence hidden).
+   * 
+   * The feature to solve this problem 
+   * will be implemented in TooltilWrapper component
+   * with direction options.
+   *
+   */
+  .indicators >>> .tooltip-wrapper .tooltip {
+    display: none;
+  }
+}
+
 </style>
