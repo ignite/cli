@@ -1,7 +1,7 @@
 <template>
   <nav>
     <div class="nav__main">
-      <button class="nav__ham"><HamIcon/></button>
+      <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>
       <div class="nav__logo">
         <slot />
       </div>
@@ -86,6 +86,11 @@ export default {
   computed: {
     ...mapGetters('cosmos', [ 'backendRunningStates' ]),    
     ...mapGetters('cosmos/blocks', [ 'blockEntries' ]),
+  },
+  methods: {
+    handleHamClick() {
+      this.$emit('ham-clicked')
+    }
   },
   watch: {
     blockEntries() {

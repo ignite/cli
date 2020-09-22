@@ -3,12 +3,12 @@
     <div class="container">
       <div class="container__left">
         <div class="navbar">
-          <navbar>
+          <Navbar @ham-clicked="handleHamClick">
             <div class="navbar__logo">
               <h1>Starport</h1>    
               <p>DevTools</p>
             </div>          
-          </navbar>
+          </Navbar>
         </div>
       </div>
       <div class="container__right">
@@ -17,16 +17,47 @@
         </div>
       </div>
     </div>
+    <Modal :width="'40vw'" :visible="visible" v-if="visible" @visible="visible = $event">
+      <div v-if="modalTrigger === 'ham'" class="sheet -nav">
+        <div class="sheet__main">
+          <router-link
+            class="tab"
+            to="/"
+          >Welcome</router-link>
+          <router-link
+            class="tab -flex"
+            to="/blocks"
+          >Blocks</router-link>          
+        </div>
+        <div class="sheet__sub">
+          <p>test</p>
+        </div>
+      </div>
+    </Modal>    
   </div>
 </template>
 
 <script>
-import Navbar from "@/components/Navbar";
+import Navbar from '@/components/Navbar'
+import Modal from '@/components/Modal'
 
 export default {
+  data() {
+    return {
+      visible: false,
+      modalTrigger: 'ham'
+    }
+  },
   components: {
     Navbar,
+    Modal
   },
+  methods: {
+    handleHamClick() {
+      this.visible = !this.visible
+      this.modalTrigger = 'ham'
+    }
+  }
 };
 </script>
 
@@ -81,6 +112,10 @@ export default {
     max-width: 100%;
     box-sizing: border-box;
   }
+}
+
+.sidesheet {
+  
 }
 
 
