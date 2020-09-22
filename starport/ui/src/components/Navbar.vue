@@ -172,6 +172,9 @@ nav {
 }
 
 /* chip */
+.nav__chips {
+  margin-left: 0.85rem;
+}
 .nav__chips > div:not(:last-child) {
   margin-bottom: 0.65rem;
 }
