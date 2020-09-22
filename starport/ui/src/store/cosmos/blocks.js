@@ -22,9 +22,13 @@ export default {
   },
   mutations: {
     /**
+     * 
+     * 
      * @param {object|null} block
      * @param {string|null} block[].id
      * @param {object|null} block[].data
+     * 
+     * 
      */    
     setHighlightedBlock(state, block) {
       if (block == null || !block) {
@@ -37,20 +41,32 @@ export default {
       }
     },
     /**
+     * 
+     * 
      * @param {boolean} tableState
+     * 
+     * 
      */    
     setTableSheetState(state, tableState) {
       state.table.isSheetActive = tableState
     },
     /**
+     * 
+     * 
      * @param {string} chainId
+     * 
+     * 
      */    
     setChainId(state, chainId) {
       if (!state.chainId || state.chainId.length<=0) state.chainId = chainId
     }, 
     /**
+     * 
+     * 
      * @param {object} block
      * TODO: define shape of block object
+     * 
+     * 
      */     
     addBlockEntry(state, block) {
       state.entries.unshift(block)
