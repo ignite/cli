@@ -26,10 +26,7 @@ jobs:
           go-version: 1.15
 
       - name: Compile <%= AppName %>
-        run: |
-          mkdir build
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>d ./cmd/<%= BinaryNamePrefix %>d
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>cli ./cmd/<%= BinaryNamePrefix %>cli
+        run: make
         env:
           GOOS: linux
           GOARCH: arm64

@@ -27,10 +27,7 @@ jobs:
           GOOS: ${{ matrix.targetos }}
 
       - name: Compile
-        run: |
-          mkdir build
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>d ./cmd/<%= BinaryNamePrefix %>d
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>cli ./cmd/<%= BinaryNamePrefix %>cli
+        run: make
 
       - uses: actions/upload-artifact@v2
         with:
@@ -54,10 +51,7 @@ jobs:
           GOARCH: ${{ matrix.arch }}
 
       - name: Compile
-        run: |
-          mkdir build
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>d ./cmd/<%= BinaryNamePrefix %>d
-          go build -mod=mod -o build/<%= BinaryNamePrefix %>cli ./cmd/<%= BinaryNamePrefix %>cli
+        run: make
 
       - uses: actions/upload-artifact@v2
         with:
