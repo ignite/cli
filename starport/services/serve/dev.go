@@ -6,6 +6,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rakyll/statik/fs"
+	"github.com/rs/cors"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
@@ -70,7 +71,7 @@ func newDevHandler(app App, conf Config) (http.Handler, error) {
 	router := mux.NewRouter()
 	router.Handle("/status", dev.statusHandler()).Methods(http.MethodGet)
 	router.PathPrefix("/").Handler(dev.devAssetsHandler()).Methods(http.MethodGet)
-	return router, nil
+	return cors.Default().Handler(router), nil
 }
 
 func (d *development) devAssetsHandler() http.Handler {

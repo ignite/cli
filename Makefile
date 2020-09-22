@@ -27,6 +27,9 @@ build: mod
 	@packr2 clean
 	@go mod tidy
 
+clean:
+	@rm -rf build
+
 ui:
 	@rm -rf starport/ui/dist
 	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
@@ -55,5 +58,5 @@ ifeq (, $(shell which protoc))
 endif
 
 .PHONY: lint
-	
+
 .PHONY: all mod build ui install
