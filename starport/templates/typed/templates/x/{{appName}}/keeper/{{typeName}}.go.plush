@@ -40,7 +40,7 @@ func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types
 // Delete<%= title(TypeName) %> deletes a <%= TypeName %>
 func (k Keeper) Delete<%= title(TypeName) %>(ctx sdk.Context, key string) {
 	store := ctx.KVStore(k.storeKey)
-	store.Delete([]byte(key))
+	store.Delete([]byte(types.<%= title(TypeName) %>Prefix + key))
 }
 
 //
@@ -88,5 +88,5 @@ func (k Keeper) GetOwner(ctx sdk.Context, key string) sdk.AccAddress {
 // Check if the key exists in the store
 func (k Keeper) Exists(ctx sdk.Context, key string) bool {
 	store := ctx.KVStore(k.storeKey)
-	return store.Has([]byte(key))
+	return store.Has([]byte(types.<%= title(TypeName) %>Prefix + key))
 }

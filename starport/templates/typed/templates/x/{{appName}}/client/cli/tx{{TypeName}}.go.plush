@@ -37,16 +37,17 @@ func GetCmdCreate<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdSet<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "set-<%= TypeName %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Use:   "set-<%= TypeName %> [id] <%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
 		Short: "Set a new <%= TypeName %>",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i %>])
+			id := args[0]
+			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i + 1 %>])
 			<% } %>
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgSet<%= title(TypeName) %>(cliCtx.GetFromAddress()<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
+			msg := types.NewMsgSet<%= title(TypeName) %>(cliCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -60,7 +61,7 @@ func GetCmdDelete<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
 		Use:   "delete-<%= TypeName %> [key]",
 		Short: "Delete a new <%= TypeName %> by key",
-		Args:  cobra.MinimumNArgs(1),
+		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			cliCtx := context.NewCLIContext().WithCodec(cdc)

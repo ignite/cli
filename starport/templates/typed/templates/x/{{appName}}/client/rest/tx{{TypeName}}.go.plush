@@ -47,6 +47,7 @@ func create<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.Handler
 
 type set<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
+	ID 		string `json:"id"`
 	Creator string `json:"creator"`
 	<%= for (i, field) in Fields { %><%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>"`
 	<% } %>
@@ -68,7 +69,7 @@ func set<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFun
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSet<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+		msg := types.NewMsgSet<%= title(TypeName) %>(creator, req.ID, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
 
 		err = msg.ValidateBasic()
 		if err != nil {

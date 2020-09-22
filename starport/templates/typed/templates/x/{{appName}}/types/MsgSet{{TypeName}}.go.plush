@@ -8,13 +8,14 @@ import (
 var _ sdk.Msg = &MsgSet<%= title(TypeName) %>{}
 
 type MsgSet<%= title(TypeName) %> struct {
-  ID      string
+  ID      string      `json:"id"`
   Creator sdk.AccAddress `json:"creator" yaml:"creator"`<%= for (field) in Fields { %>
   <%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>" yaml:"<%= field.Name %>"`<% } %>
 }
 
-func NewMsgSet<%= title(TypeName) %>(creator sdk.AccAddress<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) MsgSet<%= title(TypeName) %> {
+func NewMsgSet<%= title(TypeName) %>(creator sdk.AccAddress, id string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) MsgSet<%= title(TypeName) %> {
   return MsgSet<%= title(TypeName) %>{
+    ID: id,
 		Creator: creator,<%= for (field) in Fields { %>
     <%= title(field.Name) %>: <%= field.Name %>,<% } %>
 	}
