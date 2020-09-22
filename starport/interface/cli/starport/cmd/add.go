@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	wasmImport = "github.com/CosmWasm/wasmd"
+	wasmImport = "github.com/cosmwasm/wasmd"
 	apppkg     = "app"
 )
 

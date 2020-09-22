@@ -43,7 +43,7 @@ func appModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 	"path/filepath"
-	"github.com/CosmWasm/wasmd/x/wasm"
+	"github.com/cosmwasm/wasmd/x/wasm"
 	"github.com/tendermint/tendermint/libs/cli"
 	"github.com/spf13/viper"`
 		replacement := fmt.Sprintf(template, placeholder)
@@ -103,7 +103,7 @@ func cmdMainModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-	wasmrest "github.com/CosmWasm/wasmd/x/wasm/client/rest"`
+	wasmrest "github.com/cosmwasm/wasmd/x/wasm/client/rest"`
 		replacement := fmt.Sprintf(template, placeholder)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 
