@@ -16,7 +16,7 @@ const placeholder3 = "// this line is used by starport scaffolding # 3"
 const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
 
 func box(sdkVersion string, opts *Options, g *genny.Generator) error {
-	if err := g.Box(packr.New("typed/templates", sdkVersion)); err != nil {
+	if err := g.Box(packr.New("typed/templates", "./"+sdkVersion)); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()

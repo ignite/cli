@@ -12,7 +12,7 @@ import (
 // New ...
 func New(sdkVersion string, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
-	if err := g.Box(packr.New("app/templates", sdkVersion)); err != nil {
+	if err := g.Box(packr.New("app/templates", "./"+sdkVersion)); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
