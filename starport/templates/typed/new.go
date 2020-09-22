@@ -194,18 +194,18 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 
 func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "vue/src/store/app.js"
+		path := "vue/src/views/Index.vue"
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 		fields := ""
 		for _, field := range opts.Fields {
-			fields += fmt.Sprintf(`"%[1]v", `, field.Name)
+			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
 		}
 		replacement := fmt.Sprintf(`%[1]v
-		{ type: "%[2]v", fields: [%[3]v] },`, placeholder, opts.TypeName, fields)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" />`, placeholder4, opts.TypeName, fields)
+		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

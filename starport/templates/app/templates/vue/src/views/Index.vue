@@ -4,7 +4,7 @@
       <sp-sign-in />
       <sp-bank-balances />
       <sp-token-send />
-      <sp-type-form type="post" :fields="['title', 'body']" />
+      <!-- this line is used by starport scaffolding # 4 -->
     </div>
   </div>
 </template>
