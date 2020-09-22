@@ -20,6 +20,16 @@
   </div>
 </template>
 
+<script>
+import Navbar from "@/components/Navbar";
+
+export default {
+  components: {
+    Navbar,
+  },
+};
+</script>
+
 <style scoped>
 .container {
   --g-margin: 3rem;
@@ -48,6 +58,32 @@
   -webkit-overflow-scrolling: touch;  
 }
 
+@media only screen and (max-width: 1200px) {
+  .container {
+    --g-margin: 2rem;
+    --g-offset-top: 5rem;
+  }  
+  .container {
+    flex-direction: column;
+  }
+  .container__left {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    margin-right: 0;
+    padding: 0 var(--g-margin);
+    margin-bottom: 2rem;
+    border-bottom: 1px solid var(--c-txt-contrast-secondary);
+  }
+  .container__right {
+    padding: 0 var(--g-margin);
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
+
 .navbar {
   position: sticky;
   top: 0;
@@ -68,14 +104,10 @@
 .navbar__logo p {
   font-size: 1.125rem;
 }
+@media only screen and (max-width: 1200px) {
+  .navbar__logo {
+    margin-left: 0;
+    justify-content: center;
+  }
+}
 </style>
-
-<script>
-import Navbar from "@/components/Navbar";
-
-export default {
-  components: {
-    Navbar,
-  },
-};
-</script>

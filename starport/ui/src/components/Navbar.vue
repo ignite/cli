@@ -1,6 +1,7 @@
 <template>
   <nav>
     <div class="nav__main">
+      <button class="nav__ham"><HamIcon/></button>
       <div class="nav__logo">
         <slot />
       </div>
@@ -45,6 +46,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 import TooltipWrapper from '@/components/tooltip/TooltipWrapper'
+import HamIcon from '@/assets/Ham'
 
 const localHosts = [
   {
@@ -72,7 +74,8 @@ const localHosts = [
 
 export default {
   components: {
-    TooltipWrapper
+    TooltipWrapper,
+    HamIcon
   },
   data() {
     return {
@@ -110,9 +113,37 @@ nav {
   padding-bottom: 4rem;
   box-sizing: border-box;
 }
-
 .nav__tabs {
   margin-top: -1rem;
+}
+.nav__ham {
+  display: none;
+  height: 1.5rem;
+  width: 1.5rem;
+}
+@media only screen and (max-width: 1200px) {
+  nav {
+    height: auto;
+    padding-bottom: 0;
+    
+  }
+  .nav__ham {
+    display: block;
+  }
+  .nav__main {
+    display: grid;
+    grid-template-columns: 30% 1fr 30%;
+    align-items: center;    
+    padding: 0 0.25rem;
+  }
+  .nav__sub {
+    display: none;
+  }
+  .nav__tabs {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0;
+  }
 }
 
 .tab {
@@ -136,24 +167,44 @@ nav {
   margin-bottom: 0.5rem;
 }
 .tab.router-link-exact-active {
+  pointer-events: none;  
   font-weight: 600;
   color: var(--c-txt-secondary);
   background-color: var(--c-bg-secondary);
+}
+@media only screen and (max-width: 1200px) {
+  .tab {
+    padding: 0;
+    font-size: 1.125rem;
+  }
+  .tab:hover {
+    background-color: transparent;
+    color: var(--c-txt-primary);
+    transition: color .3s;
+  }  
+  .tab:not(:last-child) {
+    margin-right: 2.25rem;
+    margin-bottom: 0;
+  }  
+  .tab.router-link-exact-active {
+    background-color: transparent;
+  }
 }
 
 /* temp loading effect */
 .circle {
   --c-active: #4ACF4A;
+  --circle-size: 8px;
 }
 .circle {
   border-radius: 100%;
   box-shadow: none;
   display: block;
-  width: 8px;
-  height: 8px;
+  width: var(--circle-size);
+  height: var(--circle-size);
   padding: 0;
   position: absolute;
-  top: calc(50% - 4.5px);
+  top: calc(50% - calc(var(--circle-size) / 1.8));
   left: 12px;
 }
 .circle::before,
@@ -169,6 +220,14 @@ nav {
   50% { background-color: transparent; }
   75% { background-color: var(--c-active); }
   100% { background-color: transparent; }
+}
+@media only screen and (max-width: 1200px) {
+  .circle {
+    --circle-size: 6px;
+  }  
+  .circle {
+    left: -0.8rem;
+  }
 }
 
 /* chip */
