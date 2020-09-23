@@ -9,12 +9,13 @@ tasks:
       make -C /workspace/starport
 
     command: |
-      clear
-      echo "
+      clear && printf '\e[3J'
+      echo -e "
       Welcome to Starport! 💫 The friendly CLI that makes building blockchains easy.
 
       In the sidebar you can see a list of guides that will help you get started.
-      In this terminal the starport binary is already installed and ready to go.
+
+      This terminal has the \033[1mstarport\033[0m binary is already installed and ready to go.
 
       "
 ports:
