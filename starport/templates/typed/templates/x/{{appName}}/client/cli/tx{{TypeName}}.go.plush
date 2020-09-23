@@ -59,8 +59,8 @@ func GetCmdSet<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 
 func GetCmdDelete<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 	return &cobra.Command{
-		Use:   "delete-<%= TypeName %> [key]",
-		Short: "Delete a new <%= TypeName %> by key",
+		Use:   "delete-<%= TypeName %> [id]",
+		Short: "Delete a new <%= TypeName %> by ID",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 

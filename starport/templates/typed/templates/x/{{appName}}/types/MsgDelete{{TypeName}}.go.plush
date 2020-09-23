@@ -8,13 +8,13 @@ import (
 var _ sdk.Msg = &MsgDelete<%= title(TypeName) %>{}
 
 type MsgDelete<%= title(TypeName) %> struct {
-  ID      string
+  ID      string         `json:"id" yaml:"id"`
   Creator sdk.AccAddress `json:"creator" yaml:"creator"`
 }
 
-func NewMsgDelete<%= title(TypeName) %>(key string, creator sdk.AccAddress) MsgDelete<%= title(TypeName) %> {
+func NewMsgDelete<%= title(TypeName) %>(id string, creator sdk.AccAddress) MsgDelete<%= title(TypeName) %> {
   return MsgDelete<%= title(TypeName) %>{
-    ID: key,
+    ID: id,
 		Creator: creator,
 	}
 }

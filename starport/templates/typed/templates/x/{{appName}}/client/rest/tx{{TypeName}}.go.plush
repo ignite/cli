@@ -84,7 +84,7 @@ func set<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFun
 type delete<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
-	Key 	string `json:"key"`
+	ID 		string `json:"id"`
 }
 
 func delete<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFunc {
@@ -103,7 +103,7 @@ func delete<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.Handler
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgDelete<%= title(TypeName) %>(req.Key, creator)
+		msg := types.NewMsgDelete<%= title(TypeName) %>(req.ID, creator)
 
 		err = msg.ValidateBasic()
 		if err != nil {
