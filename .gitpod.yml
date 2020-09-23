@@ -1,7 +1,10 @@
 image: gitpod/workspace-full
 tasks:
   - command: export VUE_APP_CUSTOM_URL=$(gp url)
-    init: make
+  - init: |
+      export BIN_PATH=$GOPATH/bin
+      mkdir -p $BIN_PATH
+      ./scripts/install
 ports:
   - port: 1317
   - port: 26657
