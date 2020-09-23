@@ -60,7 +60,11 @@ func handlerModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 		case types.MsgCreate%[2]v:
-			return handleMsgCreate%[2]v(ctx, k, msg)`
+			return handleMsgCreate%[2]v(ctx, k, msg)
+		case types.MsgSet%[2]v:
+			return handleMsgSet%[2]v(ctx, k, msg)
+		case types.MsgDelete%[2]v:
+			return handleMsgDelete%[2]v(ctx, k, msg)`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -93,7 +97,9 @@ func typesCodecModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-		cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)`
+		cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+		cdc.RegisterConcrete(MsgSet%[2]v{}, "%[3]v/Set%[2]v", nil)
+		cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName), opts.AppName)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -109,7 +115,9 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-		GetCmdCreate%[2]v(cdc),`
+		GetCmdCreate%[2]v(cdc),
+		GetCmdSet%[2]v(cdc),
+		GetCmdDelete%[2]v(cdc),`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -125,7 +133,8 @@ func clientCliQueryModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-			GetCmdList%[2]v(queryRoute, cdc),`
+			GetCmdList%[2]v(queryRoute, cdc),
+			GetCmdGet%[2]v(queryRoute, cdc),`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -141,7 +150,8 @@ func typesQuerierModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `
-const (QueryList%[2]v = "list-%[1]v")
+		const QueryList%[2]v = "list-%[1]v"
+		const QueryGet%[2]v = "get-%[1]v"
 		`
 		content := f.String() + fmt.Sprintf(template, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
@@ -162,7 +172,9 @@ func keeperQuerierModify(opts *Options) genny.RunFn {
 		`
 		template3 := `%[1]v
 		case types.QueryList%[2]v:
-			return list%[2]v(ctx, k)`
+			return list%[2]v(ctx, k)
+		case types.QueryGet%[2]v:
+			return get%[2]v(ctx, path[1:], k)`
 		replacement := fmt.Sprintf(template, opts.ModulePath, opts.AppName)
 		replacement2 := fmt.Sprintf(template2, placeholder, opts.ModulePath, opts.AppName)
 		replacement3 := fmt.Sprintf(template3, placeholder2, strings.Title(opts.TypeName))
@@ -183,8 +195,13 @@ func clientRestRestModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-	r.HandleFunc("/%[2]v/%[4]v", list%[3]vHandler(cliCtx, "%[2]v")).Methods("GET")
-	r.HandleFunc("/%[2]v/%[4]v", create%[3]vHandler(cliCtx)).Methods("POST")`
+		r.HandleFunc("/%[2]v/%[4]v", create%[3]vHandler(cliCtx)).Methods("POST")
+		r.HandleFunc("/%[2]v/%[4]v", list%[3]vHandler(cliCtx, "%[2]v")).Methods("GET")
+		r.HandleFunc("/%[2]v/%[4]v/{key}", get%[3]vHandler(cliCtx, "%[2]v")).Methods("GET")
+		r.HandleFunc("/%[2]v/%[4]v", set%[3]vHandler(cliCtx)).Methods("PUT")
+		r.HandleFunc("/%[2]v/%[4]v", delete%[3]vHandler(cliCtx)).Methods("DELETE")
+
+		`
 		replacement := fmt.Sprintf(template, placeholder, opts.AppName, strings.Title(opts.TypeName), opts.TypeName)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
