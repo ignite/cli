@@ -2,6 +2,7 @@ package <%= AppName %>
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
+
 	"<%= ModulePath %>/x/<%= AppName %>/types"
 	"<%= ModulePath %>/x/<%= AppName %>/keeper"
 )
@@ -10,7 +11,7 @@ func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg
 	var <%= TypeName %> = types.<%= title(TypeName) %>{
 		Creator: msg.Creator,
 		ID:      msg.ID,<%= for (field) in Fields { %>
-    <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+    	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
 	}
 	k.Create<%= title(TypeName) %>(ctx, <%= TypeName %>)
 

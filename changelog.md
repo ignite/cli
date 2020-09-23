@@ -16,6 +16,7 @@
 * Added support for _validator_ configuration in _config.yml_.
 * Starport can be launched on Gitpod
 * Added `make clean`
+* Gitpod: Added guidelines. A sample scaffold pre-created and served.
 
 ### Fixes:
 
