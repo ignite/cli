@@ -19,6 +19,10 @@ go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
 (cd ./starport/interface/cli/starport && \
     packr2)
 
+# gen statik dev ui.
+go get github.com/rakyll/statik
+statik -src=starport/ui/dist -dest=starport/ui/dist-go -f
+
 # build Starport.
 echo installing starport...
 go install -mod=readonly ./... 1>/dev/null
