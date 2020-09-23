@@ -17,8 +17,6 @@ export default {
         const { data } = await axios.get(`http://${this.localEnv.STARPORT_APP}/status`)
         const { status, env } = data
 
-        console.log(data)
-
         this.setBackendRunningStates({
           frontend: status.is_my_app_frontend_alive,
           rpc: status.is_consensus_engine_alive,

@@ -11,6 +11,7 @@ export default {
         data: null
       }
     },
+    maxEntriesCount: 20,
     entries: [],
     errorsQueue: []
   },
@@ -68,9 +69,26 @@ export default {
      * 
      * 
      */     
-    addBlockEntry(state, block) {
-      state.entries.unshift(block)
-    },        
+    addBlockEntry(state, { block, toInsert=true }) {
+      if (toInsert) {
+        state.entries.unshift(block)
+      } else {
+        state.entries.push(block)
+      }
+    },     
+    /**
+     * 
+     * 
+     * @param {object} block
+     * TODO: define shape of block object
+     * 
+     * 
+     */      
+    popOverloadBlockEntry(state) {
+      if (state.entries.length > state.maxEntriesCount) {
+        state.entries.pop()
+      }
+    },              
     addErrorBlock(state, {
       blockHeight,
       errLog
@@ -104,12 +122,43 @@ export default {
     }
   },
   actions: {
-    addBlockEntry({ commit }, block) {
-      commit('addBlockEntry', block)
+    async setBlockMeta({ dispatch, commit, getters, rootGetters }, {
+      header,
+      blockMeta,
+      txsData,
+      toInsertBlockToFront=true
+    }) {
+      const localEnv = rootGetters['cosmos/localEnv']      
+      const { fetchDecodedTx } = blockHelpers
+
+      const blockFormatter = blockHelpers.blockFormatter()
+      const blockHolder = blockFormatter.setNewBlock(header, txsData)
+
+      const txErrCallback = (txEncoded, errLog) => commit('addErrorTx', {
+        blockHeight: header.height,
+        txEncoded,
+        errLog
+      })      
+                      
+      blockHolder.setBlockMeta(blockMeta)
+      blockHolder.setBlockTxs(fetchDecodedTx, localEnv.LCD, txErrCallback)
+      
+      // this guards duplicated block pushed into blockEntries
+      if (getters.blockByHeight(blockHolder.block.height).length<=0) {
+        dispatch('addBlockEntry', {
+          block: blockHolder.block,
+          toInsert: toInsertBlockToFront
+        })
+        commit('setChainId', blockHolder.block.header.chain_id)
+      }     
     },
-    initBlockConnection({ commit, getters }, { localEnv }) {
+    addBlockEntry({ commit }, { block, toInsert=true }) {
+      commit('popOverloadBlockEntry') // 1. Pop entry with index > 20
+      commit('addBlockEntry', { block, toInsert })  // 2. Push entry into stack
+    },
+    initBlockConnection({ commit, dispatch, getters, rootGetters }) {
+      const localEnv = rootGetters['cosmos/localEnv']
       const ws = new ReconnectingWebSocket(`ws://${localEnv.COSMOS_RPC}/websocket`)
-      // const ws = new ReconnectingWebSocket(`wss://${this.localEnv.COSMOS_RPC}:443/websocket`, [], { WebSocket: WebSocket })    
   
       ws.onopen = function() {
         ws.send(
@@ -129,37 +178,47 @@ export default {
           const { data } = result        
           const { data: txsData, header } = data.value.block
   
-          const { fetchBlockMeta, fetchDecodedTx } = blockHelpers
-          const blockFormatter = blockHelpers.blockFormatter()
-          const blockHolder = blockFormatter.setNewBlock(header, txsData)
+          const { fetchBlockMeta, fetchBlockchain } = blockHelpers
   
           const blockErrCallback = (errLog) => commit('addErrorBlock', {
             blockHeight: header.height,
             errLog
           })
-          const txErrCallback = (txEncoded, errLog) => commit('addErrorTx', {
-            blockHeight: header.height,
-            txEncoded,
-            errLog
-          })
-  
+
+          // 1. Fetch previous 20 blocks initially (if there's any)
+          if (getters.blockEntries.length <= 0) {
+            fetchBlockchain(localEnv.COSMOS_RPC, header.height-1)
+              .then(blockchainRes => {
+                const blockchain = blockchainRes.data.result.block_metas
+
+                const promiseLoop = async _ => {
+                  for (let i=0; i<blockchain.length; i++) {
+                    const { header: prevHeader } = blockchain[i]
+
+                    await fetchBlockMeta(localEnv.COSMOS_RPC, prevHeader.height, blockErrCallback)
+                      .then(blockMeta => {
+                        dispatch('setBlockMeta', {
+                          header: prevHeader,
+                          blockMeta,
+                          txsData: blockMeta.data.result.block.data,
+                          toInsertBlockToFront: false
+                        })                      
+                      })                         
+                  }                  
+                }
+                promiseLoop()
+
+              })
+          }          
+          
+          // 2. Regular block fetching
           fetchBlockMeta(localEnv.COSMOS_RPC, header.height, blockErrCallback)
             .then(blockMeta => {
-              blockHolder.setBlockMeta(blockMeta)
-  
-              if (txsData.txs && txsData.txs.length > 0) {
-                const txsDecoded = txsData.txs
-                  .map(txEncoded => fetchDecodedTx(localEnv.LCD, txEncoded, txErrCallback))
-                
-                txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                  blockHolder.setBlockTxsDecoded(txResolved)
-                }))
-              }    
-              // this guards duplicated block pushed into blockEntries
-              if (getters.blockByHeight(blockHolder.block.height).length<=0) {
-                commit('addBlockEntry', blockHolder.block)
-                commit('setChainId', blockHolder.block.header.chain_id)
-              }
+              dispatch('setBlockMeta', {
+                header,
+                blockMeta,
+                txsData
+              })                      
             })
         }         
       }      

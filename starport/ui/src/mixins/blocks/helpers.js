@@ -4,20 +4,59 @@ import moment from 'moment'
 const getBlockTemplate = (header, txsData) => ({
   height: header.height,
   header,
-  txs: txsData.txs,
+  txs: txsData.txs ? txsData.txs : 0,
   blockMeta: null,
   txsDecoded: []
 })
 
 export default {
-  async fetchBlockMeta(cosmosUrl, blockHeight, errCallback) {
+  /**
+   * 
+   * 
+   * @param {string} rpcUrl
+   * @param {string|number} blockHeight
+   * @param {function} errCallback
+   *
+   *  
+   */      
+  async fetchBlockMeta(rpcUrl, blockHeight, errCallback) {
     try {
-      return await axios.get(`http://${cosmosUrl}/block?${blockHeight}`)
+      return await axios.get(`http://${rpcUrl}/block?height=${blockHeight}`)
     } catch (err) {
       console.error(err)
       errCallback(err)
     }
   },
+  /**
+   * 
+   * 
+   * @param {string} rpcUrl
+   * @param {string|number} maxBlockHeight
+   * @param {number} [maxEntriesCount=20]
+   * @param {function} errCallback
+   *
+   *  
+   */      
+  async fetchBlockchain(rpcUrl, maxBlockHeight, maxEntriesCount=20, errCallback) {
+    const fmtMinHeight = maxBlockHeight - maxEntriesCount >= 0 
+      ? maxBlockHeight - maxEntriesCount
+      : 0
+    try {
+      return await axios.get(`http://${rpcUrl}/blockchain?minHeight=${fmtMinHeight}&maxHeight=${maxBlockHeight}`)
+    } catch (err) {
+      console.error(err)
+      if (errCallback) errCallback(err)
+    }
+  },
+  /**
+   * 
+   * 
+   * @param {string} lcdUrl
+   * @param {string} txEncoded
+   * @param {function} errCallback
+   *
+   *  
+   */      
   async fetchDecodedTx(lcdUrl, txEncoded, errCallback) {
     try {
       return await axios.post(`http://${lcdUrl}/txs/decode`, { tx: txEncoded }) 
@@ -29,28 +68,71 @@ export default {
   blockFormatter() {
     return {
       /**
+       * 
+       * 
        * @param {object} header
        * @param {object} txsData
        * TODO: define shape
+       *
+       *  
        */            
       setNewBlock(header, txsData) {
           const blockTemplate = getBlockTemplate(header, txsData)
+          /**
+           * 
+           * 
+           * @param {object} msg
+           * TODO: define shape
+           *
+           *  
+           */              
           const setBlockMeta = (msg) => {
-            blockTemplate.blockMeta = msg.data.result.block_meta ? msg.data.result.block_meta : msg.data.result 
+            blockTemplate.blockMeta = msg.data?.result ? msg.data.result : msg
           }
+          /**
+           * 
+           * 
+           * @param {object} tx
+           * TODO: define shape
+           *
+           *  
+           */                        
           const setBlockTxsDecoded = (tx) => {
             blockTemplate.txsDecoded.push(tx.data.result)
+          }
+          /**
+           * 
+           * 
+           * @param {function} fetchDecodedTx
+           * TODO: define shape
+           *
+           *  
+           */               
+          const setBlockTxs = (fetchDecodedTx, lcdUrl, txErrCallback) => {
+            if (txsData.txs && txsData.txs.length > 0) {
+              const txsDecoded = txsData.txs
+                .map(txEncoded => fetchDecodedTx(lcdUrl, txEncoded, txErrCallback))
+              
+              txsDecoded.forEach(txRes => txRes.then(txResolved => {
+                setBlockTxsDecoded(txResolved)
+              }))
+            }                
           }
 
           return {
             block: blockTemplate,
             setBlockMeta,
-            setBlockTxsDecoded
+            setBlockTxsDecoded,
+            setBlockTxs
           }
       },
       /**
+       * 
+       * 
        * @param {array} blockEntries
        * TODO: define shape of block object
+       * 
+       * 
        */    
       blockForTable(blockEntries) {
         if (blockEntries.length > 0) {
@@ -85,8 +167,12 @@ export default {
         }
       },
       /**
+       * 
+       * 
        * @param {array} txs
        * TODO: define shape of block object
+       * 
+       * 
        */    
       txForCard(txs, chainId) {
         return txs.map(tx => {
@@ -108,10 +194,14 @@ export default {
         })
       },      
       /**
+       * 
+       * 
        * @param {object} metaData
        * @param {string} metaData[].fee
        * @param {string} metaData[].memo
        * TODO: define shape of block object
+       * 
+       * 
        */                
       txMeta({fee, memo}) {
         return {
@@ -142,8 +232,12 @@ export default {
         return msgHolder
       },
       /**
+       * 
+       * 
        * @param {array} blockEntries
        * TODO: define shape of block object
+       * 
+       * 
        */          
       filterBlock(blockEntries) {
         const hideBlocksWithoutTxs = () => {
@@ -155,8 +249,12 @@ export default {
         }
       },
       /**
+       * 
+       * 
        * @param {object} amountObj
        * TODO: define shape of amount object
+       * 
+       * 
        */             
       getAmount(amountObj) {
         return amountObj.amount 
@@ -164,8 +262,12 @@ export default {
           : amountObj[0].amount+amountObj[0].denom
       },
       /**
+       * 
+       * 
        * @param {string} type
        * @param {string} prefix
+       * 
+       * 
        */             
       getMsgType(type, prefix) {
         return type.replace(prefix+'/', '')
