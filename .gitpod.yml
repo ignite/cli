@@ -1,7 +1,36 @@
 image: gitpod/workspace-full
+checkoutLocation: "starport"
+workspaceLocation: "./starport/docs"
 tasks:
-  - command: export VUE_APP_CUSTOM_URL=$(gp url)
-    init: make
+  - name: prepare Starport 
+    init: |
+      # install Starport
+      export VUE_APP_CUSTOM_URL=$(gp url)
+      make -C /workspace/starport
+
+      # create apps dir for devs to scaffold apps there
+      mkdir -p /workspace/starport/docs/_apps
+
+      # cd into apps and create a sample Launchpad scaffold
+      cd /workspace/starport/docs/_apps
+      starport app github.com/mygithub/blog
+
+    command: |
+      echo "Hi, welcome to Starport! 💫
+      
+      I just scaffolded a sample Launchpad app for you and listed its contents in the below.
+      I also started serving it in the Terminal window at the > right side. You can check the logs to see how to go the dev ui from there.
+      
+      Make sure to follow tutorials above if this is your first time! 🚀"
+      cd /workspace/starport/docs/_apps/blog && ls
+
+  - name: serve sample scaffold
+    openMode: split-right
+    command: |
+      # cd into apps and serve sample scaffold
+      cd /workspace/starport/docs/_apps/blog
+      starport serve -v
+
 ports:
   - port: 1317
   - port: 26657
