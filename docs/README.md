@@ -1,6 +1,6 @@
 # The Starport Handbook
 
-![Starport Logo](https://github.com/tendermint/starport/blob/develop/docs/banner.jpeg?raw=true "Starport Logo")
+<img src="https://github.com/tendermint/starport/blob/develop/assets/banner.jpeg" width="600px"/>
 
 *Create your own blockchain - from star to ecosystem*
 
