@@ -13,9 +13,8 @@ tasks:
       echo "
       Welcome to Starport! 💫 The friendly CLI that makes building blockchains easy.
 
-      In this terminal the `starport` binary is already installed and ready to go.
-
-      In the sidebar you can see a list of guides that will help you to get started.
+      In the sidebar you can see a list of guides that will help you get started.
+      In this terminal the starport binary is already installed and ready to go.
 
       "
 ports:
