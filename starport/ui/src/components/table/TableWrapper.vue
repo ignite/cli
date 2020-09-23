@@ -29,7 +29,7 @@
             :tableCells="tableHeads"
           />
         </div>
-        <div :class="['table__rows-wrapper']">
+        <div :class="['table__rows-wrapper']" @scroll="handleTableScroll">
           <div v-if="!isTableEmpty"><slot name="tableContent"/></div>
           <div v-else class="table__rows-wrapper-empty-view"><p>{{tableEmptyMsg}}</p></div>
         </div>
@@ -74,6 +74,21 @@ export default {
       })
 
       this.$emit('sheet-closed')
+    },
+    handleTableScroll(event) {
+      const $table = event.target
+      const scrolledHeight = $table.scrollTop + $table.offsetHeight
+      const tableScrollHeight = $table.scrollHeight
+
+      const isScrolledToTop = scrolledHeight <= $table.offsetHeight
+      const isScrolledToBottom = scrolledHeight >= tableScrollHeight
+      const isScrolledOverHalf = $table.scrollTop > (tableScrollHeight-$table.offsetHeight) / 2
+      
+      if (isScrolledToBottom) {
+        this.$emit('scrolled-bottom')
+      } else if (!isScrolledOverHalf) {
+        this.$emit('scrolled-top-half')
+      }
     }
   },
   created() {

@@ -33,7 +33,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 import BackendIndicators from '@/modules/BackendIndicators'
-import HamIcon from '@/assets/Ham'
+import HamIcon from '@/assets/icons/Ham'
 
 export default {
   components: {
@@ -46,7 +46,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [ 'blockEntries' ]),
+    ...mapGetters('cosmos/blocks', [ 'blocksStack' ]),
   },
   methods: {
     handleHamClick() {
@@ -54,7 +54,7 @@ export default {
     }
   },
   watch: {
-    blockEntries() {
+    blocksStack() {
       /* TODO: refactor this temp code */
       this.isBlinking = true
       setTimeout(function() {

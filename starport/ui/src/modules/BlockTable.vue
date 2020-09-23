@@ -9,9 +9,10 @@
         :isTableEmpty="isBlocksTableEmpty"
         :tableEmptyMsg="blockTableEmptyText"
         @sheet-closed="handleSheetClose"
+        @scrolled-top-half="handleScrollTopHalf"
+        @scrolled-bottom="handleScrollBottom"
       >
         <div slot="utils" class="table-wrapper__utils">
-          <!-- TODO: enhance UI -->
           <button 
             class="table-wrapper__utils-btn"
             @click="handleFilterClick"
@@ -65,7 +66,7 @@ export default {
     TableWrapper,
     TableRowWrapper,    
     TableRowCellsGroup,
-    BlockSheet
+    BlockSheet,
   },
   data() {
     return {
@@ -83,7 +84,7 @@ export default {
      *
      */
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blockEntries' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock' ]),
     /*
      *
      * Local
@@ -96,14 +97,14 @@ export default {
       return this.targetTable(this.tableId)
     },
     messagesForTable() {
-      const fmtBlockForTable = this.blockFormatter.blockForTable(this.blockEntries)
+      const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
       if (this.states.isHidingBlocksWithoutTxs) {
         return this.blockFormatter.filterBlock(fmtBlockForTable).hideBlocksWithoutTxs()
       }
       return fmtBlockForTable
     },
     isBlocksTableEmpty() {
-      return this.blockEntries.length<=0 || !this.messagesForTable || this.messagesForTable?.length<=0
+      return this.blocksStack.length<=0 || !this.messagesForTable || this.messagesForTable?.length<=0
     },
     blockFilterText() {
       return !this.states.isHidingBlocksWithoutTxs
@@ -111,7 +112,7 @@ export default {
         : 'Show blocks without txs'
     },
     blockTableEmptyText() {
-      return (this.blockEntries.length>=0 && this.messagesForTable?.length<=0 && this.states.isHidingBlocksWithoutTxs) 
+      return (this.blocksStack.length>=0 && this.messagesForTable?.length<=0 && this.states.isHidingBlocksWithoutTxs) 
         ? 'Waiting for blocks with txs'
         : 'Waiting for blocks'
     }
@@ -123,8 +124,8 @@ export default {
      *
      */    
     ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
-    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock' ]),
-    ...mapActions('cosmos/blocks', [ 'addBlockEntry' ]),
+    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock', 'popOverloadBlocks' ]),
+    ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain' ]),
     /*
      *
      * Local 
@@ -170,7 +171,28 @@ export default {
         sheetState: false
       })      
       this.states.isHidingBlocksWithoutTxs = !this.states.isHidingBlocksWithoutTxs
-    }
+    },
+    /*
+     *
+     // Pop overloaded blocks (over maxStackCount)
+     // only when scrolling to upperhalf of the table
+     *
+     */         
+    handleScrollTopHalf() {
+      this.popOverloadBlocks()
+    },
+    /*
+     *
+     // Load extra 20 blocks
+     // only when scrolling to bottom of the table
+     *
+     */          
+    handleScrollBottom() {
+      this.getBlockchain({ 
+        blockHeight: this.lastBlock.height,
+        toGetOlderBlocks: true
+      })
+    }    
   }
 }
 </script>
@@ -184,8 +206,8 @@ export default {
 .empty-view {
   width: 100%;
   height: 100%;
-  max-height: 86vh;
-  height: 86vh;
+  max-height: var(--table-height);
+  height: var(--table-height);
   background-color: var(--c-bg-secondary);
   border-radius: var(--bd-radius-primary);
   display: flex;
@@ -211,4 +233,6 @@ export default {
     --table-height: 80vh;
   }
 }
+
+
 </style>

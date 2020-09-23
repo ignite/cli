@@ -16,6 +16,7 @@
     </div>
     <div class="sheet__main -container">
       <div class="cards-container">
+
         <div class="cards-container__top">
           <h4 class="cards-container__label">Transactions</h4>
         </div>
@@ -30,8 +31,15 @@
             <TxCard :txData="tx" />
           </div>
         </div>
-        <div v-else-if="blockData.blockMsg.txs>0 && blockData.txs.length<=0">🚨 Error fetching transaction data</div>
-        <div v-else>No transactions are included</div>
+        <div 
+          v-else-if="blockData.blockMsg.txs>0 && blockData.txs.length<=0"
+          class="cards-container__card -is-empty"
+        >
+          <p>🚨 Error fetching transaction data</p>
+        </div>
+        <div v-else class="cards-container__card -is-empty">
+          <p>No transactions</p>
+        </div>
 
       </div>
     </div>
@@ -170,6 +178,15 @@ export default {
 }
 .cards-container__card:not(:last-child) {
   margin-bottom: 1rem;
+}
+.cards-container__card.-is-empty {
+  padding-top: 4rem;
+  padding-bottom: 4rem;
+  text-align: center;
+  height: 100%;
+}
+.cards-container__card.-is-empty p {
+  font-weight: 300;
 }
 
 /* card */

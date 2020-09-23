@@ -30,19 +30,48 @@ export default {
   /**
    * 
    * 
-   * @param {string} rpcUrl
-   * @param {string|number} maxBlockHeight
-   * @param {number} [maxEntriesCount=20]
-   * @param {function} errCallback
+   * @param {Object} payload
+   * @param {string} payload.rpcUrl
+   * @param {string|number} [payload.minBlockHeight=undefined]
+   * @param {string|number} [payload.maxBlockHeight=undefined]
+   * @param {string|number} payload.latestBlockHeight
+   * @param {number} [payload.maxStackCount=20]
+   * @param {function} payload.errCallback
    *
    *  
    */      
-  async fetchBlockchain(rpcUrl, maxBlockHeight, maxEntriesCount=20, errCallback) {
-    const fmtMinHeight = maxBlockHeight - maxEntriesCount >= 0 
-      ? maxBlockHeight - maxEntriesCount
-      : 0
+  async fetchBlockchain({
+    rpcUrl,
+    minBlockHeight=undefined,
+    maxBlockHeight=undefined,
+    latestBlockHeight,
+    maxStackCount=20,
+    errCallback
+  }) {
+    if (!minBlockHeight && !maxBlockHeight) {
+      console.error('Please provide min or max block height value')
+      return
+    } 
+
+    const fmtMinHeight = () => {
+      if (maxBlockHeight) {
+        return maxBlockHeight-1 - maxStackCount >= 0 
+          ? maxBlockHeight-1 - maxStackCount
+          : 0
+      }
+      return minBlockHeight-1
+    }
+    const fmtMaxHeight = () => {
+      if (minBlockHeight) {
+        return minBlockHeight-1 + maxStackCount >= latestBlockHeight
+          ? latestBlockHeight-1
+          : minBlockHeight-1 + maxStackCount
+      }
+      return maxBlockHeight-1
+    }
+
     try {
-      return await axios.get(`http://${rpcUrl}/blockchain?minHeight=${fmtMinHeight}&maxHeight=${maxBlockHeight}`)
+      return await axios.get(`http://${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
     } catch (err) {
       console.error(err)
       if (errCallback) errCallback(err)
@@ -129,14 +158,14 @@ export default {
       /**
        * 
        * 
-       * @param {array} blockEntries
+       * @param {array} blocksStack
        * TODO: define shape of block object
        * 
        * 
        */    
-      blockForTable(blockEntries) {
-        if (blockEntries.length > 0) {
-          return blockEntries.map((block) => {
+      blockForTable(blocksStack) {
+        if (blocksStack.length > 0) {
+          return blocksStack.map((block) => {
             const {
               time,
               height,
@@ -234,14 +263,14 @@ export default {
       /**
        * 
        * 
-       * @param {array} blockEntries
+       * @param {array} blocksStack
        * TODO: define shape of block object
        * 
        * 
        */          
-      filterBlock(blockEntries) {
+      filterBlock(blocksStack) {
         const hideBlocksWithoutTxs = () => {
-          return blockEntries.filter(block => block.txs && block.txs.length > 0)
+          return blocksStack.filter(block => block.txs && block.txs.length > 0)
         }
 
         return {

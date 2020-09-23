@@ -11,14 +11,17 @@ export default {
         data: null
       }
     },
-    maxEntriesCount: 20,
-    entries: [],
+    maxStackCount: 500,
+    stack: [],
+    latestBlock: null,
     errorsQueue: []
   },
   getters: {
     highlightedBlock: state => state.table.highlightedBlock,
-    blockEntries: state => state.entries,
-    blockByHeight: state => height => state.entries.filter(block => block.height === height),
+    blocksStack: state => state.stack,
+    blockByHeight: state => height => state.stack.filter(block => block.height === height),
+    latestBlock: state => state.latestBlock,
+    lastBlock: state => state.stack[state.stack.length-1],
     chainId: state => state.chainId
   },
   mutations: {
@@ -65,68 +68,123 @@ export default {
      * 
      * 
      * @param {object} block
+     * @param {boolean} toInsert
      * TODO: define shape of block object
      * 
      * 
      */     
     addBlockEntry(state, { block, toInsert=true }) {
       if (toInsert) {
-        state.entries.unshift(block)
+        state.stack.unshift(block)
       } else {
-        state.entries.push(block)
+        state.stack.push(block)
       }
     },     
     /**
      * 
      * 
+     * 
+     * 
+     */      
+    popOverloadBlocks(state) {
+      if (state.stack.length > state.maxStackCount) {
+        state.stack.splice(state.maxStackCount)
+      }
+    },       
+    /**
+     * 
+     * 
+     * @param {object} state
      * @param {object} block
      * TODO: define shape of block object
      * 
      * 
-     */      
-    popOverloadBlockEntry(state) {
-      if (state.entries.length > state.maxEntriesCount) {
-        state.entries.pop()
-      }
-    },              
-    addErrorBlock(state, {
-      blockHeight,
-      errLog
-    }) {
-      state.errorsQueue.push({blockHeight, errLog})
-    },       
-    addErrorTx(state, {
-      blockHeight,
-      txEncoded,
-      errLog
-    }) {
-      let isBlockInQueue = false
+     */   
+    setLatestBlock(state, block) {
+      state.latestBlock = block
+    },
+    // addErrorBlock(state, {
+    //   blockHeight,
+    //   errLog
+    // }) {
+    //   state.errorsQueue.push({blockHeight, errLog})
+    // },       
+    // addErrorTx(state, {
+    //   blockHeight,
+    //   txEncoded,
+    //   errLog
+    // }) {
+    //   let isBlockInQueue = false
       
-      for (let errBlock of state.errorsQueue) {
-        if (blockHeight === errBlock.blockHeight) {
-          errBlock.txError = {
-            txEncoded,
-            errLog            
-          }
-          isBlockInQueue = true
-          break          
-        }      
-      }
+    //   for (let errBlock of state.errorsQueue) {
+    //     if (blockHeight === errBlock.blockHeight) {
+    //       errBlock.txError = {
+    //         txEncoded,
+    //         errLog            
+    //       }
+    //       isBlockInQueue = true
+    //       break          
+    //     }      
+    //   }
 
-      if (!isBlockInQueue) {
-        state.errorsQueue.push({blockHeight, txError: {
-          txEncoded,
-          errLog
-        }})
-      }
-    }
+    //   if (!isBlockInQueue) {
+    //     state.errorsQueue.push({blockHeight, txError: {
+    //       txEncoded,
+    //       errLog
+    //     }})
+    //   }
+    // }
   },
   actions: {
-    async setBlockMeta({ dispatch, commit, getters, rootGetters }, {
+    async getBlockchain({ dispatch, getters, rootGetters }, {
+      blockHeight,
+      toGetOlderBlocks=true
+    }) {
+      const localEnv = rootGetters['cosmos/localEnv']      
+      const { fetchBlockMeta, fetchBlockchain } = blockHelpers
+      const latestBlock = getters.latestBlock      
+
+      const blockErrCallback = (errLog) => commit('addErrorBlock', {
+        blockHeight: header.height,
+        errLog
+      })
+
+      fetchBlockchain({
+        rpcUrl: localEnv.COSMOS_RPC,
+        minBlockHeight: undefined,
+        maxBlockHeight: blockHeight,
+        latestBlockHeight: latestBlock ? latestBlock.height : null
+      })
+        .then(blockchainRes => {
+          const blockchain = blockchainRes.data.result.block_metas
+
+          const promiseLoop = async _ => {
+            for (let i=0; i<blockchain.length; i++) {
+              const { header: prevHeader } = blockchain[i]
+
+              await fetchBlockMeta(localEnv.COSMOS_RPC, prevHeader.height, blockErrCallback)
+                .then(blockMeta => {
+                  dispatch('setBlockMeta', {
+                    header: prevHeader,
+                    blockMeta,
+                    txsData: blockMeta.data.result.block.data,
+                    toInsertBlockToFront: false,
+                    toPopOverloadBlocks: !toGetOlderBlocks
+                  })                      
+                })                         
+            }                  
+          }
+          promiseLoop()
+
+        })
+    },
+    async setBlockMeta({ commit, getters, rootGetters }, {
       header,
       blockMeta,
       txsData,
-      toInsertBlockToFront=true
+      toInsertBlockToFront=true,
+      toPopOverloadBlocks=true,
+      isValidLatestBlock=false
     }) {
       const localEnv = rootGetters['cosmos/localEnv']      
       const { fetchDecodedTx } = blockHelpers
@@ -143,18 +201,32 @@ export default {
       blockHolder.setBlockMeta(blockMeta)
       blockHolder.setBlockTxs(fetchDecodedTx, localEnv.LCD, txErrCallback)
       
-      // this guards duplicated block pushed into blockEntries
+      // this guards duplicated block pushed into blocksStack
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
-        dispatch('addBlockEntry', {
+        /*
+         *
+         // 1. Add block to stack
+         *
+         */        
+        commit('addBlockEntry', {
           block: blockHolder.block,
           toInsert: toInsertBlockToFront
         })
+        /*
+         *
+         // 3. Set application's chainId
+         *
+         */        
         commit('setChainId', blockHolder.block.header.chain_id)
+        /*
+         *
+         // 4. Save the latest block (if the block is coming from WS connection)
+         *
+         */  
+        if (isValidLatestBlock) {
+          commit('setLatestBlock', blockHolder.block)
+        }
       }     
-    },
-    addBlockEntry({ commit }, { block, toInsert=true }) {
-      commit('popOverloadBlockEntry') // 1. Pop entry with index > 20
-      commit('addBlockEntry', { block, toInsert })  // 2. Push entry into stack
     },
     initBlockConnection({ commit, dispatch, getters, rootGetters }) {
       const localEnv = rootGetters['cosmos/localEnv']
@@ -177,38 +249,16 @@ export default {
         if (result.data && result.events) {
           const { data } = result        
           const { data: txsData, header } = data.value.block
-  
-          const { fetchBlockMeta, fetchBlockchain } = blockHelpers
-  
+          const { fetchBlockMeta } = blockHelpers
+
           const blockErrCallback = (errLog) => commit('addErrorBlock', {
             blockHeight: header.height,
             errLog
-          })
+          })          
 
           // 1. Fetch previous 20 blocks initially (if there's any)
-          if (getters.blockEntries.length <= 0) {
-            fetchBlockchain(localEnv.COSMOS_RPC, header.height-1)
-              .then(blockchainRes => {
-                const blockchain = blockchainRes.data.result.block_metas
-
-                const promiseLoop = async _ => {
-                  for (let i=0; i<blockchain.length; i++) {
-                    const { header: prevHeader } = blockchain[i]
-
-                    await fetchBlockMeta(localEnv.COSMOS_RPC, prevHeader.height, blockErrCallback)
-                      .then(blockMeta => {
-                        dispatch('setBlockMeta', {
-                          header: prevHeader,
-                          blockMeta,
-                          txsData: blockMeta.data.result.block.data,
-                          toInsertBlockToFront: false
-                        })                      
-                      })                         
-                  }                  
-                }
-                promiseLoop()
-
-              })
+          if (getters.blocksStack.length <= 0) {
+            dispatch('getBlockchain', { blockHeight: header.height })
           }          
           
           // 2. Regular block fetching
@@ -217,7 +267,8 @@ export default {
               dispatch('setBlockMeta', {
                 header,
                 blockMeta,
-                txsData
+                txsData,
+                isValidLatestBlock: true
               })                      
             })
         }         

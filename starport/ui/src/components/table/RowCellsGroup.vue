@@ -31,6 +31,7 @@ div.table__cells.-header {
   color: var(--c-txt-secondary);
   margin-bottom: 0.5rem;
   font-weight: 500;
+  font-size: 0.9375rem;
 }
 div.table__cells:not(.-header) {
   color: var(--c-txt-grey);
