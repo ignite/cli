@@ -1,6 +1,6 @@
 # The Starport Handbook
 
-<img src="../assets/banner.jpeg" width="600px"/>
+<img src="../assets/banner.jpeg" width="400px"/>
 
 *Create your own blockchain - from star to ecosystem*
 
