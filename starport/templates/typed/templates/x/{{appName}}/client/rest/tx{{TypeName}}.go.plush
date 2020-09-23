@@ -34,6 +34,83 @@ func create<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.Handler
 			return
 		}
 		msg := types.NewMsgCreate<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+
+		err = msg.ValidateBasic()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
+	}
+}
+
+type set<%= title(TypeName) %>Request struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	ID 		string `json:"id"`
+	Creator string `json:"creator"`
+	<%= for (i, field) in Fields { %><%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>"`
+	<% } %>
+}
+
+func set<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req set<%= title(TypeName) %>Request
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		msg := types.NewMsgSet<%= title(TypeName) %>(creator, req.ID, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+
+		err = msg.ValidateBasic()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
+	}
+}
+
+type delete<%= title(TypeName) %>Request struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string `json:"creator"`
+	ID 		string `json:"id"`
+}
+
+func delete<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var req delete<%= title(TypeName) %>Request
+		if !rest.ReadRESTReq(w, r, cliCtx.Codec, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		msg := types.NewMsgDelete<%= title(TypeName) %>(req.ID, creator)
+
+		err = msg.ValidateBasic()
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
 		utils.WriteGenerateStdTxResponse(w, cliCtx, baseReq, []sdk.Msg{msg})
 	}
 }
