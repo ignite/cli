@@ -1,6 +1,6 @@
 # The Starport Handbook
 
-<img src="https://github.com/tendermint/starport/blob/develop/assets/banner.jpeg" width="600px"/>
+<img src="../assets/banner.jpeg" width="600px"/>
 
 *Create your own blockchain - from star to ecosystem*
 
