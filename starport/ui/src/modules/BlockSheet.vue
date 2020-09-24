@@ -7,7 +7,13 @@
   >
     <div class="sheet__top -container -border-btm">
       <h3 class="sheet__heading">Block #{{fmtBlockData.blockMsg.height}}</h3>
-      <button class="sheet__btn" @click="handleJsonCopy">Copy block JSON</button>
+      <TooltipWrapper 
+        :content="fmtTooltipText" 
+        :direction="'left'"
+        :isEventTriggerType="{ triggerActiveState: tooltipState }"
+      >
+        <button class="sheet__btn" @click="handleJsonCopy">Copy block JSON</button>        
+      </TooltipWrapper>
     </div>
     <div class="sheet__sub -container -border-btm">
       <ListWrapper :listItems="[
@@ -55,6 +61,14 @@ import blockHelpers from '@/mixins/blocks/helpers'
 import SideTabList from '@/components/table/SideTabList'
 import ListWrapper from '@/components/list/ListWrapper'
 import TxCard from '@/modules/TxCard'
+import TooltipWrapper from '@/components/tooltip/TooltipWrapper'
+
+const JSON_COPY_STATES = {
+  EMPTY: 'EMPTY',
+  COPYING: 'COPYING',
+  SUCCESS: 'SUCCESS',
+  FAIL: 'FAIL'
+}
 
 export default {
   props: {
@@ -63,11 +77,14 @@ export default {
   components: {
     SideTabList,
     ListWrapper,
-    TxCard
+    TxCard,
+    TooltipWrapper
   },
   data() {
     return {
-      isActive: false
+      isActive: false,
+      jsonCopyState: JSON_COPY_STATES.EMPTY,
+      tooltipText: ''
     }
   },
   computed: {
@@ -88,12 +105,49 @@ export default {
     },
     fmtBlockData() {
       return this.blockData.data
+    },
+    tooltipState() {
+      switch (this.jsonCopyState) {
+        case JSON_COPY_STATES.EMPTY:
+          return false
+        case JSON_COPY_STATES.COPYING:
+        case JSON_COPY_STATES.SUCCESS:
+        case JSON_COPY_STATES.FAIL:
+          return true
+        default:
+          return false
+      }
+    },
+    fmtTooltipText() {
+      if (this.tooltipState) {
+        switch (this.jsonCopyState) {
+          case JSON_COPY_STATES.COPYING:
+            this.tooltipText = 'Copying data...'
+            break
+          case JSON_COPY_STATES.SUCCESS:
+            this.tooltipText = 'JSON is copied'
+            break
+          case JSON_COPY_STATES.FAIL:
+            this.tooltipText = 'Error copying JSON'
+            break
+        }
+      }
+
+      return this.tooltipText
     }
   },
   methods: {
+    setJsonCopyState(state) {
+      const fmtState = Object.keys(JSON_COPY_STATES)
+        .filter(key => state === key).length < 0
+          ? JSON_COPY_STATES.EMPTY
+          : state
+
+      this.jsonCopyState = fmtState
+    },
     handleJsonCopy() {
-      function fallbackCopyTextToClipboard(text) {
-        var textArea = document.createElement("textarea")
+      function fallbackCopyTextToClipboard(text, sucessCallback, failedCallback) {
+        const  textArea = document.createElement("textarea")
         textArea.value = text
         
         // Avoid scrolling to bottom
@@ -108,27 +162,58 @@ export default {
         try {
           var successful = document.execCommand('copy')
           var msg = successful ? 'successful' : 'unsuccessful'
-          console.log('Fallback: Copying text command was ' + msg)
+          if (sucessCallback) sucessCallback()
         } catch (err) {
           console.error('Fallback: Oops, unable to copy', err)
+          if (failedCallback) failedCallback()
         }
 
         document.body.removeChild(textArea)
       }
-      function copyTextToClipboard(text) {
+      function copyTextToClipboard(text, sucessCallback, failedCallback) {    
         if (!navigator.clipboard) {
           fallbackCopyTextToClipboard(text)
           return
         }
         navigator.clipboard.writeText(text).then(function() {
-          console.log('Async: Copying to clipboard was successful!')
+          if (sucessCallback) sucessCallback()
+          return
         }, function(err) {
           console.error('Async: Could not copy text: ', err)
+          if (failedCallback) failedCallback()
         })
       }
+      function actionCallback(isSuccess=true, envThis) {
+        return () => {
+          if (isSuccess) { 
+            envThis.setJsonCopyState(JSON_COPY_STATES.SUCCESS)
+          } else {
+            envThis.setJsonCopyState(JSON_COPY_STATES.FAIL)       
+          }
 
-      copyTextToClipboard(JSON.stringify(this.blockData.rawJson))
-    }
+          setTimeout(function() {
+            envThis.setJsonCopyState(JSON_COPY_STATES.EMPTY)
+          }.bind(envThis), 1500)          
+        }
+      }
+      
+      /*
+       *
+       // 1. Set copying status to COPYING
+       *
+       */
+      this.setJsonCopyState(JSON_COPY_STATES.COPYING)
+      /*
+       *
+       // 2. Init copy process
+       *
+       */
+      copyTextToClipboard(
+        JSON.stringify(this.blockData.rawJson),
+        actionCallback(true, this),
+        actionCallback(false, this)
+      )
+    },
   }
 }
 </script>

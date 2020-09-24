@@ -8,9 +8,9 @@
       <slot/>
     </div>
     <div 
-      class="tooltip"
+      :class="['tooltip', `-${direction}`]"
       ref="tooltip"
-      :style="{ bottom: `calc(50% - ${tooltipOffsetValue}px / 2)` }"
+      :style="{ bottom: bottomOffset }"
     >
       <span class="tooltip__content" v-html="content"></span>
     </div>
@@ -19,14 +19,22 @@
 
 <script>
 export default {
-  // TODO: implement direction options
   props: {
     content: { type: String, required: true },
+    isEventTriggerType: {
+      type: Object,
+      default: null,
+      validator: function(value) {
+        if (value == null || !value) return true
+        
+        return typeof value?.triggerActiveState === 'boolean'
+      }
+    },
     direction: {
       type: String,
       default: 'right',
       validator: function(value) {
-        return ['top', 'right'].indexOf(value) !== -1
+        return ['top', 'right', 'left'].indexOf(value) !== -1
       }     
     }
   },
@@ -42,17 +50,36 @@ export default {
     },
     tooltipOffsetValue() {
       return this.tooltipHeight
+    },
+    bottomOffset() {
+      if (this.direction === 'right' || this.direction === 'left') {
+        return `calc(50% - ${this.tooltipOffsetValue}px / 2)`
+      } else if (this.direction === 'top') {
+        return `calc(100% + 6px)`
+      }
     }
   },
   methods: {
     handleMouseEnter() {
-      this.isActive = true
+      if (!this.isEventTriggerType) {
+        this.isActive = true
+      }
     },
     handleMouseLeave() {
-      this.isActive = false
+      if (!this.isEventTriggerType) {
+        this.isActive = false
+      }
     },
     setTooltipHeight() {
       this.tooltipHeight = this.$refs.tooltip.clientHeight
+    }
+  },
+  watch: {
+    isEventTriggerType() {
+      this.isActive = this.isEventTriggerType.triggerActiveState
+    },
+    content() {
+      this.setTooltipHeight()
     }
   },
   created() {
@@ -74,9 +101,13 @@ export default {
 }
 
 .tooltip {
+  --tooltip-size: 6px;
+}
+
+.tooltip {
   position: absolute;
   bottom: 0;
-  left: calc(100% + 1rem);
+  left: calc(100% + 0.85rem);
   padding: 0.5rem 0.8rem 0.6rem 0.6rem;
   border-radius: 4px;
   font-size: 0.875rem;
@@ -84,7 +115,6 @@ export default {
   color: var(--c-txt-contrast-secondary);
   background-color: var(--c-bg-contrast-secondary);
   box-shadow: 0px 0px 8px rgba(0,0,0,.1);
-  /* width: 15vw; */
   white-space: nowrap;
   overflow-wrap: normal;
   transition: opacity .3s;
@@ -97,18 +127,40 @@ export default {
 .tooltip:before {
   content: '';
   position: absolute;
-  top: calc(50% - 6px);
-  left: -6px;
+  top: calc(50% - var(--tooltip-size));
+  left: calc(var(--tooltip-size) * -1);
   width: 0; 
   height: 0; 
-  border-top: 6px solid transparent;
-  border-bottom: 6px solid transparent; 
-  border-right: 8px solid var(--c-bg-contrast-secondary);
+  border-top: var(--tooltip-size) solid transparent;
+  border-bottom: var(--tooltip-size) solid transparent; 
+  border-right: calc(var(--tooltip-size) + 2px) solid var(--c-bg-contrast-secondary);
 }
-
 .tooltip-wrapper.-is-active .tooltip {
   opacity: 1;
   pointer-events: initial;
+}
+
+.tooltip.-top {
+  left: -50%;
+  width: 12vw;
+  padding: 0.5rem 0.8rem 0.6rem 0.8rem;
+  overflow-wrap: break-word;
+  white-space: break-spaces;
+}
+.tooltip.-top:before {
+  top: auto;
+  bottom: calc(var(--tooltip-size) * -1 - 2px);
+  left: calc(50% - var(--tooltip-size));
+  transform: rotate(-90deg);
+}
+.tooltip.-left {
+  left: auto;
+  right: calc(100% + 0.8rem);
+}
+.tooltip.-left:before {
+  left: auto;
+  right: calc(var(--tooltip-size) * -1);
+  transform: rotate(180deg);
 }
 
 .tooltip__content span {
