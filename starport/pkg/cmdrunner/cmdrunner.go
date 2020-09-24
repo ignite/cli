@@ -128,7 +128,9 @@ func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
 	c.Dir = dir
 	go func() {
 		<-ctx.Done()
-		c.Process.Signal(os.Interrupt)
+		if c.Process != nil {
+			c.Process.Signal(os.Interrupt)
+		}
 	}()
 	return c
 }
