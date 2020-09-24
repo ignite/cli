@@ -88,8 +88,12 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			}
 			return s.PostExec(err)
 		}
-		c := r.newCommand(ctx, s)
+		c := r.newCommand(s)
 		startErr := c.Start()
+		go func() {
+			<-ctx.Done()
+			c.Process.Signal(r.endSignal)
+		}()
 		if startErr != nil {
 			if err := runPostExec(startErr); err != nil {
 				return err
@@ -112,7 +116,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	return g.Wait()
 }
 
-func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
+func (r *Runner) newCommand(s *step.Step) *exec.Cmd {
 	if s.Exec.Command == "" {
 		// this is a programmer error so better to panic instead of
 		// returning an err.
@@ -136,11 +140,5 @@ func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
-	go func() {
-		<-ctx.Done()
-		if c.Process != nil {
-			c.Process.Signal(r.endSignal)
-		}
-	}()
 	return c
 }
