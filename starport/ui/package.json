@@ -8,6 +8,7 @@
   },
   "dependencies": {
     "axios": "^0.19.2",
+    "change-case": "^4.1.1",
     "core-js": "^3.6.5",
     "moment": "^2.28.0",
     "reconnecting-websocket": "^4.4.0",

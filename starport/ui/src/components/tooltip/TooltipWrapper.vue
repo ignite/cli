@@ -77,14 +77,16 @@ export default {
   position: absolute;
   bottom: 0;
   left: calc(100% + 1rem);
-  padding: 0.6rem 0.6rem 0.7rem 0.9rem;
+  padding: 0.5rem 0.8rem 0.6rem 0.6rem;
   border-radius: 4px;
   font-size: 0.875rem;
   line-height: 1.35;
   color: var(--c-txt-contrast-secondary);
   background-color: var(--c-bg-contrast-secondary);
   box-shadow: 0px 0px 8px rgba(0,0,0,.1);
-  width: 15vw;
+  /* width: 15vw; */
+  white-space: nowrap;
+  overflow-wrap: normal;
   transition: opacity .3s;
 }
 .tooltip {

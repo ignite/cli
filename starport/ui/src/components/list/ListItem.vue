@@ -29,11 +29,15 @@ export default {
 }
 .list-item__head {
   width: 12%;
+  margin-right: 0.5rem;  
+  margin-top: 1px;
+  font-size: 0.8125rem;  
   color: var(--c-txt-grey);
 }
 .list-item__content {
   flex: 1 0;
   color: var(--c-txt-secondary);
+  overflow-wrap: break-word;
 }
 
 @media only screen and (max-width: 1400px) {
@@ -41,6 +45,7 @@ export default {
     flex-direction: column;
   }
   .list-item__head {
+    width: 100%;
     font-size: 0.8125rem;
     margin-bottom: 0.35rem;
   }

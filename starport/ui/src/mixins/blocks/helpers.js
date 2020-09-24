@@ -1,5 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
+import { capitalCase } from 'change-case'
 
 const getBlockTemplate = (header, txsData) => ({
   height: header.height,
@@ -247,16 +248,20 @@ export default {
        * TODO: define shape of block object
        */                
       txMsg({ type, value }, chainId) {
-        function fmtMsgKey(msgKey) {
-          return msgKey.charAt(0).toUpperCase() + msgKey.slice(1)
-        }
-
+        function setMsgHolder(msgs, holder) {
+          for (const [key, msg] of Object.entries(msgs)) {          
+            if (Array.isArray(msg)) {
+              msg.forEach(subMsg => setMsgHolder(subMsg, holder))
+              break
+            }
+            holder[capitalCase(key)] = msg
+          }
+        }        
         const msgHolder = {
           type: this.getMsgType(type, chainId)
         }
-        for (const [key, msg] of Object.entries(value)) {
-          msgHolder[fmtMsgKey(key)] = msg
-        }
+
+        setMsgHolder(value, msgHolder)
 
         return msgHolder
       },
@@ -299,7 +304,7 @@ export default {
        * 
        */             
       getMsgType(type, prefix) {
-        return type.replace(prefix+'/', '')
+        return type.replace(prefix+'/', '').replace('cosmos-sdk/', '')
       }      
     }
   }
