@@ -140,7 +140,7 @@ export default {
       blockHeight,
       toGetOlderBlocks=true
     }) {
-      const localEnv = rootGetters['cosmos/localEnv']      
+      const appEnv = rootGetters['cosmos/appEnv']      
       const { fetchBlockMeta, fetchBlockchain } = blockHelpers
       const latestBlock = getters.latestBlock      
 
@@ -150,7 +150,7 @@ export default {
       })
 
       fetchBlockchain({
-        rpcUrl: localEnv.COSMOS_RPC,
+        rpcUrl: appEnv.RPC,
         minBlockHeight: undefined,
         maxBlockHeight: blockHeight,
         latestBlockHeight: latestBlock ? latestBlock.height : null
@@ -162,7 +162,7 @@ export default {
             for (let i=0; i<blockchain.length; i++) {
               const { header: prevHeader } = blockchain[i]
 
-              await fetchBlockMeta(localEnv.COSMOS_RPC, prevHeader.height, blockErrCallback)
+              await fetchBlockMeta(appEnv.RPC, prevHeader.height, blockErrCallback)
                 .then(blockMeta => {
                   dispatch('setBlockMeta', {
                     header: prevHeader,
@@ -186,7 +186,7 @@ export default {
       toPopOverloadBlocks=true,
       isValidLatestBlock=false
     }) {
-      const localEnv = rootGetters['cosmos/localEnv']      
+      const appEnv = rootGetters['cosmos/appEnv']      
       const { fetchDecodedTx } = blockHelpers
 
       const blockFormatter = blockHelpers.blockFormatter()
@@ -199,7 +199,7 @@ export default {
       })      
                       
       blockHolder.setBlockMeta(blockMeta)
-      blockHolder.setBlockTxs(fetchDecodedTx, localEnv.LCD, txErrCallback)
+      blockHolder.setBlockTxs(fetchDecodedTx, appEnv.LCD, txErrCallback)
       
       // this guards duplicated block pushed into blocksStack
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
@@ -229,8 +229,8 @@ export default {
       }     
     },
     initBlockConnection({ commit, dispatch, getters, rootGetters }) {
-      const localEnv = rootGetters['cosmos/localEnv']
-      const ws = new ReconnectingWebSocket(`ws://${localEnv.COSMOS_RPC}/websocket`)
+      const appEnv = rootGetters['cosmos/appEnv']
+      const ws = new ReconnectingWebSocket(appEnv.WS)
   
       ws.onopen = function() {
         ws.send(
@@ -262,7 +262,7 @@ export default {
           }          
           
           // 2. Regular block fetching
-          fetchBlockMeta(localEnv.COSMOS_RPC, header.height, blockErrCallback)
+          fetchBlockMeta(appEnv.RPC, header.height, blockErrCallback)
             .then(blockMeta => {
               dispatch('setBlockMeta', {
                 header,

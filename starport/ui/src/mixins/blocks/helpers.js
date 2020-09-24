@@ -21,7 +21,7 @@ export default {
    */      
   async fetchBlockMeta(rpcUrl, blockHeight, errCallback) {
     try {
-      return await axios.get(`http://${rpcUrl}/block?height=${blockHeight}`)
+      return await axios.get(`${rpcUrl}/block?height=${blockHeight}`)
     } catch (err) {
       console.error(err)
       errCallback(err)
@@ -71,7 +71,7 @@ export default {
     }
 
     try {
-      return await axios.get(`http://${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
+      return await axios.get(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
     } catch (err) {
       console.error(err)
       if (errCallback) errCallback(err)
@@ -88,7 +88,7 @@ export default {
    */      
   async fetchDecodedTx(lcdUrl, txEncoded, errCallback) {
     try {
-      return await axios.post(`http://${lcdUrl}/txs/decode`, { tx: txEncoded }) 
+      return await axios.post(`${lcdUrl}/txs/decode`, { tx: txEncoded }) 
     } catch (err) {
       console.error(txEncoded, err)
       errCallback(txEncoded, err)

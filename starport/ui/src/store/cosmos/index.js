@@ -4,12 +4,14 @@ import ui from './ui'
 export default {
   namespaced: true,
   state: {
-    LOCAL_ENV: {
-      // COSMOS_RPC: 'rpc.nylira.net',
-      SCAFFOLD: 'localhost:8080',
-      COSMOS_RPC: 'localhost:26657',
-      LCD: 'localhost:1317',
-      STARPORT_APP: 'localhost:12345'
+    APP_ENV: {
+      GITPOD: process.env.VUE_APP_CUSTOM_URL && new URL(process.env.VUE_APP_CUSTOM_URL),
+      FRONTEND: 'http://localhost:8080',
+      RPC: 'http://localhost:26657',
+      API: 'http://localhost:1317',
+      WS: 'ws://localhost:26657/websocket',
+      STARPORT_APP: 'http://localhost:12345',
+      ADDR_PREFIX: 'cosmos'
     },
     backend: {
       env: {
@@ -24,7 +26,7 @@ export default {
     }
   },
   getters: {
-    localEnv: state => state.LOCAL_ENV,
+    appEnv: state => state.APP_ENV,
     backendEnv: state => state.backend.env,
     backendRunningStates: state => state.backend.running
   },
@@ -66,6 +68,20 @@ export default {
       state.backend.env = {
         node_js,
         vue_app_custom_url
+      }
+    },
+    /**
+     * 
+     * 
+     * @param {object} state
+     * @param {object} appEnv
+     * 
+     * 
+     */     
+    setAppEnv(state, appEnv) {
+      state.APP_ENV = {
+        ...state.APP_ENV,
+        ...appEnv
       }
     }
   },
