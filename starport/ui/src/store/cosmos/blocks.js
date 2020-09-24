@@ -199,7 +199,7 @@ export default {
       })      
                       
       blockHolder.setBlockMeta(blockMeta)
-      blockHolder.setBlockTxs(fetchDecodedTx, appEnv.LCD, txErrCallback)
+      blockHolder.setBlockTxs(fetchDecodedTx, appEnv.API, txErrCallback)
       
       // this guards duplicated block pushed into blocksStack
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
@@ -230,7 +230,6 @@ export default {
     },
     initBlockConnection({ commit, dispatch, getters, rootGetters }) {
       const appEnv = rootGetters['cosmos/appEnv']
-      console.log(appEnv)
       const ws = new ReconnectingWebSocket(appEnv.WS) 
   
       ws.onopen = function() {
