@@ -16,7 +16,7 @@ export default {
     backend: {
       env: {
         node_js: false,
-        vue_app_custom_url: '',
+        vue_app_custom_url: process.env.VUE_APP_CUSTOM_URL,
       },      
       running: { 
         frontend: false,        

@@ -17,6 +17,8 @@ export default {
         const { data } = await axios.get(`${this.appEnv.STARPORT_APP}/status`)
         const { status, env } = data
 
+        console.log('backend status', data)
+
         this.setBackendRunningStates({
           frontend: status.is_my_app_frontend_alive,
           rpc: status.is_consensus_engine_alive,
@@ -38,6 +40,8 @@ export default {
     getAppEnvs() {
       const { GITPOD, FRONTEND, RPC, API, WS, ADDR_PREFIX } = this.appEnv
       const { VUE_APP_API_COSMOS, VUE_APP_WS_TENDERMINT, VUE_APP_API_TENDERMINT, VUE_APP_ADDRESS_PREFIX } = process.env
+
+      console.log('backend init', process.env)
 
       const fmtAPI =
         VUE_APP_API_COSMOS ||
