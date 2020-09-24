@@ -29,7 +29,7 @@
         </div>
 
         <!-- transactions -->
-        <div v-if="fmtBlockData.blockMsg.txs>0 && blockData.txs.length>0">
+        <div v-if="fmtBlockData.blockMsg.txs>0 && fmtBlockData.txs.length>0">
           <div 
             v-for="tx in messagesForTable"
             :key="tx.tableData.id"          
