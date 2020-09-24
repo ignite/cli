@@ -34,14 +34,17 @@ export default {
      * 
      * 
      */    
-    setHighlightedBlock(state, block) {
+    setHighlightedBlock(state, { block }) {
       if (block == null || !block) {
         state.table.highlightedBlock = {
           id: null,
           data: null
         }
       } else {
-        state.table.highlightedBlock = block
+        state.table.highlightedBlock = {
+          ...state.table.highlightedBlock,
+          ...block
+        }
       }
     },
     /**
@@ -273,7 +276,21 @@ export default {
             })
         }         
       }      
-    }
+    },
+    async fetchHighlightedBlockMeta({ state, rootGetters }, { block }) {
+      blockHelpers.fetchBlockMeta(rootGetters['cosmos/appEnv'].RPC, block.data.blockMsg.height)
+        .then(blockMeta => {
+          state.table.highlightedBlock.rawJson = blockMeta
+        })
+    },
+    async setHighlightedBlock({ dispatch, commit }, { block }) {
+      if ( block == null || !block ) {
+        commit('setHighlightedBlock', { block })
+      } else {
+        await dispatch('fetchHighlightedBlockMeta', { block })
+          .then(() => commit('setHighlightedBlock', { block }))
+      }
+    },    
   }
 }
 

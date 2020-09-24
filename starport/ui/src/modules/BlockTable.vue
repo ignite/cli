@@ -19,7 +19,7 @@
           >{{blockFilterText}}</button> 
         </div>
 
-        <BlockSheet slot="innerSheet" :blockData="highlightedBlock.data"/>
+        <BlockSheet slot="innerSheet" :blockData="localHighlightedBlock"/>
 
         <div slot="tableContent">
           <TableRowWrapper 
@@ -27,7 +27,7 @@
             :key="msg.tableData.id"  
             :rowData="msg"
             :rowId="msg.blockMsg.blockHash"   
-            :isRowActive="msg.blockMsg.blockHash === highlightedBlock.id"   
+            :isRowActive="msg.blockMsg.blockHash === localHighlightedBlock.id"   
             :isWithInnerSheet="true" 
             @row-clicked="handleRowClick"
           >   
@@ -74,7 +74,8 @@ export default {
       blockFormatter: blockHelpers.blockFormatter(),
       states: {
         isHidingBlocksWithoutTxs: false
-      }
+      },
+      localHighlightedBlock: null
     }
   },
   computed: {
@@ -83,6 +84,7 @@ export default {
      * Vuex 
      *
      */
+    ...mapGetters('cosmos', [ 'appEnv' ]),
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock' ]),
     /*
@@ -124,8 +126,8 @@ export default {
      *
      */    
     ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
-    ...mapMutations('cosmos/blocks', [ 'setHighlightedBlock', 'popOverloadBlocks' ]),
-    ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain' ]),
+    ...mapMutations('cosmos/blocks', [ 'popOverloadBlocks' ]),
+    ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain', 'setHighlightedBlock' ]),
     /*
      *
      * Local 
@@ -138,7 +140,9 @@ export default {
           data: payload.rowData
         } : null
         
-        this.setHighlightedBlock(highlightBlockPayload)
+        this.setHighlightedBlock({
+          block: highlightBlockPayload
+        })
       }
 
       const isActiveRowClicked = this.highlightedBlock.id === rowId
@@ -162,10 +166,10 @@ export default {
       }
     },
     handleSheetClose() {
-      this.setHighlightedBlock(null)
+      this.setHighlightedBlock({ block: null })
     },
     handleFilterClick() {
-      this.setHighlightedBlock(null)
+      this.setHighlightedBlock({ block: null })
       this.setTableSheetState({
         tableId: this.tableId,
         sheetState: false
@@ -193,6 +197,14 @@ export default {
         toGetOlderBlocks: true
       })
     }    
+  },
+  watch: {
+    highlightedBlock() {
+      this.localHighlightedBlock = this.highlightedBlock
+    }
+  },
+  created() {
+    this.localHighlightedBlock = this.highlightedBlock
   }
 }
 </script>

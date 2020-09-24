@@ -1,17 +1,18 @@
 <template>
-  <div v-if="!blockData">waiting for block data...</div>
+  <div v-if="!fmtBlockData">waiting for block data...</div>
   
   <div 
     v-else
     :class="['sheet']"
   >
     <div class="sheet__top -container -border-btm">
-      <h3 class="sheet__heading">Block #{{blockData.blockMsg.height}}</h3>
+      <h3 class="sheet__heading">Block #{{fmtBlockData.blockMsg.height}}</h3>
+      <button class="sheet__btn" @click="handleJsonCopy">Copy block JSON</button>
     </div>
     <div class="sheet__sub -container -border-btm">
       <ListWrapper :listItems="[
-        { headText: 'Hash', contentText: blockData.blockMsg.blockHash },
-        { headText: 'Time', contentText: blockData.blockMsg.time },
+        { headText: 'Hash', contentText: fmtBlockData.blockMsg.blockHash },
+        { headText: 'Time', contentText: fmtBlockData.blockMsg.time },
       ]" />      
     </div>
     <div class="sheet__main -container">
@@ -22,7 +23,7 @@
         </div>
 
         <!-- transactions -->
-        <div v-if="blockData.blockMsg.txs>0 && blockData.txs.length>0">
+        <div v-if="fmtBlockData.blockMsg.txs>0 && blockData.txs.length>0">
           <div 
             v-for="tx in messagesForTable"
             :key="tx.tableData.id"          
@@ -32,7 +33,7 @@
           </div>
         </div>
         <div 
-          v-else-if="blockData.blockMsg.txs>0 && blockData.txs.length<=0"
+          v-else-if="fmtBlockData.blockMsg.txs>0 && blockData.txs.length<=0"
           class="cards-container__card -is-empty"
         >
           <p>🚨 Error fetching transaction data</p>
@@ -83,8 +84,51 @@ export default {
      */    
     messagesForTable() {
       return blockHelpers.blockFormatter()
-        .txForCard(this.blockData.txs, this.chainId)
-    }    
+        .txForCard(this.fmtBlockData.txs, this.chainId)
+    },
+    fmtBlockData() {
+      return this.blockData.data
+    }
+  },
+  methods: {
+    handleJsonCopy() {
+      function fallbackCopyTextToClipboard(text) {
+        var textArea = document.createElement("textarea")
+        textArea.value = text
+        
+        // Avoid scrolling to bottom
+        textArea.style.top = "0"
+        textArea.style.left = "0"
+        textArea.style.position = "fixed"
+
+        document.body.appendChild(textArea)
+        textArea.focus()
+        textArea.select()
+
+        try {
+          var successful = document.execCommand('copy')
+          var msg = successful ? 'successful' : 'unsuccessful'
+          console.log('Fallback: Copying text command was ' + msg)
+        } catch (err) {
+          console.error('Fallback: Oops, unable to copy', err)
+        }
+
+        document.body.removeChild(textArea)
+      }
+      function copyTextToClipboard(text) {
+        if (!navigator.clipboard) {
+          fallbackCopyTextToClipboard(text)
+          return
+        }
+        navigator.clipboard.writeText(text).then(function() {
+          console.log('Async: Copying to clipboard was successful!')
+        }, function(err) {
+          console.error('Async: Could not copy text: ', err)
+        })
+      }
+
+      copyTextToClipboard(JSON.stringify(this.blockData.rawJson))
+    }
   }
 }
 </script>
@@ -142,16 +186,28 @@ export default {
   background-color: var(--c-theme-secondary);
 }
 
-.sheet .sheet__top {
+.sheet__top {
   padding-top: 1.25rem;
   padding-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
-.sheet .sheet__sub {
+.sheet__sub {
   padding-top: 1rem;
   padding-bottom: 1rem;
 }
-.sheet .sheet__main {
+.sheet__main {
   padding-top: 1.5rem;
+}
+.sheet__btn {
+  font-size: 0.8125rem;
+  color: var(--c-txt-grey);
+  transition: color .3s;
+}
+.sheet__btn:hover {
+  color: var(--c-txt-secondary);
+  transition: color .3s;
 }
 
 .sheet__heading {
