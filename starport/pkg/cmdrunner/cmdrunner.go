@@ -11,6 +11,7 @@ import (
 )
 
 type Runner struct {
+	endSignal   os.Signal
 	stdout      io.Writer
 	stderr      io.Writer
 	workdir     string
@@ -43,8 +44,17 @@ func RunParallel() Option {
 	}
 }
 
+// EndSignal configures s to be signaled to the processes to end them.
+func EndSignal(s os.Signal) Option {
+	return func(r *Runner) {
+		r.endSignal = s
+	}
+}
+
 func New(options ...Option) *Runner {
-	r := &Runner{}
+	r := &Runner{
+		endSignal: os.Interrupt,
+	}
 	for _, o := range options {
 		o(r)
 	}
@@ -129,7 +139,7 @@ func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
 	go func() {
 		<-ctx.Done()
 		if c.Process != nil {
-			c.Process.Signal(os.Interrupt)
+			c.Process.Signal(r.endSignal)
 		}
 	}()
 	return c
