@@ -3,6 +3,7 @@ package cmdrunner
 import (
 	"context"
 	"io"
+	"os"
 	"os/exec"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -121,9 +122,13 @@ func (r *Runner) newCommand(ctx context.Context, s *step.Step) *exec.Cmd {
 	if dir == "" {
 		dir = r.workdir
 	}
-	c := exec.CommandContext(ctx, s.Exec.Command, s.Exec.Args...)
+	c := exec.Command(s.Exec.Command, s.Exec.Args...)
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
+	go func() {
+		<-ctx.Done()
+		c.Process.Signal(os.Interrupt)
+	}()
 	return c
 }
