@@ -90,16 +90,16 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		}
 		c := r.newCommand(s)
 		startErr := c.Start()
-		go func() {
-			<-ctx.Done()
-			c.Process.Signal(r.endSignal)
-		}()
 		if startErr != nil {
 			if err := runPostExec(startErr); err != nil {
 				return err
 			}
 			continue
 		}
+		go func() {
+			<-ctx.Done()
+			c.Process.Signal(r.endSignal)
+		}()
 		if err := s.InExec(); err != nil {
 			return err
 		}
