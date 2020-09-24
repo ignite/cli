@@ -230,6 +230,7 @@ export default {
     },
     initBlockConnection({ commit, dispatch, getters, rootGetters }) {
       const appEnv = rootGetters['cosmos/appEnv']
+      console.log(appEnv)
       const ws = new ReconnectingWebSocket(appEnv.WS) 
   
       ws.onopen = function() {
