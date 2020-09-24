@@ -2,6 +2,7 @@
 package httpstatuschecker
 
 import (
+	"context"
 	"net/http"
 )
 
@@ -14,14 +15,7 @@ type checker struct {
 // Option used to customize checker.
 type Option func(*checker)
 
-// Client configures http client.
-func Client(c *http.Client) Option {
-	return func(cr *checker) {
-		cr.c = c
-	}
-}
-
-// Client configures http method.
+// Method configures http method.
 func Method(name string) Option {
 	return func(cr *checker) {
 		cr.method = name
@@ -29,7 +23,7 @@ func Method(name string) Option {
 }
 
 // Check checks if given http addr is alive by applying options.
-func Check(addr string, options ...Option) (isAvailable bool, err error) {
+func Check(ctx context.Context, addr string, options ...Option) (isAvailable bool, err error) {
 	cr := &checker{
 		c:      http.DefaultClient,
 		addr:   addr,
@@ -38,11 +32,11 @@ func Check(addr string, options ...Option) (isAvailable bool, err error) {
 	for _, o := range options {
 		o(cr)
 	}
-	return cr.check()
+	return cr.check(ctx)
 }
 
-func (c *checker) check() (bool, error) {
-	req, err := http.NewRequest(c.method, c.addr, nil)
+func (c *checker) check(ctx context.Context) (bool, error) {
+	req, err := http.NewRequestWithContext(ctx, c.method, c.addr, nil)
 	if err != nil {
 		return false, err
 	}
