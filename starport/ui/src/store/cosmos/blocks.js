@@ -142,7 +142,7 @@ export default {
     }) {
       const appEnv = rootGetters['cosmos/appEnv']      
       const { fetchBlockMeta, fetchBlockchain } = blockHelpers
-      const latestBlock = getters.latestBlock      
+      const latestBlock = getters.latestBlock    
 
       const blockErrCallback = (errLog) => commit('addErrorBlock', {
         blockHeight: header.height,
