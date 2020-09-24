@@ -35,7 +35,7 @@ export default {
         })        
       }
     },
-    getAppEnvs() {
+    async getAppEnvs() {
       const { GITPOD, FRONTEND, RPC, API, WS, ADDR_PREFIX } = this.appEnv
       const { VUE_APP_API_COSMOS, VUE_APP_WS_TENDERMINT, VUE_APP_API_TENDERMINT, VUE_APP_ADDRESS_PREFIX } = process.env
 
@@ -54,6 +54,8 @@ export default {
       const fmtADDR_PREFIX = 
         VUE_APP_ADDRESS_PREFIX || 
         ADDR_PREFIX
+
+      console.log(fmtRPC)
       
       return {
         RPC: fmtRPC,
@@ -66,7 +68,14 @@ export default {
   async created() {
     /*
      *
-     // 1. Fetch backend status regularly
+     // 1. Set global app variables
+     *
+     */
+    await this.setAppEnv(this.getAppEnvs())    
+
+    /*
+     *
+     // 2. Fetch backend status regularly
      *
      */
     this.timer = setInterval(this.setStatusState.bind(this), 5000)
@@ -75,13 +84,6 @@ export default {
     } catch {
       console.log(`Can't fetch /env`)
     }
-
-    /*
-     *
-     // 2. Set global app variables
-     *
-     */
-    await this.setAppEnv(this.getAppEnvs())
   },
   beforeDestroy() {
     clearInterval(this.timer)

@@ -72,7 +72,7 @@ export default {
     },    
     getBackendUrl(port) {
       const { vue_app_custom_url } = this.backendEnv
-      return (vue_app_custom_url && getPrefixURL(vue_app_custom_url, port)) || `http://localhost:${port}`
+      return (vue_app_custom_url && this.getPrefixURL(vue_app_custom_url, port)) || `http://localhost:${port}`
     }
   }
 }
