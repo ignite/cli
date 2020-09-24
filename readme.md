@@ -24,6 +24,18 @@ npm i -g @tendermint/starport
 brew install tendermint/tap/starport
 ```
 
+### Debian/Ubuntu with Snapcraft
+
+```
+snap install --classic node
+```
+
+Append your current working directory to the environment variable `PATH`:
+
+```
+export PATH=$PATH:$PWD/node_modules/.bin/
+```
+
 ### Build from source
 
 ```
