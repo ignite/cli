@@ -39,8 +39,6 @@ export default {
       const { GITPOD, FRONTEND, RPC, API, WS, ADDR_PREFIX } = this.appEnv
       const { VUE_APP_API_COSMOS, VUE_APP_WS_TENDERMINT, VUE_APP_API_TENDERMINT, VUE_APP_ADDRESS_PREFIX } = process.env
 
-      console.log(process.env)
-
       const fmtAPI =
         VUE_APP_API_COSMOS ||
         (GITPOD && `${GITPOD.protocol}//1317-${GITPOD.hostname}`) ||
