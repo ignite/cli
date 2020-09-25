@@ -46,4 +46,4 @@ These are the basic commands navigating starport. From creating a first blockcha
 - The default blockchain includes networking and a consensus protocol with your own token.
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
 
-[◀️ Previous - Development Mode](../../01_introduction/03_development_mode/03_development_mode.md) [▶️ Next - Genesis File](../../02_using_starport/02_genesis_file/02_genesis_file.md)  
+[◀️ Previous - Development Mode](../../01%20introduction/03_development_mode/03_development_mode.md) | [▶️ Next - Genesis File](../../02%20using%20starport/02_genesis_file/02_genesis_file.md)  
