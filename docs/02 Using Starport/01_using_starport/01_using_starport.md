@@ -20,6 +20,8 @@ starport app github.com/username/myapp
 
 This will create the folder `myapp` and is a usable blockchain blueprint. If you want to dive directly into looking at the details of your blockchain you can run it with entering your `myapp` folder and use the command `serve` to initialise your blockchain and start it.
 
+## Serve
+
 `starport serve`
 
 To start the server, go into you application's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.

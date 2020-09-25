@@ -31,19 +31,19 @@
 
 ## Quickstart 🚀 
 
-Scaffold your application
+Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
 
 ```bash
 starport app github.com/username/myapp
 ```
 
-Serve the blockchain application
+Serve the blockchain application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#serve)
 
 ```bash
 starport serve
 ```
 
-Add a new transaction type to your application
+Add a new transaction type to your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#how-to-use-types)
 
 ```bash
 starport type post title body
