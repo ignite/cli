@@ -193,5 +193,5 @@ Let's start creating and uploading contracts.
 
 Next:
 
-- [Create a Fungible Token](04%20usecases/02_erc20/02_erc20.md)
-- [Create a Non-Fungible Token](04%20usecases/04_nft/04_nft.md)
+- [Create a Fungible Token](04%20Use%20Cases/02_erc20/02_erc20.md)
+- [Create a Non-Fungible Token](04%20Use%20Cases/04_nft/04_nft.md)
