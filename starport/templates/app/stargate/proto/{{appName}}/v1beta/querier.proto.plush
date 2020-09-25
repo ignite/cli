@@ -2,7 +2,7 @@ syntax = "proto3";
 package <%= AppName %>.<%= AppName %>.v1beta1;
 
 import "cosmos/base/query/v1beta1/pagination.proto";
-// this line is used by starport scaffolding
+// this line is used by starport scaffolding # 1
 
 
 option go_package = "<%= ModulePath %>/x/<%= AppName %>/types";

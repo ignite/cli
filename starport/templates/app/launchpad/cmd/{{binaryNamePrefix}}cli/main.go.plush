@@ -24,7 +24,7 @@ import (
 	"github.com/tendermint/tendermint/libs/cli"
 
 	"<%= ModulePath %>/app"
-  // this line is used by starport scaffolding
+  // this line is used by starport scaffolding # 1
 )
 
 func main() {

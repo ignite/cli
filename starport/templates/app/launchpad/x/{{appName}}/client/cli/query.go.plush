@@ -29,7 +29,7 @@ func GetQueryCmd(queryRoute string, cdc *codec.Codec) *cobra.Command {
 
 	<%= AppName %>QueryCmd.AddCommand(
 		flags.GetCommands(
-      // this line is used by starport scaffolding
+      // this line is used by starport scaffolding # 1
 		)...,
 	)
 
