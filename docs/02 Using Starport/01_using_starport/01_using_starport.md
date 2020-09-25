@@ -96,4 +96,4 @@ A property that describes your local validator. `name` should be one of the name
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
 - Accounts are created during genesis of the application. These can be configured in the `config.yml`.
 
-[◀️ Previous - Development Mode](../../01%20introduction/03_development_mode/03_development_mode.md) | [▶️ Next - Genesis File](../../02%20using%20starport/02_genesis_file/02_genesis_file.md)  
+[◀️ Previous - Development Mode](../../01%20Introduction/03_development_mode/03_development_mode.md) | [▶️ Next - Genesis File](../../02%20Using%20Starport/02_genesis_file/02_genesis_file.md)  

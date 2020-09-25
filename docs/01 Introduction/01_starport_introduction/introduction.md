@@ -47,4 +47,4 @@ The most basic set of modules that are created with starport are `auth`, `bank`,
 - A combination of different modules on the Cosmos SDK will create different technology opportunities of a blockchain.
 
 
-[▶️ Next - Documentation](../../01%20introduction/02_documentation_specification/02_documentation_specification.md)  
+[▶️ Next - Documentation](../../01%20Introduction/02_documentation_specification/02_documentation_specification.md)  
