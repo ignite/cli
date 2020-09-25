@@ -1,6 +1,7 @@
 package starportserve
 
 import (
+	"context"
 	"net/http"
 	"os"
 
@@ -86,16 +87,17 @@ func (d *development) statusHandler() http.Handler {
 			appFrontendStatus bool
 		)
 		g := &errgroup.Group{}
+		ctx := context.Background()
 		g.Go(func() (err error) {
-			engineStatus, err = httpstatuschecker.Check(d.conf.EngineAddr)
+			engineStatus, err = httpstatuschecker.Check(ctx, d.conf.EngineAddr)
 			return
 		})
 		g.Go(func() (err error) {
-			appBackendStatus, err = httpstatuschecker.Check(d.conf.AppBackendAddr + appNodeInfoEndpoint)
+			appBackendStatus, err = httpstatuschecker.Check(ctx, d.conf.AppBackendAddr+appNodeInfoEndpoint)
 			return
 		})
 		g.Go(func() (err error) {
-			appFrontendStatus, err = httpstatuschecker.Check(d.conf.AppFrontendAddr)
+			appFrontendStatus, err = httpstatuschecker.Check(ctx, d.conf.AppFrontendAddr)
 			return
 		})
 		if err := g.Wait(); err != nil {

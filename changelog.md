@@ -1,5 +1,11 @@
 # Changelog
 
+### Features:
+
+* Pi Image Generation for chains generated with Starport
+* Github action with capture of binary artifacts for for chains generted with starport
+
+
 ## `v0.0.10`
 
 ### Features:
@@ -10,6 +16,7 @@
 * Added support for _validator_ configuration in _config.yml_.
 * Starport can be launched on Gitpod
 * Added `make clean`
+* Gitpod: Added guidelines. A sample scaffold pre-created and served.
 
 ### Fixes:
 

@@ -2,7 +2,7 @@
 
 Starport is the easiest way to build blockchains. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
-![Banner](./docs/banner.jpeg)
+![Banner](./assets/banner.jpeg)
 
 Overview: https://www.youtube.com/watch?v=rmbPjCGDXek
 
@@ -24,6 +24,18 @@ npm i -g @tendermint/starport
 brew install tendermint/tap/starport
 ```
 
+### Debian/Ubuntu with Snapcraft
+
+```
+snap install --classic node
+```
+
+Append your current working directory to the environment variable `PATH`:
+
+```
+export PATH=$PATH:$PWD/node_modules/.bin/
+```
+
 ### Build from source
 
 ```
@@ -36,10 +48,10 @@ Requirements: Go 1.14 and Node.js (optional but highly recommended, used for the
 
 ### Create an application
 
-This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, run:
+This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, where addresses are prefixed with the word blog (`blog14lyck0x72tsgsylcu9zgrvh867kyw50fzjsp6j`) run:
 
 ```
-starport app github.com/your-github-id/blog
+starport app github.com/your-github-id/blog --address-prefix blog
 ```
 
 | Flag               | Default  | Description                |
