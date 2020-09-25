@@ -17,7 +17,10 @@ export default {
   },
   mutations: {
     /**
+     * 
+     * @param {object} state
      * @param {string} tableId
+     * 
      */        
     createTable(state, tableId) {
       if (state.tables.filter(table => table.id === tableId).length>0) {
@@ -28,9 +31,12 @@ export default {
       state.tables.push({ id: tableId, isSheetActive: false })
     },
     /**
+     * 
+     * @param {object} state
      * @param {object|null} payload
-     * @param {string|null} payload[].tableId
-     * @param {boolean|null} payload[].sheetState
+     * @param {string|null} payload.tableId
+     * @param {boolean|null} payload.sheetState
+     * 
      */        
     setTableSheetState(state, payload) {
       state.tables.filter(table => table.id === payload.tableId)[0]

@@ -64,10 +64,11 @@ export default {
     /**
      * 
      * 
+     * @param {object} state
      * @param {object} states
-     * @param {boolean} states[].frontend
-     * @param {boolean} states[].rpc
-     * @param {boolean} states[].api
+     * @param {boolean} states.frontend
+     * @param {boolean} states.rpc
+     * @param {boolean} states.api
      * 
      * 
      */      
@@ -85,9 +86,10 @@ export default {
     /**
      * 
      * 
+     * @param {object} state
      * @param {object} env
-     * @param {boolean} states[].node_js
-     * @param {string} states[].vue_app_custom_url
+     * @param {boolean} states.node_js
+     * @param {string} states.vue_app_custom_url
      * 
      * 
      */     
@@ -98,20 +100,6 @@ export default {
       state.backend.env = {
         node_js,
         vue_app_custom_url
-      }
-    },
-    /**
-     * 
-     * 
-     * @param {object} state
-     * @param {object} appEnv
-     * 
-     * 
-     */     
-    setAppEnv(state, appEnv) {
-      state.APP_ENV = {
-        ...state.APP_ENV,
-        ...appEnv
       }
     }
   },
