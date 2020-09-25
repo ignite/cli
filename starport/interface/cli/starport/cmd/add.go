@@ -20,11 +20,17 @@ const (
 	apppkg     = "app"
 )
 
+
 func NewAdd() *cobra.Command {
+
+validArgs := []string{ "wasm" }
+
 	c := &cobra.Command{
 		Use:   "add [feature]",
-		Short: "Adds a feature to a project.",
-		Args:  cobra.MinimumNArgs(1),
+		Short: "Adds features like wasm to your blockchain",
+		Long: "Use starport add wasm to add support for webassembly smart contracts to your blockchain.",
+		Args:  cobra.ExactValidArgs(1),
+		ValidArgs: validArgs,
 		RunE:  addHandler,
 	}
 	return c

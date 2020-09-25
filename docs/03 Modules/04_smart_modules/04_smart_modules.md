@@ -9,4 +9,4 @@ With using Starport, you are already using a few smart modules like `IBC`, `slas
 
 - Smart modules can add a set of functions to your blockchain.
 
-[◀️ Previous - Advanced Modules](../../03_modules/03_advanced_modules/03_advanced_modules.md) [▶️ Next - Your own Modules](../../03_modules/05_your_own_module/05_your_own_module.md)  
+[◀️ Previous - Advanced Modules](../../03%20modules/03_advanced_modules/03_advanced_modules.md) | [▶️ Next - Your own Modules](../../03%20modules/05_your_own_module/05_your_own_module.md)  

@@ -30,4 +30,4 @@ Currently starport provides a basic Vue User-Interface that you can get inspired
 - You can change a module by modifying the files in `yourapp/x/`.
 - Starport has a Vue frontend where you can start to work immediately.
 
-[◀️ Previous - Smart Modules](../../03_modules/04_smart_modules/04_smart_modules.md) [▶️ Next - Smart Contracts](../../04_usecases/01_smart_contracts/01_smart_contracts.md)  
+[◀️ Previous - Smart Modules](../../03%20modules/04_smart_modules/04_smart_modules.md) | [▶️ Next - Smart Contracts](../../04%20use%20cases/01_smart_contracts/01_smart_contracts.md)  

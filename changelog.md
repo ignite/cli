@@ -1,5 +1,11 @@
 # Changelog
 
+### Features:
+
+* Pi Image Generation for chains generated with Starport
+* Github action with capture of binary artifacts for for chains generted with starport
+
+
 ## `v0.0.10`
 
 ### Features:

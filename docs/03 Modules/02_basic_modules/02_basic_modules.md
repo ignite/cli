@@ -64,4 +64,4 @@ Those modules are typically installed on default when using starport. There are 
 - The modules allow for account management, sending Tokens, managing supply and blockchain access.
 - Modules are "plug-and-play" for the Cosmos SDK.
 
-[◀️ Previous - What are modules](../../03_modules/01_what_are_modules/01_what_are_modules.md) [▶️ Next - Advanced Modules](../../03_modules/03_advanced_modules/03_advanced_modules.md)  
+[◀️ Previous - What are modules](../../03%20modules/01_what_are_modules/01_what_are_modules.md) | [▶️ Next - Advanced Modules](../../03%20modules/03_advanced_modules/03_advanced_modules.md)  

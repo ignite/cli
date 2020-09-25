@@ -1,3 +1,4 @@
-frontend/node_modules
-frontend/dist
-frontend/.cache
+vue/node_modules
+vue/dist
+vue/.cache
+build
