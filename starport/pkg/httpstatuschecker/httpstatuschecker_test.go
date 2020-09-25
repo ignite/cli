@@ -1,6 +1,7 @@
 package httpstatuschecker
 
 import (
+	"context"
 	"net/http"
 	"net/http/httptest"
 	"testing"
@@ -25,7 +26,7 @@ func TestCheckStatus(t *testing.T) {
 			}))
 			defer ts.Close()
 
-			isAvailable, err := Check(ts.URL)
+			isAvailable, err := Check(context.Background(), ts.URL)
 			require.NoError(t, err)
 			require.Equal(t, tt.isAvaiable, isAvailable)
 		})
@@ -33,7 +34,7 @@ func TestCheckStatus(t *testing.T) {
 }
 
 func TestCheckServerUnreachable(t *testing.T) {
-	isAvailable, err := Check("http://localhost:63257")
+	isAvailable, err := Check(context.Background(), "http://localhost:63257")
 	require.NoError(t, err)
 	require.False(t, isAvailable)
 }

@@ -5,10 +5,10 @@ tasks:
   - name: prepare Starport
     init: |
       # install Starport
-      export VUE_APP_CUSTOM_URL=$(gp url)
       make -C /workspace/starport
 
     command: |
+      export VUE_APP_CUSTOM_URL=$(gp url)
       clear && printf '\e[3J'
       echo -e "
 
