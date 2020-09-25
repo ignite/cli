@@ -14,11 +14,24 @@ To create a blockchain application we use the command `app`
 starport app github.com/username/myapp
 ```
 
+| Flag               | Default  | Description                |
+| ------------------ | -------- | -------------------------- |
+| `--address-prefix` | `cosmos` | Prefix, used for addresses |
+
 This will create the folder `myapp` and is a usable blockchain blueprint. If you want to dive directly into looking at the details of your blockchain you can run it with entering your `myapp` folder and use the command `serve` to initialise your blockchain and start it.
 
 `starport serve`
 
-The output of the `serve` command will already indicate that you find helpful information, guides and analytics about your blockchain, development tips as well as an interaction user interface on http://localhost:12345/.
+To start the server, go into you application's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.
+
+`starport serve` uses `config.yml` to initialize your application, make sure you have it in your project directory (see [Configure](#configure)).
+
+Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
+
+| Flag        | Default | Description                          |
+| ----------- | ------- | ------------------------------------ |
+| `--verbose` | `false` | Enable verbose output from processes |
+| `--path`    |         | Path to the project                  |
 
 The first step of your own blockchain is already done. Using the default settings, a blockchain that has networking, consensus protocol with an own token is hereby established. From here on, you can implement logic that makes your own blockchain unique. 
 
@@ -29,7 +42,15 @@ In the SDK, data are stored in the multistore. As Key-Value pairs those are save
 Starport assists us in setting up the Key-Value Store with the command `type`. 
 In order to use `type` we should give our type a fitting `typeName` with the intended fields that we want to use. If we wanted to store user with username and age, we would use the command
 
+```
+starport type [typeName] [field1] [field2:bool] ...
+```
+
+More specific
+
 `starport type user username age:int` 
+
+This command generates messages, handlers, keepers, CLI and REST clients and type definition for `typeName` type. A type can have any number of `field` arguments. By default fields are strings, but `bool` and `int` are supported.
 
 Now a Key-Value Store for the user with fields username and age is created. We can create a new user with the command
 
@@ -37,7 +58,35 @@ Now a Key-Value Store for the user with fields username and age is created. We c
 
 Which creates the user with username `my-first-username` and age of `35`. 
 
+Another example,
+
+```
+starport type post title body
+```
+
+This command generates a type `Post` with two fields: `title` and `body`.
+
+To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=user1`.
+
 These are the basic commands navigating starport. From creating a first blockchain to adding your own data types and accessing the User Interface. In the next two chapters, we will be looking closer at the initial setup for starport and how to configure it. Afterwards, we will be looking into more complex usecases, where each of the commands and more will be explained in more detail.
+
+#### `accounts`
+
+A list of user accounts created during genesis of your application.
+
+| Key   | Required | Type            | Description                                       |
+| ----- | -------- | --------------- | ------------------------------------------------- |
+| name  | Y        | String          | Local name of the key pair                        |
+| coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
+
+#### `validator`
+
+A property that describes your local validator. `name` should be one of the names, specified in the `accounts` array. The account should have enough tokens for staking purposes.
+
+| Key    | Required | Type   | Description                                                                         |
+| ------ | -------- | ------ | ----------------------------------------------------------------------------------- |
+| name   | Y        | String | Name of one the accounts                                                            |
+| staked | Y        | String | Amount of coins staked by your validator, should be >= 10^6 (e.g. "100000000stake") |
 
 ## Summary
 
@@ -45,5 +94,6 @@ These are the basic commands navigating starport. From creating a first blockcha
 - A combination `starport add` and `starport serve` already let's you manage your blockchain out of the box.
 - The default blockchain includes networking and a consensus protocol with your own token.
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
+- Accounts are created during genesis of the application. These can be configured in the `config.yml`.
 
 [◀️ Previous - Development Mode](../../01%20introduction/03_development_mode/03_development_mode.md) | [▶️ Next - Genesis File](../../02%20using%20starport/02_genesis_file/02_genesis_file.md)  

@@ -7,7 +7,7 @@
 ## Guide 🔎
 
 1. Introduction  
-   1. [Introduction](01_introduction/01%20starport_introduction/introduction.md)  
+   1. [Introduction](01%20introduction/01%20starport_introduction/introduction.md)  
    2. [Documentation and Specification](01%20introduction/02_documentation_specification/02_documentation_specification.md)  
    3. [Development Mode](01%20introduction/03_development_mode/03_development_mode.md)  
 2. Using Starport  
@@ -25,3 +25,26 @@
          3. [CosmWasm CW20](04%20use%20cases/03_cw20/03_cw20.md)  
 5. Extras  
     1. [Evm Module integration](05%20extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
+
+
+-------------------------
+
+## Quickstart 🚀 
+
+Scaffold your application
+
+```bash
+starport app github.com/username/myapp
+```
+
+Serve the blockchain application
+
+```bash
+starport serve
+```
+
+Add a new transaction type to your application
+
+```bash
+starport type post title body
+```
