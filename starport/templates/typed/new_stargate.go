@@ -28,7 +28,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQuerierModify(opts))
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
-	g.RunFn(frontendSrcStoreAppModify(opts))
 	return g, box(string(cosmosver.Stargate), opts, g)
 }
 
@@ -140,9 +139,7 @@ func (t *typedStargate) typesCodecImportModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-sdk "github.com/cosmos/cosmos-sdk/types"`
-		replacement := fmt.Sprintf(template, placeholder)
+		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -270,12 +267,30 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
+
 		template := `%s
 	registerQueryRoutes(clientCtx, r)
 	registerTxHandlers(clientCtx, r)
 `
-		replacement := fmt.Sprintf(template, placeholder)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, placeholder2)
+		content := strings.Replace(f.String(), placeholder2, replacement, 1)
+
+		template = `%[1]v
+    r.HandleFunc("custom/%[2]v/" + types.QueryList%[3]v, list%[3]vHandler(clientCtx)).Methods("GET")
+`
+		replacement = fmt.Sprintf(template, placeholder3, opts.AppName, strings.Title(opts.TypeName))
+		content = strings.Replace(content, placeholder3, replacement, 1)
+
+		template = `%s
+    r.HandleFunc("/%s/%s", create%sHandler(clientCtx)).Methods("POST")
+`
+		replacement = fmt.Sprintf(template, placeholder44, opts.AppName, opts.TypeName, strings.Title(opts.TypeName))
+		content = strings.Replace(content, placeholder44, replacement, 1)
+
+		template = `"%s/x/%s/types"`
+		replacement = fmt.Sprintf(template, opts.ModulePath, opts.AppName)
+		content = strings.Replace(content, placeholder, replacement, 1)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

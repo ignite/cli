@@ -26,7 +26,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	return g, nil
 }
 
-const placeholder = "// this line is used by starport scaffolding"
+const placeholder = "// this line is used by starport scaffolding # 1"
 const placeholder2 = "// this line is used by starport scaffolding # 2"
 const placeholder3 = "// this line is used by starport scaffolding # 3"
 const placeholder4 = "// this line is used by starport scaffolding # 4"

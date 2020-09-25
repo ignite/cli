@@ -4,16 +4,10 @@ import (
 	"fmt"
 	"net/http"
 
-	"github.com/gorilla/mux"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"<%= ModulePath %>/x/<%= AppName %>/types"
 )
-
-func registerQueryRoutes(clientCtx client.Context, r *mux.Router) {
-    r.HandleFunc(fmt.Sprintf("custom/<%= AppName %>/%s", types.QueryList<%= title(TypeName) %>), list<%= title(TypeName) %>Handler(clientCtx)).Methods("GET")
-}
 
 func list<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
