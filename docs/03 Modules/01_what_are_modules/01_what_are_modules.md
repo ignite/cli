@@ -31,4 +31,4 @@ With starport you can add a module with the command `starport add modulename`. W
 - Modules are editable, but the success of your blockchain will be dependend on choosing the correct modules for your blockchain, for functionality and security sake.
 - `starport add modulename` lets you import modules into your blockchain application.
 
-[◀️ Previous - Configuration](../../02_using_starport/03_configuration/03_configuration.md) [▶️ Next - Basic Modules](../../03_modules/02_basic_modules/02_basic_modules.md)  
+[◀️ Previous - Configuration](../../02%20using_starport/03_configuration/03_configuration.md) | [▶️ Next - Basic Modules](../../03%20modules/02_basic_modules/02_basic_modules.md)  
