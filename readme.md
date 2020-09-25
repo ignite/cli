@@ -55,16 +55,6 @@ The documentation can be found in the [`/docs`](/docs/README.md) directory [here
 4. [Use Cases](docs/04%20use%20cases/README.md)  
 5. [Extras](docs/05%20Extras/README.md)
 
-This command creates an empty template for a Cosmos SDK application. By default it also includes a module with the same name as the package. To create a new application called `blog`, where addresses are prefixed with the word blog (`blog14lyck0x72tsgsylcu9zgrvh867kyw50fzjsp6j`) run:
-
-```
-starport app github.com/your-github-id/blog --address-prefix blog
-```
-
-| Flag               | Default  | Description                |
-| ------------------ | -------- | -------------------------- |
-| `--address-prefix` | `cosmos` | Prefix, used for addresses |
-
 ### Run an application
 
 ```
