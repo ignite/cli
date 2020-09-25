@@ -17,13 +17,6 @@ if [[ -z `which protoc` && ! -z $BIN_PATH ]]; then
 	protoc --version
 fi
 
-# ensure GOPATH and GOPATH/bin set.
-gopath=$(go env GOPATH)
-if [[ $PATH != *$gopath/bin* ]]; then
-    echo 'export PATH=$PATH:$gopath/bin' >> $HOME/.bashrc
-    . $HOME/.bashrc
-fi
-
 # build the dependencies..
 echo "building the ui..."
 rm -rf starport/ui/dist

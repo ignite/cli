@@ -7,7 +7,7 @@ tasks:
       # install Starport
       export BIN_PATH=$GOPATH/bin
       mkdir -p $BIN_PATH
-      ./scripts/install
+      (cd /workspace/starport && ./scripts/install)
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
