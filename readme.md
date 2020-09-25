@@ -52,7 +52,7 @@ The documentation can be found in the [`/docs`](/docs/README.md) directory [here
 1. [Introduction](docs/01%20Introduction/README.md)     
 2. [Using Starport](docs/02%20Using%20Starport/README.md)    
 3. [Modules](docs/03%20Modules/README.md)  
-4. [Use Cases](docs/04%20Use%20Cases/README.md)  
+4. [Use Cases](docs/04%20Use%20cases/README.md)  
 5. [Extras](docs/05%20Extras/README.md)
 
 ## More tutorials

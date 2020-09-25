@@ -25,4 +25,4 @@ In the next chapter, we will be looking into creating and uploading a Smart Cont
 - The most Smart contracts run on the Ethereum virtual machine.
 - Starport and Cosmos support smart contracts but also smart modules.
 
-[◀️ Previous - Your own Module](../../03%20Modules/05_your_own_module/05_your_own_module.md) | [▶️ Next - CW20](../../04%20Use%20Cases/03_cw20/03_cw20.md)  
+[◀️ Previous - Your own Module](../../03%20Modules/05_your_own_module/05_your_own_module.md) | [▶️ Next - CW20](../../04%20Use%20cases/03_cw20/03_cw20.md)  

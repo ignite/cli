@@ -21,8 +21,8 @@
     4. [Smart Modules](03%20Modules/04_smart_modules/04_smart_modules.md)  
     5. [Your own Modules](03%20Modules/05_your_own_module/05_your_own_module.md)  
 4. Usecases  
-    1. [Smart Contracts](04%20Use%20Cases/01_smart_contracts/01_smart_contracts.md)  
-         3. [CosmWasm CW20](04%20Use%20Cases/03_cw20/03_cw20.md)  
+    1. [Smart Contracts](04%20Use%20cases/01_smart_contracts/01_smart_contracts.md)  
+         3. [CosmWasm CW20](04%20Use%20cases/03_cw20/03_cw20.md)  
 5. Extras  
     1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
 
