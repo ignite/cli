@@ -62,7 +62,7 @@ To start the server, go into you blockain's directory and run the `serve` comman
 starport serve
 ```
 
-This commands installs dependencies, builds, initializes and runs the blockchain with live-reloading enabled. Learn more about [creating](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application) and [running](02%20Using%20Starport/01_using_starport/01_using_starport.md#serve) applications with Starport in the docs. 
+This commands installs dependencies, builds, initializes and runs the blockchain with live-reloading enabled. Learn more about [creating](docs/02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application) and [running](docs/02%20Using%20Starport/01_using_starport/01_using_starport.md#serve) applications with Starport in the docs. 
 
 ## Documentation
 
