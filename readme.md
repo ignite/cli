@@ -44,6 +44,26 @@ git clone https://github.com/tendermint/starport && cd starport && make
 
 Requirements: Go 1.14 and Node.js (optional but highly recommended, used for the welcome screen and web app scaffolding).
 
+## Get started
+
+### Create a blockchain
+
+The `app` command creates a template for a Cosmos SDK blockchain. By default it also includes a module with the same name as the package. To create a new application called `mychain`, run:
+
+```
+starport app github.com/foo/mychain
+```
+
+### Run your blockchain
+
+To start the server, go into you blockain's directory and run the `serve` command:
+
+```
+starport serve
+```
+
+This commands installs dependencies, builds, initializes and runs the blockchain with live-reloading enabled. Learn more about [creating](link) and [running](link) applications with Starport in the docs. 
+
 ## Documentation
 
 The documentation can be found in the [`/docs`](/docs/README.md) directory [here](/docs/README.md).
