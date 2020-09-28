@@ -14,7 +14,7 @@ func handleMsgSet<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg ty
 		ID:      msg.ID,<%= for (field) in Fields { %>
     	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
 	}
-	if !msg.Creator.Equals(k.GetOwner(ctx, msg.ID)) { // Checks if the the msg sender is the same as the current owner
+	if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.ID)) { // Checks if the the msg sender is the same as the current owner
 		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
 	}
 

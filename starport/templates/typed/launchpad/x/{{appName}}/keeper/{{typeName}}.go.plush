@@ -76,7 +76,7 @@ func get<%= title(TypeName) %>(ctx sdk.Context, path []string, k Keeper) (res []
 }
 
 // Get creator of the item
-func (k Keeper) GetOwner(ctx sdk.Context, key string) sdk.AccAddress {
+func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) sdk.AccAddress {
 	<%= TypeName %>, err := k.Get<%= title(TypeName) %>(ctx, key)
 	if err != nil {
 		return nil
@@ -86,7 +86,7 @@ func (k Keeper) GetOwner(ctx sdk.Context, key string) sdk.AccAddress {
 
 
 // Check if the key exists in the store
-func (k Keeper) Exists(ctx sdk.Context, key string) bool {
+func (k Keeper) <%= title(TypeName) %>Exists(ctx sdk.Context, key string) bool {
 	store := ctx.KVStore(k.storeKey)
 	return store.Has([]byte(types.<%= title(TypeName) %>Prefix + key))
 }
