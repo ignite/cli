@@ -13,6 +13,7 @@ RUN apt update && \
         ca-certificates \
         unzip \
         curl \
+        vim \
         git
 
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
@@ -28,7 +29,7 @@ export PATH=\$PATH:\$GOPATH/bin \n\
 alias a="cd /apps" \n\
 alias s="cd \$GOPATH/src/github.com/tendermint/starport" \n\
 alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -rf *) && rm -rf /apps/*" \n\
-alias i="(s && ./scripts/build)"' > ~/.bashrc
+alias i="(s && ./scripts/install)"' > ~/.bashrc
 EOF
 }
 
