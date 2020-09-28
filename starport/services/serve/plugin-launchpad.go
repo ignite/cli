@@ -92,6 +92,12 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 		step.Exec(
 			p.app.cli(),
 			"config",
+			"keyring-backend",
+			"test",
+		),
+		step.Exec(
+			p.app.cli(),
+			"config",
 			"chain-id",
 			p.app.nd(),
 		),
