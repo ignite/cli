@@ -19,12 +19,12 @@ func GetCmdCreate<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 		Short: "Creates a new <%= TypeName %>",
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i %>])
+			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i %>] <%= if (field.Datatype == "int") {%>, 10, 64<%}%>)
 			<% } %>
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgCreate<%= title(TypeName) %>(cliCtx.GetFromAddress()<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
+			msg := types.NewMsgCreate<%= title(TypeName) %>(cliCtx.GetFromAddress()<%= for (i, field) in Fields { %>, <%= if (field.Datatype == "int") {%>int(<%}%>args<%= title(field.Name) %><%= if (field.Datatype == "int") {%>)<%}%><% } %>)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
@@ -42,12 +42,12 @@ func GetCmdSet<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			id := args[0]
-			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i + 1 %>])
+			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.Datatype != "string") {%>, _<%}%> := <%= if (field.Datatype == "string") {%>string<%} else {%>strconv.Parse<%= title(field.Datatype) %><%}%>(args[<%= i + 1 %>]<%= if (field.Datatype == "int") {%>, 10, 64<%}%>)
 			<% } %>
 			cliCtx := context.NewCLIContext().WithCodec(cdc)
 			inBuf := bufio.NewReader(cmd.InOrStdin())
 			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
-			msg := types.NewMsgSet<%= title(TypeName) %>(cliCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
+			msg := types.NewMsgSet<%= title(TypeName) %>(cliCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, <%= if (field.Datatype == "int") {%>int(<%}%>args<%= title(field.Name) %><%= if (field.Datatype == "int") {%>)<%}%><% } %>)
 			err := msg.ValidateBasic()
 			if err != nil {
 				return err
