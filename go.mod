@@ -36,8 +36,8 @@ require (
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20200822124328-c89045814202 // indirect
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
-	golang.org/x/sys v0.0.0-20200923182605-d9f96fdee20d // indirect
+	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c // indirect
 	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/tools v0.0.0-20200924224222-8d73f17870ce // indirect
+	golang.org/x/tools v0.0.0-20200925191224-5d1fdd8fa346 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
