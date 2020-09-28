@@ -17,7 +17,6 @@ require (
 	github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible
 	github.com/imdario/mergo v0.3.11
 	github.com/karrick/godirwalk v1.16.1 // indirect
-	github.com/konsorten/go-windows-terminal-sequences v1.0.3 // indirect
 	github.com/mattn/go-isatty v0.0.12 // indirect
 	github.com/onsi/ginkgo v1.14.0 // indirect
 	github.com/pelletier/go-toml v1.8.0
@@ -39,6 +38,5 @@ require (
 	golang.org/x/sync v0.0.0-20200625203802-6e8e738ad208
 	golang.org/x/sys v0.0.0-20200926100807-9d91bd62050c // indirect
 	golang.org/x/text v0.3.3 // indirect
-	golang.org/x/tools v0.0.0-20200928112810-42b62fc93869 // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 )
