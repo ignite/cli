@@ -30,9 +30,20 @@ genesis:
 
 The `coins` specify amount of coins and their denomination on the blockchain. Here you can list a variety of coin denominations and their respective amounts to be used on your blockchain.
 
-After manipulating the `config.yml` to your likings, you can start the blockchain application with `starport serve`. This will create (or override) the folder located at your user homefolder `~/.myappd` (the name of your application with a `d` for `daemon` attached) and initiate your blockchain with the genesis file, located under `~/.myappd/config`. The second folder you can find in the `~/.myappd` folder is `data` - this is where the blockchain will write the consecutive blocks and transactions.
+You can also manipulate parameters of different modules. If you wanted for example change the `staking` module, which contains staking parameters such as which token gets staked, you would add the following to your `config.yml``
 
-If you want to get sure all data from a blockchain setup get deleted, make sure to remove the `~/.myappd` folder.
+```yml
+genesis: 
+  app_state:
+    staking: 
+      params: 
+        bond_denom: "denom" 
+```
+
+After manipulating the `config.yml` to your likings, you can start the blockchain application with `starport serve`. This will create (or override) the folder located at your user homefolder `~/.myappd` (the name of your application with a `d` for `daemon` attached) and initiate your blockchain with the genesis file, located under `~/.myappd/config`. The second folder you can find in the `~/.myappd` folder is `data` - this is where the blockchain will write the consecutive blocks and transactions.
+The other folder created is the `~/.myappcli` folder, which contains a configuration file for your current command line interface, such as `chain-id`, output parameters such as `json` or `indent` mode.
+
+If you want to get sure all data from a blockchain setup get deleted, make sure to remove the `~/.myappd` and `~/.myappcli` folder.
 
 ## Address denomination
 
