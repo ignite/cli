@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 )
 
@@ -44,6 +45,15 @@ func Parse(rawpath string) (Path, error) {
 		Package: packageName,
 	}
 	return p, nil
+}
+
+// ParseFile parses Go module path of an app resides at path.
+func ParseFile(path string) (Path, error) {
+	parsed, err := gomodule.ParseAt(path)
+	if err != nil {
+		return Path{}, err
+	}
+	return Parse(parsed.Module.Mod.Path)
 }
 
 func validateModulePath(path string) error {

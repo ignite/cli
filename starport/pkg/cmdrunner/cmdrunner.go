@@ -76,7 +76,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		if err := s.PreExec(); err != nil {
 			return err
 		}
-		runPostExec := func(processErr error) error {
+		runPostExecs := func(processErr error) error {
 			// if context is canceled, then we can ignore exit error of the
 			// process because it should be exited because of the cancellation.
 			var err error
@@ -86,29 +86,37 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			} else {
 				err = processErr
 			}
-			return s.PostExec(err)
+			for _, exec := range s.PostExecs {
+				if err := exec(err); err != nil {
+					return err
+				}
+			}
+			if len(s.PostExecs) > 0 {
+				return nil
+			}
+			return err
 		}
 		c := r.newCommand(s)
 		startErr := c.Start()
 		if startErr != nil {
-			if err := runPostExec(startErr); err != nil {
+			if err := runPostExecs(startErr); err != nil {
 				return err
 			}
 			continue
 		}
 		go func() {
 			<-ctx.Done()
-			c.Process.Signal(r.endSignal)
+			c.Signal(r.endSignal)
 		}()
 		if err := s.InExec(); err != nil {
 			return err
 		}
 		if r.runParallel {
 			g.Go(func() error {
-				return runPostExec(c.Wait())
+				return runPostExecs(c.Wait())
 			})
 		} else {
-			if err := runPostExec(c.Wait()); err != nil {
+			if err := runPostExecs(c.Wait()); err != nil {
 				return err
 			}
 		}
@@ -116,11 +124,29 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	return g.Wait()
 }
 
-func (r *Runner) newCommand(s *step.Step) *exec.Cmd {
+type Executor interface {
+	Wait() error
+	Start() error
+	Signal(os.Signal)
+}
+
+type dummyExecutor struct{}
+
+func (s *dummyExecutor) Start() error { return nil }
+
+func (s *dummyExecutor) Wait() error { return nil }
+
+func (s *dummyExecutor) Signal(os.Signal) {}
+
+type cmdSignal struct {
+	*exec.Cmd
+}
+
+func (c *cmdSignal) Signal(s os.Signal) { c.Cmd.Process.Signal(s) }
+
+func (r *Runner) newCommand(s *step.Step) Executor {
 	if s.Exec.Command == "" {
-		// this is a programmer error so better to panic instead of
-		// returning an err.
-		panic("empty command")
+		return &dummyExecutor{}
 	}
 	var (
 		stdout = s.Stdout
@@ -140,5 +166,5 @@ func (r *Runner) newCommand(s *step.Step) *exec.Cmd {
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
-	return c
+	return &cmdSignal{c}
 }

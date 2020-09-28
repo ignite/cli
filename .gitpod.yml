@@ -5,7 +5,9 @@ tasks:
   - name: prepare Starport
     init: |
       # install Starport
-      make -C /workspace/starport
+      export BIN_PATH=$GOPATH/bin
+      mkdir -p $BIN_PATH
+      (cd /workspace/starport && ./scripts/install)
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)

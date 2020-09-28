@@ -27,7 +27,7 @@ export GOPATH=/go \n\
 export PATH=\$PATH:\$GOPATH/bin \n\
 alias a="cd /apps" \n\
 alias s="cd \$GOPATH/src/github.com/tendermint/starport" \n\
-alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -r *) && rm -rf /apps/*" \n\
+alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -rf *) && rm -rf /apps/*" \n\
 alias i="(s && ./scripts/build)"' > ~/.bashrc
 EOF
 }

@@ -3,13 +3,13 @@ package step
 import "io"
 
 type Step struct {
-	Exec     Execution
-	PreExec  func() error
-	InExec   func() error
-	PostExec func(error) error
-	Stdout   io.Writer
-	Stderr   io.Writer
-	Workdir  string
+	Exec      Execution
+	PreExec   func() error
+	InExec    func() error
+	PostExecs []func(error) error
+	Stdout    io.Writer
+	Stderr    io.Writer
+	Workdir   string
 }
 
 type Option func(*Step)
@@ -27,9 +27,9 @@ func (o Options) Add(options ...Option) Options {
 
 func New(options ...Option) *Step {
 	s := &Step{
-		PreExec:  func() error { return nil },
-		InExec:   func() error { return nil },
-		PostExec: func(exitErr error) error { return exitErr },
+		PreExec:   func() error { return nil },
+		InExec:    func() error { return nil },
+		PostExecs: make([]func(error) error, 0),
 	}
 	for _, o := range options {
 		o(s)
@@ -62,7 +62,7 @@ func InExec(hook func() error) Option {
 
 func PostExec(hook func(exitErr error) error) Option { // *os.ExitError
 	return func(s *Step) {
-		s.PostExec = hook
+		s.PostExecs = append(s.PostExecs, hook)
 	}
 }
 

@@ -2,8 +2,10 @@
 
 ### Features:
 
+* Added experimental [Stargate](https://stargate.cosmos.network/) scaffolding option with `--sdk-version stargate` flag on `starport app` command.
 * Pi Image Generation for chains generated with Starport
 * Github action with capture of binary artifacts for for chains generted with starport
+* Gitpod: Added guidelines. A sample scaffold pre-created and served.
 
 
 ## `v0.0.10`
@@ -16,7 +18,6 @@
 * Added support for _validator_ configuration in _config.yml_.
 * Starport can be launched on Gitpod
 * Added `make clean`
-* Gitpod: Added guidelines. A sample scaffold pre-created and served.
 
 ### Fixes:
 

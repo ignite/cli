@@ -29,6 +29,8 @@ cli: build
 lint:
 	golangci-lint run --out-format=tab --issues-exit-code=0
 	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
+
 .PHONY: lint
 
 .PHONY: all mod build ui install
+
