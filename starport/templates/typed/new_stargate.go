@@ -28,7 +28,7 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQuerierModify(opts))
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
-	return g, box(string(cosmosver.Stargate), opts, g)
+	return g, box(cosmosver.Stargate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {

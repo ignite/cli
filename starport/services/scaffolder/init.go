@@ -52,7 +52,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 }
 
 func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
-	g, err := app.New(string(s.options.sdkVersion), &app.Options{
+	g, err := app.New(s.options.sdkVersion, &app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		BinaryNamePrefix: pathInfo.Root,

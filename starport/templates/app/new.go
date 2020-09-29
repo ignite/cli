@@ -7,12 +7,20 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
+// these needs to be created in the compiler time, otherwise packr2 won't be
+// able to find boxes.
+var templates = map[cosmosver.MajorVersion]*packr.Box{
+	cosmosver.Launchpad: packr.New("app/templates/launchpad", "./launchpad"),
+	cosmosver.Stargate:  packr.New("app/templates/stargate", "./stargate"),
+}
+
 // New ...
-func New(sdkVersion string, opts *Options) (*genny.Generator, error) {
+func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
-	if err := g.Box(packr.New("app/templates", "./"+sdkVersion)); err != nil {
+	if err := g.Box(templates[sdkVersion]); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
