@@ -43,11 +43,6 @@ var (
 	infoColor  = color.Yellow.Render
 )
 
-type App struct {
-	Name string
-	Path string
-}
-
 type version struct {
 	tag  string
 	hash string
@@ -55,6 +50,7 @@ type version struct {
 
 type starportServe struct {
 	app            App
+	plugin         Plugin
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -71,19 +67,29 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
-	var err error
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return err
-	}
+
 	if verbose {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
+
+	var err error
+
+	s.version, err = s.appVersion()
+	if err != nil && err != git.ErrRepositoryNotExists {
+		return err
+	}
+
+	s.plugin, err = s.pickPlugin()
+	if err != nil {
+		return err
+	}
+	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+
 	if err := s.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.migrateOlder(ctx); err != nil {
+	if err := s.plugin.Migrate(ctx); err != nil {
 		return err
 	}
 
@@ -150,28 +156,6 @@ func (s *starportServe) checkSystem() error {
 	return nil
 }
 
-// migrateOlder migrates apps generated with older version of Starport,
-// to the current version to make them compatible with the updated `serve` command.
-func (s *starportServe) migrateOlder(ctx context.Context) error {
-	// migrate:
-	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultWorkdir(s.app.Path),
-		).
-		Run(ctx,
-			step.New(
-				step.Exec(
-					"go",
-					"mod",
-					"edit",
-					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
-				),
-			),
-		)
-
-}
-
 func (s *starportServe) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
@@ -194,11 +178,6 @@ func (s *starportServe) serve(ctx context.Context) error {
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	rootPath := filepath.Join(cwd, s.app.Path)
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -206,7 +185,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 
 	if err := cmdrunner.
 		New(opts...).
-		Run(ctx, s.buildSteps(ctx, conf, rootPath)...); err != nil {
+		Run(ctx, s.buildSteps(ctx, conf)...); err != nil {
 		return err
 	}
 	return cmdrunner.
@@ -214,7 +193,7 @@ func (s *starportServe) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config, cwd string) (
+func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config) (
 	steps step.Steps) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
@@ -222,14 +201,6 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
 	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
 	var (
-		// no-dash app name.
-		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
-		ndappd   = ndapp + "d"
-		ndappcli = ndapp + "cli"
-
-		appd   = s.app.Name + "d"
-		appcli = s.app.Name + "cli"
-
 		buildErr = &bytes.Buffer{}
 	)
 	captureBuildErr := func(err error) error {
@@ -268,49 +239,45 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(step.Stderr(buildErr))...,
 	))
 
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appd),
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
+	// install the app.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
+			return nil
+		}),
 	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appcli),
-			),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
+	for _, execOption := range s.plugin.InstallCommands(ldflags) {
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				execOption,
+				step.PostExec(captureBuildErr),
+			).
+			Add(s.stdSteps(logStarport)...).
+			Add(step.Stderr(buildErr))...,
+		))
+	}
+
+	// cleanup persistent data from previous `serve`.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			for _, path := range s.plugin.StoragePaths() {
+				if err := xos.RemoveAllUnderHome(path); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
 	))
+
+	// init node.
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				appd,
+				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", ndapp,
+				"--chain-id", s.app.n(),
 			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
-			}),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
 				if err != nil {
@@ -323,7 +290,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				if err != nil {
 					return err
 				}
-				path := filepath.Join(home, "."+appd, "config/genesis.json")
+				path := filepath.Join(home, s.plugin.GenesisPath())
 				file, err := os.OpenFile(path, os.O_RDWR, 644)
 				if err != nil {
 					return err
@@ -344,23 +311,16 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				}
 				return json.NewEncoder(file).Encode(&genesis)
 			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				appcli,
-				"config",
-				"keyring-backend",
-				"test",
-			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				return s.plugin.PostInit()
 			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
 	))
+
 	for _, account := range conf.Accounts {
 		account := account
 		var (
@@ -369,13 +329,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		)
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					appcli,
-					"keys",
-					"add",
-					account.Name,
-					"--output", "json",
-				),
+				s.plugin.AddUserCommand(account.Name),
 				step.PostExec(func(exitErr error) error {
 					if exitErr != nil {
 						return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
@@ -391,17 +345,12 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 				}),
 			).
 			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stderr(mnemonic))..., // TODO why mnemonic comes from stderr?
+			// Stargate pipes from stdout, Launchpad pipes from stderr.
+			Add(step.Stderr(mnemonic), step.Stdout(mnemonic))...,
 		))
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					appcli,
-					"keys",
-					"show",
-					account.Name,
-					"-a",
-				),
+				s.plugin.ShowAccountCommand(account.Name),
 				step.PostExec(func(err error) error {
 					if err != nil {
 						return err
@@ -412,7 +361,7 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 						New().
 						Run(ctx, step.New(step.NewOptions().
 							Add(step.Exec(
-								appd,
+								s.app.d(),
 								"add-genesis-account",
 								key,
 								coins,
@@ -425,55 +374,21 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 			Add(step.Stdout(key))...,
 		))
 	}
+
+	for _, execOption := range s.plugin.ConfigCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption).
+			Add(s.stdSteps(logAppcli)...)...,
+		))
+	}
+
 	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"chain-id",
-			ndapp,
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"output",
-			"json",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"indent",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"trust-node",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appd,
-			"gentx",
-			"--name", conf.Validator.Name,
-			"--keyring-backend", "test",
-			"--amount", conf.Validator.Staked,
-		)).
+		Add(s.plugin.GentxCommand(conf)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
 		Add(step.Exec(
-			appd,
+			s.app.d(),
 			"collect-gentxs",
 		)).
 		Add(s.stdSteps(logAppd)...)...,
@@ -483,46 +398,23 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 
 func (s *starportServe) serverSteps() (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(len(s.plugin.StartCommands()))
 	go func() {
 		wg.Wait()
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+		fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n\n")
 	}()
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vd", s.app.Name),
-				"start",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+	for _, execOption := range s.plugin.StartCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption...).
+			Add(step.InExec(func() error {
+				wg.Done()
 				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vd start", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vcli", s.app.Name),
-				"rest-server",
-				"--unsafe-cors",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
-				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
+			})).
+			Add(s.stdSteps(logAppd)...)...,
+		))
+	}
 	return
 }
 
@@ -559,6 +451,7 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 
 func (s *starportServe) runDevServer(ctx context.Context) error {
 	conf := Config{
+		SdkVersion:      s.plugin.Name(),
 		EngineAddr:      "http://localhost:26657",
 		AppBackendAddr:  "http://localhost:1317",
 		AppFrontendAddr: "http://localhost:8080",

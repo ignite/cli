@@ -1,0 +1,11 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+type <%= title(TypeName) %> struct {
+	Creator sdk.AccAddress `json:"creator" yaml:"creator"`
+	ID      string         `json:"id" yaml:"id"`<%= for (field) in Fields { %>
+    <%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>" yaml:"<%= field.Name %>"`<% } %>
+}

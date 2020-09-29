@@ -10,10 +10,10 @@
         </p>
         <h2>Components</h2>
         <a
-          :href="running.frontend && 'http://localhost:8080'"
+          :href="running.frontend && ((env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '8080')) || 'http://localhost:8080')"
           target="_blank"
           class="card"
-          v-if="running.frontend || env.node_js"
+          v-if="status.sdk_version === 'Launchpad' && (running.frontend || env.node_js)"
           :style="{'background-color': running.frontend ? 'rgb(255, 234, 250)' : 'rgba(0,0,0,.05)', '--color-primary': running.frontend ? 'rgb(251, 80, 210)' : 'rgba(0,0,0,0.25)'}"
         >
           <logo-spaceship class="card__logo" />
@@ -40,7 +40,7 @@
           </div>
         </a>
         <a
-          href="http://localhost:1317"
+          :href="(env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '1317')) || 'http://localhost:1317'"
           target="_blank"
           class="card"
           :style="{'background-color': running.api ? '#edefff' : 'rgba(0,0,0,.05)', '--color-primary': running.api ? 'rgb(80, 100, 251)' : 'rgba(0,0,0,0.25)'}"
@@ -55,7 +55,7 @@
           </div>
         </a>
         <a
-          href="http://localhost:26657"
+          :href="(env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '26657')) || 'http://localhost:26657'"
           target="_blank"
           class="card"
           :style="{'background-color': running.rpc ? '#edf8eb' : 'rgba(0,0,0,.05)', '--color-primary': running.rpc ? 'rgb(0, 187, 0)' : 'rgba(0,0,0,0.25)'}"
@@ -84,9 +84,13 @@
           users in your application.
         </p>
       </div>
-      <div class="window">
+      <div v-if="status.sdk_version === 'Launchpad'" class="window">
         ~$: {{ env.chain_id }}cli tx {{ env.chain_id }} create-user Alice alice@example.org
         --from=user1
+      </div>
+      <div v-else class="window">
+        ~$: {{ env.chain_id }}d tx {{ env.chain_id }} create-user Alice alice@example.org
+        --from=user1 --keyring-backend test --chain-id {{ env.chain_id }} --account-number 0
       </div>
       <div class="narrow">
       </div>
@@ -210,41 +214,53 @@ export default {
     LogoTendermint,
     LogoCosmosSdk,
     TerminalWindow,
-    LogoSpaceship
+    LogoSpaceship,
   },
   data() {
     return {
       env: {
         chain_id: "{{chain_id}}",
-        node_js: false
+        node_js: false,
+        vue_app_custom_url: "",
       },
       running: {
         rpc: true,
         api: true,
-        frontend: false
+        frontend: false,
       },
-      timer: null
+      status: {
+        sdk_version: null,
+      },
+      timer: null,
     };
   },
   methods: {
+    prefixURL(url, prefix) {
+      const newURL = new URL(url);
+      return `${newURL.protocol}//${prefix}-${newURL.hostname}`;
+    },
     async setStatusState() {
       try {
         const { data } = await axios.get("/status");
-        const { status, env } = data;
+        const { status, env, sdk_version } = data;
         this.running = {
-            rpc: status.is_consensus_engine_alive,
-            api: status.is_my_app_backend_alive,
-            frontend: status.is_my_app_frontend_alive,
+          rpc: status.is_consensus_engine_alive,
+          api: status.is_my_app_backend_alive,
+          frontend: status.is_my_app_frontend_alive,
         };
         this.env = env;
+        this.status = status;
       } catch {
         this.running = {
-            rpc: false,
-            api: false,
-            frontend: false,
+          rpc: false,
+          api: false,
+          frontend: false,
         };
+        this.status = {
+          sdk_version: null,
+        }
       }
-    }
+    },
   },
   async created() {
     this.timer = setInterval(this.setStatusState.bind(this), 1000);
@@ -256,6 +272,6 @@ export default {
   },
   beforeDestroy() {
     clearInterval(this.timer);
-  }
+  },
 };
 </script>

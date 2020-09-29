@@ -1,0 +1,27 @@
+image: gitpod/workspace-full
+checkoutLocation: "starport"
+workspaceLocation: "./starport/docs"
+tasks:
+  - name: prepare Starport
+    init: |
+      # install Starport
+      export BIN_PATH=$GOPATH/bin
+      mkdir -p $BIN_PATH
+      (cd /workspace/starport && ./scripts/install)
+
+    command: |
+      export VUE_APP_CUSTOM_URL=$(gp url)
+      clear && printf '\e[3J'
+      echo -e "
+
+      Welcome to Starport! 💫 The friendly CLI that makes building blockchains easy.
+
+      In the sidebar you can see a list of guides that will help you get started.
+
+      This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
+
+      "
+ports:
+  - port: 1317
+  - port: 26657
+  - port: 8080
