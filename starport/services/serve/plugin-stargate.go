@@ -72,7 +72,7 @@ func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
 	return step.Exec(
 		p.app.d(),
 		"gentx", conf.Validator.Name,
-		"--chain-id", p.app.nd(),
+		"--chain-id", p.app.n(),
 		"--keyring-backend", "test",
 		"--amount", conf.Validator.Staked,
 	)
