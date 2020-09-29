@@ -18,6 +18,10 @@ import (
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddType(stype string, fields ...string) error {
+	version, err := s.version()
+	if err != nil {
+		return err
+	}
 	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
 		return err
@@ -33,26 +37,24 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	for _, f := range fields {
 		fs := strings.Split(f, ":")
 		name := fs[0]
-		var datatype string
-		acceptedTypes := map[string]bool{
-			"string": true,
-			"bool":   true,
-			"int":    true,
-			"float":  true,
+		datatypeName, datatype := "string", "string"
+		acceptedTypes := map[string]string{
+			"string": "string",
+			"bool":   "bool",
+			"int":    "int32",
 		}
-		if len(fs) == 2 && acceptedTypes[fs[1]] {
-			datatype = fs[1]
-		} else {
-			datatype = "string"
+		isTypeSpecified := len(fs) == 2
+		if isTypeSpecified {
+			if t, ok := acceptedTypes[fs[1]]; ok {
+				datatype = t
+				datatypeName = fs[1]
+			}
 		}
 		tfields = append(tfields, typed.Field{
-			Name:     name,
-			Datatype: datatype,
+			Name:         name,
+			Datatype:     datatype,
+			DatatypeName: datatypeName,
 		})
-	}
-	version, err := s.version()
-	if err != nil {
-		return err
 	}
 
 	var (

@@ -29,7 +29,7 @@ func box(sdkVersion string, opts *Options, g *genny.Generator) error {
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
-			if field.Datatype != "string" {
+			if field.DatatypeName != "string" {
 				strconv = true
 			}
 		}
