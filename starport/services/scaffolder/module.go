@@ -27,7 +27,7 @@ func (s *Scaffolder) AddModule(name string) error {
 		return err
 	}
 	if version == cosmosver.Stargate {
-		return errors.New("adding modules currently is not supported on Stargate")
+		return errors.New("importing modules currently is not supported on Stargate")
 	}
 	ok, err := isWasmAdded(s.path)
 	if err != nil {
