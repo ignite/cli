@@ -1,0 +1,40 @@
+#!/bin/bash
+
+os=`uname -s`
+arch=`uname -m`
+
+protoc_version=3.12.1
+protoc_rel="https://github.com/protocolbuffers/protobuf/releases"
+protoc_zip="protoc-$protoc_version-${os,,}-${arch,,}.zip"
+
+# install protoc if not present
+if [[ -z `which protoc` && ! -z $BIN_PATH ]]; then
+	echo "installing protoc..."
+	curl -LOs $protoc_rel/download/v$protoc_version/$protoc_zip
+	unzip $protoc_zip bin/protoc
+	mv bin/protoc $BIN_PATH
+	rm $protoc_zip
+	protoc --version
+fi
+
+# build the dependencies..
+echo "building the ui..."
+rm -rf starport/ui/dist
+(cd starport/ui && \
+    npm i >/dev/null && \
+    npm run build >/dev/null)
+
+echo packing the ui...
+go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
+(cd ./starport/interface/cli/starport && \
+    packr2)
+
+# gen statik dev ui.
+go get github.com/rakyll/statik
+statik -src=starport/ui/dist -dest=starport/ui/dist-go -f
+
+# build Starport.
+echo installing starport...
+go install -mod=readonly ./... 1>/dev/null
+
+echo done!
