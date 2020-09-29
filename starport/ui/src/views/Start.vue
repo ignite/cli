@@ -13,7 +13,7 @@
           :href="running.frontend && ((env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '8080')) || 'http://localhost:8080')"
           target="_blank"
           class="card"
-          v-if="running.frontend || env.node_js"
+          v-if="status.sdk_version === 'Launchpad' && (running.frontend || env.node_js)"
           :style="{'background-color': running.frontend ? 'rgb(255, 234, 250)' : 'rgba(0,0,0,.05)', '--color-primary': running.frontend ? 'rgb(251, 80, 210)' : 'rgba(0,0,0,0.25)'}"
         >
           <logo-spaceship class="card__logo" />
