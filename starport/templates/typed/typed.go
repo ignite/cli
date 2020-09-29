@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 const placeholder = "// this line is used by starport scaffolding # 1"
@@ -16,8 +17,15 @@ const placeholder3 = "// this line is used by starport scaffolding # 3"
 const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
 const placeholder44 = "// this line is used by starport scaffolding # 4"
 
-func box(sdkVersion string, opts *Options, g *genny.Generator) error {
-	if err := g.Box(packr.New("typed/templates", "./"+sdkVersion)); err != nil {
+// these needs to be created in the compiler time, otherwise packr2 won't be
+// able to find boxes.
+var templates = map[cosmosver.MajorVersion]*packr.Box{
+	cosmosver.Launchpad: packr.New("typed/templates/launchpad", "./launchpad"),
+	cosmosver.Stargate:  packr.New("typed/templates/stargate", "./stargate"),
+}
+
+func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) error {
+	if err := g.Box(templates[sdkVersion]); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()

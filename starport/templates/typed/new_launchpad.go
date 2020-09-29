@@ -24,7 +24,7 @@ func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(frontendSrcStoreAppModify(opts))
-	return g, box(string(cosmosver.Launchpad), opts, g)
+	return g, box(cosmosver.Launchpad, opts, g)
 }
 
 func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
