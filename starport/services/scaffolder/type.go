@@ -50,7 +50,7 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 			Datatype: datatype,
 		})
 	}
-	version, err := cosmosver.Detect(s.path)
+	version, err := s.version()
 	if err != nil {
 		return err
 	}

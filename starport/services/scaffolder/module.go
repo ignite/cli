@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/add"
 )
@@ -21,6 +22,13 @@ const (
 
 // AddModule adds sepecified module with name to the scaffolded app.
 func (s *Scaffolder) AddModule(name string) error {
+	version, err := s.version()
+	if err != nil {
+		return err
+	}
+	if version == cosmosver.Stargate {
+		return errors.New("importing modules currently is not supported on Stargate")
+	}
 	ok, err := isWasmAdded(s.path)
 	if err != nil {
 		return err
