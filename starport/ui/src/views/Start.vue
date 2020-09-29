@@ -90,7 +90,7 @@
       </div>
       <div v-else class="window">
         ~$: {{ env.chain_id }}d tx {{ env.chain_id }} create-user Alice alice@example.org
-        --from=user1 --keyring-backend test --chain-id {{ env.chain_id }}d --account-number 0
+        --from=user1 --keyring-backend test --chain-id {{ env.chain_id }} --account-number 0
       </div>
       <div class="narrow">
       </div>
