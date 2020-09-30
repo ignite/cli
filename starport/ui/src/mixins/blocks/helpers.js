@@ -304,7 +304,7 @@ export default {
        * 
        */             
       getMsgType(type, prefix) {
-        return type.replace(prefix+'/', '').replace('cosmos-sdk/', '')
+        return type.replace(prefix+'/', '')
       }      
     }
   }

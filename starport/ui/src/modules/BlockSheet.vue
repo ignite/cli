@@ -12,7 +12,7 @@
         :direction="'left'"
         :isEventTriggerType="{ triggerActiveState: tooltipState }"
       >
-        <button class="sheet__btn" @click="handleJsonCopy">Copy block JSON</button>        
+        <button class="sheet__btn" @click="handleJsonCopy">Copy JSON</button>        
       </TooltipWrapper>
     </div>
     <div class="sheet__sub -container -border-btm">
