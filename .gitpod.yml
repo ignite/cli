@@ -2,12 +2,14 @@ image: gitpod/workspace-full
 checkoutLocation: "starport"
 workspaceLocation: "./starport/docs"
 tasks:
-  - name: prepare Starport
+  - name: Install Starport
     init: |
-      # install Starport
+      # Install Starport
       export BIN_PATH=$GOPATH/bin
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
+      # Install Github CLI
+      brew install gh
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
@@ -21,6 +23,7 @@ tasks:
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
       "
+      
 ports:
   - port: 1317
   - port: 26657
