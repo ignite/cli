@@ -4,21 +4,13 @@ workspaceLocation: "./starport/docs"
 tasks:
   - name: Install Starport
     init: |
-      # install Starport
+      # Install Starport
       export BIN_PATH=$GOPATH/bin
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
+      # Install Github CLI
+      brew install gh
 
-
-  - name: Install Github CLI
-    command: |
-      sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-key C99B11DEB97541F0
-      sudo apt-add-repository https://cli.github.com/packages
-      sudo apt update
-      sudo apt install gh
-
-
-  - name: Greet User
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
       clear && printf '\e[3J'
