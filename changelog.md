@@ -1,5 +1,11 @@
 # Changelog
 
+
+### Features:
+* Added Github CLI to gitpod environment for greater ease of use
+
+
+
 ## `v0.11.0`
 
 ### Features:
