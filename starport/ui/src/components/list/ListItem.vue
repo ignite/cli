@@ -28,7 +28,7 @@ export default {
   font-size: 0.875rem;
 }
 .list-item__head {
-  width: 12%;
+  width: 20%;
   margin-right: 0.5rem;  
   margin-top: 1px;
   font-size: 0.8125rem;  

@@ -48,10 +48,10 @@ p.side-tab-list__content-title {
 }
 
 
-@media only screen and (max-width: 1400px) {
+/* @media only screen and (max-width: 1400px) {
   .side-tab-list >>> .list-item__head {
     margin-bottom: 0.8rem;
   }
-}
+} */
 
 </style>

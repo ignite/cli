@@ -1,6 +1,7 @@
 import axios from 'axios'
 import moment from 'moment'
 import { capitalCase } from 'change-case'
+import { sha256 } from 'js-sha256'
 
 const getBlockTemplate = (header, txsData) => ({
   height: header.height,
@@ -88,8 +89,11 @@ export default {
    *  
    */      
   async fetchDecodedTx(lcdUrl, txEncoded, errCallback) {
+    const hashedTx = sha256(Buffer.from(txEncoded, 'base64'))
+    console.log(hashedTx)
     try {
-      return await axios.post(`${lcdUrl}/txs/decode`, { tx: txEncoded }) 
+      // return await axios.post(`${lcdUrl}/txs/decode`, { tx: txEncoded }) 
+      return await axios.get(`${lcdUrl}/txs/${hashedTx}`) 
     } catch (err) {
       console.error(txEncoded, err)
       errCallback(txEncoded, err)
@@ -128,7 +132,7 @@ export default {
            *  
            */                        
           const setBlockTxsDecoded = (tx) => {
-            blockTemplate.txsDecoded.push(tx.data.result)
+            blockTemplate.txsDecoded.push(tx.data)
           }
           /**
            * 
@@ -204,20 +208,37 @@ export default {
        * 
        * 
        */    
-      txForCard(txs, chainId) {
+      txsForCard(txs, chainId) {
         return txs.map(tx => {
+          const {
+            code,
+            gas_used,
+            gas_wanted,
+            logs,
+            raw_log,
+            tx: txObj,
+            txhash
+          } = tx
+
           const {
             fee,
             memo,
-            msg,            
-            signatures
-          } = tx
+            msg
+          } = txObj.value
   
           return {
-            meta: this.txMeta({ fee, memo }),
+            meta: this.txMeta({
+              code,
+              gas_used,
+              gas_wanted,
+              raw_log,
+              fee,
+              memo,  
+              txhash            
+            }),
             msgs: msg.map(msg => this.txMsg(msg, chainId)),
             tableData: {
-              id: tx.signatures[0].signature, // temp
+              id: txhash, // temp
               isActive: false
             },
           }
@@ -233,11 +254,23 @@ export default {
        * 
        * 
        */                
-      txMeta({fee, memo}) {
+      txMeta({
+        code,
+        gas_used,
+        gas_wanted,
+        raw_log,
+        fee,
+        memo,          
+        txhash   
+      }) {
+        const fmtFee = fee.amount[0]
+
         return {
-          'Fee': fee.amount[0] ? fee.amount[0].amount : 'N/A', // temp
-          'Gas': fee.gas, // temp
-          'Memo': memo && memo.length>0 ? memo : 'N/A'          
+          'Status': !code ? 'Success' : 'Fail',
+          'TxHash': txhash,
+          'Gas (used / wanted)': `${gas_used} / ${gas_wanted}`,
+          'Fee': fmtFee ? `${fmtFee.amount} ${fmtFee.denom}` : 'N/A',
+          'Memo': memo && memo.length>0 ? memo : 'N/A',
         }
       },
       /**
@@ -248,15 +281,24 @@ export default {
        * TODO: define shape of block object
        */                
       txMsg({ type, value }, chainId) {
+        const amountDenomHolder = { amount: '', denom: '' }
+        
         function setMsgHolder(msgs, holder) {
           for (const [key, msg] of Object.entries(msgs)) {          
             if (Array.isArray(msg)) {
               msg.forEach(subMsg => setMsgHolder(subMsg, holder))
               break
             }
-            holder[capitalCase(key)] = msg
+            if (key !== 'amount' && key !== 'denom') {
+              holder[capitalCase(key)] = msg
+            } else {
+              amountDenomHolder[key] = msg
+            }
           }
+
+          holder['Amount'] = `${amountDenomHolder.amount} ${amountDenomHolder.denom}`
         }        
+
         const msgHolder = {
           type: this.getMsgType(type, chainId)
         }

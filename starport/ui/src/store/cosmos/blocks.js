@@ -111,37 +111,37 @@ export default {
     setLatestBlock(state, block) {
       state.latestBlock = block
     },
-    // addErrorBlock(state, {
-    //   blockHeight,
-    //   errLog
-    // }) {
-    //   state.errorsQueue.push({blockHeight, errLog})
-    // },       
-    // addErrorTx(state, {
-    //   blockHeight,
-    //   txEncoded,
-    //   errLog
-    // }) {
-    //   let isBlockInQueue = false
+    addErrorBlock(state, {
+      blockHeight,
+      errLog
+    }) {
+      state.errorsQueue.push({blockHeight, errLog})
+    },       
+    addErrorTx(state, {
+      blockHeight,
+      txEncoded,
+      errLog
+    }) {
+      let isBlockInQueue = false
       
-    //   for (let errBlock of state.errorsQueue) {
-    //     if (blockHeight === errBlock.blockHeight) {
-    //       errBlock.txError = {
-    //         txEncoded,
-    //         errLog            
-    //       }
-    //       isBlockInQueue = true
-    //       break          
-    //     }      
-    //   }
+      for (let errBlock of state.errorsQueue) {
+        if (blockHeight === errBlock.blockHeight) {
+          errBlock.txError = {
+            txEncoded,
+            errLog            
+          }
+          isBlockInQueue = true
+          break          
+        }      
+      }
 
-    //   if (!isBlockInQueue) {
-    //     state.errorsQueue.push({blockHeight, txError: {
-    //       txEncoded,
-    //       errLog
-    //     }})
-    //   }
-    // }
+      if (!isBlockInQueue) {
+        state.errorsQueue.push({blockHeight, txError: {
+          txEncoded,
+          errLog
+        }})
+      }
+    }
   },
   actions: {
     /**

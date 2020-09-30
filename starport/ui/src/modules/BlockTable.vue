@@ -23,7 +23,7 @@
 
         <div slot="tableContent">
           <TableRowWrapper 
-            v-for="msg in messagesForTable"
+            v-for="msg in fmtBlockData"
             :key="msg.tableData.id"  
             :rowData="msg"
             :rowId="msg.blockMsg.blockHash"   
@@ -98,7 +98,7 @@ export default {
     fmtTargetTable() {
       return this.targetTable(this.tableId)
     },
-    messagesForTable() {
+    fmtBlockData() {
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
       if (this.states.isHidingBlocksWithoutTxs) {
         return this.blockFormatter.filterBlock(fmtBlockForTable).hideBlocksWithoutTxs()
@@ -106,7 +106,7 @@ export default {
       return fmtBlockForTable
     },
     isBlocksTableEmpty() {
-      return this.blocksStack.length<=0 || !this.messagesForTable || this.messagesForTable?.length<=0
+      return this.blocksStack.length<=0 || !this.fmtBlockData || this.fmtBlockData?.length<=0
     },
     blockFilterText() {
       return !this.states.isHidingBlocksWithoutTxs
@@ -114,7 +114,7 @@ export default {
         : 'Show blocks without txs'
     },
     blockTableEmptyText() {
-      return (this.blocksStack.length>=0 && this.messagesForTable?.length<=0 && this.states.isHidingBlocksWithoutTxs) 
+      return (this.blocksStack.length>=0 && this.fmtBlockData?.length<=0 && this.states.isHidingBlocksWithoutTxs) 
         ? 'Waiting for blocks with txs'
         : 'Waiting for blocks'
     }

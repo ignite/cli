@@ -31,7 +31,7 @@
         <!-- transactions -->
         <div v-if="fmtBlockData.blockMsg.txs>0 && fmtBlockData.txs.length>0">
           <div 
-            v-for="tx in messagesForTable"
+            v-for="tx in fmtTxsData"
             :key="tx.tableData.id"          
             class="cards-container__card"
           >
@@ -99,9 +99,9 @@ export default {
      * Local 
      *
      */    
-    messagesForTable() {
+    fmtTxsData() {
       return blockHelpers.blockFormatter()
-        .txForCard(this.fmtBlockData.txs, this.chainId)
+        .txsForCard(this.fmtBlockData.txs, this.chainId)
     },
     fmtBlockData() {
       return this.blockData.data
@@ -298,6 +298,10 @@ export default {
 .sheet__heading {
   font-size: 1.25rem;
   color: var(--c-txt-primary);
+}
+
+.sheet__sub >>> .list-wrapper .list-item__head {
+  width: 8%;
 }
 
 /* cards__container */
