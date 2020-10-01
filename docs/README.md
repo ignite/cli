@@ -23,7 +23,8 @@
 4. Usecases  
     1. [Smart Contracts](04%20Use%20cases/01_smart_contracts/01_smart_contracts.md)  
     2. [ERC20 & ERC777](04%20Use%20cases/02_erc20/02_erc20.md)  
-    3. [CosmWasm CW20](04%20Use%20cases/03_cw20/03_cw20.md)  
+    3. [NFT ERC721](04%20Use%20cases/03_nft/03_nft.md)  
+    4. [CosmWasm CW20](04%20Use%20cases/04_cw20/04_cw20.md)  
 5. Extras  
     1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
 
