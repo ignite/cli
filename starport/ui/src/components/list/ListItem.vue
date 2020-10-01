@@ -1,5 +1,5 @@
 <template>
-  <div class="list-item">
+  <div :class="['list-item', getItemClass]">
     <span v-if="!isSlotHeadType" class="list-item__head">{{headText}}</span>
     <div v-else class="list-item__head"><slot name="head"/></div>
 
@@ -15,6 +15,13 @@ export default {
     contentText: { type: String, default: '' },
     isSlotHeadType: { type: Boolean, default: false },
     isSlotContentType: { type: Boolean, default: false }
+  },
+  computed: {
+    getItemClass() {
+      if (this.headText === 'Status') {
+        return ['-prefix-dot', this.contentText === 'Fail' ? '-is-warn' : '-is-success']
+      }
+    }
   }
 }
 </script>
@@ -24,20 +31,42 @@ export default {
 .list-item {
   display: flex;
 }
+
 .list-item * {
   font-size: 0.875rem;
 }
 .list-item__head {
   width: 20%;
+  min-width: 20%;
   margin-right: 0.5rem;  
   margin-top: 1px;
   font-size: 0.8125rem;  
   color: var(--c-txt-grey);
 }
 .list-item__content {
+  position: relative;
   flex: 1 0;
   color: var(--c-txt-secondary);
   overflow-wrap: break-word;
+  word-break: break-word;
+}
+.list-item.-prefix-dot .list-item__content {
+  text-indent: 12px;
+}
+.list-item.-prefix-dot .list-item__content:before {
+  content: '';
+  position: absolute;
+  top: calc(51% - 6px / 2);
+  left: 1px;
+  width: 6px;
+  height: 6px;
+  border-radius: 100%;
+}
+.list-item.-prefix-dot.-is-warn .list-item__content:before {
+  background-color: #FF1A1A;
+}
+.list-item.-prefix-dot.-is-success .list-item__content:before {
+  background-color: #4ACF4A;
 }
 
 @media only screen and (max-width: 1400px) {

@@ -22,7 +22,8 @@ export default {
     blockByHeight: state => height => state.stack.filter(block => block.height === height),
     latestBlock: state => state.latestBlock,
     lastBlock: state => state.stack[state.stack.length-1],
-    chainId: state => state.chainId
+    chainId: state => state.chainId,
+    errorsQueue: state => state.errorsQueue
   },
   mutations: {
     /**
@@ -286,7 +287,7 @@ export default {
         if (result.data && result.events) {
           const { data } = result        
           const { data: txsData, header } = data.value.block
-          const { fetchBlockMeta } = blockHelpers
+          const { fetchBlockMeta, fetchDecodedTx } = blockHelpers
 
           const blockErrCallback = (errLog) => commit('addErrorBlock', {
             blockHeight: header.height,
@@ -316,6 +317,34 @@ export default {
                 isValidLatestBlock: true
               })                      
             })
+
+            /**
+             * 
+             // 3. Check and resolve errors queue
+             * 
+             */
+            if (getters.errorsQueue.length > 0) {
+              getters.errorsQueue.forEach((errObj, index) => {
+                const errBlockInStack = getters.blockByHeight(errObj.blockHeight)[0]
+
+                if (errBlockInStack) {
+                  if (errObj.txError && errObj.txError.txEncoded) {
+                    fetchDecodedTx(appEnv.API, errObj.txError.txEncoded)
+                      .then(txRes => {
+                        const isTxAlreadyDecoded = errBlockInStack.txsDecoded
+                          .filter(tx => tx.txhash === txRes.data.txhash).length>0
+                        
+                        if (!isTxAlreadyDecoded) {
+                          errBlockInStack.txsDecoded.push(txRes.data)
+                        }
+                        getters.errorsQueue.splice(index,1)
+                        console.info(`✨TX fetching error ${txRes.data.txhash} was resolved.`)
+                      })
+                  }
+                }
+
+              })
+            }
         }         
       }      
     },

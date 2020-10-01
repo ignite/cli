@@ -2,6 +2,7 @@ import axios from 'axios'
 import moment from 'moment'
 import { capitalCase } from 'change-case'
 import { sha256 } from 'js-sha256'
+import bech32 from 'bech32'
 
 const getBlockTemplate = (header, txsData) => ({
   height: header.height,
@@ -90,13 +91,12 @@ export default {
    */      
   async fetchDecodedTx(lcdUrl, txEncoded, errCallback) {
     const hashedTx = sha256(Buffer.from(txEncoded, 'base64'))
-    console.log(hashedTx)
     try {
       // return await axios.post(`${lcdUrl}/txs/decode`, { tx: txEncoded }) 
       return await axios.get(`${lcdUrl}/txs/${hashedTx}`) 
     } catch (err) {
       console.error(txEncoded, err)
-      errCallback(txEncoded, err)
+      if (errCallback) errCallback(txEncoded, err)
     }        
   },   
   blockFormatter() {
@@ -184,7 +184,7 @@ export default {
             return {
               blockMsg: {
                 time_formatted: moment(time).fromNow(true),
-                time: time,
+                time: moment(time).format('MMMM Do YYYY, h:mm:ss a'),
                 height,
                 proposer: `${proposer_address.slice(0,10)}...`,
                 blockHash_sliced: `${hash.slice(0,30)}...`,
@@ -238,7 +238,7 @@ export default {
             }),
             msgs: msg.map(msg => this.txMsg(msg, chainId)),
             tableData: {
-              id: txhash, // temp
+              id: txhash,
               isActive: false
             },
           }

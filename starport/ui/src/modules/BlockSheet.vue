@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!fmtBlockData">waiting for block data...</div>
+  <div v-if="!fmtBlockData" :class="['sheet -is-empty']">Waiting for block data</div>
   
   <div 
     v-else
@@ -250,6 +250,18 @@ export default {
   background: var(--c-contrast-secondary); 
 }
 
+.sheet.-is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: tempLoadingEffect 1.5s ease-in-out infinite;
+}
+@keyframes tempLoadingEffect {
+  0% { color: var(--c-txt-grey); }
+  50% { color: var(--c-txt-secondary); }
+  100% { color: var(--c-txt-grey); }
+}
+
 .sheet__top,
 .sheet__sub {
   position: relative;
@@ -302,6 +314,7 @@ export default {
 
 .sheet__sub >>> .list-wrapper .list-item__head {
   width: 8%;
+  min-width: 8%;
 }
 
 /* cards__container */

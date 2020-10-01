@@ -33,8 +33,9 @@ export default {
       return msgs.map((msg) => {
         const fmtSubItems = []
         for (const [key, val] of Object.entries(msg)) {
-          if (key !== 'type')
+          if (key !== 'type') {
             fmtSubItems.push({ headText: key, contentText: val })
+          }
         }
 
         return {
