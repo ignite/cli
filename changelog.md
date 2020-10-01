@@ -2,10 +2,11 @@
 
 
 ### Features:
-* Added Github CLI to gitpod environment for greater ease of use
+* Added Github CLI to gitpod environment for greater ease of use.
 
 ### Fixes:
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
+* Removed reference to `clay` and replaced with <%= AppName %> in the template's Makefile.
 
 
 ## `v0.11.0`
