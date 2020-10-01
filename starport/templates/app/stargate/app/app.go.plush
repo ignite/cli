@@ -82,7 +82,7 @@ var (
 		ibc.AppModuleBasic{},
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
-
+        slashing.AppModuleBasic{},
 		<%= AppName %>.AppModuleBasic{},
 	)
 
