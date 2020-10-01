@@ -9,6 +9,9 @@ tasks:
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
 
+      # install rly
+      (cd /tmp && git clone https://github.com/ovrclk/relayer && make -C ./relayer install)
+
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
       clear && printf '\e[3J'
