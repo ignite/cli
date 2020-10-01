@@ -1,6 +1,10 @@
 package scaffolder
 
-import "github.com/tendermint/starport/starport/pkg/cosmosver"
+import (
+	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+)
 
 // Option configures scaffolding.
 type Option func(*scaffoldingOptions)
@@ -28,7 +32,7 @@ func (s *scaffoldingOptions) apply(options ...Option) {
 // AddressPrefix configures address prefix for the app.
 func AddressPrefix(prefix string) Option {
 	return func(o *scaffoldingOptions) {
-		o.addressPrefix = prefix
+		o.addressPrefix = strings.ToLower(prefix)
 	}
 }
 

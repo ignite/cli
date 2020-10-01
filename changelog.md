@@ -4,6 +4,8 @@
 ### Features:
 * Added Github CLI to gitpod environment for greater ease of use
 
+### Fixes:
+* `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
 
 
 ## `v0.11.0`
