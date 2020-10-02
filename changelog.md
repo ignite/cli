@@ -4,6 +4,7 @@
 ### Features:
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
+* Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook. 
 
 ### Fixes:
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
