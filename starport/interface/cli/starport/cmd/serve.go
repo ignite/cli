@@ -46,7 +46,11 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	err = starportserve.Serve(ctx, app, verbose)
+	s, err := starportserve.New(app, verbose)
+	if err != nil {
+		return err
+	}
+	err = s.Serve(ctx)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil

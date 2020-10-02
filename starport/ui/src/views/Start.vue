@@ -13,7 +13,7 @@
           :href="running.frontend && ((env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '8080')) || 'http://localhost:8080')"
           target="_blank"
           class="card"
-          v-if="running.frontend || env.node_js"
+          v-if="status.sdk_version === 'Launchpad' && (running.frontend || env.node_js)"
           :style="{'background-color': running.frontend ? 'rgb(255, 234, 250)' : 'rgba(0,0,0,.05)', '--color-primary': running.frontend ? 'rgb(251, 80, 210)' : 'rgba(0,0,0,0.25)'}"
         >
           <logo-spaceship class="card__logo" />
@@ -84,9 +84,13 @@
           users in your application.
         </p>
       </div>
-      <div class="window">
+      <div v-if="status.sdk_version === 'Launchpad'" class="window">
         ~$: {{ env.chain_id }}cli tx {{ env.chain_id }} create-user Alice alice@example.org
         --from=user1
+      </div>
+      <div v-else class="window">
+        ~$: {{ env.chain_id }}d tx {{ env.chain_id }} create-user Alice alice@example.org
+        --from=user1 --keyring-backend test --chain-id {{ env.chain_id }} --account-number 0
       </div>
       <div class="narrow">
       </div>
@@ -224,6 +228,9 @@ export default {
         api: true,
         frontend: false,
       },
+      status: {
+        sdk_version: null,
+      },
       timer: null,
     };
   },
@@ -235,19 +242,23 @@ export default {
     async setStatusState() {
       try {
         const { data } = await axios.get("/status");
-        const { status, env } = data;
+        const { status, env, sdk_version } = data;
         this.running = {
           rpc: status.is_consensus_engine_alive,
           api: status.is_my_app_backend_alive,
           frontend: status.is_my_app_frontend_alive,
         };
         this.env = env;
+        this.status = status;
       } catch {
         this.running = {
           rpc: false,
           api: false,
           frontend: false,
         };
+        this.status = {
+          sdk_version: null,
+        }
       }
     },
   },

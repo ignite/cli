@@ -20,7 +20,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/imdario/mergo"
-	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -44,18 +43,14 @@ var (
 	infoColor  = color.Yellow.Render
 )
 
-type App struct {
-	Name string
-	Path string
-}
-
 type version struct {
 	tag  string
 	hash string
 }
 
-type starportServe struct {
+type Serve struct {
 	app            App
+	plugin         Plugin
 	version        version
 	verbose        bool
 	serveCancel    context.CancelFunc
@@ -63,28 +58,56 @@ type starportServe struct {
 	stdout, stderr io.Writer
 }
 
-// Serve serves user apps.
-func Serve(ctx context.Context, app App, verbose bool) error {
-	s := &starportServe{
+func New(app App, verbose bool) (*Serve, error) {
+	s := &Serve{
 		app:            app,
 		verbose:        verbose,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
-	var err error
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return err
-	}
+
 	if verbose {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
-	if err := s.checkSystem(); err != nil {
+
+	var err error
+
+	s.version, err = s.appVersion()
+	if err != nil && err != git.ErrRepositoryNotExists {
+		return nil, err
+	}
+
+	s.plugin, err = s.pickPlugin()
+	if err != nil {
+		return nil, err
+	}
+	return s, nil
+}
+
+// Build builds an app.
+func (s *Serve) Build(ctx context.Context) error {
+	if err := s.setup(ctx); err != nil {
 		return err
 	}
-	if err := s.migrateOlder(ctx); err != nil {
+	conf, err := s.config()
+	if err != nil {
+		return &CannotBuildAppError{err}
+	}
+	steps, binaries := s.buildSteps(ctx, conf)
+	if err := cmdrunner.
+		New(s.cmdOptions()...).
+		Run(ctx, steps...); err != nil {
+		return err
+	}
+	fmt.Fprintf(s.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
+	return nil
+}
+
+// Serve serves an app.
+func (s *Serve) Serve(ctx context.Context) error {
+	if err := s.setup(ctx); err != nil {
 		return err
 	}
 
@@ -136,9 +159,21 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	return g.Wait()
 }
 
+func (s *Serve) setup(ctx context.Context) error {
+	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+
+	if err := s.checkSystem(); err != nil {
+		return err
+	}
+	if err := s.plugin.Migrate(ctx); err != nil {
+		return err
+	}
+	return nil
+}
+
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *starportServe) checkSystem() error {
+func (s *Serve) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
@@ -151,36 +186,14 @@ func (s *starportServe) checkSystem() error {
 	return nil
 }
 
-// migrateOlder migrates apps generated with older version of Starport,
-// to the current version to make them compatible with the updated `serve` command.
-func (s *starportServe) migrateOlder(ctx context.Context) error {
-	// migrate:
-	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultWorkdir(s.app.Path),
-		).
-		Run(ctx,
-			step.New(
-				step.Exec(
-					"go",
-					"mod",
-					"edit",
-					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
-				),
-			),
-		)
-
-}
-
-func (s *starportServe) refreshServe() {
+func (s *Serve) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
 	}
 	s.serveRefresher <- struct{}{}
 }
 
-func (s *starportServe) watchAppBackend(ctx context.Context) error {
+func (s *Serve) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
@@ -190,47 +203,184 @@ func (s *starportServe) watchAppBackend(ctx context.Context) error {
 	)
 }
 
-func (s *starportServe) serve(ctx context.Context) error {
-	opts := []cmdrunner.Option{
+func (s *Serve) cmdOptions() []cmdrunner.Option {
+	return []cmdrunner.Option{
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
+}
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-	rootPath := filepath.Join(cwd, s.app.Path)
+func (s *Serve) serve(ctx context.Context) error {
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 
+	buildSteps, _ := s.buildSteps(ctx, conf)
 	if err := cmdrunner.
-		New(opts...).
-		Run(ctx, s.buildSteps(ctx, conf, rootPath)...); err != nil {
+		New(s.cmdOptions()...).
+		Run(ctx, buildSteps...); err != nil {
 		return err
 	}
+	if err := cmdrunner.
+		New(s.cmdOptions()...).
+		Run(ctx, s.initSteps(ctx, conf)...); err != nil {
+		return err
+	}
+
 	return cmdrunner.
-		New(append(opts, cmdrunner.RunParallel())...).
+		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
 		Run(ctx, s.serverSteps()...)
 }
 
-func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config, cwd string) (
+func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 	steps step.Steps) {
+	// cleanup persistent data from previous `serve`.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			for _, path := range s.plugin.StoragePaths() {
+				if err := xos.RemoveAllUnderHome(path); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
+	))
+
+	// init node.
+	steps.Add(step.New(step.NewOptions().
+		Add(
+			step.Exec(
+				s.app.d(),
+				"init",
+				"mynode",
+				"--chain-id", s.app.n(),
+			),
+			step.PostExec(func(err error) error {
+				// overwrite Genesis with user configs.
+				if err != nil {
+					return err
+				}
+				if conf.Genesis == nil {
+					return nil
+				}
+				home, err := os.UserHomeDir()
+				if err != nil {
+					return err
+				}
+				path := filepath.Join(home, s.plugin.GenesisPath())
+				file, err := os.OpenFile(path, os.O_RDWR, 644)
+				if err != nil {
+					return err
+				}
+				defer file.Close()
+				var genesis map[string]interface{}
+				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
+					return err
+				}
+				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
+					return err
+				}
+				if err := file.Truncate(0); err != nil {
+					return err
+				}
+				if _, err := file.Seek(0, 0); err != nil {
+					return err
+				}
+				return json.NewEncoder(file).Encode(&genesis)
+			}),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				return s.plugin.PostInit()
+			}),
+		).
+		Add(s.stdSteps(logAppd)...)...,
+	))
+
+	for _, account := range conf.Accounts {
+		account := account
+		var (
+			key      = &bytes.Buffer{}
+			mnemonic = &bytes.Buffer{}
+		)
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				s.plugin.AddUserCommand(account.Name),
+				step.PostExec(func(exitErr error) error {
+					if exitErr != nil {
+						return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
+					}
+					var user struct {
+						Mnemonic string `json:"mnemonic"`
+					}
+					if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
+						return errors.Wrap(err, "cannot decode mnemonic")
+					}
+					fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+					return nil
+				}),
+			).
+			Add(s.stdSteps(logAppcli)...).
+			// Stargate pipes from stdout, Launchpad pipes from stderr.
+			Add(step.Stderr(mnemonic), step.Stdout(mnemonic))...,
+		))
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				s.plugin.ShowAccountCommand(account.Name),
+				step.PostExec(func(err error) error {
+					if err != nil {
+						return err
+					}
+					coins := strings.Join(account.Coins, ",")
+					key := strings.TrimSpace(key.String())
+					return cmdrunner.
+						New().
+						Run(ctx, step.New(step.NewOptions().
+							Add(step.Exec(
+								s.app.d(),
+								"add-genesis-account",
+								key,
+								coins,
+							)).
+							Add(s.stdSteps(logAppd)...)...,
+						))
+				}),
+			).
+			Add(s.stdSteps(logAppcli)...).
+			Add(step.Stdout(key))...,
+		))
+	}
+
+	for _, execOption := range s.plugin.ConfigCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption).
+			Add(s.stdSteps(logAppcli)...)...,
+		))
+	}
+
+	steps.Add(step.New(step.NewOptions().
+		Add(s.plugin.GentxCommand(conf)).
+		Add(s.stdSteps(logAppd)...)...,
+	))
+	steps.Add(step.New(step.NewOptions().
+		Add(step.Exec(
+			s.app.d(),
+			"collect-gentxs",
+		)).
+		Add(s.stdSteps(logAppd)...)...,
+	))
+	return
+}
+
+func (s *Serve) buildSteps(ctx context.Context, conf starportconf.Config) (
+	steps step.Steps, binaries []string) {
 	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
 	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
 	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
 	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
 	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
 	var (
-		// no-dash app name.
-		ndapp    = strings.ReplaceAll(s.app.Name, "-", "")
-		ndappd   = ndapp + "d"
-		ndappcli = ndapp + "cli"
-
-		appd   = s.app.Name + "d"
-		appcli = s.app.Name + "cli"
-
 		buildErr = &bytes.Buffer{}
 	)
 	captureBuildErr := func(err error) error {
@@ -269,270 +419,50 @@ func (s *starportServe) buildSteps(ctx context.Context, conf starportconf.Config
 		Add(step.Stderr(buildErr))...,
 	))
 
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appd),
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
+	// install the app.
+	steps.Add(step.New(
+		step.PreExec(func() error {
+			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
+			return nil
+		}),
 	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(cwd, "cmd", appcli),
-			),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				appd,
-				"init",
-				"mynode",
-				"--chain-id", ndapp,
-			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappd))
-			}),
-			step.PostExec(func(err error) error {
-				// overwrite Genesis with user configs.
-				if err != nil {
-					return err
-				}
-				if conf.Genesis == nil {
-					return nil
-				}
-				home, err := os.UserHomeDir()
-				if err != nil {
-					return err
-				}
-				path := filepath.Join(home, "."+ndappd, "config/genesis.json")
-				file, err := os.OpenFile(path, os.O_RDWR, 644)
-				if err != nil {
-					return err
-				}
-				defer file.Close()
-				var genesis map[string]interface{}
-				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
-					return err
-				}
-				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
-					return err
-				}
-				if err := file.Truncate(0); err != nil {
-					return err
-				}
-				if _, err := file.Seek(0, 0); err != nil {
-					return err
-				}
-				return json.NewEncoder(file).Encode(&genesis)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				appcli,
-				"config",
-				"keyring-backend",
-				"test",
-			),
-			step.PreExec(func() error {
-				return xos.RemoveAllUnderHome(fmt.Sprintf(".%s", ndappcli))
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	for _, account := range conf.Accounts {
-		account := account
-		var (
-			key      = &bytes.Buffer{}
-			mnemonic = &bytes.Buffer{}
-		)
+	installOptions, binaries := s.plugin.InstallCommands(ldflags)
+	for _, execOption := range installOptions {
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					appcli,
-					"keys",
-					"add",
-					account.Name,
-					"--output", "json",
-				),
-				step.PostExec(func(exitErr error) error {
-					if exitErr != nil {
-						return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
-					}
-					var user struct {
-						Mnemonic string `json:"mnemonic"`
-					}
-					if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
-						return errors.Wrap(err, "cannot decode mnemonic")
-					}
-					fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
-					return nil
-				}),
+				execOption,
+				step.PostExec(captureBuildErr),
 			).
-			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stderr(mnemonic))..., // TODO why mnemonic comes from stderr?
-		))
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				step.Exec(
-					appcli,
-					"keys",
-					"show",
-					account.Name,
-					"-a",
-				),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					coins := strings.Join(account.Coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								appd,
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stdout(key))...,
+			Add(s.stdSteps(logStarport)...).
+			Add(step.Stderr(buildErr))...,
 		))
 	}
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"chain-id",
-			ndapp,
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"output",
-			"json",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"indent",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appcli,
-			"config",
-			"trust-node",
-			"true",
-		)).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			appd,
-			"gentx",
-			"--name", conf.Validator.Name,
-			"--keyring-backend", "test",
-			"--amount", conf.Validator.Staked,
-		)).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				appd,
-				"collect-gentxs",
-			),
-			step.PostExec(func(error) error {
-				return s.configtoml(ndappd)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	return
+	return steps, binaries
 }
 
-func (s *starportServe) serverSteps() (steps step.Steps) {
+func (s *Serve) serverSteps() (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(2)
+	wg.Add(len(s.plugin.StartCommands()))
 	go func() {
 		wg.Wait()
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+		fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n\n")
 	}()
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vd", s.app.Name),
-				"start",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
+	for _, execOption := range s.plugin.StartCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption...).
+			Add(step.InExec(func() error {
+				wg.Done()
 				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vd start", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				fmt.Sprintf("%[1]vcli", s.app.Name),
-				"rest-server",
-				"--unsafe-cors",
-			),
-			step.InExec(func() error {
-				defer wg.Done()
-				fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
-				return nil
-			}),
-			step.PostExec(func(exitErr error) error {
-				return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", s.app.Name)
-			}),
-		).
-		Add(s.stdSteps(logAppcli)...)...,
-	))
+			})).
+			Add(s.stdSteps(logAppd)...)...,
+		))
+	}
 	return
 }
 
-func (s *starportServe) watchAppFrontend(ctx context.Context) error {
+func (s *Serve) watchAppFrontend(ctx context.Context) error {
 	vueFullPath := filepath.Join(s.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
@@ -563,8 +493,9 @@ func (s *starportServe) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *starportServe) runDevServer(ctx context.Context) error {
+func (s *Serve) runDevServer(ctx context.Context) error {
 	conf := Config{
+		SdkVersion:      s.plugin.Name(),
 		EngineAddr:      "http://localhost:26657",
 		AppBackendAddr:  "http://localhost:1317",
 		AppFrontendAddr: "http://localhost:8080",
@@ -590,7 +521,7 @@ func (s *starportServe) runDevServer(ctx context.Context) error {
 	return err
 }
 
-func (s *starportServe) appVersion() (v version, err error) {
+func (s *Serve) appVersion() (v version, err error) {
 	repo, err := git.PlainOpen(s.app.Path)
 	if err != nil {
 		return version{}, err
@@ -608,7 +539,7 @@ func (s *starportServe) appVersion() (v version, err error) {
 	return v, nil
 }
 
-func (s *starportServe) config() (starportconf.Config, error) {
+func (s *Serve) config() (starportconf.Config, error) {
 	var paths []string
 	for _, name := range starportconf.FileNames {
 		paths = append(paths, filepath.Join(s.app.Path, name))
@@ -631,25 +562,4 @@ func (e *CannotBuildAppError) Error() string {
 
 func (e *CannotBuildAppError) Unwrap() error {
 	return e.Err
-}
-
-func (s *starportServe) configtoml(appnd string) error {
-	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, "."+appnd, "config/config.toml")
-	config, err := toml.LoadFile(path)
-	if err != nil {
-		return err
-	}
-	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-	_, err = config.WriteTo(file)
-	return err
 }

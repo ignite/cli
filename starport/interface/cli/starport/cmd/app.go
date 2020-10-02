@@ -1,27 +1,14 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
-	"os"
-	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing/object"
-	"github.com/gobuffalo/genny"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/app"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-var (
-	commitMessage = "Initialized with Starport"
-	devXAuthor    = &object.Signature{
-		Name:  "Developer Experience team at Tendermint",
-		Email: "hello@tendermint.com",
-		When:  time.Now(),
-	}
-)
+const sdkVersionFlag = "sdk-version"
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized
 // by the user given options.
@@ -33,27 +20,23 @@ func NewApp() *cobra.Command {
 		RunE:  appHandler,
 	}
 	c.Flags().String("address-prefix", "cosmos", "Address prefix")
+	addSdkVersionFlag(c)
 	return c
 }
 
 func appHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(args[0])
+	name := args[0]
+	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
+	version, err := sdkVersion(cmd)
 	if err != nil {
 		return err
 	}
-	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
-	g, _ := app.New(&app.Options{
-		ModulePath:       path.RawPath,
-		AppName:          path.Package,
-		BinaryNamePrefix: path.Root,
-		AddressPrefix:    addressPrefix,
-	})
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	pwd, _ := os.Getwd()
-	run.Root = pwd + "/" + path.Root
-	run.Run()
-	if err := initGit(path.Root); err != nil {
+	sc := scaffolder.New("",
+		scaffolder.AddressPrefix(addressPrefix),
+		scaffolder.SdkVersion(version),
+	)
+	path, err := sc.Init(name)
+	if err != nil {
 		return err
 	}
 	message := `
@@ -65,25 +48,19 @@ func appHandler(cmd *cobra.Command, args []string) error {
 
 NOTE: add --verbose flag for verbose (detailed) output.
 `
-	fmt.Printf(message, path.Root)
+	fmt.Printf(message, path)
 	return nil
 }
 
-func initGit(path string) error {
-	repo, err := git.PlainInit(path, false)
+func addSdkVersionFlag(c *cobra.Command) {
+	c.Flags().String(sdkVersionFlag, string(cosmosver.Launchpad), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
+}
+
+func sdkVersion(c *cobra.Command) (cosmosver.MajorVersion, error) {
+	v, _ := c.Flags().GetString(sdkVersionFlag)
+	parsed, err := cosmosver.MajorVersions.Parse(v)
 	if err != nil {
-		return err
+		return "", fmt.Errorf("%q is an unkown sdk version", v)
 	}
-	wt, err := repo.Worktree()
-	if err != nil {
-		return err
-	}
-	if _, err := wt.Add("."); err != nil {
-		return err
-	}
-	_, err = wt.Commit(commitMessage, &git.CommitOptions{
-		All:    true,
-		Author: devXAuthor,
-	})
-	return err
+	return parsed, nil
 }

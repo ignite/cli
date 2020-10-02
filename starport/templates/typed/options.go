@@ -2,8 +2,9 @@ package typed
 
 // Field ...
 type Field struct {
-	Name     string
-	Datatype string
+	Name         string
+	Datatype     string
+	DatatypeName string
 }
 
 // Options ...
