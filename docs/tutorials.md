@@ -1,4 +1,3 @@
-
 ## More tutorials
 
 - [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
