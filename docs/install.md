@@ -2,6 +2,8 @@
 
 If you want to install Starport locally, make sure to have Golang >=1.14 and a recent version of Node.js installed on your system.
 
+## Installation Options
+
 ### NPM
 
 ```
@@ -36,6 +38,8 @@ Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_us
 
 ## Start Hacking
 
+With `starport` installed on your machine, you can now build your very first blockchain application!
+
 ```bash
 starport app github.com/username/myapp
 ```
@@ -54,4 +58,4 @@ starport type post title body
 
 ## Learn More
 
-To learn how to use Starport, continue to the [Starport Handbook](01%20Introduction/01_starport_introduction/introduction.md).
+To learn how to use Starport, continue to the [Starport Handbook](/docs/README.md).
