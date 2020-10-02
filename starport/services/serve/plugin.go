@@ -19,7 +19,7 @@ type Plugin interface {
 	Migrate(context.Context) error
 
 	// InstallCommands returns step.Exec configurations to install app.
-	InstallCommands(ldflags string) []step.Option
+	InstallCommands(ldflags string) (options []step.Option, binaries []string)
 
 	// AddUserCommand returns step.Exec configuration to add users.
 	AddUserCommand(accountName string) step.Option
@@ -46,7 +46,7 @@ type Plugin interface {
 	GenesisPath() string
 }
 
-func (s *starportServe) pickPlugin() (Plugin, error) {
+func (s *Serve) pickPlugin() (Plugin, error) {
 	version, err := cosmosver.Detect(s.app.Path)
 	if err != nil {
 		return nil, err

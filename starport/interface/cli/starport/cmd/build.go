@@ -11,21 +11,19 @@ import (
 	starportserve "github.com/tendermint/starport/starport/services/serve"
 )
 
-var appPath string
-
-func NewServe() *cobra.Command {
+func NewBuild() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "serve",
-		Short: "Launches a reloading server",
+		Use:   "build",
+		Short: "Builds an app and installs binaries",
 		Args:  cobra.ExactArgs(0),
-		RunE:  serveHandler,
+		RunE:  buildHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
-func serveHandler(cmd *cobra.Command, args []string) error {
+func buildHandler(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	path, err := gomodulepath.Parse(getModule(appPath))
 	if err != nil {
@@ -50,7 +48,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	err = s.Serve(ctx)
+	err = s.Build(ctx)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil
