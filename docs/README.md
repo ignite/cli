@@ -1,8 +1,8 @@
 # The Starport Handbook
 
-## Quick Start 🚀 
+> Create your own blockchain - from star to ecosystem
 
-➡️  Try out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
+Try out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
 
 ## Table of Contents 🔎
 
@@ -27,8 +27,6 @@
     3. [CosmWasm CW20](04%20Use%20cases/03_cw20/03_cw20.md)  
 5. Extras  
     1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
-
-> Create your own blockchain - from star to ecosystem
 
 ## Other Tutorials
 
