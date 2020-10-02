@@ -1,73 +1,62 @@
 {
   "variables": {},
   "builders": [{
-    "type": "arm",
-    "file_urls" : ["http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz"],
-    "file_checksum_url": "http://os.archlinuxarm.org/os/ArchLinuxARM-rpi-aarch64-latest.tar.gz.md5",
-    "file_checksum_type": "md5",
-    "file_unarchive_cmd": ["bsdtar", "-xpf", "$ARCHIVE_PATH", "-C", "$MOUNTPOINT"],
-    "file_target_extension": "tar.gz",
-    "image_build_method": "new",
-    "image_path": "starport-pi.img",
-    "image_size": "6G",
-    "image_type": "dos",
-    "image_partitions": [
-      {
-        "name": "boot",
-        "type": "c",
-        "start_sector": "2048",
-        "filesystem": "vfat",
-        "size": "256M",
-        "mountpoint": "/boot"
-      },
-      {
-        "name": "root",
-        "type": "83",
-        "start_sector": "526336",
-        "filesystem": "ext4",
-        "size": "0",
-        "mountpoint": "/"
-      }
-    ],
-    "qemu_binary_source_path": "/usr/bin/qemu-aarch64-static",
-    "qemu_binary_destination_path": "/usr/bin/qemu-aarch64-static"
+	"type": "arm",
+	"file_urls" : ["http://cdimage.ubuntu.com/releases/20.04.1/release/ubuntu-20.04.1-preinstalled-server-arm64+raspi.img.xz"],
+	"file_checksum_url": "http://cdimage.ubuntu.com/releases/20.04.1/release/SHA256SUMS",
+	"file_checksum_type": "sha256",
+	"file_target_extension": "xz",
+	"file_unarchive_cmd": ["xz", "--decompress", "$ARCHIVE_PATH"],
+	"image_build_method": "reuse",
+	"image_path": "starport.img",
+	"image_size": "3.1G",
+	"image_type": "dos",
+	"image_partitions": [
+	  {
+		"name": "boot",
+		"type": "c",
+		"start_sector": "2048",
+		"filesystem": "fat",
+		"size": "256M",
+		"mountpoint": "/boot/firmware"
+	  },
+	  {
+		"name": "root",
+		"type": "83",
+		"start_sector": "526336",
+		"filesystem": "ext4",
+		"size": "2.8G",
+		"mountpoint": "/"
+	  }
+
+	],
+	"image_chroot_env": ["PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"],
+	"qemu_binary_source_path": "/usr/bin/qemu-aarch64-static",
+	"qemu_binary_destination_path": "/usr/bin/qemu-aarch64-static"
   }],
   "provisioners": [
-    {
-      "type": "shell",
-      "inline": [
-        "pacman-key --init",
-        "pacman-key --populate archlinuxarm",
-        "mv /etc/resolv.conf /etc/resolv.conf.bk",
-        "echo 'nameserver 8.8.8.8' > /etc/resolv.conf",
-        "echo 'nameserver 1.1.1.1' >> /etc/resolv.conf",
-        "pacman -Syyu --noconfirm --needed",
-        "pacman -S parted --noconfirm --needed"
-      ]
-    },
-    {
-      "type": "shell",
-      "inline": [
-        "pacman -S go docker git base-devel npm --noconfirm --needed",
-        "mkdir /go",
-        "export PATH=$PATH:/go/bin",
-        "export GOPATH=/go",
-        "go get -u github.com/gobuffalo/packr/v2/packr2",
-        "git clone https://github.com/tendermint/starport",
-        "cd starport",
-        "go mod vendor",
-        "make build",
-        "make install"
-      ]
-    },
-    {
-      "type": "file",
-      "source": ".pi/resizerootfs",
-      "destination": "/tmp"
-    },
-    {
-      "type": "shell",
-      "script": ".pi/bootstrap_resizerootfs.sh"
-    }
-  ]
+	{
+	  "type": "file",
+	  "source": ".pi/image.bash",
+	  "destination": "/tmp/image.bash"
+	},
+	{
+	  "type": "file",
+	  "source": "build/starport",
+	  "destination": "/usr/bin/starport"
+	},
+	{
+	  "type": "file",
+	  "source": "vue/",
+	  "destination": "vue/"
+	},
+	{
+	  "type": "shell",
+	  "inline": [
+		"bash /tmp/image.bash",
+		"rm /tmp/image.bash"
+	  ]
+	}
+  ],
+  "post-processors": []
 }
