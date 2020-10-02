@@ -6,4 +6,9 @@
 
   /* lv.2 */
   --f-primary: var(--f-family-primary);
+
+  --f-w-light: 300;
+  --f-w-medium: 500;
+  --f-w-bold: 700;
+  --f-w-extra-bold: 800;
 }

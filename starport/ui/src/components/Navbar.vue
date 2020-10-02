@@ -21,11 +21,11 @@
         </router-link>
       </div>
     </div>
-    <div class="nav__sub">
+    <!-- <div class="nav__sub">
       <div class="nav__sub-chips">
         <BackendIndicators/>
       </div>
-    </div>
+    </div> -->
   </nav>
 </template>
 

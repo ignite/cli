@@ -1,4 +1,5 @@
 <template>
+
   <div class="layout">
     <div class="container">
       <div class="container__left">
@@ -16,7 +17,10 @@
           <router-view />
         </div>
       </div>
+
+      <div v-if="this.$route.path === '/'" class="bg-image"><Planet/></div>      
     </div>
+
     <Modal :visible="visible" v-if="visible" @visible="visible = $event">
       <div v-if="modalTrigger === 'ham'" class="sheet -nav">
         <div class="sheet__main">
@@ -47,13 +51,15 @@ import Navbar from '@/components/Navbar'
 import Modal from '@/components/Modal'
 import BackendIndicators from '@/modules/BackendIndicators'
 import Headline from '@/components/typography/Headline'
+import Planet from "@/assets/images/Planet.vue";
 
 export default {
   components: {
     Navbar,
     Modal,
     BackendIndicators,
-    Headline
+    Headline,
+    Planet
   },  
   data() {
     return {
@@ -191,5 +197,10 @@ export default {
   color: var(--c-txt-primary);
 }
 
+.bg-image {
+  position: absolute;
+  top: 0;
+  right: 0;
+}
 
 </style>
