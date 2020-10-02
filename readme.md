@@ -17,13 +17,11 @@ For questions and support please join the #starport channel in the [Cosmos Commu
 
 ## Contributing
 
-`develop` contains the development version. Find the last stable release under https://github.com/tendermint/starport/releases.
-
-You can branch of from `develop` and create a Pull Request or maintain your own fork and submit a Pull Request from there.
+We welcome contributions from everyone. The `develop` contains the development version. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. Thank you to all those who have contributed to Starport!
 
 ## Stay in touch
 
-Starport is a product built by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
 
 - [Twitter](https://twitter.com/tendermint_team)
 - [Blog](https://medium.com/tendermint)
