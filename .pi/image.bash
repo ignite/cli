@@ -15,10 +15,19 @@ wget http://download.zerotier.com/debian/buster/pool/main/z/zerotier-one/zerotie
 dpkg -i zerotier-one_1.4.6_arm64.deb
 apt install -y
 
-# Set Up Starport
-chmod +x /usr/bin/starport
-mkdir -p /starport/config
-systemctl enable starportd
+
+
+
+# Install Go
+wget https://golang.org/dl/go1.15.2.linux-arm64.tar.gz
+tar -C /usr/local -xzf go1.15.2.linux-arm64.tar.gz
+echo "export PATH=$PATH:/usr/local/go/bin" >> /root/.profile
+echo "export PATH=$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
+. /root/.profile
+go version
+
+
+
 
 # Set up Nodejs without NVM
 wget https://nodejs.org/dist/v12.18.4/node-v12.18.4-linux-arm64.tar.xz
@@ -30,3 +39,11 @@ echo "export PATH=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin:$PATH" >> 
 node -v
 npm version
 npx -v
+
+
+# Set Up Starport
+git clone https://github.com/tendermint/starport
+cd starport
+make
+cp build/starport /usr/bin
+chmod +x /usr/bin/starport

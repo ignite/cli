@@ -42,11 +42,6 @@
 	},
 	{
 	  "type": "file",
-	  "source": "build/starport",
-	  "destination": "/usr/bin/starport"
-	},
-	{
-	  "type": "file",
 	  "source": "vue/",
 	  "destination": "vue/"
 	},
