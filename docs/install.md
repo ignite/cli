@@ -1,8 +1,6 @@
-## Install
+# Install Starport 
 
-### In browser
-
-➡️ Check out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in browser-based IDE</a>. Fastest way to get started! `starport` binary is already installed, just create an application and start hacking!
+If you want to install Starport locally, make sure to have Golang >=1.14 and a recent version of Node.js installed on your system.
 
 ### NPM
 
@@ -34,5 +32,26 @@ export PATH=$PATH:$PWD/node_modules/.bin/
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
 
-Requirements: Go 1.14 and Node.js (optional but highly recommended, used for the welcome screen and web app scaffolding).
+Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
 
+## Start Hacking
+
+```bash
+starport app github.com/username/myapp
+```
+
+Serve the blockchain application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#serve)
+
+```bash
+starport serve
+```
+
+Add a new transaction type to your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#how-to-use-types)
+
+```bash
+starport type post title body
+```
+
+## Learn More
+
+To learn how to use Starport, continue to the [Starport Handbook](01%20Introduction/01_starport_introduction/introduction.md).

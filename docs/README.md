@@ -1,11 +1,14 @@
 # The Starport Handbook
 
-<img src="../assets/banner.jpeg" width="400px"/>
+> Create your own blockchain - from star to ecosystem
 
-*Create your own blockchain - from star to ecosystem*
+## Quickstart 🚀 
+
+➡️ Check out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
 
 ## Guide 🔎
 
+0. [Install Starport](/install.md)
 1. Introduction  
    1. [Introduction](01%20Introduction/01_starport_introduction/introduction.md)  
    2. [Documentation and Specification](01%20Introduction/02_documentation_specification/02_documentation_specification.md)  
@@ -27,25 +30,9 @@
 5. Extras  
     1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
 
+## Other Tutorials
 
--------------------------
-
-## Quickstart 🚀 
-
-Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
-
-```bash
-starport app github.com/username/myapp
-```
-
-Serve the blockchain application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#serve)
-
-```bash
-starport serve
-```
-
-Add a new transaction type to your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#how-to-use-types)
-
-```bash
-starport type post title body
-```
+- [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
+- [Poll tutorial](https://tutorials.cosmos.network/starport-polling-app/): build a voting application with a web-based UI
+- [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
+- [Blog (from scratch) tutorial](https://tutorials.cosmos.network/starport-blog/01-index.html): learn how Starport works by building a blog without scaffolding
