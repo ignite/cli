@@ -32,7 +32,7 @@ const (
 )
 
 // std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.
-func (s *starportServe) stdSteps(logType logType) []step.Option {
+func (s *Serve) stdSteps(logType logType) []step.Option {
 	std := s.stdLog(logType)
 	return []step.Option{
 		step.Stdout(std.out),
@@ -45,7 +45,7 @@ type std struct {
 }
 
 // std returns the stdout and stderr to output logs by logType.
-func (s *starportServe) stdLog(logType logType) std {
+func (s *Serve) stdLog(logType logType) std {
 	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		var (
 			prefix    = prefixes[logType]

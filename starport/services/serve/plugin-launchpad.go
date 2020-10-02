@@ -46,23 +46,26 @@ func (p *launchpadPlugin) Migrate(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) InstallCommands(ldflags string) []step.Option {
+func (p *launchpadPlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
 	return []step.Option{
-		step.Exec(
-			"go",
-			"install",
-			"-mod", "readonly",
-			"-ldflags", ldflags,
-			filepath.Join(p.app.root(), "cmd", p.app.d()),
-		),
-		step.Exec(
-			"go",
-			"install",
-			"-mod", "readonly",
-			"-ldflags", ldflags,
-			filepath.Join(p.app.root(), "cmd", p.app.cli()),
-		),
-	}
+			step.Exec(
+				"go",
+				"install",
+				"-mod", "readonly",
+				"-ldflags", ldflags,
+				filepath.Join(p.app.root(), "cmd", p.app.d()),
+			),
+			step.Exec(
+				"go",
+				"install",
+				"-mod", "readonly",
+				"-ldflags", ldflags,
+				filepath.Join(p.app.root(), "cmd", p.app.cli()),
+			),
+		}, []string{
+			p.app.d(),
+			p.app.cli(),
+		}
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Option {
