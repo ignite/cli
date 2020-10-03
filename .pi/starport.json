@@ -42,8 +42,8 @@
 	},
 	{
 	  "type": "file",
-	  "source": "docs/",
-	  "destination": "/home/ubuntu/docs"
+	  "source": "./*",
+	  "destination": "/starport"
 	},
 	{
 	  "type": "shell",

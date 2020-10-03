@@ -24,8 +24,6 @@ echo "export PATH=$PATH:/usr/local/go/bin" >> /home/ubuntu/.profile
 go version
 
 
-
-
 # Set up Nodejs without NVM
 wget https://nodejs.org/dist/v12.18.4/node-v12.18.4-linux-arm64.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs
