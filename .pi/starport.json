@@ -42,8 +42,8 @@
 	},
 	{
 	  "type": "file",
-	  "source": "vue/",
-	  "destination": "vue/"
+	  "source": "docs/",
+	  "destination": "/home/ubuntu/docs"
 	},
 	{
 	  "type": "shell",

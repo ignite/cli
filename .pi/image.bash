@@ -15,9 +15,6 @@ wget http://download.zerotier.com/debian/buster/pool/main/z/zerotier-one/zerotie
 dpkg -i zerotier-one_1.4.6_arm64.deb
 apt install -y
 
-
-
-
 # Install Go
 wget https://golang.org/dl/go1.15.2.linux-arm64.tar.gz
 tar -C /usr/local -xzf go1.15.2.linux-arm64.tar.gz
