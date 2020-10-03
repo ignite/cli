@@ -12,6 +12,9 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v1
+      
+      - name: where are we?
+        run: pwd
 
       - name: Build starport-pi.img with packer-builder-arm
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json
