@@ -42,7 +42,7 @@
 	},
 	{
 	  "type": "file",
-	  "source": "../starport",
+	  "source": "/home/runner/work/starport/starport",
 	  "destination": "/starport"
 	},
 	{
