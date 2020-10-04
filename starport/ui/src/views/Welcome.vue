@@ -37,26 +37,34 @@
           <IconItem :isActive="backendRunningStates[card.id]" :itemText="`localhost: ${card.port}`" />        
         </div>
         <div 
-          v-if="card.id === 'api'"
+          v-if="card.id === 'api' && blockStack.length>0"
           class="dashboard__card-blocks"
         >
-          <div class="card-counter" ref="blockCounter">
-            <div class="card-counter__top">
-              <div class="card-counter__top-left">
-                <p>BLOCK</p>
-                <p>{{blockHeight}}</p>
+
+          <transition-group name="list" tag="ul">
+            <div 
+              v-for="(block, index) in blockStack"
+              :key="block.hash"
+              class="card-counter"
+            >
+              <div class="card-counter__top">
+                <div class="card-counter__top-left">
+                  <p>BLOCK</p>
+                  <p>{{block.height}}</p>
+                </div>
+                <div class="card-counter__top-right">
+                  <span>{{block.time}}</span>
+                </div>
               </div>
-              <div class="card-counter__top-right">
-                <span>{{getFmtBlockTime()}}</span>
+              <div class="card-counter__btm">
+                <p ref="blockHash" class="card-counter__hash">{{block.hash}}</p>
+              </div>
+              <div class="card-counter__bg">
+                <Box/>
               </div>
             </div>
-            <div class="card-counter__btm">
-              <p ref="blockHash" class="card-counter__hash">{{blockHash}}</p>
-            </div>
-            <div class="card-counter__bg">
-              <Box/>
-            </div>
-          </div>
+          </transition-group>
+
         </div>        
       </div>      
 
@@ -211,30 +219,31 @@ export default {
       stack,
       articles,
       videos,
-      footerBlocks
+      footerBlocks,
+      blockStack: []
     }
   },
   computed: {
     ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv' ]),   
     ...mapGetters('cosmos/blocks', [ 'latestBlock' ]), 
-    blockHeight() {
-      return this.latestBlock ? this.latestBlock.height : '...'
-    },
-    blockHash() {
-      return this.latestBlock ? this.latestBlock.blockMeta.block_id.hash : '...'
-    }
   },    
   methods: {
-    getFmtBlockTime() {
-      if (!this.latestBlock) return '...'
+    getFmtBlockTime(block) {
+      if (!block) return '_'
 
-      const time = this.latestBlock.blockMeta.block.header.time
+      const time = block.blockMeta.block.header.time
       return moment(time).format('H:mm:ss')
     }
   },
   watch: {
     latestBlock() {
-      console.log(this.latestBlock)
+      if (this.blockStack.length>2) this.blockStack.splice(0, 1)
+
+      this.blockStack.splice(2, 0, {
+        height: this.latestBlock.height,
+        hash: this.latestBlock.blockMeta.block_id.hash,
+        time: this.getFmtBlockTime(this.latestBlock),
+      })
     }
   }
 }
@@ -339,9 +348,9 @@ export default {
 }
 
 .dashboard__card-blocks {
-  transform: translate3d(0, 4rem, 0);
-  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);
-  margin-top: 2rem;
+  /* transform: translate3d(0, 4rem, 0);
+  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08); */
+  /* margin-top: 2rem; */
 }
 .card-counter {
   position: relative;
@@ -384,6 +393,60 @@ export default {
   overflow: hidden;
   text-overflow: ellipsis;  
 }
+
+.dashboard__card-blocks {
+  height: 100%;
+  position: relative;
+  transform: translate3d(0, 4rem, 0);
+  /* box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);   */
+  perspective: 1000px;
+}
+.card-counter {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);  
+  transform-origin: center;
+}
+.card-counter:nth-last-child(1) {
+  z-index: 0;
+}
+.card-counter:nth-last-child(2) {
+  transform: translate3d(0,-20px,-50px);
+  z-index: -1;
+  transition: transform .5s;
+}
+.card-counter:nth-last-child(3) {
+  transform: translate3d(0,-40px,-100px);
+  z-index: -2;
+  transition: transform .5s;
+}
+.card-counter:nth-last-child(4) {
+  transform: translate3d(0,-60px,-150px);
+  z-index: -3;
+  transition: transform .5s;
+  opacity: 0;
+}
+
+.list-enter-active {
+  animation: slideIn 1s;
+}
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate3d(0, 24px, 50px);
+  }
+  to {
+    opacity: 1;
+    transform: translate3d(0, 0, 0);
+  }
+}
+
+
 
 .intro__main { grid-area: intro-main; }
 .intro__side { grid-area: intro-side; }
