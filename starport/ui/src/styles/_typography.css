@@ -12,3 +12,12 @@
   --f-w-bold: 700;
   --f-w-extra-bold: 800;
 }
+
+.-f-cosmos-overline-0 {
+  font-weight: var(--f-w-medium);
+  font-size: 1rem;
+  line-height: 130%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 5, 66, 0.621);
+}

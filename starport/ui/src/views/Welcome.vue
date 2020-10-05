@@ -3,14 +3,14 @@
   <div class="main">
 
     <div class="hero">
-      <h4>Welcome to Starport!</h4>
+      <h4 class="-f-cosmos-overline-0">Welcome to Starport!</h4>
       <h2>Your blockchain <br> is ready.</h2>
       <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, governance, custom data types and more.</p>
     </div>
 
     <div class="dashboard grid-col-3">
-      <div class="left-top dashboard__headline">BUILD LOG</div>
-      <div class="center-top dashboard__headline">STACK</div>
+      <div class="left-top -f-cosmos-overline-0">BUILD LOG</div>
+      <div class="center-top -f-cosmos-overline-0">STACK</div>
 
       <div class="left dashboard__card dashboard__log">
         <IconItem :iconType="'check'"  :itemText="'Depencies installed'" />        
@@ -36,43 +36,17 @@
           <p class="dashboard__card-blurb">{{card.blurb}}</p>
           <IconItem :isActive="backendRunningStates[card.id]" :itemText="`localhost: ${card.port}`" />        
         </div>
-        <div 
-          v-if="card.id === 'api' && blockStack.length>0"
-          class="dashboard__card-blocks"
-        >
-
-          <transition-group name="list" tag="ul">
-            <div 
-              v-for="(block, index) in blockStack"
-              :key="block.hash"
-              class="card-counter"
-            >
-              <div class="card-counter__top">
-                <div class="card-counter__top-left">
-                  <p>BLOCK</p>
-                  <p>{{block.height}}</p>
-                </div>
-                <div class="card-counter__top-right">
-                  <span>{{block.time}}</span>
-                </div>
-              </div>
-              <div class="card-counter__btm">
-                <p ref="blockHash" class="card-counter__hash">{{block.hash}}</p>
-              </div>
-              <div class="card-counter__bg">
-                <Box/>
-              </div>
-            </div>
-          </transition-group>
-
-        </div>        
+        <BlockInfoCard 
+          v-if="card.id === 'api' && blocksStack.length>0"
+          :blocksStack="blocksStack"
+        />
       </div>      
 
     </div>
 
     <div class="grid-col-3 intro">
       <div class="intro__side">
-        <span>Architecture</span>
+        <p class="-f-cosmos-overline-0">Architecture</p>
         <h3>Brief intro</h3>
       </div>
       <div class="intro__main">
@@ -90,7 +64,7 @@
           <a 
             v-for="card in articles"
             :key="card.title"
-            :class="['text-card', { '-is-dark': card.tagline === 'tutorial' }]"
+            :class="['card-wrapper text-card', { '-is-dark': card.tagline === 'tutorial' }]"
             :href="card.link"
           >
             <div class="text-card__top">
@@ -111,7 +85,7 @@
           class="image-card"
           :href="card.link"
         >
-          <img class="image-card__img" src="https://i.ytimg.com/vi/h6Ur_40LB9k/hq720.jpg" alt="Image">
+          <img class="image-card__img card-wrapper" :src="card.imgUrl" :alt="card.alt">
           <div class="image-card__text">
             <span class="image-card__text-h1">{{card.title}}</span>
             <span class="image-card__text-p">{{card.length}}</span>
@@ -121,13 +95,26 @@
     </div>
 
     <div class="footer">
-      <div 
-        v-for="block in footerBlocks"
-        :key="block.title"
-        class="footer__block"
-      >
-        <span>{{block.title}}</span>
-        <a :href="block.link.url">{{block.link.text}}</a>
+      <div class="footer__main grid-col-3">
+        <div 
+          v-for="block in footerBlocks"
+          :key="block.title"
+          class="footer__main-item"
+        >
+          <span>{{block.title}}</span>
+          <a :href="block.link.url">{{block.link.text}}</a>
+        </div>
+      </div>
+      <div class="footer__sub grid-col-3">
+        <div class="footer__sub-item -logo">
+          <span><LogoTendermint/></span> Built by Tendermint Inc.
+        </div>
+        <div class="footer__sub-item">
+          © Starport 2020
+        </div>
+        <div class="footer__sub-item">
+          <a href="https://github.com/tendermint/starport"><LogoGithub/></a>
+        </div>        
       </div>
     </div>
 
@@ -139,11 +126,12 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import moment from 'moment'
 
+import BlockInfoCard from '@/modules/BlockInfoCard'
 import IconItem from '@/components/list/IconItem'
-import LogoTendermint from "@/assets/LogoTendermint.vue";
-import LogoCosmosSdk from "@/assets/LogoCosmosSdk.vue";
-import LogoStarport from "@/assets/LogoStarport.vue";
-import Box from "@/assets/icons/Box.vue";
+import LogoTendermint from "@/assets/LogoTendermint"
+import LogoCosmosSdk from "@/assets/LogoCosmosSdk"
+import LogoStarport from "@/assets/LogoStarport"
+import LogoGithub from "@/assets/LogoGithub"
 
 const stack = [
   {
@@ -171,19 +159,19 @@ const articles = [
     tagline: 'tutorial',
     title: 'Build a Polling App',
     blurb: 'Build a voting application with a web-based UI.',
-    link: '#'
+    link: 'https://tutorials.cosmos.network/starport-polling-app/'
   },
   {
     tagline: 'documentation',
     title: 'Starport Handbook',
     blurb: 'Create your own blockchain - from star to ecosystem',
-    link: '#'
+    link: 'https://github.com/tendermint/starport/tree/develop/docs'
   },
   {
     tagline: 'tutorial',
     title: 'Build a Blog',
     blurb: 'Learn how Starport works by building a blog.',
-    link: '#'
+    link: 'https://tutorials.cosmos.network/starport-blog/tutorial/01-index.html'
   },
 ]
 
@@ -191,12 +179,16 @@ const videos = [
   {
     title: 'Cosmos Code With Us - Building your first Cosmos app',
     length: '1:39:07',
-    link: '#'
+    imgUrl: 'https://i.ytimg.com/vi/h6Ur_40LB9k/hq720.jpg',
+    alt: 'Cosmos Code With Us - Building your first Cosmos app',
+    link: 'https://www.youtube.com/watch?v=h6Ur_40LB9k'
   },
   {
     title: 'Getting started with Starport, the easiest way to build a Cosmos SDK blockchain',
     length: '3:31',
-    link: '#'
+    imgUrl: 'https://i.ytimg.com/vi/rmbPjCGDXek/hq720.jpg',
+    alt: 'Getting started with Starport, the easiest way to build a Cosmos SDK blockchain',
+    link: 'https://www.youtube.com/watch?v=rmbPjCGDXek'
   },
 ]
 
@@ -212,7 +204,8 @@ export default {
     LogoTendermint,
     LogoCosmosSdk, 
     LogoStarport,
-    Box,
+    LogoGithub,
+    BlockInfoCard
   },
   data() {
     return {
@@ -220,7 +213,7 @@ export default {
       articles,
       videos,
       footerBlocks,
-      blockStack: []
+      blocksStack: []
     }
   },
   computed: {
@@ -237,9 +230,9 @@ export default {
   },
   watch: {
     latestBlock() {
-      if (this.blockStack.length>2) this.blockStack.splice(0, 1)
+      if (this.blocksStack.length>2) this.blocksStack.splice(0, 1)
 
-      this.blockStack.splice(2, 0, {
+      this.blocksStack.splice(2, 0, {
         height: this.latestBlock.height,
         hash: this.latestBlock.blockMeta.block_id.hash,
         time: this.getFmtBlockTime(this.latestBlock),
@@ -264,11 +257,11 @@ export default {
 .hero h2 {
   font-size: 5.625rem;
   font-weight: var(--f-w-extra-bold);
-  line-height: 108%;
+  line-height: 112%;  
   letter-spacing: -0.055em;
+
   margin-bottom: 2rem;
 }
-
 .hero h4 {
   font-size: 1rem;
   font-weight: var(--f-w-medium);
@@ -281,6 +274,16 @@ export default {
   font-weight: var(--f-w-light);
   line-height: 145%;
   letter-spacing: -0.007em;  
+}
+@media screen and (max-width: 1400px) {
+  .hero {
+    margin-right: 20%;
+  }
+}
+@media screen and (max-width: 768px) {
+  .hero {
+    margin-right: 0;
+  }
 }
 
 .grid-col-3 {
@@ -334,11 +337,7 @@ export default {
   top: 0.8rem;
   right: 0.8rem;
 }
-.dashboard__headline {
-  font-size: 1rem;
-  font-weight: var(--f-w-medium);
-  color: rgba(0,5,66,62.1%);
-}
+
 .dashboard__log {
   background-color: transparent;
   border: 1px solid rgba(0,13,158, 7%);
@@ -346,107 +345,6 @@ export default {
 .dashboard__log > div:not(:last-child) {
   margin-bottom: 1rem;
 }
-
-.dashboard__card-blocks {
-  /* transform: translate3d(0, 4rem, 0);
-  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08); */
-  /* margin-top: 2rem; */
-}
-.card-counter {
-  position: relative;
-  padding: 1.5rem;
-  background-color: var(--c-bg-primary);
-  border-radius: 12px;
-}
-.card-counter__top {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 5rem;
-}
-.card-counter__top-left {
-  color: #4251fa;
-}
-.card-counter__top-left p:first-child {
-  font-size: 0.75rem;
-  font-weight: var(--f-w-medium);
-  margin-bottom: 4px;
-}
-.card-counter__top-left p:last-child {
-  font-size: 1.3125rem;
-  font-weight: var(--f-w-bold);
-}
-.card-counter__top-right {
-  font-size: 0.75rem;
-  color: rgba(0, 5, 66, 0.621);
-}
-.card-counter__btm {
-  color: rgba(0, 5, 66, 0.621);
-}
-.card-counter__bg {
-  position: absolute;
-  right: 0;
-  bottom: 30%;
-}
-.card-counter__hash {
-  display: block;
-  white-space: nowrap; /* forces text to single line */
-  overflow: hidden;
-  text-overflow: ellipsis;  
-}
-
-.dashboard__card-blocks {
-  height: 100%;
-  position: relative;
-  transform: translate3d(0, 4rem, 0);
-  /* box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);   */
-  perspective: 1000px;
-}
-.card-counter {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  max-width: 100%;
-  box-sizing: border-box;
-  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);  
-  transform-origin: center;
-}
-.card-counter:nth-last-child(1) {
-  z-index: 0;
-}
-.card-counter:nth-last-child(2) {
-  transform: translate3d(0,-20px,-50px);
-  z-index: -1;
-  transition: transform .5s;
-}
-.card-counter:nth-last-child(3) {
-  transform: translate3d(0,-40px,-100px);
-  z-index: -2;
-  transition: transform .5s;
-}
-.card-counter:nth-last-child(4) {
-  transform: translate3d(0,-60px,-150px);
-  z-index: -3;
-  transition: transform .5s;
-  opacity: 0;
-}
-
-.list-enter-active {
-  animation: slideIn 1s;
-}
-@keyframes slideIn {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 24px, 50px);
-  }
-  to {
-    opacity: 1;
-    transform: translate3d(0, 0, 0);
-  }
-}
-
-
 
 .intro__main { grid-area: intro-main; }
 .intro__side { grid-area: intro-side; }
@@ -457,12 +355,7 @@ export default {
 .intro__main {
   width: 80%;
 }
-.intro__side span {
-  display: block;
-  font-size: 1rem;
-  font-weight: var(--f-w-medium);
-  text-transform: uppercase;
-  color: rgba(0,5,66,62.1%);  
+.intro__side p {
   margin-bottom: 4px;
 }
 .intro__side h3 {
@@ -489,13 +382,22 @@ export default {
   margin-bottom: 2rem;
 }
 
+.card-wrapper {
+  border-radius: 12px;
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 8px 16px rgba(0, 0, 0, 0.05), 0px 20px 44px rgba(0, 3, 66, 0.12);    
+  transition: box-shadow .25s ease-out,transform .25s ease-out,opacity .4s ease-out;  
+}
+.card-wrapper:hover {
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 12px 24px rgba(0, 0, 0, 0.02), 0px 30px 66px rgba(0, 3, 66, 0.14);
+  transform: translateY(-2px);
+  transition-duration: .1s; 
+}
+
 .text-card {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  border-radius: 12px;
+  justify-content: space-between;  
   padding: 1.5rem;
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 8px 16px rgba(0, 0, 0, 0.05), 0px 20px 44px rgba(0, 3, 66, 0.12);  
 }
 .text-card.-is-dark {
   color: var(--c-txt-contrast-primary);
@@ -543,8 +445,6 @@ a.text-card {
 .image-card img {
   width: 100%;
   object-fit: cover;
-  border-radius: 12px;
-  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 8px 16px rgba(0, 0, 0, 0.05), 0px 20px 44px rgba(0, 3, 66, 0.12);  
   margin-bottom: 0.5rem;  
 }
 .image-card__text-h1 {
@@ -564,25 +464,52 @@ a.text-card {
 }
 
 .footer {
-  display: flex;
   padding-top: 3rem;
   border-top: 1px solid rgba(0, 11, 119, 0.185);
+  width: 100%;
 }
-.footer__block:not(:last-child) {
-  margin-right: 10%;
+.footer__main,
+.footer__sub {
+  width: 100%;
 }
-.footer__block span {
+
+.footer__main {
+  margin-bottom: 5rem;
+}
+.footer__main-item span {
   display: block;
   font-weight: var(--f-w-bold);
   line-height: 130%;
   margin-bottom: 0.5rem;
 }
-.footer__block a {
+.footer__main-item a {
   text-decoration: none;
   font-size: 16px;
   letter-spacing: -0.007em;
   font-weight: var(--f-w-medium);
   color: #4251FA;
+}
+
+.footer__sub-item {
+  display: flex;
+  align-items: center;  
+  font-weight: var(--f-w-medium);
+  font-size: 0.7rem;
+  letter-spacing: -0.007em;
+  color: #989BB9;
+}
+.footer__sub-item span {
+  display: inline-block;
+  margin-right: 0.5rem;
+}
+.footer__sub-item.-logo span {
+  transform: translate3d(0, 4px, 0);
+}
+.footer__sub-item:last-child {
+  justify-content: flex-end;
+}
+.footer__sub-item a:hover svg path {
+  fill: #616489 !important;
 }
 
 </style>
