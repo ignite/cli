@@ -120,6 +120,8 @@ func (p *stargatePlugin) configtoml() error {
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("rpc.laddr", "tcp://0.0.0.0:26657")
+	//config.Set("prof_laddr", "localhost:26656")
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -130,13 +132,18 @@ func (p *stargatePlugin) configtoml() error {
 }
 
 func (p *stargatePlugin) StartCommands() [][]step.Option {
+	c := []string{
+		p.app.d(),
+		"start",
+	}
+	addr := os.Getenv("GRPC_ADDR")
+	if addr != "" {
+		c = append(c, "--grpc.address", addr)
+	}
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
-				step.Exec(
-					p.app.d(),
-					"start",
-				),
+				step.Exec(c[0], c[1:]...),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
 				}),
