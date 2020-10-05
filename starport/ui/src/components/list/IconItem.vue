@@ -6,7 +6,8 @@
       <div v-if="!isActive" class="item__head-icon -is-loading"><Spinner/></div>
       <span v-else :class="['item__head-icon', `-is-${iconType}`]"></span>
     </div>
-    <p class="item__main">{{ itemText }}</p>    
+    <p v-if="!toInjectSlot" class="item__main">{{ itemText }}</p>    
+    <div v-else><slot/></div>
     <!-- <TooltipWrapper :content="backendRunningStates[item.id] ? item.noteActive : item.noteInactive">
       <p class="item__main"><a :href="getBackendUrl(item.port)">{{item.name}}</a></p>
     </TooltipWrapper>             -->
@@ -22,7 +23,8 @@ export default {
   },
   props: {
     isActive: { type: Boolean, default: true },
-    itemText: { type: String, required: true },
+    itemText: { type: String },
+    toInjectSlot: { type: Boolean, default: false },
     iconType: {
       type: String,
       default: 'dot',
@@ -76,8 +78,19 @@ export default {
   color: var(--c-txt-grey);
 }
 .item__main a {
-  color: var(--c-txt-grey);
+  position: relative;
+  color: #4251FA;
   text-decoration: none;
+}
+.item__main a:after {
+  content: '→';  
+  position: absolute;
+  top: 1px;
+  right: -20px;
+}
+.item__main a:hover:after {
+  right: -24px;
+  transition: right .3s;
 }
 
 .item.-is-active {
@@ -90,7 +103,7 @@ export default {
   color: var(--c-txt-primary);
 }
 .item.-is-active .item__main a {
-  color: var(--c-txt-grey);
+  color: #4251FA;
 }
 
 

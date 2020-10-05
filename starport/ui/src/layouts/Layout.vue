@@ -7,14 +7,17 @@
           <Navbar @ham-clicked="handleHamClick">
             <div class="navbar__logo">
               <h1>Starport</h1>    
-              <p>DevTools</p>
             </div>          
           </Navbar>
         </div>
       </div>
       <div class="container__right">
         <div class="content">
-          <router-view />
+          <transition name="fade" mode="out-in">
+            <keep-alive include="Welcome">
+              <router-view />
+            </keep-alive>
+          </transition>
         </div>
       </div>
 
@@ -142,12 +145,9 @@ export default {
   margin-left: 1.5rem;
 }
 .navbar__logo h1 {
-  font-size: 1.125rem;
-  font-weight: 800;
-  margin-right: 0.5rem;
-}
-.navbar__logo p {
-  font-size: 1.125rem;
+  font-size: 28px;
+  font-weight: var(--f-w-bold);
+  letter-spacing: -0.016em;
 }
 @media only screen and (max-width: 1200px) {
   .navbar__logo {
@@ -202,6 +202,25 @@ export default {
   top: 0;
   right: 0;
   z-index: -1;
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity .3s ease-in-out;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+}
+.fade-fast-enter-active,
+.fade-fast-leave-active {
+  transition: opacity .3s ease-in-out;
+}
+.fade-fast-enter,
+.fade-fast-leave-active {
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
 }
 
 </style>

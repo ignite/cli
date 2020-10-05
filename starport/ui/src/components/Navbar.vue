@@ -10,6 +10,7 @@
           class="tab"
           to="/"
         >
+          <div class="tab__icon"><CompassIcon/></div>
           Welcome
         </router-link>
         <router-link
@@ -17,6 +18,7 @@
           to="/blocks"
         >
           <span :class="['circle', {'-is-active': isBlinking}]" ref="circle"></span>
+          <div class="tab__icon"><BlocksIcon/></div>
           Blocks
         </router-link>
       </div>
@@ -34,11 +36,15 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 import BackendIndicators from '@/modules/BackendIndicators'
 import HamIcon from '@/assets/icons/Ham'
+import CompassIcon from '@/assets/icons/Compass'
+import BlocksIcon from '@/assets/icons/Blocks'
 
 export default {
   components: {
     HamIcon,
-    BackendIndicators
+    BackendIndicators,
+    CompassIcon,
+    BlocksIcon
   },
   data() {
     return {
@@ -117,30 +123,43 @@ nav {
 
 .tab {
   position: relative;
-  display: block;
   text-decoration: none;
 
-  font-size: 1.25rem;
-  font-weight: 300;
-  color: var(--c-txt-grey);
+  display: flex;
+  align-items: center;  
 
-  padding: 0.85rem 0 0.85rem 1.85rem;
+  font-weight: var(--f-w-medium);
+  line-height: 130%;
+  color: rgba(0, 5, 66, 0.621);
+
+  padding: 0 0 0 1.4rem;
   border-radius: var(--bd-radius-primary);
   transition: background-color .3s;
 }
 .tab:hover {
-  background-color: var(--c-bg-secondary);
-  transition: background-color .3s;
+  color: var(--c-txt-primary);
+  transition: color .3s;
+}
+.tab:hover .tab__icon svg >>> path {
+  fill: var(--c-txt-primary);
+  transition: fill .3s;
 }
 .tab:not(:last-child) {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
+}
+.tab__icon {
+  display: flex;
+  align-items: center;
+  margin-right: 0.8rem;
 }
 .tab.router-link-exact-active {
   pointer-events: none;  
-  font-weight: 600;
-  color: var(--c-txt-secondary);
-  background-color: var(--c-bg-secondary);
+  color: var(--c-txt-primary);
 }
+.tab.router-link-exact-active .tab__icon svg >>> path {
+  fill: #E644F8;
+}
+
 @media only screen and (max-width: 1200px) {
   .tab {
     padding: 0;
@@ -163,7 +182,7 @@ nav {
 /* temp loading effect */
 .circle {
   --c-active: #4ACF4A;
-  --circle-size: 8px;
+  --circle-size: 6px;
 }
 .circle {
   border-radius: 100%;
@@ -174,7 +193,7 @@ nav {
   padding: 0;
   position: absolute;
   top: calc(50% - calc(var(--circle-size) / 1.8));
-  left: 12px;
+  left: 6px;
 }
 .circle::before,
 .circle::after {

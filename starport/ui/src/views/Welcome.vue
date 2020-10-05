@@ -34,12 +34,21 @@
         <div class="dashboard__card-main">
           <span class="dashboard__card-heading">{{card.name}}</span>
           <p class="dashboard__card-blurb">{{card.blurb}}</p>
-          <IconItem :isActive="backendRunningStates[card.id]" :itemText="`localhost: ${card.port}`" />        
+          <IconItem 
+            :isActive="backendRunningStates[card.id]"
+            :itemText="`localhost: ${card.port}`"
+            :toInjectSlot="card.id === 'frontend'"
+          >
+            <p v-if="card.id === 'frontend'" class="item__main">
+              <a class="-with-arrow" :href="getBackendUrl(card.port)">localhost: {{card.port}}</a>
+            </p>
+          </IconItem>
+
         </div>
-        <BlockInfoCard 
-          v-if="card.id === 'api' && blocksStack.length>0"
-          :blocksStack="blocksStack"
-        />
+          <BlockInfoCard 
+            v-if="card.id === 'api' && blocksStack.length>0"
+            :blocksStack="blocksStack"
+          />
       </div>      
 
     </div>
@@ -128,10 +137,10 @@ import moment from 'moment'
 
 import BlockInfoCard from '@/modules/BlockInfoCard'
 import IconItem from '@/components/list/IconItem'
-import LogoTendermint from "@/assets/LogoTendermint"
-import LogoCosmosSdk from "@/assets/LogoCosmosSdk"
-import LogoStarport from "@/assets/LogoStarport"
-import LogoGithub from "@/assets/LogoGithub"
+import LogoTendermint from "@/assets/logos/LogoTendermint"
+import LogoCosmosSdk from "@/assets/logos/LogoCosmosSdk"
+import LogoStarport from "@/assets/logos/LogoStarport"
+import LogoGithub from "@/assets/logos/LogoGithub"
 
 const stack = [
   {
@@ -193,12 +202,13 @@ const videos = [
 ]
 
 const footerBlocks = [
-  { title: 'Chat with developers', link: { text: 'Cosmos Discord →', url: '#' } },
-  { title: 'Join the community', link: { text: 'Cosmos SDK Forum →', url: '#' } },
-  { title: 'Found an issue?', link: { text: 'Suggest improvements →', url: '#' } },
+  { title: 'Chat with developers', link: { text: 'Cosmos Discord', url: '#' } },
+  { title: 'Join the community', link: { text: 'Cosmos SDK Forum', url: '#' } },
+  { title: 'Found an issue?', link: { text: 'Suggest improvements', url: '#' } },
 ]
 
 export default {
+  name: 'Welcome',
   components: {
     IconItem,
     LogoTendermint,
@@ -226,7 +236,15 @@ export default {
 
       const time = block.blockMeta.block.header.time
       return moment(time).format('H:mm:ss')
-    }
+    },
+    getPrefixURL(url, prefix) {
+      const newURL = new URL(url)
+      return `${newURL.protocol}//${prefix}-${newURL.hostname}`
+    },    
+    getBackendUrl(port) {
+      const { vue_app_custom_url } = this.backendEnv
+      return (vue_app_custom_url && this.getPrefixURL(vue_app_custom_url, port)) || `http://localhost:${port}`
+    }    
   },
   watch: {
     latestBlock() {
@@ -483,11 +501,22 @@ a.text-card {
   margin-bottom: 0.5rem;
 }
 .footer__main-item a {
+  position: relative;
   text-decoration: none;
   font-size: 16px;
   letter-spacing: -0.007em;
   font-weight: var(--f-w-medium);
   color: #4251FA;
+}
+.footer__main-item a:after {
+  content: '→';  
+  position: absolute;
+  top: 1px;
+  right: -20px;
+}
+.footer__main-item a:hover:after {
+  right: -24px;
+  transition: right .3s;
 }
 
 .footer__sub-item {
@@ -508,8 +537,9 @@ a.text-card {
 .footer__sub-item:last-child {
   justify-content: flex-end;
 }
-.footer__sub-item a:hover svg path {
-  fill: #616489 !important;
+.footer__sub-item a:hover svg >>> path {
+  fill: #616489;
+  transition: fill .3s;
 }
 
 </style>
