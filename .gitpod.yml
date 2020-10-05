@@ -10,7 +10,10 @@ tasks:
       (cd /workspace/starport && ./scripts/install)
 
       # install rly
-      (cd /tmp && git clone https://github.com/ovrclk/relayer && make -C ./relayer install)
+      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout jack/update-to-master)
+      (cd /tmp && git clone https://github.com/informalsystems/relayer irelayer )
+      rm -rf /tmp/relayer/scripts && mv /tmp/irelayer/scripts /tmp/relayer && rm -rf /tmp/irelayer
+      make -C /tmp/relayer install
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
