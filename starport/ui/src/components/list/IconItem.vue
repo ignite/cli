@@ -79,7 +79,6 @@ export default {
 }
 .item__main a {
   position: relative;
-  color: #4251FA;
   text-decoration: none;
 }
 .item__main a:after {

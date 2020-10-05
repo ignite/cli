@@ -46,7 +46,7 @@
 
         </div>
           <BlockInfoCard 
-            v-if="card.id === 'api' && blocksStack.length>0"
+            v-if="card.id === 'api'"
             :blocksStack="blocksStack"
           />
       </div>      
