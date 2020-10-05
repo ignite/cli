@@ -1,11 +1,13 @@
 export default {
   namespaced: true,
   state: {
+    blocksExplorerTableId: 'cosmosBlocksExplorer',
     tables: [
       // { id: null, isSheetActive: false }
     ]
   },
   getters: {
+    blocksExplorerTableId: state => state.blocksExplorerTableId,
     targetTable: state => tableId => {
       const targetTable = state.tables.filter(table => table.id === tableId)[0]
       return targetTable ? targetTable : null

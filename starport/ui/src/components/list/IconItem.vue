@@ -51,7 +51,7 @@ export default {
 
 .item__head-icon {
   display: block;
-  margin-right: 0.65rem;  
+  margin-right: 1rem;  
 } 
 .item__head-icon.-is-loading {
   width: 8px;

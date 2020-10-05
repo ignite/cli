@@ -4,7 +4,7 @@
     <div class="table-wrapper">
       <TableWrapper 
         :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
-        :tableId="tableId"        
+        :tableId="blocksExplorerTableId"        
         :containsInnerSheet="true"
         :isTableEmpty="isBlocksTableEmpty"
         :tableEmptyMsg="blockTableEmptyText"
@@ -70,7 +70,6 @@ export default {
   },
   data() {
     return {
-      tableId: 'cosmosBlocksExplorer',
       blockFormatter: blockHelpers.blockFormatter(),
       states: {
         isHidingBlocksWithoutTxs: false
@@ -85,7 +84,7 @@ export default {
      *
      */
     ...mapGetters('cosmos', [ 'appEnv' ]),
-    ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
+    ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock' ]),
     /*
      *
@@ -93,10 +92,10 @@ export default {
      * 
      */    
     fmtIsTableSheetActive() {
-      return this.isTableSheetActive(this.tableId)
+      return this.isTableSheetActive(this.blocksExplorerTableId)
     },    
     fmtTargetTable() {
-      return this.targetTable(this.tableId)
+      return this.targetTable(this.blocksExplorerTableId)
     },
     fmtBlockData() {
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
@@ -150,7 +149,7 @@ export default {
       if (this.fmtIsTableSheetActive) {
         if (isActiveRowClicked) {
           this.setTableSheetState({
-            tableId: this.tableId,
+            tableId: this.blocksExplorerTableId,
             sheetState: false
           })
           setTableRowStore()
@@ -159,7 +158,7 @@ export default {
         }
       } else {
         this.setTableSheetState({
-          tableId: this.tableId,
+          tableId: this.blocksExplorerTableId,
           sheetState: true
         })
         setTableRowStore(true, { rowId: rowId, rowData: rowData })
@@ -171,7 +170,7 @@ export default {
     handleFilterClick() {
       this.setHighlightedBlock({ block: null })
       this.setTableSheetState({
-        tableId: this.tableId,
+        tableId: this.blocksExplorerTableId,
         sheetState: false
       })      
       this.states.isHidingBlocksWithoutTxs = !this.states.isHidingBlocksWithoutTxs

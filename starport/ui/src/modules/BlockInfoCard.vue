@@ -5,6 +5,7 @@
         v-for="(block) in blocksStack"
         :key="block.hash"
         class="card"
+        @click="handleRowClick(block)"
       >
         <div class="card__top">
           <div class="card__top-left">
@@ -27,6 +28,9 @@
 </template>
 
 <script>
+import { mapGetters, mapMutations, mapActions } from 'vuex'
+import blockHelpers from '@/mixins/blocks/helpers'
+
 import Box from "@/assets/icons/Box.vue"
 
 export default {
@@ -42,6 +46,42 @@ export default {
           .filter(block => block.height && block.time && block.hash)
           .length===value.length
       }
+    }
+  },
+  data() {
+    return {
+      blockFormatter: blockHelpers.blockFormatter(),
+    }
+  },
+  computed: {
+    ...mapGetters('cosmos/ui', [ 'blocksExplorerTableId' ]),
+    ...mapGetters('cosmos/blocks', [ 'blockByHeight' ]),
+  },
+  methods: {
+    /*
+     *
+     * Vuex 
+     *
+     */        
+    ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
+    ...mapActions('cosmos/blocks', [ 'setHighlightedBlock' ]),
+    /*
+     *
+     * Local 
+     *
+     */          
+    handleRowClick({ height, hash }) {
+      const blockData = this.blockByHeight(height)
+      const fmtBlockData = this.blockFormatter.blockForTable(blockData)[0]
+      this.setHighlightedBlock({
+        block: { id: hash, data: fmtBlockData }
+      })
+      this.setTableSheetState({
+        tableId: this.blocksExplorerTableId,
+        sheetState: true
+      })      
+
+      this.$router.push('blocks')
     }
   }
 }
@@ -89,6 +129,7 @@ export default {
   white-space: nowrap; /* forces text to single line */
   overflow: hidden;
   text-overflow: ellipsis;  
+  font-family: var(--f-secondary);
 }
 
 .container {
@@ -108,9 +149,14 @@ export default {
   box-sizing: border-box;
   box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);  
   transform-origin: center;
+  pointer-events: none;
 }
 .card:nth-last-child(1) {
   z-index: 0;
+  pointer-events: initial;
+}
+.card:nth-last-child(1):hover {
+  cursor: pointer;
 }
 .card:nth-last-child(2) {
   transform: translate3d(0,-20px,-50px);
