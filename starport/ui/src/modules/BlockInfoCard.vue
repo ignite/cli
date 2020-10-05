@@ -2,7 +2,7 @@
   <div class="container">
     <transition-group name="list" tag="ul">
       <div 
-        v-for="(block) in blocksStack"
+        v-for="(block) in blockCards"
         :key="block.hash"
         class="card"
         @click="handleRowClick(block)"
@@ -38,7 +38,7 @@ export default {
     Box,
   },
   props: {
-    blocksStack: {
+    blockCards: {
       type: Array,
       required: true,
       validator(value) {
@@ -101,7 +101,7 @@ export default {
   margin-bottom: 5rem;
 }
 .card__top-left {
-  color: #4251fa;
+  color: var(--c-txt-highlight);
 }
 .card__top-left p:first-child {
   font-size: 0.75rem;
@@ -150,6 +150,13 @@ export default {
   box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);  
   transform-origin: center;
   pointer-events: none;
+  transition: transform .3s ease-in-out;
+  will-change: transform;
+}
+.card:hover {
+  transform: translate3d(0, 2px, 8px);
+  transition: transform .3s ease-in-out;
+  will-change: transform;
 }
 .card:nth-last-child(1) {
   z-index: 0;

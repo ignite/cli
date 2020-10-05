@@ -8,6 +8,7 @@
   --c-grey-4: #e8e8e8;  
   --c-grey-5: #f9f9f9;  
   --c-grey-white: white;  
+  --c-600-dark: #4251FA;  
 
   /*-- lv.2 - base --*/
   --c-dark-primary: var(--c-grey-0);
@@ -41,6 +42,7 @@
   --c-txt-grey: var(--c-grey);
   --c-txt-contrast-primary: var(--c-theme-primary);
   --c-txt-contrast-secondary: var(--c-theme-secondary);  
+  --c-txt-highlight: var(--c-600-dark);
 
   --c-bg-primary: var(--c-theme);
   --c-bg-secondary: var(--c-theme-primary);

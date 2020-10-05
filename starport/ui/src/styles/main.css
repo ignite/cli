@@ -6,3 +6,7 @@
 :root {
   --bd-radius-primary: 8px;
 }
+
+a {
+  text-decoration: none;
+}

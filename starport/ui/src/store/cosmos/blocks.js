@@ -19,7 +19,7 @@ export default {
   getters: {
     highlightedBlock: state => state.table.highlightedBlock,
     blocksStack: state => state.stack,
-    blockByHeight: state => height => state.stack.filter(block => block.height === height),
+    blockByHeight: state => height => state.stack.filter(block => parseInt(block.height) === parseInt(height)),
     latestBlock: state => state.latestBlock,
     lastBlock: state => state.stack[state.stack.length-1],
     chainId: state => state.chainId,
@@ -188,7 +188,7 @@ export default {
                     blockMeta,
                     txsData: blockMeta.data.result.block.data,
                     toInsertBlockToFront: false,
-                    toPopOverloadBlocks: !toGetOlderBlocks
+                    isValidLatestBlock: i===0
                   })                      
                 })                         
             }                  
@@ -298,7 +298,7 @@ export default {
            * 
            // 1. Fetch previous 20 blocks initially (if there's any) 
            * 
-           */
+           */        
           if (getters.blocksStack.length <= 0) {
             dispatch('getBlockchain', { blockHeight: header.height })
           }          

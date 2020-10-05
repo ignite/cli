@@ -8,11 +8,11 @@
       <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, governance, custom data types and more.</p>
     </div>
 
-    <div class="dashboard grid-col-3">
-      <div class="left-top -f-cosmos-overline-0">BUILD LOG</div>
-      <div class="center-top -f-cosmos-overline-0">STACK</div>
+    <div class="dashboard -grid-col-3">
+      <div class="-left-top -f-cosmos-overline-0">BUILD LOG</div>
+      <div class="-center-top -f-cosmos-overline-0">STACK</div>
 
-      <div class="left dashboard__card dashboard__log">
+      <div class="-left dashboard__card dashboard__log">
         <IconItem :iconType="'check'"  :itemText="'Depencies installed'" />        
         <IconItem :iconType="'check'"  :itemText="'Source code scaffolded'" />        
         <IconItem :iconType="'check'"  :itemText="'Build complete'" />        
@@ -47,19 +47,23 @@
         </div>
           <BlockInfoCard 
             v-if="card.id === 'api'"
-            :blocksStack="blocksStack"
+            :blockCards="blockCards"
           />
       </div>      
 
     </div>
 
-    <div class="grid-col-3 intro">
+    <div class="-grid-col-3 intro">
       <div class="intro__side">
         <p class="-f-cosmos-overline-0">Architecture</p>
         <h3>Brief intro</h3>
       </div>
       <div class="intro__main">
-        <p>Your blockchain is built with Cosmos SDK, a modular framework for building blockchains. It includes modules such as auth, bank, staking, governance, and more. Every feature is packaged as a separate module that can interact with other modules. Starport has actually generated a module for you, which you can use to start developing your own application and features.</p>
+        <p>Your blockchain is built with 
+          <a href="https://github.com/cosmos/cosmos-sdk">Cosmos SDK</a>
+          , a modular framework for building blockchains. It includes modules such as 
+          <span>auth</span>, <span>bank</span>, <span>staking</span>, <span>governance</span>
+          , and more. Every feature is packaged as a separate module that can interact with other modules. Starport has actually generated a module for you, which you can use to start developing your own application and features.</p>
       </div>
     </div>
     
@@ -69,7 +73,7 @@
       </div>
 
       <div class="tutorials__articles">
-        <div class="grid-col-3 cards">
+        <div class="-grid-col-3 cards">
           <a 
             v-for="card in articles"
             :key="card.title"
@@ -104,7 +108,7 @@
     </div>
 
     <div class="footer">
-      <div class="footer__main grid-col-3">
+      <div class="footer__main -grid-col-3">
         <div 
           v-for="block in footerBlocks"
           :key="block.title"
@@ -114,7 +118,7 @@
           <a :href="block.link.url">{{block.link.text}}</a>
         </div>
       </div>
-      <div class="footer__sub grid-col-3">
+      <div class="footer__sub -grid-col-3">
         <div class="footer__sub-item -logo">
           <span><LogoTendermint/></span> Built by Tendermint Inc.
         </div>
@@ -223,18 +227,43 @@ export default {
       articles,
       videos,
       footerBlocks,
-      blocksStack: []
+      blockCards: []
     }
   },
   computed: {
     ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv' ]),   
-    ...mapGetters('cosmos/blocks', [ 'latestBlock' ]), 
+    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight', 'blocksStack' ]), 
   },    
   methods: {
-    getFmtBlockTime(block) {
-      if (!block) return '_'
+    insertBlockToStack(index, block) {
+      this.blockCards.splice(index, 0, this.getFmtBlock(block))
+    },
+    setInitBlockCards() {
+      const cardsHolder = []
+      const latestBlock = this.latestBlock
 
-      const time = block.blockMeta.block.header.time
+      if (latestBlock) {
+        this.insertBlockToStack(0, latestBlock)
+
+        for (let i=1; i<3; i++) {
+          if (parseInt(latestBlock.height)-i>0) {
+            this.insertBlockToStack(i, this.blockByHeight(parseInt(latestBlock.height)-i)[0])
+          }
+        }
+      }      
+
+      return cardsHolder
+    },
+    getFmtBlock(block) {
+      return {
+        height: block.height,
+        hash: block.blockMeta.block_id.hash,
+        time: this.getFmtBlockTime(block.blockMeta.block.header.time),        
+      }
+    },
+    getFmtBlockTime(time) {
+      if (!time) return '_'
+
       return moment(time).format('H:mm:ss')
     },
     getPrefixURL(url, prefix) {
@@ -248,19 +277,24 @@ export default {
   },
   watch: {
     latestBlock() {
-      if (this.blocksStack.length>2) this.blocksStack.splice(0, 1)
+      if (this.blockCards.length>2) this.blockCards.splice(0, 1)
 
-      this.blocksStack.splice(2, 0, {
-        height: this.latestBlock.height,
-        hash: this.latestBlock.blockMeta.block_id.hash,
-        time: this.getFmtBlockTime(this.latestBlock),
-      })
+      this.insertBlockToStack(2, this.latestBlock)
     }
+  },
+  created() {
+    this.setInitBlockCards()
   }
 }
 </script>
 
 <style scoped>
+
+.-grid-col-3 {
+  display: grid;  
+  grid-column-gap: 2rem;      
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
 
 .main {
   position: relative;
@@ -304,15 +338,9 @@ export default {
   }
 }
 
-.grid-col-3 {
-  display: grid;  
-  grid-column-gap: 2rem;      
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.dashboard__card.left-top { grid-area: left-top; }
-.dashboard__card.center-top { grid-area: center-top; }
-.dashboard__card.left { grid-area: left; }
+.dashboard__card.-left-top { grid-area: left-top; }
+.dashboard__card.-center-top { grid-area: center-top; }
+.dashboard__card.-left { grid-area: left; }
 .dashboard__card.-api { grid-area: api; }
 .dashboard__card.-rpc { grid-area: rpc; }
 .dashboard__card.-frontend { grid-area: frontend; }
@@ -370,6 +398,9 @@ export default {
   grid-template-areas: 
     'intro-side intro-main intro-main';  
 }
+.intro {
+  margin-bottom: 10rem;
+}
 .intro__main {
   width: 80%;
 }
@@ -384,8 +415,11 @@ export default {
 .intro__main p {
   line-height: 162.5%;
 }
-.intro {
-  margin-bottom: 5rem;
+.intro__main p a {
+  color: var(--c-txt-highlight);
+}
+.intro__main span {
+  font-family: var(--f-secondary);
 }
 
 .tutorials__top {
@@ -408,6 +442,7 @@ export default {
 .card-wrapper:hover {
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 12px 24px rgba(0, 0, 0, 0.02), 0px 30px 66px rgba(0, 3, 66, 0.14);
   transform: translateY(-2px);
+  transition: box-shadow .25s ease-out,transform .25s ease-out,opacity .4s ease-out;  
   transition-duration: .1s; 
 }
 
@@ -434,8 +469,11 @@ a.text-card {
   line-height: 130.9%;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: #CFD1E7;
+  color: #616489;
   margin-bottom: 4px;
+}
+.text-card.-is-dark .text-card__tagline {
+  color: #CFD1E7;
 }
 .text-card__title {
   font-weight: var(--f-w-bold);
@@ -445,8 +483,11 @@ a.text-card {
 }
 .text-card__btm p {
   line-height: 130%;
-  color: #CFD1E7;
+  color: #616489;
   width: 90%;
+}
+.text-card.-is-dark .text-card__btm p {
+  color: #CFD1E7;
 }
 
 .tutorials__videos {
@@ -475,6 +516,11 @@ a.text-card {
   line-height: 130.9%;
   letter-spacing: 0.005em;
   color: #616489;
+}
+.image-card:hover .card-wrapper {
+  box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.07), 0px 12px 24px rgba(0, 0, 0, 0.02), 0px 30px 66px rgba(0, 3, 66, 0.14);
+  transform: translateY(-2px);
+  transition-duration: .1s;   
 }
 
 .tutorials__videos {
@@ -506,7 +552,7 @@ a.text-card {
   font-size: 16px;
   letter-spacing: -0.007em;
   font-weight: var(--f-w-medium);
-  color: #4251FA;
+  color: var(--c-txt-highlight);
 }
 .footer__main-item a:after {
   content: '→';  
