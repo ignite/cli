@@ -21,12 +21,14 @@ func NewServe() *cobra.Command {
 		RunE:  serveHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	c.Flags().BoolP("headless", "h", false, "Serve in headless mode without dev server and app ui")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
 	verbose, _ := cmd.Flags().GetBool("verbose")
+	isHeadless, _ := cmd.Flags().GetBool("headless")
 	path, err := gomodulepath.Parse(getModule(appPath))
 	if err != nil {
 		return err
@@ -46,7 +48,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	err = starportserve.Serve(ctx, app, verbose)
+	err = starportserve.Serve(ctx, app, verbose, isHeadless)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil

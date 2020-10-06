@@ -12,6 +12,14 @@ import (
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
+var (
+	rpcPort  = os.Getenv("RPC_PORT")
+	p2pPort  = os.Getenv("P2P_PORT")
+	profPort = os.Getenv("PROF_PORT")
+	apiPort  = os.Getenv("API_PORT")
+	grpcPort = os.Getenv("GRPC_PORT")
+)
+
 type stargatePlugin struct {
 	app App
 }
@@ -99,6 +107,9 @@ func (p *stargatePlugin) apptoml() error {
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	if apiPort != "" {
+		config.Set("api.address", "tcp://0.0.0.0:"+apiPort)
+	}
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -120,8 +131,15 @@ func (p *stargatePlugin) configtoml() error {
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("rpc.laddr", "tcp://0.0.0.0:26657")
-	//config.Set("prof_laddr", "localhost:26656")
+	if rpcPort != "" {
+		config.Set("rpc.laddr", "tcp://0.0.0.0:"+rpcPort)
+	}
+	if p2pPort != "" {
+		config.Set("p2p.laddr", "tcp://0.0.0.0:"+p2pPort)
+	}
+	if profPort != "" {
+		config.Set("prof_laddr", "localhost:"+profPort)
+	}
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -135,10 +153,10 @@ func (p *stargatePlugin) StartCommands() [][]step.Option {
 	c := []string{
 		p.app.d(),
 		"start",
+		"--pruning=nothing",
 	}
-	addr := os.Getenv("GRPC_ADDR")
-	if addr != "" {
-		c = append(c, "--grpc.address", addr)
+	if grpcPort != "" {
+		c = append(c, "--grpc.address", "0.0.0.0:"+grpcPort)
 	}
 	return [][]step.Option{
 		step.NewOptions().

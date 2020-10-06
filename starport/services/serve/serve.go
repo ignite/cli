@@ -59,7 +59,7 @@ type starportServe struct {
 }
 
 // Serve serves user apps.
-func Serve(ctx context.Context, app App, verbose bool) error {
+func Serve(ctx context.Context, app App, verbose, headless bool) error {
 	s := &starportServe{
 		app:            app,
 		verbose:        verbose,
@@ -94,12 +94,14 @@ func Serve(ctx context.Context, app App, verbose bool) error {
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
-	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
-	})
-	g.Go(func() error {
-		return s.runDevServer(ctx)
-	})
+	if !headless {
+		g.Go(func() error {
+			return s.watchAppFrontend(ctx)
+		})
+		g.Go(func() error {
+			return s.runDevServer(ctx)
+		})
+	}
 	g.Go(func() error {
 		s.refreshServe()
 		for {
