@@ -26,16 +26,27 @@ jobs:
           go-version: 1.15
 
       - name: Compile <%= AppName %>
-        run: make
+        run: |
+        	cd cmd/<%= AppName %>d
+        	go build .
+        	cd ..
+        	cd <%= AppName %>cli
+			go build .
         env:
           GOOS: linux
           GOARCH: arm64
 
-      - name: Upload <%= AppName %> Arm64 Binaries
+      - name: Upload <%= AppName %> Arm64 CLI
         uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %> arm64
-          path: build/
+          name: <%= AppName %>cli arm64
+          path: cmd/<%= AppName %>cli/<%= AppName %>cli
+
+	  - name: Upload <%= AppName %> Arm64 daemon
+	    uses: actions/upload-artifact@v2
+        with:
+          name: <%= AppName %>d arm64
+          path: build/cmd/<%= AppName %>d/cmd/<%= AppName %>d
 
       - name: Build <%= AppName %>.img
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/pibuild.json
