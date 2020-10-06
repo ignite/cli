@@ -109,11 +109,7 @@ export default {
 <style scoped>
 
 .table {
-  --tc-w-1: 10%;
-  --tc-w-2: 5%;
-  --tc-w-3: 20%;
-  --tc-w-4: 1;
-  --tc-w-5: 15%;
+  --table-collapsed-width: 12vw;
 }
 .table {
   position: relative;
@@ -181,33 +177,12 @@ export default {
   padding-right: 0.8rem;
 }
 
-/* temporary table styling */
-/* .table >>> .table__cells .table__col:nth-child(1) {
-  min-width: var(--tc-w-1);
-  max-width: var(--tc-w-1);
-}
-.table >>> .table__cells .table__col:nth-child(2) {
-  min-width: var(--tc-w-2);
-  max-width: var(--tc-w-2);
-}
-.table >>> .table__cells .table__col:nth-child(3) {
-  min-width: var(--tc-w-3);
-  max-width: var(--tc-w-3);
-}
-.table >>> .table__cells .table__col:nth-child(4) {
-  flex-grow: var(--tc-w-4);
-}
-.table >>> .table__cells .table__col:nth-child(5) {
-  min-width: var(--tc-w-5);
-  max-width: var(--tc-w-5);
-} */
-
 
 .table__sheet {
   position: absolute;
   top: 0;
   right: 0;
-  width: calc(100% - 23vw - 1rem);
+  width: calc(100% - var(--table-collapsed-width) - 1rem);
   height: 100%;  
 }
 .table__sheet {  
@@ -263,9 +238,9 @@ export default {
 
 
 .table.-is-collapsed {
-  --tc-w-1: 40%;
-  --tc-w-2: 20%;
-  --tc-w-3: 40%;
+  --tc-w-1: 50%;
+  --tc-w-2: 50%;
+  /* --tc-w-3: 40%; */
 }
 .table .table__main {
   width: 100%;
@@ -273,11 +248,19 @@ export default {
   will-change: width;
 }
 .table.-is-collapsed .table__main {
-  width: 23vw;
+  width: var(--table-collapsed-width);
   transition: width .3s ease-in-out;
   will-change: width;
 }
 
+.table.-is-collapsed >>> .table__cells .table__col:nth-child(1) {
+  min-width: var(--tc-w-1) !important;
+  max-width: var(--tc-w-1) !important;
+}
+.table.-is-collapsed >>> .table__cells .table__col:nth-child(2) {
+  min-width: var(--tc-w-2) !important;
+  max-width: var(--tc-w-2) !important;
+}
 .table .table__rows-wrapper >>> .table__row .table__cells .table__col:nth-last-child(-n+2),
 .table .table__head >>> .table__cells .table__col:nth-last-child(-n+2) {
   white-space: nowrap;
@@ -293,6 +276,11 @@ export default {
   transition: opacity .3s;
 }
 
+@media only screen and (max-width: 1400px) {
+  .table {
+    --table-collapsed-width: 20vw;
+  }
+}
 @media only screen and (max-width: 992px) {
   .table {
     min-width: 850px;

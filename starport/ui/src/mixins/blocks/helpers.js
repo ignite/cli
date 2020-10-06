@@ -142,13 +142,19 @@ export default {
            *
            *  
            */               
-          const setBlockTxs = (fetchDecodedTx, lcdUrl, txErrCallback) => {
+          const setBlockTxs = ({
+            fetchDecodedTx,
+            lcdUrl,
+            txStackCallback,
+            txErrCallback
+          }) => {
             if (txsData.txs && txsData.txs.length > 0) {
               const txsDecoded = txsData.txs
                 .map(txEncoded => fetchDecodedTx(lcdUrl, txEncoded, txErrCallback))
               
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                setBlockTxsDecoded(txResolved)
+                if (txResolved) setBlockTxsDecoded(txResolved)
+                if (txStackCallback) txStackCallback(txResolved)
               }))
             }                
           }

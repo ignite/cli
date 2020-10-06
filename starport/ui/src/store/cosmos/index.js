@@ -1,4 +1,5 @@
 import blocks from './blocks'
+import transactions from './transactions'
 import ui from './ui'
 
 const {
@@ -106,6 +107,7 @@ export default {
   actions: {},
   modules: {
     blocks,
+    transactions,
     ui
   }
 }

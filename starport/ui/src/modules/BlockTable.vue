@@ -21,7 +21,7 @@
 
         <BlockSheet slot="innerSheet" :blockData="localHighlightedBlock"/>
 
-        <div slot="tableContent">
+        <div slot="tableContent" v-if="fmtBlockData">
           <TableRowWrapper 
             v-for="msg in fmtBlockData"
             :key="msg.tableData.id"  
@@ -85,6 +85,7 @@ export default {
     ...mapGetters('cosmos', [ 'appEnv' ]),
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock' ]),
+    ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
      * Local
@@ -98,9 +99,13 @@ export default {
     },
     fmtBlockData() {
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
+
+      if (!fmtBlockForTable) return null
+
       if (this.states.isHidingBlocksWithoutTxs) {
         return this.blockFormatter.filterBlock(fmtBlockForTable).hideBlocksWithoutTxs()
       }
+
       return fmtBlockForTable
     },
     isBlocksTableEmpty() {
@@ -167,6 +172,7 @@ export default {
       this.setHighlightedBlock({ block: null })
     },
     handleFilterClick() {
+      console.log(this.txsStack)
       this.setHighlightedBlock({ block: null })
       this.setTableSheetState({
         tableId: this.blocksExplorerTableId,

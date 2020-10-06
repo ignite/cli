@@ -121,7 +121,8 @@ export default {
     addErrorTx(state, {
       blockHeight,
       txEncoded,
-      errLog
+      errLog,
+      txStackCallback
     }) {
       let isBlockInQueue = false
       
@@ -141,6 +142,8 @@ export default {
           txEncoded,
           errLog
         }})
+
+        txStackCallback()
       }
     }
   },
@@ -210,7 +213,7 @@ export default {
      * 
      * 
      */    
-    async setBlockMeta({ commit, getters, rootGetters }, {
+    async setBlockMeta({ dispatch, commit, getters, rootGetters, rootCommit }, {
       header,
       blockMeta,
       txsData,
@@ -226,11 +229,21 @@ export default {
       const txErrCallback = (txEncoded, errLog) => commit('addErrorTx', {
         blockHeight: header.height,
         txEncoded,
-        errLog
+        errLog,
+        txStackCallback: () => dispatch('addTxEntry', {
+          tx: null,
+          height: header.height,
+          txEncoded
+        }, { root: true })
       })      
                       
       blockHolder.setBlockMeta(blockMeta)
-      blockHolder.setBlockTxs(fetchDecodedTx, appEnv.API, txErrCallback)
+      blockHolder.setBlockTxs({
+        fetchDecodedTx,
+        lcdUrl: appEnv.API,
+        txStackCallback: (tx) => dispatch('addTxEntry', { tx }, { root: true }),
+        txErrCallback
+      })
       
       // this guards duplicated block pushed into blocksStack
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
