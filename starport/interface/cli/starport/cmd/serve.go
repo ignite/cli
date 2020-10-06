@@ -21,7 +21,7 @@ func NewServe() *cobra.Command {
 		RunE:  serveHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	c.Flags().BoolP("headless", "h", false, "Serve in headless mode without dev server and app ui")
+	c.Flags().Bool("headless", false, "Serve in headless mode without dev server and app ui")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
