@@ -5,6 +5,7 @@
         v-for="(n, index) in tableCells"
         :key="n+index"
         class="table__col"
+        :style="[getCellWidth(cellWidths[index])]"
       >{{n}}</div>
     </div>
   </div>
@@ -14,7 +15,28 @@
 export default {
   props: {
     isTableHead: { type: Boolean, default: false },
-    tableCells: { type: Array, required: true }
+    tableCells: { type: Array, required: true },
+    cellWidths: {
+      type: Array,
+      default() {
+        return ['8%', '10%', '1', '15%']
+      },
+      validator(value) {
+        return value.filter(val => typeof val === 'string').length === value.length
+      }      
+    }
+  },
+  methods: {
+    getCellWidth(val) {
+      if (val.includes('%')) {
+        return {
+          maxWidth: val,
+          minWidth: val
+        }
+      }
+
+      return { flexGrow: val }
+    }
   }
 }
 </script>

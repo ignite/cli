@@ -27,6 +27,7 @@
           <RowCells
             :isTableHead="true"
             :tableCells="tableHeads"
+            :cellWidths="colWidths"
           />
         </div>
         <div :class="['table__rows-wrapper']" @scroll="handleTableScroll">
@@ -55,6 +56,12 @@ export default {
     containsInnerSheet: { type: Boolean, default: false },
     isTableEmpty: { type: Boolean, default: true },
     tableEmptyMsg: { type: String, default: 'Waiting for blocks' },
+    colWidths: {
+      type: Array,
+      validator(value) {
+        return value.filter(val => typeof val === 'string').length === value.length
+      }
+    }
   },
   computed: {
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
@@ -175,7 +182,7 @@ export default {
 }
 
 /* temporary table styling */
-.table >>> .table__cells .table__col:nth-child(1) {
+/* .table >>> .table__cells .table__col:nth-child(1) {
   min-width: var(--tc-w-1);
   max-width: var(--tc-w-1);
 }
@@ -193,7 +200,7 @@ export default {
 .table >>> .table__cells .table__col:nth-child(5) {
   min-width: var(--tc-w-5);
   max-width: var(--tc-w-5);
-}
+} */
 
 
 .table__sheet {

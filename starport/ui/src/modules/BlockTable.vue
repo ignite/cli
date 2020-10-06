@@ -3,7 +3,7 @@
 
     <div class="table-wrapper">
       <TableWrapper 
-        :tableHeads="['Height', 'Txs', 'Proposer', 'Block Hash', 'Age']"
+        :tableHeads="['Height', 'Txs', 'Block Hash', 'Age']"
         :tableId="blocksExplorerTableId"        
         :containsInnerSheet="true"
         :isTableEmpty="isBlocksTableEmpty"
@@ -35,7 +35,6 @@
               :tableCells="[
                 msg.blockMsg.height,
                 msg.blockMsg.txs,
-                msg.blockMsg.proposer,
                 msg.blockMsg.blockHash_sliced,
                 msg.blockMsg.time_formatted,
               ]"
