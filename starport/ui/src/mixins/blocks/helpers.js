@@ -27,7 +27,23 @@ export default {
       return await axios.get(`${rpcUrl}/block?height=${blockHeight}`)
     } catch (err) {
       console.error(err)
-      errCallback(err)
+      if (errCallback) errCallback(err)
+    }
+  },
+  /**
+   * 
+   * 
+   * @param {string} rpcUrl
+   * @param {function} errCallback
+   *
+   *  
+   */      
+  async fetchLatestBlock(apiUrl, errCallback) {
+    try {
+      return await axios.get(`${apiUrl}/blocks/latest`)
+    } catch (err) {
+      console.error(err)
+      if (errCallback) errCallback(err)
     }
   },
   /**

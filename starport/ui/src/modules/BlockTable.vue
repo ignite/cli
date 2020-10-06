@@ -172,7 +172,6 @@ export default {
       this.setHighlightedBlock({ block: null })
     },
     handleFilterClick() {
-      console.log(this.txsStack)
       this.setHighlightedBlock({ block: null })
       this.setTableSheetState({
         tableId: this.blocksExplorerTableId,

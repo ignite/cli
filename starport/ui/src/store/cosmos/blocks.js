@@ -148,6 +148,25 @@ export default {
     }
   },
   actions: {
+    txErrCallback: {
+      root: true,
+      handler({ commit, dispatch }, {
+        blockHeight,
+        txEncoded,
+        errLog,
+      }) {
+        commit('addErrorTx', {
+          blockHeight,
+          txEncoded,
+          errLog,
+          txStackCallback: () => dispatch('addTxEntry', {
+            tx: null,
+            height,
+            txEncoded
+          }, { root: true })
+        })          
+      }    
+    },
     /**
      * Fetch blocks (20 of which) from RPC endpoint
      * 
@@ -225,24 +244,17 @@ export default {
 
       const blockFormatter = blockHelpers.blockFormatter()
       const blockHolder = blockFormatter.setNewBlock(header, txsData)
-
-      const txErrCallback = (txEncoded, errLog) => commit('addErrorTx', {
-        blockHeight: header.height,
-        txEncoded,
-        errLog,
-        txStackCallback: () => dispatch('addTxEntry', {
-          tx: null,
-          height: header.height,
-          txEncoded
-        }, { root: true })
-      })      
                       
       blockHolder.setBlockMeta(blockMeta)
       blockHolder.setBlockTxs({
         fetchDecodedTx,
         lcdUrl: appEnv.API,
         txStackCallback: (tx) => dispatch('addTxEntry', { tx }, { root: true }),
-        txErrCallback
+        txErrCallback: (txEncoded, errLog) => dispatch('txErrCallback', {
+          blockHeight: header.height,
+          txEncoded,
+          errLog
+        }, { root: true })
       })
       
       // this guards duplicated block pushed into blocksStack

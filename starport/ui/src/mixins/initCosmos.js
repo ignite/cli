@@ -1,10 +1,11 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 import blockConnection from './blocks/initConnection'
+import txConnection from './transactions/init'
 import backendConnection from './backend/initConnection'
 
 export default {
-  mixins: [backendConnection, blockConnection],
+  mixins: [backendConnection, blockConnection, txConnection],
   computed: {
     ...mapGetters('cosmos/ui', [ 'targetTable', 'blocksExplorerTableId' ]),
   },
