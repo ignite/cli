@@ -6,27 +6,28 @@ builds:
       - amd64
       - arm64
 
-
 brews:
   - name: "starport"
     description: "CLI tool for developing Cosmos SDK apps."
     homepage: "https://github.com/tendermint/starport"
-    github:
+    tap:
       owner: "tendermint"
       name: "homebrew-tap"
     install: |
       bin.install "starport"
 
 snapcrafts:
+  - name: starport
     replacements:
       darwin: macOS
     summary: The easiest way to build a blockchain.
     description: Starport is the easiest way to build blockchains. It is a developer-friendly interface to the Cosmos SDK, the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
-    grade: devel
-    confinement: classic
+    grade: stable
+    confinement: strict
     base: core18
     license: Apache-2.0
+    publish: true
     apps:
       starport:
-        plugs: ["home", "personal-files", "network", "network-bind"]
-        command: bin/starport
+        plugs: ["home", "personal-files"]
+        command: starport
