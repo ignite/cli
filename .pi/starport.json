@@ -42,7 +42,7 @@
 	},
 	{
 	  "type": "file",
-	  "source": "./*",
+	  "source": "./",
 	  "destination": "/starport"
 	},
 	{
