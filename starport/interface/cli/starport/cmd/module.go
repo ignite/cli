@@ -7,6 +7,9 @@ func NewModule() *cobra.Command {
 		Use:   "module",
 		Short: "Manage cosmos modules for your app",
 	}
-	c.AddCommand(NewModuleImport())
+	c.AddCommand(
+		NewModuleImport(),
+		NewModuleCreate(),
+	)
 	return c
 }
