@@ -47,12 +47,12 @@
     },
     {
       "type": "file",
-      "source": "build/<%= AppName %>d",
+      "source": "cmd/<%= AppName %>d/<%= AppName %>d",
       "destination": "/usr/bin/<%= AppName %>d"
     },
     {
       "type": "file",
-      "source": "build/<%= AppName %>cli",
+      "source": "cmd/<%= AppName %>cli/<%= AppName %>cli",
       "destination": "/usr/bin/<%= AppName %>cli"
     },
     {
