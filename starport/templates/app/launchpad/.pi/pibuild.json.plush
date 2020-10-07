@@ -36,20 +36,9 @@
   }],
   "provisioners": [
     {
-      "type": "shell",
-      "inline": [
-        "touch /tmp/test"
-      ]
-    },
-    {
       "type": "file",
       "source": ".pi/<%= AppName %>d.service",
       "destination": "/etc/systemd/system/<%= AppName %>d.service"
-    },
-    {
-      "type": "file",
-      "source": ".pi/zt-gpg-key",
-      "destination": "/tmp/zt-gpg-key"
     },
     {
       "type": "file",
@@ -67,15 +56,15 @@
       "destination": "/usr/bin/<%= AppName %>cli"
     },
     {
-          "type": "file",
-          "source": "vue/",
-          "destination": "vue/"
+	  "type": "file",
+	  "source": "vue/",
+	  "destination": "vue/"
     },
     {
       "type": "shell",
       "inline": [
         "bash /tmp/image.bash",
-        "rm /tmp/zt-gpg-key /tmp/image.bash"
+        "rm /tmp/image.bash"
       ]
     }
   ],

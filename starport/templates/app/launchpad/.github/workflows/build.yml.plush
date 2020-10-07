@@ -27,12 +27,22 @@ jobs:
           GOOS: ${{ matrix.targetos }}
 
       - name: Compile
-        run: make
+        run: |
+          cd cmd/<%= AppName %>d
+          go build .
+          cd ..
+          cd <%= AppName %>cli
+          go build .
 
       - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %> ${{ matrix.targetos }}
-          path: build
+          name: <%= AppName %>cli ${{ matrix.targetos }}
+          path: cmd/<%= AppName %>cli/<%= AppName %>cli
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: <%= AppName %>d ${{ matrix.targetos }}
+          path: cmd/<%= AppName %>d/<%= AppName %>d
 
   linux:
     runs-on: ubuntu-latest
@@ -51,9 +61,19 @@ jobs:
           GOARCH: ${{ matrix.arch }}
 
       - name: Compile
-        run: make
+        run: |
+          cd cmd/<%= AppName %>d
+          go build .
+          cd ..
+          cd <%= AppName %>cli
+          go build .
 
       - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %> ${{ matrix.arch }}
-          path: build
+          name: <%= AppName %>cli ${{ matrix.targetos }}
+          path: cmd/<%= AppName %>cli/<%= AppName %>cli
+
+      - uses: actions/upload-artifact@v2
+        with:
+          name: <%= AppName %>d ${{ matrix.targetos }}
+          path: cmd/<%= AppName %>d/<%= AppName %>d

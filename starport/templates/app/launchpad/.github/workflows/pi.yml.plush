@@ -27,11 +27,11 @@ jobs:
 
       - name: Compile <%= AppName %>
         run: |
-        	cd cmd/<%= AppName %>d
-        	go build .
-        	cd ..
-        	cd <%= AppName %>cli
-			go build .
+            cd cmd/<%= AppName %>d
+            go build .
+            cd ..
+            cd <%= AppName %>cli
+            go build .
         env:
           GOOS: linux
           GOARCH: arm64
@@ -42,8 +42,8 @@ jobs:
           name: <%= AppName %>cli arm64
           path: cmd/<%= AppName %>cli/<%= AppName %>cli
 
-	  - name: Upload <%= AppName %> Arm64 daemon
-	    uses: actions/upload-artifact@v2
+      - name: Upload <%= AppName %> Arm64 daemon
+        uses: actions/upload-artifact@v2
         with:
           name: <%= AppName %>d arm64
           path: build/cmd/<%= AppName %>d/cmd/<%= AppName %>d
