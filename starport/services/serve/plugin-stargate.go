@@ -131,6 +131,8 @@ func (p *stargatePlugin) configtoml() error {
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("consensus.timeout_commit", "1s")
+	config.Set("consensus.timeout_propose", "1s")
 	if rpcPort != "" {
 		config.Set("rpc.laddr", "tcp://0.0.0.0:"+rpcPort)
 	}
@@ -153,7 +155,7 @@ func (p *stargatePlugin) StartCommands() [][]step.Option {
 	c := []string{
 		p.app.d(),
 		"start",
-		"--pruning=nothing",
+		"--pruning", "nothing",
 	}
 	if grpcPort != "" {
 		c = append(c, "--grpc.address", "0.0.0.0:"+grpcPort)
