@@ -81,13 +81,18 @@ export default {
       return minBlockHeight-1
     }
     const fmtMaxHeight = () => {
+      const maxHeight = maxBlockHeight ? maxBlockHeight : latestBlockHeight
       if (minBlockHeight) {
-        return minBlockHeight-1 + maxStackCount >= latestBlockHeight
-          ? latestBlockHeight-1
+        return minBlockHeight-1 + maxStackCount >= maxHeight
+          ? maxHeight-1
           : minBlockHeight-1 + maxStackCount
       }
       return maxBlockHeight-1
     }
+
+    // if (minBlockHeight) {
+    //   console.log(fmtMinHeight(), fmtMaxHeight())
+    // }
 
     try {
       return await axios.get(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
@@ -115,6 +120,34 @@ export default {
       if (errCallback) errCallback(txEncoded, err)
     }        
   },   
+  /**
+   * 
+   * 
+   * @param {array} blocksStack 
+   * 
+   * 
+   */
+  getGapBlock(blocksStack) {
+    for (let i=0; i<blocksStack.length; i++) {
+      const currentBlock = blocksStack[i]
+      const nextBlock = blocksStack[i+1]
+      if (!nextBlock) continue
+      
+      if (parseInt(currentBlock.height) - parseInt(nextBlock.height) > 1) {
+        return {
+          block: currentBlock,
+          index: i+1
+        }
+      }        
+    }
+
+    return null
+  },
+  /**
+   * 
+   * Container of methods for formatting block data
+   * 
+   */
   blockFormatter() {
     return {
       /**
@@ -207,7 +240,7 @@ export default {
               blockMsg: {
                 time_formatted: moment(time).fromNow(true),
                 time: moment(time).format('MMMM Do YYYY, h:mm:ss a'),
-                height,
+                height: parseInt(height),
                 proposer: `${proposer_address.slice(0,10)}...`,
                 blockHash_sliced: `${hash.slice(0,30)}...`,
                 blockHash: hash,

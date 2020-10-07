@@ -109,7 +109,7 @@ export default {
 <style scoped>
 
 .table {
-  --table-collapsed-width: 12vw;
+  --table-collapsed-width: 15vw;
 }
 .table {
   position: relative;
@@ -194,7 +194,7 @@ export default {
 .table__sheet.-is-active {  
   transform: translate3d(0,0,0);
   opacity: 1;  
-  transition: all ease-out .3s;
+  transition: transform ease-out .3s;
   will-change: transform;
 }
 

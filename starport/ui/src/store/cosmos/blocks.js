@@ -11,7 +11,7 @@ export default {
         data: null
       }
     },
-    maxStackCount: 500,
+    maxStackCount: 40,
     stack: [],
     latestBlock: null,
     errorsQueue: []
@@ -22,6 +22,7 @@ export default {
     blockByHeight: state => height => state.stack.filter(block => parseInt(block.height) === parseInt(height)),
     latestBlock: state => state.latestBlock,
     lastBlock: state => state.stack[state.stack.length-1],
+    gapBlock: state => blockHelpers.getGapBlock(state.stack),
     chainId: state => state.chainId,
     errorsQueue: state => state.errorsQueue
   },
@@ -63,6 +64,14 @@ export default {
       state.table.isSheetActive = tableState
     },
     /**
+     * 
+     * 
+     * 
+     */    
+    sortBlocksStack(state) {
+      state.stack.sort((a,b) => b.height - a.height)
+    },
+    /**
      * Set chainId of the app (if there's no existing one yet)
      * 
      * @param {object} state
@@ -83,22 +92,63 @@ export default {
      * 
      */     
     addBlockEntry(state, { block, toInsert=true }) {
-      if (toInsert) {
-        state.stack.unshift(block)
-      } else {
-        state.stack.push(block)
+      const gapBlock = blockHelpers.getGapBlock(state.stack)
+      
+      if (gapBlock) {
+        const isNewBlock = parseInt(block.height) < parseInt(state.latestBlock.height)
+        const isBlockInStack = state.stack
+          .filter(blockInStack => parseInt(blockInStack.height) === parseInt(block.height))
+          .length>0
+        if (!isNewBlock && !isBlockInStack) {
+          state.stack.splice(gapBlock.index, 0, block)
+          return
+        }
       }
+
+      if (!toInsert) {
+        state.stack.push(block)
+      } else {
+        state.stack.unshift(block)
+      }
+    },     
+    /**
+     * 
+     * @param {object} state
+     * @param {object} payload
+     * @param {object} payload.block - The block to add into stack
+     * @param {boolean} [payload.toInsert=true] - To push or unshift block into stack
+     * 
+     * 
+     */     
+    addBlockEntries(state, { blocks }) {
+      const insertIndex = blockHelpers.getGapBlock(state.stack)?.index
+
+      if (insertIndex !== undefined || insertIndex !== null) {
+        state.stack.splice(fmtInsertIndex, 0, ...blocks)        
+      }
+      // if (insertIndex !== undefined || insertIndex !== null) {
+      //   const fmtInsertIndex = insertIndex-1 >= 0 ? insertIndex-1 : 0
+      //   console.log(insertIndex-1)
+      //   state.stack.splice(fmtInsertIndex, 0, block)
+      // } else {
+      //   state.stack.unshift(block)
+      // }
     },     
     /**
      * Pop overloaded blocks in stack (if more than 500)
      * 
      * @param {object} state
+     * @param {boolean} toPop - default is True
      * 
      * 
      */      
-    popOverloadBlocks(state) {
+    popOverloadBlocks(state, toPop=true) {
       if (state.stack.length > state.maxStackCount) {
-        state.stack.splice(state.maxStackCount)
+        if (toPop) {
+          state.stack.splice(state.maxStackCount)
+        } else {
+          state.stack.splice(0, state.stack.length-state.maxStackCount)
+        }
       }
     },       
     /**
@@ -190,13 +240,24 @@ export default {
         errLog
       })
 
-      fetchBlockchain({
+      /**
+       * 
+       // minHeight to maxHeight is the range of blockchain to fetch.
+       // To get older blocks (blocks with lower heights),
+       // set minHeight to `undefined`, because it's dependent on maxHeight (maxHeight-20).
+       // And vise versa.
+       * 
+       */
+      const minBlockHeight = toGetOlderBlocks ? undefined : parseInt(blockHeight)
+      // const maxBlockHeight = toGetOlderBlocks ? parseInt(blockHeight) : undefined
+      const maxBlockHeight = parseInt(blockHeight)
+ 
+      const toFetchBlockchain = (min, max) => fetchBlockchain({
         rpcUrl: appEnv.RPC,
-        minBlockHeight: undefined,
-        maxBlockHeight: blockHeight,
+        minBlockHeight: min,
+        maxBlockHeight: max,
         latestBlockHeight: latestBlock ? latestBlock.height : null
-      })
-        .then(blockchainRes => {
+      }).then(blockchainRes => {
           const blockchain = blockchainRes.data.result.block_metas
 
           const promiseLoop = async _ => {
@@ -216,8 +277,29 @@ export default {
             }                  
           }
           promiseLoop()
+        })     
 
-        })
+      /**
+       * 
+       // To get older blocks, fetch only older 20 ones.
+       * 
+       */        
+      if (!latestBlock || toGetOlderBlocks) {
+        toFetchBlockchain(minBlockHeight, maxBlockHeight)
+        return 
+      }
+      /**
+       * 
+       // To get newer blocks, fetch all blocks until latest block.
+       * 
+       */              
+      if (latestBlock && !toGetOlderBlocks) {
+        for (let minHeight=minBlockHeight; minHeight<parseInt(latestBlock.height); minHeight+=20) {
+          toFetchBlockchain(minHeight, maxBlockHeight)
+        }        
+        return
+      }
+
     },
     /**
      * Format the fetched block and add it into store's stack
@@ -282,6 +364,8 @@ export default {
         if (isValidLatestBlock) {
           commit('setLatestBlock', blockHolder.block)
         }
+        //
+        commit('sortBlocksStack')
       }     
     },
     /**

@@ -71,7 +71,9 @@ export default {
     return {
       blockFormatter: blockHelpers.blockFormatter(),
       states: {
-        isHidingBlocksWithoutTxs: false
+        isHidingBlocksWithoutTxs: false,
+        isScrolledInTopHalf: true,
+        isLoading: false
       },
       localHighlightedBlock: null
     }
@@ -84,7 +86,7 @@ export default {
      */
     ...mapGetters('cosmos', [ 'appEnv' ]),
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'gapBlock' ]),
     ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
@@ -109,7 +111,10 @@ export default {
       return fmtBlockForTable
     },
     isBlocksTableEmpty() {
-      return this.blocksStack.length<=0 || !this.fmtBlockData || this.fmtBlockData?.length<=0
+      return this.blocksStack.length<=0 ||
+        !this.fmtBlockData || 
+        this.fmtBlockData?.length<=0 ||
+        this.states.isLoading
     },
     blockFilterText() {
       return !this.states.isHidingBlocksWithoutTxs
@@ -129,7 +134,7 @@ export default {
      *
      */    
     ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
-    ...mapMutations('cosmos/blocks', [ 'popOverloadBlocks' ]),
+    ...mapMutations('cosmos/blocks', [ 'popOverloadBlocks', 'sortBlocksStack' ]),
     ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain', 'setHighlightedBlock' ]),
     /*
      *
@@ -185,7 +190,15 @@ export default {
      // only when scrolling to upperhalf of the table
      *
      */         
-    handleScrollTopHalf() {
+    async handleScrollTopHalf() {
+      this.states.isScrolledInTopHalf=true
+
+      if (this.gapBlock) {        
+        await this.getBlockchain({ 
+          blockHeight: this.gapBlock.block.height,
+          toGetOlderBlocks: false
+        })
+      }
       this.popOverloadBlocks()
     },
     /*
@@ -194,16 +207,30 @@ export default {
      // only when scrolling to bottom of the table
      *
      */          
-    handleScrollBottom() {
-      this.getBlockchain({ 
+    async handleScrollBottom() {
+      this.states.isScrolledInTopHalf = false
+
+      await this.getBlockchain({ 
         blockHeight: this.lastBlock.height,
         toGetOlderBlocks: true
       })
+      this.popOverloadBlocks(false)
     }    
   },
   watch: {
     highlightedBlock() {
       this.localHighlightedBlock = this.highlightedBlock
+    },
+    async blocksStack() {
+      if (this.states.isScrolledInTopHalf) {
+        this.popOverloadBlocks()
+      }
+      if (this.states.isScrolledInTopHalf && this.gapBlock) {
+        await this.getBlockchain({ 
+          blockHeight: this.gapBlock.block.height,
+          toGetOlderBlocks: false
+        })
+      }
     }
   },
   created() {
