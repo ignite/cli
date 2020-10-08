@@ -49,6 +49,7 @@ jobs:
     strategy:
       matrix:
         arch: [arm64, riscv64, amd64]
+
     name: <%= AppName %> for ${{ matrix.arch }}
     steps:
       - uses: actions/checkout@v2
@@ -70,10 +71,10 @@ jobs:
 
       - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %>cli ${{ matrix.targetos }}
+          name: <%= AppName %>cli ${{ matrix.arch }}
           path: cmd/<%= AppName %>cli/<%= AppName %>cli
 
       - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %>d ${{ matrix.targetos }}
+          name: <%= AppName %>d ${{ matrix.arch }}
           path: cmd/<%= AppName %>d/<%= AppName %>d
