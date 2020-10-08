@@ -34,10 +34,10 @@ type Plugin interface {
 	GentxCommand(starportconf.Config) step.Option
 
 	// PostInit hook.
-	PostInit() error
+	PostInit(starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	StartCommands() [][]step.Option
+	StartCommands(starportconf.Config) [][]step.Option
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
