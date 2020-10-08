@@ -30,7 +30,10 @@
             :cellWidths="colWidths"
           />
         </div>
-        <div :class="['table__rows-wrapper']" @scroll="handleTableScroll">
+        <div 
+          :class="['table__rows-wrapper']"
+          @scroll="[handleTableScroll($event), updateScrollValue()]"
+        >
           <div v-if="!isTableEmpty"><slot name="tableContent"/></div>
           <div v-else class="table__rows-wrapper-empty-view"><p>{{tableEmptyMsg}}</p></div>
         </div>
@@ -41,6 +44,8 @@
 
 <script>
 import { mapGetters, mapMutations } from 'vuex'
+
+import _ from 'lodash'
 
 import RowWrapper from './RowWrapper'
 import RowCells from './RowCellsGroup'
@@ -63,6 +68,11 @@ export default {
       }
     }
   },
+  data() {
+    return {
+      lastScrolledHeight: 0
+    }
+  },
   computed: {
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive' ]),
     fmtIsTableSheetActive() {
@@ -82,20 +92,27 @@ export default {
 
       this.$emit('sheet-closed')
     },
-    handleTableScroll(event) {
+    handleTableScroll: _.debounce(function(event) {
       const $table = event.target
       const scrolledHeight = $table.scrollTop + $table.offsetHeight
       const tableScrollHeight = $table.scrollHeight
 
       const isScrolledToTop = scrolledHeight <= $table.offsetHeight
       const isScrolledToBottom = scrolledHeight >= tableScrollHeight
-      const isScrolledOverHalf = $table.scrollTop > (tableScrollHeight-$table.offsetHeight) / 2
+      const isOnTopHalf = $table.scrollTop < (tableScrollHeight-$table.offsetHeight) / 2
+
+      const isCallableScrolledDistance = 
+        $table.offsetHeight / Math.abs(scrolledHeight-this.lastScrolledHeight) > 25
       
-      if (isScrolledToBottom) {
-        this.$emit('scrolled-bottom')
-      } else if (!isScrolledOverHalf) {
-        this.$emit('scrolled-top-half')
+      if (isCallableScrolledDistance) {
+        if (isScrolledToBottom) this.$emit('scrolled-bottom')
+        if (isScrolledToTop) this.$emit('scrolled-top-half')
       }
+    }, 1000),
+    updateScrollValue() {
+      const $table = event.target
+      const scrolledHeight = $table.scrollTop + $table.offsetHeight      
+      this.lastScrolledHeight = scrolledHeight      
     }
   },
   created() {

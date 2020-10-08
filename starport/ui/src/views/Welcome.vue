@@ -3,7 +3,7 @@
   <div class="main">
 
     <div class="hero">
-      <h4 class="-f-cosmos-overline-0">Welcome to Starport!</h4>
+      <h4 class="-f-cosmos-overline-0">Welcome to Starport</h4>
       <h2>Your blockchain <br> is ready.</h2>
       <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, governance, custom data types and more.</p>
     </div>
@@ -45,10 +45,10 @@
           </IconItem>
 
         </div>
-          <BlockInfoCard 
+          <!-- <BlockInfoCard 
             v-if="card.id === 'api'"
             :blockCards="blockCards"
-          />
+          /> -->
       </div>      
 
     </div>

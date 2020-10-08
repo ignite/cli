@@ -3,6 +3,7 @@ import moment from 'moment'
 import { capitalCase } from 'change-case'
 import { sha256 } from 'js-sha256'
 import bech32 from 'bech32'
+import { min } from 'moment'
 
 const getBlockTemplate = (header, txsData) => ({
   height: header.height,
@@ -78,23 +79,21 @@ export default {
           ? maxBlockHeight-1 - maxStackCount
           : 0
       }
-      return minBlockHeight-1
+      return minBlockHeight
     }
     const fmtMaxHeight = () => {
-      const maxHeight = maxBlockHeight ? maxBlockHeight : latestBlockHeight
       if (minBlockHeight) {
-        return minBlockHeight-1 + maxStackCount >= maxHeight
-          ? maxHeight-1
-          : minBlockHeight-1 + maxStackCount
+        return minBlockHeight + maxStackCount >= latestBlockHeight
+          ? latestBlockHeight
+          : minBlockHeight + maxStackCount
       }
       return maxBlockHeight-1
     }
 
-    // if (minBlockHeight) {
-    //   console.log(fmtMinHeight(), fmtMaxHeight())
-    // }
+    if (minBlockHeight) console.log(fmtMinHeight(), fmtMaxHeight())
 
     try {
+      console.log(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
       return await axios.get(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
     } catch (err) {
       console.error(err)
@@ -351,7 +350,9 @@ export default {
             }
           }
 
-          holder['Amount'] = `${amountDenomHolder.amount} ${amountDenomHolder.denom}`
+          if (amountDenomHolder.amount) {
+            holder['Amount'] = `${amountDenomHolder.amount} ${amountDenomHolder.denom}`
+          }
         }        
 
         const msgHolder = {

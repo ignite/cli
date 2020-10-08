@@ -3,10 +3,10 @@
     <div :class="['table__cells', isTableHead ? '-header' : '']">
       <div 
         v-for="(n, index) in tableCells"
-        :key="n+index"
+        :key="n.id"
         class="table__col"
         :style="[getCellWidth(cellWidths[index])]"
-      >{{n}}</div>
+      >{{n.content}}</div>
     </div>
   </div>
 </template>

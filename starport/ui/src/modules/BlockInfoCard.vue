@@ -168,12 +168,19 @@ export default {
 .card:nth-last-child(2) {
   transform: translate3d(0,-20px,-50px);
   z-index: -1;
+  color: transparent;
   transition: transform .5s;
 }
 .card:nth-last-child(3) {
   transform: translate3d(0,-40px,-100px);
   z-index: -2;
+  color: transparent;
   transition: transform .5s;
+}
+.card:nth-last-child(2) *,
+.card:nth-last-child(3) * {
+  color: transparent;
+  transition: color .5s;
 }
 .card:nth-last-child(4) {
   transform: translate3d(0,-60px,-150px);
@@ -188,7 +195,7 @@ export default {
 @keyframes slideIn {
   from {
     opacity: 0;
-    transform: translate3d(0, 24px, 50px);
+    transform: translate3d(0, 48px, 0);
   }
   to {
     opacity: 1;

@@ -3,7 +3,7 @@
 
     <div class="table-wrapper">
       <TableWrapper 
-        :tableHeads="['Height', 'Txs', 'Block Hash', 'Age']"
+        :tableHeads="setRowCellsProps(['Height', 'Txs', 'Block Hash', 'Age'])"
         :tableId="blocksExplorerTableId"        
         :containsInnerSheet="true"
         :isTableEmpty="isBlocksTableEmpty"
@@ -23,21 +23,21 @@
 
         <div slot="tableContent" v-if="fmtBlockData">
           <TableRowWrapper 
-            v-for="msg in fmtBlockData"
-            :key="msg.tableData.id"  
-            :rowData="msg"
-            :rowId="msg.blockMsg.blockHash"   
-            :isRowActive="msg.blockMsg.blockHash === localHighlightedBlock.id"   
+            v-for="block in fmtBlockData"
+            :key="block.blockMsg.blockHash"  
+            :rowData="block"
+            :rowId="block.blockMsg.blockHash"   
+            :isRowActive="block.blockMsg.blockHash === localHighlightedBlock.id"   
             :isWithInnerSheet="true" 
             @row-clicked="handleRowClick"
           >   
             <TableRowCellsGroup 
-              :tableCells="[
-                msg.blockMsg.height,
-                msg.blockMsg.txs,
-                msg.blockMsg.blockHash_sliced,
-                msg.blockMsg.time_formatted,
-              ]"
+              :tableCells="setRowCellsProps([
+                block.blockMsg.height,
+                block.blockMsg.txs,
+                block.blockMsg.blockHash_sliced,
+                block.blockMsg.time_formatted,
+              ])"
             />     
           </TableRowWrapper>  
         </div>   
@@ -54,6 +54,8 @@ import blockHelpers from '@/mixins/blocks/helpers'
 
 import axios from "axios"
 import ReconnectingWebSocket from "reconnecting-websocket"
+import _ from 'lodash'
+import { uuid } from 'vue-uuid'
 
 import TableWrapper from '@/components/table/TableWrapper'
 import TableRowWrapper from '@/components/table/RowWrapper'
@@ -86,7 +88,7 @@ export default {
      */
     ...mapGetters('cosmos', [ 'appEnv' ]),
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'gapBlock' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange' ]),
     ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
@@ -141,6 +143,9 @@ export default {
      * Local 
      *
      */      
+    setRowCellsProps(cells) {
+      return cells.map(cell => ({ content: cell, id: uuid.v1() }))
+    },
     handleRowClick(rowId, rowData) {
       const setTableRowStore = (isToActive=false, payload) => {
         const highlightBlockPayload = isToActive ? {
@@ -191,15 +196,13 @@ export default {
      *
      */         
     async handleScrollTopHalf() {
+      console.log('🎉')
       this.states.isScrolledInTopHalf=true
 
-      if (this.gapBlock) {        
-        await this.getBlockchain({ 
-          blockHeight: this.gapBlock.block.height,
-          toGetOlderBlocks: false
-        })
-      }
-      this.popOverloadBlocks()
+      await this.getBlockchain({ 
+        blockHeight: this.stackChainRange.highestHeight,
+        toGetLowerBlocks: false
+      })          
     },
     /*
      *
@@ -208,30 +211,35 @@ export default {
      *
      */          
     async handleScrollBottom() {
+      console.log('⛰')
       this.states.isScrolledInTopHalf = false
 
       await this.getBlockchain({ 
         blockHeight: this.lastBlock.height,
-        toGetOlderBlocks: true
+        toGetLowerBlocks: true
       })
-      this.popOverloadBlocks(false)
-    }    
+    }   
   },
   watch: {
     highlightedBlock() {
       this.localHighlightedBlock = this.highlightedBlock
     },
-    async blocksStack() {
-      if (this.states.isScrolledInTopHalf) {
-        this.popOverloadBlocks()
-      }
-      if (this.states.isScrolledInTopHalf && this.gapBlock) {
-        await this.getBlockchain({ 
-          blockHeight: this.gapBlock.block.height,
-          toGetOlderBlocks: false
-        })
-      }
-    }
+    // async blocksStack() {
+    //   if (this.states.isScrolledInTopHalf) {
+    //     this.states.isScrolledInTopHalf=true
+
+    //     const debounce = _.debounce(async () => {
+    //       await this.getBlockchain({ 
+    //         blockHeight: this.stackChainRange.highestHeight,
+    //         toGetLowerBlocks: false
+    //       })          
+          
+    //       this.popOverloadBlocks()
+    //     }, 250)  
+
+    //     debounce()
+    //   }
+    // }
   },
   created() {
     this.localHighlightedBlock = this.highlightedBlock
