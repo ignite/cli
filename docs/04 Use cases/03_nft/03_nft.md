@@ -136,7 +136,7 @@ module.exports = async function(deployer) {
 };
 ```
 
-From this we an already launch and deploy our contract. When the blockchain is running and our rest-server is setup, we can now migrate using truffle. 
+From this, we launch and deploy our contract. When the blockchain is running and our rest-server is setup, we can now migrate using truffle. 
 In the root of our nft directory, we run to migrate truffle
 
 ```bash
