@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
@@ -135,11 +136,11 @@ func (p *launchpadPlugin) GentxCommand(conf starportconf.Config) step.Option {
 	)
 }
 
-func (p *launchpadPlugin) PostInit() error {
-	return p.configtoml()
+func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
+	return p.configtoml(conf)
 }
 
-func (p *launchpadPlugin) configtoml() error {
+func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -151,6 +152,9 @@ func (p *launchpadPlugin) configtoml() error {
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
+	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
+	config.Set("rpc.prof_laddr", conf.Servers.ProfAddr)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -160,7 +164,7 @@ func (p *launchpadPlugin) configtoml() error {
 	return err
 }
 
-func (p *launchpadPlugin) StartCommands() [][]step.Option {
+func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Option {
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
@@ -178,6 +182,7 @@ func (p *launchpadPlugin) StartCommands() [][]step.Option {
 					p.app.cli(),
 					"rest-server",
 					"--unsafe-cors",
+					"--laddr", xurl.TCP(conf.Servers.APIAddr),
 				),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)

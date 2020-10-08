@@ -1,4 +1,4 @@
-package add
+package module
 
 import (
 	"fmt"
@@ -11,7 +11,7 @@ import (
 )
 
 // New ...
-func New(opts *Options) (*genny.Generator, error) {
+func NewImport(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModify(opts))
 	g.RunFn(cmdMainModify(opts))
