@@ -6,7 +6,7 @@ import bech32 from 'bech32'
 import { min } from 'moment'
 
 const getBlockTemplate = (header, txsData) => ({
-  height: header.height,
+  height: parseInt(header.height),
   header,
   txs: txsData.txs ? txsData.txs : 0,
   blockMeta: null,

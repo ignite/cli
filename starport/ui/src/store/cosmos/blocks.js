@@ -11,6 +11,7 @@ export default {
         data: null
       }
     },
+    maxBlockchainCount: 20,
     maxStackCount: 100,
     stack: [],
     stackChainRange: {
@@ -131,10 +132,16 @@ export default {
      * 
      */      
     popOverloadBlocks(state, {
-      toPop
+      toPop,
+      toPopOverBlockchainCount
     }={
-      toPop: true
+      toPop: true,
+      toPopOverBlockchainCount: false
     }) {
+      if (toPopOverBlockchainCount) {
+        state.stack.splice(state.maxBlockchainCount)        
+        return 
+      }
       if (state.stack.length > state.maxStackCount) {
         if (toPop) {
           state.stack.splice(state.maxStackCount)
@@ -247,7 +254,8 @@ export default {
      */
     async getBlockchain({ commit, dispatch, getters, rootGetters }, {
       blockHeight,
-      toGetLowerBlocks=true
+      toGetLowerBlocks=true,
+      toReset=false
     }) {
       const appEnv = rootGetters['cosmos/appEnv']      
       const { fetchBlockMeta, fetchBlockchain } = blockHelpers
@@ -269,17 +277,15 @@ export default {
       const minBlockHeight = toGetLowerBlocks ? undefined : parseInt(blockHeight)
       const maxBlockHeight = toGetLowerBlocks ? parseInt(blockHeight) : undefined
  
-      const toFetchBlockchain = async (min, max, toInsert=false) => fetchBlockchain({
+      const toFetchBlockchain = async (min, max, toInsert=false, toReset=false) => fetchBlockchain({
         rpcUrl: appEnv.RPC,
         minBlockHeight: min,
         maxBlockHeight: max,
         latestBlockHeight: latestBlock ? latestBlock.height : null
       }).then(blockchainRes => {
-          // if (!blockchainRes.data.result || toInsert) {
-          //   console.log(minBlockHeight, maxBlockHeight, latestBlock.height)
-          // }
           const blockchain = blockchainRes.data.result.block_metas
-          const fmtBlockchainRes = toInsert ? blockchain.reverse() : blockchain          
+          const toReverse = toReset ? true : toInsert          
+          const fmtBlockchainRes = toReverse ? blockchain.reverse() : blockchain          
 
           return async _ => {
             for (let i=0; i<fmtBlockchainRes.length; i++) {
@@ -290,7 +296,8 @@ export default {
                     header: prevHeader,
                     blockMeta,
                     txsData: blockMeta.data.result.block.data,
-                    toInsertBlockToFront: toInsert
+                    toInsertBlockToFront: toInsert,
+                    toReset
                   })   
                 })     
             }                  
@@ -298,10 +305,14 @@ export default {
         })     
       
   
-      await toFetchBlockchain(minBlockHeight, maxBlockHeight, !toGetLowerBlocks)
+      await toFetchBlockchain(minBlockHeight, maxBlockHeight, !toGetLowerBlocks, toReset)
         .then(promiseLoop => promiseLoop()
           .then(() => {
-            commit('popOverloadBlocks', { toPop: !toGetLowerBlocks })
+            const isToPop = toReset ? true : !toGetLowerBlocks
+            commit('popOverloadBlocks', {
+              toPop: isToPop, 
+              toPopOverBlockchainCount: toReset
+            })
             dispatch('setStackChainRange')
           })
         )      
@@ -324,7 +335,8 @@ export default {
       blockMeta,
       txsData,
       toInsertBlockToFront=false,
-      isValidLatestBlock=false
+      isValidLatestBlock=false,
+      toReset=false
     }) {
       const appEnv = rootGetters['cosmos/appEnv']      
       const { fetchDecodedTx } = blockHelpers
@@ -384,13 +396,13 @@ export default {
         
         /*
          *
-         // 3. Add block to stack
+         // 3. Add block to stack (toReset is to travel to top of the chain)
          *
          */     
-        if (newBlockPosition.isAdjacent) {
+        if (newBlockPosition.isAdjacent || toReset) {
           commit('addBlockEntry', {
             block: blockHolder.block,
-            toInsert: newBlockPosition.isHigher
+            toInsert: toReset ? true : newBlockPosition.isHigher
           })          
           dispatch('setStackChainRange', {
             highest: newBlockPosition.isHigher ? blockHolder.block.height : null,

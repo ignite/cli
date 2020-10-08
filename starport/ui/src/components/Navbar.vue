@@ -162,7 +162,7 @@ nav {
   color: var(--c-txt-primary);
 }
 .tab.router-link-exact-active .tab__icon svg >>> path {
-  fill: #E644F8;
+  fill: #4251FA;
 }
 
 @media only screen and (max-width: 1200px) {

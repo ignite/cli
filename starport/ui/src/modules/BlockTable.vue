@@ -103,6 +103,7 @@ export default {
       return this.targetTable(this.blocksExplorerTableId)
     },
     fmtBlockData() {
+      // console.log(this.blocksStack[0]?.height)
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
 
       if (!fmtBlockForTable) return null
@@ -249,6 +250,13 @@ export default {
   },
   created() {
     this.localHighlightedBlock = this.highlightedBlock
+  },
+  beforeDestroy() {
+    this.getBlockchain({ 
+      blockHeight: this.latestBlock.height,
+      toReset: true,
+      toGetLowerBlocks: true
+    })
   }
 }
 </script>

@@ -241,6 +241,8 @@ export default {
       const cardsHolder = []
       const latestBlock = this.latestBlock
 
+      console.log(latestBlock)
+
       if (latestBlock) {
         this.insertBlockToStack(0, latestBlock)
 
