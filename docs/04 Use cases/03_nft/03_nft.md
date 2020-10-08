@@ -100,7 +100,7 @@ From here our setup is complete, we can now jump into the smart contract code. S
 npm i zeppelin-solidity
 ```
 
-In our `contract` directory we add the solidity code for the NFT ERC721 Token that we would like to address, create the `contract/MyToken.sol` file and add
+In our `contracts` directory we add the solidity code for the NFT ERC721 Token that we would like to address, create the `contracts/MyToken.sol` file and add
 
 ```solidity
 pragma solidity ^0.4.24;
