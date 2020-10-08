@@ -448,7 +448,7 @@ func (s *Serve) serverSteps(conf starportconf.Config) (steps step.Steps) {
 	go func() {
 		wg.Wait()
 		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-		fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)", xurl.HTTP(conf.Servers.APIAddr))
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 	}()
 	for _, execOption := range s.plugin.StartCommands(conf) {
