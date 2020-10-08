@@ -4,6 +4,7 @@ on:
   push:
     tags:
       - "*"
+
 jobs:
   goreleaser:
     runs-on: ubuntu-latest
@@ -24,6 +25,10 @@ jobs:
       - name: Set up packr2
         run: go get -u github.com/gobuffalo/packr/v2/packr2
 
+      - name: Set up Snapcraft
+        run: |
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
@@ -41,6 +46,12 @@ jobs:
           export PATH=$PATH:$GOPATH
           cd starport/interface/cli/starport
           packr2 -v
+
+      - name: Snapcraft Login
+        env:
+          SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
+        run: |
+          snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
