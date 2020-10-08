@@ -26,7 +26,7 @@ approvedFor( _tokenId ) - Returns the approved address to take ownership of a gi
 
 Ethermint is the Cosmos SDK module that allows to replicate the EVM. We can load solidity contracts onto the Cosmos SDK blockchain. Let us examine an example usage of Ethermint with the ERC721 Token.
 
-Working with Ethermint can come in different forms. You can either work with the official [Ethermint chain](https://ethermint.zone/), fork from the [Ethermint Codebase](https://github.com/ChainSafe/ethermint) or use the EVM Module in your own Cosmos SDK application. The last option is what we will be looking into. We have created our Cosmos SDK template with Starport and we can just add the Ethereum Virtual Machine to our application and allow smart contracts to be created in Solity and uploaded to the blockchain.
+Working with Ethermint can come in different forms. You can either work with the official [Ethermint chain](https://ethermint.zone/), fork from the [Ethermint Codebase](https://github.com/ChainSafe/ethermint), or use the EVM Module in your own Cosmos SDK application. The last option is what we will be looking into. We have created our Cosmos SDK template with Starport and we can just add the Ethereum Virtual Machine to our application and allow smart contracts to be created in Solity and uploaded to the blockchain.
 
 [Read how to integrate the `evm` module into your Cosmos SDK application.](05_extras/05_01_cosmos_entermint/05_01_cosmos_ethermint.md)
 
