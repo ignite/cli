@@ -13,14 +13,6 @@ import (
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
-var (
-	rpcPort  = os.Getenv("RPC_PORT")
-	p2pPort  = os.Getenv("P2P_PORT")
-	profPort = os.Getenv("PROF_PORT")
-	apiPort  = os.Getenv("API_PORT")
-	grpcPort = os.Getenv("GRPC_PORT")
-)
-
 type stargatePlugin struct {
 	app App
 }
@@ -136,7 +128,7 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	config.Set("consensus.timeout_propose", "1s")
 	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
 	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
-	config.Set("prof_laddr", conf.Servers.ProfAddr)
+	config.Set("rpc.prof_laddr", conf.Servers.ProfAddr)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
