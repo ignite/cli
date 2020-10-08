@@ -103,7 +103,6 @@ export default {
       return this.targetTable(this.blocksExplorerTableId)
     },
     fmtBlockData() {
-      // console.log(this.blocksStack[0]?.height)
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
 
       if (!fmtBlockForTable) return null
@@ -231,32 +230,18 @@ export default {
     highlightedBlock() {
       this.localHighlightedBlock = this.highlightedBlock
     },
-    // async blocksStack() {
-    //   if (this.states.isScrolledInTopHalf) {
-    //     this.states.isScrolledInTopHalf=true
-
-    //     const debounce = _.debounce(async () => {
-    //       await this.getBlockchain({ 
-    //         blockHeight: this.stackChainRange.highestHeight,
-    //         toGetLowerBlocks: false
-    //       })          
-          
-    //       this.popOverloadBlocks()
-    //     }, 250)  
-
-    //     debounce()
-    //   }
-    // }
   },
   created() {
     this.localHighlightedBlock = this.highlightedBlock
   },
   beforeDestroy() {
-    this.getBlockchain({ 
-      blockHeight: this.latestBlock.height,
-      toReset: true,
-      toGetLowerBlocks: true
-    })
+    if (this.latestBlock) {
+      this.getBlockchain({ 
+        blockHeight: this.latestBlock.height,
+        toReset: true,
+        toGetLowerBlocks: true
+      })
+    }
   }
 }
 </script>

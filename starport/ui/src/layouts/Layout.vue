@@ -1,6 +1,6 @@
 <template>
 
-  <div :class="['layout', `-route-${$route.name}`]">
+  <div :class="['layout', `-route-${routeName}`]">
     <div class="container">
       <div class="container__left">
         <div class="navbar">
@@ -13,7 +13,7 @@
       </div>
       <div class="container__right">
         <div class="content">
-          <transition name="fade" mode="out-in">
+          <transition name="fade" mode="out-in" @enter="enter">
             <keep-alive include="Welcome">
               <router-view />
             </keep-alive>
@@ -67,15 +67,19 @@ export default {
   data() {
     return {
       visible: false,
-      modalTrigger: 'ham'
+      modalTrigger: 'ham',
+      routeName: 'welcome'
     }
   },
   methods: {
     handleHamClick() {
       this.visible = !this.visible
       this.modalTrigger = 'ham'
+    },
+    enter() {
+      this.routeName = this.$route.name
     }
-  },
+  }
 }
 </script>
 
@@ -208,8 +212,7 @@ export default {
   z-index: -1;
 }
 
-.fade-enter-active,
-.fade-leave-active {
+.fade-enter-active {
   transition: opacity .3s ease-in-out;
 }
 .fade-enter,
