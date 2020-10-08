@@ -1,6 +1,6 @@
 # Create NFTs on the EVM with the Cosmos SDK (ERC721)
 
-Non-Fungible Token or in short NFT are tokens that are non-divisible and live on the blockchain. Those tokens can represent a variety of things, from pieces of artwork, to houses, to ownership of cars or digital Items in games. The usage is from individuals to companies or institutions that are leverage the power of NFTs. 
+Non-Fungible Token or in short NFT are tokens that are non-divisible and live on the blockchain. Those tokens can represent a variety of things, from pieces of artwork, to houses, to ownership of cars or digital items in games. The usage is from individuals to companies or institutions that are leverage the power of NFTs. 
 
 NFT are defined by the contract proposal ERC721. The contract proposal and definition can be read on https://eips.ethereum.org/EIPS/eip-721 
 
