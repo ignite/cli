@@ -30,7 +30,7 @@ Working with Ethermint can come in different forms. You can either work with the
 
 [Read how to integrate the `evm` module into your Cosmos SDK application.](05_extras/05_01_cosmos_entermint/05_01_cosmos_ethermint.md)
 
-On GitHub you can also find the `ethapp` application which you can fork and get started right away with an example `evm` implementation following the steps as outlied in the tutorial but with RPC integration, Makefile and initialisation script of the blockchain.
+On GitHub, you can also find the `ethapp` application which you can fork and get started right away with an example `evm` implementation following the steps as outlined in the tutorial but with RPC integration, Makefile, and initialisation script of the blockchain.
 
 ```bash
 git clone https://github.com/Tosch110/ethapp && cd ethapp
