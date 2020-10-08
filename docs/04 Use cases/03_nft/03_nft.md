@@ -15,7 +15,7 @@ takeOwnership( _tokenId ) - Claims the ownership of a given token ID
 approve( _to, _tokenId ) - Approves another address to claim for the ownership of the given token ID
 ```
 
-As we have done in the [EVM ERC20 & ERC777 Tutorial](../../04_usecases/02_erc20/02_erc20.md), we will be building upon the implementation from OpenZeppelin. They provide us with two additional functions that makes working with the contract easier
+As we have done in the [EVM ERC20 & ERC777 Tutorial](../../04_usecases/02_erc20/02_erc20.md), we will be building upon the implementation from OpenZeppelin. They provide us with two additional functions that make working with the contract easier
 
 ```
 tokensOf( _owner ) - Returns list of token ID’s of specific _owner
