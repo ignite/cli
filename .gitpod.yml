@@ -12,6 +12,9 @@ tasks:
       # Install Github CLI
       brew install gh
 
+      # install rly
+      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 718fc001d5c8b93e63dca7d8ed33692322d855cb && make -C /tmp/relayer install)
+
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
       clear && printf '\e[3J'

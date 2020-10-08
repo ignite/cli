@@ -5,10 +5,16 @@
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
 * Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook. 
+* Added IBC and some other modules.
+* Added an option to configure server addresses under `servers` section in `config.yml`.
 
 ### Fixes:
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
 
+## `v0.11.1`
+
+### Features:
+* Published on Snapcraft.
 
 ## `v0.11.0`
 

@@ -8,6 +8,7 @@ import (
 	"go/build"
 	"io"
 	"io/ioutil"
+	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -26,6 +27,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 	"golang.org/x/sync/errgroup"
 )
@@ -229,7 +231,7 @@ func (s *Serve) serve(ctx context.Context) error {
 
 	return cmdrunner.
 		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps()...)
+		Run(ctx, s.serverSteps(conf)...)
 }
 
 func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
@@ -292,7 +294,7 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 				if err != nil {
 					return err
 				}
-				return s.plugin.PostInit()
+				return s.plugin.PostInit(conf)
 			}),
 		).
 		Add(s.stdSteps(logAppd)...)...,
@@ -440,16 +442,16 @@ func (s *Serve) buildSteps(ctx context.Context, conf starportconf.Config) (
 	return steps, binaries
 }
 
-func (s *Serve) serverSteps() (steps step.Steps) {
+func (s *Serve) serverSteps(conf starportconf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(len(s.plugin.StartCommands()))
+	wg.Add(len(s.plugin.StartCommands(conf)))
 	go func() {
 		wg.Wait()
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at http://localhost:26657.\n", s.app.Name)
-		fmt.Fprintln(s.stdLog(logStarport).out, "🌍 Running a server at http://localhost:1317 (LCD)")
-		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: http://localhost:12345/\n\n")
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 	}()
-	for _, execOption := range s.plugin.StartCommands() {
+	for _, execOption := range s.plugin.StartCommands(conf) {
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption...).
 			Add(step.InExec(func() error {
@@ -463,6 +465,10 @@ func (s *Serve) serverSteps() (steps step.Steps) {
 }
 
 func (s *Serve) watchAppFrontend(ctx context.Context) error {
+	conf, err := s.config()
+	if err != nil {
+		return err
+	}
 	vueFullPath := filepath.Join(s.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
@@ -476,6 +482,10 @@ func (s *Serve) watchAppFrontend(ctx context.Context) error {
 		}
 		return nil // ignore errors.
 	}
+	host, port, err := net.SplitHostPort(conf.Servers.FrontendAddr)
+	if err != nil {
+		return err
+	}
 	return cmdrunner.
 		New(
 			cmdrunner.DefaultWorkdir(vueFullPath),
@@ -488,24 +498,35 @@ func (s *Serve) watchAppFrontend(ctx context.Context) error {
 			),
 			step.New(
 				step.Exec("npm", "run", "serve"),
+				step.Env(
+					fmt.Sprintf("HOST=%s", host),
+					fmt.Sprintf("PORT=%s", port),
+					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Servers.APIAddr)),
+					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Servers.RPCAddr)),
+					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Servers.RPCAddr)),
+				),
 				step.PostExec(postExec),
 			),
 		)
 }
 
 func (s *Serve) runDevServer(ctx context.Context) error {
+	c, err := s.config()
+	if err != nil {
+		return err
+	}
 	conf := Config{
 		SdkVersion:      s.plugin.Name(),
-		EngineAddr:      "http://localhost:26657",
-		AppBackendAddr:  "http://localhost:1317",
-		AppFrontendAddr: "http://localhost:8080",
+		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
+		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
+		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
 	} // TODO get vals from const
 	handler, err := newDevHandler(s.app, conf)
 	if err != nil {
 		return err
 	}
 	sv := &http.Server{
-		Addr:    ":12345",
+		Addr:    c.Servers.DevUIAddr,
 		Handler: handler,
 	}
 	go func() {

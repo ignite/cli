@@ -10,7 +10,7 @@
         </p>
         <h2>Components</h2>
         <a
-          :href="running.frontend && ((env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '8080')) || 'http://localhost:8080')"
+          :href="running.frontend && addrs.app_frontend"
           target="_blank"
           class="card"
           v-if="status.sdk_version === 'Launchpad' && (running.frontend || env.node_js)"
@@ -20,7 +20,7 @@
           <div class="card__desc">
             <div class="card__desc__h1">User interface</div>
             <div class="card__desc__p">
-              <span v-if="running.frontend">The front-end of your app. A Vue application is running on port <span class="card__desc__tag">8080</span></span>
+              <span v-if="running.frontend">The front-end of your app. A Vue application is running at<span class="card__desc__tag">{{ addrs.app_frontend }}</span></span>
               <span v-else>Loading...</code></span>
             </div>
           </div>
@@ -40,7 +40,7 @@
           </div>
         </a>
         <a
-          :href="(env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '1317')) || 'http://localhost:1317'"
+          :href="addrs.app_backend"
           target="_blank"
           class="card"
           :style="{'background-color': running.api ? '#edefff' : 'rgba(0,0,0,.05)', '--color-primary': running.api ? 'rgb(80, 100, 251)' : 'rgba(0,0,0,0.25)'}"
@@ -49,13 +49,13 @@
           <div class="card__desc">
             <div class="card__desc__h1">Cosmos</div>
             <div class="card__desc__p">
-              <span v-if="running.api">The back-end of your app. Cosmos API is running locally on port <span class="card__desc__tag">1317</span></span>
+              <span v-if="running.api">The back-end of your app. Cosmos API is running at<span class="card__desc__tag">{{ addrs.app_backend }}</span></span>
               <span v-else>Loading...</span>
             </div>
           </div>
         </a>
         <a
-          :href="(env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '26657')) || 'http://localhost:26657'"
+          :href="addrs.consensus_engine"
           target="_blank"
           class="card"
           :style="{'background-color': running.rpc ? '#edf8eb' : 'rgba(0,0,0,.05)', '--color-primary': running.rpc ? 'rgb(0, 187, 0)' : 'rgba(0,0,0,0.25)'}"
@@ -64,7 +64,7 @@
           <div class="card__desc">
             <div class="card__desc__h1">Tendermint</div>
             <div class="card__desc__p">
-              <span v-if="running.rpc">The consensus engine. Tendermint API is running on port <span class="card__desc__tag">26657</span></span>
+              <span v-if="running.rpc">The consensus engine. Tendermint API is running at<span class="card__desc__tag">{{ addrs.consensus_engine }}</span></span>
               <span v-else>Loading...</span>
             </div>
           </div>
@@ -229,6 +229,11 @@ export default {
         api: true,
         frontend: false,
       },
+      addrs: {
+        consensus_engine: "",
+        app_backend: "",
+        app_frontend: "",
+      },
       status: {
         sdk_version: null,
       },
@@ -236,14 +241,10 @@ export default {
     };
   },
   methods: {
-    prefixURL(url, prefix) {
-      const newURL = new URL(url);
-      return `${newURL.protocol}//${prefix}-${newURL.hostname}`;
-    },
     async setStatusState() {
       try {
         const { data } = await axios.get("/status");
-        const { status, env, sdk_version } = data;
+        const { env, status, addrs, sdk_version } = data;
         this.running = {
           rpc: status.is_consensus_engine_alive,
           api: status.is_my_app_backend_alive,
@@ -251,6 +252,11 @@ export default {
         };
         this.env = env;
         this.status = status;
+        this.addrs = {
+          app_frontend: (env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '8080')) || addrs.app_frontend,
+          app_backend: (env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '1317')) || addrs.app_backend,
+          consensus_engine: (env.vue_app_custom_url && prefixURL(env.vue_app_custom_url, '26657')) || addrs.consensus_engine,
+        }
       } catch {
         this.running = {
           rpc: false,
@@ -275,4 +281,9 @@ export default {
     clearInterval(this.timer);
   },
 };
+
+function prefixURL(url, prefix) {
+  const newURL = new URL(url);
+  return `${newURL.protocol}//${prefix}-${newURL.hostname}`;
+}
 </script>

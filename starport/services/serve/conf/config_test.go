@@ -21,22 +21,20 @@ validator:
 
 	conf, err := Parse(strings.NewReader(confyml))
 	require.NoError(t, err)
-	require.Equal(t, Config{
-		Accounts: []Account{
-			{
-				Name:  "me",
-				Coins: []string{"1000token", "100000000stake"},
-			},
-			{
-				Name:  "you",
-				Coins: []string{"5000token"},
-			},
+	require.Equal(t, []Account{
+		{
+			Name:  "me",
+			Coins: []string{"1000token", "100000000stake"},
 		},
-		Validator: Validator{
-			Name:   "user1",
-			Staked: "100000000stake",
+		{
+			Name:  "you",
+			Coins: []string{"5000token"},
 		},
-	}, conf)
+	}, conf.Accounts)
+	require.Equal(t, Validator{
+		Name:   "user1",
+		Staked: "100000000stake",
+	}, conf.Validator)
 }
 
 func TestParseInvalid(t *testing.T) {
