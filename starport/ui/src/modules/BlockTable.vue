@@ -7,9 +7,10 @@
         :tableId="blocksExplorerTableId"        
         :containsInnerSheet="true"
         :isTableEmpty="isBlocksTableEmpty"
+        :isTableLoading="states.isLoading"
         :tableEmptyMsg="blockTableEmptyText"
         @sheet-closed="handleSheetClose"
-        @scrolled-top-half="handleScrollTopHalf"
+        @scrolled-top="handleScrollTop"
         @scrolled-bottom="handleScrollBottom"
       >
         <div slot="utils" class="table-wrapper__utils">
@@ -88,7 +89,7 @@ export default {
      */
     ...mapGetters('cosmos', [ 'appEnv' ]),
     ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
-    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange' ]),
+    ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange', 'latestBlock' ]),
     ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
@@ -115,8 +116,7 @@ export default {
     isBlocksTableEmpty() {
       return this.blocksStack.length<=0 ||
         !this.fmtBlockData || 
-        this.fmtBlockData?.length<=0 ||
-        this.states.isLoading
+        this.fmtBlockData?.length<=0
     },
     blockFilterText() {
       return !this.states.isHidingBlocksWithoutTxs
@@ -195,13 +195,20 @@ export default {
      // only when scrolling to upperhalf of the table
      *
      */         
-    async handleScrollTopHalf() {
-      this.states.isScrolledInTopHalf=true
+    async handleScrollTop() {
+      this.states.isScrolledInTopHalf=true      
+      if (!this.latestBlock) return 
+      
+      const isShowingLatestBlock = (parseInt(this.latestBlock.height) === this.stackChainRange.highestHeight)
 
-      await this.getBlockchain({ 
-        blockHeight: this.stackChainRange.highestHeight,
-        toGetLowerBlocks: false
-      })          
+      if (!isShowingLatestBlock && !this.states.isLoading) {
+        this.states.isLoading=true
+
+        await this.getBlockchain({ 
+          blockHeight: this.stackChainRange.highestHeight,
+          toGetLowerBlocks: false
+        }).then(() => this.states.isLoading=false)        
+      }
     },
     /*
      *
@@ -210,12 +217,13 @@ export default {
      *
      */          
     async handleScrollBottom() {
-      this.states.isScrolledInTopHalf = false
+      this.states.isScrolledInTopHalf=false
+      this.states.isLoading=true
 
       await this.getBlockchain({ 
         blockHeight: this.lastBlock.height,
         toGetLowerBlocks: true
-      })
+      }).then(() => this.states.isLoading=false)
     }   
   },
   watch: {

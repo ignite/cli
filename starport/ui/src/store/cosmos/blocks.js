@@ -116,25 +116,10 @@ export default {
      * 
      */     
     addBlockEntry(state, { block, toInsert=true }) {
-      // const gapBlock = blockHelpers.getGapBlock(state.stack)
-      
-      // if (gapBlock) {
-      //   const isNewBlock = parseInt(block.height) < parseInt(state.latestBlock.height)
-      //   const isBlockInStack = state.stack
-      //     .filter(blockInStack => parseInt(blockInStack.height) === parseInt(block.height))
-      //     .length>0
-      //   if (!isNewBlock && !isBlockInStack) {
-      //     state.stack.splice(gapBlock.index, 0, block)
-      //     return
-      //   }
-      // }
-
       if (!toInsert) {
         state.stack.push(block)
-        // console.log(block.height + ' push')
       } else {
         state.stack.unshift(block)
-        // console.log(block.height + ' unshift')
       }
     },     
     /**
@@ -290,9 +275,9 @@ export default {
         maxBlockHeight: max,
         latestBlockHeight: latestBlock ? latestBlock.height : null
       }).then(blockchainRes => {
-          if (!blockchainRes.data.result) {
-            console.log(minBlockHeight, maxBlockHeight, latestBlock.height)
-          }
+          // if (!blockchainRes.data.result || toInsert) {
+          //   console.log(minBlockHeight, maxBlockHeight, latestBlock.height)
+          // }
           const blockchain = blockchainRes.data.result.block_metas
           const fmtBlockchainRes = toInsert ? blockchain.reverse() : blockchain          
 
@@ -305,8 +290,7 @@ export default {
                     header: prevHeader,
                     blockMeta,
                     txsData: blockMeta.data.result.block.data,
-                    toInsertBlockToFront: toInsert,
-                    isValidLatestBlock: i===0
+                    toInsertBlockToFront: toInsert
                   })   
                 })     
             }                  
@@ -364,7 +348,7 @@ export default {
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
         /*
          *
-         // 1. Check block position
+         // 2. Check block position
          *
          */    
         const newBlockPosition = (() => {
@@ -388,10 +372,19 @@ export default {
 
           return { isHigher, isLower, isAdjacent }
         })()
+
+        /*
+         *
+         // 1. Save the latest block (if the block is coming from WS connection)
+         *
+         */  
+        if (isValidLatestBlock) {
+          commit('setLatestBlock', blockHolder.block)
+        }                
         
         /*
          *
-         // 2. Add block to stack
+         // 3. Add block to stack
          *
          */     
         if (newBlockPosition.isAdjacent) {
@@ -406,18 +399,10 @@ export default {
         }    
         /*
          *
-         // 3. Set application's chainId
+         // 4. Set application's chainId
          *
          */        
         commit('setChainId', blockHolder.block.header.chain_id)
-        /*
-         *
-         // 4. Save the latest block (if the block is coming from WS connection)
-         *
-         */  
-        if (isValidLatestBlock) {
-          commit('setLatestBlock', blockHolder.block)
-        }
       }     
     },
     /**

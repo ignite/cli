@@ -1,6 +1,6 @@
 <template>
   <div 
-    :class="['table', fmtIsTableSheetActive ? '-is-collapsed' : '']"
+    :class="['table', {'-is-collapsed': fmtIsTableSheetActive, '-is-loading': isTableLoading}]"
     ref="table"
   >
     <div class="table__utils">
@@ -60,6 +60,7 @@ export default {
     tableId: { type: String, required: true },
     containsInnerSheet: { type: Boolean, default: false },
     isTableEmpty: { type: Boolean, default: true },
+    isTableLoading: { type: Boolean, default: false },
     tableEmptyMsg: { type: String, default: 'Waiting for blocks' },
     colWidths: {
       type: Array,
@@ -70,7 +71,9 @@ export default {
   },
   data() {
     return {
-      lastScrolledHeight: 0
+      lastScrolledHeight: 0,
+      lastScrolledTop: 0,
+      lastTimestamp: undefined
     }
   },
   computed: {
@@ -98,7 +101,7 @@ export default {
       const tableScrollHeight = $table.scrollHeight
 
       const isScrolledToTop = scrolledHeight <= $table.offsetHeight
-      const isScrolledToBottom = scrolledHeight >= tableScrollHeight
+      const isScrolledToBottom = scrolledHeight + 100 >= tableScrollHeight
       const isOnTopHalf = $table.scrollTop < (tableScrollHeight-$table.offsetHeight) / 2
 
       const isCallableScrolledDistance = 
@@ -106,19 +109,44 @@ export default {
       
       if (isCallableScrolledDistance) {
         if (isScrolledToBottom) this.$emit('scrolled-bottom')
-        if (isScrolledToTop) this.$emit('scrolled-top-half')
+        if (isScrolledToTop) {
+          this.$emit('scrolled-top')
+          /*
+           *
+           // Scroll down the table a bit to prevent staying on top
+           *
+           */
+          $table.scrollBy({
+            top: 5,
+            left: 0,
+            behavior: 'smooth'
+          })
+        }
       }
-    }, 1000),
+    }, 250),
     updateScrollValue() {
       const $table = event.target
-      const scrolledHeight = $table.scrollTop + $table.offsetHeight      
-      this.lastScrolledHeight = scrolledHeight      
+      const scrolledHeight = $table.scrollTop + $table.offsetHeight 
+      this.lastScrolledHeight = scrolledHeight     
+      this.lastScrolledTop = $table.scrollTop     
     }
   },
   created() {
     if (!this.targetTable(this.tableId)) {
       this.createTable(this.tableId)
     }
+  
+    function checkScrollPosition(timestamp) {
+      if (this.lastTimestamp === undefined) {
+        this.lastTimestamp = timestamp
+      }
+      if (timestamp - this.lastTimestamp > 500) {
+        if (this.lastScrolledTop === 0) this.$emit('scrolled-top')
+        this.lastTimestamp = timestamp            
+      }
+      window.requestAnimationFrame(checkScrollPosition.bind(this))
+    }
+    // window.requestAnimationFrame(checkScrollPosition.bind(this))    
   }
 }
 </script>
@@ -174,6 +202,46 @@ export default {
 }
 .table__wrapper >>> .table__cells.-header {
   padding-right: 2rem;  
+}
+
+.table__wrapper {
+  position: relative;
+  transition: opacity .3s ease-in-out;
+}
+.table__wrapper:before,
+.table__wrapper:after {
+  position: absolute;
+  z-index: 1;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0;
+  transition: all .3s ease-in-out;  
+}
+.table__wrapper:before {
+  content: '';
+  background-color: var(--c-bg-secondary);
+}
+.table__wrapper:after {
+  content: 'Fetching blocks';
+  display: flex;  
+  justify-content: center;
+  align-items: center;
+  color: var(--c-txt-grey);
+  animation: tempLoadingEffect 2s ease-in-out infinite;  
+}
+.table.-is-loading .table__wrapper:before {
+  opacity: .8;
+}
+.table.-is-loading .table__wrapper:after {
+  opacity: 1;
+}
+.table.-is-loading .table__wrapper:before,
+.table.-is-loading .table__wrapper:after {
+  pointer-events: initial;
+  transition: all .3s ease-in-out;
 }
 
 .table__main {
