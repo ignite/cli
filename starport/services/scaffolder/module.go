@@ -24,6 +24,10 @@ const (
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s *Scaffolder) CreateModule(moduleName string) error {
+	version, err := s.version()
+	if err != nil {
+		return err
+	}
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -36,10 +40,19 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	if err != nil {
 		return err
 	}
-	g, err := module.NewCreate(&module.CreateOptions{
-		ModuleName: moduleName,
-		ModulePath: path.RawPath,
-	})
+
+	var (
+		g    *genny.Generator
+		opts = &module.CreateOptions{
+			ModuleName: moduleName,
+			ModulePath: path.RawPath,
+		}
+	)
+	if version == cosmosver.Launchpad {
+		g, err = module.NewCreateLaunchpad(opts)
+	} else {
+		g, err = module.NewCreateStargate(opts)
+	}
 	if err != nil {
 		return err
 	}
