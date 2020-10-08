@@ -12,7 +12,7 @@
       <div class="-left-top -f-cosmos-overline-0">BUILD LOG</div>
       <div class="-center-top -f-cosmos-overline-0">STACK</div>
 
-      <div class="-left dashboard__card dashboard__log">
+      <div class="-left dashboard__card -log">
         <IconItem :iconType="'check'"  :itemText="'Depencies installed'" />        
         <IconItem :iconType="'check'"  :itemText="'Source code scaffolded'" />        
         <IconItem :iconType="'check'"  :itemText="'Build complete'" />        
@@ -24,7 +24,7 @@
       <div 
         v-for="(card, index) in stack"
         :key="card.id+index"
-        :class="['dashboard__card', `-${card.id}`]"
+        :class="['dashboard__card', `-${card.id}`, {'-is-active': backendRunningStates[card.id]}]"
       >
         <div class="dashboard__card-logo">
           <LogoCosmosSdk v-if="card.id === 'rpc'" />
@@ -238,10 +238,7 @@ export default {
       this.blockCards.splice(index, 0, this.getFmtBlock(block))
     },
     setInitBlockCards() {
-      const cardsHolder = []
       const latestBlock = this.latestBlock
-
-      console.log(latestBlock)
 
       if (latestBlock) {
         this.insertBlockToStack(0, latestBlock)
@@ -252,8 +249,6 @@ export default {
           }
         }
       }      
-
-      return cardsHolder
     },
     getFmtBlock(block) {
       return {
@@ -278,6 +273,7 @@ export default {
   },
   watch: {
     latestBlock() {
+      if (this.blockCards.length===0) this.setInitBlockCards()
       if (this.blockCards.length>2) this.blockCards.splice(0, 1)
 
       this.insertBlockToStack(2, this.latestBlock)
@@ -310,7 +306,7 @@ export default {
 
 .hero {
   margin-bottom: 4rem;
-  margin-right: 45%;
+  margin-right: 35%;
 }
 .hero h2 {
   font-size: 5.625rem;
@@ -365,18 +361,27 @@ export default {
 
   margin-bottom: 8rem;
 }
+
 .dashboard__card {
   position: relative;
   background-color: #F8F8FD;
   border-radius: 12px;
   padding: 1.75rem 1.75rem;
 }
+.dashboard__card:not(.-log) {
+  opacity: .6;
+  transition: all .3s ease-in-out;  
+}
+.dashboard__card.-is-active {
+  opacity: 1;
+  transition: all .3s ease-in-out;
+}
 .dashboard__card.-api {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
 }
-.dashboard__card.-frontend {
+.dashboard__card.-frontend.-is-active {
   background-color: #FDFDFD;
   box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);
 }
@@ -399,11 +404,11 @@ export default {
   right: 0.8rem;
 }
 
-.dashboard__log {
+.dashboard__card.-log {
   background-color: transparent;
   border: 1px solid rgba(0,13,158, 7%);
 }
-.dashboard__log > div:not(:last-child) {
+.dashboard__card.-log > div:not(:last-child) {
   margin-bottom: 1rem;
 }
 
