@@ -70,7 +70,7 @@ networks: {
   }
 ```
 
-For the compiler we will use the following settings in this tutorial in the same file
+For the compiler, we will use the following settings in this tutorial in the same file
 
 ```javascript
   // Configure your compilers
