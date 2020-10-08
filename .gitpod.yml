@@ -2,12 +2,14 @@ image: gitpod/workspace-full
 checkoutLocation: "starport"
 workspaceLocation: "./starport/docs"
 tasks:
-  - name: prepare Starport
+  - name: Install Starport
     init: |
-      # install Starport
+      # Install Starport
       export BIN_PATH=$GOPATH/bin
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
+      # Install Github CLI
+      brew install gh
 
       # install rly
       (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 718fc001d5c8b93e63dca7d8ed33692322d855cb && make -C /tmp/relayer install)
@@ -24,6 +26,7 @@ tasks:
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
       "
+      
 ports:
   - port: 1317
   - port: 26657

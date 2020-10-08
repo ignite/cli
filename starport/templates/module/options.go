@@ -1,4 +1,4 @@
-package add
+package module
 
 // Options ...
 type Options struct {

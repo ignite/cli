@@ -12,7 +12,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/add"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
@@ -20,8 +20,8 @@ const (
 	apppkg     = "app"
 )
 
-// AddModule adds sepecified module with name to the scaffolded app.
-func (s *Scaffolder) AddModule(name string) error {
+// ImportModule imports specified module with name to the scaffolded app.
+func (s *Scaffolder) ImportModule(name string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -29,18 +29,18 @@ func (s *Scaffolder) AddModule(name string) error {
 	if version == cosmosver.Stargate {
 		return errors.New("importing modules currently is not supported on Stargate")
 	}
-	ok, err := isWasmAdded(s.path)
+	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return errors.New("CosmWasm is already added.")
+		return errors.New("CosmWasm is already imported.")
 	}
 	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
 		return err
 	}
-	g, err := add.New(&add.Options{
+	g, err := module.NewImport(&module.Options{
 		Feature: name,
 		AppName: path.Package,
 	})
@@ -52,7 +52,7 @@ func (s *Scaffolder) AddModule(name string) error {
 	return run.Run()
 }
 
-func isWasmAdded(appPath string) (bool, error) {
+func isWasmImported(appPath string) (bool, error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, apppkg))
 	if err != nil {
 		return false, err

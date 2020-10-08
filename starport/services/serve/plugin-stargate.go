@@ -39,16 +39,18 @@ func (p *stargatePlugin) Migrate(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) InstallCommands(ldflags string) []step.Option {
+func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
 	return []step.Option{
-		step.Exec(
-			"go",
-			"install",
-			"-mod", "readonly",
-			"-ldflags", ldflags,
-			filepath.Join(p.app.root(), "cmd", p.app.d()),
-		),
-	}
+			step.Exec(
+				"go",
+				"install",
+				"-mod", "readonly",
+				"-ldflags", ldflags,
+				filepath.Join(p.app.root(), "cmd", p.app.d()),
+			),
+		}, []string{
+			p.app.d(),
+		}
 }
 
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Option {
