@@ -46,7 +46,7 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: <%= AppName %>d arm64
-          path: build/cmd/<%= AppName %>d/cmd/<%= AppName %>d
+          path: cmd/<%= AppName %>d/<%= AppName %>d
 
       - name: Build <%= AppName %>.img
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/pibuild.json
