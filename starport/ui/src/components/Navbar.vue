@@ -120,6 +120,11 @@ nav {
     margin-top: 0;
   }
 }
+@media screen and (max-width: 768px) {
+  .nav__tabs {
+    display: none;
+  }
+}
 
 .tab {
   position: relative;

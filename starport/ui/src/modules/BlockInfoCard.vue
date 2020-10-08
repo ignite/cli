@@ -203,4 +203,10 @@ export default {
   }
 }
 
+@media screen and (max-width: 576px) {
+  .card__top {
+    margin-bottom: 3rem;
+  }
+}
+
 </style>

@@ -90,10 +90,7 @@ export default {
       return maxBlockHeight-1
     }
 
-    if (minBlockHeight) console.log(fmtMinHeight(), fmtMaxHeight())
-
     try {
-      console.log(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
       return await axios.get(`${rpcUrl}/blockchain?minHeight=${fmtMinHeight()}&maxHeight=${fmtMaxHeight()}`)
     } catch (err) {
       console.error(err)

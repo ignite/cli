@@ -11,7 +11,7 @@ export default {
         data: null
       }
     },
-    maxStackCount: 50,
+    maxStackCount: 100,
     stack: [],
     stackChainRange: {
       highestHeight: null,
@@ -151,12 +151,10 @@ export default {
       toPop: true
     }) {
       if (state.stack.length > state.maxStackCount) {
-        console.log(toPop)
         if (toPop) {
           state.stack.splice(state.maxStackCount)
         } else {
           state.stack.splice(0, state.stack.length-state.maxStackCount)
-          console.log('🚨')
         }
       }
     },       
@@ -315,16 +313,12 @@ export default {
           }
         })     
       
-      if (!toGetLowerBlocks) {
-        console.log(minBlockHeight, maxBlockHeight)
-      }     
+  
       await toFetchBlockchain(minBlockHeight, maxBlockHeight, !toGetLowerBlocks)
         .then(promiseLoop => promiseLoop()
           .then(() => {
-            console.log('⭐️', toGetLowerBlocks)
             commit('popOverloadBlocks', { toPop: !toGetLowerBlocks })
             dispatch('setStackChainRange')
-            console.log('fetch complete')
           })
         )      
     },
@@ -370,13 +364,12 @@ export default {
       if (getters.blockByHeight(blockHolder.block.height).length<=0) {
         /*
          *
-         // 1. Add block to stack
+         // 1. Check block position
          *
          */    
         const newBlockPosition = (() => {
           const { highestHeight, lowestHeight } = getters.stackChainRange
           const newBlockHeight = parseInt(blockHolder.block.height)
-          console.log('→', highestHeight)
 
           let isHigher=false,
               isLower=false,
@@ -401,9 +394,6 @@ export default {
          // 2. Add block to stack
          *
          */     
-        if (toInsertBlockToFront) {
-          console.log('🐥', blockHolder.block.height, newBlockPosition)
-        }        
         if (newBlockPosition.isAdjacent) {
           commit('addBlockEntry', {
             block: blockHolder.block,
@@ -481,7 +471,6 @@ export default {
            */
           fetchBlockMeta(appEnv.RPC, header.height, blockErrCallback)
             .then(blockMeta => {
-              console.log('✨' + header.height)
               dispatch('setBlockMeta', {
                 header,
                 blockMeta,

@@ -1,6 +1,6 @@
 <template>
 
-  <div class="layout">
+  <div :class="['layout', `-route-${$route.name}`]">
     <div class="container">
       <div class="container__left">
         <div class="navbar">
@@ -75,8 +75,8 @@ export default {
       this.visible = !this.visible
       this.modalTrigger = 'ham'
     }
-  }
-};
+  },
+}
 </script>
 
 <style scoped>
@@ -105,6 +105,10 @@ export default {
   margin-left: auto;
   flex-grow: 1;
   -webkit-overflow-scrolling: touch;  
+}
+.layout.-route-welcome .container__right {
+  /* margin-left: 0; */
+  max-width: 1120px;
 }
 @media only screen and (max-width: 1200px) {
   .layout {

@@ -196,7 +196,6 @@ export default {
      *
      */         
     async handleScrollTopHalf() {
-      console.log('🎉')
       this.states.isScrolledInTopHalf=true
 
       await this.getBlockchain({ 
@@ -211,7 +210,6 @@ export default {
      *
      */          
     async handleScrollBottom() {
-      console.log('⛰')
       this.states.isScrolledInTopHalf = false
 
       await this.getBlockchain({ 

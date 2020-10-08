@@ -43,12 +43,11 @@
               <a class="-with-arrow" :href="getBackendUrl(card.port)">localhost: {{card.port}}</a>
             </p>
           </IconItem>
-
         </div>
-          <!-- <BlockInfoCard 
-            v-if="card.id === 'api'"
-            :blockCards="blockCards"
-          /> -->
+        <BlockInfoCard 
+          v-if="card.id === 'api'"
+          :blockCards="blockCards"
+        />
       </div>      
 
     </div>
@@ -119,13 +118,13 @@
         </div>
       </div>
       <div class="footer__sub -grid-col-3">
-        <div class="footer__sub-item -logo">
+        <div class="footer__sub-item -logo -first">
           <span><LogoTendermint/></span> Built by Tendermint Inc.
         </div>
-        <div class="footer__sub-item">
+        <div class="footer__sub-item -second">
           © Starport 2020
         </div>
-        <div class="footer__sub-item">
+        <div class="footer__sub-item -third">
           <a href="https://github.com/tendermint/starport"><LogoGithub/></a>
         </div>        
       </div>
@@ -232,7 +231,7 @@ export default {
   },
   computed: {
     ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv' ]),   
-    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight', 'blocksStack' ]), 
+    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ]), 
   },    
   methods: {
     insertBlockToStack(index, block) {
@@ -295,6 +294,11 @@ export default {
   grid-column-gap: 2rem;      
   grid-template-columns: repeat(3, minmax(0, 1fr));
 }
+@media screen and (max-width: 992px) {
+  .-grid-col-3 {
+    grid-column-gap: 1rem;     
+  }
+}
 
 .main {
   position: relative;
@@ -337,13 +341,18 @@ export default {
     margin-right: 0;
   }
 }
+@media screen and (max-width: 576px) {
+  .hero h2 {
+    font-size: 16vw;
+  }
+}
 
-.dashboard__card.-left-top { grid-area: left-top; }
-.dashboard__card.-center-top { grid-area: center-top; }
-.dashboard__card.-left { grid-area: left; }
-.dashboard__card.-api { grid-area: api; }
-.dashboard__card.-rpc { grid-area: rpc; }
-.dashboard__card.-frontend { grid-area: frontend; }
+.dashboard .-left-top { grid-area: left-top; }
+.dashboard .-center-top { grid-area: center-top; }
+.dashboard .-left { grid-area: left; }
+.dashboard .-api { grid-area: api; }
+.dashboard .-rpc { grid-area: rpc; }
+.dashboard .-frontend { grid-area: frontend; }
 
 .dashboard {
   grid-template-areas: 
@@ -364,6 +373,10 @@ export default {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
+}
+.dashboard__card.-frontend {
+  background-color: #FDFDFD;
+  box-shadow: 0px 8px 40px rgba(0, 3, 66, 0.08);
 }
 .dashboard__card-heading {
   display: block;
@@ -391,6 +404,43 @@ export default {
 .dashboard__log > div:not(:last-child) {
   margin-bottom: 1rem;
 }
+
+@media screen and (max-width: 768px) {
+  .dashboard {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-bottom: 5rem;        
+  }
+  .dashboard {
+    grid-template-areas: 
+      'center-top center-top'
+      'api rpc'
+      'api frontend'
+      'left-top left-top'
+      'left left';      
+  }
+  .dashboard .-left-top {
+    margin-top: 4rem;
+  }
+}
+@media screen and (max-width: 576px) {
+  .dashboard {
+    grid-template-areas: 
+      'center-top center-top'
+      'api api'
+      'rpc rpc'
+      'frontend frontend'
+      'left-top left-top'
+      'left left';  
+  }
+  .dashboard__card.-api {
+    height: 272px;
+    margin-bottom: 3rem;
+  }  
+  .dashboard__card-main {
+    /* margin-bottom: 5rem; */
+  }
+}
+
 
 .intro__main { grid-area: intro-main; }
 .intro__side { grid-area: intro-side; }
@@ -421,6 +471,21 @@ export default {
 .intro__main span {
   font-family: var(--f-secondary);
 }
+@media screen and (max-width: 768px) {
+  .intro {
+    grid-template-areas: 
+      'intro-side'
+      'intro-main';
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    margin-bottom: 5rem;        
+  }
+  .intro__side {
+    margin-bottom: 1rem;
+  }
+  .intro__main {
+    width: 100%;
+  }
+}
 
 .tutorials__top {
   margin-bottom: 2rem;
@@ -432,6 +497,9 @@ export default {
 }
 .tutorials__articles {
   margin-bottom: 2rem;
+}
+.tutorials__videos {
+  margin-bottom: 8rem;
 }
 
 .card-wrapper {
@@ -489,6 +557,23 @@ a.text-card {
 .text-card.-is-dark .text-card__btm p {
   color: #CFD1E7;
 }
+@media screen and (max-width: 768px) {
+  .text-card__top {
+    margin-bottom: 3.5rem;
+  }
+  .text-card__btm p {
+    font-size: 0.8125rem;
+    width: 100%;
+  }
+}
+@media screen and (max-width: 576px) {
+  .cards {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+  }
+  .cards .card-wrapper:not(:last-child) {
+    margin-bottom: 1.5rem;
+  }
+}
 
 .tutorials__videos {
   display: flex;
@@ -497,6 +582,27 @@ a.text-card {
 .tutorials__videos .image-card {
   width: calc((100% - 2rem) / 2);
 }
+@media screen and (max-width: 768px) {
+  .tutorials__videos .image-card {
+    width: calc((100% - 1rem) / 2);
+  }
+}
+@media screen and (max-width: 576px) {
+  .tutorials__videos {
+    flex-direction: column;
+    margin-bottom: 4rem;
+  }
+  .tutorials__videos .image-card {
+    width: 100%;
+  }  
+  .tutorials__videos .image-card:not(:last-child) {
+    margin-bottom: 1.5rem;
+  }
+  .image-card__text {
+    margin-left: 2px;
+  }
+}
+
 
 .image-card {
   text-decoration: none;
@@ -523,9 +629,6 @@ a.text-card {
   transition-duration: .1s;   
 }
 
-.tutorials__videos {
-  margin-bottom: 8rem;
-}
 
 .footer {
   padding-top: 3rem;
@@ -536,7 +639,6 @@ a.text-card {
 .footer__sub {
   width: 100%;
 }
-
 .footer__main {
   margin-bottom: 5rem;
 }
@@ -564,7 +666,6 @@ a.text-card {
   right: -24px;
   transition: right .3s;
 }
-
 .footer__sub-item {
   display: flex;
   align-items: center;  
@@ -586,6 +687,44 @@ a.text-card {
 .footer__sub-item a:hover svg >>> path {
   fill: #616489;
   transition: fill .3s;
+}
+@media screen and (max-width: 768px) {
+  .footer__main {
+    grid-template-columns: repeat(1, minmax(0, 1fr));
+    grid-row-gap: 2rem;
+  }
+  .footer__sub .-first { grid-area: first; }
+  .footer__sub .-second { grid-area: second; }
+  .footer__sub .-third { grid-area: third; }
+  .footer__sub {
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-row-gap: 2rem;
+    grid-template-areas: 'first first second second third';
+  }  
+}
+@media screen and (max-width: 576px) {
+  .footer__sub {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-areas: 'first first first second second third';
+  }
+}
+@media screen and (max-width: 376px) {
+  .footer__main {
+    margin-bottom: 3rem;
+  }
+  .footer__sub {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: 'first first' 'second third';
+    grid-row-gap: 0.5rem;
+  }
+  .footer__sub-item.-logo >>> svg {
+    width: 24px;
+    height: 24px;
+  }
+  .footer__sub-item:last-child >>> svg {
+    width: 24px;
+    height: 24px;
+  }
 }
 
 </style>
