@@ -21,9 +21,9 @@ func NewModuleCreate() *cobra.Command {
 func createModuleHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 	sc := scaffolder.New(appPath)
-	if err := sc.AddModule(name); err != nil {
+	if err := sc.CreateModule(name); err != nil {
 		return err
 	}
-	fmt.Printf("\n🎉 Module created`%s`.\n\n", name)
+	fmt.Printf("\n🎉 Module created %s.\n\n", name)
 	return nil
 }

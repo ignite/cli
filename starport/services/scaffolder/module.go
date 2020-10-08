@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go/parser"
 	"go/token"
 	"os"
@@ -18,7 +19,34 @@ import (
 const (
 	wasmImport = "github.com/CosmWasm/wasmd"
 	apppkg     = "app"
+	moduleDir  = "x"
 )
+
+// CreateModule creates a new empty module in the scaffolded app
+func (s *Scaffolder) CreateModule(moduleName string) error {
+	// Check if the module already exist
+	ok, err := moduleExists(s.path, moduleName)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return errors.New(fmt.Sprintf("The module %v already exists.", moduleName))
+	}
+	path, err := gomodulepath.ParseFile(s.path)
+	if err != nil {
+		return err
+	}
+	g, err := module.NewCreate(&module.CreateOptions{
+		ModuleName: moduleName,
+		ModulePath: path.RawPath,
+	})
+	if err != nil {
+		return err
+	}
+	run := genny.WetRunner(context.Background())
+	run.With(g)
+	return run.Run()
+}
 
 // ImportModule imports specified module with name to the scaffolded app.
 func (s *Scaffolder) ImportModule(name string) error {
@@ -40,7 +68,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	if err != nil {
 		return err
 	}
-	g, err := module.NewImport(&module.Options{
+	g, err := module.NewImport(&module.ImportOptions{
 		Feature: name,
 		AppName: path.Package,
 	})
@@ -50,6 +78,24 @@ func (s *Scaffolder) ImportModule(name string) error {
 	run := genny.WetRunner(context.Background())
 	run.With(g)
 	return run.Run()
+}
+
+func moduleExists(appPath string, moduleName string) (bool, error) {
+	abspath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = os.Stat(abspath)
+	if err == nil {
+		// The module already exists
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	// Error reading the directory
+	return false, err
 }
 
 func isWasmImported(appPath string) (bool, error) {
