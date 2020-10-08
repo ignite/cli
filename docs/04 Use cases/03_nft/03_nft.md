@@ -4,7 +4,7 @@ Non-Fungible Token or in short NFT are tokens that are non-divisible and live on
 
 NFT are defined by the contract proposal ERC721. The contract proposal and definition can be read on https://eips.ethereum.org/EIPS/eip-721 
 
-The NFT contract will use the following functions
+The NFT contract will implement the following functions
 
 ```
 totalSupply() - Total amount of emitted tokens.
@@ -22,9 +22,9 @@ tokensOf( _owner ) - Returns list of token ID’s of specific _owner
 approvedFor( _tokenId ) - Returns the approved address to take ownership of a given token ID
 ```
 
-## ERC20 on Ethermint
+## ERC20 on the Cosmos SDK with EVM
 
-Ethermint is the Cosmos SDK module that allows to replicate the EVM. We can load solidity contracts onto the Cosmos SDK blockchain. Let us examine an example usage of Ethermint with the ERC721 Token.
+The `EVM` is a module that allows to replicate the Ethereum Virtual Machine on any Cosmos SDK application. Ethermint is a reference project from Tendermint and partners (ChainSafe) that implements the EVM module. We can load solidity contracts onto the Cosmos SDK blockchain with the EVM module. Let us examine an example usage of Ethermint with the ERC721 Token.
 
 Working with Ethermint can come in different forms. You can either work with the official [Ethermint chain](https://ethermint.zone/), fork from the [Ethermint Codebase](https://github.com/ChainSafe/ethermint), or use the EVM Module in your own Cosmos SDK application. The last option is what we will be looking into. We have created our Cosmos SDK template with Starport and we can just add the Ethereum Virtual Machine to our application and allow smart contracts to be created in Solity and uploaded to the blockchain.
 
@@ -97,7 +97,7 @@ This will be the connection our rest-server uses. In order to setup the rest ser
 From here our setup is complete, we can now jump into the smart contract code. Since we are working with OpenZeppelin reference implementation, we need to install their components.
 
 ```bash
-npm i zeppelin-solidity
+npm i zeppelin-solidity --save-dev
 ```
 
 In our `contracts` directory we add the solidity code for the NFT ERC721 Token that we would like to address, create the `contracts/MyToken.sol` file and add
