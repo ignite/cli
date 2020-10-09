@@ -88,7 +88,6 @@ func installWasm() error {
 	return cmdrunner.
 		New(
 			cmdrunner.DefaultStderr(os.Stderr),
-			// cmdrunner.DefaultWorkdir(absRoot),
 		).
 		Run(context.Background(),
 			step.New(
