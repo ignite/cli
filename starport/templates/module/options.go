@@ -4,6 +4,7 @@ package module
 type CreateOptions struct {
 	ModuleName string
 	ModulePath string
+	AppName    string
 }
 
 // Validate that options are usable

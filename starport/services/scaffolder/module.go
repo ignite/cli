@@ -46,6 +46,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		opts = &module.CreateOptions{
 			ModuleName: moduleName,
 			ModulePath: path.RawPath,
+			AppName:    path.Package,
 		}
 	)
 	if version == cosmosver.Launchpad {
@@ -58,7 +59,14 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	return run.Run()
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return s.protoc(pwd, version)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
