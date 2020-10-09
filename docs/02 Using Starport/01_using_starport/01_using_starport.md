@@ -76,7 +76,7 @@ These are the basic commands for getting started with starport. From creating a 
 
 An account on the blockchain is a keypair of private and public keys.
 When you start your blockchain with starport, you can define the name of the keys and the amount of coins they start with. The keys are created for you and displayed on startup. You can use these keys when interacting with your blockchain.
-a list of user accounts is created during genesis of your application. You can define them as follows in your `config.yml` file. See an example in chapter [configuration](../03_configuration/03_configuration.md).
+A list of user accounts is created during genesis of your application. You can define them as follows in your `config.yml` file. See an example in chapter [configuration](../03_configuration/03_configuration.md).
 
 | Key   | Required | Type            | Description                                       |
 | ----- | -------- | --------------- | ------------------------------------------------- |
