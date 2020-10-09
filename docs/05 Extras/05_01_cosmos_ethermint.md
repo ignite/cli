@@ -11,7 +11,7 @@ Let's use Starport to bootstrap our basic blockchain
 Currently Ethermint is being developed by ChainSafe, until the repository `github.com/cosmos/ethermint` is up to date, we need to modify the `go.mod` file, at the end of it, place the following `replace` repository command:
 
 ```go
-replace github.com/cosmos/ethermint => github.com/ChainSafe/ethermint v0.2.0-rc4
+replace github.com/cosmos/ethermint => github.com/ChainSafe/ethermint v0.2.1
 ```
  
 The Ethereum Virtual Machine, in short `evm` takes a few additions to our `/app/app.go` file. First, we need to add them as imports

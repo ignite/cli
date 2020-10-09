@@ -24,8 +24,9 @@ const (
 // serviceStatusResponse holds the status of development environment and http services
 // needed for development.
 type statusResponse struct {
-	Status serviceStatus `json:"status"`
 	Env    env           `json:"env"`
+	Status serviceStatus `json:"status"`
+	Addrs  serviceAddrs  `json:"addrs"`
 }
 
 // serviceStatus holds the availibity status of http services.
@@ -34,6 +35,13 @@ type serviceStatus struct {
 	IsConsensusEngineAlive bool   `json:"is_consensus_engine_alive"`
 	IsMyAppBackendAlive    bool   `json:"is_my_app_backend_alive"`
 	IsMyAppFrontendAlive   bool   `json:"is_my_app_frontend_alive"`
+}
+
+// serviceAddrs holds addresses of service servers.
+type serviceAddrs struct {
+	ConsensusEngine string `json:"consensus_engine"`
+	AppBackend      string `json:"app_backend"`
+	AppFrontend     string `json:"app_frontend"`
 }
 
 // env holds info about development environment.
@@ -112,6 +120,11 @@ func (d *development) statusHandler() http.Handler {
 				IsConsensusEngineAlive: engineStatus,
 				IsMyAppBackendAlive:    appBackendStatus,
 				IsMyAppFrontendAlive:   appFrontendStatus,
+			},
+			Addrs: serviceAddrs{
+				ConsensusEngine: d.conf.EngineAddr,
+				AppBackend:      d.conf.AppBackendAddr,
+				AppFrontend:     d.conf.AppFrontendAddr,
 			},
 		}
 		xhttp.ResponseJSON(w, http.StatusOK, resp)

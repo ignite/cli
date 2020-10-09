@@ -166,5 +166,6 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
+	c.Env = append(os.Environ(), s.Env...)
 	return &cmdSignal{c}
 }
