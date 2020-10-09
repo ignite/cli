@@ -18,7 +18,11 @@
         <IconItem :iconType="'check'"  :itemText="'Build complete'" />        
         <IconItem :iconType="'check'"  :itemText="'Blockchain initialized'" />        
         <IconItem :iconType="'check'"  :itemText="'Accounts created'" />        
-        <IconItem :iconType="'check'"  :itemText="'Blockchain node started'" />        
+        <IconItem 
+          :iconType="'check'"
+          :itemText="'Blockchain node started'"
+          :isActive="backendRunningStates.api"          
+        />        
       </div>
 
       <div 
