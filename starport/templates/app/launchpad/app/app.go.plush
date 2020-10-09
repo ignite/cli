@@ -46,6 +46,7 @@ var (
 
 	maccPerms = map[string][]string{
 		auth.FeeCollectorName:     nil,
+		// this line is used by starport scaffolding # 2.1
 		staking.BondedPoolName:    {supply.Burner, supply.Staking},
 		staking.NotBondedPoolName: {supply.Burner, supply.Staking},
 	}
@@ -172,9 +173,13 @@ func NewInitApp(
     // this line is used by starport scaffolding # 6
 	)
 
-	app.mm.SetOrderEndBlockers(staking.ModuleName)
+	app.mm.SetOrderEndBlockers(
+		staking.ModuleName,
+		// this line is used by starport scaffolding # 6.1
+	)
 
 	app.mm.SetOrderInitGenesis(
+		// this line is used by starport scaffolding # 6.2
 		staking.ModuleName,
 		auth.ModuleName,
 		bank.ModuleName,
