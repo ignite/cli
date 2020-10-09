@@ -1,0 +1,11 @@
+syntax = "proto3";
+package <%= appName %>.<%= moduleName %>.v1beta1;
+
+import "cosmos/base/query/v1beta1/pagination.proto";
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+// Query defines the gRPC querier service.
+service Query {
+}
+
