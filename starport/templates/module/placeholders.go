@@ -14,4 +14,14 @@ const (
 	placeholder6_1 = "// this line is used by starport scaffolding # 6.1"
 	placeholder6_2 = "// this line is used by starport scaffolding # 6.2"
 	placeholder7   = "// this line is used by starport scaffolding # 7"
+
+	// Placeholders in Stargate app.go
+	placeholderSgAppModuleImport      = "// this line is used by starport scaffolding # stargate/app/moduleImport"
+	placeholderSgAppModuleBasic       = "// this line is used by starport scaffolding # stargate/app/moduleBasic"
+	placeholderSgAppKeeperDeclaration = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
+	placeholderSgAppStoreKey          = "// this line is used by starport scaffolding # stargate/app/storeKey"
+	placeholderSgAppKeeperDefinition  = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
+	placeholderSgAppAppModule         = "// this line is used by starport scaffolding # stargate/app/appModule"
+	placeholderSgAppInitGenesis       = "// this line is used by starport scaffolding # stargate/app/initGenesis"
+	placeholderSgAppParamSubspace     = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
 )

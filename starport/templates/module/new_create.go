@@ -39,6 +39,9 @@ func NewCreateLaunchpad(opts *CreateOptions) (*genny.Generator, error) {
 // New ...
 func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
+
+	g.RunFn(appModifyStargate(opts))
+
 	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
 		return g, err
 	}
@@ -69,50 +72,117 @@ func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 
 		// ModuleBasic
-		template2 := `%[1]v
+		template = `%[1]v
 		%[2]v.AppModuleBasic{},`
-		replacement2 := fmt.Sprintf(template2, placeholder2, opts.ModuleName)
-		content = strings.Replace(content, placeholder2, replacement2, 1)
+		replacement = fmt.Sprintf(template, placeholder2, opts.ModuleName)
+		content = strings.Replace(content, placeholder2, replacement, 1)
 
 		// Keeper declaration
-		template3 := `%[1]v
+		template = `%[1]v
 		%[2]vKeeper %[2]vkeeper.Keeper`
-		replacement3 := fmt.Sprintf(template3, placeholder3, opts.ModuleName)
-		content = strings.Replace(content, placeholder3, replacement3, 1)
+		replacement = fmt.Sprintf(template, placeholder3, opts.ModuleName)
+		content = strings.Replace(content, placeholder3, replacement, 1)
 
 		// Store key
-		template5 := `%[1]v
+		template = `%[1]v
 		%[2]vtypes.StoreKey,`
-		replacement5 := fmt.Sprintf(template5, placeholder5, opts.ModuleName)
-		content = strings.Replace(content, placeholder5, replacement5, 1)
+		replacement = fmt.Sprintf(template, placeholder5, opts.ModuleName)
+		content = strings.Replace(content, placeholder5, replacement, 1)
 
 		// Param subspace
-		template5_1 := `%[1]v
+		template = `%[1]v
 		app.subspaces[%[2]vtypes.ModuleName] = app.paramsKeeper.Subspace(%[2]vtypes.DefaultParamspace)`
-		replacement5_1 := fmt.Sprintf(template5_1, placeholder5_1, opts.ModuleName)
-		content = strings.Replace(content, placeholder5_1, replacement5_1, 1)
+		replacement = fmt.Sprintf(template, placeholder5_1, opts.ModuleName)
+		content = strings.Replace(content, placeholder5_1, replacement, 1)
 
 		// Keeper definition
-		template5_2 := `%[1]v
+		template = `%[1]v
 		app.%[2]vKeeper = %[2]vkeeper.NewKeeper(
 			app.cdc,
 			keys[%[2]vtypes.StoreKey],
 			app.subspaces[%[2]vtypes.ModuleName],
 		)`
-		replacement5_2 := fmt.Sprintf(template5_2, placeholder5_2, opts.ModuleName)
-		content = strings.Replace(content, placeholder5_2, replacement5_2, 1)
+		replacement = fmt.Sprintf(template, placeholder5_2, opts.ModuleName)
+		content = strings.Replace(content, placeholder5_2, replacement, 1)
 
 		// Module manager
-		template6 := `%[1]v
+		template = `%[1]v
 		%[2]v.NewAppModule(app.%[2]vKeeper),`
-		replacement6 := fmt.Sprintf(template6, placeholder6, opts.ModuleName)
-		content = strings.Replace(content, placeholder6, replacement6, 1)
+		replacement = fmt.Sprintf(template, placeholder6, opts.ModuleName)
+		content = strings.Replace(content, placeholder6, replacement, 1)
 
 		// Genesis
-		template7 := `%[1]v
+		template = `%[1]v
 		%[2]vtypes.ModuleName,`
-		replacement7 := fmt.Sprintf(template7, placeholder7, opts.ModuleName)
-		content = strings.Replace(content, placeholder7, replacement7, 1)
+		replacement = fmt.Sprintf(template, placeholder7, opts.ModuleName)
+		content = strings.Replace(content, placeholder7, replacement, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func appModifyStargate(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := "app/app.go"
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Import
+		template := `%[1]v
+		"%[3]v/x/%[2]v"
+		%[2]vkeeper "%[3]v/x/%[2]v/keeper"
+		%[2]vtypes "%[3]v/x/%[2]v/types"`
+		replacement := fmt.Sprintf(template, placeholderSgAppModuleImport, opts.ModuleName, opts.ModulePath)
+		content := strings.Replace(f.String(), placeholderSgAppModuleImport, replacement, 1)
+
+		// ModuleBasic
+		template = `%[1]v
+		%[2]v.AppModuleBasic{},`
+		replacement = fmt.Sprintf(template, placeholderSgAppModuleBasic, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppModuleBasic, replacement, 1)
+
+		// Keeper declaration
+		template = `%[1]v
+		%[2]vKeeper %[2]vkeeper.Keeper`
+		replacement = fmt.Sprintf(template, placeholderSgAppKeeperDeclaration, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppKeeperDeclaration, replacement, 1)
+
+		// Store key
+		template = `%[1]v
+		%[2]vtypes.StoreKey,`
+		replacement = fmt.Sprintf(template, placeholderSgAppStoreKey, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppStoreKey, replacement, 1)
+
+		// Keeper definition
+		template = `%[1]v
+		app.%[2]vKeeper = *%[2]vkeeper.NewKeeper(
+			appCodec,
+			keys[%[2]vtypes.StoreKey],
+			keys[%[2]vtypes.MemStoreKey],
+		)`
+		replacement = fmt.Sprintf(template, placeholderSgAppKeeperDefinition, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppKeeperDefinition, replacement, 1)
+
+		// App Module
+		template = `%[1]v
+		%[2]v.NewAppModule(appCodec, app.%[2]vKeeper),`
+		replacement = fmt.Sprintf(template, placeholderSgAppAppModule, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppAppModule, replacement, 1)
+
+		// Init genesis
+		template = `%[1]v
+		%[2]vtypes.ModuleName,`
+		replacement = fmt.Sprintf(template, placeholderSgAppInitGenesis, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppInitGenesis, replacement, 1)
+
+		// Param subspace
+		template = `%[1]v
+		paramsKeeper.Subspace(%[2]vtypes.ModuleName)`
+		replacement = fmt.Sprintf(template, placeholderSgAppParamSubspace, opts.ModuleName)
+		content = strings.Replace(content, placeholderSgAppParamSubspace, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
