@@ -11,15 +11,18 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
-	wasmImport = "github.com/CosmWasm/wasmd"
-	apppkg     = "app"
-	moduleDir  = "x"
+	wasmImport        = "github.com/CosmWasm/wasmd"
+	apppkg            = "app"
+	moduleDir         = "x"
+	wasmVersionCommit = "b30902fe1fbe5237763775950f729b90bf34d53f"
 )
 
 // CreateModule creates a new empty module in the scaffolded app
@@ -85,6 +88,13 @@ func (s *Scaffolder) ImportModule(name string) error {
 	if ok {
 		return errors.New("CosmWasm is already imported.")
 	}
+
+	// Import a specific version of ComsWasm
+	err = installWasm()
+	if err != nil {
+		return err
+	}
+
 	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
 		return err
@@ -139,4 +149,20 @@ func isWasmImported(appPath string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func installWasm() error {
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					"go",
+					"get",
+					wasmImport+"@"+wasmVersionCommit,
+				),
+			),
+		)
 }
