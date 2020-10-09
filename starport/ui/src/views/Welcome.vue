@@ -40,7 +40,7 @@
             :toInjectSlot="card.id === 'frontend'"
           >
             <p v-if="card.id === 'frontend'" class="item__main">
-              <a class="-with-arrow" :href="getBackendUrl(card.port)">localhost: {{card.port}}</a>
+              <a class="-with-arrow" :href="getBackendUrl(card.port)" target="_blank">localhost: {{card.port}}</a>
             </p>
           </IconItem>
         </div>
