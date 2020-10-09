@@ -40,7 +40,7 @@ The first step of your own blockchain is already done. Using the default setting
 ## The Key-Value Store (KV)
 ### How to use types
 
-In the SDK, data are stored in the multistore. As Key-Value pairs those are saved in the KVStores. Multiple stores can be created and managed at the same time. We will use the store to save our data to the blockchain.
+In the SDK, data is stored in the multistore. Key-Value pairs are saved in the KVStores. Multiple stores can be created and managed at the same time. We will use the store to save our data to the blockchain.
 Starport assists us in setting up the Key-Value Store with the command `type`. 
 In order to use `type` we should give our type a fitting `typeName` with the intended fields that we want to use. If we wanted to store user with username and age, we would use the command
 
@@ -70,20 +70,23 @@ This command generates a type `Post` with two fields: `title` and `body`.
 
 To add a post run `blogcli tx blog create-post "My title" "This is a blog" --from=user1`.
 
-These are the basic commands navigating starport. From creating a first blockchain to adding your own data types and accessing the User Interface. In the next two chapters, we will be looking closer at the initial setup for starport and how to configure it. Afterwards, we will be looking into more complex usecases, where each of the commands and more will be explained in more detail.
+These are the basic commands for getting started with starport. From creating a first blockchain to adding your own data types and accessing the User Interface. In the next two chapters, we will be looking closer at the initial setup for starport and how to configure it. Afterwards, we will be looking into more complex usecases, where each of the commands and more will be explained in detail.
 
-#### `accounts`
+#### Accounts on your blockchain
 
-A list of user accounts created during genesis of your application.
+An account on the blockchain is a keypair of private and public keys.
+When you start your blockchain with starport, you can define the name of the keys and the amount of coins they start with. The keys are created for you and displayed on startup. You can use these keys when interacting with your blockchain.
+a list of user accounts is created during genesis of your application. You can define them as follows in your `config.yml` file. See an example in chapter [configuration](../03_configuration/03_configuration.md).
 
 | Key   | Required | Type            | Description                                       |
 | ----- | -------- | --------------- | ------------------------------------------------- |
 | name  | Y        | String          | Local name of the key pair                        |
 | coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
 
-#### `validator`
+#### The initial validator
 
-A property that describes your local validator. `name` should be one of the names, specified in the `accounts` array. The account should have enough tokens for staking purposes.
+Blocks on a tendermint blockchain are created and validated by the so called `validators`. You can define the set of validators your blockchain starts with in your `config.yml`.
+The validator property describes your set of validators. Use a `name` that you have specified in the `accounts` array. The account should have enough tokens for staking purposes. See an example in chapter [configuration](../03_configuration/03_configuration.md).
 
 | Key    | Required | Type   | Description                                                                         |
 | ------ | -------- | ------ | ----------------------------------------------------------------------------------- |
@@ -92,8 +95,8 @@ A property that describes your local validator. `name` should be one of the name
 
 ## Summary
 
-- With the command `starport add` a new blockchain can be initialised.
-- A combination `starport add` and `starport serve` already let's you manage your blockchain out of the box.
+- With the command `starport app` a new blockchain can be initialised.
+- A combination `starport app` and `starport serve` already let's you manage your blockchain out of the box.
 - The default blockchain includes networking and a consensus protocol with your own token.
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
 - Accounts are created during genesis of the application. These can be configured in the `config.yml`.

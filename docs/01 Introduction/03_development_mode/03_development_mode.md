@@ -2,14 +2,14 @@
 
 You can use a variety of ways developing with starport. Each of the ways to create your blockchain comes with benefits and downsides. There are two main ways of developing: offline or online.
 
-When you develop offline, you have full control over the codebase and data, can host it on your computer with internet access or without and can run several validators on one machine. This method allows you to work at anytime with speed and debug your code on the machine you prefer.
+When you develop offline, you have full control over the codebase and data, you can host it on your computer with or without internet access and run several validators on a single machine. This method allows you to work at anytime with speed and debug your code on the machine you prefer.
 
 Working online enables you also have full control over the codebase but you can also host your validators in the cloud and directly test the P2P experience while working on your code. This method allows you to have a more realistic experience that your blockchain will need when being live.
 
 ## Online in the cloud
 
 Instead of installing all the dependencies and programs necessary on your own machine, you can develop online using Gitpod.
-Once you launch GitPod with the starport application, you have everything you need installed already and can start developing in the browser just as if you were on your local machine. It allows for a seemless experience and lets you get started without and prerequisites or any more installation procedures.
+Once you launch GitPod with the starport application, you have everything you need installed already and can start developing in the browser just as if you were on your local machine. It allows for a seemless experience and lets you get started without and prerequisites or any additional installation procedures.
 Especially when you want to "try out" anything, GitPod comes to the rescue and you can get immediately started.
 
 ## Offline with your IDE
