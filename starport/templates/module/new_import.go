@@ -33,6 +33,9 @@ const placeholder2_1 = "// this line is used by starport scaffolding # 2.1"
 const placeholder3 = "// this line is used by starport scaffolding # 3"
 const placeholder4 = "// this line is used by starport scaffolding # 4"
 const placeholder5 = "// this line is used by starport scaffolding # 5"
+const placeholder5_1 = "// this line is used by starport scaffolding # 5.1"
+const placeholder5_2 = "// this line is used by starport scaffolding # 5.2"
+const placeholder5_3 = "// this line is used by starport scaffolding # 5.3"
 const placeholder6 = "// this line is used by starport scaffolding # 6"
 const placeholder6_1 = "// this line is used by starport scaffolding # 6.1"
 const placeholder6_2 = "// this line is used by starport scaffolding # 6.2"
@@ -72,14 +75,31 @@ func appModify(opts *Options) genny.RunFn {
 		replacement3 := fmt.Sprintf(template3, placeholder3)
 		content = strings.Replace(content, placeholder3, replacement3, 1)
 
-		template4 := placeholder4 + "\n" + `app.distrKeeper = distr.NewKeeper(
+		template5 := `%[1]v
+		distr.StoreKey,
+		wasm.StoreKey,`
+		replacement5 := fmt.Sprintf(template5, placeholder5)
+		content = strings.Replace(content, placeholder5, replacement5, 1)
+
+		template5_1 := `%[1]v
+		app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)`
+		replacement5_1 := fmt.Sprintf(template5_1, placeholder5_1)
+		content = strings.Replace(content, placeholder5_1, replacement5_1, 1)
+
+		template5_2 := `%[1]v
+		app.distrKeeper = distr.NewKeeper(
 			app.cdc, keys[distr.StoreKey], app.subspaces[distr.ModuleName], &stakingKeeper,
 			app.supplyKeeper, auth.FeeCollectorName, app.ModuleAccountAddrs(),
-		)
-		app.stakingKeeper = *stakingKeeper.SetHooks(
-			staking.NewMultiStakingHooks(app.distrKeeper.Hooks()),
-		)` +
-			"\n" +
+		)`
+		replacement5_2 := fmt.Sprintf(template5_2, placeholder5_2)
+		content = strings.Replace(content, placeholder5_2, replacement5_2, 1)
+
+		template5_3 := `%[1]v
+		app.distrKeeper.Hooks(),`
+		replacement5_3 := fmt.Sprintf(template5_3, placeholder5_3)
+		content = strings.Replace(content, placeholder5_3, replacement5_3, 1)
+
+		template4 := placeholder4 + "\n" +
 			"type WasmWrapper struct { Wasm wasm.Config `mapstructure:\"wasm\"`}" + `
 		var wasmRouter = bApp.Router()
 		homeDir := viper.GetString(cli.HomeFlag)
@@ -92,16 +112,9 @@ func appModify(opts *Options) genny.RunFn {
 		}
 		wasmConfig := wasmWrap.Wasm
 		supportedFeatures := "staking"
-		app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)
 		app.subspaces[wasm.ModuleName] = app.paramsKeeper.Subspace(wasm.DefaultParamspace)
 		app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.subspaces[wasm.ModuleName], app.accountKeeper, app.bankKeeper, app.stakingKeeper, app.distrKeeper, wasmRouter, wasmDir, wasmConfig, supportedFeatures, nil, nil)`
 		content = strings.Replace(content, placeholder4, template4, 1)
-
-		template5 := `%[1]v
-		distr.StoreKey,
-		wasm.StoreKey,`
-		replacement5 := fmt.Sprintf(template5, placeholder5)
-		content = strings.Replace(content, placeholder5, replacement5, 1)
 
 		template6 := `%[1]v
 		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
