@@ -44,6 +44,9 @@ type Plugin interface {
 
 	// GenesisPath returns path of genesis.json.
 	GenesisPath() string
+
+	// Version of the plugin.
+	Version() cosmosver.MajorVersion
 }
 
 func (s *Serve) pickPlugin() (Plugin, error) {

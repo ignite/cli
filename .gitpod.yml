@@ -16,6 +16,8 @@ tasks:
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
+      export RPC_ADDRESS=$(gp url 26657):443
+
       clear && printf '\e[3J'
       echo -e "
 

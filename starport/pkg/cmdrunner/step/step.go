@@ -13,6 +13,7 @@ type Step struct {
 	Stderr    io.Writer
 	Workdir   string
 	Env       []string
+	WriteData []byte
 }
 
 type Option func(*Step)
@@ -93,8 +94,14 @@ func Env(e ...string) Option {
 	}
 }
 
+func Write(data []byte) Option {
+	return func(s *Step) {
+		s.WriteData = data
+	}
+}
+
 type Steps []*Step
 
-func (s *Steps) Add(step *Step) {
-	*s = append(*s, step)
+func (s *Steps) Add(steps ...*Step) {
+	*s = append(*s, steps...)
 }

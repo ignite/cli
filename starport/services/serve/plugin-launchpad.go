@@ -10,6 +10,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
@@ -201,3 +202,5 @@ func (p *launchpadPlugin) StoragePaths() []string {
 func (p *launchpadPlugin) GenesisPath() string {
 	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
 }
+
+func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

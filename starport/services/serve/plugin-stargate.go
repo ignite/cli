@@ -9,6 +9,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
@@ -164,3 +165,5 @@ func (p *stargatePlugin) StoragePaths() []string {
 func (p *stargatePlugin) GenesisPath() string {
 	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
 }
+
+func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
