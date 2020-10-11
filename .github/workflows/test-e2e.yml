@@ -25,7 +25,7 @@ jobs:
 
       - name: Install protoc
         working-directory: ${{ env.working-directory }}
-        run: apt install -y protobuf-compiler
+        run: sudo apt-get install -y protobuf-compiler
 
       - name: Set up packr2
         run: go get -u github.com/gobuffalo/packr/v2/packr2
