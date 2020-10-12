@@ -4,6 +4,7 @@
 ### Features:
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
+* Added `starport module create` command to scaffold custom modules
 * Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook. 
 * Added IBC and some other modules.
 * Added an option to configure server addresses under `servers` section in `config.yml`.
