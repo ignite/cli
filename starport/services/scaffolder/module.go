@@ -111,7 +111,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	return run.Run()
 }
 
-func moduleExists(appPath string, moduleName string) (bool, error) {
+func ModuleExists(appPath string, moduleName string) (bool, error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
 		return false, err
