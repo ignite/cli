@@ -11,7 +11,7 @@ import (
 )
 
 // New ...
-func NewImport(opts *Options) (*genny.Generator, error) {
+func NewImport(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModify(opts))
 	g.RunFn(exportModify(opts))
@@ -27,22 +27,7 @@ func NewImport(opts *Options) (*genny.Generator, error) {
 	return g, nil
 }
 
-const placeholder = "// this line is used by starport scaffolding # 1"
-const placeholder2 = "// this line is used by starport scaffolding # 2"
-const placeholder2_1 = "// this line is used by starport scaffolding # 2.1"
-const placeholder3 = "// this line is used by starport scaffolding # 3"
-const placeholder4 = "// this line is used by starport scaffolding # 4"
-const placeholder5 = "// this line is used by starport scaffolding # 5"
-const placeholder5_1 = "// this line is used by starport scaffolding # 5.1"
-const placeholder5_2 = "// this line is used by starport scaffolding # 5.2"
-const placeholder5_3 = "// this line is used by starport scaffolding # 5.3"
-const placeholder6 = "// this line is used by starport scaffolding # 6"
-const placeholder6_1 = "// this line is used by starport scaffolding # 6.1"
-const placeholder6_2 = "// this line is used by starport scaffolding # 6.2"
-const placeholder7 = "// this line is used by starport scaffolding # 7"
-
-// Append CosmWasm and Distr modules in app.go
-func appModify(opts *Options) genny.RunFn {
+func appModify(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "app/app.go"
 		f, err := r.Disk.Find(path)
@@ -143,7 +128,7 @@ func appModify(opts *Options) genny.RunFn {
 }
 
 // Append Distr modules in export.go
-func exportModify(opts *Options) genny.RunFn {
+func exportModify(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "app/export.go"
 		f, err := r.Disk.Find(path)
@@ -205,7 +190,7 @@ func exportModify(opts *Options) genny.RunFn {
 	}
 }
 
-func cmdMainModify(opts *Options) genny.RunFn {
+func cmdMainModify(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("cmd/%[1]vcli/main.go", opts.AppName)
 		f, err := r.Disk.Find(path)
