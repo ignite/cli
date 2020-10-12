@@ -17,7 +17,7 @@ import (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(stype string, fields ...string) error {
+func (s *Scaffolder) AddType(module string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
