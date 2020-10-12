@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go/parser"
 	"go/token"
 	"os"
@@ -10,18 +11,69 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/add"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
-	wasmImport = "github.com/CosmWasm/wasmd"
-	apppkg     = "app"
+	wasmImport        = "github.com/CosmWasm/wasmd"
+	apppkg            = "app"
+	moduleDir         = "x"
+	wasmVersionCommit = "b30902fe1fbe5237763775950f729b90bf34d53f"
 )
 
-// AddModule adds sepecified module with name to the scaffolded app.
-func (s *Scaffolder) AddModule(name string) error {
+// CreateModule creates a new empty module in the scaffolded app
+func (s *Scaffolder) CreateModule(moduleName string) error {
+	version, err := s.version()
+	if err != nil {
+		return err
+	}
+	// Check if the module already exist
+	ok, err := moduleExists(s.path, moduleName)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return errors.New(fmt.Sprintf("The module %v already exists.", moduleName))
+	}
+	path, err := gomodulepath.ParseFile(s.path)
+	if err != nil {
+		return err
+	}
+
+	var (
+		g    *genny.Generator
+		opts = &module.CreateOptions{
+			ModuleName: moduleName,
+			ModulePath: path.RawPath,
+			AppName:    path.Package,
+		}
+	)
+	if version == cosmosver.Launchpad {
+		g, err = module.NewCreateLaunchpad(opts)
+	} else {
+		g, err = module.NewCreateStargate(opts)
+	}
+	if err != nil {
+		return err
+	}
+	run := genny.WetRunner(context.Background())
+	run.With(g)
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return s.protoc(pwd, version)
+}
+
+// ImportModule imports specified module with name to the scaffolded app.
+func (s *Scaffolder) ImportModule(name string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -29,18 +81,25 @@ func (s *Scaffolder) AddModule(name string) error {
 	if version == cosmosver.Stargate {
 		return errors.New("importing modules currently is not supported on Stargate")
 	}
-	ok, err := isWasmAdded(s.path)
+	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return errors.New("CosmWasm is already added.")
+		return errors.New("CosmWasm is already imported.")
 	}
+
+	// Import a specific version of ComsWasm
+	err = installWasm()
+	if err != nil {
+		return err
+	}
+
 	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
 		return err
 	}
-	g, err := add.New(&add.Options{
+	g, err := module.NewImport(&module.ImportOptions{
 		Feature: name,
 		AppName: path.Package,
 	})
@@ -52,7 +111,25 @@ func (s *Scaffolder) AddModule(name string) error {
 	return run.Run()
 }
 
-func isWasmAdded(appPath string) (bool, error) {
+func moduleExists(appPath string, moduleName string) (bool, error) {
+	abspath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = os.Stat(abspath)
+	if err == nil {
+		// The module already exists
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	// Error reading the directory
+	return false, err
+}
+
+func isWasmImported(appPath string) (bool, error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, apppkg))
 	if err != nil {
 		return false, err
@@ -72,4 +149,20 @@ func isWasmAdded(appPath string) (bool, error) {
 		}
 	}
 	return false, nil
+}
+
+func installWasm() error {
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					"go",
+					"get",
+					wasmImport+"@"+wasmVersionCommit,
+				),
+			),
+		)
 }

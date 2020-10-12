@@ -1,6 +1,8 @@
 package step
 
-import "io"
+import (
+	"io"
+)
 
 type Step struct {
 	Exec      Execution
@@ -10,6 +12,7 @@ type Step struct {
 	Stdout    io.Writer
 	Stderr    io.Writer
 	Workdir   string
+	Env       []string
 }
 
 type Option func(*Step)
@@ -81,6 +84,12 @@ func Stderr(w io.Writer) Option {
 func Workdir(path string) Option {
 	return func(s *Step) {
 		s.Workdir = path
+	}
+}
+
+func Env(e ...string) Option {
+	return func(s *Step) {
+		s.Env = e
 	}
 }
 

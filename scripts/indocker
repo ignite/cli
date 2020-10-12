@@ -44,8 +44,15 @@ function run {
         -p 26657:26657 \
         -p 1317:1317 \
         -v $PWD:/go/src/github.com/tendermint/starport \
+        -v $PWD/apps:/apps \
         starport /bin/bash -c "trap : TERM INT; sleep infinity & wait" \
             > /dev/null
+}
+
+function attach {
+    is_running=$(docker ps -q -f status=running -f name=^/starport$)
+    if [[ -z $is_running ]]; then run; fi    
+    docker exec -ti starport /bin/bash
 }
 
 case "$1" in
@@ -57,11 +64,15 @@ case "$1" in
     reset) run
         ;;
 
+    # scratch builds the container, resets existing and attachs to it.
+    scratch)
+        build
+        run
+        attach  
+        ;;
+
     # attach to development container but start if not already running.
-    *)
-        is_running=$(docker ps -q -f status=running -f name=^/starport$)
-        if [[ -z $is_running ]]; then run; fi    
-        docker exec -ti starport /bin/bash
+    *) attach
         ;;
 esac
 

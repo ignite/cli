@@ -56,14 +56,19 @@ func (app *NewApp) prepForZeroHeightGenesis(ctx sdk.Context, jailWhiteList []str
 		whiteListMap[addr] = true
 	}
 
+	// this line is used by starport scaffolding # 1
+
 	// set context height to zero
 	height := ctx.BlockHeight()
 	ctx = ctx.WithBlockHeight(0)
 
 	// reinitialize all validators
 	app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
+		// this line is used by starport scaffolding # 2
 		return false
 	})
+
+	// this line is used by starport scaffolding # 3
 
 	// reset context height
 	ctx = ctx.WithBlockHeight(height)
