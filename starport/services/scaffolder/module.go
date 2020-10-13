@@ -32,7 +32,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		return err
 	}
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := ModuleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
