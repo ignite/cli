@@ -23,6 +23,9 @@ jobs:
         with:
           node-version: "14"
 
+      - name: Install protoc
+        uses: arduino/setup-protoc@v1
+
       - name: Set up packr2
         run: go get -u github.com/gobuffalo/packr/v2/packr2
 
