@@ -70,6 +70,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	for _, s := range steps {
+		s := s
 		if err := ctx.Err(); err != nil {
 			return err
 		}
