@@ -68,7 +68,7 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 	)
 
 	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), time.Minute*3)
+		ctx, cancel       = context.WithTimeout(env.Ctx(), time.Minute*5)
 		isBackendAliveErr error
 	)
 	go func() {
