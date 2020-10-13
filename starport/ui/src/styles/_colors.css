@@ -51,3 +51,18 @@
   --c-bg-contrast-primary: var(--c-contrast);
   --c-bg-contrast-secondary: var(--c-contrast-primary);
 }
+
+
+/*-- starport theme WIP --*/
+:root {
+  --c-gray-0: #000000;
+  --c-gray-50: #030419;
+  --c-gray-600: #aeafb6;
+  --c-gray-900: #ecedf7;
+}
+:root {
+  --c-txt-primary: var(--c-gray-50);
+  --c-txt-secondary: var(--c-gray-600);
+
+  --c-border-primary: var(--c-gray-900);
+}
