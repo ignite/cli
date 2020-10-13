@@ -9,6 +9,7 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
@@ -80,14 +81,14 @@ func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
 	)
 }
 
-func (p *stargatePlugin) PostInit() error {
-	if err := p.apptoml(); err != nil {
+func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
+	if err := p.apptoml(conf); err != nil {
 		return err
 	}
-	return p.configtoml()
+	return p.configtoml(conf)
 }
 
-func (p *stargatePlugin) apptoml() error {
+func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -101,6 +102,7 @@ func (p *stargatePlugin) apptoml() error {
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("api.address", xurl.TCP(conf.Servers.APIAddr))
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -110,7 +112,7 @@ func (p *stargatePlugin) apptoml() error {
 	return err
 }
 
-func (p *stargatePlugin) configtoml() error {
+func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -122,6 +124,11 @@ func (p *stargatePlugin) configtoml() error {
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("consensus.timeout_commit", "1s")
+	config.Set("consensus.timeout_propose", "1s")
+	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
+	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
+	config.Set("rpc.prof_laddr", conf.Servers.ProfAddr)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -131,13 +138,15 @@ func (p *stargatePlugin) configtoml() error {
 	return err
 }
 
-func (p *stargatePlugin) StartCommands() [][]step.Option {
+func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option {
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
 				step.Exec(
 					p.app.d(),
 					"start",
+					"--pruning", "nothing",
+					"--grpc.address", conf.Servers.GRPCAddr,
 				),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)

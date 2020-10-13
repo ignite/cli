@@ -6,12 +6,21 @@
 * Added `starport build` command to build and install app binaries.
 * Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook.
 * Starport Pi now uses Ubuntu
+* Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook.
+* Added IBC and some other modules.
+* Added an option to configure server addresses under `servers` section in `config.yml`.
 
 ### Fixes:
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
 * Solved issues copying files into Starport Pi
+
+## `v0.11.1`
+
+### Features:
+* Published on Snapcraft.
+
 
 ## `v0.11.0`
 

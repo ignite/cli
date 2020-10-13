@@ -22,7 +22,7 @@ func NewModuleImport() *cobra.Command {
 func importModuleHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 	sc := scaffolder.New(appPath)
-	if err := sc.AddModule(name); err != nil {
+	if err := sc.ImportModule(name); err != nil {
 		return err
 	}
 	fmt.Printf("\n🎉 Imported module `%s`.\n\n", name)
