@@ -19,6 +19,14 @@ test('generate an app with a empty module and verify', async t => {
   const gotest = await exec('go test ./...', { cwd: appPath })
   console.log(gotest.stdout.toString())
   t.falsy(gotest.error,  "app cannot be build or tests aren't passing")
+
+  // cannot create a module that already exists 
+  try {
+    await exec('starport module create example', { cwd: appPath })
+    t.fail("cannot cannot create an already existing module")
+  } catch(e) {
+  }
+
 })
 
 test('generate an app with stargate version with a empty module and verify', async t => {
@@ -35,5 +43,12 @@ test('generate an app with stargate version with a empty module and verify', asy
     const gotest = await exec('go test ./...', { cwd: appPath })
     console.log(gotest.stdout.toString())
     t.falsy(gotest.error,  "app cannot be build or tests aren't passing")
+
+    // cannot create a module that already exists 
+    try {
+      await exec('starport module create example', { cwd: appPath })
+      t.fail("cannot cannot create an already existing module")
+    } catch(e) {
+    }
   })
   

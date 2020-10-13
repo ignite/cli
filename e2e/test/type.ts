@@ -50,10 +50,20 @@ test('creating types in a custom module', async t => {
   // add a type. 
   await exec('starport type user name email --module example', { cwd: appPath })
 
+  // can create the same type in the app's module
+  await exec('starport type user name email', { cwd: appPath })
+
   // check if app builds and tests passes.
   const gotest = await exec('go test ./...', { cwd: appPath })
   console.log(gotest.stdout.toString())
   t.falsy(gotest.error,  "app cannot be build or tests aren't passing")
+
+  // cannot create a type in a non existing module 
+  try {
+    await exec('starport type user name email --module idontexist', { cwd: appPath })
+    t.fail("cannot cannot create type in a non existant module")
+  } catch(e) {
+  }
 })
 
 test('creating types in a custom module using stargate version ', async t => {
@@ -69,8 +79,18 @@ test('creating types in a custom module using stargate version ', async t => {
   // add a type. 
   await exec('starport type user name email --module example', { cwd: appPath })
 
+  // can create the same type in the app's module
+  await exec('starport type user name email', { cwd: appPath })
+
   // check if app builds and tests passes.
   const gotest = await exec('go test ./...', { cwd: appPath })
   console.log(gotest.stdout.toString())
   t.falsy(gotest.error,  "app cannot be build or tests aren't passing")
+
+  // cannot create a type in a non existing module 
+  try {
+    await exec('starport type user name email --module idontexist', { cwd: appPath })
+    t.fail("cannot cannot create type in a non existant module")
+  } catch(e) {
+  }
 })
