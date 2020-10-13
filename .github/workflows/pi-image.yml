@@ -12,9 +12,17 @@ jobs:
     steps:
       - name: Check out code
         uses: actions/checkout@v1
-      
-      - name: where are we?
-        run: pwd
+
+      - name: Setup go
+        uses: actions/setup-go@v1
+        with:
+          go-version: 1.15
+
+      - name: Compile Starport
+        run: make
+        env:
+          GOOS: linux
+          GOARCH: arm64
 
       - name: Build starport-pi.img with packer-builder-arm
         run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json

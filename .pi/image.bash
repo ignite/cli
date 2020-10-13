@@ -1,5 +1,7 @@
 #!/bin/bash
 
+set -euo pipefail
+
 # This install script runs inside the chroot of your image builder.
 # After it runs, a second shell session installs nodejs with nvm
 
@@ -36,9 +38,4 @@ npm version
 npx -v
 
 
-# Set Up Starport
-cd /starport
-cd starport
-make
-cp build/starport /usr/bin
-chmod +x /usr/bin/starport
+

@@ -4,11 +4,14 @@
 ### Features:
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
-* Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook. 
+* Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook.
+* Starport Pi now uses Ubuntu
 
 ### Fixes:
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
-
+* Removed Makefile from Downstream Pi
+* Fixed downstream pi image Github Action
+* Solved issues copying files into Starport Pi
 
 ## `v0.11.0`
 
