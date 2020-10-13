@@ -39,7 +39,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 		return fmt.Errorf("The module %s doesn't exist.", moduleName)
 	}
 
-	ok, err = isTypeCreated(s.path, path.Package, stype)
+	ok, err = isTypeCreated(s.path, moduleName, stype)
 	if err != nil {
 		return err
 	}
@@ -110,6 +110,7 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 	if err != nil {
 		return false, err
 	}
+	// To check if the file is created, we check if the message MsgCreate[TypeName] or Msg[TypeName] is defined
 	for _, pkg := range all {
 		for _, f := range pkg.Files {
 			ast.Inspect(f, func(x ast.Node) bool {
@@ -120,7 +121,7 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
 					return true
 				}
-				if "Msg"+strings.Title(typeName) != typeSpec.Name.Name {
+				if ("MsgCreate"+strings.Title(typeName) != typeSpec.Name.Name) && ("Msg"+strings.Title(typeName) != typeSpec.Name.Name) {
 					return true
 				}
 				isCreated = true
