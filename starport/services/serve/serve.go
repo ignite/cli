@@ -255,7 +255,7 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", s.app.n()+"-0",
+				"--chain-id", s.app.n()+"-1",
 			),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
@@ -306,6 +306,19 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 			key      = &bytes.Buffer{}
 			mnemonic = &bytes.Buffer{}
 		)
+
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				s.plugin.SetKeyringBackendCommand(),
+				step.PostExec(func(exitErr error) error {
+					if exitErr != nil {
+						return errors.Wrapf(exitErr, "cannot set the keyring backend")
+					}
+					return nil
+				}),
+			).
+			Add(s.stdSteps(logAppcli)...)...,
+		))
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				s.plugin.AddUserCommand(account.Name),
