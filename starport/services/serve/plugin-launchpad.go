@@ -73,7 +73,8 @@ func (p *launchpadPlugin) SetKeyringBackendCommand() step.Option {
 	return step.Exec(
 		p.app.cli(),
 		"config",
-		"--keyring-backend", "test",
+		"keyring-backend",
+		"test",
 	)
 }
 
@@ -94,7 +95,6 @@ func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 		"show",
 		accountName,
 		"-a",
-		"--keyring-backend", "test",
 	)
 }
 
@@ -110,7 +110,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 			p.app.cli(),
 			"config",
 			"chain-id",
-			p.app.n(),
+			p.app.n()+"-1",
 		),
 		step.Exec(
 			p.app.cli(),
@@ -184,6 +184,12 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 				}),
 			),
 		step.NewOptions().
+			Add(
+				step.Exec(
+					"sleep",
+					"10",
+				),
+			).
 			Add(
 				step.Exec(
 					p.app.cli(),
