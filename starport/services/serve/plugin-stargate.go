@@ -45,7 +45,7 @@ func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option,
 		}
 }
 
-func (p *launchpadPlugin) SetKeyringBackendCommand() step.Option {
+func (p *stargatePlugin) SetKeyringBackendCommand() step.Option {
 	return step.Exec(
 		p.app.cli(),
 		"config",
