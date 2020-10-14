@@ -24,6 +24,10 @@ import (
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
 
+const (
+	serveTimeout = time.Minute * 15
+)
+
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
 
 // env provides an isolated testing environment and what's needed to

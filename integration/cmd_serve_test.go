@@ -3,7 +3,6 @@ package integration_test
 import (
 	"context"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -26,7 +25,7 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 	)
 
 	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), time.Minute*5)
+		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
 		isBackendAliveErr error
 	)
 	go func() {
