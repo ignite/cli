@@ -5,224 +5,51 @@ import (
 	"bytes"
 	"context"
 	"errors"
+	"flag"
 	"fmt"
-	"io"
-	"io/ioutil"
 	"os"
-	"path/filepath"
-	"strconv"
+	"strings"
 	"testing"
-	"time"
 
-	"github.com/cenkalti/backoff"
-	"github.com/goccy/go-yaml"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
-	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 )
-
-var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
-
-// env provides an isolated testing environment and what's needed to
-// make it possible.
-type env struct {
-	t   *testing.T
-	ctx context.Context
-}
-
-// env creates a new testing environment.
-func newEnv(t *testing.T) env {
-	ctx, cancel := context.WithCancel(context.Background())
-	e := env{
-		t:   t,
-		ctx: ctx,
-	}
-	t.Cleanup(cancel)
-	return e
-}
-
-// Ctx returns parent context for the test suite to use for cancelations.
-func (e env) Ctx() context.Context {
-	return e.ctx
-}
-
-type execOptions struct {
-	ctx       context.Context
-	shouldErr bool
-	stdout    io.Writer
-}
-
-type execOption func(*execOptions)
-
-// ExecShouldError sets the expectations of a command's execution to end with a failure.
-func ExecShouldError() execOption {
-	return func(o *execOptions) {
-		o.shouldErr = true
-	}
-}
-
-// ExecCtx sets cancelation context for the execution.
-func ExecCtx(ctx context.Context) execOption {
-	return func(o *execOptions) {
-		o.ctx = ctx
-	}
-}
-
-// ExecStdout captures stdout of an execution.
-func ExecStdout(w io.Writer) execOption {
-	return func(o *execOptions) {
-		o.stdout = w
-	}
-}
-
-// Exec executes a command step with options where msg describes the expectation from the test.
-func (e env) Exec(msg string, step *step.Step, options ...execOption) {
-	opts := &execOptions{
-		ctx:    e.ctx,
-		stdout: ioutil.Discard,
-	}
-	for _, o := range options {
-		o(opts)
-	}
-	var (
-		stdout = &bytes.Buffer{}
-		stderr = &bytes.Buffer{}
-	)
-	copts := []cmdrunner.Option{
-		cmdrunner.DefaultStdout(io.MultiWriter(stdout, opts.stdout)),
-		cmdrunner.DefaultStderr(stderr),
-	}
-	if isCI {
-		copts = append(copts, cmdrunner.EndSignal(os.Kill))
-	}
-	err := cmdrunner.
-		New(copts...).
-		Run(opts.ctx, step)
-	if err == context.Canceled {
-		err = nil
-	}
-	if err != nil {
-		msg = fmt.Sprintf("%s\n\nLogs:\n\n%s\n\nError Logs:\n\n%s\n",
-			msg,
-			stdout.String(),
-			stderr.String())
-	}
-	if opts.shouldErr {
-		require.Error(e.t, err, msg)
-	} else {
-		require.NoError(e.t, err, msg)
-	}
-}
 
 const (
-	Launchpad = "launchpad"
-	Stargate  = "stargate"
+	relayerVersion = "438815d47a857318199d556f4c1115f2fa6315a2"
 )
 
-// Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
-	root := e.TmpDir()
-	e.Exec("scaffold a launchpad app",
-		step.New(
-			step.Exec(
-				"starport",
-				"app",
-				fmt.Sprintf("github.com/test/%s", appName),
-				"--sdk-version",
-				sdkVersion,
-			),
-			step.Workdir(root),
-		),
-	)
-	return filepath.Join(root, appName)
-}
-
-// Serve serves an application lives under path with options where msg describes the
-// expection from the serving action.
-func (e env) Serve(msg string, path string, options ...execOption) {
-	e.Exec(msg,
-		step.New(
-			step.Exec(
-				"starport",
-				"serve",
-				"-v",
-			),
-			step.Workdir(path),
-		),
-		options...,
-	)
-}
-
-// EnsureAppIsSteady ensures that app living at the path can compile and its tests
-// are passing.
-func (e env) EnsureAppIsSteady(appPath string) {
-	e.Exec("make sure app is steady",
-		step.New(
-			step.Exec("go", "test", "./..."),
-			step.Workdir(appPath),
-		),
-	)
-}
-
-// IsAppServed checks that app is served properly and servers are started to listening
-// before ctx canceled.
-func (e env) IsAppServed(ctx context.Context, servers starportconf.Servers) error {
-	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(servers.APIAddr)+"/node_info")
-		if err == nil && !ok {
-			err = errors.New("app is not online")
-		}
-		return err
+func TestMain(m *testing.M) {
+	flag.Parse()
+	if err := checkSystemRequirements(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
 	}
-	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
+	os.Exit(m.Run())
 }
 
-// TmpDir creates a new temporary directory.
-func (e env) TmpDir() (path string) {
-	path, err := ioutil.TempDir("", "integration")
-	require.NoError(e.t, err, "create a tmp dir")
-	e.t.Cleanup(func() { os.RemoveAll(path) })
-	return path
-}
-
-// RandomizeServerPorts randomizes server ports for the app at path, updates
-// its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string) starportconf.Servers {
-	// generate random server ports and servers list.
-	ports, err := availableport.Find(7)
-	require.NoError(e.t, err)
-
-	genAddr := func(port int) string {
-		return fmt.Sprintf("localhost:%d", port)
+func checkSystemRequirements() error {
+	if !xexec.IsCommandAvailable("starport") {
+		return errors.New("starport needs to be installed")
 	}
-
-	servers := starportconf.Servers{
-		RPCAddr:      genAddr(ports[0]),
-		P2PAddr:      genAddr(ports[1]),
-		ProfAddr:     genAddr(ports[2]),
-		GRPCAddr:     genAddr(ports[3]),
-		APIAddr:      genAddr(ports[4]),
-		FrontendAddr: genAddr(ports[5]),
-		DevUIAddr:    genAddr(ports[6]),
+	if !xexec.IsCommandAvailable("rly") {
+		return errors.New("relayer needs to be installed")
 	}
-
-	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR, 0755)
-	require.NoError(e.t, err)
-	defer configyml.Close()
-
-	var conf starportconf.Config
-	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
-
-	conf.Servers = servers
-	require.NoError(e.t, configyml.Truncate(0))
-	_, err = configyml.Seek(0, 0)
-	require.NoError(e.t, err)
-	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
-
-	return servers
+	version := &bytes.Buffer{}
+	return cmdrunner.
+		New().
+		Run(context.Background(), step.New(
+			step.Exec("rly", "version"),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				if !strings.Contains(version.String(), relayerVersion) {
+					return fmt.Errorf("relayer is not at the required version %q", relayerVersion)
+				}
+				return nil
+			}),
+			step.Stdout(version),
+		))
 }
