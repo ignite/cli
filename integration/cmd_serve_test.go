@@ -17,12 +17,12 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 	)
 
-	env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add CosmWasm module",
 		step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(apath),
 		),
-	)
+	))
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
@@ -32,7 +32,7 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Serve("should serve with CosmWasm", apath, ExecCtx(ctx))
+	env.Must(env.Serve("should serve with CosmWasm", apath, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

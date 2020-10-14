@@ -14,12 +14,12 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 		path = env.Scaffold("blog", Stargate)
 	)
 
-	env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add CosmWasm module",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
 		),
-	)
+	))
 
 	env.EnsureAppIsSteady(path)
 }

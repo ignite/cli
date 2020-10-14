@@ -409,50 +409,52 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 		}),
 	))
 
-	sconf, err := starportsecretconf.Open(s.app.Path)
-	if err != nil {
-		panic(err)
-	}
-	var (
-		key = &bytes.Buffer{}
-	)
-	for _, acc := range sconf.Accounts {
-		acc := acc
-		steps.Add(step.New(
-			step.Exec(
-				s.app.d(),
-				"keys",
-				"add",
-				acc.Name,
-				"--recover",
-				"--keyring-backend", "test",
-			),
-			step.Write([]byte(acc.Mnemonic+"\n")),
-		))
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				s.plugin.ShowAccountCommand(acc.Name),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					coins := strings.Join(acc.Coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.d(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
-				}),
-			).
-			Add(step.Stdout(key))...,
-		))
+	if s.plugin.Version() == cosmosver.Stargate {
+		sconf, err := starportsecretconf.Open(s.app.Path)
+		if err != nil {
+			panic(err)
+		}
+		var (
+			key = &bytes.Buffer{}
+		)
+		for _, acc := range sconf.Accounts {
+			acc := acc
+			steps.Add(step.New(
+				step.Exec(
+					s.app.d(),
+					"keys",
+					"add",
+					acc.Name,
+					"--recover",
+					"--keyring-backend", "test",
+				),
+				step.Write([]byte(acc.Mnemonic+"\n")),
+			))
+			steps.Add(step.New(step.NewOptions().
+				Add(
+					s.plugin.ShowAccountCommand(acc.Name),
+					step.PostExec(func(err error) error {
+						if err != nil {
+							return err
+						}
+						coins := strings.Join(acc.Coins, ",")
+						key := strings.TrimSpace(key.String())
+						return cmdrunner.
+							New().
+							Run(ctx, step.New(step.NewOptions().
+								Add(step.Exec(
+									s.app.d(),
+									"add-genesis-account",
+									key,
+									coins,
+								)).
+								Add(s.stdSteps(logAppd)...)...,
+							))
+					}),
+				).
+				Add(step.Stdout(key))...,
+			))
+		}
 	}
 
 	for _, execOption := range s.plugin.ConfigCommands() {
