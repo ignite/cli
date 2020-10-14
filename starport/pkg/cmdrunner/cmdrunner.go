@@ -70,6 +70,8 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	for _, s := range steps {
+		// copy s to a new variable to allocate a new address
+		// so we can safely use it inside goroutines spawned in this loop.
 		s := s
 		if err := ctx.Err(); err != nil {
 			return err
