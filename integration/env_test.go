@@ -1,4 +1,3 @@
-// Package integration_test integration test Starport and scaffolded apps.
 package integration_test
 
 import (

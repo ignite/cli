@@ -25,6 +25,9 @@ jobs:
       - name: Set up packr2
         run: go get -u github.com/gobuffalo/packr/v2/packr2
 
+      - name: Set up relayer
+        run: git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 438815d47a857318199d556f4c1115f2fa6315a2 && make install
+
       - name: Checkout
         uses: actions/checkout@v2
         with:
