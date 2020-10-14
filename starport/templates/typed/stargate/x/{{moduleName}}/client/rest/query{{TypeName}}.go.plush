@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/types/rest"
-	"<%= ModulePath %>/x/<%= AppName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func list<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {

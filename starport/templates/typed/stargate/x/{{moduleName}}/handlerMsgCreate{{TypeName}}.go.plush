@@ -1,9 +1,9 @@
-package <%= AppName %>
+package <%= ModuleName %>
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"<%= ModulePath %>/x/<%= AppName %>/types"
-	"<%= ModulePath %>/x/<%= AppName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 )
 
 func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, <%= TypeName %> *types.Msg<%= title(TypeName) %>) (*sdk.Result, error) {
