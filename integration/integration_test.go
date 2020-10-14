@@ -15,7 +15,9 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
@@ -188,9 +190,39 @@ func (e env) TmpDir() (path string) {
 }
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
-// its config.yml and returns new values. TODO
+// its config.yml and returns new values.
 func (e env) RandomizeServerPorts(path string) starportconf.Servers {
-	return starportconf.Servers{
-		APIAddr: "localhost:1317",
+	// generate random server ports and servers list.
+	ports, err := availableport.Find(7)
+	require.NoError(e.t, err)
+
+	genAddr := func(port int) string {
+		return fmt.Sprintf("localhost:%d", port)
 	}
+
+	servers := starportconf.Servers{
+		RPCAddr:      genAddr(ports[0]),
+		P2PAddr:      genAddr(ports[1]),
+		ProfAddr:     genAddr(ports[2]),
+		GRPCAddr:     genAddr(ports[3]),
+		APIAddr:      genAddr(ports[4]),
+		FrontendAddr: genAddr(ports[5]),
+		DevUIAddr:    genAddr(ports[6]),
+	}
+
+	// update config.yml with the generated servers list.
+	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR, 0755)
+	require.NoError(e.t, err)
+	defer configyml.Close()
+
+	var conf starportconf.Config
+	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
+
+	conf.Servers = servers
+	require.NoError(e.t, configyml.Truncate(0))
+	_, err = configyml.Seek(0, 0)
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+
+	return servers
 }
