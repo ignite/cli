@@ -7,7 +7,7 @@ import (
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"<%= ModulePath %>/x/<%= AppName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func CmdCreate<%= title(TypeName) %>() *cobra.Command {

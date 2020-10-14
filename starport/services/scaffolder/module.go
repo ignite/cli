@@ -32,7 +32,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		return err
 	}
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := ModuleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	return run.Run()
 }
 
-func moduleExists(appPath string, moduleName string) (bool, error) {
+func ModuleExists(appPath string, moduleName string) (bool, error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
 		return false, err
