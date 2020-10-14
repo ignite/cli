@@ -14,6 +14,7 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -21,7 +22,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
-	"gopkg.in/yaml.v2"
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
