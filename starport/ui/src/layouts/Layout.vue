@@ -74,6 +74,9 @@ export default {
     enter() {
       this.routeName = this.$route.name
     }
+  },
+  mounted() {
+    this.routeName = this.$route.name
   }
 }
 </script>
@@ -82,6 +85,7 @@ export default {
 .layout {
   --g-offset-side: 3rem;
   --g-offset-top: 10rem;
+  --header-height: 72px;
 }
 
 .container {
@@ -92,13 +96,11 @@ export default {
   z-index: 0;
   padding: 0 var(--g-offset-side);
   max-width: 1120px;
-  margin-top: calc(var(--g-offset-top) / 1.85);  
-  margin-right: auto;
-  margin-left: auto;
   flex-grow: 1;
   -webkit-overflow-scrolling: touch;  
 }
 .layout.-route-blocks .container__main {
+  padding: 0;
   max-width: 100%;
 }
 @media only screen and (max-width: 1200px) {

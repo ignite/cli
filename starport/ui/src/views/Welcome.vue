@@ -304,7 +304,6 @@ export default {
 
 .main {
   position: relative;
-  margin-top: -1rem;
   margin-bottom: 6rem;
 }
 

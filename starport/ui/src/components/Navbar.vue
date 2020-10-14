@@ -76,7 +76,7 @@ export default {
 
 nav {
   width: 100%;
-  height: 72px;
+  height: var(--header-height);
   display: flex;
   justify-content: space-between;
   align-items: center;

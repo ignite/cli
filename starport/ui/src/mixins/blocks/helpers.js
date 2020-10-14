@@ -2,8 +2,6 @@ import axios from 'axios'
 import moment from 'moment'
 import { capitalCase } from 'change-case'
 import { sha256 } from 'js-sha256'
-import bech32 from 'bech32'
-import { min } from 'moment'
 
 const getBlockTemplate = (header, txsData) => ({
   height: parseInt(header.height),
@@ -235,7 +233,7 @@ export default {
             return {
               blockMsg: {
                 time_formatted: moment(time).fromNow(true),
-                time: moment(time).format('MMMM Do YYYY, h:mm:ss a'),
+                time,
                 height: parseInt(height),
                 proposer: `${proposer_address.slice(0,10)}...`,
                 blockHash_sliced: `${hash.slice(0,30)}...`,

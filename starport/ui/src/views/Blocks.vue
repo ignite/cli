@@ -1,23 +1,19 @@
 <template>
   <div>
-    <BlockTable/>
+    <BlocksExplorer/>
   </div>
 </template>
 
 <script>
-import BlockTable from '@/modules/BlockTable'
+// import BlockTable from '@/modules/BlockTable'
+import BlocksExplorer from '@/modules/BlocksExplorer'
 
 export default {
   components: {
-    BlockTable
+    BlocksExplorer
   }
 }
 </script>
 
 <style scoped>
-
-  div {
-    margin-top: -1.25rem;  
-  }
-
 </style>

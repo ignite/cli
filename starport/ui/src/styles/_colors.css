@@ -57,12 +57,53 @@
 :root {
   --c-gray-0: #000000;
   --c-gray-50: #030419;
-  --c-gray-600: #aeafb6;
-  --c-gray-900: #ecedf7;
+  --c-gray-300: #9b9b9b;
+  --c-gray-500: #a4a4a4;
+  --c-gray-600: #e9e9e9;
+  --c-gray-900: #f5f5ff;
+  --c-gray-1000: #ffffff;
 }
 :root {
-  --c-txt-primary: var(--c-gray-50);
-  --c-txt-secondary: var(--c-gray-600);
+  /*-- lv.2 - base --*/
+  --c-dark-primary: var(--c-gray-50);
+  --c-dark-secondary: var(--c-gray-300);
+  --c-dark-third: var(--c-gray-500);
 
-  --c-border-primary: var(--c-gray-900);
+  --c-light-primary: var(--c-gray-900);
+  --c-light-secondary: var(--c-gray-600);
+
+  --c-black: var(--c-gray-0);
+  --c-white: var(--c-gray-1000);  
+
+  --c-primary-dark-600: #4251FA;    
+}
+:root {
+  /*-- lv.3 - color modes / themes --*/
+  --c-theme-pure: var(--c-white);
+  --c-contrast-pure: var(--c-black);
+
+  --c-theme-primary: var(--c-light-primary);
+  --c-theme-secondary: var(--c-light-secondary);
+
+  --c-contrast-primary: var(--c-dark-primary);
+  --c-contrast-secondary: var(--c-dark-secondary);
+  --c-contrast-third: var(--c-dark-third);
+
+  --c-gray: var(--c-gray-600);
+  --c-highlight: var(--c-black);    
+
+  --c-brand-primary: var(--c-primary-dark-600);
+}
+:root {
+  --c-txt-primary: var(--c-contrast-primary);
+  --c-txt-secondary: var(--c-contrast-secondary);
+  --c-txt-third: var(--c-contrast-third);
+  --c-txt-gray: var(--c-contrast-gray);
+
+  --c-txt-highlight: var(--c-brand-primary);
+
+  --c-border-primary: var(--c-gray);
+
+  --c-bg-primary: var(--c-theme-pure);
+  --c-bg-secondary: var(--c-theme-primary);
 }
