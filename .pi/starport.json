@@ -42,8 +42,8 @@
 	},
 	{
 	  "type": "file",
-	  "source": "build/starport",
-	  "destination": "/usr/bin/starport"
+	  "source": ".",
+	  "destination": "/starport/"
 	},
 	{
 	  "type": "shell",
