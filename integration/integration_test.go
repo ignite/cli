@@ -63,7 +63,7 @@ func ExecShouldError() execOption {
 	}
 }
 
-// ExecCtx sets cancelation context for the exection.
+// ExecCtx sets cancelation context for the execution.
 func ExecCtx(ctx context.Context) execOption {
 	return func(o *execOptions) {
 		o.ctx = ctx
@@ -77,7 +77,7 @@ func ExecStdout(w io.Writer) execOption {
 	}
 }
 
-// Exec executues a command step with options where msg describes the expection from the test.
+// Exec executes a command step with options where msg describes the expectation from the test.
 func (e env) Exec(msg string, step *step.Step, options ...execOption) {
 	opts := &execOptions{
 		ctx:    e.ctx,
