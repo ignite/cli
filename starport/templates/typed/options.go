@@ -10,6 +10,7 @@ type Field struct {
 // Options ...
 type Options struct {
 	AppName    string
+	ModuleName string
 	ModulePath string
 	TypeName   string
 	Fields     []Field
