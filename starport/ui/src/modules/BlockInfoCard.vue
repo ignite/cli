@@ -6,7 +6,7 @@
           v-for="(block) in blockCards"
           :key="block.hash"
           class="card"
-          @click="handleRowClick(block)"
+          @click="handleCardClick(block)"
         >
           <div class="card__top">
             <div class="card__top-left">
@@ -79,7 +79,7 @@ export default {
      * Local 
      *
      */          
-    handleRowClick({ height, hash }) {
+    handleCardClick({ height, hash }) {
       const blockData = this.blockByHeight(height)
       const fmtBlockData = this.blockFormatter.blockForTable(blockData)[0]
       this.setHighlightedBlock({

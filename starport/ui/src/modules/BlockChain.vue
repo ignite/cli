@@ -289,7 +289,7 @@ export default {
 		radial-gradient(farthest-side at 50% 0, rgba(0,0,0,.05), rgba(0,0,0,0)),
 		radial-gradient(farthest-side at 50% 100%, rgba(0,0,0,.05), rgba(0,0,0,0)) 0 100%;
   background-repeat: no-repeat;
-  background-size: 100% 48px, 100% 48px, 100% 24px, 100% 24px;
+  background-size: 100% 24px, 100% 24px, 100% 24px, 100% 24px;
   background-attachment: local, local, scroll, scroll;  
 }
 .chain::-webkit-scrollbar {
@@ -311,7 +311,7 @@ export default {
   height: 1px;
   background-color: var(--c-border-primary);  
 }
-.chain__block:before {
+/* .chain__block:before {
   content: '';
   position: absolute;
   z-index: -1;
@@ -323,10 +323,23 @@ export default {
   background-color: var(--c-bg-secondary);
   opacity: 0;
   transition: opacity .6s ease-in;
+} */
+.chain__block:before {
+  content: '';
+  position: absolute;
+  z-index: 2;
+  top: -3px;
+  left: calc(var(--g-offset-side) - 1.85rem);
+  width: 4px;
+  height: calc(100% + 6px);
+  /* border-radius: 16px; */
+  background-color: var(--c-txt-highlight);
+  opacity: 0;
+  transition: opacity .3s ease-in;
 }
 .chain__block.-is-active:before {
   opacity: 1;
-  transition: opacity .5s ease-in-out;
+  transition: opacity .3s ease-in-out;
 }
 
 .chain__block >>> .card {

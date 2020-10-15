@@ -66,6 +66,10 @@
                   <span class="tx-info__title">Fee</span>
                   <p class="tx-info__content">{{ getTxFee(tx) }}</p>
                 </div>                
+                <div v-if="tx.tx.value.memo" class="tx__info-content tx-info">
+                  <span class="tx-info__title">Memo</span>
+                  <p class="tx-info__content">{{ tx.tx.value.memo }}</p>
+                </div>                
               </div>
             </div>
           </div>
@@ -107,8 +111,8 @@ export default {
       return momentTime.format('MMM D YYYY, HH:mm:ss')
     },
     getTxFee(tx) {
-      const fee = tx.tx.value.fee.amount[0]
-      return `${fee.amount} ${fee.denom}`
+      const fee = tx.tx.value.fee.amount
+      return fee ? '0' : `${fee[0].amount} ${fee[0].denom}`
     }
   }
 }

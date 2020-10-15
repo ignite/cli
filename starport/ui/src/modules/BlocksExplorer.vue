@@ -4,7 +4,7 @@
       <FullWidthContainer>
         <div slot="sideSheet" class="explorer__block">
           <transition name="fadeMild" mode="out-in">
-            <BlockDetailSheet :block="highlightedBlock" :key="highlightedBlock"/>
+            <BlockDetailSheet v-if="highlightedBlock" :block="highlightedBlock" :key="blockSheetKey" />
           </transition>
         </div>
         <div slot="mainContent" class="explorer__chain">
@@ -66,6 +66,12 @@ export default {
      * Local
      * 
      */    
+    blockSheetKey() {
+      if (this.highlightedBlock?.data) {
+        return this.highlightedBlock.data.blockMsg.blockHash
+      }
+      return ''
+    },
     fmtBlockData() {
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
 
@@ -166,7 +172,7 @@ export default {
 .explorer__chain-header {
   font-size: 3.1875rem;
   font-weight: var(--f-w-bold);
-  margin-bottom: 1.5rem;
+  margin-bottom: 1rem;
   padding-left: calc(var(--g-offset-side) - 4px);
 }
 @media only screen and (max-width: 992px) {
