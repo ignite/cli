@@ -186,12 +186,6 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 		step.NewOptions().
 			Add(
 				step.Exec(
-					"sleep",
-					"10",
-				),
-			).
-			Add(
-				step.Exec(
 					p.app.cli(),
 					"rest-server",
 					"--unsafe-cors",
