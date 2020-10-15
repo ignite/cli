@@ -183,6 +183,7 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 					"rest-server",
 					"--unsafe-cors",
 					"--laddr", xurl.TCP(conf.Servers.APIAddr),
+					"--node", xurl.TCP(conf.Servers.RPCAddr),
 				),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)

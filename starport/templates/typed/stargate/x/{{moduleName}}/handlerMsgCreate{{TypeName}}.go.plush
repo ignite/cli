@@ -1,0 +1,13 @@
+package <%= ModuleName %>
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+)
+
+func handleMsgCreate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, <%= TypeName %> *types.Msg<%= title(TypeName) %>) (*sdk.Result, error) {
+	k.Create<%= title(TypeName) %>(ctx, *<%= TypeName %>)
+
+	return &sdk.Result{Events: ctx.EventManager().ABCIEvents()}, nil
+}

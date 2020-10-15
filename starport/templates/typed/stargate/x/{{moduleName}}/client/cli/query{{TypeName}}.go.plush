@@ -1,0 +1,46 @@
+package cli
+
+import (
+    "context"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/cobra"
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func CmdList<%= title(TypeName) %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "list-<%= TypeName %>",
+		Short: "list all <%= TypeName %>",
+		RunE: func(cmd *cobra.Command, args []string) error {
+            clientCtx := client.GetClientContextFromCmd(cmd)
+            clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+            if err != nil {
+                return err
+            }
+
+            pageReq, err := client.ReadPageRequest(cmd.Flags())
+            if err != nil {
+                return err
+            }
+
+            queryClient := types.NewQueryClient(clientCtx)
+
+            params := &types.QueryAll<%= title(TypeName) %>Request{
+                Pagination: pageReq,
+            }
+
+            res, err := queryClient.All<%= title(TypeName) %>(context.Background(), params)
+            if err != nil {
+                return err
+            }
+
+            return clientCtx.PrintOutput(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+    return cmd
+}
