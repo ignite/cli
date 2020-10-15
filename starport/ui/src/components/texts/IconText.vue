@@ -1,5 +1,6 @@
 <script>
 import IconCopy from '@/assets/icons/Copy'
+import TooltipWrapper from '@/components/tooltip/TooltipWrapper'
 
 export default {
   components: {
@@ -12,18 +13,51 @@ export default {
     iconType: {
       type: String,
       required: true,
+      default: 'copy',
       validator(value) {
         return ['copy'].indexOf(value)>=0
       }
-    }
+    },
+    tooltipOption: {
+      type: String,
+      default: 'none',
+      validator(value) {
+        return ['none', 'iconWrapper', 'textWrapper', 'compWrapper'].indexOf(value)>=0
+      }
+    },
+    tooltipStates: { type: Object, default: null }
   },
   methods: {
-    iconComp() {
+    getIconType() {
       switch (this.iconType) {
         case 'copy':
           return <IconCopy/>
         default:
           return <IconCopy/>
+      }
+    },
+    getIconContent() {
+      return !this.isIconClickable ? (
+        <span>{this.getIconType()}</span>
+      ) : (
+        <button onClick={() => this.$emit('iconClicked')}>{this.getIconType()}</button>
+      )
+    },
+    getIconComp() {
+      const IconContent = this.getIconContent()
+
+      switch (this.tooltipOption) {
+        case 'iconWrapper':
+          return (
+            <TooltipWrapper 
+              content={this.tooltipStates.text} 
+              isEventTriggerType={{ triggerActiveState: this.tooltipStates.state }}
+            >
+              {IconContent}      
+            </TooltipWrapper>              
+          )
+        default:
+          return IconContent
       }
     }
   },
@@ -33,19 +67,13 @@ export default {
     const textContent = !link ? (
       <span>{text}</span>
     ) : (
-      <a href={link}>{text}</a>
-    )
-
-    const iconContent = !isIconClickable ? (
-      <span>{this.iconComp()}</span>
-    ) : (
-      <button onClick={() => this.$emit('clicked')}>{this.iconComp()}</button>
+      <a href={link} target="_blank">{text}</a>
     )
 
     return (
       <p class="main">
         {textContent}
-        <span class={`icon -is-${this.iconType}`}>{iconContent}</span>
+        <span class={`icon -is-${this.iconType}`}>{this.getIconComp()}</span>
       </p>      
     )
   }
