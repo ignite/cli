@@ -6,7 +6,7 @@ Starport is the easiest way to build a blockchain. It is a developer-friendly in
 * [Win prizes with Starport at HackAtom V (Oct 16th-30th)](https://five.hackatom.org)
 * [Check out the latest features in v0.11](https://www.youtube.com/watch?v=Guz1Opfzvyw)
 
-## Quick Start
+## Quick start
 
 Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/), or [install it](/docs/install.md). Then:
 
