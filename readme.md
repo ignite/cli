@@ -12,7 +12,9 @@ Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint
 
 ```
 starport app github.com/foo/mychain
+
 cd mychain
+
 starport serve
 ```
 
