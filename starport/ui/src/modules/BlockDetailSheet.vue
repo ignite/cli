@@ -11,6 +11,8 @@
           <CopyIconText 
             :text="block.data.blockMsg.blockHash_sliced" 
             :link="`${appEnv.RPC}/block?hash=${block.data.blockMsg.blockHash}`"
+            :copyContent="block.data.blockMsg.blockHash"
+            :tooltipText="'BlockHash is copied'"
           />
         </div>
         <div class="sheet__header-side-btm">
@@ -56,6 +58,9 @@
                   <CopyIconText 
                     :text="tx.txhash" 
                     :link="`${appEnv.RPC}/block?hash=${tx.txhash}`"
+                    :copyContent="tx.txhash"
+                    :tooltipText="'TxHash is copied'"
+                    :tooltipDirection="'left'"
                   />                  
                 </div>
                 <div class="tx__info-content tx-info">

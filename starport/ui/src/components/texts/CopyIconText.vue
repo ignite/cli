@@ -7,6 +7,7 @@
     :isIconClickable="true"
     :tooltipOption="'iconWrapper'"
     :tooltipStates="{ text: fmtTooltipText, state: tooltipState }"
+    :tooltipDirection="tooltipDirection"
     @iconClicked="handleClicked"
   />
 </template>
@@ -28,12 +29,21 @@ export default {
   },
   props: {
     text: { type: String, required: true },
-    link: { type: String, default: null },    
+    link: { type: String, default: null },
+    copyContent: { type: String, default: '' },
+    tooltipText: { type: String, default: null },
+    tooltipDirection: {
+      type: String,
+      default: 'right',
+      validator: function(value) {
+        return ['top', 'right', 'left'].indexOf(value) !== -1
+      }         
+    }
   },
   data() {
     return {
       copyState: COPY_STATES.EMPTY,      
-      tooltipText: ''
+      dynamicTooltipText: ''
     }
   },
   computed: {
@@ -53,21 +63,23 @@ export default {
       if (this.tooltipState) {
         switch (this.copyState) {
           case COPY_STATES.COPYING:
-            this.tooltipText = 'Copying data...'
+            this.dynamicTooltipText = 'Copying data...'
             break
           case COPY_STATES.SUCCESS:
-            this.tooltipText = 'API URL is copied'
+            this.dynamicTooltipText = this.tooltipText 
+              ? this.tooltipText
+              : 'API URL is copied'
             break
           case COPY_STATES.FAIL:
-            this.tooltipText = 'Error copying data'
+            this.dynamicTooltipText = 'Error copying data'
             break
           default:
-            this.tooltipText = 'Copying data...'
+            this.dynamicTooltipText = 'Copying data...'
             break          
         }
       }
 
-      return this.tooltipText
+      return this.dynamicTooltipText
     }
   },
   methods: {
@@ -143,7 +155,7 @@ export default {
        *
        */
       copyTextToClipboard(
-        this.link,
+        this.copyContent,
         actionCallback(true, this),
         actionCallback(false, this)
       )

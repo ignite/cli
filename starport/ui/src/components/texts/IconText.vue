@@ -25,7 +25,8 @@ export default {
         return ['none', 'iconWrapper', 'textWrapper', 'compWrapper'].indexOf(value)>=0
       }
     },
-    tooltipStates: { type: Object, default: null }
+    tooltipStates: { type: Object, default: null },
+    tooltipDirection: { type: String, default: 'right' }
   },
   methods: {
     getIconType() {
@@ -52,6 +53,7 @@ export default {
             <TooltipWrapper 
               content={this.tooltipStates.text} 
               isEventTriggerType={{ triggerActiveState: this.tooltipStates.state }}
+              direction={this.tooltipDirection}
             >
               {IconContent}      
             </TooltipWrapper>              
