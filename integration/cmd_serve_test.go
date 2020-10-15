@@ -43,7 +43,7 @@ func TestServeAppStargate(t *testing.T) {
 
 	var (
 		env     = newEnv(t)
-		apath   = env.Scaffold("blog", Stargate)
+		apath   = env.Scaffold("stargateblog", Stargate)
 		servers = env.RandomizeServerPorts(apath)
 	)
 
