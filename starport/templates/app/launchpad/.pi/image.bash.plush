@@ -27,7 +27,6 @@ wget https://nodejs.org/dist/v12.18.4/node-v12.18.4-linux-arm64.tar.xz
 sudo mkdir -p /usr/local/lib/nodejs
 sudo tar -xJvf node-v12.18.4-linux-arm64.tar.xz -C /usr/local/lib/nodejs
 echo "export PATH=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin:$PATH" >> ~/.profile
-echo "export PATH=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin:$PATH" >> /home/ubuntu/.profile
 export PATH=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin:$PATH
 node -v
 npm version

@@ -40,6 +40,11 @@
       "source": ".pi/<%= AppName %>d.service",
       "destination": "/etc/systemd/system/<%= AppName %>d.service"
     },
+	{
+	  "type": "file",
+	  "source": ".pi/vue.service",
+	  "destination": "/etc/systemd/system/vue.service"
+	},
     {
       "type": "file",
       "source": ".pi/image.bash",
