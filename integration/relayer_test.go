@@ -1,16 +1,18 @@
 package integration_test
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"errors"
 	"fmt"
 	"io"
+	"strings"
+	"sync"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/iowait"
 	"github.com/tendermint/starport/starport/pkg/randstr"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 	"golang.org/x/sync/errgroup"
@@ -24,15 +26,19 @@ func TestRelayerWithMultipleChains(t *testing.T) {
 
 func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	type Chain struct {
-		name, path    string
-		servers       starportconf.Servers
-		logs, connstr *bytes.Buffer
+		name, path string
+		servers    starportconf.Servers
+		logsWriter *io.PipeWriter
+		logsReader *io.PipeReader
+		connstr    *bytes.Buffer
 	}
 
 	var (
-		env    = newEnv(t)
-		chains []*Chain
+		env              = newEnv(t)
+		chains           []*Chain
+		ctx, serveCancel = context.WithCancel(env.Ctx())
 	)
+	defer serveCancel()
 
 	// init & scaffold chains.
 	newChain := func() *Chain {
@@ -41,12 +47,14 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 			path    = env.Scaffold(name, Stargate)
 			servers = env.RandomizeServerPorts(path)
 		)
+		r, w := io.Pipe()
 		return &Chain{
-			name:    name,
-			path:    path,
-			servers: servers,
-			logs:    &bytes.Buffer{},
-			connstr: &bytes.Buffer{},
+			name:       name,
+			path:       path,
+			servers:    servers,
+			logsWriter: w,
+			logsReader: r,
+			connstr:    &bytes.Buffer{},
 		}
 	}
 	for i := 0; i < chainCount; i++ {
@@ -54,16 +62,14 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	}
 
 	// serve chains.
-	ctx, serveCancel := context.WithCancel(env.Ctx())
-	defer serveCancel()
-	g, ctx := errgroup.WithContext(ctx)
+	sg, ctx := errgroup.WithContext(ctx)
 	for _, chain := range chains {
 		chain := chain
-		g.Go(func() error {
+		sg.Go(func() error {
 			ok := env.Serve(fmt.Sprintf("should serve app %q", chain.name),
 				chain.path,
 				ExecCtx(ctx),
-				ExecStdout(chain.logs),
+				ExecStdout(chain.logsWriter),
 			)
 			if !ok {
 				return errors.New("cannot serve")
@@ -71,14 +77,6 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 			return nil
 		})
 	}
-	defer func() {
-		// wait untill all chains stop serving.
-		// a chain will stop serving either by a failure or cancelation.
-		// failure is not expected. so, test will exit with error in case of a failure in any of the served chains.
-		if err := g.Wait(); err != nil {
-			t.FailNow()
-		}
-	}()
 
 	// wait for chains to be properly served. we could have skip this but having this step
 	// is useful to test if chains will restart and detect chains added by `starport chain add`.
@@ -127,11 +125,47 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	// other chains successfully. we should expect len(chains) x (len(chains) - 1)
 	// connections at total. but things aren't stable yet so, for we expect at least len(chains)
 	// connections.
-	var readers []io.Reader
+	var (
+		capturedLines []string
+		mc            sync.Mutex
+	)
+	cg := &errgroup.Group{}
 	for _, chain := range chains {
-		readers = append(readers, chain.logs)
+		chain := chain
+		cg.Go(func() error {
+			r := bufio.NewReader(chain.logsReader)
+			for {
+				line, _, err := r.ReadLine()
+				if err != nil {
+					return err
+				}
+				if strings.Contains(string(line), "linked") {
+					mc.Lock()
+					isDone := len(capturedLines) == len(chains)
+					if isDone {
+						for _, chain := range chains {
+							chain.logsReader.Close()
+						}
+						mc.Unlock()
+						return nil
+					}
+					capturedLines = append(capturedLines, string(line))
+					mc.Unlock()
+				}
+			}
+		})
 	}
-	r := io.MultiReader(readers...)
-	require.NoError(t, iowait.Untill(r, "linked", len(chains)))
+	err := cg.Wait()
+	if err == io.ErrClosedPipe {
+		err = nil
+	}
+	require.NoError(t, err, "not enough linked chains")
+
 	serveCancel()
+	// wait untill all chains stop serving.
+	// a chain will stop serving either by a failure or cancelation.
+	// failure is not expected. so, test will exit with error in case of a failure in any of the served chains.
+	if err := sg.Wait(); err != nil {
+		t.FailNow()
+	}
 }

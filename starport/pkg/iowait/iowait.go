@@ -2,21 +2,29 @@ package iowait
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"strings"
 )
 
 // Untill waits the apperance of s in the string n times and
 // then stops blocking.
-func Untill(r io.Reader, s string, n int) (err error) {
+func Untill(r io.Reader, s string, n int) (capturedLines []string, err error) {
+	total := n
 	scanner := bufio.NewScanner(r)
-	for scanner.Scan() {
+	for {
 		if n == 0 {
-			return nil
+			return capturedLines, nil
+		}
+		if !scanner.Scan() {
+			if n != 0 {
+				return capturedLines, fmt.Errorf("could not find %d out of %d", n, total)
+			}
+			return capturedLines, scanner.Err()
 		}
 		if strings.Contains(scanner.Text(), s) {
+			capturedLines = append(capturedLines, scanner.Text())
 			n--
 		}
 	}
-	return scanner.Err()
 }
