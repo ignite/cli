@@ -37,3 +37,25 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
+
+func TestServeAppStargate(t *testing.T) {
+	t.Parallel()
+
+	var (
+		env     = newEnv(t)
+		apath   = env.Scaffold("blog", Stargate)
+		servers = env.RandomizeServerPorts(apath)
+	)
+
+	var (
+		ctx, cancel       = context.WithTimeout(env.Ctx(), time.Minute*5)
+		isBackendAliveErr error
+	)
+	go func() {
+		defer cancel()
+		isBackendAliveErr = env.IsAppServed(ctx, servers)
+	}()
+	env.Serve("should serve with Stargate version", apath, ExecCtx(ctx))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+}
