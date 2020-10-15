@@ -108,8 +108,8 @@ export default {
   position: absolute;
   bottom: 0;
   left: calc(100% + 0.85rem);
-  padding: 0.5rem 0.8rem 0.6rem 0.6rem;
-  border-radius: 4px;
+  padding: 0.35rem 0.6rem 0.4rem 0.6rem;
+  border-radius: 6px;
   font-size: 0.875rem;
   line-height: 1.35;
   color: var(--c-txt-contrast-secondary);

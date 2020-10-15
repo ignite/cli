@@ -102,7 +102,7 @@ export default {
   color: var(--c-txt-primary);
 }
 .item.-is-active .item__main a {
-  color: #4251FA;
+  color: var(--c-txt-highlight);
 }
 
 

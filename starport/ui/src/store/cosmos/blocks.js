@@ -25,6 +25,7 @@ export default {
     highlightedBlock: state => state.table.highlightedBlock,
     blocksStack: state => state.stack,
     blockByHeight: state => height => state.stack.filter(block => parseInt(block.height) === parseInt(height)),
+    blockByHash: state => hash => state.stack.filter(block => block.blockMeta.block_id.hash === hash),
     latestBlock: state => state.latestBlock,
     stackChainRange: state => state.stackChainRange,
     lastBlock: state => state.stack[state.stack.length-1],
@@ -534,8 +535,9 @@ export default {
       if ( block == null || !block ) {
         commit('setHighlightedBlock', { block: null })
       } else {
-        await dispatch('setHighlightedBlockMeta', { block })
-          .then(() => commit('setHighlightedBlock', { block }))
+        commit('setHighlightedBlock', { block })
+        // await dispatch('setHighlightedBlockMeta', { block })
+        //   .then(() => commit('setHighlightedBlock', { block }))
       }
     },    
   }

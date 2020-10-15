@@ -1,16 +1,24 @@
 <template>
   <nav>
     <div class="nav__main">
-      <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>
-      <div class="nav__logo">
-        <slot />
-      </div>
+      <router-link to="/">      
+        <div class="nav__logo">
+          <span><LogoStarport/></span>
+          <h1>Starport</h1>
+        </div>
+      </router-link>      
+    </div>
+    <div class="nav__center">
+      <div v-if="this.$route.name === 'welcome'" class="nav__center-msg -f-cosmos-overline-0">Welcome to Starport</div>
+    </div>
+    <div class="nav__sub">
+      <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>      
       <div class="nav__tabs">
         <router-link
           class="tab"
           to="/"
         >
-          <div class="tab__icon"><CompassIcon/></div>
+          <!-- <div class="tab__icon"><CompassIcon/></div> -->
           Welcome
         </router-link>
         <router-link
@@ -18,16 +26,11 @@
           to="/blocks"
         >
           <span :class="['circle', {'-is-active': isBlinking}]" ref="circle"></span>
-          <div class="tab__icon"><BlocksIcon/></div>
+          <!-- <div class="tab__icon"><BlocksIcon/></div> -->
           Blocks
         </router-link>
-      </div>
+      </div>      
     </div>
-    <!-- <div class="nav__sub">
-      <div class="nav__sub-chips">
-        <BackendIndicators/>
-      </div>
-    </div> -->
   </nav>
 </template>
 
@@ -35,12 +38,14 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
 import BackendIndicators from '@/modules/BackendIndicators'
+import LogoStarport from '@/assets/logos/LogoStarportSmall'
 import HamIcon from '@/assets/icons/Ham'
 import CompassIcon from '@/assets/icons/Compass'
 import BlocksIcon from '@/assets/icons/Blocks'
 
 export default {
   components: {
+    LogoStarport,
     HamIcon,
     BackendIndicators,
     CompassIcon,
@@ -52,7 +57,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [ 'blocksStack' ]),
+    ...mapGetters('cosmos/blocks', [ 'latestBlock' ]),
   },
   methods: {
     handleHamClick() {
@@ -60,7 +65,7 @@ export default {
     }
   },
   watch: {
-    blocksStack() {
+    latestBlock() {
       /* TODO: refactor this temp code */
       this.isBlinking = true
       setTimeout(function() {
@@ -75,32 +80,57 @@ export default {
 <style scoped>
 
 nav {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  height: 100vh;
+  width: 100%;
+  height: var(--header-height);
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  padding-bottom: 4rem;
-  box-sizing: border-box;
+  align-items: center;
 }
+
 .nav__tabs {
-  margin-top: -1rem;
+  display: flex;
 }
+.nav__tabs .tab:not(:last-child) {
+  margin-right: 1.8rem;
+}
+
 .nav__ham {
   display: none;
   height: 1.5rem;
   width: 1.5rem;
 }
-.nav__sub-chips {
-  margin-left: 0.85rem;
+
+.nav__logo {
+  display: flex;
+  align-items: center;
 }
-@media only screen and (max-width: 1200px) {
+.nav__logo span {
+  display: block;
+  height: 26px;
+  margin-right: 8px;
+}
+.nav__logo svg {
+  width: auto;
+  height: 100%;
+}
+.nav__logo h1 {
+  font-size: 20px;
+  font-weight: var(--f-w-bold);
+  letter-spacing: -0.016em;
+}
+
+.nav__center-msg {
+  color: var(--c-txt-third);
+}
+
+@media only screen and (max-width: 768px) {
+  .nav__center-msg {
+    display: none;
+  }
+}
+@media only screen and (max-width: 576px) {
   nav {
-    height: auto;
     padding-bottom: 0;
-    
   }
   .nav__ham {
     display: block;
@@ -111,16 +141,6 @@ nav {
     align-items: center;    
     padding: 0 0.25rem;
   }
-  .nav__sub {
-    display: none;
-  }
-  .nav__tabs {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0;
-  }
-}
-@media screen and (max-width: 768px) {
   .nav__tabs {
     display: none;
   }
@@ -135,11 +155,7 @@ nav {
 
   font-weight: var(--f-w-medium);
   line-height: 130%;
-  color: rgba(0, 5, 66, 0.621);
-
-  padding: 0 0 0 1.4rem;
-  border-radius: var(--bd-radius-primary);
-  transition: background-color .3s;
+  color: var(--c-txt-third);
 }
 .tab:hover {
   color: var(--c-txt-primary);
@@ -149,14 +165,7 @@ nav {
   fill: var(--c-txt-primary);
   transition: fill .3s;
 }
-.tab:not(:last-child) {
-  margin-bottom: 1rem;
-}
-.tab__icon {
-  display: flex;
-  align-items: center;
-  margin-right: 0.8rem;
-}
+
 .tab.router-link-exact-active {
   pointer-events: none;  
   color: var(--c-txt-primary);
@@ -198,7 +207,7 @@ nav {
   padding: 0;
   position: absolute;
   top: calc(50% - calc(var(--circle-size) / 1.8));
-  left: 6px;
+  left: -0.8rem;
 }
 .circle::before,
 .circle::after {

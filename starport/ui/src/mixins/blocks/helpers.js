@@ -2,8 +2,6 @@ import axios from 'axios'
 import moment from 'moment'
 import { capitalCase } from 'change-case'
 import { sha256 } from 'js-sha256'
-import bech32 from 'bech32'
-import { min } from 'moment'
 
 const getBlockTemplate = (header, txsData) => ({
   height: parseInt(header.height),
@@ -177,6 +175,7 @@ export default {
            *  
            */                        
           const setBlockTxsDecoded = (tx) => {
+            console.log(tx)
             blockTemplate.txsDecoded.push(tx.data)
           }
           /**
@@ -196,7 +195,7 @@ export default {
             if (txsData.txs && txsData.txs.length > 0) {
               const txsDecoded = txsData.txs
                 .map(txEncoded => fetchDecodedTx(lcdUrl, txEncoded, txErrCallback))
-              
+
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
                 if (txResolved) setBlockTxsDecoded(txResolved)
                 if (txStackCallback) txStackCallback(txResolved)
@@ -235,10 +234,10 @@ export default {
             return {
               blockMsg: {
                 time_formatted: moment(time).fromNow(true),
-                time: moment(time).format('MMMM Do YYYY, h:mm:ss a'),
+                time,
                 height: parseInt(height),
                 proposer: `${proposer_address.slice(0,10)}...`,
-                blockHash_sliced: `${hash.slice(0,30)}...`,
+                blockHash_sliced: `${hash.slice(0,15)}...`,
                 blockHash: hash,
                 txs: block.txs ? block.txs.length : 0          
               },
@@ -400,7 +399,36 @@ export default {
        */             
       getMsgType(type, prefix) {
         return type.replace(prefix+'/', '')
-      }      
+      },
+      txMsg({ type, value }, chainId) {
+        const amountDenomHolder = { amount: '', denom: '' }
+        
+        function setMsgHolder(msgs, holder) {
+          for (const [key, msg] of Object.entries(msgs)) {          
+            if (Array.isArray(msg)) {
+              msg.forEach(subMsg => setMsgHolder(subMsg, holder))
+              break
+            }
+            if (key !== 'amount' && key !== 'denom') {
+              holder[capitalCase(key)] = msg
+            } else {
+              amountDenomHolder[key] = msg
+            }
+          }
+
+          if (amountDenomHolder.amount) {
+            holder['Amount'] = `${amountDenomHolder.amount} ${amountDenomHolder.denom}`
+          }
+        }        
+
+        const msgHolder = {
+          type: this.getMsgType(type, chainId)
+        }
+
+        setMsgHolder(value, msgHolder)
+
+        return msgHolder
+      },           
     }
   }
 }
