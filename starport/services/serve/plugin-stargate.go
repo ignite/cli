@@ -136,7 +136,7 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option {
+func (p *stargatePlugin) StartCommands(ctx context.Context, conf starportconf.Config) [][]step.Option {
 	return [][]step.Option{
 		step.NewOptions().
 			Add(

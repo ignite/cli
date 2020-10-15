@@ -37,7 +37,7 @@ type Plugin interface {
 	PostInit(starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	StartCommands(starportconf.Config) [][]step.Option
+	StartCommands(ctx context.Context, conf starportconf.Config) [][]step.Option
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string

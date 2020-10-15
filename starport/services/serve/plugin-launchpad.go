@@ -5,11 +5,14 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
 )
@@ -162,7 +165,7 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Option {
+func (p *launchpadPlugin) StartCommands(ctx context.Context, conf starportconf.Config) [][]step.Option {
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
@@ -176,6 +179,16 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 			),
 		step.NewOptions().
 			Add(
+				step.PreExec(func() error {
+					checkAlive := func() error {
+						ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(conf.Servers.APIAddr)+"/node_info")
+						if err == nil && !ok {
+							err = errors.New("app is not online")
+						}
+						return err
+					}
+					return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
+				}),
 				step.Exec(
 					p.app.cli(),
 					"rest-server",

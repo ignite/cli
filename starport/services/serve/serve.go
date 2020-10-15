@@ -231,7 +231,7 @@ func (s *Serve) serve(ctx context.Context) error {
 
 	return cmdrunner.
 		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps(conf)...)
+		Run(ctx, s.serverSteps(ctx, conf)...)
 }
 
 func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
@@ -444,16 +444,16 @@ func (s *Serve) buildSteps(ctx context.Context, conf starportconf.Config) (
 	return steps, binaries
 }
 
-func (s *Serve) serverSteps(conf starportconf.Config) (steps step.Steps) {
+func (s *Serve) serverSteps(ctx context.Context, conf starportconf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(len(s.plugin.StartCommands(conf)))
+	wg.Add(len(s.plugin.StartCommands(ctx, conf)))
 	go func() {
 		wg.Wait()
 		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
 		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 	}()
-	for _, execOption := range s.plugin.StartCommands(conf) {
+	for _, execOption := range s.plugin.StartCommands(ctx, conf) {
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption...).
 			Add(step.InExec(func() error {
