@@ -181,7 +181,7 @@ func (p *launchpadPlugin) StartCommands(ctx context.Context, conf starportconf.C
 			Add(
 				step.PreExec(func() error {
 					checkAlive := func() error {
-						ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(conf.Servers.APIAddr)+"/node_info")
+						ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(conf.Servers.RPCAddr)+"/health")
 						if err == nil && !ok {
 							err = errors.New("app is not online")
 						}
