@@ -104,7 +104,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 			p.app.cli(),
 			"config",
 			"chain-id",
-			p.app.n()+"-1",
+			p.app.chainId(),
 		),
 		step.Exec(
 			p.app.cli(),

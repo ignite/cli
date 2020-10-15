@@ -42,3 +42,8 @@ func (a App) root() string {
 	cwd, _ := os.Getwd()
 	return filepath.Join(cwd, a.Path)
 }
+
+// chain id of the add
+func (a App) chainId() string {
+	return a.n() + "-1"
+}

@@ -263,7 +263,7 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", s.app.n()+"-1",
+				"--chain-id", s.app.chainId(),
 			),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
