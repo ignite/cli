@@ -26,6 +26,7 @@ func GetTxCmd(cdc *codec.Codec) *cobra.Command {
 	}
 
 	<%= moduleName %>TxCmd.AddCommand(flags.PostCommands(
+		// this line is used by starport scaffolding # 1
 		// TODO: Add tx based commands
 		// GetCmd<Action>(cdc)
 	)...)

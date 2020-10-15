@@ -16,7 +16,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14
+          go-version: 1.15
 
       - name: Set up Node
         uses: actions/setup-node@v2-beta
@@ -54,4 +54,4 @@ jobs:
 
       - name: Run E2E Tests
         working-directory: ${{ env.working-directory }}
-        run: "scripts/test-e2e"
+        run: ./scripts/test-e2e

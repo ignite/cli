@@ -1,0 +1,24 @@
+package <%= ModuleName %>
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+)
+
+func handleMsgSet<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg types.MsgSet<%= title(TypeName) %>) (*sdk.Result, error) {
+	var <%= TypeName %> = types.<%= title(TypeName) %>{
+		Creator: msg.Creator,
+		ID:      msg.ID,<%= for (field) in Fields { %>
+    	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+	}
+	if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.ID)) { // Checks if the the msg sender is the same as the current owner
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error
+	}
+
+	k.Set<%= title(TypeName) %>(ctx, <%= TypeName %>)
+
+	return &sdk.Result{Events: ctx.EventManager().Events()}, nil
+}
