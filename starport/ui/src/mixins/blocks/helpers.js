@@ -236,7 +236,7 @@ export default {
                 time,
                 height: parseInt(height),
                 proposer: `${proposer_address.slice(0,10)}...`,
-                blockHash_sliced: `${hash.slice(0,30)}...`,
+                blockHash_sliced: `${hash.slice(0,15)}...`,
                 blockHash: hash,
                 txs: block.txs ? block.txs.length : 0          
               },

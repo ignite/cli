@@ -4,20 +4,26 @@
   <div v-else class="sheet">
     <div class="sheet__header">
       <div class="sheet__header-main">
-        <p>{{block.data.height}}</p>
+        <p>{{block.data.blockMsg.height}}</p>
       </div>
       <div class="sheet__header-side">
         <div class="sheet__header-side-top">
-          <CopyIconText :text="'hihihi'" :link="'#'" />
+          <CopyIconText 
+            :text="block.data.blockMsg.blockHash_sliced" 
+            :link="`${appEnv.RPC}/block?hash=${block.data.blockMsg.blockHash}`"
+          />
         </div>
         <div class="sheet__header-side-btm">
-          <span>13:48:39, Oct 1 2019</span>
+          <span>{{getFmtTime(block.data.blockMsg.time)}}</span>
         </div>
       </div>
     </div>
 
     <div class="sheet__main">
-      <div class="txs">
+      <div 
+        v-if="block.data.blockMsg.txs>0 && block.data.txs.length>0"
+        class="txs"
+      >
         <div class="txs__header">
           <p>Transactions</p>
         </div>
@@ -31,11 +37,17 @@
           </div>
         </div>
       </div>
+      <div v-else class="txs -is-empty">
+        <p>0 Transactions</p>
+      </div>      
     </div>
   </div>
 </template>
 
 <script>
+import moment from 'moment'
+import { mapGetters } from 'vuex'
+
 import CopyIconText from '@/components/texts/CopyIconText'
 
 export default {
@@ -44,11 +56,24 @@ export default {
   },
   props: {
     block: { type: Object }
-  } 
+  },
+  computed: {
+    ...mapGetters('cosmos', [ 'appEnv' ]),    
+  },    
+  methods: {
+    getFmtTime(time) {
+      const momentTime = moment(time)
+      return momentTime.format('MMM D YYYY, HH:mm:ss')
+    } 
+  }
 }
 </script>
 
 <style scoped>
+
+.sheet {
+  height: 100%;
+}
 
 .sheet.-is-empty {
   display: flex;
@@ -85,6 +110,25 @@ export default {
 .sheet__header-side-btm span {
   font-size: 0.8125rem;
   color: var(--c-txt-secondary);
+}
+
+.sheet__main {
+  height: 100%;
+}
+
+.txs {
+  height: 100%;
+}
+.txs.-is-empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.txs.-is-empty p {
+  font-size: 3rem;
+  font-weight: var(--f-w-light);
+  color: var(--c-txt-gray);
+  margin-bottom: 5rem;  
 }
 
 </style>

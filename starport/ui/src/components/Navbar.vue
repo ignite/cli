@@ -52,7 +52,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [ 'blocksStack' ]),
+    ...mapGetters('cosmos/blocks', [ 'latestBlock' ]),
   },
   methods: {
     handleHamClick() {
@@ -60,7 +60,7 @@ export default {
     }
   },
   watch: {
-    blocksStack() {
+    latestBlock() {
       /* TODO: refactor this temp code */
       this.isBlinking = true
       setTimeout(function() {

@@ -32,63 +32,12 @@ export default {
   data() {
     return {
       isSheetActive: true,
-      lastScrolledHeight: 0,
-      lastScrolledTop: 0,
-      lastTimestamp: undefined
     }
   },
   methods: {
     handleSheetClose() {
       this.$emit('sheet-closed')
-    },
-    handleTableScroll: _.debounce(function(event) {
-      const $table = event.target
-      const scrolledHeight = $table.scrollTop + $table.offsetHeight
-      const tableScrollHeight = $table.scrollHeight
-
-      const isScrolledToTop = scrolledHeight <= $table.offsetHeight
-      const isScrolledToBottom = scrolledHeight + 100 >= tableScrollHeight
-      const isOnTopHalf = $table.scrollTop < (tableScrollHeight-$table.offsetHeight) / 2
-
-      const isCallableScrolledDistance = 
-        $table.offsetHeight / Math.abs(scrolledHeight-this.lastScrolledHeight) > 25
-      
-      if (isCallableScrolledDistance) {
-        if (isScrolledToBottom) this.$emit('scrolled-bottom')
-        if (isScrolledToTop) {
-          this.$emit('scrolled-top')
-          /*
-           *
-           // Scroll down the table a bit to prevent staying on top
-           *
-           */
-          $table.scrollBy({
-            top: 5,
-            left: 0,
-            behavior: 'smooth'
-          })
-        }
-      }
-    }, 250),
-    updateScrollValue() {
-      const $table = event.target
-      const scrolledHeight = $table.scrollTop + $table.offsetHeight 
-      this.lastScrolledHeight = scrolledHeight     
-      this.lastScrolledTop = $table.scrollTop     
     }
-  },
-  created() {  
-    // function checkScrollPosition(timestamp) {
-    //   if (this.lastTimestamp === undefined) {
-    //     this.lastTimestamp = timestamp
-    //   }
-    //   if (timestamp - this.lastTimestamp > 500) {
-    //     if (this.lastScrolledTop === 0) this.$emit('scrolled-top')
-    //     this.lastTimestamp = timestamp            
-    //   }
-    //   window.requestAnimationFrame(checkScrollPosition.bind(this))
-    // }
-    // window.requestAnimationFrame(checkScrollPosition.bind(this))    
   }
 }
 </script>

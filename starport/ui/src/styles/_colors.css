@@ -60,7 +60,7 @@
   --c-gray-300: #9b9b9b;
   --c-gray-500: #a4a4a4;
   --c-gray-600: #e9e9e9;
-  --c-gray-900: #f5f5ff;
+  --c-gray-900: #f1f2ff;
   --c-gray-1000: #ffffff;
 }
 :root {
@@ -98,7 +98,7 @@
   --c-txt-primary: var(--c-contrast-primary);
   --c-txt-secondary: var(--c-contrast-secondary);
   --c-txt-third: var(--c-contrast-third);
-  --c-txt-gray: var(--c-contrast-gray);
+  --c-txt-gray: var(--c-gray);
 
   --c-txt-highlight: var(--c-brand-primary);
 

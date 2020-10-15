@@ -103,49 +103,6 @@ export default {
      * Local 
      *
      */      
-    handleCardClick(rowId, rowData) {
-      const setTableRowStore = (isToActive=false, payload) => {
-        const highlightBlockPayload = isToActive ? {
-          id: payload.rowId,
-          data: payload.rowData
-        } : null
-        
-        this.setHighlightedBlock({
-          block: highlightBlockPayload
-        })
-      }
-
-      const isActiveRowClicked = this.highlightedBlock.id === rowId
-      
-      if (this.fmtIsTableSheetActive) {
-        if (isActiveRowClicked) {
-          this.setTableSheetState({
-            tableId: this.blocksExplorerTableId,
-            sheetState: false
-          })
-          setTableRowStore()
-        } else {
-          setTableRowStore(true, { rowId: rowId, rowData: rowData })
-        }
-      } else {
-        this.setTableSheetState({
-          tableId: this.blocksExplorerTableId,
-          sheetState: true
-        })
-        setTableRowStore(true, { rowId: rowId, rowData: rowData })
-      }
-    },
-    handleSheetClose() {
-      this.setHighlightedBlock({ block: null })
-    },
-    handleFilterClick() {
-      this.setHighlightedBlock({ block: null })
-      this.setTableSheetState({
-        tableId: this.blocksExplorerTableId,
-        sheetState: false
-      })      
-      this.states.isHidingBlocksWithoutTxs = !this.states.isHidingBlocksWithoutTxs
-    },
     /*
      *
      // Pop overloaded blocks (over maxStackCount)
@@ -198,8 +155,8 @@ export default {
 <style scoped>
 
 .explorer {
-  height: calc(100vh - var(--header-height) - 1px - 1.5rem);
-  padding-top: 1.5rem;
+  height: calc(100vh - var(--header-height) - 1px - 2.25rem);
+  padding-top: 2.25rem;
 }
 
 .explorer__chain {
@@ -211,7 +168,12 @@ export default {
 .explorer__chain-header {
   font-size: 3.1875rem;
   font-weight: var(--f-w-bold);
-  margin-bottom: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-left: calc(var(--g-offset-side) - 4px);
+}
+
+.explorer__block {
+  height: 100%;
 }
 
 .table-wrapper {
