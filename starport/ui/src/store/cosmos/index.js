@@ -12,6 +12,7 @@ const {
 
 const GITPOD =
   VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
+console.log(process.env, GITPOD)
 const STARPORT_APP =
   (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||
   'http://localhost:12345'
