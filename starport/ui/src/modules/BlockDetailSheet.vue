@@ -21,19 +21,48 @@
 
     <div class="sheet__main">
       <div 
-        v-if="block.data.blockMsg.txs>0 && block.data.txs.length>0"
+        v-if="!block.data.blockMsg.txs>0 && !block.data.txs.length>0"
         class="txs"
       >
         <div class="txs__header">
-          <p>Transactions</p>
+          <p class="txs__header-title">Transactions</p>
+          <p class="txs__header-note">
+            <span>3</span>
+            <span> / </span>
+            <span>1 error</span>
+          </p>
         </div>
 
         <div class="txs__tx tx">
           <div class="tx__main">
-            <p class="tx__title">Messages</p>
+            <div class="tx__error">
+              <span class="tx__error-title">Error</span>
+              <p class="tx__error-msg">insufficient account funds; 363uatom < 21595uatom</p>
+            </div>
+
+            <div class="tx__msgs">
+              <p class="tx__title">Messages</p>
+
+              <div class="tx__msgs-container">
+                <div class="tx__msgs-msg tx-msg"></div>
+              </div>
+            </div>
           </div>
           <div class="tx__side">
-            <p class="tx__title">Tx Info</p>
+            <div class="tx__info">
+              <p class="tx__title">Tx Info</p>
+
+              <div class="tx__info-container">
+                <div class="tx__info-content tx-info">
+                  <span class="tx-info__title">Gas Used / Wanted</span>
+                  <p class="tx-info__content">1212412 / 243242</p>
+                </div>
+                <div class="tx__info-content tx-info">
+                  <span class="tx-info__title">Gas Used / Wanted</span>
+                  <p class="tx-info__content">1212412 / 243242</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -73,6 +102,7 @@ export default {
 
 .sheet {
   height: 100%;
+  padding-right: var(--g-offset-side);
 }
 
 .sheet.-is-empty {
@@ -90,6 +120,7 @@ export default {
 .sheet__header {
   display: flex;
   align-items: center;
+  margin-bottom: 2.5rem;
 }
 
 .sheet__header-main {
@@ -125,10 +156,81 @@ export default {
   justify-content: center;
 }
 .txs.-is-empty p {
-  font-size: 3rem;
+  font-size: 2rem;
   font-weight: var(--f-w-light);
   color: var(--c-txt-gray);
   margin-bottom: 5rem;  
+}
+
+.txs__header {
+  display: flex;
+  align-items: flex-end;
+  margin-left: 2px;
+  margin-bottom: 1.5rem;
+}
+.txs__header-title {
+  font-size: 1.3125rem;
+  font-weight: var(--f-w-medium);
+  margin-right: 0.85rem;
+}
+.txs__header-note {
+  font-size: 1rem;
+  color: var(--c-txt-secondary);
+  margin-bottom: 1.8px;
+}
+.txs__header-note span:last-child {
+  color: var(--c-txt-danger);
+}
+
+.tx {
+  display: flex;
+}
+.tx__main {
+  flex-grow: 1;
+  margin-right: 2rem;
+}
+.tx__side {
+  width: 15vw;
+  max-width: 180px;
+}
+
+.tx__error {
+  padding: 1.25rem 1.5rem;
+  border-radius: 12px;
+  background-color: var(--c-danger-light);
+  color: var(--c-txt-danger);
+  margin-bottom: 1.5rem;
+}
+.tx__error-title {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: var(--f-w-bold);
+  text-transform: uppercase;  
+  margin-bottom: 4px;
+}
+
+.tx__title {
+  font-weight: var(--f-w-medium);
+  font-size: 0.75rem;
+  line-height: 130.9%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-txt-secondary);
+  margin-bottom: 0.85rem;
+}
+
+.tx-info:not(:last-child) {
+  margin-bottom: 1rem;
+}
+.tx-info__title {
+  display: inline-block;
+  font-weight: var(--f-w-medium);
+  font-size: 0.75rem;
+  line-height: 130.9%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--c-txt-secondary);
+  margin-bottom: 4px;
 }
 
 </style>

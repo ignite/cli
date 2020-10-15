@@ -76,6 +76,9 @@
   --c-white: var(--c-gray-1000);  
 
   --c-primary-dark-600: #4251FA;    
+  --c-red-400: #CC0025;    
+  --c-red-500: #FF1A35;    
+  --c-red-900: #FFE5E6;    
 }
 :root {
   /*-- lv.3 - color modes / themes --*/
@@ -93,6 +96,9 @@
   --c-highlight: var(--c-black);    
 
   --c-brand-primary: var(--c-primary-dark-600);
+  --c-danger-primary: var(--c-red-500);
+  --c-danger-dark: var(--c-red-400);
+  --c-danger-light: var(--c-red-900);
 }
 :root {
   --c-txt-primary: var(--c-contrast-primary);
@@ -101,6 +107,7 @@
   --c-txt-gray: var(--c-gray);
 
   --c-txt-highlight: var(--c-brand-primary);
+  --c-txt-danger: var(--c-danger-dark);
 
   --c-border-primary: var(--c-gray);
 
