@@ -45,15 +45,6 @@ func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option,
 		}
 }
 
-func (p *stargatePlugin) SetKeyringBackendCommand() step.Option {
-	return step.Exec(
-		p.app.d(),
-		"config",
-		"keyring-backend",
-		"test",
-	)
-}
-
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Option {
 	return step.Exec(
 		p.app.d(),

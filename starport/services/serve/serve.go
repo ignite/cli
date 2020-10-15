@@ -248,6 +248,14 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 		}),
 	))
 
+	// Configure the CLI
+	for _, execOption := range s.plugin.ConfigCommands() {
+		steps.Add(step.New(step.NewOptions().
+			Add(execOption).
+			Add(s.stdSteps(logAppcli)...)...,
+		))
+	}
+
 	// init node.
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -309,18 +317,6 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 
 		steps.Add(step.New(step.NewOptions().
 			Add(
-				s.plugin.SetKeyringBackendCommand(),
-				step.PostExec(func(exitErr error) error {
-					if exitErr != nil {
-						return errors.Wrapf(exitErr, "cannot set the keyring backend")
-					}
-					return nil
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...)...,
-		))
-		steps.Add(step.New(step.NewOptions().
-			Add(
 				s.plugin.AddUserCommand(account.Name),
 				step.PostExec(func(exitErr error) error {
 					if exitErr != nil {
@@ -364,13 +360,6 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 			).
 			Add(s.stdSteps(logAppcli)...).
 			Add(step.Stdout(key))...,
-		))
-	}
-
-	for _, execOption := range s.plugin.ConfigCommands() {
-		steps.Add(step.New(step.NewOptions().
-			Add(execOption).
-			Add(s.stdSteps(logAppcli)...)...,
 		))
 	}
 

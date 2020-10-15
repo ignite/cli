@@ -21,9 +21,6 @@ type Plugin interface {
 	// InstallCommands returns step.Exec configurations to install app.
 	InstallCommands(ldflags string) (options []step.Option, binaries []string)
 
-	// SetKeyringBackendCommand set the keyring backend used by the blockchain.
-	SetKeyringBackendCommand() step.Option
-
 	// AddUserCommand returns step.Exec configuration to add users.
 	AddUserCommand(accountName string) step.Option
 
