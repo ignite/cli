@@ -4,8 +4,8 @@
 
     <div class="msgs__container">
       <div 
-        v-for="(msg, index) in [...msgs, ...msgs]"
-        :key="index+getMsgKey(index)"
+        v-for="(msg, index) in msgs"
+        :key="getMsgKey(index)"
         class="msg-card"
       >
         <div v-html="getMsgCard(msg)" class="wrapper"></div>

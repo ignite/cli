@@ -27,21 +27,21 @@
         <div class="txs__header">
           <p class="txs__header-title">Transactions</p>
           <p class="txs__header-note">
-            <span>3</span>
-            <span> / </span>
-            <span>1 error</span>
+            <span>{{block.data.txs.length}}</span>
+            <span v-if="failedTxsCount"> / </span>
+            <span v-if="failedTxsCount" class="txs__header-note-warn">{{ failedTxsCount }} error</span>
           </p>
         </div>
 
         <div 
-          v-for="(tx, txIndex) in [...block.data.txs, ...block.data.txs]"
+          v-for="(tx, txIndex) in block.data.txs"
           :key="txIndex+tx.txhash"
           class="txs__tx tx"
         >
           <div class="tx__main">
-            <div class="tx__error">
+            <div v-if="tx.code" class="tx__error">
               <span class="tx__error-title">Error</span>
-              <p class="tx__error-msg">insufficient account funds; 363uatom < 21595uatom</p>
+              <p class="tx__error-msg">{{ tx.raw_log }}</p>
             </div>
 
             <TxMsgCards :msgs="tx.tx.value.msg" />
@@ -96,7 +96,10 @@ export default {
     block: { type: Object }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'appEnv' ])
+    ...mapGetters('cosmos', [ 'appEnv' ]),
+    failedTxsCount() {
+      return this.block.data.txs.filter(tx => tx.code).length
+    }    
   },    
   methods: {
     getFmtTime(time) {
@@ -107,7 +110,7 @@ export default {
       const fee = tx.tx.value.fee.amount[0]
       return `${fee.amount} ${fee.denom}`
     }
-  },
+  }
 }
 </script>
 
@@ -197,7 +200,7 @@ export default {
   color: var(--c-txt-third);
   margin-bottom: 1.8px;
 }
-.txs__header-note span:last-child {
+.txs__header-note-warn {
   color: var(--c-txt-danger);
 }
 
@@ -219,18 +222,21 @@ export default {
 }
 
 .tx__error {
+  color: var(--c-txt-danger);  
   padding: 1.25rem 1.5rem;
   border-radius: 12px;
   background-color: var(--c-danger-light);
-  color: var(--c-txt-danger);
   margin-bottom: 1.5rem;
 }
 .tx__error-title {
   display: block;
-  font-size: 0.75rem;
+  font-size: 0.75rem;    
   font-weight: var(--f-w-bold);
   text-transform: uppercase;  
-  margin-bottom: 4px;
+  margin-bottom: 0.5rem;
+}
+.tx__error-msg {
+  font-size: 0.875rem;  
 }
 
 .tx__title {

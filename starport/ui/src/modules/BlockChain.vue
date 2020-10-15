@@ -30,6 +30,7 @@
             :isActive="block.blockMsg.blockHash === highlightedBlock.id"   
           >
             <div v-if="block.txs.length>0" class="block-info">
+              <span v-if="getFailedTxsCount(block.txs)>0" class="block-info__indicator"></span>
               <span class="block-info__text">{{block.txs.length}} transactions</span>
               ·
               <span class="block-info__text">{{getMsgsAmount(block.txs)}} messages</span>
@@ -123,6 +124,9 @@ export default {
         .map(tx => tx.tx.value.msg.length)
         .reduce((accu, curr) => accu+curr)
     },
+    getFailedTxsCount(txs) {
+      return txs.filter(tx => tx.code).length
+    },    
     handleCardClicked(event) {
       const blockHash = event.currentTarget.id
       const blockPayload = {
@@ -334,11 +338,20 @@ export default {
 .block-info__text:last-child {
   color: var(--c-txt-third);
 }
+.block-info__indicator {
+  display: inline-block;
+  width: 5px;
+  height: 5px;
+  border-radius: 100%;
+  background-color: var(--c-danger-primary);
+  margin-right: 6px;
+  transform: translate3d(0, -2px, 0);
+}
 
 .util-btn {
   position: absolute;
   top: -0.8rem;
-  left: calc(50% - 22px/2);
+  left: calc((100% - var(--g-offset-side)) / 2 + 22px);
   width: 22px;
   height: 22px;
   background-color: var(--c-bg-primary);
