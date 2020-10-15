@@ -67,7 +67,7 @@ export default {
 
 .icon.-is-copy {
   display: inline-block;
-  transform: translate3d(0, 1.5px, 0);
+  transform: translate3d(0, 1px, 0);
 }
 .icon * >>> svg path {
   fill: var(--c-txt-third);

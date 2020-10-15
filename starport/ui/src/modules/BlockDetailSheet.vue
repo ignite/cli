@@ -21,7 +21,7 @@
 
     <div class="sheet__main">
       <div 
-        v-if="!block.data.blockMsg.txs>0 && !block.data.txs.length>0"
+        v-if="block.data.blockMsg.txs>0 && block.data.txs.length>0"
         class="txs"
       >
         <div class="txs__header">
@@ -33,20 +33,18 @@
           </p>
         </div>
 
-        <div class="txs__tx tx">
+        <div 
+          v-for="(tx, txIndex) in [...block.data.txs, ...block.data.txs]"
+          :key="txIndex+tx.txhash"
+          class="txs__tx tx"
+        >
           <div class="tx__main">
             <div class="tx__error">
               <span class="tx__error-title">Error</span>
               <p class="tx__error-msg">insufficient account funds; 363uatom < 21595uatom</p>
             </div>
 
-            <div class="tx__msgs">
-              <p class="tx__title">Messages</p>
-
-              <div class="tx__msgs-container">
-                <div class="tx__msgs-msg tx-msg"></div>
-              </div>
-            </div>
+            <TxMsgCards :msgs="tx.tx.value.msg" />
           </div>
           <div class="tx__side">
             <div class="tx__info">
@@ -54,13 +52,20 @@
 
               <div class="tx__info-container">
                 <div class="tx__info-content tx-info">
-                  <span class="tx-info__title">Gas Used / Wanted</span>
-                  <p class="tx-info__content">1212412 / 243242</p>
+                  <span class="tx-info__title">Hash</span>
+                  <CopyIconText 
+                    :text="tx.txhash" 
+                    :link="`${appEnv.RPC}/block?hash=${tx.txhash}`"
+                  />                  
                 </div>
                 <div class="tx__info-content tx-info">
                   <span class="tx-info__title">Gas Used / Wanted</span>
-                  <p class="tx-info__content">1212412 / 243242</p>
+                  <p class="tx-info__content">{{ `${tx.gas_used} / ${tx.gas_wanted}` }}</p>
                 </div>
+                <div class="tx__info-content tx-info">
+                  <span class="tx-info__title">Fee</span>
+                  <p class="tx-info__content">{{ getTxFee(tx) }}</p>
+                </div>                
               </div>
             </div>
           </div>
@@ -75,26 +80,34 @@
 
 <script>
 import moment from 'moment'
+import { uuid } from 'vue-uuid'
 import { mapGetters } from 'vuex'
+import { getters } from '@/mixins/helpers'
 
 import CopyIconText from '@/components/texts/CopyIconText'
+import TxMsgCards from '@/modules/TxMsgCards'
 
 export default {
   components: {
-    CopyIconText
+    CopyIconText,
+    TxMsgCards
   },
   props: {
     block: { type: Object }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'appEnv' ]),    
+    ...mapGetters('cosmos', [ 'appEnv' ])
   },    
   methods: {
     getFmtTime(time) {
       const momentTime = moment(time)
       return momentTime.format('MMM D YYYY, HH:mm:ss')
-    } 
-  }
+    },
+    getTxFee(tx) {
+      const fee = tx.tx.value.fee.amount[0]
+      return `${fee.amount} ${fee.denom}`
+    }
+  },
 }
 </script>
 
@@ -103,6 +116,12 @@ export default {
 .sheet {
   height: 100%;
   padding-right: var(--g-offset-side);
+}
+.sheet {
+  overflow-y: scroll;
+}
+.sheet::-webkit-scrollbar {
+  width: 0px;
 }
 
 .sheet.-is-empty {
@@ -175,7 +194,7 @@ export default {
 }
 .txs__header-note {
   font-size: 1rem;
-  color: var(--c-txt-secondary);
+  color: var(--c-txt-third);
   margin-bottom: 1.8px;
 }
 .txs__header-note span:last-child {
@@ -184,10 +203,15 @@ export default {
 
 .tx {
   display: flex;
+  margin-bottom: 3rem;  
+}
+.tx:not(:last-child) {
+  padding-bottom: 3rem;
+  border-bottom: 1px solid var(--c-border-primary);
 }
 .tx__main {
   flex-grow: 1;
-  margin-right: 2rem;
+  margin-right: 3rem;
 }
 .tx__side {
   width: 15vw;
@@ -215,22 +239,26 @@ export default {
   line-height: 130.9%;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--c-txt-secondary);
+  color: var(--c-txt-third);
   margin-bottom: 0.85rem;
 }
 
 .tx-info:not(:last-child) {
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
 }
 .tx-info__title {
   display: inline-block;
-  font-weight: var(--f-w-medium);
+  /* font-weight: var(--f-w-medium); */
   font-size: 0.75rem;
   line-height: 130.9%;
   letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: var(--c-txt-secondary);
+  color: var(--c-txt-third);
   margin-bottom: 4px;
+}
+.tx-info__content {
+  color: var(--c-txt-secondary);
 }
 
 </style>
+

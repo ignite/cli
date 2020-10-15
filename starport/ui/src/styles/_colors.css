@@ -57,6 +57,8 @@
 :root {
   --c-gray-0: #000000;
   --c-gray-50: #030419;
+  --c-gray-100: #000224;
+  --c-gray-200: #282B53;
   --c-gray-300: #9b9b9b;
   --c-gray-500: #a4a4a4;
   --c-gray-600: #e9e9e9;
@@ -66,8 +68,9 @@
 :root {
   /*-- lv.2 - base --*/
   --c-dark-primary: var(--c-gray-50);
-  --c-dark-secondary: var(--c-gray-300);
-  --c-dark-third: var(--c-gray-500);
+  --c-dark-secondary: var(--c-gray-200);
+  --c-dark-third: var(--c-gray-300);
+  --c-dark-light: var(--c-gray-500);
 
   --c-light-primary: var(--c-gray-900);
   --c-light-secondary: var(--c-gray-600);
@@ -91,6 +94,7 @@
   --c-contrast-primary: var(--c-dark-primary);
   --c-contrast-secondary: var(--c-dark-secondary);
   --c-contrast-third: var(--c-dark-third);
+  --c-contrast-light: var(--c-dark-light);
 
   --c-gray: var(--c-gray-600);
   --c-highlight: var(--c-black);    
@@ -104,6 +108,7 @@
   --c-txt-primary: var(--c-contrast-primary);
   --c-txt-secondary: var(--c-contrast-secondary);
   --c-txt-third: var(--c-contrast-third);
+  --c-txt-light: var(--c-contrast-light);
   --c-txt-gray: var(--c-gray);
 
   --c-txt-highlight: var(--c-brand-primary);

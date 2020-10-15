@@ -19,7 +19,6 @@ import { mapGetters, mapMutations, mapActions } from 'vuex'
 import blockHelpers from '@/mixins/blocks/helpers'
 
 import _ from 'lodash'
-import { uuid } from 'vue-uuid'
 
 import FullWidthContainer from '@/components/containers/FullWidthContainer'
 import BlockDetailSheet from '@/modules/BlockDetailSheet'

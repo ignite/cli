@@ -284,7 +284,7 @@ export default {
   background-attachment: local, local, scroll, scroll;  
 }
 .chain::-webkit-scrollbar {
-  opacity: 0;
+  width: 0px;
 }
 
 .chain__block {
@@ -329,9 +329,10 @@ export default {
 
 .block-info__text:first-child {
   font-weight: var(--f-w-medium);
+  color: var(--c-txt-secondary);
 }
 .block-info__text:last-child {
-  color: var(--c-txt-secondary);
+  color: var(--c-txt-third);
 }
 
 .util-btn {

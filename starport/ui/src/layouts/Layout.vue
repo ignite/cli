@@ -96,6 +96,7 @@ export default {
   z-index: 0;
   padding: 0 var(--g-offset-side);
   max-width: 1120px;
+  margin: 0 auto;
   flex-grow: 1;
   -webkit-overflow-scrolling: touch;  
 }

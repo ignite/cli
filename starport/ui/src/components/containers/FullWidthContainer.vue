@@ -115,7 +115,7 @@ export default {
   position: absolute;
   top: 0;
   right: 0;
-  width: calc(100% - var(--container-collapsed-width) - 2.5rem);
+  width: calc(100% - var(--container-collapsed-width) - 4rem);
   height: 100%;  
 }
 .container__sheet {  

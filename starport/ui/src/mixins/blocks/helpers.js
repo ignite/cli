@@ -175,6 +175,7 @@ export default {
            *  
            */                        
           const setBlockTxsDecoded = (tx) => {
+            console.log(tx)
             blockTemplate.txsDecoded.push(tx.data)
           }
           /**
@@ -194,7 +195,7 @@ export default {
             if (txsData.txs && txsData.txs.length > 0) {
               const txsDecoded = txsData.txs
                 .map(txEncoded => fetchDecodedTx(lcdUrl, txEncoded, txErrCallback))
-              
+
               txsDecoded.forEach(txRes => txRes.then(txResolved => {
                 if (txResolved) setBlockTxsDecoded(txResolved)
                 if (txStackCallback) txStackCallback(txResolved)
@@ -398,7 +399,36 @@ export default {
        */             
       getMsgType(type, prefix) {
         return type.replace(prefix+'/', '')
-      }      
+      },
+      txMsg({ type, value }, chainId) {
+        const amountDenomHolder = { amount: '', denom: '' }
+        
+        function setMsgHolder(msgs, holder) {
+          for (const [key, msg] of Object.entries(msgs)) {          
+            if (Array.isArray(msg)) {
+              msg.forEach(subMsg => setMsgHolder(subMsg, holder))
+              break
+            }
+            if (key !== 'amount' && key !== 'denom') {
+              holder[capitalCase(key)] = msg
+            } else {
+              amountDenomHolder[key] = msg
+            }
+          }
+
+          if (amountDenomHolder.amount) {
+            holder['Amount'] = `${amountDenomHolder.amount} ${amountDenomHolder.denom}`
+          }
+        }        
+
+        const msgHolder = {
+          type: this.getMsgType(type, chainId)
+        }
+
+        setMsgHolder(value, msgHolder)
+
+        return msgHolder
+      },           
     }
   }
 }

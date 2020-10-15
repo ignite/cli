@@ -30,8 +30,14 @@ export default {
 
 <style scoped>
 
-/* .copy-icon-text >>> a {
-  
-} */
+.copy-icon-text {
+  display: flex;
+}
+.copy-icon-text >>> a {
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;  
+  text-overflow: ellipsis;    
+}
 
 </style>

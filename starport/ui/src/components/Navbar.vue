@@ -153,7 +153,7 @@ nav {
 
   font-weight: var(--f-w-medium);
   line-height: 130%;
-  color: var(--c-txt-secondary);
+  color: var(--c-txt-third);
 }
 .tab:hover {
   color: var(--c-txt-primary);
