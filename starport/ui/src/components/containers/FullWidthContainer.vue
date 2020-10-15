@@ -138,21 +138,26 @@ export default {
 }
 
 
-@media only screen and (max-width: 1400px) {
+@media only screen and (max-width: 1200px) {
   .container {
-    --container-collapsed-width: 20vw;
+    --container-collapsed-width: 25vw;
   }
 }
 @media only screen and (max-width: 992px) {
   .container {
-    min-width: 850px;
-  }
-  .container.-is-collapsed .container__main {
-    width: 320px;
-  }
-  .container__sheet {
-    width: calc(100% - 320px - 1rem);  
+    --container-collapsed-width: 25vw;
   }  
+  .container__sheet {
+    width: calc(100% - var(--container-collapsed-width) - 2rem);
+  }
+}
+@media screen and (max-width: 768px) {
+  .container {
+    --container-collapsed-width: 240px;
+  }    
+  .container__main {
+    min-width: 240px;
+  }
 }
 
 

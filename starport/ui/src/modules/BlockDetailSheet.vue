@@ -119,6 +119,8 @@ export default {
 .sheet {
   height: 100%;
   padding-right: var(--g-offset-side);
+  display: flex;
+  flex-direction: column;
 }
 .sheet {
   overflow-y: scroll;
@@ -164,7 +166,6 @@ export default {
   font-size: 0.8125rem;
   color: var(--c-txt-secondary);
 }
-
 .sheet__main {
   height: 100%;
 }
@@ -176,6 +177,7 @@ export default {
   display: flex;
   align-items: center;
   justify-content: center;
+  overflow: hidden;
 }
 .txs.-is-empty p {
   font-size: 2rem;
@@ -203,6 +205,11 @@ export default {
 .txs__header-note-warn {
   color: var(--c-txt-danger);
 }
+@media only screen and (max-width: 992px) {
+  .txs__header {
+    margin-left: 0;
+  }
+}
 
 .tx {
   display: flex;
@@ -220,7 +227,6 @@ export default {
   width: 15vw;
   max-width: 180px;
 }
-
 .tx__error {
   color: var(--c-txt-danger);  
   padding: 1.25rem 1.5rem;
@@ -238,7 +244,6 @@ export default {
 .tx__error-msg {
   font-size: 0.875rem;  
 }
-
 .tx__title {
   font-weight: var(--f-w-medium);
   font-size: 0.75rem;
@@ -247,6 +252,19 @@ export default {
   text-transform: uppercase;
   color: var(--c-txt-third);
   margin-bottom: 0.85rem;
+}
+@media only screen and (max-width: 992px) {
+  .tx {
+    flex-direction: column-reverse;
+  }
+  .tx__side {
+    width: 100%;
+    max-width: 100%;
+    margin-bottom: 2rem;
+  }
+  .tx__main {
+    width: 100%;
+  }
 }
 
 .tx-info:not(:last-child) {
@@ -264,6 +282,14 @@ export default {
 }
 .tx-info__content {
   color: var(--c-txt-secondary);
+}
+@media only screen and (max-width: 992px) {
+  .tx-info:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  .tx-info:first-child {
+    max-width: 50%;
+  }
 }
 
 </style>

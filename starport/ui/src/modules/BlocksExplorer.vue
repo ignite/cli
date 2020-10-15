@@ -157,6 +157,11 @@ export default {
   height: calc(100vh - var(--header-height) - 1px - 2.25rem);
   padding-top: 2.25rem;
 }
+@media only screen and (max-width: 992px) {
+  .explorer {
+    padding-top: 1.5rem;
+  }
+}
 
 .explorer__chain {
   height: inherit;
@@ -169,6 +174,11 @@ export default {
   font-weight: var(--f-w-bold);
   margin-bottom: 1.5rem;
   padding-left: calc(var(--g-offset-side) - 4px);
+}
+@media only screen and (max-width: 992px) {
+  .explorer__chain-header {
+    margin-bottom: 0.5rem;
+  }
 }
 
 .explorer__block {

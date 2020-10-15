@@ -1,7 +1,7 @@
 <template>
   <div
     :class="[
-      'container', {
+      'chain-container', {
         '-is-loading': isLoading,
         '-has-higher': hasHigherBlocks,
         '-has-lower': hasLowerBlocks
@@ -267,6 +267,11 @@ export default {
 
 <style scoped>
 
+.chain-container {
+  position: relative;
+  height: inherit;
+}
+
 .chain {
   --bg-offset: 0.5rem;
 }
@@ -369,8 +374,8 @@ export default {
   pointer-events: none;
   transition: opacity .3s;
 }
-.container.-has-higher .util-btn.-top,
-.container.-has-lower .util-btn.-btm {
+.chain-container.-has-higher .util-btn.-top,
+.chain-container.-has-lower .util-btn.-btm {
   opacity: 1;
   pointer-events: initial;
   transition: opacity .3s;

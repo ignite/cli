@@ -1,10 +1,15 @@
 <template>
   <nav>
     <div class="nav__main">
-      <div class="nav__logo">
-        <span><LogoStarport/></span>
-        <h1>Starport</h1>
-      </div>
+      <router-link to="/">      
+        <div class="nav__logo">
+          <span><LogoStarport/></span>
+          <h1>Starport</h1>
+        </div>
+      </router-link>      
+    </div>
+    <div class="nav__center">
+      <div v-if="this.$route.name === 'welcome'" class="nav__center-msg -f-cosmos-overline-0">Welcome to Starport</div>
     </div>
     <div class="nav__sub">
       <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>      
@@ -114,11 +119,18 @@ nav {
   letter-spacing: -0.016em;
 }
 
-@media only screen and (max-width: 1200px) {
+.nav__center-msg {
+  color: var(--c-txt-third);
+}
+
+@media only screen and (max-width: 768px) {
+  .nav__center-msg {
+    display: none;
+  }
+}
+@media only screen and (max-width: 576px) {
   nav {
-    height: auto;
     padding-bottom: 0;
-    
   }
   .nav__ham {
     display: block;
@@ -129,16 +141,6 @@ nav {
     align-items: center;    
     padding: 0 0.25rem;
   }
-  .nav__sub {
-    display: none;
-  }
-  .nav__tabs {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 0;
-  }
-}
-@media screen and (max-width: 768px) {
   .nav__tabs {
     display: none;
   }

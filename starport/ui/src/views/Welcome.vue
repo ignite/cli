@@ -3,7 +3,6 @@
   <div class="main">
 
     <div class="hero">
-      <h4 class="-f-cosmos-overline-0">Welcome to Starport</h4>
       <h2>Your blockchain <br> is ready.</h2>
       <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, governance, custom data types and more.</p>
     </div>
@@ -304,7 +303,13 @@ export default {
 
 .main {
   position: relative;
+  margin-top: 4rem;
   margin-bottom: 6rem;
+}
+@media screen and (max-width: 768px) {
+  .main {
+    margin-top: 2rem;
+  }
 }
 
 .hero {
