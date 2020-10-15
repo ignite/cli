@@ -10,3 +10,39 @@
 a {
   text-decoration: none;
 }
+
+.fade-enter-active {
+  transition: opacity .3s ease-in-out;
+}
+.fade-enter,
+.fade-leave-active {
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+}
+.fade-fast-enter-active,
+.fade-fast-leave-active {
+  transition: opacity .3s ease-in-out;
+}
+.fade-fast-enter,
+.fade-fast-leave-active {
+  opacity: 0;
+  transition: opacity .3s ease-in-out;
+}
+
+.fadeMild-enter-active {
+  transition: opacity .3s ease-in-out;
+}
+.fadeMild-enter,
+.fadeMild-leave-active {
+  opacity: .3;
+  transition: opacity .3s ease-in-out;
+}
+.fadeMild-fast-enter-active,
+.fadeMild-fast-leave-active {
+  transition: opacity .3s ease-in-out;
+}
+.fadeMild-fast-enter,
+.fadeMild-fast-leave-active {
+  opacity: .3;
+  transition: opacity .3s ease-in-out;
+}

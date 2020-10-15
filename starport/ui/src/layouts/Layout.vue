@@ -140,12 +140,6 @@ export default {
   box-sizing: border-box;
   border-bottom: 1px solid var(--c-border-primary);
 }
-/* @media only screen and (max-width: 1200px) {
-  .navbar__logo {
-    margin-left: 0;
-    justify-content: center;
-  }
-} */
 
 
 .sheet {
@@ -153,9 +147,6 @@ export default {
   padding: 2rem var(--g-offset-side);
   box-sizing: border-box;
   overflow-x: hidden;
-  /* display: flex;
-  flex-direction: column;
-  justify-content: space-between; */
 }
 .sheet__main {
   margin-bottom: 6rem;
@@ -193,24 +184,6 @@ export default {
   top: 0;
   right: 0;
   z-index: -1;
-}
-
-.fade-enter-active {
-  transition: opacity .3s ease-in-out;
-}
-.fade-enter,
-.fade-leave-active {
-  opacity: 0;
-  transition: opacity .3s ease-in-out;
-}
-.fade-fast-enter-active,
-.fade-fast-leave-active {
-  transition: opacity .3s ease-in-out;
-}
-.fade-fast-enter,
-.fade-fast-leave-active {
-  opacity: 0;
-  transition: opacity .3s ease-in-out;
 }
 
 </style>

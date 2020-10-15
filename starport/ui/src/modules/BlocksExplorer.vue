@@ -1,17 +1,28 @@
 <template>
-  <div class="explorer">
-    <FullWidthContainer>
-      <div slot="sideSheet" class="explorer__block">
-        <BlockDetailSheet :block="highlightedBlock"/>
-      </div>
-      <div slot="mainContent" class="explorer__chain">
-        <div class="explorer__chain-header">Blocks</div>
-        <div class="explorer__chain-main">
-          <BlockChain :blocks="fmtBlockData" />
+  <transition name="fade" mode="out-in" key="default">
+    <div v-if="!isBlocksStackEmpty" class="explorer">
+      <FullWidthContainer>
+        <div slot="sideSheet" class="explorer__block">
+          <transition name="fadeMild" mode="out-in">
+            <BlockDetailSheet :block="highlightedBlock" :key="highlightedBlock"/>
+          </transition>
         </div>
-      </div>      
-    </FullWidthContainer>
-  </div>
+        <div slot="mainContent" class="explorer__chain">
+          <div class="explorer__chain-header">Blocks</div>
+          <div class="explorer__chain-main">
+            <BlockChain :blocks="fmtBlockData" />
+          </div>
+        </div>      
+      </FullWidthContainer>
+    </div>
+
+    <div v-else class="explorer -is-empty" key="empty">
+      <div class="explorer__container">
+        <IconBox/>
+        <p>Generating blocks</p>
+      </div>    
+    </div>
+  </transition>
 </template>
 
 <script>
@@ -23,12 +34,14 @@ import _ from 'lodash'
 import FullWidthContainer from '@/components/containers/FullWidthContainer'
 import BlockDetailSheet from '@/modules/BlockDetailSheet'
 import BlockChain from '@/modules/BlockChain'
+import IconBox from "@/assets/icons/Box.vue"
 
 export default {
   components: {
     FullWidthContainer,
     BlockChain,
     BlockDetailSheet,
+    IconBox
   },
   data() {
     return {
@@ -47,20 +60,12 @@ export default {
      *
      */
     ...mapGetters('cosmos', [ 'appEnv' ]),
-    ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange', 'latestBlock' ]),
-    ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
      * Local
      * 
      */    
-    fmtIsTableSheetActive() {
-      return this.isTableSheetActive(this.blocksExplorerTableId)
-    },    
-    fmtTargetTable() {
-      return this.targetTable(this.blocksExplorerTableId)
-    },
     fmtBlockData() {
       const fmtBlockForTable = this.blockFormatter.blockForTable(this.blocksStack)
 
@@ -72,21 +77,11 @@ export default {
 
       return fmtBlockForTable
     },
-    isBlocksTableEmpty() {
+    isBlocksStackEmpty() {
       return this.blocksStack.length<=0 ||
         !this.fmtBlockData || 
         this.fmtBlockData?.length<=0
     },
-    blockFilterText() {
-      return !this.states.isHidingBlocksWithoutTxs
-        ? 'Hide blocks without txs'
-        : 'Show blocks without txs'
-    },
-    blockTableEmptyText() {
-      return (this.blocksStack.length>=0 && this.fmtBlockData?.length<=0 && this.states.isHidingBlocksWithoutTxs) 
-        ? 'Waiting for blocks with txs'
-        : 'Waiting for blocks'
-    }
   },  
   methods: {
     /*
@@ -94,7 +89,6 @@ export default {
      * Vuex 
      *
      */    
-    ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
     ...mapMutations('cosmos/blocks', [ 'popOverloadBlocks', 'sortBlocksStack' ]),
     ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain', 'setHighlightedBlock' ]),
     /*
@@ -185,39 +179,25 @@ export default {
   height: 100%;
 }
 
-.table-wrapper {
-  --table-height: 86vh;
-}
-
-.empty-view {
-  width: 100%;
-  height: 100%;
-  max-height: var(--table-height);
-  height: var(--table-height);
-  background-color: var(--c-bg-secondary);
-  border-radius: var(--bd-radius-primary);
+.explorer.-is-empty {
   display: flex;
   justify-content: center;
   align-items: center;
+  color: var(--c-txt-light);
+  animation: tempLoading 5s ease-in-out infinite;
 }
-
-.table-wrapper {
-  max-height: var(--table-height);
-  height: var(--table-height);
+.explorer.-is-empty .explorer__container svg {
+  display: block;
+  margin: 0 auto 0.5rem auto;
 }
-
-.table-wrapper__utils {
-  margin-left: 4px;
+.explorer.-is-empty .explorer__container svg >>> path {
+  fill: var(--c-txt-light);
+  fill-opacity: 1;
 }
-.table-wrapper__utils-btn {
-  font-size: 0.875rem;
-  color: var(--c-txt-grey);
-}
-
-@media only screen and (max-width: 1200px) {
-  .table-wrapper {
-    --table-height: 80vh;
-  }
+@keyframes tempLoading {
+	0%, 100% { opacity: 0.3;}
+	50% { opacity: .8; }
+	75% { opacity: .8; }
 }
 
 
