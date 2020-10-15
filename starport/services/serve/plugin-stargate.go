@@ -52,6 +52,7 @@ func (p *stargatePlugin) AddUserCommand(accountName string) step.Option {
 		"add",
 		accountName,
 		"--output", "json",
+		"--keyring-backend", "test",
 	)
 }
 
@@ -62,6 +63,7 @@ func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 		"show",
 		accountName,
 		"-a",
+		"--keyring-backend", "test",
 	)
 }
 
