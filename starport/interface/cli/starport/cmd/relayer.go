@@ -21,7 +21,7 @@ func NewRelayer() *cobra.Command {
 func NewRelayerInfo() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "me",
-		Short: "Retrives self chain information to share with other chains",
+		Short: "Retrieves self chain information to share with other chains",
 		RunE:  relayerInfoHandler,
 	}
 	return c

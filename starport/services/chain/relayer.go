@@ -203,6 +203,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 			))
 	}
 
+	// link chains.
 	var wg sync.WaitGroup
 	for _, account := range sconf.Relayer.Accounts {
 		wg.Add(1)
@@ -217,21 +218,20 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 				}
 				return cmdrunner.
 					New().
-					Run(ctx,
-						step.New(
-							step.Exec(
-								"rly",
-								"--home",
-								relayerHome,
-								"tx",
-								"link",
-								fmt.Sprintf("%s-%s", selfacc.Name, account.Name),
-								"-d",
-								"-o",
-								"3s",
-							),
-							step.Stderr(s.stdLog(logStarport).err),
+					Run(ctx, step.New(
+						step.Exec(
+							"rly",
+							"--home",
+							relayerHome,
+							"tx",
+							"link",
+							fmt.Sprintf("%s-%s", selfacc.Name, account.Name),
+							"-d",
+							"-o",
+							"3s",
 						),
+						step.Stderr(s.stdLog(logStarport).err),
+					),
 					)
 			}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 			if err != nil {
