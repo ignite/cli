@@ -13,7 +13,7 @@ import (
 type create<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
-	<%= for (i, field) in Fields { %><%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>"`
+	<%= for (i, field) in Fields { %><%= title(field.Name) %> string `json:"<%= field.Name %>"`
 	<% } %>
 }
 
@@ -36,7 +36,29 @@ func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		msg := types.NewMsg<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+		<%= for (i, field) in Fields { %><%= if (field.Datatype == "int32") { %>
+		parsed<%= title(field.Name) %>64, err := strconv.ParseInt(req.<%= title(field.Name) %>, 10, 32)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		parsed<%= title(field.Name) %> := int32(parsed<%= title(field.Name) %>64)
+			<% } else if (field.Datatype == "bool") { %>
+		parsed<%= title(field.Name) %>, err := strconv.ParseBool(req.<%= title(field.Name) %>)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}	
+			<% } else { %>
+		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
+		<% } %><% } %>
+
+		msg := types.NewMsg<%= title(TypeName) %>(
+			creator,
+			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
+			<% } %>
+		)
+
 		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
 	}
 }
