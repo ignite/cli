@@ -224,4 +224,4 @@ func (p *launchpadPlugin) GenesisPath() string {
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }
 
-func (p *launchpadPlugin) SupportsIBC() bool { return true }
+func (p *launchpadPlugin) SupportsIBC() bool { return false }
