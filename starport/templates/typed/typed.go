@@ -29,6 +29,7 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 		return err
 	}
 	ctx := plush.NewContext()
+	ctx.Set("ModuleName", opts.ModuleName)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("ModulePath", opts.ModulePath)
@@ -44,7 +45,7 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 		return strconv
 	})
 	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
+	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
 	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
 	return nil

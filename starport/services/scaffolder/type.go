@@ -17,7 +17,7 @@ import (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(stype string, fields ...string) error {
+func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -26,17 +26,40 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	if err != nil {
 		return err
 	}
-	ok, err := isTypeCreated(s.path, path.Package, stype)
+
+	// If no module is provided, we add the type to the app's module
+	if moduleName == "" {
+		moduleName = path.Package
+	}
+	ok, err := ModuleExists(s.path, moduleName)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("The module %s doesn't exist.", moduleName)
+	}
+
+	ok, err = isTypeCreated(s.path, moduleName, stype)
 	if err != nil {
 		return err
 	}
 	if ok {
 		return fmt.Errorf("%s type is already added.", stype)
 	}
+
+	// Used to check duplicated field
+	existingFields := make(map[string]bool)
+
 	var tfields []typed.Field
 	for _, f := range fields {
 		fs := strings.Split(f, ":")
 		name := fs[0]
+
+		if _, exists := existingFields[name]; exists {
+			return fmt.Errorf("The field %s is duplicated.", name)
+		}
+		existingFields[name] = true
+
 		datatypeName, datatype := "string", "string"
 		acceptedTypes := map[string]string{
 			"string": "string",
@@ -60,8 +83,9 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
-			ModulePath: path.RawPath,
 			AppName:    path.Package,
+			ModulePath: path.RawPath,
+			ModuleName: moduleName,
 			TypeName:   stype,
 			Fields:     tfields,
 		}
@@ -86,8 +110,8 @@ func (s *Scaffolder) AddType(stype string, fields ...string) error {
 	return s.protoc(pwd, version)
 }
 
-func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, "x", appName, "types"))
+func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {
+	abspath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
 	if err != nil {
 		return false, err
 	}
@@ -96,6 +120,7 @@ func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error
 	if err != nil {
 		return false, err
 	}
+	// To check if the file is created, we check if the message MsgCreate[TypeName] or Msg[TypeName] is defined
 	for _, pkg := range all {
 		for _, f := range pkg.Files {
 			ast.Inspect(f, func(x ast.Node) bool {
@@ -106,7 +131,7 @@ func isTypeCreated(appPath, appName, typeName string) (isCreated bool, err error
 				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
 					return true
 				}
-				if "Msg"+strings.Title(typeName) != typeSpec.Name.Name {
+				if ("MsgCreate"+strings.Title(typeName) != typeSpec.Name.Name) && ("Msg"+strings.Title(typeName) != typeSpec.Name.Name) {
 					return true
 				}
 				isCreated = true
