@@ -96,8 +96,6 @@ func (s *Chain) RelayerAdd(base64Info string) error {
 }
 
 func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
-
 	sconf, err := secretconf.Open(s.app.Path)
 	if err != nil {
 		return err
@@ -105,6 +103,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	if !s.plugin.SupportsIBC() || len(sconf.Relayer.Accounts) == 0 {
 		return nil
 	}
+	fmt.Fprintf(s.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
 
 	// init path for the relayer.
 	relayerHome, err := s.initRelayerHome()
@@ -252,10 +251,10 @@ func (s *Chain) initRelayerHome() (path string, err error) {
 	if err != nil {
 		return "", err
 	}
-	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
-		return filepath.Join(home, ".relayer"), nil
-	}
 	relayerHome := filepath.Join(home, s.app.nd(), "relayer")
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		relayerHome = filepath.Join(home, ".relayer")
+	}
 	if err := os.MkdirAll(filepath.Join(relayerHome, "config"), os.ModePerm); err != nil {
 		return "", err
 	}
