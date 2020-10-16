@@ -21,6 +21,20 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 		),
 	)
 
+	env.Exec("create a type with int",
+		step.New(
+			step.Exec("starport", "type", "employee", "name:string", "level:int"),
+			step.Workdir(path),
+		),
+	)
+
+	env.Exec("create a type with bool",
+		step.New(
+			step.Exec("starport", "type", "document", "signed:bool"),
+			step.Workdir(path),
+		),
+	)
+
 	env.Exec("should prevent creating an existing type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -43,6 +57,20 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	env.Exec("create a type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
+			step.Workdir(path),
+		),
+	)
+
+	env.Exec("create a type with int",
+		step.New(
+			step.Exec("starport", "type", "employee", "name:string", "level:int"),
+			step.Workdir(path),
+		),
+	)
+
+	env.Exec("create a type with bool",
+		step.New(
+			step.Exec("starport", "type", "document", "signed:bool"),
 			step.Workdir(path),
 		),
 	)
