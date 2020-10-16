@@ -1,4 +1,4 @@
-package starportserve
+package chain
 
 import (
 	"io"
@@ -19,6 +19,7 @@ var prefixes = map[logType]struct {
 	logBuild:    {"build", 203},
 	logAppd:     {"%sd", 204},
 	logAppcli:   {"%scli", 205},
+	logRelayer:  {"relayer", 206},
 }
 
 // logType represents the different types of logs.
@@ -29,10 +30,11 @@ const (
 	logBuild
 	logAppd
 	logAppcli
+	logRelayer
 )
 
 // std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.
-func (s *Serve) stdSteps(logType logType) []step.Option {
+func (s *Chain) stdSteps(logType logType) []step.Option {
 	std := s.stdLog(logType)
 	return []step.Option{
 		step.Stdout(std.out),
@@ -45,7 +47,7 @@ type std struct {
 }
 
 // std returns the stdout and stderr to output logs by logType.
-func (s *Serve) stdLog(logType logType) std {
+func (s *Chain) stdLog(logType logType) std {
 	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		var (
 			prefix    = prefixes[logType]

@@ -1,0 +1,20 @@
+[Unit]
+Description=Vue
+
+[Service]
+ExecStart=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin/npm run-script serve
+WorkingDirectory=/vue
+Restart=always
+# Restart service after 10 seconds if node service crashes
+RestartSec=10
+
+#CREATE A USER LATER ON
+#User=<alternate user>
+#Group=<alternate group>
+
+Environment=NODE_ENV=production
+Environment=PATH=/usr/local/lib/nodejs/node-v12.18.4-linux-arm64/bin:/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin
+
+
+[Install]
+WantedBy=multi-user.target

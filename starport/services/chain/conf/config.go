@@ -1,4 +1,4 @@
-package starportconf
+package conf
 
 import (
 	"fmt"
@@ -37,8 +37,12 @@ type Config struct {
 
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
-	Name  string   `yaml:"name"`
-	Coins []string `yaml:"coins"`
+	Name     string   `yaml:"name"`
+	Coins    []string `yaml:"coins"`
+	Mnemonic string   `yaml:"mnemonic"`
+
+	// The RPCAddress off the chain that account is issued at.
+	RPCAddress string `yaml:"rpc_address"`
 }
 
 // Validator holds info related to validator settings.

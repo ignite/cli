@@ -2,6 +2,7 @@ package rest
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/cosmos/cosmos-sdk/client/context"
 	"github.com/cosmos/cosmos-sdk/types/rest"
@@ -10,10 +11,13 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Used to not have an error if strconv is unused
+var _ = strconv.Itoa(42)
+
 type create<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
-	<%= for (i, field) in Fields { %><%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>"`
+	<%= for (i, field) in Fields { %><%= title(field.Name) %> string `json:"<%= field.Name %>"`
 	<% } %>
 }
 
@@ -33,7 +37,29 @@ func create<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.Handler
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgCreate<%= title(TypeName) %>(creator, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+
+		<%= for (i, field) in Fields { %><%= if (field.Datatype == "int32") { %>
+		parsed<%= title(field.Name) %>64, err := strconv.ParseInt(req.<%= title(field.Name) %>, 10, 32)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		parsed<%= title(field.Name) %> := int32(parsed<%= title(field.Name) %>64)
+			<% } else if (field.Datatype == "bool") { %>
+		parsed<%= title(field.Name) %>, err := strconv.ParseBool(req.<%= title(field.Name) %>)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}	
+			<% } else { %>
+		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
+		<% } %><% } %>
+
+		msg := types.NewMsgCreate<%= title(TypeName) %>(
+			creator,
+			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
+			<% } %>
+		)
 
 		err = msg.ValidateBasic()
 		if err != nil {
@@ -49,7 +75,7 @@ type set<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	ID 		string `json:"id"`
 	Creator string `json:"creator"`
-	<%= for (i, field) in Fields { %><%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>"`
+	<%= for (i, field) in Fields { %><%= title(field.Name) %> string `json:"<%= field.Name %>"`
 	<% } %>
 }
 
@@ -69,7 +95,30 @@ func set<%= title(TypeName) %>Handler(cliCtx context.CLIContext) http.HandlerFun
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
-		msg := types.NewMsgSet<%= title(TypeName) %>(creator, req.ID, <%= for (i, field) in Fields { %> req.<%= title(field.Name) %>, <% } %>)
+
+		<%= for (i, field) in Fields { %><%= if (field.Datatype == "int32") { %>
+		parsed<%= title(field.Name) %>64, err := strconv.ParseInt(req.<%= title(field.Name) %>, 10, 32)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		parsed<%= title(field.Name) %> := int32(parsed<%= title(field.Name) %>64)
+			<% } else if (field.Datatype == "bool") { %>
+		parsed<%= title(field.Name) %>, err := strconv.ParseBool(req.<%= title(field.Name) %>)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}	
+			<% } else { %>
+		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
+		<% } %><% } %>
+
+		msg := types.NewMsgSet<%= title(TypeName) %>(
+			creator,
+			req.ID,
+			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
+			<% } %>
+		)
 
 		err = msg.ValidateBasic()
 		if err != nil {
