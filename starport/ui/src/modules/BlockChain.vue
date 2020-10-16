@@ -226,6 +226,7 @@ export default {
     handleNavClick(dir) {
       if (dir==='top') {
         this.$refs.chain.scrollTo(0,0)
+        console.log('chain clicked')
       }
     },
     setHasHigherBlocksState() {

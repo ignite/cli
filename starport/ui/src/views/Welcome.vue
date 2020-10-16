@@ -4,7 +4,7 @@
 
     <div class="hero">
       <h2>Your blockchain <br> is ready.</h2>
-      <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, governance, custom data types and more.</p>
+      <p>Starport has scaffolded and launched a Cosmos blockchain for you. Your blockchain has its own tokens, accounts, custom data types and more.</p>
     </div>
 
     <div class="dashboard -grid-col-3">
@@ -12,7 +12,7 @@
       <div class="-center-top -f-cosmos-overline-0">STACK</div>
 
       <div class="-left dashboard__card -log">
-        <IconItem :iconType="'check'"  :itemText="'Depencies installed'" />        
+        <IconItem :iconType="'check'"  :itemText="'Dependencies installed'" />        
         <IconItem :iconType="'check'"  :itemText="'Source code scaffolded'" />        
         <IconItem :iconType="'check'"  :itemText="'Build complete'" />        
         <IconItem :iconType="'check'"  :itemText="'Blockchain initialized'" />        
@@ -81,6 +81,7 @@
             :key="card.title"
             :class="['card-wrapper text-card', { '-is-dark': card.tagline === 'tutorial' }]"
             :href="card.link"
+            target="_blank"
           >
             <div class="text-card__top">
               <span class="text-card__tagline">{{card.tagline}}</span>
@@ -99,6 +100,7 @@
           :key="card.title"
           class="image-card"
           :href="card.link"
+          target="_blank"
         >
           <img class="image-card__img card-wrapper" :src="card.imgUrl" :alt="card.alt">
           <div class="image-card__text">

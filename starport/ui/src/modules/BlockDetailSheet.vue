@@ -9,8 +9,9 @@
       <div class="sheet__header-side">
         <div class="sheet__header-side-top">
           <CopyIconText
+            class="copy-icon-text"
             :text="block.data.blockMsg.blockHash_sliced" 
-            :link="`${appEnv.RPC}/block?hash=${block.data.blockMsg.blockHash}`"
+            :link="`${appEnv.RPC}/block_by_hash?hash=0x${block.data.blockMsg.blockHash}`"
             :copyContent="block.data.blockMsg.blockHash"
             :tooltipText="'BlockHash is copied'"
           />
@@ -56,8 +57,9 @@
                 <div class="tx__info-content tx-info">
                   <span class="tx-info__title">Hash</span>
                   <CopyIconText
+                    class="copy-icon-text"
                     :text="tx.txhash" 
-                    :link="`${appEnv.RPC}/block?hash=${tx.txhash}`"
+                    :link="`${appEnv.RPC}/tx?hash=0x${tx.txhash}`"
                     :copyContent="tx.txhash"
                     :tooltipText="'TxHash is copied'"
                     :tooltipDirection="'left'"
@@ -117,7 +119,7 @@ export default {
     },
     getTxFee(tx) {
       const fee = tx.tx.value.fee.amount
-      return fee ? '0' : `${fee[0].amount} ${fee[0].denom}`
+      return !fee ? '0' : `${fee[0].amount} ${fee[0].denom}`
     }
   }
 }
@@ -301,7 +303,7 @@ export default {
   }
 }
 
-.tx__info-content >>> a {
+.copy-icon-text >>> a {
   font-family: var(--f-secondary);
 }
 

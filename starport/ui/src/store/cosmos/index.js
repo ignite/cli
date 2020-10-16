@@ -10,39 +10,16 @@ const {
   VUE_APP_ADDRESS_PREFIX
 } = process.env
 
-// const GITPOD =
-//   VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
-// console.log(process.env, GITPOD)
-// const STARPORT_APP =
-//   (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||
-//   'http://localhost:12345'
-// const FRONTEND =
-//   (GITPOD && `${GITPOD.protocol}//8080-${GITPOD.hostname}`) ||
-//   'http://localhost:8080'
-// const API =
-//   VUE_APP_API_COSMOS ||
-//   (GITPOD && `${GITPOD.protocol}//1317-${GITPOD.hostname}`) ||
-//   'http://localhost:1317'
-// const RPC =
-//   VUE_APP_API_TENDERMINT ||
-//   (GITPOD && `${GITPOD.protocol}//26657-${GITPOD.hostname}`) ||
-//   'http://localhost:26657'
-// const WS =
-//   VUE_APP_WS_TENDERMINT ||
-//   (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`) ||
-//   'ws://localhost:26657/websocket'
-// const ADDR_PREFIX = VUE_APP_ADDRESS_PREFIX || 'cosmos'
-
 export default {
   namespaced: true,
   state: {
-    APP_ENV: {
+    APP_ENV: {      
       GITPOD: '',
+      STARPORT_APP: VUE_APP_CUSTOM_URL ? '' : 'http://localhost:12345',
       FRONTEND: '',
       RPC: '',
       API: '',
       WS: '',
-      STARPORT_APP: '',
       ADDR_PREFIX: ''
     },
     backend: {
@@ -133,7 +110,6 @@ export default {
       }
     }
   },
-  actions: {},
   modules: {
     blocks,
     transactions,

@@ -428,11 +428,8 @@ export default {
      */        
     async initBlockConnection({ commit, dispatch, getters, rootGetters }) {
       const appEnv = rootGetters['cosmos/appEnv']     
-      const statusUrl = process.env.VUE_APP_CUSTOM_URL ? '' : 'http://localhost:12345'
-      const { data } = await axios.get(`${statusUrl}/status`)      
-      const { env } = data
-      const GITPOD = env.vue_app_custom_url && new URL(env.vue_app_custom_url)
-
+      const { data } = await axios.get(`${appEnv.STARPORT_APP}/status`)      
+      const GITPOD = data.env.vue_app_custom_url && new URL(data.env.vue_app_custom_url)
       const wsUrl = GITPOD
         ? process.env.VUE_APP_WS_TENDERMINT || (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`)
         : 'ws://localhost:26657/websocket'

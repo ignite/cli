@@ -175,7 +175,6 @@ export default {
            *  
            */                        
           const setBlockTxsDecoded = (tx) => {
-            console.log(tx)
             blockTemplate.txsDecoded.push(tx.data)
           }
           /**
