@@ -1,6 +1,6 @@
 # Install Starport 
 
-**Prerequisites:** If you want to install Starport locally, make sure to have [Golang >=1.14](https://golang.org/) and a recent version of [Node.js](https://nodejs.org/) installed on your system.
+**Prerequisites:** If you want to install Starport locally, make sure to have [Golang >=1.14](https://golang.org/) and [Node.js >=12.19.0](https://nodejs.org/) installed on your system.
 
 ## Installation Options
 
