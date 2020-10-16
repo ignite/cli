@@ -11,14 +11,13 @@ export default {
     ...mapGetters('cosmos', [ 'appEnv', 'backendEnv' ]),
   },
   methods: {
-    ...mapMutations('cosmos', [ 'setBackendRunningStates', 'setBackendEnv' ]),
+    ...mapMutations('cosmos', [ 'setBackendRunningStates', 'setBackendEnv', 'setAppEnv' ]),
     async setStatusState() {
       try {
-        // const { data } = await axios.get(`${this.appEnv.STARPORT_APP}/status`)
         const { data } = await axios.get(`/status`)
         const { status, env } = data
 
-        console.log(data)
+        this.setAppEnv({ customUrl: env.vue_app_custom_url })
 
         this.setBackendRunningStates({
           frontend: status.is_my_app_frontend_alive,
