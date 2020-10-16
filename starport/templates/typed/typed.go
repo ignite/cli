@@ -63,7 +63,7 @@ func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
 		}
 		replacement := fmt.Sprintf(`%[1]v
-		<sp-type-form type="%[2]v" :fields="[%[3]v]" />`, placeholder4, opts.TypeName, fields)
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, placeholder4, opts.TypeName, fields, opts.ModuleName)
 		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
