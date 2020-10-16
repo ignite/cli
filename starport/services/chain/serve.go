@@ -1,15 +1,11 @@
-// TODO change pkg name to chain.
-package starportserve
+package chain
 
 import (
 	"bytes"
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"go/build"
-	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -20,8 +16,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/gookit/color"
 	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -32,169 +26,15 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
-	"github.com/tendermint/starport/starport/services/serve/rly"
-	starportsecretconf "github.com/tendermint/starport/starport/services/serve/secretconf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
+	"github.com/tendermint/starport/starport/services/chain/rly"
+	starportsecretconf "github.com/tendermint/starport/starport/services/chain/secretconf"
 	"golang.org/x/sync/errgroup"
 	"gopkg.in/yaml.v2"
 )
 
-var (
-	appBackendWatchPaths = append([]string{
-		"app",
-		"cmd",
-		"x",
-		starportsecretconf.SecretFile,
-	}, starportconf.FileNames...)
-
-	vuePath = "vue"
-
-	errorColor = color.Red.Render
-	infoColor  = color.Yellow.Render
-)
-
-type version struct {
-	tag  string
-	hash string
-}
-
-// TODO change name to Chain.
-type Serve struct {
-	app            App
-	plugin         Plugin
-	version        version
-	verbose        bool
-	serveCancel    context.CancelFunc
-	serveRefresher chan struct{}
-	stdout, stderr io.Writer
-}
-
-func New(app App, verbose bool) (*Serve, error) {
-	s := &Serve{
-		app:            app,
-		verbose:        verbose,
-		serveRefresher: make(chan struct{}, 1),
-		stdout:         ioutil.Discard,
-		stderr:         ioutil.Discard,
-	}
-
-	if verbose {
-		s.stdout = os.Stdout
-		s.stderr = os.Stderr
-	}
-
-	var err error
-
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return nil, err
-	}
-
-	s.plugin, err = s.pickPlugin()
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
-// Build builds an app.
-func (s *Serve) Build(ctx context.Context) error {
-	if err := s.setup(ctx); err != nil {
-		return err
-	}
-	conf, err := s.config()
-	if err != nil {
-		return &CannotBuildAppError{err}
-	}
-	steps, binaries := s.buildSteps(ctx, conf)
-	if err := cmdrunner.
-		New(s.cmdOptions()...).
-		Run(ctx, steps...); err != nil {
-		return err
-	}
-	fmt.Fprintf(s.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
-	return nil
-}
-
-type relayerInfo struct {
-	ChainID    string
-	Mnemonic   string
-	RPCAddress string
-}
-
-// RelayerInfo initializes or updates relayer setup for the chain itself and returns
-// a meta info to share with other chains so they can connect.
-// TODO only stargate
-func (s *Serve) RelayerInfo() (base64Info string, err error) {
-	sconf, err := starportsecretconf.Open(s.app.Path)
-	if err != nil {
-		return "", err
-	}
-	relayerAcc, found := sconf.SelfRelayerAccount(s.app.n())
-	if !found {
-		if err := sconf.SetSelfRelayerAccount(s.app.n()); err != nil {
-			return "", err
-		}
-		relayerAcc, _ = sconf.SelfRelayerAccount(s.app.n())
-		if err := starportsecretconf.Save(s.app.Path, sconf); err != nil {
-			return "", err
-		}
-	}
-	rpcAddress, err := s.rpcAddress()
-	if err != nil {
-		return "", err
-	}
-	info := relayerInfo{
-		ChainID:    s.app.n(),
-		Mnemonic:   relayerAcc.Mnemonic,
-		RPCAddress: rpcAddress,
-	}
-	data, err := json.Marshal(info)
-	if err != nil {
-		return "", err
-	}
-	return base64.RawStdEncoding.EncodeToString(data), nil
-}
-
-func (s *Serve) RelayerAdd(base64Info string) error {
-	data, err := base64.RawStdEncoding.DecodeString(base64Info)
-	if err != nil {
-		return err
-	}
-	var info relayerInfo
-	if err := json.Unmarshal(data, &info); err != nil {
-		return err
-	}
-	sconf, err := starportsecretconf.Open(s.app.Path)
-	if err != nil {
-		return err
-	}
-	sconf.UpsertRelayerAccount(starportsecretconf.RelayerAccount{
-		ID:         info.ChainID,
-		Mnemonic:   info.Mnemonic,
-		RPCAddress: info.RPCAddress,
-	})
-	if err := starportsecretconf.Save(s.app.Path, sconf); err != nil {
-		return err
-	}
-	fmt.Fprint(s.stdLog(logStarport).out, "\n💫  Chain added\n")
-	return nil
-}
-
-func (s *Serve) rpcAddress() (string, error) {
-	rpcAddress := os.Getenv("RPC_ADDRESS")
-	if rpcAddress == "" {
-		conf, err := s.config()
-		if err != nil {
-			return "", err
-		}
-		rpcAddress = conf.Servers.RPCAddr
-	}
-	return rpcAddress, nil
-}
-
 // Serve serves an app.
-func (s *Serve) Serve(ctx context.Context) error {
+func (s *Chain) Serve(ctx context.Context) error {
 	if err := s.setup(ctx); err != nil {
 		return err
 	}
@@ -252,7 +92,7 @@ func (s *Serve) Serve(ctx context.Context) error {
 	return g.Wait()
 }
 
-func (s *Serve) setup(ctx context.Context) error {
+func (s *Chain) setup(ctx context.Context) error {
 	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
 
 	if err := s.checkSystem(); err != nil {
@@ -266,7 +106,7 @@ func (s *Serve) setup(ctx context.Context) error {
 
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *Serve) checkSystem() error {
+func (s *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
@@ -282,14 +122,14 @@ func (s *Serve) checkSystem() error {
 	return nil
 }
 
-func (s *Serve) refreshServe() {
+func (s *Chain) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
 	}
 	s.serveRefresher <- struct{}{}
 }
 
-func (s *Serve) watchAppBackend(ctx context.Context) error {
+func (s *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
@@ -299,13 +139,13 @@ func (s *Serve) watchAppBackend(ctx context.Context) error {
 	)
 }
 
-func (s *Serve) cmdOptions() []cmdrunner.Option {
+func (s *Chain) cmdOptions() []cmdrunner.Option {
 	return []cmdrunner.Option{
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
 }
 
-func (s *Serve) serve(ctx context.Context) error {
+func (s *Chain) serve(ctx context.Context) error {
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -328,7 +168,7 @@ func (s *Serve) serve(ctx context.Context) error {
 		Run(ctx, s.serverSteps(ctx, conf)...)
 }
 
-func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
+func (s *Chain) initSteps(ctx context.Context, conf starportconf.Config) (
 	steps step.Steps) {
 	// cleanup persistent data from previous `serve`.
 	steps.Add(step.New(
@@ -479,7 +319,7 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 	return
 }
 
-func (s *Serve) relayerSteps(ctx context.Context, sconf *starportsecretconf.Config) (steps step.Steps) {
+func (s *Chain) relayerSteps(ctx context.Context, sconf *starportsecretconf.Config) (steps step.Steps) {
 	// prep relayer config
 	rlyConf := rly.Config{
 		Global: rly.GlobalConfig{
@@ -624,7 +464,7 @@ func (s *Serve) relayerSteps(ctx context.Context, sconf *starportsecretconf.Conf
 	return steps
 }
 
-func (s *Serve) createAccountSteps(ctx context.Context, name string, coins []string, isSilent bool) []*step.Step {
+func (s *Chain) createAccountSteps(ctx context.Context, name string, coins []string, isSilent bool) []*step.Step {
 	var (
 		key      = &bytes.Buffer{}
 		mnemonic = &bytes.Buffer{}
@@ -681,75 +521,7 @@ func (s *Serve) createAccountSteps(ctx context.Context, name string, coins []str
 	}
 }
 
-func (s *Serve) buildSteps(ctx context.Context, conf starportconf.Config) (
-	steps step.Steps, binaries []string) {
-	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
-	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
-	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
-	var (
-		buildErr = &bytes.Buffer{}
-	)
-	captureBuildErr := func(err error) error {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			return &CannotBuildAppError{errors.New(buildErr.String())}
-		}
-		return err
-	}
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"mod",
-				"tidy",
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"mod",
-				"verify",
-			),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logBuild)...).
-		Add(step.Stderr(buildErr))...,
-	))
-
-	// install the app.
-	steps.Add(step.New(
-		step.PreExec(func() error {
-			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
-			return nil
-		}),
-	))
-	installOptions, binaries := s.plugin.InstallCommands(ldflags)
-	for _, execOption := range installOptions {
-		execOption := execOption
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				execOption,
-				step.PostExec(captureBuildErr),
-			).
-			Add(s.stdSteps(logStarport)...).
-			Add(step.Stderr(buildErr))...,
-		))
-	}
-	return steps, binaries
-}
-
-func (s *Serve) serverSteps(ctx context.Context, conf starportconf.Config) (steps step.Steps) {
+func (s *Chain) serverSteps(ctx context.Context, conf starportconf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
 	wg.Add(len(s.plugin.StartCommands(conf)))
 	go func() {
@@ -791,7 +563,7 @@ func (s *Serve) serverSteps(ctx context.Context, conf starportconf.Config) (step
 	return
 }
 
-func (s *Serve) watchAppFrontend(ctx context.Context) error {
+func (s *Chain) watchAppFrontend(ctx context.Context) error {
 	conf, err := s.config()
 	if err != nil {
 		return err
@@ -837,7 +609,7 @@ func (s *Serve) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *Serve) runDevServer(ctx context.Context) error {
+func (s *Chain) runDevServer(ctx context.Context) error {
 	c, err := s.config()
 	if err != nil {
 		return err
@@ -867,37 +639,6 @@ func (s *Serve) runDevServer(ctx context.Context) error {
 		return nil
 	}
 	return err
-}
-
-func (s *Serve) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(s.app.Path)
-	if err != nil {
-		return version{}, err
-	}
-	iter, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-	ref, err := iter.Next()
-	if err != nil {
-		return version{}, nil
-	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
-	return v, nil
-}
-
-func (s *Serve) config() (starportconf.Config, error) {
-	var paths []string
-	for _, name := range starportconf.FileNames {
-		paths = append(paths, filepath.Join(s.app.Path, name))
-	}
-	confFile, err := xos.OpenFirst(paths...)
-	if err != nil {
-		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
-	}
-	defer confFile.Close()
-	return starportconf.Parse(confFile)
 }
 
 type CannotBuildAppError struct {

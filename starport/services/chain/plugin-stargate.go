@@ -1,4 +1,4 @@
-package starportserve
+package chain
 
 import (
 	"context"
@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type stargatePlugin struct {

@@ -1,11 +1,11 @@
-package starportserve
+package chain
 
 import (
 	"context"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 // TODO omit -cli log messages for Stargate.
@@ -49,7 +49,7 @@ type Plugin interface {
 	Version() cosmosver.MajorVersion
 }
 
-func (s *Serve) pickPlugin() (Plugin, error) {
+func (s *Chain) pickPlugin() (Plugin, error) {
 	version, err := cosmosver.Detect(s.app.Path)
 	if err != nil {
 		return nil, err
