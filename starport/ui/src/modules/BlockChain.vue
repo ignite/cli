@@ -70,6 +70,7 @@ export default {
         lastScrolledTop: 0,
         isScrolledTop: false,
         isScrolledBottom: false,
+        isScrolledAwayFromTop: false,
         isLoading: false,
         hasHigherBlocks: false,
         hasLowerBlocks: false
@@ -145,11 +146,14 @@ export default {
       const isScrolledToTop = scrolledHeight <= $table.offsetHeight
       const isScrolledToBottom = scrolledHeight + 100 >= tableScrollHeight
       const isOnTopHalf = $table.scrollTop < (tableScrollHeight-$table.offsetHeight) / 2
+      const isScrollAwayFromTop = scrolledHeight / tableScrollHeight > 0.2
 
       const isCallableScrolledDistance = 
         $table.offsetHeight / Math.abs(scrolledHeight-this.states.lastScrolledHeight) > 25
       
       if (isCallableScrolledDistance) {
+        this.isScrolledAwayFromTop = isScrollAwayFromTop
+
         if (isScrolledToBottom) {
           this.states.isScrolledTop=false
           this.states.isScrolledBottom=true
@@ -161,7 +165,7 @@ export default {
           this.handleScrollTop()
         }
       }
-    }, 250),
+    }, 200),
     updateScrollValue() {
       const $table = event.target
       const scrolledHeight = $table.scrollTop + $table.offsetHeight 
@@ -187,11 +191,13 @@ export default {
         }).then(() => {
           this.states.isLoading=false
           this.setHasHigherBlocksState()      
-          this.$refs.chain.scrollBy({
-            top: 26,
-            left: 0,
-            behavior: 'smooth'
-          })
+          setTimeout((() => {
+            this.$refs.chain.scrollBy({
+              top: 24,
+              left: 0,
+              behavior: 'smooth'
+            })            
+          }).bind(this), 100)
         })        
       }
     },    
@@ -224,13 +230,17 @@ export default {
       this.getLowerBlocks()
     },
     handleNavClick(dir) {
-      if (dir==='top') {
-        this.$refs.chain.scrollTo(0,0)
-        console.log('chain clicked')
+      if (dir==='top' && this.states.hasHigherBlocks) {
+        this.getHigherBlocks()
+        this.$refs.chain.scrollTo(0,0)        
       }
     },
     setHasHigherBlocksState() {
-      if (this.stackChainRange.highestHeight !== this.latestBlock.height) {
+      if (
+        (this.stackChainRange.highestHeight !== this.latestBlock.height) ||
+        this.isScrolledAwayFromTop &&
+        !this.isScrolledTop
+      ) {
         this.states.hasHigherBlocks=true
       } else {
         this.states.hasHigherBlocks=false
@@ -246,6 +256,12 @@ export default {
   },
   watch: {
     latestBlock() {
+      /**
+       * 
+       // If no block is clicked (selected),
+       // set highlighted block to be latest block.
+       * 
+       */
       if (!this.localHighlightedBlock) {
         this.setHighlightedBlock({ block: {
           id: this.latestBlock.blockMeta.block_id.hash,

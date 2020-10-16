@@ -18,7 +18,7 @@
             </div>
           </div>
           <div class="card__btm">
-            <p ref="blockHash" class="card__hash">{{block.hash}}</p>
+            <p class="card__hash">{{block.hash}}</p>
           </div>
           <div class="card__bg">
             <Box/>
@@ -51,8 +51,7 @@ export default {
       type: Array,
       required: true,
       validator(value) {
-        return value
-          .filter(block => block.height && block.time && block.hash)
+        return value.filter(block => block.height && block.time && block.hash)
           .length===value.length
       }
     }
@@ -107,7 +106,7 @@ export default {
 .card__top {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 5rem;
+  margin-bottom: 4.5rem;
 }
 .card__top-left {
   color: var(--c-txt-highlight);

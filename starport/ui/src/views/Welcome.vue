@@ -12,11 +12,11 @@
       <div class="-center-top -f-cosmos-overline-0">STACK</div>
 
       <div class="-left dashboard__card -log">
-        <IconItem :iconType="'check'"  :itemText="'Dependencies installed'" />        
-        <IconItem :iconType="'check'"  :itemText="'Source code scaffolded'" />        
-        <IconItem :iconType="'check'"  :itemText="'Build complete'" />        
-        <IconItem :iconType="'check'"  :itemText="'Blockchain initialized'" />        
-        <IconItem :iconType="'check'"  :itemText="'Accounts created'" />        
+        <IconItem :iconType="'check'" :itemText="'Dependencies installed'" />        
+        <IconItem :iconType="'check'" :itemText="'Source code scaffolded'" />        
+        <IconItem :iconType="'check'" :itemText="'Build complete'" />        
+        <IconItem :iconType="'check'" :itemText="'Blockchain initialized'" />        
+        <IconItem :iconType="'check'" :itemText="'Accounts created'" />        
         <IconItem 
           :iconType="'check'"
           :itemText="'Blockchain node started'"
@@ -43,7 +43,7 @@
             :toInjectSlot="card.id === 'frontend'"
           >
             <p v-if="card.id === 'frontend'" class="item__main">
-              <a class="-with-arrow" :href="getBackendUrl(card.port)" target="_blank">localhost: {{card.port}}</a>
+              <a class="-with-arrow" :href="appEnv.FRONTEND" target="_blank">localhost: {{card.port}}</a>
             </p>
           </IconItem>
         </div>
@@ -62,7 +62,7 @@
       </div>
       <div class="intro__main">
         <p>Your blockchain is built with 
-          <a href="https://github.com/cosmos/cosmos-sdk">Cosmos SDK</a>
+          <a href="https://github.com/cosmos/cosmos-sdk" target="_blank">Cosmos SDK</a>
           , a modular framework for building blockchains. It includes modules such as 
           <span>auth</span>, <span>bank</span>, <span>staking</span>, <span>governance</span>, 
           and more. Every feature is packaged as a separate module that can interact with other modules. Starport has actually generated a module for you, which you can use to start developing your own application and features.</p>
@@ -235,7 +235,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv' ]),   
+    ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv', 'appEnv' ]),   
     ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ]), 
   },    
   methods: {
@@ -263,18 +263,8 @@ export default {
       }
     },
     getFmtBlockTime(time) {
-      if (!time) return '_'
-
-      return moment(time).format('H:mm:ss')
+      return !time ? '_' : moment(time).format('H:mm:ss')
     },
-    getPrefixURL(url, prefix) {
-      const newURL = new URL(url)
-      return `${newURL.protocol}//${prefix}-${newURL.hostname}`
-    },    
-    getBackendUrl(port) {
-      const { vue_app_custom_url } = this.backendEnv
-      return (vue_app_custom_url && this.getPrefixURL(vue_app_custom_url, port)) || `http://localhost:${port}`
-    }    
   },
   watch: {
     latestBlock() {
