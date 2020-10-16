@@ -279,6 +279,14 @@ export default {
       this.setHasLowerBlocksState()
     }
   },  
+  mounted() {
+    if (this.latestBlock) {
+      this.setHighlightedBlock({ block: {
+        id: this.latestBlock.blockMeta.block_id.hash,
+        data: this.blockFormatter.blockForTable([this.latestBlock])[0]
+      }})      
+    }
+  }
 }
 </script>
 
