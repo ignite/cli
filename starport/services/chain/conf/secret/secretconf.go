@@ -20,8 +20,11 @@ var (
 )
 
 type Config struct {
+	// Accounts of the local chain.
 	Accounts []conf.Account `yaml:"accounts"`
-	Relayer  Relayer        `yaml:"relayer"`
+
+	// Relayer configuration.
+	Relayer Relayer `yaml:"relayer"`
 }
 
 func (c *Config) SelfRelayerAccount(name string) (account conf.Account, found bool) {
@@ -66,6 +69,7 @@ func (c *Config) UpsertRelayerAccount(acc conf.Account) {
 
 // Account holds the options related to setting up Cosmos wallets.
 type Relayer struct {
+	// Accounts of remote chains.
 	Accounts []conf.Account `yaml:"accounts"`
 }
 

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+go test -v --tags=relayer -timeout 30m github.com/tendermint/starport/integration/...
