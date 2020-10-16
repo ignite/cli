@@ -11,6 +11,9 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Used to not have an error if strconv is unused
+var _ = strconv.Itoa(42)
+
 type create<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
