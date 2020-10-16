@@ -179,6 +179,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 						return nil
 					}
 				}),
+				step.Stderr(s.stdLog(logRelayer).err),
 			)); err != nil {
 			return err
 		}
@@ -197,6 +198,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 					name,
 					"-f",
 				),
+				step.Stderr(s.stdLog(logRelayer).err),
 			))
 	}
 
@@ -227,6 +229,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 							"-o",
 							"3s",
 						),
+						step.Stderr(s.stdLog(logRelayer).err),
 					))
 			}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 			if err != nil {
