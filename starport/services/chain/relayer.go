@@ -179,7 +179,6 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 						return nil
 					}
 				}),
-				step.Stderr(s.stdLog(logStarport).err),
 			)); err != nil {
 			return err
 		}
@@ -198,7 +197,6 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 					name,
 					"-f",
 				),
-				step.Stderr(s.stdLog(logStarport).err),
 			))
 	}
 
@@ -229,9 +227,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 							"-o",
 							"3s",
 						),
-						step.Stderr(s.stdLog(logStarport).err),
-					),
-					)
+					))
 			}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 			if err != nil {
 				fmt.Fprintf(s.stdLog(logStarport).err, "❌ couldn't link %s <-/-> %s\n", selfacc.Name, account.Name)
