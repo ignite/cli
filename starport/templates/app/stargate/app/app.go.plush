@@ -47,13 +47,13 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/gov"
 	govkeeper "github.com/cosmos/cosmos-sdk/x/gov/keeper"
 	govtypes "github.com/cosmos/cosmos-sdk/x/gov/types"
-    "github.com/cosmos/cosmos-sdk/x/ibc"
-	transfer "github.com/cosmos/cosmos-sdk/x/ibc-transfer"	
-	ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc-transfer/keeper"	
-	ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc-transfer/types"	
-	porttypes "github.com/cosmos/cosmos-sdk/x/ibc/05-port/types"	
-	ibchost "github.com/cosmos/cosmos-sdk/x/ibc/24-host"	
-	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/keeper"	
+    transfer "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer"
+    ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/keeper"
+    ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+    ibc "github.com/cosmos/cosmos-sdk/x/ibc/core"
+    porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
+    ibchost "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+    ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
 	"github.com/cosmos/cosmos-sdk/x/mint"
 	mintkeeper "github.com/cosmos/cosmos-sdk/x/mint/keeper"
 	minttypes "github.com/cosmos/cosmos-sdk/x/mint/types"
@@ -340,7 +340,7 @@ func New(
 
     app.mm.SetOrderEndBlockers(crisistypes.ModuleName, govtypes.ModuleName, stakingtypes.ModuleName)
 
-	// NOTE: The genutils moodule must occur after staking so that pools are
+    // NOTE: The genutils module must occur after staking so that pools are
 	// properly initialized with tokens from genesis accounts.
 	// NOTE: Capability module must occur first so that it can initialize any capabilities
 	// so that other modules that want to create or claim capabilities afterwards in InitChain

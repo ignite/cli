@@ -1,3 +1,5 @@
+// +build !relayer
+
 package integration_test
 
 import (
@@ -31,20 +33,20 @@ func TestGenerateAnAppWithCosmWasmAndVerify(t *testing.T) {
 		path = env.Scaffold("blog", Launchpad)
 	)
 
-	env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add CosmWasm module",
 		step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(path),
 		),
-	)
+	))
 
-	env.Exec("should not add CosmWasm module second time",
+	env.Must(env.Exec("should not add CosmWasm module second time",
 		step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),
-	)
+	))
 
 	env.EnsureAppIsSteady(path)
 }
@@ -57,20 +59,20 @@ func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
 		path = env.Scaffold("blog", Launchpad)
 	)
 
-	env.Exec("create a module",
+	env.Must(env.Exec("create a module",
 		step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
 		),
-	)
+	))
 
-	env.Exec("should prevent creating an existing module",
+	env.Must(env.Exec("should prevent creating an existing module",
 		step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),
-	)
+	))
 
 	env.EnsureAppIsSteady(path)
 }
@@ -83,20 +85,20 @@ func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 		path = env.Scaffold("blog", Stargate)
 	)
 
-	env.Exec("create a module",
+	env.Must(env.Exec("create a module",
 		step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
 		),
-	)
+	))
 
-	env.Exec("should prevent creating an existing module",
+	env.Must(env.Exec("should prevent creating an existing module",
 		step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),
-	)
+	))
 
 	env.EnsureAppIsSteady(path)
 }

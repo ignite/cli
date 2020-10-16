@@ -1,4 +1,4 @@
-package starportserve
+package chain
 
 import (
 	"context"
@@ -10,8 +10,9 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type launchpadPlugin struct {
@@ -28,7 +29,7 @@ func (p *launchpadPlugin) Name() string {
 	return "Launchpad"
 }
 
-func (p *launchpadPlugin) Migrate(ctx context.Context) error {
+func (p *launchpadPlugin) Setup(ctx context.Context) error {
 	// migrate:
 	//	appcli rest-server with --unsafe-cors (available only since v0.39.1).
 	return cmdrunner.
@@ -69,15 +70,33 @@ func (p *launchpadPlugin) InstallCommands(ldflags string) (options []step.Option
 		}
 }
 
-func (p *launchpadPlugin) AddUserCommand(accountName string) step.Option {
-	return step.Exec(
-		p.app.cli(),
-		"keys",
-		"add",
-		accountName,
-		"--output", "json",
-		"--keyring-backend", "test",
-	)
+func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
+	return step.NewOptions().
+		Add(
+			step.Exec(
+				p.app.cli(),
+				"keys",
+				"add",
+				accountName,
+				"--output", "json",
+				"--keyring-backend", "test",
+			),
+		)
+}
+
+func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
+	return step.NewOptions().
+		Add(
+			step.Exec(
+				p.app.cli(),
+				"keys",
+				"add",
+				name,
+				"--recover",
+				"--keyring-backend", "test",
+			),
+			step.Write([]byte(mnemonic+"\n")),
+		)
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
@@ -202,3 +221,7 @@ func (p *launchpadPlugin) StoragePaths() []string {
 func (p *launchpadPlugin) GenesisPath() string {
 	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
 }
+
+func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }
+
+func (p *launchpadPlugin) SupportsIBC() bool { return false }
