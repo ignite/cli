@@ -1,3 +1,4 @@
+import axios from 'axios'
 import ReconnectingWebSocket from 'reconnecting-websocket'
 import blockHelpers from '@/mixins/blocks/helpers'
 
@@ -425,9 +426,18 @@ export default {
      * 
      * 
      */        
-    initBlockConnection({ commit, dispatch, getters, rootGetters }) {
-      const appEnv = rootGetters['cosmos/appEnv']
-      const ws = new ReconnectingWebSocket(appEnv.WS) 
+    async initBlockConnection({ commit, dispatch, getters, rootGetters }) {
+      const appEnv = rootGetters['cosmos/appEnv']     
+      const statusUrl = process.env.VUE_APP_CUSTOM_URL ? '' : 'http://localhost:12345'
+      const { data } = await axios.get(`${statusUrl}/status`)      
+      const { env } = data
+      const GITPOD = env.vue_app_custom_url && new URL(env.vue_app_custom_url)
+
+      const wsUrl = GITPOD
+        ? process.env.VUE_APP_WS_TENDERMINT || (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`)
+        : 'ws://localhost:26657/websocket'
+
+      const ws = new ReconnectingWebSocket(wsUrl) 
   
       ws.onopen = function() {
         ws.send(

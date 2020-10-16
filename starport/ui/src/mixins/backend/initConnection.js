@@ -14,10 +14,10 @@ export default {
     ...mapMutations('cosmos', [ 'setBackendRunningStates', 'setBackendEnv', 'setAppEnv' ]),
     async setStatusState() {
       try {
-        const { data } = await axios.get(`/status`)
+        const statusUrl = process.env.VUE_APP_CUSTOM_URL
+          ? '' : 'http://localhost:12345'
+        const { data } = await axios.get(`${statusUrl}/status`)
         const { status, env } = data
-
-        console.log(data)
 
         this.setAppEnv({ customUrl: env.vue_app_custom_url })
 
