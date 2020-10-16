@@ -46,10 +46,20 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if ok {
 		return fmt.Errorf("%s type is already added.", stype)
 	}
+
+	// Used to check duplicated field
+	existingFields := make(map[string]bool)
+
 	var tfields []typed.Field
 	for _, f := range fields {
 		fs := strings.Split(f, ":")
 		name := fs[0]
+
+		if _, exists := existingFields[name]; exists {
+			return fmt.Errorf("The field %s is duplicated.", name)
+		}
+		existingFields[name] = true
+
 		datatypeName, datatype := "string", "string"
 		acceptedTypes := map[string]string{
 			"string": "string",

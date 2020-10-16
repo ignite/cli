@@ -17,6 +17,7 @@
 * Removed "Starport Pi"
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
+* Prevent duplicated fields with `type` command
 
 ## `v0.11.1`
 

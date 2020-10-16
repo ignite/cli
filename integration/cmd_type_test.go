@@ -35,6 +35,14 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 		),
 	)
 
+	env.Exec("should prevent creating a type with duplicated fields",
+		step.New(
+			step.Exec("starport", "type", "company", "name", "name"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	)
+
 	env.Exec("should prevent creating an existing type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -73,6 +81,14 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "document", "signed:bool"),
 			step.Workdir(path),
 		),
+	)
+
+	env.Exec("should prevent creating a type with duplicated fields",
+		step.New(
+			step.Exec("starport", "type", "company", "name", "name"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
 	)
 
 	env.Exec("should prevent creating an existing type",
