@@ -63,9 +63,10 @@
       <div class="intro__main">
         <p>Your blockchain is built with 
           <a href="https://github.com/cosmos/cosmos-sdk" target="_blank">Cosmos SDK</a>
-          , a modular framework for building blockchains. It includes modules such as 
-          <span>auth</span>, <span>bank</span>, <span>staking</span>, <span>governance</span>, 
-          and more. Every feature is packaged as a separate module that can interact with other modules. Starport has actually generated a module for you, which you can use to start developing your own application and features.</p>
+          , a modular framework for building blockchains. Every feature in the Cosmos SDK is packaged as a separate module that can interact with other modules. We've installed the 
+          <span>auth</span>, <span>bank</span>, and <span>staking</span> modules for you. 
+          We've also generated an empty module, which you can use to start developing your own application features.          
+        </p>
       </div>
     </div>
     
