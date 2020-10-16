@@ -17,6 +17,8 @@ export default {
         const { data } = await axios.get(`/status`)
         const { status, env } = data
 
+        console.log(data)
+
         this.setAppEnv({ customUrl: env.vue_app_custom_url })
 
         this.setBackendRunningStates({

@@ -10,40 +10,40 @@ const {
   VUE_APP_ADDRESS_PREFIX
 } = process.env
 
-const GITPOD =
-  VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
-console.log(process.env, GITPOD)
-const STARPORT_APP =
-  (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||
-  'http://localhost:12345'
-const FRONTEND =
-  (GITPOD && `${GITPOD.protocol}//8080-${GITPOD.hostname}`) ||
-  'http://localhost:8080'
-const API =
-  VUE_APP_API_COSMOS ||
-  (GITPOD && `${GITPOD.protocol}//1317-${GITPOD.hostname}`) ||
-  'http://localhost:1317'
-const RPC =
-  VUE_APP_API_TENDERMINT ||
-  (GITPOD && `${GITPOD.protocol}//26657-${GITPOD.hostname}`) ||
-  'http://localhost:26657'
-const WS =
-  VUE_APP_WS_TENDERMINT ||
-  (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`) ||
-  'ws://localhost:26657/websocket'
-const ADDR_PREFIX = VUE_APP_ADDRESS_PREFIX || 'cosmos'
+// const GITPOD =
+//   VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
+// console.log(process.env, GITPOD)
+// const STARPORT_APP =
+//   (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||
+//   'http://localhost:12345'
+// const FRONTEND =
+//   (GITPOD && `${GITPOD.protocol}//8080-${GITPOD.hostname}`) ||
+//   'http://localhost:8080'
+// const API =
+//   VUE_APP_API_COSMOS ||
+//   (GITPOD && `${GITPOD.protocol}//1317-${GITPOD.hostname}`) ||
+//   'http://localhost:1317'
+// const RPC =
+//   VUE_APP_API_TENDERMINT ||
+//   (GITPOD && `${GITPOD.protocol}//26657-${GITPOD.hostname}`) ||
+//   'http://localhost:26657'
+// const WS =
+//   VUE_APP_WS_TENDERMINT ||
+//   (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`) ||
+//   'ws://localhost:26657/websocket'
+// const ADDR_PREFIX = VUE_APP_ADDRESS_PREFIX || 'cosmos'
 
 export default {
   namespaced: true,
   state: {
     APP_ENV: {
-      GITPOD,
-      FRONTEND,
-      RPC,
-      API,
-      WS,
-      STARPORT_APP,
-      ADDR_PREFIX
+      GITPOD: '',
+      FRONTEND: '',
+      RPC: '',
+      API: '',
+      WS: '',
+      STARPORT_APP: '',
+      ADDR_PREFIX: ''
     },
     backend: {
       env: {
@@ -63,6 +63,34 @@ export default {
     backendRunningStates: state => state.backend.running
   },
   mutations: {
+    setAppEnv(state, { customUrl }) {
+      const GITPOD = customUrl && new URL(customUrl)
+
+      state.APP_ENV.STARPORT_APP =
+        (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||
+        'http://localhost:12345'
+
+      state.APP_ENV.FRONTEND =
+        (GITPOD && `${GITPOD.protocol}//8080-${GITPOD.hostname}`) ||
+        'http://localhost:8080'
+
+      state.APP_ENV.API =
+        VUE_APP_API_COSMOS ||
+        (GITPOD && `${GITPOD.protocol}//1317-${GITPOD.hostname}`) ||
+        'http://localhost:1317'
+
+      state.APP_ENV.RPC =
+        VUE_APP_API_TENDERMINT ||
+        (GITPOD && `${GITPOD.protocol}//26657-${GITPOD.hostname}`) ||
+        'http://localhost:26657'
+
+      state.APP_ENV.WS =
+        VUE_APP_WS_TENDERMINT ||
+        (GITPOD && `wss://26657-${GITPOD.hostname}/websocket`) ||
+        'ws://localhost:26657/websocket'
+
+      state.APP_ENV.ADDR_PREFIX = VUE_APP_ADDRESS_PREFIX || 'cosmos'      
+    },
     /**
      * 
      * 
