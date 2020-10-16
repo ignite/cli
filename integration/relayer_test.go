@@ -147,6 +147,8 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 				}
 				mc.Lock()
 				count++
+				// for now we lower the expectations by half because sometimes only 90% are met.
+				// TODO find why & fix.
 				if count >= expectedLinkCount/2 {
 					for _, chain := range chains {
 						chain.logsReader.Close()
