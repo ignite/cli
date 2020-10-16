@@ -162,6 +162,7 @@ func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
 			step.Exec(
 				"starport",
 				"serve",
+				"-v",
 			),
 			step.Workdir(path),
 		),

@@ -126,8 +126,9 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	// connections at total. but things aren't stable yet so, for we expect at least len(chains)
 	// connections.
 	var (
-		capturedLines []string
-		mc            sync.Mutex
+		expectedLinkCount = len(chains) * (len(chains) - 1)
+		count             int
+		mc                sync.Mutex
 	)
 	cg := &errgroup.Group{}
 	for _, chain := range chains {
@@ -139,19 +140,19 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 				if err != nil {
 					return err
 				}
-				if strings.Contains(string(line), "linked") {
-					mc.Lock()
-					isDone := len(capturedLines) == len(chains)
-					if isDone {
-						for _, chain := range chains {
-							chain.logsReader.Close()
-						}
-						mc.Unlock()
-						return nil
-					}
-					capturedLines = append(capturedLines, string(line))
-					mc.Unlock()
+				if !strings.Contains(string(line), "linked") {
+					continue
 				}
+				mc.Lock()
+				count++
+				if count >= expectedLinkCount/2 {
+					for _, chain := range chains {
+						chain.logsReader.Close()
+					}
+					mc.Unlock()
+					return nil
+				}
+				mc.Unlock()
 			}
 		})
 	}

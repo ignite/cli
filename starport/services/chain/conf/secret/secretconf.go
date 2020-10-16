@@ -1,4 +1,4 @@
-package starportsecretconf
+package secretconf
 
 import (
 	"io"
@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/go-bip39"
+	"github.com/tendermint/starport/starport/services/chain/conf"
 	"gopkg.in/yaml.v2"
 )
 
@@ -19,17 +20,17 @@ var (
 )
 
 type Config struct {
-	Accounts []Account `yaml:"accounts"`
-	Relayer  Relayer   `yaml:"relayer"`
+	Accounts []conf.Account `yaml:"accounts"`
+	Relayer  Relayer        `yaml:"relayer"`
 }
 
-func (c *Config) SelfRelayerAccount(name string) (account Account, found bool) {
+func (c *Config) SelfRelayerAccount(name string) (account conf.Account, found bool) {
 	for _, a := range c.Accounts {
 		if a.Name == name {
 			return a, true
 		}
 	}
-	return Account{}, false
+	return conf.Account{}, false
 }
 
 func (c *Config) SetSelfRelayerAccount(accName string) error {
@@ -41,7 +42,7 @@ func (c *Config) SetSelfRelayerAccount(accName string) error {
 	if err != nil {
 		return err
 	}
-	c.Accounts = append(c.Accounts, Account{
+	c.Accounts = append(c.Accounts, conf.Account{
 		Name:     accName,
 		Coins:    selfRelayerAccountDefaultCoins,
 		Mnemonic: mnemonic,
@@ -49,10 +50,10 @@ func (c *Config) SetSelfRelayerAccount(accName string) error {
 	return nil
 }
 
-func (c *Config) UpsertRelayerAccount(acc RelayerAccount) {
+func (c *Config) UpsertRelayerAccount(acc conf.Account) {
 	var found bool
 	for i, account := range c.Relayer.Accounts {
-		if account.ID == acc.ID {
+		if account.Name == acc.Name {
 			found = true
 			c.Relayer.Accounts[i] = acc
 			break
@@ -64,20 +65,8 @@ func (c *Config) UpsertRelayerAccount(acc RelayerAccount) {
 }
 
 // Account holds the options related to setting up Cosmos wallets.
-type Account struct {
-	Name     string   `yaml:"name"`
-	Coins    []string `yaml:"coins"`
-	Mnemonic string   `yaml:"mnemonic"`
-}
-
-type RelayerAccount struct {
-	ID         string `yaml:"id"`
-	Mnemonic   string `yaml:"mnemonic"`
-	RPCAddress string `yaml:"rpc_address"`
-}
-
 type Relayer struct {
-	Accounts []RelayerAccount `yaml:"accounts"`
+	Accounts []conf.Account `yaml:"accounts"`
 }
 
 // Parse parses config.yml into Config.

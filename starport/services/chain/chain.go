@@ -12,8 +12,8 @@ import (
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/xos"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
-	starportsecretconf "github.com/tendermint/starport/starport/services/chain/secretconf"
+	"github.com/tendermint/starport/starport/services/chain/conf"
+	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 )
 
 var (
@@ -21,8 +21,8 @@ var (
 		"app",
 		"cmd",
 		"x",
-		starportsecretconf.SecretFile,
-	}, starportconf.FileNames...)
+		secretconf.SecretFile,
+	}, conf.FileNames...)
 
 	vuePath = "vue"
 
@@ -73,18 +73,6 @@ func New(app App, verbose bool) (*Chain, error) {
 	return s, nil
 }
 
-func (s *Chain) rpcAddress() (string, error) {
-	rpcAddress := os.Getenv("RPC_ADDRESS")
-	if rpcAddress == "" {
-		conf, err := s.config()
-		if err != nil {
-			return "", err
-		}
-		rpcAddress = conf.Servers.RPCAddr
-	}
-	return rpcAddress, nil
-}
-
 func (s *Chain) appVersion() (v version, err error) {
 	repo, err := git.PlainOpen(s.app.Path)
 	if err != nil {
@@ -103,15 +91,29 @@ func (s *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-func (s *Chain) config() (starportconf.Config, error) {
+// rpcPublicAddress points to the public address of Tendermint RPC, this is shared by
+// other chains for relayer related actions.
+func (s *Chain) rpcPublicAddress() (string, error) {
+	rpcAddress := os.Getenv("RPC_ADDRESS")
+	if rpcAddress == "" {
+		conf, err := s.config()
+		if err != nil {
+			return "", err
+		}
+		rpcAddress = conf.Servers.RPCAddr
+	}
+	return rpcAddress, nil
+}
+
+func (s *Chain) config() (conf.Config, error) {
 	var paths []string
-	for _, name := range starportconf.FileNames {
+	for _, name := range conf.FileNames {
 		paths = append(paths, filepath.Join(s.app.Path, name))
 	}
 	confFile, err := xos.OpenFirst(paths...)
 	if err != nil {
-		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
+		return conf.Config{}, errors.Wrap(err, "config file cannot be found")
 	}
 	defer confFile.Close()
-	return starportconf.Parse(confFile)
+	return conf.Parse(confFile)
 }
