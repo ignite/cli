@@ -1,5 +1,5 @@
 <template>
-  <div v-if="!block.data" :class="['sheet -is-empty']">Waiting for block data</div>
+  <div v-if="!block.data" :class="['sheet -is-empty']">Fetching block data</div>
 
   <div v-else class="sheet">
     <div class="sheet__header">
@@ -121,8 +121,8 @@ export default {
       return momentTime.format('MMM D YYYY, HH:mm:ss')
     },
     getTxFee(tx) {
-      const fee = tx.tx.value.fee.amount
-      return !fee ? '0' : `${fee[0].amount} ${fee[0].denom}`
+      const amount = tx.tx.value.fee.amount
+      return amount.length<1 ? '0' : `${amount[0].amount} ${amount[0].denom}`
     },
     getEvents(tx) {
       return tx.logs.flatMap(log => log.events)

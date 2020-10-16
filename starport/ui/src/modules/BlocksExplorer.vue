@@ -1,6 +1,6 @@
 <template>
   <transition name="fade" mode="out-in" key="default">
-    <div v-if="!isBlocksStackEmpty" class="explorer">
+    <div v-if="!isBlocksStackEmpty && isBackendAlive" class="explorer">
       <FullWidthContainer>
         <div slot="sideSheet" class="explorer__block">
           <transition name="fadeMild" mode="out-in">
@@ -59,7 +59,7 @@ export default {
      * Vuex 
      *
      */
-    ...mapGetters('cosmos', [ 'appEnv' ]),
+    ...mapGetters('cosmos', [ 'appEnv', 'backendRunningStates' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange', 'latestBlock' ]),
     /*
      *
@@ -88,6 +88,9 @@ export default {
         !this.fmtBlockData || 
         this.fmtBlockData?.length<=0
     },
+    isBackendAlive() {
+      return this.backendRunningStates.api
+    }
   },  
   methods: {
     /*

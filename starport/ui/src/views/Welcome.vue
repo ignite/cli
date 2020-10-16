@@ -237,7 +237,7 @@ export default {
   },
   computed: {
     ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv', 'appEnv' ]),   
-    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ]), 
+    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ])
   },    
   methods: {
     insertBlockToStack(index, block) {
@@ -249,9 +249,11 @@ export default {
       if (latestBlock) {
         this.insertBlockToStack(0, latestBlock)
 
-        for (let i=1; i<3; i++) {
+        for (let i=1; i<=2; i++) {
           if (parseInt(latestBlock.height)-i>0) {
             this.insertBlockToStack(i, this.blockByHeight(parseInt(latestBlock.height)-i)[0])
+          } else {
+            break
           }
         }
       }      
@@ -269,10 +271,18 @@ export default {
   },
   watch: {
     latestBlock() {
-      if (this.blockCards.length===0) this.setInitBlockCards()
-      if (this.blockCards.length>2) this.blockCards.splice(0, 1)
+      if (this.blockCards.length===0) {
+        this.setInitBlockCards()
+        return 
+      }
 
+      if (this.blockCards.length>2) this.blockCards.splice(0, 1)
       this.insertBlockToStack(2, this.latestBlock)
+    },
+    backendRunningStates() {
+      if (!this.backendRunningStates.api) {
+        this.blockCards=[]
+      }
     }
   },
   created() {
