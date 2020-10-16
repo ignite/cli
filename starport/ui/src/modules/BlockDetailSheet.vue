@@ -9,7 +9,6 @@
       <div class="sheet__header-side">
         <div class="sheet__header-side-top">
           <CopyIconText
-            class="copy-icon-text" 
             :text="block.data.blockMsg.blockHash_sliced" 
             :link="`${appEnv.RPC}/block?hash=${block.data.blockMsg.blockHash}`"
             :copyContent="block.data.blockMsg.blockHash"
@@ -57,7 +56,6 @@
                 <div class="tx__info-content tx-info">
                   <span class="tx-info__title">Hash</span>
                   <CopyIconText
-                    class="copy-icon-text" 
                     :text="tx.txhash" 
                     :link="`${appEnv.RPC}/block?hash=${tx.txhash}`"
                     :copyContent="tx.txhash"
@@ -303,7 +301,7 @@ export default {
   }
 }
 
-.copy-icon-text {
+.tx__info-content >>> a {
   font-family: var(--f-secondary);
 }
 
