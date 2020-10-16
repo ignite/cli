@@ -46,8 +46,11 @@
               <span class="tx__error-title">Error</span>
               <p class="tx__error-msg">{{ tx.raw_log }}</p>
             </div>
-
-            <TxMsgCards :msgs="tx.tx.value.msg" />
+            
+            <div class="tx__main-cards">
+              <YamlCards :contents="tx.tx.value.msg" :cardType="'Messages'" />
+              <YamlCards :contents="getEvents(tx)" :cardType="'Events'" />
+            </div>
           </div>
           <div class="tx__side">
             <div class="tx__info">
@@ -96,12 +99,12 @@ import { mapGetters } from 'vuex'
 import { getters } from '@/mixins/helpers'
 
 import CopyIconText from '@/components/texts/CopyIconText'
-import TxMsgCards from '@/modules/TxMsgCards'
+import YamlCards from '@/components/cards/YamlCards'
 
 export default {
   components: {
     CopyIconText,
-    TxMsgCards
+    YamlCards
   },
   props: {
     block: { type: Object }
@@ -120,6 +123,9 @@ export default {
     getTxFee(tx) {
       const fee = tx.tx.value.fee.amount
       return !fee ? '0' : `${fee[0].amount} ${fee[0].denom}`
+    },
+    getEvents(tx) {
+      return tx.logs.flatMap(log => log.events)
     }
   }
 }
@@ -233,6 +239,9 @@ export default {
 .tx__main {
   flex-grow: 1;
   margin-right: 3rem;
+}
+.tx__main-cards > *:not(:last-child) {
+  margin-bottom: 1.5rem;
 }
 .tx__side {
   width: 15vw;

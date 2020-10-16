@@ -1,18 +1,18 @@
 <template>
-  <div :class="['msgs', ...wrapperState]">
-    <p class="msgs__title">{{msgs.length}} Messages</p>
+  <div :class="['cards', ...wrapperState]">
+    <p class="cards__title">{{contents.length}} {{cardType}}</p>
 
-    <div class="msgs__container">
+    <div class="cards__container">
       <div 
-        v-for="(msg, index) in msgs"
-        :key="getMsgKey(index)"
-        class="msg-card"
+        v-for="(content, index) in contents"
+        :key="getCardKey(index)"
+        class="card"
       >
-        <div v-html="getMsgCard(msg)" class="wrapper"></div>
+        <div v-html="getCardContent(content)" class="wrapper"></div>
       </div>
     </div>
 
-    <button class="msgs__btn" @click="handleChevronClicked"></button>              
+    <button class="cards__btn" @click="handleChevronClicked"></button>              
   </div>  
 </template>
 
@@ -22,7 +22,8 @@ import { getters } from '@/mixins/helpers'
 
 export default {
   props: {
-    msgs: { type: Array, required: true }
+    cardType: { type: String, default: 'Messages' },
+    contents: { type: Array, required: true },
   },
   data() {
     return {
@@ -41,15 +42,15 @@ export default {
     },       
   },
   methods: {
-    getMsgKey(index) {
+    getCardKey(index) {
       return index + uuid.v1()
     },    
-    getMsgCard(msg) {
+    getCardContent(msg) {
       return getters.jsonToHtmlTree(msg)
     }, 
     handleChevronClicked($event) {
       const $btn = $event.target
-      const $wrapper = $btn.closest('.msgs')
+      const $wrapper = $btn.closest('.cards')
       $wrapper.classList.remove('-is-folded')
     }  
   },
@@ -61,7 +62,7 @@ export default {
 
 <style scoped>
 
-.msgs__title {
+.cards__title {
   font-weight: var(--f-w-medium);
   font-size: 0.75rem;
   line-height: 130.9%;
@@ -71,13 +72,13 @@ export default {
   margin-bottom: 0.85rem;
 }
 
-.msgs {
+.cards {
   position: relative;
 
   height: auto;
   transition: height .3s;
 }
-.msgs:after {
+.cards:after {
   pointer-events: none;
   content: '';
   position: absolute;
@@ -90,7 +91,7 @@ export default {
   opacity: 0;
   transition: opacity .3s;
 }
-.msgs__btn {
+.cards__btn {
   content: '';  
   z-index: 2;
 	position: absolute;  
@@ -107,22 +108,22 @@ export default {
   pointer-events: none;
   transition: opacity .3s;
 }
-.msgs.-is-folded {
+.cards.-is-folded {
   height: 30vh;
   overflow: hidden;
   transition: height .3s;
 }
-.msgs.-is-folded:after {
+.cards.-is-folded:after {
   opacity: 1;
   transition: opacity .3s;
 }
-.msgs.-is-folded .msgs__btn {
+.cards.-is-folded .cards__btn {
   opacity: .8;
   pointer-events: initial;
   transition: opacity .3s;
 }
 
-.msg-card {
+.card {
   font-size: 0.875rem;
   font-family: var(--f-secondary);
   line-height: 162.5%;
@@ -131,13 +132,13 @@ export default {
   border-radius: 0 12px 12px 12px;
   background-color: var(--c-bg-secondary);
 }
-.msg-card:not(:last-child) {
+.card:not(:last-child) {
   margin-bottom: 1rem;
 }
-.msg-card >>> .wrapper {
+.card >>> .wrapper {
   padding-left: 0.5rem;
 }
-.msg-card >>> .wrapper__item {
+.card >>> .wrapper__item {
   display: block;
 }
 
