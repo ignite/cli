@@ -22,7 +22,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-// relayerInfo holds relayer info that shared between chains to make a connection.
+// relayerInfo holds relayer info that is shared between chains to make a connection.
 type relayerInfo struct {
 	ChainID    string
 	Mnemonic   string
@@ -244,7 +244,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	return nil
 }
 
-// relayerHome initializes and returns the path a home folder for relayer.
+// relayerHome initializes and returns the path to a home folder for relayer.
 func (s *Chain) initRelayerHome() (path string, err error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
@@ -293,7 +293,7 @@ func (s *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []
 
 func (s *Chain) checkRelayerSupport() error {
 	if !s.plugin.SupportsIBC() {
-		return errors.New("IBC & Relayer is not available for your app.")
+		return errors.New("IBC & Relayer are not available for your app.")
 	}
 	return nil
 }

@@ -78,7 +78,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 		})
 	}
 
-	// wait for chains to be properly served. we could have skip this but having this step
+	// wait for chains to be properly served. We could have skipped this but having this step
 	// is useful to test if chains will restart and detect chains added by `starport chain add`.
 	for _, chain := range chains {
 		require.NoError(t, env.IsAppServed(ctx, chain.servers), "some apps cannot get online in time")
@@ -163,7 +163,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	require.NoError(t, err, "not enough linked chains")
 
 	serveCancel()
-	// wait untill all chains stop serving.
+	// wait until all chains stop serving.
 	// a chain will stop serving either by a failure or cancelation.
 	// failure is not expected. so, test will exit with error in case of a failure in any of the served chains.
 	if err := sg.Wait(); err != nil {

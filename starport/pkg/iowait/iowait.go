@@ -7,9 +7,9 @@ import (
 	"strings"
 )
 
-// Untill waits the apperance of s in the string n times and
+// Until waits for the appearance of s in the string n times and
 // then stops blocking.
-func Untill(r io.Reader, s string, n int) (capturedLines []string, err error) {
+func Until(r io.Reader, s string, n int) (capturedLines []string, err error) {
 	total := n
 	scanner := bufio.NewScanner(r)
 	for {
