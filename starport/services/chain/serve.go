@@ -174,7 +174,7 @@ func (s *Chain) serve(ctx context.Context) error {
 
 	go func() {
 		wr.Wait()
-		if err := s.initRelayer(ctx, conf); err != nil {
+		if err := s.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
 			fmt.Fprintf(s.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
