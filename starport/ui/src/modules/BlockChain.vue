@@ -342,12 +342,16 @@ export default {
   opacity: 1;
   transition: opacity .3s ease-in-out;
 }
-
 .chain__block >>> .card {
   margin-right: 1rem;
 }
 .chain__block.-has-txs >>> .card__title {
   color: var(--c-txt-highlight);
+}
+@media only screen and (max-width: 992px) {
+  .chain__block:before {
+    left: calc(var(--g-offset-side) - 1.5rem);
+  }
 }
 
 .block-info__text:first-child {

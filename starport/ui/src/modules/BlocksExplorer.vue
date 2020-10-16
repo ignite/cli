@@ -154,12 +154,15 @@ export default {
 <style scoped>
 
 .explorer {
+  --top-offset: 2.25rem;
+}
+.explorer {
   height: calc(100vh - var(--header-height) - 1px - 2.25rem);
   padding-top: 2.25rem;
 }
 @media only screen and (max-width: 992px) {
   .explorer {
-    padding-top: 1.5rem;
+    --top-offset: 1.5rem;
   }
 }
 
@@ -172,17 +175,18 @@ export default {
 .explorer__chain-header {
   font-size: 3.1875rem;
   font-weight: var(--f-w-bold);
-  margin-bottom: 1rem;
+  margin-bottom: 2rem;
   padding-left: calc(var(--g-offset-side) - 4px);
 }
 @media only screen and (max-width: 992px) {
   .explorer__chain-header {
-    margin-bottom: 0.5rem;
-  }
+    margin-bottom: 1rem;
+  }  
 }
 
 .explorer__block {
   height: 100%;
+  min-width: 400px;
 }
 
 .explorer.-is-empty {

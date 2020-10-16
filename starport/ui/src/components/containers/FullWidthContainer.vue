@@ -154,6 +154,9 @@ export default {
 @media screen and (max-width: 768px) {
   .container {
     --container-collapsed-width: 240px;
+  }
+  .container__wrapper {
+    overflow-x: scroll;
   }    
   .container__main {
     min-width: 240px;

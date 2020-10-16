@@ -35,7 +35,7 @@ export default {
       const $element = this.rootElement
       if ($element) {
         const heightVal = $element.getBoundingClientRect().height
-        const isWrapperTooTall = heightVal / window.innerHeight > 0.28
+        const isWrapperTooTall = heightVal / window.innerHeight > 0.4
         
         return isWrapperTooTall ? ['-is-foldable', '-is-folded'] : []
       }
@@ -97,8 +97,8 @@ export default {
 	position: absolute;  
 	left: 50%;
 	bottom: 1rem;
-  width: 1rem;
-	height: 1rem;  
+  width: .8rem;
+	height: .8rem;  
 	border-style: solid;
   border-width: 2px 2px 0 0;  
   border-color: var(--c-txt-third);
@@ -118,7 +118,7 @@ export default {
   transition: opacity .3s;
 }
 .cards.-is-folded .cards__btn {
-  opacity: .8;
+  opacity: .5;
   pointer-events: initial;
   transition: opacity .3s;
 }
@@ -140,6 +140,7 @@ export default {
 }
 .card >>> .wrapper__item {
   display: block;
+  overflow-wrap: break-word;
 }
 
 </style>
