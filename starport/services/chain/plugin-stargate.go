@@ -1,4 +1,4 @@
-package starportserve
+package chain
 
 import (
 	"context"
@@ -11,16 +11,18 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type stargatePlugin struct {
-	app App
+	app   App
+	chain *Chain
 }
 
-func newStargatePlugin(app App) *stargatePlugin {
+func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
 	return &stargatePlugin{
-		app: app,
+		app:   app,
+		chain: chain,
 	}
 }
 
@@ -28,7 +30,7 @@ func (p *stargatePlugin) Name() string {
 	return "Stargate"
 }
 
-func (p *stargatePlugin) Migrate(ctx context.Context) error {
+func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
@@ -46,15 +48,33 @@ func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option,
 		}
 }
 
-func (p *stargatePlugin) AddUserCommand(accountName string) step.Option {
-	return step.Exec(
-		p.app.d(),
-		"keys",
-		"add",
-		accountName,
-		"--output", "json",
-		"--keyring-backend", "test",
-	)
+func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
+	return step.NewOptions().
+		Add(
+			step.Exec(
+				p.app.d(),
+				"keys",
+				"add",
+				accountName,
+				"--output", "json",
+				"--keyring-backend", "test",
+			),
+		)
+}
+
+func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
+	return step.NewOptions().
+		Add(
+			step.Exec(
+				p.app.d(),
+				"keys",
+				"add",
+				name,
+				"--recover",
+				"--keyring-backend", "test",
+			),
+			step.Write([]byte(mnemonic+"\n")),
+		)
 }
 
 func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
@@ -167,3 +187,5 @@ func (p *stargatePlugin) GenesisPath() string {
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
+
+func (p *stargatePlugin) SupportsIBC() bool { return true }

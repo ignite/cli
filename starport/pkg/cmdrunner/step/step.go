@@ -102,6 +102,10 @@ func Write(data []byte) Option {
 
 type Steps []*Step
 
+func NewSteps() *Steps {
+	return &Steps{}
+}
+
 func (s *Steps) Add(steps ...*Step) {
 	*s = append(*s, steps...)
 }

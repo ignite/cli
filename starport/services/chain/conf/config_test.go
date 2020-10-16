@@ -1,4 +1,4 @@
-package starportconf
+package conf
 
 import (
 	"strings"

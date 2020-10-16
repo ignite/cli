@@ -1,4 +1,4 @@
-name: Test-E2E
+name: Test-Integration
 
 on:
   pull_request:
@@ -6,6 +6,7 @@ on:
     branches:
       - master
       - develop
+
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -18,16 +19,14 @@ jobs:
         with:
           go-version: 1.15
 
-      - name: Set up Node
-        uses: actions/setup-node@v2-beta
-        with:
-          node-version: "14"
-
       - name: Install protoc
         uses: arduino/setup-protoc@v1
 
       - name: Set up packr2
         run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+      - name: Set up relayer
+        run: git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 438815d47a857318199d556f4c1115f2fa6315a2 && make install
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -52,6 +51,6 @@ jobs:
         run: |
           go install ./...
 
-      - name: Run E2E Tests
+      - name: Run Integration Tests
         working-directory: ${{ env.working-directory }}
-        run: ./scripts/test-e2e
+        run: ./scripts/test-integration 
