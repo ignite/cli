@@ -10,8 +10,10 @@ const {
   VUE_APP_ADDRESS_PREFIX
 } = process.env
 
+// const GITPOD =
+//   VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
 const GITPOD =
-  VUE_APP_CUSTOM_URL && new URL(VUE_APP_CUSTOM_URL)
+  VUE_APP_CUSTOM_URL && new URL(window.location.href)
 console.log(process.env, GITPOD)
 const STARPORT_APP =
   (GITPOD && `${GITPOD.protocol}//12345-${GITPOD.hostname}`) ||

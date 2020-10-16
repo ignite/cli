@@ -14,8 +14,8 @@ export default {
     ...mapMutations('cosmos', [ 'setBackendRunningStates', 'setBackendEnv' ]),
     async setStatusState() {
       try {
-        // const { data } = await axios.get(`${this.appEnv.STARPORT_APP}/status`)
-        const { data } = await axios.get(`/status`)
+        const { data } = await axios.get(`${this.appEnv.STARPORT_APP}/status`)
+        // const { data } = await axios.get(`/status`)
         const { status, env } = data
 
         this.setBackendRunningStates({
