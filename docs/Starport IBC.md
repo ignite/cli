@@ -1,5 +1,9 @@
 # Starport IBC
 
+Inter-Blockchain Communication Protocol in short [IBC](https://github.com/cosmos/ics#ibc-quick-references), enables communication of blockchains. IBC allows a reliable and secure connection between two chains which can be used for transfers of tokens, multi-chain smart contracts, atomic swaps or data and code sharding of any kind.
+
+In order to communicate between chains, bootstrapping two blockchains with starport will give us the picture of how it is intended to work and what happens on each of the blockchain application in the communication process. In this tutorial we will be creating two blockchains, connect those blockchains and transfer tokens via IBC.
+
 ## Scaffolding chain `foo`
 
 To start using IBC with Starport open up a [web-based development environment](https://gitpod.io/#https://github.com/tendermint/starport/), then scaffold and launch a Stargate chain:
@@ -18,6 +22,7 @@ You now have a blockchain `foo` running, but it's not connected to anything yet.
 
 To connect this blockchain to another one, open up one more [web-based development environment](https://gitpod.io/#https://github.com/tendermint/starport/) instance and follow the steps above to scaffold and launch another chain (let's call it `bar`).
 
+To connect our blockchains, we will be using the [relayer](https://github.com/cosmos/ics/tree/master/spec/ics-018-relayer-algorithms). The relayer is our "physical" connection between the two blockchains. It is responsible for monitoring both blockchains, relaying data between them, construct appropriate diagrams and execute them accordingly on both blockchains.
 Once the chain is running, you will see a "Relayer info" string in the terminal output (your string will be different):
 
 ```
@@ -41,9 +46,11 @@ Detected chains, linking them...
 Linked foo <--> bar
 ```
 
+The two chains are now connected via IBC and you have successfully created a relayer.
+
 ## Sending tokens from `foo` to `bar`
 
-Once the chains are connected, you can use a relayer CLI `rly` to create an IBC token send transaction:
+Once the chains are connected, you can use a [relayer](https://github.com/ovrclk/relayer) CLI `rly` to create an IBC token send transaction:
 
 ```
 rly tx transfer foo bar 5token $(rly chains address bar)
