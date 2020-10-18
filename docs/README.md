@@ -19,10 +19,10 @@
     4. [Writing Custom Modules](02%20Architecture/writing_custom_modules.md)
 3. Tutorials  
     1. [Introduction](03%20Tutorials/introduction.md)
-    2. [Poll](03%20Tutorials/poll/index.md)
-    3. [Blog](https://github.com/cosmos/sdk-tutorials/blog/tutorial/01-index.md)
-    4. [Scavenge](03%20Tutorials/scavenge/01-background.md)
-    5. [Nameservice](03%20Tutorials/nameservice/00-intro.md)
+    2. [Poll](https://github.com/cosmos/sdk-tutorials/blob/master/voter/index.md)
+    3. [Blog](https://github.com/cosmos/sdk-tutorials/blob/master/blog/tutorial/01-index.md)
+    4. [Scavenge](https://github.com/cosmos/sdk-tutorials/blob/master/scavenge/tutorial/01-background.md)
+    5. [Nameservice](https://github.com/cosmos/sdk-tutorials/blob/master/nameservice/tutorial/00-intro.md)
 4. EVM Smart Contracts  
     1. [Introduction](04%20EVM%20smart%20contracts/introduction.md)  
     2. [ERC20](04%20EVM%20smart%20contracts/erc20.md)  
