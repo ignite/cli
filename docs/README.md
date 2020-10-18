@@ -10,6 +10,7 @@
    3. [Quickstart](1%20Introduction/3_quickstart.md)
    4. [Configuration](1%20Introduction/4_configuration.md)  
    5. [Genesis File](1%20Introduction/5_genesis_file.md)  
+   6. [Starport IBC](1%20Introduction/6_Starport%20IBC.md)
 2. Architecture
     1. [Introduction](2%20Architecture/1_introduction.md)  
     2. [Directory Structure](2%20Architecture/2_directory_structure.md)  
@@ -31,7 +32,6 @@
     3. [Deploying your first contract](5%20Wasm%20Smart%20Contracts/3_deploying_your_first_contract.md)  
 6. Extra
     1. [Raspberry Pi](6%20Extra/RaspberryPi.md)
-    2. [Starport IBC](6%20Extra/Starport%20IBC.md)
 
 ## Other Tutorials
 
