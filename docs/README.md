@@ -30,7 +30,7 @@
 5. Wasm Smart Contracts
     1. [Introduction](05%20Wasm%20Smart%20Contracts/introduction.md)
     2. [Adding support for CosmWasm](05%20Wasm%20Smart%20Contracts/adding_support_for_cosmwasm.md)
-    3. [CosmWasm CW20](05%20Wasm%20Smart%20Contracts/deploying_your_first_contract.md)  
+    3. [Deploying your first contract](05%20Wasm%20Smart%20Contracts/deploying_your_first_contract.md)  
 6. Extras
     1. [Raspberry Pi](RaspberryPi.md)
     2. [Starport IBC](Starport%20IBC.md)
