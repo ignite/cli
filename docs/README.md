@@ -35,5 +35,4 @@
 
 ## Other Tutorials
 
-web-based UI
 - [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
