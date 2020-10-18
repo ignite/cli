@@ -1,6 +1,4 @@
-# The Starport Handbook
-
-> Create your own blockchain - from star to ecosystem
+# The Starport Documentation
 
 **Quickstart:** Try <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
 
