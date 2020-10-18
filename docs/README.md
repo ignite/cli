@@ -25,8 +25,8 @@
     5. [Nameservice](nameservice/00-intro.md)
 4. EVM Smart Contracts  
     1. [Introduction](04%20EVM%20smart%20contracts/introduction.md)  
-    2. [ERC20 & ERC777](04%20EVM%20smart%20contracts/erc20.md)  
-    3. [NFT ERC721](04%20EVM%20smart%20contracts/nft.md)  
+    2. [ERC20](04%20EVM%20smart%20contracts/erc20.md)  
+    3. [NFT](04%20EVM%20smart%20contracts/nft.md)  
 5. Wasm Smart Contracts
     1. [Introduction](05%20Wasm%20Smart%20Contracts/introduction.md)
     2. [Adding support for CosmWasm](05%20Wasm%20Smart%20Contracts/adding_support_for_cosmwasm.md)
