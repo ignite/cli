@@ -67,12 +67,6 @@ _Read the [specification](https://github.com/cosmos/cosmos-sdk/blob/master/x/par
 
 Those modules are typically installed on default when using starport. There are a range of modules that are also part of the Cosmos SDK, additionally some other public modules have already reached a major level of usage and acceptance. We will look at more advanced modules in the next Chapter.
 
-## Summary
-
-- The basic modules form the foundation of a Cosmos SDK blockchain.
-- The modules allow for account management, sending Tokens, managing supply and blockchain access.
-- Modules are "plug-and-play" for the Cosmos SDK.
-
 ## Using modules
 
 With starport you can add a module with the command `starport add modulename`. When adding a module manually to a blockchain application, it requires to edit the `app/app.go` and the `myappcli/main.go` with the according entries. Starport manages the code edits and additions for you conviniently.
