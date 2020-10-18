@@ -6,32 +6,36 @@
 
 ## Table of Contents 🔎
 
-0. [Install Starport](install.md)
 1. Introduction  
-   1. [Introduction](01%20Introduction/01_starport_introduction/introduction.md)  
-   2. [Documentation and Specification](01%20Introduction/02_documentation_specification/02_documentation_specification.md)  
-   3. [Development Mode](01%20Introduction/03_development_mode/03_development_mode.md)  
-2. Using Starport  
-    1. [Using Starport](02%20Using%20Starport/01_using_starport/01_using_starport.md)  
-    2. [Genesis File](02%20Using%20Starport/02_genesis_file/02_genesis_file.md)     
-    3. [Configuration](02%20Using%20Starport/03_configuration/03_configuration.md)  
-3. Modules  
-    1. [What are Modules](03%20Modules/01_what_are_modules/01_what_are_modules.md)  
-    2. [Basic Modules](03%20Modules/02_basic_modules/02_basic_modules.md)  
-    3. [Advanced Modules](03%20Modules/03_advanced_modules/03_advanced_modules.md)  
-    4. [Smart Modules](03%20Modules/04_smart_modules/04_smart_modules.md)  
-    5. [Your own Modules](03%20Modules/05_your_own_module/05_your_own_module.md)  
-4. Usecases  
-    1. [Smart Contracts](04%20Use%20cases/01_smart_contracts/01_smart_contracts.md)  
-    2. [ERC20 & ERC777](04%20Use%20cases/02_erc20/02_erc20.md)  
-    3. [NFT ERC721](04%20Use%20cases/03_nft/03_nft.md)  
-    4. [CosmWasm CW20](04%20Use%20cases/04_cw20/04_cw20.md)  
-5. Extras  
-    1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
+   1. [Introduction](01%20Introduction/introduction.md)  
+   2. [Install](01%20Introduction/install.md)
+   3. [Quickstart](01%20Introduction/quickstart.md)
+   4. [Configuration](01%20Introduction/configuration.md)  
+   5. [Genesis File](01%20Introduction/genesis_file.md)  
+2. Architecture
+    1. [Introduction](02%20Architecture/introduction.md)  
+    2. [Directory Structure](02%20Architecture/directory_structure.md)  
+    3. [Standard Modules](02%20Architecture/standard_modules.md)
+    4. [Writing Custom Modules](02%20Architecture/writing_custom_modules.md)
+3. Tutorials  
+    1. [Introduction](03%20Tutorials/introduction.md)
+    2. [Poll](poll/index.md)
+    3. [Blog](blog/01-index.md)
+    4. [Scavenge](scavenge/01-background.md)
+    5. [Nameservice](nameservice/00-intro.md)
+4. EVM Smart Contracts  
+    1. [Introduction](04%20EVM%20smart%20contracts/introduction.md)  
+    2. [ERC20 & ERC777](04%20EVM%20smart%20contracts/erc20.md)  
+    3. [NFT ERC721](04%20EVM%20smart%20contracts/nft.md)  
+5. Wasm Smart Contracts
+    1. [Introduction](05%20Wasm%20Smart%20Contracts/introduction.md)
+    2. [Adding support for CosmWasm](05%20Wasm%20Smart%20Contracts/adding_support_for_cosmwasm.md)
+    3. [CosmWasm CW20](05%20Wasm%20Smart%20Contracts/deploying_your_first_contract.md)  
+6. Extras
+    1. [Raspberry Pi](RaspberryPi.md)
+    2. [Starport IBC](Starport%20IBC.md)
 
 ## Other Tutorials
 
-- [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
-- [Poll tutorial](https://tutorials.cosmos.network/starport-polling-app/): build a voting application with a web-based UI
+web-based UI
 - [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
-- [Blog (from scratch) tutorial](https://tutorials.cosmos.network/starport-blog/tutorial/01-index.html): learn how Starport works by building a blog without scaffolding
