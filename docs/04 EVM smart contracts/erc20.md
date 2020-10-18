@@ -228,5 +228,3 @@ Summary
 > Total deployments:   1
 > Final cost:          0.00264782 ETH
 ```
-
-[◀️ Previous - Smart Contracts](../../04_usecases/01_smart_contracts/01_smart_contracts.md) | [▶️ Next - EVM NFT (ERC721)](../../04%20Use%20cases/03_nft/03_nft.md)  

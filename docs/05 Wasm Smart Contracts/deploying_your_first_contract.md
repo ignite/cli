@@ -129,5 +129,3 @@ Congratulations, you have created your first CW20 Token.
 As execerise you should try out to send tokens from one account to another, from here on there are also CW20 standards that allow for staking, escrow or more features.
 
 Don't forget to checkout the documentation at https://github.com/CosmWasm/cosmwasm-plus/tree/master/packages/cw20
-
-[◀️ Previous - EVM NFT (ERC721)](../../04_usecases/03_nft/03_nft.md)
