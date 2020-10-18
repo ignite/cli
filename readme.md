@@ -20,7 +20,7 @@ starport serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/install.md).
+To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/1%20Introduction/1%20Install.md).
 
 ## Questions
 
