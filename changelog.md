@@ -6,7 +6,8 @@
 * Added `starport build` command to build and install app binaries.
 * Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook.
 * Added `starport module create` command to scaffold custom modules
-* Downstream Pi now installs, builds, and serves the Vue UI
+* Raspberry Pi now installs, builds, and serves the Vue UI
+* Improved documentation for Raspberry Pi Device Images
 * Added IBC and some other modules.
 * Added an option to configure server addresses under `servers` section in `config.yml`.
 
