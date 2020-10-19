@@ -1,4 +1,4 @@
-# How to use Starport
+# Introduction
 
 Starport creates a blockchain for you in Go. Requirements for this is to have Go installed. You can get all the information here https://golang.org/doc/install.
 
@@ -100,5 +100,3 @@ The validator property describes your set of validators. Use a `name` that you h
 - The default blockchain includes networking and a consensus protocol with your own token.
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
 - Accounts are created during genesis of the application. These can be configured in the `config.yml`.
-
-[◀️ Previous - Development Mode](../../01%20Introduction/03_development_mode/03_development_mode.md) | [▶️ Next - Genesis File](../../02%20Using%20Starport/02_genesis_file/02_genesis_file.md)  

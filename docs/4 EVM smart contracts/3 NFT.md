@@ -207,4 +207,3 @@ Summary
 > Final cost:          0.03653926 ETH
 ```
 
-[◀️ Previous - EVM ERC20 & ERC777](../../04%Use%20cases/02_erc20/02_erc20.md) | [▶️ Next - WASM CW20](../../04%20Use%20cases/04_cw20/04_cw20.md)  

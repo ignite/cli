@@ -163,5 +163,3 @@ In order to setup your genesis file correctly, it is important to understand the
 
 - The genesis block is the first block of a blockchain.
 - Most of the time it defines which network you are using.
-
-[◀️ Previous - Using Starport](../../02%20Using%20Starport/01_using_starport/01_using_starport.md) | [▶️ Next - Configuration](../../02%20Using%20Starport/03_configuration/03_configuration.md)  

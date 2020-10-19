@@ -2,14 +2,6 @@
 
 The `wasm` adaptation of the ERC20 contract is called the CW20, it encapsulates the same logic as the ERC20|ERC777 contract and allows for token creation on the blockchain with the `wasm` module. 
 
-## Create a smart contract using  Rust and WebAssembly on the Cosmos SDK
-
-As mentioned in the previous chapter, the `wasm` module allows using WebAssembly code (Wasm) on a Cosmos SDK blockchain. With Starport, we can add the module very conveniently with
-
-```bash
-starport module import wasm
-```
-
 ## Upload the contract to a starport chain
 
 The `wasm` module uses Rust language instead of Solidity, therefore it is necessary to have Rust installed on the machine you are planning to compile and upload the smart contract. In the following steps, we will download the CW20 code, test it, deploy it for production, host it on a blockchain and use it.
@@ -137,5 +129,3 @@ Congratulations, you have created your first CW20 Token.
 As execerise you should try out to send tokens from one account to another, from here on there are also CW20 standards that allow for staking, escrow or more features.
 
 Don't forget to checkout the documentation at https://github.com/CosmWasm/cosmwasm-plus/tree/master/packages/cw20
-
-[◀️ Previous - EVM NFT (ERC721)](../../04_usecases/03_nft/03_nft.md)
