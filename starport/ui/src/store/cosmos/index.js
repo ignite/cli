@@ -15,7 +15,8 @@ export default {
   state: {
     APP_ENV: {      
       GITPOD: '',
-      STARPORT_APP: VUE_APP_CUSTOM_URL ? '' : 'http://localhost:12345',
+      // STARPORT_APP: VUE_APP_CUSTOM_URL ? '' : 'http://localhost:12345',
+      STARPORT_APP: window.location.href,
       FRONTEND: '',
       RPC: '',
       API: '',
@@ -25,7 +26,7 @@ export default {
     backend: {
       env: {
         node_js: false,
-        vue_app_custom_url: process.env.VUE_APP_CUSTOM_URL,
+        vue_app_custom_url: window.location.href,
       },      
       running: { 
         frontend: false,        
