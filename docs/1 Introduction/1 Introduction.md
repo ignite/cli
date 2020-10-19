@@ -10,7 +10,7 @@ Starport uses the Tendermint Consensus engine and Cosmos SDK to create a blockch
 
 With just a few commands, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
 
-Bootstrapping blockchains was initially the job of a `scaffold` program, which helped in create a blockchain applications. Starport takes it to the next level and also creates a user interface with Vue.js that provides a good starting point for developing a browser-based client-side application for your blockchain.
+Bootstrapping blockchains was initially the job of a `scaffold` program, which helped in create a blockchain application. Starport takes it to the next level and also creates a user interface with Vue.js that provides a good starting point for developing a browser-based client-side application for your blockchain.
 
 The scaffolded application still includes a command line interface that lets you manage keys, create validators, send tokens.
 
