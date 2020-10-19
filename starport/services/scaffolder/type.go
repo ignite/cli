@@ -156,32 +156,15 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 }
 
 func isGoReservedWord(name string) bool {
+
+	// Check keyword or literal
+	if token.Lookup(name).IsKeyword() {
+		return true
+	}
+
+	// Check with builtin identifier
 	switch name {
 	case
-		"type",
-		"package",
-		"import",
-		"go",
-		"func",
-		"return",
-		"case",
-		"select",
-		"break",
-		"default",
-		"fallthrough",
-		"continue",
-		"if",
-		"else",
-		"goto",
-		"for",
-		"range",
-		"var",
-		"const",
-		"map",
-		"struct",
-		"interface",
-		"chan",
-		"defer",
 		"panic",
 		"recover",
 		"append",
