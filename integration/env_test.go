@@ -55,9 +55,9 @@ func (e env) Ctx() context.Context {
 }
 
 type execOptions struct {
-	ctx            context.Context
-	shouldErr      bool
-	stdout, stderr io.Writer
+	ctx                    context.Context
+	shouldErr, shouldRetry bool
+	stdout, stderr         io.Writer
 }
 
 type execOption func(*execOptions)
@@ -90,6 +90,13 @@ func ExecStderr(w io.Writer) execOption {
 	}
 }
 
+// ExecRetry retries command until it is successful before context is canceled.
+func ExecRetry() execOption {
+	return func(o *execOptions) {
+		o.shouldRetry = true
+	}
+}
+
 // Exec executes a command step with options where msg describes the expectation from the test.
 // unless calling with Must(), Exec() will not exit test runtime on failure.
 func (e env) Exec(msg string, step *step.Step, options ...execOption) (ok bool) {
@@ -117,6 +124,10 @@ func (e env) Exec(msg string, step *step.Step, options ...execOption) (ok bool) 
 		Run(opts.ctx, step)
 	if err == context.Canceled {
 		err = nil
+	}
+	if err != nil && opts.shouldRetry && opts.ctx.Err() == nil {
+		time.Sleep(time.Second)
+		return e.Exec(msg, step, options...)
 	}
 	if err != nil {
 		msg = fmt.Sprintf("%s\n\nLogs:\n\n%s\n\nError Logs:\n\n%s\n",
@@ -246,4 +257,11 @@ func (e env) Must(ok bool) {
 	if !ok {
 		e.t.FailNow()
 	}
+}
+
+// Home returns user's home dir.
+func (e env) Home() string {
+	home, err := os.UserHomeDir()
+	require.NoError(e.t, err)
+	return home
 }
