@@ -45,6 +45,14 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
+		step.New(
+			step.Exec("starport", "type", "employee", "level:itn"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -88,6 +96,14 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	env.Must(env.Exec("should prevent creating a type with duplicated fields",
 		step.New(
 			step.Exec("starport", "type", "company", "name", "name"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
+		step.New(
+			step.Exec("starport", "type", "employee", "level:itn"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),

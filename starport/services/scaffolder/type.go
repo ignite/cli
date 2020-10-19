@@ -71,6 +71,8 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			if t, ok := acceptedTypes[fs[1]]; ok {
 				datatype = t
 				datatypeName = fs[1]
+			} else {
+				return fmt.Errorf("The field type %s doesn't exist.", fs[1])
 			}
 		}
 		tfields = append(tfields, typed.Field{
