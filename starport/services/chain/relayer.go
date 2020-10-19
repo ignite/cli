@@ -100,10 +100,12 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	if err != nil {
 		return err
 	}
-	if !s.plugin.SupportsIBC() || len(sconf.Relayer.Accounts) == 0 {
+	if !s.plugin.SupportsIBC() {
 		return nil
 	}
-	fmt.Fprintf(s.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
+	if len(sconf.Relayer.Accounts) > 0 {
+		fmt.Fprintf(s.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
+	}
 
 	// init path for the relayer.
 	relayerHome, err := s.initRelayerHome()

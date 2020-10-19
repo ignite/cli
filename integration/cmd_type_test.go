@@ -45,9 +45,33 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
+		step.New(
+			step.Exec("starport", "type", "employee", "level:itn"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
+		step.New(
+			step.Exec("starport", "type", "map", "size:int"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
+		step.New(
+			step.Exec("starport", "type", "document", "type:int"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),
@@ -93,9 +117,33 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
+		step.New(
+			step.Exec("starport", "type", "employee", "level:itn"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.New(
 			step.Exec("starport", "type", "user", "email"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
+		step.New(
+			step.Exec("starport", "type", "map", "size:int"),
+			step.Workdir(path),
+		),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
+		step.New(
+			step.Exec("starport", "type", "document", "type:int"),
 			step.Workdir(path),
 		),
 		ExecShouldError(),

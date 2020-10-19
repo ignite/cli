@@ -15,7 +15,7 @@
 
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
 * HTTP API: accept strings in JSON and cast them to int and bool
-* Update @tendermint/vue to `v0.1.5`
+* Update @tendermint/vue to `v0.1.7`
 * Removed "Starport Pi"
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
