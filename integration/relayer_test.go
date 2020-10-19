@@ -6,9 +6,11 @@ import (
 	"bufio"
 	"bytes"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"path/filepath"
 	"strings"
 	"sync"
 	"testing"
@@ -173,4 +175,53 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	if err := sg.Wait(); err != nil {
 		t.FailNow()
 	}
+}
+
+func TestRelayerWithOnlySelfAccount(t *testing.T) {
+	t.Parallel()
+
+	var (
+		env     = newEnv(t)
+		apath   = env.Scaffold("blog", Stargate)
+		servers = env.RandomizeServerPorts(apath)
+
+		ctx, cancel                = context.WithCancel(env.Ctx())
+		relayerHome                = filepath.Join(env.Home(), "blogd/relayer")
+		balance                    = &bytes.Buffer{}
+		canCheckBalanceWithRelayer bool
+	)
+
+	go func() {
+		defer cancel()
+		canCheckBalanceWithRelayer = env.
+			Exec("check account balance with relayer",
+				step.New(
+					step.Exec(
+						"rly",
+						"--home", relayerHome,
+						"q",
+						"balance",
+						"blog",
+					),
+					step.PreExec(func() error {
+						return env.IsAppServed(ctx, servers)
+					}),
+					step.Stdout(balance),
+				),
+				ExecRetry(),
+			)
+	}()
+	env.Must(env.Serve("should serve with CosmWasm", apath, ExecCtx(ctx)))
+
+	if !canCheckBalanceWithRelayer {
+		t.FailNow()
+	}
+
+	var balances []struct {
+		Amount string "json:`amount`"
+	}
+
+	require.NoError(t, json.NewDecoder(balance).Decode(&balances))
+	require.Len(t, balances, 1)
+	require.Equal(t, "800", balances[0].Amount)
 }
