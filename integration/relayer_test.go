@@ -211,7 +211,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 				ExecRetry(),
 			)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", apath, ExecCtx(ctx)))
 
 	if !canCheckBalanceWithRelayer {
 		t.FailNow()
