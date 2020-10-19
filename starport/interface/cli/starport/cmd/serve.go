@@ -8,7 +8,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	starportserve "github.com/tendermint/starport/starport/services/serve"
+	"github.com/tendermint/starport/starport/services/chain"
 )
 
 var appPath string
@@ -31,7 +31,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	app := starportserve.App{
+	app := chain.App{
 		Name: path.Root,
 		Path: appPath,
 	}
@@ -46,7 +46,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	s, err := starportserve.New(app, verbose)
+	s, err := chain.New(app, verbose)
 	if err != nil {
 		return err
 	}

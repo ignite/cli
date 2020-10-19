@@ -15,13 +15,18 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/goccy/go-yaml"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
+)
+
+const (
+	serveTimeout = time.Minute * 15
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
@@ -50,9 +55,9 @@ func (e env) Ctx() context.Context {
 }
 
 type execOptions struct {
-	ctx       context.Context
-	shouldErr bool
-	stdout    io.Writer
+	ctx            context.Context
+	shouldErr      bool
+	stdout, stderr io.Writer
 }
 
 type execOption func(*execOptions)
@@ -78,11 +83,20 @@ func ExecStdout(w io.Writer) execOption {
 	}
 }
 
+// ExecSterr captures stderr of an execution.
+func ExecStderr(w io.Writer) execOption {
+	return func(o *execOptions) {
+		o.stderr = w
+	}
+}
+
 // Exec executes a command step with options where msg describes the expectation from the test.
-func (e env) Exec(msg string, step *step.Step, options ...execOption) {
+// unless calling with Must(), Exec() will not exit test runtime on failure.
+func (e env) Exec(msg string, step *step.Step, options ...execOption) (ok bool) {
 	opts := &execOptions{
 		ctx:    e.ctx,
 		stdout: ioutil.Discard,
+		stderr: ioutil.Discard,
 	}
 	for _, o := range options {
 		o(opts)
@@ -93,7 +107,7 @@ func (e env) Exec(msg string, step *step.Step, options ...execOption) {
 	)
 	copts := []cmdrunner.Option{
 		cmdrunner.DefaultStdout(io.MultiWriter(stdout, opts.stdout)),
-		cmdrunner.DefaultStderr(stderr),
+		cmdrunner.DefaultStderr(io.MultiWriter(stderr, opts.stderr)),
 	}
 	if isCI {
 		copts = append(copts, cmdrunner.EndSignal(os.Kill))
@@ -111,10 +125,9 @@ func (e env) Exec(msg string, step *step.Step, options ...execOption) {
 			stderr.String())
 	}
 	if opts.shouldErr {
-		require.Error(e.t, err, msg)
-	} else {
-		require.NoError(e.t, err, msg)
+		return assert.Error(e.t, err, msg)
 	}
+	return assert.NoError(e.t, err, msg)
 }
 
 const (
@@ -142,8 +155,9 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
-func (e env) Serve(msg string, path string, options ...execOption) {
-	e.Exec(msg,
+// unless calling with Must(), Serve() will not exit test runtime on failure.
+func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
+	return e.Exec(msg,
 		step.New(
 			step.Exec(
 				"starport",
@@ -224,4 +238,12 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 
 	return servers
+}
+
+// Must fails the immediately if not ok.
+// t.Fail() needs to be called for the failing tests before running Must().
+func (e env) Must(ok bool) {
+	if !ok {
+		e.t.FailNow()
+	}
 }

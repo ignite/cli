@@ -1,4 +1,4 @@
-package starportserve
+package chain
 
 import (
 	"bytes"
@@ -6,8 +6,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"go/build"
-	"io"
-	"io/ioutil"
 	"net"
 	"net/http"
 	"os"
@@ -18,101 +16,35 @@ import (
 	"sync"
 	"time"
 
-	"github.com/go-git/go-git/v5"
-	"github.com/gookit/color"
 	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/serve/conf"
+	"github.com/tendermint/starport/starport/services/chain/conf"
+	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	appBackendWatchPaths = append([]string{
-		"app",
-		"cmd",
-		"x",
-	}, starportconf.FileNames...)
-
-	vuePath = "vue"
-
-	errorColor = color.Red.Render
-	infoColor  = color.Yellow.Render
-)
-
-type version struct {
-	tag  string
-	hash string
-}
-
-type Serve struct {
-	app            App
-	plugin         Plugin
-	version        version
-	verbose        bool
-	serveCancel    context.CancelFunc
-	serveRefresher chan struct{}
-	stdout, stderr io.Writer
-}
-
-func New(app App, verbose bool) (*Serve, error) {
-	s := &Serve{
-		app:            app,
-		verbose:        verbose,
-		serveRefresher: make(chan struct{}, 1),
-		stdout:         ioutil.Discard,
-		stderr:         ioutil.Discard,
-	}
-
-	if verbose {
-		s.stdout = os.Stdout
-		s.stderr = os.Stderr
-	}
-
-	var err error
-
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return nil, err
-	}
-
-	s.plugin, err = s.pickPlugin()
-	if err != nil {
-		return nil, err
-	}
-	return s, nil
-}
-
-// Build builds an app.
-func (s *Serve) Build(ctx context.Context) error {
-	if err := s.setup(ctx); err != nil {
-		return err
-	}
-	conf, err := s.config()
-	if err != nil {
-		return &CannotBuildAppError{err}
-	}
-	steps, binaries := s.buildSteps(ctx, conf)
-	if err := cmdrunner.
-		New(s.cmdOptions()...).
-		Run(ctx, steps...); err != nil {
-		return err
-	}
-	fmt.Fprintf(s.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
-	return nil
-}
-
 // Serve serves an app.
-func (s *Serve) Serve(ctx context.Context) error {
+func (s *Chain) Serve(ctx context.Context) error {
+	// initial checks and setup.
 	if err := s.setup(ctx); err != nil {
 		return err
 	}
+	// initialize the relayer if application supports it so, secret.yml
+	// can be generated and watched for changes.
+	if s.plugin.SupportsIBC() {
+		if _, err := s.RelayerInfo(); err != nil {
+			return err
+		}
+	}
 
+	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
 		return s.watchAppFrontend(ctx)
@@ -143,7 +75,7 @@ func (s *Serve) Serve(ctx context.Context) error {
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
 
-					var validationErr *starportconf.ValidationError
+					var validationErr *conf.ValidationError
 					if errors.As(err, &validationErr) {
 						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
 					}
@@ -161,13 +93,13 @@ func (s *Serve) Serve(ctx context.Context) error {
 	return g.Wait()
 }
 
-func (s *Serve) setup(ctx context.Context) error {
+func (s *Chain) setup(ctx context.Context) error {
 	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
 
 	if err := s.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.plugin.Migrate(ctx); err != nil {
+	if err := s.plugin.Setup(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -175,10 +107,13 @@ func (s *Serve) setup(ctx context.Context) error {
 
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *Serve) checkSystem() error {
+func (s *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
+	}
+	if s.plugin.Version() == cosmosver.Stargate && !xexec.IsCommandAvailable("rly") {
+		return errors.New("Please, check that Relayer is installed.")
 	}
 	// check if Go's bin added to System's path.
 	gobinpath := path.Join(build.Default.GOPATH, "bin")
@@ -188,14 +123,14 @@ func (s *Serve) checkSystem() error {
 	return nil
 }
 
-func (s *Serve) refreshServe() {
+func (s *Chain) refreshServe() {
 	if s.serveCancel != nil {
 		s.serveCancel()
 	}
 	s.serveRefresher <- struct{}{}
 }
 
-func (s *Serve) watchAppBackend(ctx context.Context) error {
+func (s *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
@@ -205,13 +140,13 @@ func (s *Serve) watchAppBackend(ctx context.Context) error {
 	)
 }
 
-func (s *Serve) cmdOptions() []cmdrunner.Option {
+func (s *Chain) cmdOptions() []cmdrunner.Option {
 	return []cmdrunner.Option{
 		cmdrunner.DefaultWorkdir(s.app.Path),
 	}
 }
 
-func (s *Serve) serve(ctx context.Context) error {
+func (s *Chain) serve(ctx context.Context) error {
 	conf, err := s.config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -223,19 +158,38 @@ func (s *Serve) serve(ctx context.Context) error {
 		Run(ctx, buildSteps...); err != nil {
 		return err
 	}
+
+	initSteps, err := s.initSteps(ctx, conf)
+	if err != nil {
+		return err
+	}
 	if err := cmdrunner.
 		New(s.cmdOptions()...).
-		Run(ctx, s.initSteps(ctx, conf)...); err != nil {
+		Run(ctx, initSteps...); err != nil {
 		return err
 	}
 
+	wr := sync.WaitGroup{}
+	wr.Add(1)
+
+	go func() {
+		wr.Wait()
+		if err := s.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
+			fmt.Fprintf(s.stdLog(logStarport).err, "could not init relayer: %s", err)
+		}
+	}()
+
 	return cmdrunner.
 		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps(conf)...)
+		Run(ctx, s.serverSteps(ctx, &wr, conf)...)
 }
 
-func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
-	steps step.Steps) {
+func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Steps, err error) {
+	sconf, err := secretconf.Open(s.app.Path)
+	if err != nil {
+		return nil, err
+	}
+
 	// cleanup persistent data from previous `serve`.
 	steps.Add(step.New(
 		step.PreExec(func() error {
@@ -301,60 +255,31 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 	))
 
 	for _, account := range conf.Accounts {
-		account := account
-		var (
-			key      = &bytes.Buffer{}
-			mnemonic = &bytes.Buffer{}
-		)
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				s.plugin.AddUserCommand(account.Name),
-				step.PostExec(func(exitErr error) error {
-					if exitErr != nil {
-						return errors.Wrapf(exitErr, "cannot create %s account", account.Name)
-					}
-					var user struct {
-						Mnemonic string `json:"mnemonic"`
-					}
-					if err := json.NewDecoder(mnemonic).Decode(&user); err != nil {
-						return errors.Wrap(err, "cannot decode mnemonic")
-					}
-					fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
-					return nil
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...).
-			// Stargate pipes from stdout, Launchpad pipes from stderr.
-			Add(step.Stderr(mnemonic), step.Stdout(mnemonic))...,
-		))
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				s.plugin.ShowAccountCommand(account.Name),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					coins := strings.Join(account.Coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.d(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stdout(key))...,
+		steps.Add(s.createAccountSteps(ctx, account.Name, "", account.Coins, false)...)
+	}
+
+	for _, account := range sconf.Accounts {
+		steps.Add(s.createAccountSteps(ctx, account.Name, account.Mnemonic, account.Coins, false)...)
+	}
+
+	if s.plugin.SupportsIBC() {
+		steps.Add(step.New(
+			step.PreExec(func() error {
+				if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
+					return err
+				}
+				info, err := s.RelayerInfo()
+				if err != nil {
+					return err
+				}
+				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
+				return nil
+			}),
 		))
 	}
 
 	for _, execOption := range s.plugin.ConfigCommands() {
+		execOption := execOption
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption).
 			Add(s.stdSteps(logAppcli)...)...,
@@ -372,77 +297,79 @@ func (s *Serve) initSteps(ctx context.Context, conf starportconf.Config) (
 		)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
+	return steps, nil
+}
+
+func (s *Chain) createAccountSteps(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (steps step.Steps) {
+	if mnemonic != "" {
+		steps.Add(
+			step.New(
+				step.NewOptions().
+					Add(s.plugin.ImportUserCommand(name, mnemonic)...)...,
+			),
+		)
+	} else {
+		generatedMnemonic := &bytes.Buffer{}
+		steps.Add(
+			step.New(
+				step.NewOptions().
+					Add(s.plugin.AddUserCommand(name)...).
+					Add(
+						step.PostExec(func(exitErr error) error {
+							if exitErr != nil {
+								return errors.Wrapf(exitErr, "cannot create %s account", name)
+							}
+							var user struct {
+								Mnemonic string `json:"mnemonic"`
+							}
+							if err := json.NewDecoder(generatedMnemonic).Decode(&user); err != nil {
+								return errors.Wrap(err, "cannot decode mnemonic")
+							}
+							if !isSilent {
+								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+							}
+							return nil
+						}),
+					).
+					Add(s.stdSteps(logAppcli)...).
+					// Stargate pipes from stdout, Launchpad pipes from stderr.
+					Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
+			),
+		)
+	}
+
+	key := &bytes.Buffer{}
+	steps.Add(
+		step.New(step.NewOptions().
+			Add(
+				s.plugin.ShowAccountCommand(name),
+				step.PostExec(func(err error) error {
+					if err != nil {
+						return err
+					}
+					coins := strings.Join(coins, ",")
+					key := strings.TrimSpace(key.String())
+					return cmdrunner.
+						New().
+						Run(ctx, step.New(step.NewOptions().
+							Add(step.Exec(
+								s.app.d(),
+								"add-genesis-account",
+								key,
+								coins,
+							)).
+							Add(s.stdSteps(logAppd)...)...,
+						))
+				}),
+			).
+			Add(s.stdSteps(logAppcli)...).
+			Add(step.Stdout(key))...,
+		),
+	)
 	return
 }
 
-func (s *Serve) buildSteps(ctx context.Context, conf starportconf.Config) (
-	steps step.Steps, binaries []string) {
-	ldflags := fmt.Sprintf(`'-X github.com/cosmos/cosmos-sdk/version.Name=NewApp 
-	-X github.com/cosmos/cosmos-sdk/version.ServerName=%sd 
-	-X github.com/cosmos/cosmos-sdk/version.ClientName=%scli 
-	-X github.com/cosmos/cosmos-sdk/version.Version=%s 
-	-X github.com/cosmos/cosmos-sdk/version.Commit=%s'`, s.app.Name, s.app.Name, s.version.tag, s.version.hash)
-	var (
-		buildErr = &bytes.Buffer{}
-	)
-	captureBuildErr := func(err error) error {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) {
-			return &CannotBuildAppError{errors.New(buildErr.String())}
-		}
-		return err
-	}
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"mod",
-				"tidy",
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"go",
-				"mod",
-				"verify",
-			),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logBuild)...).
-		Add(step.Stderr(buildErr))...,
-	))
-
-	// install the app.
-	steps.Add(step.New(
-		step.PreExec(func() error {
-			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
-			return nil
-		}),
-	))
-	installOptions, binaries := s.plugin.InstallCommands(ldflags)
-	for _, execOption := range installOptions {
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				execOption,
-				step.PostExec(captureBuildErr),
-			).
-			Add(s.stdSteps(logStarport)...).
-			Add(step.Stderr(buildErr))...,
-		))
-	}
-	return steps, binaries
-}
-
-func (s *Serve) serverSteps(conf starportconf.Config) (steps step.Steps) {
+func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
 	wg.Add(len(s.plugin.StartCommands(conf)))
 	go func() {
@@ -450,21 +377,29 @@ func (s *Serve) serverSteps(conf starportconf.Config) (steps step.Steps) {
 		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
 		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
 		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+		wr.Done()
 	}()
-	for _, execOption := range s.plugin.StartCommands(conf) {
-		steps.Add(step.New(step.NewOptions().
-			Add(execOption...).
-			Add(step.InExec(func() error {
-				wg.Done()
-				return nil
-			})).
-			Add(s.stdSteps(logAppd)...)...,
-		))
+
+	for _, exec := range s.plugin.StartCommands(conf) {
+		steps.Add(
+			step.New(
+				step.NewOptions().
+					Add(exec...).
+					Add(
+						step.InExec(func() error {
+							wg.Done()
+							return nil
+						}),
+					).
+					Add(s.stdSteps(logAppd)...)...,
+			),
+		)
 	}
+
 	return
 }
 
-func (s *Serve) watchAppFrontend(ctx context.Context) error {
+func (s *Chain) watchAppFrontend(ctx context.Context) error {
 	conf, err := s.config()
 	if err != nil {
 		return err
@@ -510,7 +445,7 @@ func (s *Serve) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *Serve) runDevServer(ctx context.Context) error {
+func (s *Chain) runDevServer(ctx context.Context) error {
 	c, err := s.config()
 	if err != nil {
 		return err
@@ -540,37 +475,6 @@ func (s *Serve) runDevServer(ctx context.Context) error {
 		return nil
 	}
 	return err
-}
-
-func (s *Serve) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(s.app.Path)
-	if err != nil {
-		return version{}, err
-	}
-	iter, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-	ref, err := iter.Next()
-	if err != nil {
-		return version{}, nil
-	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
-	return v, nil
-}
-
-func (s *Serve) config() (starportconf.Config, error) {
-	var paths []string
-	for _, name := range starportconf.FileNames {
-		paths = append(paths, filepath.Join(s.app.Path, name))
-	}
-	confFile, err := xos.OpenFirst(paths...)
-	if err != nil {
-		return starportconf.Config{}, errors.Wrap(err, "config file cannot be found")
-	}
-	defer confFile.Close()
-	return starportconf.Parse(confFile)
 }
 
 type CannotBuildAppError struct {

@@ -13,10 +13,12 @@
 ### Fixes:
 
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
-* Update @tendermint/vue to `v0.1.5`
+* HTTP API: accept strings in JSON and cast them to int and bool
+* Update @tendermint/vue to `v0.1.7`
 * Removed "Starport Pi"
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
+* Prevent duplicated fields with `type` command
 
 ## `v0.11.1`
 
