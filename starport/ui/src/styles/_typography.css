@@ -1,0 +1,35 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@100;200;300;400;500;600;700;800;900&display=swap");
+
+@font-face{
+  font-family: 'JetBrains Mono';
+  src: url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/web/JetBrainsMono-Regular.eot') format('embedded-opentype'),
+       url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/ttf/JetBrainsMono-Regular.ttf') format('truetype');
+       /* url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/web/JetBrainsMono-Regular.woff2') format('woff2'),
+       url('https://raw.githubusercontent.com/JetBrains/JetBrainsMono/master/fonts/web/JetBrainsMono-Regular.woff') format('woff'), */       
+  font-weight: normal;
+  font-style: normal;
+}
+
+:root {
+  /* lv.1 */
+  --f-family-primary: "Inter", "Helvetica", sans-serif;
+  --f-family-code: "JetBrains Mono", "Inter", "Helvetica", sans-serif;
+
+  /* lv.2 */
+  --f-primary: var(--f-family-primary);
+  --f-secondary: var(--f-family-code);
+
+  --f-w-light: 300;
+  --f-w-medium: 500;
+  --f-w-bold: 700;
+  --f-w-extra-bold: 800;
+}
+
+.-f-cosmos-overline-0 {
+  font-weight: var(--f-w-medium);
+  font-size: 1rem;
+  line-height: 130%;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(0, 5, 66, 0.621);
+}
