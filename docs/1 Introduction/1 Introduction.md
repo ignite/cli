@@ -1,18 +1,18 @@
 # An introduction to Starport
 
-Let us dive into what is special about starport, what we can achieve with it and which other technologies play well with it.
+Let us dive into what is special about Starport, what we can achieve with it, and which other technologies play well with it.
 
 ## What is Starport?
 
-Starport is created to make "creating blockchain more comfortable". 
+Starport is a tool that makes it easier to create blockchains.
 
-Starport uses the Tendermint Consensus engine and Cosmos SDK to create a blockchain application in Golang. This blockchain has a Proof-of-Stake system with validators (https://en.longhash.com/news/how-cosmos-governance-works-and-how-you-can-become-a-validator) that can be defined in the genesis block (). 
+Starport uses the Tendermint Consensus engine and Cosmos SDK to create a blockchain application in Go programming language. This blockchain has a Proof-of-Stake system with validators (https://en.longhash.com/news/how-cosmos-governance-works-and-how-you-can-become-a-validator) that can be defined in the genesis block.
 
-With a few commands or clicks, you can create a blockchain, launch it, server it on the cloud and have a GUI ready to start testing your application.
+With just a few commands, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
 
-Bootstrapping blockchains was initially the job of scaffold, which helps to create a blockchain application. Starport takes it to the next level and also creates a User Interface with Vue that gives a headstart to interacting with the blockchain more comfortable than with only the CLI tool. 
+Bootstrapping blockchains was initially the job of a `scaffold` program, which helped in create a blockchain applications. Starport takes it to the next level and also creates a user interface with Vue.js that provides a good starting point for developing a browser-based client-side application for your blockchain.
 
-The CLI will still be there for you, just like scaffold, your blockchain comes with the whole Command Line Interface that enables managing keys, creating validators, sending tokens and let's you add the commands necessary to build your project.
+The scaffolded application still includes a command line interface that lets you manage keys, create validators, send tokens.
 
 ## Projects using Tendermint / Cosmos SDK
 
