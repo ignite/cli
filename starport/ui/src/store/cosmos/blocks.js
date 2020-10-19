@@ -428,6 +428,7 @@ export default {
      */        
     async initBlockConnection({ commit, dispatch, getters, rootGetters }) {
       const appEnv = rootGetters['cosmos/appEnv']     
+      console.log(appEnv.STARPORT_APP)
       const { data } = await axios.get(`${appEnv.STARPORT_APP}/status`)      
       const GITPOD = data.env.vue_app_custom_url && new URL(data.env.vue_app_custom_url)
       const wsUrl = GITPOD
