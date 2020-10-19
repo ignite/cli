@@ -25,7 +25,8 @@ The technology stack is being used by
 - IRIS (IBC Hub and developer oriented)
 - Kava (DeFi and Stable Coins)
 - Aragon (DAO catalyst)
-- CosmWasm (ETH EVM machine)
+- CosmWasm (smart contracts using WASM)
+- Ethermint (Ethereum virtual machine)
 ...
 
 The basis of the consensus protocol, network management and blockchain initialisation has been proven to be reliable and competitive. From there, only your imagination can stop you from what can be built with the technology stack.
