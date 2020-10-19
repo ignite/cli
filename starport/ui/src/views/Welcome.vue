@@ -51,7 +51,7 @@
           v-if="card.id === 'api'"
           :blockCards="blockCards"
         />
-      </div>      
+      </div>
 
     </div>
 
@@ -95,7 +95,7 @@
         </div>
       </div>
 
-      <div class="tutorials__videos">
+      <div class="tutorials__videos -grid-col-3">
         <a 
           v-for="card in videos"
           :key="card.title"
@@ -207,6 +207,13 @@ const videos = [
     imgUrl: 'https://i.ytimg.com/vi/rmbPjCGDXek/hq720.jpg',
     alt: 'Getting started with Starport, the easiest way to build a Cosmos SDK blockchain',
     link: 'https://www.youtube.com/watch?v=rmbPjCGDXek'
+  },
+  {
+    title: 'Tendermint Workshop: A 5 minute Blockchain Using Starport',
+    length: '56:28',
+    imgUrl: '/images/brian-workshop.png',
+    alt: 'Tendermint Workshop: A 5 minute Blockchain Using Starport',
+    link: 'https://www.youtube.com/watch?v=PGLAW-HrzWg&t=10s'
   },
 ]
 
@@ -593,7 +600,7 @@ a.text-card {
   }
 }
 
-.tutorials__videos {
+/* .tutorials__videos {
   display: flex;
   justify-content: space-between;
 }
@@ -604,21 +611,20 @@ a.text-card {
   .tutorials__videos .image-card {
     width: calc((100% - 1rem) / 2);
   }
-}
+} */
 @media screen and (max-width: 576px) {
   .tutorials__videos {
-    flex-direction: column;
-    margin-bottom: 4rem;
-  }
-  .tutorials__videos .image-card {
-    width: 100%;
-  }  
-  .tutorials__videos .image-card:not(:last-child) {
-    margin-bottom: 1.5rem;
+    grid-template-columns: repeat(1, minmax(0, 1fr));
   }
   .image-card__text {
     margin-left: 2px;
   }
+  .tutorials__videos {
+    margin-bottom: 3rem;
+  }
+  .tutorials__videos .image-card:not(:last-child) {
+    margin-bottom: 1.5rem;
+  }  
 }
 
 
