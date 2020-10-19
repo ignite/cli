@@ -12,11 +12,15 @@ When growing more complex, sometimes it makes more sense to have two modules ins
 When creating a blockchain with starport or manually with the Cosmos SDK, there is a set of modules that you should be using in order to have a set of rules that define a blockchain in the first place.
 These modules are 
 
-- [auth](#auth)
-- [bank](#bank)
-- [staking](#staking)
-- [distribution](#distribution)
-- [params](#params)
+- [What are modules](#what-are-modules)
+  - [Standard modules](#standard-modules)
+  - [Auth](#auth)
+  - [Bank](#bank)
+  - [Staking](#staking)
+  - [Distribution](#distribution)
+  - [Params](#params)
+  - [Using modules](#using-modules)
+  - [Summary](#summary)
 
 ## Auth
 
@@ -69,7 +73,7 @@ Those modules are typically installed on default when using starport. There are 
 
 ## Using modules
 
-With starport you can add a module with the command `starport add modulename`. When adding a module manually to a blockchain application, it requires to edit the `app/app.go` and the `myappcli/main.go` with the according entries. Starport manages the code edits and additions for you conveniently.
+With starport you can add a module with the command `starport module create modulename`. When adding a module manually to a blockchain application, it requires to edit the `app/app.go` and the `myappcli/main.go` with the according entries. Starport manages the code edits and additions for you conveniently.
 
 ## Summary
 
