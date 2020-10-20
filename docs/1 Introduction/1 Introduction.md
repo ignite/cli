@@ -37,7 +37,7 @@ What empowers building blockchains and your own application on top of it are the
 
 Each of the running blockchains most of the time have at least one module developed on their own to enable the features it specialises on. These standards solve the clearity of a project and the understanding of all the different parts that create a specific blockchain application.
 
-The most basic set of modules that are created with starport are `auth`, `bank`, `staking`, `params` and `supply`. If you would add a module like `wasm`, this would enable the Ethereum EVM to be used on your blockchain. Each module comes with a clear documentation and codebase. If you wanted changes to a specific module, you can fork the module and change what suits your blockchain application better.
+The most basic set of modules that are created with starport are `auth`, `bank`, `staking`, `params` and `supply`. If you would also add the `wasm`, this would allow you to upload Webassembly smart contracts on your blockchain application. The `evm` module enables the Ethereum EVM to be used on your blockchain. Each module comes with a clear documentation and codebase. If you wanted changes to a specific module, you can fork the module and change what suits your blockchain application better.
 
 
 ## Summary

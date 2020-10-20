@@ -34,5 +34,3 @@ export PATH=$PATH:$PWD/node_modules/.bin/
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
 
-Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
-

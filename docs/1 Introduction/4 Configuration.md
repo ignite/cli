@@ -20,6 +20,7 @@ The first line - `version` is used to indicate changes, which is especially impo
 
 The `accounts` define the initial distribution of Tokens on the blockchain. Here is the place where you can define original holders of the tokens on your blockchain. These accounts will get translated into the genesis block and after launching your blockchain the users mentioned have access to their respective tokens.
 The `name` parameter in `accounts` will create a random new keypair in your blockchain app keychain, which you can access on the command line. You can also reference these names under `validator` to define the starting validators with a bounded stake that you can configure. The bounding stake has to be equal to or less the stake given in the `accounts` paramenter.
+The `coins` specify amount of coins and their denomination on the blockchain. Here you can list a variety of coin denominations and their respective amounts to be used on your blockchain.
 
 There is an optional genesis parameter in the `config.yml`, which you can use to define parameters in your genesis file directly, such as the chain-id as follows:
 
@@ -27,8 +28,6 @@ There is an optional genesis parameter in the `config.yml`, which you can use to
 genesis:
   chain_id: "foobar"
 ```
-
-The `coins` specify amount of coins and their denomination on the blockchain. Here you can list a variety of coin denominations and their respective amounts to be used on your blockchain.
 
 You can also manipulate parameters of different modules. If you wanted for example change the `staking` module, which contains staking parameters such as which token gets staked, you would add the following to your `config.yml``
 
