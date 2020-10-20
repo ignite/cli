@@ -1,6 +1,15 @@
 # Changelog
 
 ### Features:
+* Improved documentation for Raspberry Pi Device Images
+
+
+### Fixes:
+* `v0.12.0`-ified the changelog
+
+## `v0.12.0`
+
+### Features:
 
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
