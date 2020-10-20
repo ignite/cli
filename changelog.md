@@ -16,12 +16,12 @@
 
 ### Fixes:
 
-* `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
+* `--address-prefix` will always be translated to lowercase while scaffolding with `app` command.
 * HTTP API: accept strings in JSON and cast them to int and bool
 * Update @tendermint/vue to `v0.1.7`
 * Removed "Starport Pi"
 * Removed Makefile from Downstream Pi
-* Fixed downstream pi image Github Action
+* Fixed Downstream Pi image Github Action
 * Prevent duplicated fields with `type` command
 * Fixed handling of protobufs profiler: prof_laddr -> pprof_laddr
 * Activate relayer only when the relayer binary is installed
