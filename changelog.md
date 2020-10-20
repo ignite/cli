@@ -1,24 +1,29 @@
 # Changelog
 
+## `v0.12.0`
+
 ### Features:
 
 * Added Github CLI to gitpod environment for greater ease of use
 * Added `starport build` command to build and install app binaries.
 * Improved the first-time experience for readers of the Starport readme and parts of the Starport Handbook.
 * Added `starport module create` command to scaffold custom modules
-* Downstream Pi now installs, builds, and serves the Vue UI
+* Raspberry Pi now installs, builds, and serves the Vue UI
+* Improved documentation for Raspberry Pi Device Images
 * Added IBC and some other modules.
 * Added an option to configure server addresses under `servers` section in `config.yml`.
 
+
 ### Fixes:
 
-* `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
+* `--address-prefix` will always be translated to lowercase while scaffolding with `app` command.
 * HTTP API: accept strings in JSON and cast them to int and bool
 * Update @tendermint/vue to `v0.1.7`
 * Removed "Starport Pi"
 * Removed Makefile from Downstream Pi
-* Fixed downstream pi image Github Action
+* Fixed Downstream Pi image Github Action
 * Prevent duplicated fields with `type` command
+* Fixed handling of protobufs profiler: prof_laddr -> pprof_laddr
 * Fix an error, when a Stargate `serve` cmd doesn't start if a user doesn't have a relayer installed.
 
 ## `v0.11.1`
