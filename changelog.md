@@ -1,12 +1,5 @@
 # Changelog
 
-### Features:
-* Improved documentation for Raspberry Pi Device Images
-
-
-### Fixes:
-* `v0.12.0`-ified the changelog
-
 ## `v0.12.0`
 
 ### Features:
@@ -20,6 +13,7 @@
 * Added IBC and some other modules.
 * Added an option to configure server addresses under `servers` section in `config.yml`.
 
+
 ### Fixes:
 
 * `--address-prefix` ensured to be translated to lowercase while scaffolding with `app` command.
@@ -29,6 +23,8 @@
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
 * Prevent duplicated fields with `type` command
+* Fixed handling of protobufs profiler: prof_laddr -> pprof_laddr
+* Activate relayer only when the relayer binary is installed
 
 ## `v0.11.1`
 
