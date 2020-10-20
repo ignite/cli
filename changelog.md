@@ -19,6 +19,7 @@
 * Removed Makefile from Downstream Pi
 * Fixed downstream pi image Github Action
 * Prevent duplicated fields with `type` command
+* Fix an error, when a Stargate `serve` cmd doesn't start if a user doesn't have a relayer installed.
 
 ## `v0.11.1`
 

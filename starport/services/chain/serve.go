@@ -20,7 +20,6 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
@@ -38,7 +37,7 @@ func (s *Chain) Serve(ctx context.Context) error {
 	}
 	// initialize the relayer if application supports it so, secret.yml
 	// can be generated and watched for changes.
-	if s.plugin.SupportsIBC() {
+	if err := s.checkIBCRelayerSupport(); err == nil {
 		if _, err := s.RelayerInfo(); err != nil {
 			return err
 		}
@@ -111,9 +110,6 @@ func (s *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
-	}
-	if s.plugin.Version() == cosmosver.Stargate && !xexec.IsCommandAvailable("rly") {
-		return errors.New("Please, check that Relayer is installed.")
 	}
 	// check if Go's bin added to System's path.
 	gobinpath := path.Join(build.Default.GOPATH, "bin")
@@ -262,7 +258,7 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 		steps.Add(s.createAccountSteps(ctx, account.Name, account.Mnemonic, account.Coins, false)...)
 	}
 
-	if s.plugin.SupportsIBC() {
+	if err := s.checkIBCRelayerSupport(); err == nil {
 		steps.Add(step.New(
 			step.PreExec(func() error {
 				if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
