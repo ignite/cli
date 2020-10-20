@@ -24,7 +24,7 @@
 * Fixed Downstream Pi image Github Action
 * Prevent duplicated fields with `type` command
 * Fixed handling of protobufs profiler: prof_laddr -> pprof_laddr
-* Activate relayer only when the relayer binary is installed
+* Fix an error, when a Stargate `serve` cmd doesn't start if a user doesn't have a relayer installed.
 
 ## `v0.11.1`
 

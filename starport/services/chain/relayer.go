@@ -1,12 +1,14 @@
 package chain
 
 import (
+	"bytes"
 	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 	"time"
 
@@ -15,11 +17,16 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"github.com/tendermint/starport/starport/services/chain/rly"
 	"gopkg.in/yaml.v2"
+)
+
+const (
+	relayerVersion = "438815d47a857318199d556f4c1115f2fa6315a2"
 )
 
 // relayerInfo holds relayer info that is shared between chains to make a connection.
@@ -32,7 +39,7 @@ type relayerInfo struct {
 // RelayerInfo initializes or updates relayer setup for the chain itself and returns
 // a meta info to share with other chains so they can connect.
 func (s *Chain) RelayerInfo() (base64Info string, err error) {
-	if err := s.checkRelayerSupport(); err != nil {
+	if err := s.checkIBCRelayerSupport(); err != nil {
 		return "", err
 	}
 	sconf, err := secretconf.Open(s.app.Path)
@@ -68,7 +75,7 @@ func (s *Chain) RelayerInfo() (base64Info string, err error) {
 // RelayerAdd adds another chain by its relayer info to establish a connnection
 // in between.
 func (s *Chain) RelayerAdd(base64Info string) error {
-	if err := s.checkRelayerSupport(); err != nil {
+	if err := s.checkIBCRelayerSupport(); err != nil {
 		return err
 	}
 	data, err := base64.RawStdEncoding.DecodeString(base64Info)
@@ -100,7 +107,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	if err != nil {
 		return err
 	}
-	if !s.plugin.SupportsIBC() {
+	if err := s.checkIBCRelayerSupport(); err != nil {
 		return nil
 	}
 	if len(sconf.Relayer.Accounts) > 0 {
@@ -293,9 +300,27 @@ func (s *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []
 	return c, err
 }
 
-func (s *Chain) checkRelayerSupport() error {
+func (s *Chain) checkIBCRelayerSupport() error {
 	if !s.plugin.SupportsIBC() {
-		return errors.New("IBC & Relayer are not available for your app.")
+		return errors.New("IBC is not available for your app.")
 	}
-	return nil
+	if !xexec.IsCommandAvailable("rly") {
+		return errors.New("Relayer is not available.")
+	}
+	version := &bytes.Buffer{}
+	return cmdrunner.
+		New().
+		Run(context.Background(), step.New(
+			step.Exec("rly", "version"),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
+				}
+				if !strings.Contains(version.String(), relayerVersion) {
+					return fmt.Errorf("relayer is not at the required version %q", relayerVersion)
+				}
+				return nil
+			}),
+			step.Stdout(version),
+		))
 }
