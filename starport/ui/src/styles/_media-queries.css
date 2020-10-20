@@ -1,0 +1,9 @@
+:root {
+  --mq-xs: 0;
+  --mq-sm: 576px;
+  --mq-md: 768px;
+  --mq-lg: 992px;
+  --mq-xl: 1200px;
+  --mq-xxl: 1400px;
+  --mq-xxxl: 1900px;
+}

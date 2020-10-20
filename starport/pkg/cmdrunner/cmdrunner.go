@@ -70,6 +70,9 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	for _, s := range steps {
+		// copy s to a new variable to allocate a new address
+		// so we can safely use it inside goroutines spawned in this loop.
+		s := s
 		if err := ctx.Err(); err != nil {
 			return err
 		}
@@ -111,6 +114,11 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		if err := s.InExec(); err != nil {
 			return err
 		}
+		if len(s.WriteData) > 0 {
+			if _, err := c.Write(s.WriteData); err != nil {
+				return err
+			}
+		}
 		if r.runParallel {
 			g.Go(func() error {
 				return runPostExecs(c.Wait())
@@ -128,6 +136,7 @@ type Executor interface {
 	Wait() error
 	Start() error
 	Signal(os.Signal)
+	Write(data []byte) (n int, err error)
 }
 
 type dummyExecutor struct{}
@@ -138,11 +147,19 @@ func (s *dummyExecutor) Wait() error { return nil }
 
 func (s *dummyExecutor) Signal(os.Signal) {}
 
+func (s *dummyExecutor) Write([]byte) (int, error) { return 0, nil }
+
 type cmdSignal struct {
 	*exec.Cmd
+	w io.WriteCloser
 }
 
 func (c *cmdSignal) Signal(s os.Signal) { c.Cmd.Process.Signal(s) }
+
+func (c *cmdSignal) Write(data []byte) (n int, err error) {
+	defer c.w.Close()
+	return c.w.Write(data)
+}
 
 func (r *Runner) newCommand(s *step.Step) Executor {
 	if s.Exec.Command == "" {
@@ -166,5 +183,11 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Stdout = stdout
 	c.Stderr = stderr
 	c.Dir = dir
-	return &cmdSignal{c}
+	c.Env = append(os.Environ(), s.Env...)
+	w, err := c.StdinPipe()
+	if err != nil {
+		// TODO do not panic
+		panic(err)
+	}
+	return &cmdSignal{c, w}
 }

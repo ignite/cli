@@ -1,0 +1,13 @@
+syntax = "proto3";
+package <%= AppName %>.<%= ModuleName %>.v1beta1;
+
+option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
+
+import "gogoproto/gogo.proto";
+
+message Msg<%= title(TypeName) %> {
+  string id = 1;
+  bytes creator = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];<%= for (i, field) in Fields { %>
+  <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
+}
+

@@ -1,0 +1,121 @@
+:root {
+  /*-- lv.1 - material --*/
+  --c-grey-black: black;
+  --c-grey-0: #1b1b1b;
+  --c-grey-1: #767676;    
+  --c-grey-2: #a4a4a4;  
+  --c-grey-3: #dadada;  
+  --c-grey-4: #e8e8e8;  
+  --c-grey-5: #f9f9f9;  
+  --c-grey-white: white;  
+  --c-600-dark: #4251FA;  
+
+  /*-- lv.2 - base --*/
+  --c-dark-primary: var(--c-grey-0);
+  --c-dark-secondary: var(--c-grey-1);
+  --c-light-primary: var(--c-grey-5);
+  --c-light-secondary: var(--c-grey-4);
+  --c-black: var(--c-grey-black);
+  --c-white: var(--c-grey-white);
+}
+:root {
+  /*-- lv.3 - color modes / themes --*/
+  --c-theme: var(--c-white);
+  --c-contrast: var(--c-black);
+
+  --c-theme-primary: var(--c-light-primary);
+  --c-theme-secondary: var(--c-light-secondary);
+
+  --c-contrast-primary: var(--c-dark-primary);
+  --c-contrast-secondary: var(--c-dark-secondary);
+
+  --c-grey: var(--c-grey-2);
+  --c-highlight: var(--c-black);    
+}
+/* TODO: implement dark theme colors */
+/* :root[data-c-theme="dark"] {} */
+
+:root {
+  /*-- lv.4 - tokens --*/
+  --c-txt-primary: var(--c-contrast-primary);
+  --c-txt-secondary: var(--c-contrast-secondary);
+  --c-txt-grey: var(--c-grey);
+  --c-txt-contrast-primary: var(--c-theme-primary);
+  --c-txt-contrast-secondary: var(--c-theme-secondary);  
+  --c-txt-highlight: var(--c-600-dark);
+
+  --c-bg-primary: var(--c-theme);
+  --c-bg-secondary: var(--c-theme-primary);
+  --c-bg-third: var(--c-theme-secondary);
+  --c-bg-grey: var(--c-grey);
+  --c-bg-contrast-primary: var(--c-contrast);
+  --c-bg-contrast-secondary: var(--c-contrast-primary);
+}
+
+
+/*-- starport theme WIP --*/
+:root {
+  --c-gray-0: #000000;
+  --c-gray-50: #030419;
+  --c-gray-100: #000224;
+  --c-gray-200: #282B53;
+  --c-gray-300: #9b9b9b;
+  --c-gray-500: #a4a4a4;
+  --c-gray-600: #e9e9e9;
+  --c-gray-900: #f1f2ff;
+  --c-gray-1000: #ffffff;
+}
+:root {
+  /*-- lv.2 - base --*/
+  --c-dark-primary: var(--c-gray-50);
+  --c-dark-secondary: var(--c-gray-200);
+  --c-dark-third: var(--c-gray-300);
+  --c-dark-light: var(--c-gray-500);
+
+  --c-light-primary: var(--c-gray-900);
+  --c-light-secondary: var(--c-gray-600);
+
+  --c-black: var(--c-gray-0);
+  --c-white: var(--c-gray-1000);  
+
+  --c-primary-dark-600: #4251FA;    
+  --c-red-400: #CC0025;    
+  --c-red-500: #FF1A35;    
+  --c-red-900: #FFE5E6;    
+}
+:root {
+  /*-- lv.3 - color modes / themes --*/
+  --c-theme-pure: var(--c-white);
+  --c-contrast-pure: var(--c-black);
+
+  --c-theme-primary: var(--c-light-primary);
+  --c-theme-secondary: var(--c-light-secondary);
+
+  --c-contrast-primary: var(--c-dark-primary);
+  --c-contrast-secondary: var(--c-dark-secondary);
+  --c-contrast-third: var(--c-dark-third);
+  --c-contrast-light: var(--c-dark-light);
+
+  --c-gray: var(--c-gray-600);
+  --c-highlight: var(--c-black);    
+
+  --c-brand-primary: var(--c-primary-dark-600);
+  --c-danger-primary: var(--c-red-500);
+  --c-danger-dark: var(--c-red-400);
+  --c-danger-light: var(--c-red-900);
+}
+:root {
+  --c-txt-primary: var(--c-contrast-primary);
+  --c-txt-secondary: var(--c-contrast-secondary);
+  --c-txt-third: var(--c-contrast-third);
+  --c-txt-light: var(--c-contrast-light);
+  --c-txt-gray: var(--c-gray);
+
+  --c-txt-highlight: var(--c-brand-primary);
+  --c-txt-danger: var(--c-danger-dark);
+
+  --c-border-primary: var(--c-gray);
+
+  --c-bg-primary: var(--c-theme-pure);
+  --c-bg-secondary: var(--c-theme-primary);
+}

@@ -1,50 +1,38 @@
-# The Starport Handbook
+# The Starport Documentation
 
-<img src="../assets/banner.jpeg" width="400px"/>
+**Quickstart:** Try <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
 
-*Create your own blockchain - from star to ecosystem*
-
-## Guide 🔎
+## Table of Contents 🔎
 
 1. Introduction  
-   1. [Introduction](01%20Introduction/01_starport_introduction/introduction.md)  
-   2. [Documentation and Specification](01%20Introduction/02_documentation_specification/02_documentation_specification.md)  
-   3. [Development Mode](01%20Introduction/03_development_mode/03_development_mode.md)  
-2. Using Starport  
-    1. [Using Starport](02%20Using%20Starport/01_using_starport/01_using_starport.md)  
-    2. [Genesis File](02%20Using%20Starport/02_genesis_file/02_genesis_file.md)     
-    3. [Configuration](02%20Using%20Starport/03_configuration/03_configuration.md)  
-3. Modules  
-    1. [What are Modules](03%20Modules/01_what_are_modules/01_what_are_modules.md)  
-    2. [Basic Modules](03%20Modules/02_basic_modules/02_basic_modules.md)  
-    3. [Advanced Modules](03%20Modules/03_advanced_modules/03_advanced_modules.md)  
-    4. [Smart Modules](03%20Modules/04_smart_modules/04_smart_modules.md)  
-    5. [Your own Modules](03%20Modules/05_your_own_module/05_your_own_module.md)  
-4. Usecases  
-    1. [Smart Contracts](04%20Use%20cases/01_smart_contracts/01_smart_contracts.md)  
-         3. [CosmWasm CW20](04%20Use%20cases/03_cw20/03_cw20.md)  
-5. Extras  
-    1. [Evm Module integration](05%20Extras/05_01_cosmos_ethermint/05_01_cosmos_ethermint.md)
+   1. [Introduction](1%20Introduction/1%20Introduction.md)  
+   2. [Install](1%20Introduction/2%20Install.md)
+   3. [Quickstart](1%20Introduction/3%20Quickstart.md)
+   4. [Configuration](1%20Introduction/4%20Configuration.md)  
+   5. [Genesis File](1%20Introduction/5%20Genesis%20File.md)  
+   6. [Starport IBC](1%20Introduction/6%20Starport%20IBC.md)
+2. Architecture
+    1. [Introduction](2%20Architecture/1%20Introduction.md)  
+    2. [Directory Structure](2%20Architecture/2%20Directory%20Structure.md)  
+    3. [Standard Modules](2%20Architecture/3%20Standard%20Modules.md)
+    4. [Writing Custom Modules](2%20Architecture/4%20Writing%20Custom%20Modules.md)
+3. Tutorials  
+    1. [Introduction](3%20Tutorials/1%20Introduction.md)
+    2. [Poll](https://github.com/cosmos/sdk-tutorials/blob/master/voter/index.md)
+    3. [Blog](https://github.com/cosmos/sdk-tutorials/blob/master/blog/tutorial/01-index.md)
+    4. [Scavenge](https://github.com/cosmos/sdk-tutorials/blob/master/scavenge/tutorial/01-background.md)
+    5. [Nameservice](https://github.com/cosmos/sdk-tutorials/blob/master/nameservice/tutorial/00-intro.md)
+4. EVM Smart Contracts  
+    1. [Introduction](4%20EVM%20smart%20contracts/1%20Introduction.md)  
+    2. [ERC20](4%20EVM%20smart%20contracts/2%20ERC20.md)  
+    3. [NFT](4%20EVM%20smart%20contracts/3%20NFT.md)  
+5. Wasm Smart Contracts
+    1. [Introduction](5%20Wasm%20Smart%20Contracts/1%20Introduction.md)
+    2. [Adding support for CosmWasm](5%20Wasm%20Smart%20Contracts/2%20Adding%20Support%20for%20CosmWasm.md)
+    3. [Deploying your first contract](5%20Wasm%20Smart%20Contracts/3%20Deploying%20your%20first%20contract.md)  
+6. Extra
+    1. [Raspberry Pi](6%20Extra/RaspberryPi.md)
 
+## Other Tutorials
 
--------------------------
-
-## Quickstart 🚀 
-
-Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
-
-```bash
-starport app github.com/username/myapp
-```
-
-Serve the blockchain application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#serve)
-
-```bash
-starport serve
-```
-
-Add a new transaction type to your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#how-to-use-types)
-
-```bash
-starport type post title body
-```
+- [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract

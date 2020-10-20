@@ -1,0 +1,79 @@
+package cli
+
+import (
+	"bufio"
+    <%= if (strconv()) { %>"strconv"<% } %>
+	"github.com/spf13/cobra"
+
+	"github.com/cosmos/cosmos-sdk/client/context"
+	"github.com/cosmos/cosmos-sdk/codec"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/x/auth"
+	"github.com/cosmos/cosmos-sdk/x/auth/client/utils"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func GetCmdCreate<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "create-<%= TypeName %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Short: "Creates a new <%= TypeName %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) %>),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>] <%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
+			<% } %>
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			msg := types.NewMsgCreate<%= title(TypeName) %>(cliCtx.GetFromAddress()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}
+
+
+func GetCmdSet<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "set-<%= TypeName %> [id] <%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Short: "Set a new <%= TypeName %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			id := args[0]
+			<%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i + 1 %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
+			<% } %>
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+			msg := types.NewMsgSet<%= title(TypeName) %>(cliCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}
+
+func GetCmdDelete<%= title(TypeName) %>(cdc *codec.Codec) *cobra.Command {
+	return &cobra.Command{
+		Use:   "delete-<%= TypeName %> [id]",
+		Short: "Delete a new <%= TypeName %> by ID",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+
+			cliCtx := context.NewCLIContext().WithCodec(cdc)
+			inBuf := bufio.NewReader(cmd.InOrStdin())
+			txBldr := auth.NewTxBuilderFromCLI(inBuf).WithTxEncoder(utils.GetTxEncoder(cdc))
+
+			msg := types.NewMsgDelete<%= title(TypeName) %>(args[0], cliCtx.GetFromAddress())
+			err := msg.ValidateBasic()
+			if err != nil {
+				return err
+			}
+			return utils.GenerateOrBroadcastMsgs(cliCtx, txBldr, []sdk.Msg{msg})
+		},
+	}
+}

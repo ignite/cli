@@ -1,0 +1,38 @@
+package cli
+
+import (
+  <%= if (strconv()) { %>"strconv"<% } %>
+	"github.com/spf13/cobra"
+
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func CmdCreate<%= title(TypeName) %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-<%= TypeName %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Short: "Creates a new <%= TypeName %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) %>),
+		RunE: func(cmd *cobra.Command, args []string) error {
+      <%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
+      <% } %>
+        	clientCtx := client.GetClientContextFromCmd(cmd)
+			clientCtx, err := client.ReadTxCommandFlags(clientCtx, cmd.Flags())
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsg<%= title(TypeName) %>(clientCtx.GetFromAddress()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}

@@ -1,100 +1,38 @@
-# Starport
+# ![Starport](./assets/starport.jpg)
 
-Starport is the easiest way to build blockchains. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
+Starport is the easiest way to build a blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
-![Banner](./assets/banner.jpeg)
+* [**Build a blockchain with Starport in a web-based IDE**](https://gitpod.io/#https://github.com/tendermint/starport/)
+* [Win prizes with Starport at HackAtom V (Oct 16th-30th)](https://five.hackatom.org)
+* [Check out the latest features in v0.11](https://www.youtube.com/watch?v=Guz1Opfzvyw)
 
-Overview: https://www.youtube.com/watch?v=rmbPjCGDXek
+## Quick start
 
-## Install
-
-### In browser
-
-➡️ Check out <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in browser-based IDE</a>. Fastest way to get started! `starport` binary is already installed, just create an application and start hacking!
-
-### NPM
-
-```
-npm i -g @tendermint/starport
-```
-
-### macOS with Homebrew
-
-```
-brew install tendermint/tap/starport
-```
-
-### Debian/Ubuntu with Snapcraft
-
-```
-snap install --classic node
-```
-
-Append your current working directory to the environment variable `PATH`:
-
-```
-export PATH=$PATH:$PWD/node_modules/.bin/
-```
-
-### Build from source
-
-```
-git clone https://github.com/tendermint/starport && cd starport && make
-```
-
-Requirements: Go 1.14 and Node.js (optional but highly recommended, used for the welcome screen and web app scaffolding).
-
-## Get started
-
-### Create a blockchain
-
-The `app` command creates a template for a Cosmos SDK blockchain. By default it also includes a module with the same name as the package. To create a new application called `mychain`, run:
+Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/), or [install it](/docs/install.md). Then:
 
 ```
 starport app github.com/foo/mychain
-```
 
-### Run your blockchain
+cd mychain
 
-To start the server, go into you blockain's directory and run the `serve` command:
-
-```
 starport serve
 ```
 
-This commands installs dependencies, builds, initializes and runs the blockchain with live-reloading enabled. Learn more about [creating](docs/02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application) and [running](docs/02%20Using%20Starport/01_using_starport/01_using_starport.md#serve) applications with Starport in the docs. 
-
 ## Documentation
 
-The documentation can be found in the [`/docs`](/docs/README.md) directory [here](/docs/README.md).
+To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/1%20Introduction/2%20Install.md).
 
-0. [Quickstart](docs/README.md#quickstart-)
-1. [Introduction](docs/01%20Introduction/README.md)     
-2. [Using Starport](docs/02%20Using%20Starport/README.md)    
-3. [Modules](docs/03%20Modules/README.md)  
-4. [Use Cases](docs/04%20Use%20cases/README.md)  
-5. [Extras](docs/05%20Extras/README.md)
-
-## More tutorials
-
-- [Blog (video) tutorial](https://www.youtube.com/watch?v=rmbPjCGDXek): get started with your first blockchain
-- [Poll tutorial](https://tutorials.cosmos.network/starport-polling-app/): build a voting application with a web-based UI
-- [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
-- [Blog (from scratch) tutorial](https://tutorials.cosmos.network/starport-blog/01-index.html): learn how Starport works by building a blog without scaffolding
-
-## Questions & comments
+## Questions
 
 For questions and support please join the #starport channel in the [Cosmos Community Discord](https://discord.com/invite/W8trcGV). The issue list of this repo is exclusively for bug reports and feature requests.
 
 ## Contributing
 
-`develop` contains the development version. Find the last stable release under https://github.com/tendermint/starport/releases.
-
-You can branch of from `develop` and create a Pull Request or maintain your own fork and submit a Pull Request from there.
+We welcome contributions from everyone. The `develop` contains the development version. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. Thank you to all those who have contributed to Starport!
 
 ## Stay in touch
 
-Starport is a product built by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
 
 - [Twitter](https://twitter.com/tendermint_team)
 - [Blog](https://medium.com/tendermint)

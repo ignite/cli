@@ -1,0 +1,56 @@
+name: Test-Relayer
+
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+      - develop
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport
+
+    steps:
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Install protoc
+        uses: arduino/setup-protoc@v1
+
+      - name: Set up packr2
+        run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+      - name: Set up relayer
+        run: git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 438815d47a857318199d556f4c1115f2fa6315a2 && make install
+
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Build UI
+        working-directory: ${{ env.working-directory }}
+        run: make ui
+
+      - name: Run packr2
+        working-directory: ${{ env.working-directory }}
+        run: |
+          export GOPATH=$GITHUB_WORKSPACE/go
+          export PATH=$PATH:$GOPATH
+          cd starport/interface/cli/starport
+          packr2 -v
+
+      - name: Install Starport
+        working-directory: ${{ env.working-directory }}
+        run: |
+          go install ./...
+
+      - name: Run Relayer Integration Tests
+        working-directory: ${{ env.working-directory }}
+        run: ./scripts/test-relayer

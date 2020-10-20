@@ -29,6 +29,7 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 		return err
 	}
 	ctx := plush.NewContext()
+	ctx.Set("ModuleName", opts.ModuleName)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("ModulePath", opts.ModulePath)
@@ -44,7 +45,7 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 		return strconv
 	})
 	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
+	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
 	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
 	return nil
@@ -62,7 +63,7 @@ func frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
 		}
 		replacement := fmt.Sprintf(`%[1]v
-		<sp-type-form type="%[2]v" :fields="[%[3]v]" />`, placeholder4, opts.TypeName, fields)
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, placeholder4, opts.TypeName, fields, opts.ModuleName)
 		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

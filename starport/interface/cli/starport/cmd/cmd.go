@@ -18,7 +18,9 @@ func New() *cobra.Command {
 	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
 	c.AddCommand(NewServe())
+	c.AddCommand(NewBuild())
 	c.AddCommand(NewModule())
+	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	return c

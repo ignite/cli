@@ -1,0 +1,40 @@
+package keeper
+
+import (
+	"context"
+
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (k Keeper) All<%= title(TypeName) %>(c context.Context, req *types.QueryAll<%= title(TypeName) %>Request) (*types.QueryAll<%= title(TypeName) %>Response, error) {
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+
+	var <%= TypeName %>s []*types.Msg<%= title(TypeName) %>
+	ctx := sdk.UnwrapSDKContext(c)
+
+	store := ctx.KVStore(k.storeKey)
+	<%= TypeName %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
+
+	pageRes, err := query.Paginate(<%= TypeName %>Store, req.Pagination, func(key []byte, value []byte) error {
+		var <%= TypeName %> types.Msg<%= title(TypeName) %>
+		if err := k.cdc.UnmarshalBinaryBare(value, &<%= TypeName %>); err != nil {
+			return err
+		}
+
+		<%= TypeName %>s = append(<%= TypeName %>s, &<%= TypeName %>)
+		return nil
+	})
+
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+
+	return &types.QueryAll<%= title(TypeName) %>Response{<%= title(TypeName) %>: <%= TypeName %>s, Pagination: pageRes}, nil
+}
