@@ -53,6 +53,10 @@ You can change the way addresses look in your blockchain application. Namely wha
 
 You can change the first prefix by changing the `AccountAddressPrefix` variable in your created application `/app/prefix.go`. It is recommended to leave the other variables as they are, because those are standards used in the other Cosmos SDK chains and can therefore be recognised. These have security implications such as not sending to addresses that might not be able to spend it.
 
+To have your frontend working properly with the new denomination, you need to change the `VUE_APP_ADDRESS_PREFIX` variable in `/vue/.env`. 
+
+To have all of it done automatically, when creating your app with the command `starport app github.com/foo/bar`, just append the `--address-prefix prefix` parameter.
+
 ## Summary
 
 - The `config.yml` defines your genesis accounts and validators.
