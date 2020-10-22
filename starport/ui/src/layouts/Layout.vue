@@ -102,7 +102,8 @@ export default {
 }
 .layout.-route-blocks .container__main {
   padding: 0;
-  max-width: 100%;
+  /* max-width: 100%; */
+  max-width: 1440px;
 }
 @media only screen and (max-width: 1200px) {
   .layout {

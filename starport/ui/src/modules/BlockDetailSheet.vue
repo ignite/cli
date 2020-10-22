@@ -10,7 +10,7 @@
         <div class="sheet__header-side-top">
           <CopyIconText
             class="copy-icon-text"
-            :text="block.data.blockMsg.blockHash_sliced" 
+            :text="block.data.blockMsg.blockHash" 
             :link="`${appEnv.RPC}/block_by_hash?hash=0x${block.data.blockMsg.blockHash}`"
             :copyContent="block.data.blockMsg.blockHash"
             :tooltipText="'BlockHash is copied'"
@@ -48,8 +48,14 @@
             </div>
             
             <div class="tx__main-cards">
-              <YamlCards :contents="tx.tx.value.msg" :cardType="'Messages'" />
-              <YamlCards :contents="getEvents(tx)" :cardType="'Events'" />
+              <YamlCards 
+                :contents="tx.tx.value.msg" 
+                :cardType="getCardCounts(tx.tx.value.msg) > 1 ? 'Messages' : 'Message'"
+              />
+              <YamlCards 
+                :contents="getEvents(tx)" 
+                :cardType="getCardCounts(getEvents(tx)) > 1 ? 'Events' : 'Event'"
+              />
             </div>
           </div>
           <div class="tx__side">
@@ -126,6 +132,9 @@ export default {
     },
     getEvents(tx) {
       return tx.logs.flatMap(log => log.events)
+    },
+    getCardCounts(contents) {
+      return contents.length
     }
   }
 }
@@ -174,6 +183,9 @@ export default {
 
 .sheet__header-side-top {
   margin-bottom: 4px;
+}
+.sheet__header-side-top .copy-icon-text {
+  max-width: 50%;
 }
 
 .sheet__header-side-btm {

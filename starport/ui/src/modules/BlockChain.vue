@@ -31,9 +31,9 @@
           >
             <div v-if="block.txs.length>0" class="block-info">
               <span v-if="getFailedTxsCount(block.txs)>0" class="block-info__indicator"></span>
-              <span class="block-info__text">{{block.txs.length}} transactions</span>
+              <span class="block-info__text">{{getBlockNoteCopy(block.txs.length, 'transaction')}}</span>
               ·
-              <span class="block-info__text">{{getMsgsAmount(block.txs)}} messages</span>
+              <span class="block-info__text">{{getBlockNoteCopy(getMsgsAmount(block.txs), 'message')}}</span>
             </div>
           </BlockCard>   
         </button>   
@@ -125,6 +125,9 @@ export default {
         .map(tx => tx.tx.value.msg.length)
         .reduce((accu, curr) => accu+curr)
     },
+    getBlockNoteCopy(count, singularUnit) {
+      return `${count} ${singularUnit} ${count > 1 ? 's' : ''}`
+    },  
     getFailedTxsCount(txs) {
       return txs.filter(tx => tx.code).length
     },    
