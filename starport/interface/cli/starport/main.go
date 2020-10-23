@@ -5,8 +5,7 @@ import (
 	"os"
 
 	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
-	"github.com/tendermint/starport/starport/internal/version"
-	"github.com/tendermint/starport/starport/pkg/analyticsutil"
+	"github.com/tendermint/starport/starport/pkg/gacli"
 )
 
 func main() {
@@ -15,21 +14,20 @@ func main() {
 			addMetric(Metric{
 				Err: fmt.Errorf("%s", r),
 			})
-			analyticsc.Close()
 			fmt.Println(r)
 			os.Exit(1)
 		}
 	}()
-	analyticsc = analyticsutil.New(analyticsEndpoint, analyticsKey)
-	// TODO add version of new installation.
+	gaclient = gacli.New(gaid)
 	name, hadLogin := prepLoginName()
-	analyticsc.Login(name, version.Version)
 	if !hadLogin {
 		addMetric(Metric{
 			Login:          name,
 			IsInstallation: true,
 		})
 	}
+	// if running serve command, don't wait sending metric until the end of
+	// execution because it takes a long time.
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
 		addMetric(Metric{})
 	}
@@ -37,7 +35,6 @@ func main() {
 	addMetric(Metric{
 		Err: err,
 	})
-	analyticsc.Close()
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
