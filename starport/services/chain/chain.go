@@ -35,31 +35,43 @@ type version struct {
 	hash string
 }
 
+type LogLevel int
+
+const (
+	LogSilent LogLevel = iota
+	LogRegular
+	LogVerbose
+)
+
 type Chain struct {
 	app            App
 	plugin         Plugin
 	version        version
-	verbose        bool
+	logLevel       LogLevel
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
 }
 
-func New(app App, verbose bool) (*Chain, error) {
+func New(app App, logLevel LogLevel) (*Chain, error) {
 	s := &Chain{
 		app:            app,
-		verbose:        verbose,
+		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
 
-	if verbose {
+	if logLevel > LogSilent {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
 
 	var err error
+
+	if _, err := s.config(); err != nil {
+		return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+	}
 
 	s.version, err = s.appVersion()
 	if err != nil && err != git.ErrRepositoryNotExists {
@@ -89,6 +101,16 @@ func (s *Chain) appVersion() (v version, err error) {
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
 	return v, nil
+}
+
+// ID returns the chain's id.
+func (s *Chain) ID() string {
+	return s.app.Name
+}
+
+// GenesisPath returns the genesis.json path of chain.
+func (c *Chain) GenesisPath() (string, error) {
+	return c.plugin.GenesisPath()
 }
 
 // rpcPublicAddress points to the public address of Tendermint RPC, this is shared by

@@ -218,8 +218,12 @@ func (p *launchpadPlugin) StoragePaths() []string {
 	}
 }
 
-func (p *launchpadPlugin) GenesisPath() string {
-	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
+func (p *launchpadPlugin) GenesisPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "."+p.app.nd(), "config/genesis.json"), nil
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

@@ -45,7 +45,7 @@ type Plugin interface {
 	StoragePaths() []string
 
 	// GenesisPath returns path of genesis.json.
-	GenesisPath() string
+	GenesisPath() (string, error)
 
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion

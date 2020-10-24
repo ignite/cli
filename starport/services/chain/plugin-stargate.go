@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -182,8 +181,12 @@ func (p *stargatePlugin) StoragePaths() []string {
 	}
 }
 
-func (p *stargatePlugin) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
+func (p *stargatePlugin) GenesisPath() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, p.app.nd(), "config/genesis.json"), nil
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

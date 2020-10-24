@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 )
@@ -39,6 +38,6 @@ func (a App) ncli() string {
 
 // root returns the root path of app.
 func (a App) root() string {
-	cwd, _ := os.Getwd()
-	return filepath.Join(cwd, a.Path)
+	path, _ := filepath.Abs(a.Path)
+	return path
 }
