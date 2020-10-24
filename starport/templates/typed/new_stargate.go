@@ -276,13 +276,13 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
 
 		template = `%[1]v
-    r.HandleFunc("custom/%[2]v/" + types.QueryList%[3]v, list%[3]vHandler(clientCtx)).Methods("GET")
+    r.HandleFunc("/custom/%[2]v/" + types.QueryList%[3]v, list%[3]vHandler(clientCtx)).Methods("GET")
 `
 		replacement = fmt.Sprintf(template, placeholder3, opts.ModuleName, strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder3, replacement, 1)
 
 		template = `%s
-    r.HandleFunc("/%s/%s", create%sHandler(clientCtx)).Methods("POST")
+    r.HandleFunc("/custom/%s/%s", create%sHandler(clientCtx)).Methods("POST")
 `
 		replacement = fmt.Sprintf(template, placeholder44, opts.ModuleName, opts.TypeName, strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder44, replacement, 1)
