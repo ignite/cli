@@ -20,7 +20,7 @@ The `cli` folder with the contents take care of the Command line interface comma
 
 ## Frontend
 
-Currently starport provides a basic Vue User-Interface that you can get inspired by or build ontop on. The source code is available at the `frontend` folder. Written in JavaScript you can hop directly into writing the frontend for your application.
+Currently, Starport provides a basic Vue user interface that you can take inspiration from or use it as a starting point for your app. The source code is available inside the `vue` directory. Written in JavaScript you can hop directly into writing the frontend for your application.
 
 [Learn more about Vue.](https://vuejs.org/)
 

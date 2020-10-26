@@ -22,6 +22,7 @@ The technology stack is being used by
 
 - Cosmos (Main IBC Hub and "Rolemodel" of the Cosmos SDK)
 - Binance Chain (DEX and utility Token)
+- Crypto.com Chain (DEX)
 - IRIS (IBC Hub and developer oriented)
 - Kava (DeFi and Stable Coins)
 - Aragon (DAO catalyst)
