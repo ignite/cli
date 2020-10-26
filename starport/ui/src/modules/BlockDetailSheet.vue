@@ -115,7 +115,7 @@ export default {
     block: { type: Object }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'appEnv' ]),
+    ...mapGetters('cosmos/env', [ 'appEnv' ]),
     failedTxsCount() {
       return this.block.data.txs.filter(tx => tx.code).length
     }    

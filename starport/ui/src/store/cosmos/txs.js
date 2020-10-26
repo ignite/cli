@@ -4,9 +4,12 @@ export default {
     stack: [],
   },
   getters: {
-    txsStack: state => state.stack,
-    txByHash: state => hash => state.stack.filter(tx => tx.txhash === hash),
-    txByEncodedHash: state => hash => state.stack.filter(tx => tx.txEncoded && tx.txEncoded === hash),
+    txsStack: state => 
+      state.stack,
+    txByHash: state => hash => 
+      state.stack.filter(tx => tx.txhash === hash),
+    txByEncodedHash: state => hash => 
+      state.stack.filter(tx => tx.txEncoded && tx.txEncoded === hash),
   },
   mutations: {
     addTxEntry(state, { tx }) {

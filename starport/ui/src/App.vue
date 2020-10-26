@@ -5,20 +5,41 @@
 </template>
 
 <script>
-import { mapActions } from 'vuex'
-import initCosmos from '@/mixins/initCosmos'
+import { mapActions, mapMutations } from 'vuex'
 import Layout from '@/layouts/Layout'
 
 export default {
-  mixins: [initCosmos],
   components: {
     Layout,
   },
   methods: {
+    ...mapMutations('cosmos/env', [ 'setTimer', 'clearTimer' ]),
+    ...mapActions('cosmos/env', [ 'setStatusState' ]),
     ...mapActions('cosmos/blocks', [ 'initBlockConnection' ]),
   },
-  created() {
+  async created() {
+    /*
+     *
+     // 1. Fetch backend status regularly
+     *
+     */
+    this.timer = setInterval(this.setStatusState.bind(this), 5000)
+    
+    try {
+      await this.setStatusState()
+    } catch {
+      console.log(`Can't fetch /env`)
+    }
+
+    /*
+     *
+     // 2. Start block fetching 
+     *
+     */
     this.initBlockConnection()
+  },
+  beforeDestroy() {
+    this.clearTimer()
   }  
 };
 </script>

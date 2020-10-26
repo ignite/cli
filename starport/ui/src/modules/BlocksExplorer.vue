@@ -59,7 +59,7 @@ export default {
      * Vuex 
      *
      */
-    ...mapGetters('cosmos', [ 'appEnv', 'backendRunningStates' ]),
+    ...mapGetters('cosmos/env', [ 'appEnv', 'backendRunningStates' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange', 'latestBlock' ]),
     /*
      *

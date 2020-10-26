@@ -63,7 +63,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv' ]),    
+    ...mapGetters('cosmos/env', [ 'backendRunningStates', 'backendEnv' ]),    
   },  
   methods: {
     getPrefixURL(url, prefix) {

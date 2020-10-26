@@ -243,7 +243,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv', 'appEnv' ]),   
+    ...mapGetters('cosmos/env', [ 'backendRunningStates', 'backendEnv', 'appEnv' ]),   
     ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ])
   },    
   methods: {

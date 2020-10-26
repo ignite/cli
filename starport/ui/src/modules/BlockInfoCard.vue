@@ -70,7 +70,6 @@ export default {
      * Vuex 
      *
      */        
-    ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
     ...mapActions('cosmos/blocks', [ 'setHighlightedBlock' ]),
     /*
      *

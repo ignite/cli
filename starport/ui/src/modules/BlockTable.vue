@@ -87,10 +87,8 @@ export default {
      * Vuex 
      *
      */
-    ...mapGetters('cosmos', [ 'appEnv' ]),
-    ...mapGetters('cosmos/ui', [ 'targetTable', 'isTableSheetActive', 'blocksExplorerTableId' ]),
+    ...mapGetters('cosmos/env', [ 'appEnv' ]),
     ...mapGetters('cosmos/blocks', [ 'highlightedBlock', 'blocksStack', 'lastBlock', 'stackChainRange', 'latestBlock' ]),
-    ...mapGetters('cosmos/transactions', [ 'txsStack' ]),
     /*
      *
      * Local
@@ -135,7 +133,6 @@ export default {
      * Vuex 
      *
      */    
-    ...mapMutations('cosmos/ui', [ 'setTableSheetState' ]),
     ...mapMutations('cosmos/blocks', [ 'popOverloadBlocks', 'sortBlocksStack' ]),
     ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain', 'setHighlightedBlock' ]),
     /*
