@@ -6,10 +6,10 @@ Currently, there are two versions of projects that can be scaffolded, which incl
 
 ie.
 ```
-starport app github.com/user/app --sdk-version=launchpad
+starport app github.com/user/app --sdk-version=stargate
 ```
 
-## Stargate
+## Stargate application
 
 Scaffolding a Stargate app currently uses version `^0.40` of the Cosmos SDK.
 
@@ -109,11 +109,11 @@ A typical directory structore for a Stargate app `foo` will contain the followin
             └── types.go
 ```
 
-## Launchpad scaffolding
+## Launchpad application
 
 Scaffolding a Launchpad app is currently the default that is being used by Starport, and uses version `0.39.x` of the Cosmos SDK.
 
-A typical directory structore for a Launchpad app `foo` will contain the following structure:
+A typical directory structore for a Launchpad app `bar` will contain the following structure:
 
 ```
 ├── app
