@@ -1,6 +1,6 @@
 # Type Scaffolding
 
-You can scaffold types within Starport by entering in the command:
+You can scaffold types within Starport by running a command:
 ```
 starport type [type-name] [field1:type1] [field2:type2] ...
 ```
@@ -64,7 +64,7 @@ As well as update the following files:
 
 # Launchpad
 
-Using `starport type` on a Launchpad application will create the follwing files:
+Using `starport type` on a Launchpad application will create the following files:
 ```
 .
 └── x
