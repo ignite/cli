@@ -1,6 +1,5 @@
 import blocks from './blocks'
 import transactions from './transactions'
-import ui from './ui'
 
 const {
   VUE_APP_CUSTOM_URL,
@@ -112,7 +111,6 @@ export default {
   },
   modules: {
     blocks,
-    transactions,
-    ui
+    transactions
   }
 }
