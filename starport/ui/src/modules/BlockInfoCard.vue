@@ -38,7 +38,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import blockHelpers from '@/mixins/blocks/helpers'
+import { formatter as blockFormatter } from '@/helpers/block'
 
 import Box from "@/assets/icons/Box.vue"
 
@@ -58,7 +58,7 @@ export default {
   },
   data() {
     return {
-      blockFormatter: blockHelpers.blockFormatter(),
+      blockFormatter,
     }
   },
   computed: {

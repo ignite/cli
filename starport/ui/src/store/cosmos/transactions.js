@@ -1,5 +1,3 @@
-import blockHelpers from '@/mixins/blocks/helpers'
-
 export default {
   namespaced: true,
   state: {
@@ -84,70 +82,6 @@ export default {
 
         if (!isTxInStack) commit('addTxEntry', { tx: fmtTxData })
       }
-    },
-    /**
-     * Add tx into txsStack
-     * 
-     * @param {object} store 
-     * @param {object} payload
-     * @param {object} payload.txData
-     * 
-     * 
-     */     
-    initTxsStack({ dispatch, rootGetters }) {
-      const { fetchBlockMeta, fetchBlockchain, fetchLatestBlock, fetchDecodedTx } = blockHelpers
-      const appEnv = rootGetters['cosmos/appEnv']
-
-      fetchLatestBlock(appEnv.API)
-        .then(latestBlock => {
-          const blockHeight = latestBlock.data.block.header.height
-
-          /**
-           * 
-           * ⚠️ TODO: refactor code (messy)
-           * 
-           */
-          for (let height=blockHeight; height>0; height-=20) {
-            fetchBlockchain({
-              rpcUrl: appEnv.RPC,
-              minBlockHeight: undefined,
-              maxBlockHeight: height,
-              latestBlockHeight: height
-            }).then(blockchainRes => {
-                const blockchain = blockchainRes.data.result.block_metas
-      
-                const promiseLoop = async _ => {
-                  for (let i=0; i<blockchain.length; i++) {
-                    const { header: prevHeader } = blockchain[i]
-      
-                    await fetchBlockMeta(appEnv.RPC, prevHeader.height)
-                      .then(blockMeta => {
-                        const blockTxs = blockMeta.data.result.block.data.txs
-  
-                        if (blockTxs && blockTxs.length>0) {
-                          const txsDecoded = blockTxs
-                            .map(txEncoded => fetchDecodedTx(
-                              appEnv.API,
-                              txEncoded,
-                              (txEncoded, errLog) => dispatch('txErrCallback', {
-                                blockHeight: header.height,
-                                txEncoded,
-                                errLog
-                              }, { root: true })
-                            ))
-                        
-                          txsDecoded.forEach(txRes => txRes.then(txResolved => {
-                            dispatch('addTxEntry', { tx: txResolved }, { root: true })
-                          }))
-                        }
-                      })                         
-                  }                  
-                }
-                promiseLoop()
-              })  
-          }
-  
-        })
     }
   }
 }

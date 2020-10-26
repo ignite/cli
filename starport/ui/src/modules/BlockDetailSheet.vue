@@ -102,7 +102,6 @@
 import moment from 'moment'
 import { uuid } from 'vue-uuid'
 import { mapGetters } from 'vuex'
-import { getters } from '@/mixins/helpers'
 
 import CopyIconText from '@/components/texts/CopyIconText'
 import YamlCards from '@/components/cards/YamlCards'

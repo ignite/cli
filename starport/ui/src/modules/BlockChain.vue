@@ -49,7 +49,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import moment from 'moment'
 
-import blockHelpers from '@/mixins/blocks/helpers'
+import { formatter as blockFormatter } from '@/helpers/block'
 
 import BlockCard from '@/components/cards/BlockCard'
 import IconArrow from '@/assets/icons/Arrow'
@@ -64,7 +64,7 @@ export default {
   },
   data() {
     return {
-      blockFormatter: blockHelpers.blockFormatter(),
+      blockFormatter,
       states: {
         lastScrolledHeight: 0,
         lastScrolledTop: 0,

@@ -18,7 +18,7 @@
 
 <script>
 import { uuid } from 'vue-uuid'
-import { getters } from '@/mixins/helpers'
+import { getters } from '@/helpers/ui'
 
 export default {
   props: {

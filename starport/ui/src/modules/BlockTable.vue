@@ -51,7 +51,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import blockHelpers from '@/mixins/blocks/helpers'
+import { formatter as blockFormatter } from '@/helpers/block'
 
 import axios from "axios"
 import ReconnectingWebSocket from "reconnecting-websocket"
@@ -72,7 +72,7 @@ export default {
   },
   data() {
     return {
-      blockFormatter: blockHelpers.blockFormatter(),
+      blockFormatter,
       states: {
         isHidingBlocksWithoutTxs: false,
         isScrolledInTopHalf: true,

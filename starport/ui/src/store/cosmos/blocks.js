@@ -1,39 +1,52 @@
 import axios from 'axios'
 import ReconnectingWebSocket from 'reconnecting-websocket'
-import blockHelpers from '@/mixins/blocks/helpers'
+import blockHelpers, { formatter as blockFormatter } from '@/helpers/block'
+import txHelpers from '@/helpers/tx.js'
+
+const state = {
+  chainId: null,
+  table: {
+    highlightedBlock: {
+      id: null,
+      data: null
+    }
+  },
+  maxBlockchainCount: 20,
+  maxStackCount: 100,
+  stack: [],
+  stackChainRange: {
+    highestHeight: null,
+    lowestHeight: null
+  },
+  latestBlock: null,
+  errorsQueue: []
+}
+
+const getters = {
+  highlightedBlock: state =>
+    state.table.highlightedBlock,
+  blocksStack: state =>
+    state.stack,
+  blockByHeight: state => height =>
+    state.stack.filter(block => parseInt(block.height) === parseInt(height)),
+  blockByHash: state => hash => 
+    state.stack.filter(block => block.blockMeta.block_id.hash === hash),
+  latestBlock: state =>
+    state.latestBlock,
+  stackChainRange: state =>
+    state.stackChainRange,
+  lastBlock: state =>
+    state.stack[state.stack.length-1],
+  chainId: state =>
+    state.chainId,
+  errorsQueue: state =>
+    state.errorsQueue
+}
 
 export default {
   namespaced: true,
-  state: {
-    chainId: null,
-    table: {
-      highlightedBlock: {
-        id: null,
-        data: null
-      }
-    },
-    maxBlockchainCount: 20,
-    maxStackCount: 100,
-    stack: [],
-    stackChainRange: {
-      highestHeight: null,
-      lowestHeight: null
-    },
-    latestBlock: null,
-    errorsQueue: []
-  },
-  getters: {
-    highlightedBlock: state => state.table.highlightedBlock,
-    blocksStack: state => state.stack,
-    blockByHeight: state => height => state.stack.filter(block => parseInt(block.height) === parseInt(height)),
-    blockByHash: state => hash => state.stack.filter(block => block.blockMeta.block_id.hash === hash),
-    latestBlock: state => state.latestBlock,
-    stackChainRange: state => state.stackChainRange,
-    lastBlock: state => state.stack[state.stack.length-1],
-    gapBlock: state => blockHelpers.getGapBlock(state.stack),
-    chainId: state => state.chainId,
-    errorsQueue: state => state.errorsQueue
-  },
+  state,
+  getters,
   mutations: {
     /**
      * 
@@ -260,7 +273,7 @@ export default {
       toReset=false
     }) {
       const appEnv = rootGetters['cosmos/appEnv']      
-      const { fetchBlockMeta, fetchBlockchain } = blockHelpers
+      const { getBlockByHeight, getBlockchain } = blockHelpers
       const latestBlock = getters.latestBlock    
 
       const blockErrCallback = (errLog) => commit('addErrorBlock', {
@@ -279,7 +292,7 @@ export default {
       const minBlockHeight = toGetLowerBlocks ? undefined : parseInt(blockHeight)
       const maxBlockHeight = toGetLowerBlocks ? parseInt(blockHeight) : undefined
  
-      const toFetchBlockchain = async (min, max, toInsert=false, toReset=false) => fetchBlockchain({
+      const toFetchBlockchain = async (min, max, toInsert=false, toReset=false) => getBlockchain({
         rpcUrl: appEnv.RPC,
         minBlockHeight: min,
         maxBlockHeight: max,
@@ -292,7 +305,7 @@ export default {
           return async _ => {
             for (let i=0; i<fmtBlockchainRes.length; i++) {
               const { header: prevHeader } = fmtBlockchainRes[i]
-              await fetchBlockMeta(appEnv.RPC, prevHeader.height, blockErrCallback)
+              await getBlockByHeight(appEnv.RPC, prevHeader.height, blockErrCallback)
                 .then(blockMeta => {
                   dispatch('setBlockMeta', {
                     header: prevHeader,
@@ -340,15 +353,13 @@ export default {
       isValidLatestBlock=false,
       toReset=false
     }) {
+      const { getDecodedTx } = txHelpers      
       const appEnv = rootGetters['cosmos/appEnv']      
-      const { fetchDecodedTx } = blockHelpers
-
-      const blockFormatter = blockHelpers.blockFormatter()
       const blockHolder = blockFormatter.setNewBlock(header, txsData)
                       
       blockHolder.setBlockMeta(blockMeta)
       blockHolder.setBlockTxs({
-        fetchDecodedTx,
+        getDecodedTx,
         lcdUrl: appEnv.API,
         txStackCallback: (tx) => dispatch('addTxEntry', { tx }, { root: true }),
         txErrCallback: (txEncoded, errLog) => dispatch('txErrCallback', {
@@ -453,7 +464,6 @@ export default {
         if (result.data && result.events) {
           const { data } = result        
           const { data: txsData, header } = data.value.block
-          const { fetchBlockMeta, fetchDecodedTx } = blockHelpers
 
           const blockErrCallback = (errLog) => commit('addErrorBlock', {
             blockHeight: header.height,
@@ -474,7 +484,7 @@ export default {
            // 2. Regular block fetching
            * 
            */
-          fetchBlockMeta(appEnv.RPC, header.height, blockErrCallback)
+          blockHelpers.getBlockByHeight(appEnv.RPC, header.height, blockErrCallback)
             .then(blockMeta => {
               dispatch('setBlockMeta', {
                 header,
@@ -495,7 +505,7 @@ export default {
 
                 if (errBlockInStack) {
                   if (errObj.txError && errObj.txError.txEncoded) {
-                    fetchDecodedTx(appEnv.API, errObj.txError.txEncoded)
+                    txHelpers.getDecodedTx(appEnv.API, errObj.txError.txEncoded)
                       .then(txRes => {
                         const isTxAlreadyDecoded = errBlockInStack.txsDecoded
                           .filter(tx => tx.txhash === txRes.data.txhash).length>0
@@ -526,7 +536,7 @@ export default {
      */       
     async setHighlightedBlockMeta({ state, rootGetters }, { block }) {
       blockHelpers
-        .fetchBlockMeta(rootGetters['cosmos/appEnv'].RPC, block.data.blockMsg.height)
+        .getBlockByHeight(rootGetters['cosmos/appEnv'].RPC, block.data.blockMsg.height)
         .then(blockMeta => state.table.highlightedBlock.rawJson = blockMeta)
     },
     /**

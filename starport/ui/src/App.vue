@@ -5,15 +5,21 @@
 </template>
 
 <script>
+import { mapActions } from 'vuex'
 import initCosmos from '@/mixins/initCosmos'
-
-import Layout from "@/layouts/Layout"
+import Layout from '@/layouts/Layout'
 
 export default {
   mixins: [initCosmos],
   components: {
     Layout,
-  }
+  },
+  methods: {
+    ...mapActions('cosmos/blocks', [ 'initBlockConnection' ]),
+  },
+  created() {
+    this.initBlockConnection()
+  }  
 };
 </script>
 
