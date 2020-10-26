@@ -1,5 +1,8 @@
 # Changelog
 
+## Fixes:
+* routing REST API endpoints of querier on Stargate.
+
 ## `v0.12.0`
 
 ### Features:
