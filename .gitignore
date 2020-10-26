@@ -5,3 +5,5 @@ packrd
 node_modules
 .DS_Store
 apps/
+
+.idea
