@@ -103,7 +103,7 @@ export default {
      * Vuex 
      *
      */    
-    ...mapActions('cosmos/blocks', [ 'addBlockEntry', 'getBlockchain', 'setHighlightedBlock', 'popOverloadBlocks', 'sortBlocksStack' ]),    
+    ...mapActions('cosmos/blocks', [ 'getBlockchain', 'setHighlightedBlock' ]),    
     /*
      *
      * Local 
