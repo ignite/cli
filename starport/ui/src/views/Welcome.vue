@@ -235,7 +235,6 @@ const staticLogs = [
 export default {
   name: 'Welcome',
   components: {
-    // IconItem,
     LogoTendermint,
     LogoCosmosSdk, 
     LogoStarport,

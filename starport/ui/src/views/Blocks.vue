@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="blocks-page">
     <SpBlockExplorer/>
   </div>
 </template>

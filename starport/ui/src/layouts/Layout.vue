@@ -84,7 +84,6 @@ export default {
 <style scoped>
 .layout {
   --g-offset-side: 3rem;
-  --g-offset-top: 10rem;
   --header-height: 72px;
 }
 
@@ -107,7 +106,6 @@ export default {
 @media only screen and (max-width: 1200px) {
   .layout {
     --g-offset-side: 2rem;
-    --g-offset-top: 5rem;
   }  
   .container {
     flex-direction: column;
