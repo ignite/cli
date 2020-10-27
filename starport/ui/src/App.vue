@@ -10,7 +10,7 @@ import Layout from '@/layouts/Layout'
 
 export default {
   components: {
-    Layout,
+    Layout
   },
   methods: {
     ...mapMutations('cosmos/env', [ 'setTimer', 'clearTimer' ]),

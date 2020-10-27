@@ -47,7 +47,7 @@
             </p>
           </IconItem>
         </div>
-        <BlockInfoCard 
+        <SpBlockInfoCard 
           v-if="card.id === 'api'"
           :blockCards="blockCards"
         />
@@ -144,7 +144,8 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import moment from 'moment'
 
-import BlockInfoCard from '@/modules/BlockInfoCard'
+import { SpBlockInfoCard } from '@tendermint/vue'
+// import BlockInfoCard from '@/modules/BlockInfoCard'
 import IconItem from '@/components/list/IconItem'
 import LogoTendermint from "@/assets/logos/LogoTendermint"
 import LogoCosmosSdk from "@/assets/logos/LogoCosmosSdk"
@@ -231,7 +232,7 @@ export default {
     LogoCosmosSdk, 
     LogoStarport,
     LogoGithub,
-    BlockInfoCard
+    SpBlockInfoCard
   },
   data() {
     return {

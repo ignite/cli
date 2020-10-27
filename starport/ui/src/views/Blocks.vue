@@ -1,15 +1,18 @@
 <template>
   <div>
-    <BlocksExplorer/>
+    <!-- <BlocksExplorer/> -->
+    <SpBlockExplorer/>
   </div>
 </template>
 
 <script>
-import BlocksExplorer from '@/modules/BlocksExplorer'
+import { SpBlockExplorer } from '@tendermint/vue'
+// import BlocksExplorer from '@/modules/BlocksExplorer'
 
 export default {
   components: {
-    BlocksExplorer
+    // BlocksExplorer,
+    SpBlockExplorer
   }
 }
 </script>
