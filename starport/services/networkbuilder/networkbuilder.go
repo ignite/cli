@@ -3,7 +3,6 @@ package networkbuilder
 import (
 	"context"
 	"io/ioutil"
-	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -35,15 +34,12 @@ func New(options ...Option) *Builder {
 	return b
 }
 
-// Init initializes blockchain from a gitURL and returns its genesis content.
-func (b *Builder) Init(ctx context.Context, gitURL string) (genesis []byte, err error) {
-	defer b.ev.Shutdown()
-
+// InitBlockchain initializes blockchain from a gitURL.
+func (b *Builder) InitBlockchain(ctx context.Context, gitURL string) (*Blockchain, error) {
 	appPath, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, err
 	}
-	defer os.RemoveAll(appPath)
 
 	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
 	if _, err := git.PlainCloneContext(ctx, appPath, false, &git.CloneOptions{
@@ -75,13 +71,9 @@ func (b *Builder) Init(ctx context.Context, gitURL string) (genesis []byte, err 
 	if err := c.Init(ctx); err != nil {
 		return nil, err
 	}
-
-	genesisPath, err := c.GenesisPath()
-	if err != nil {
-		return nil, err
-	}
-	return ioutil.ReadFile(genesisPath)
+	return &Blockchain{
+		appPath: appPath,
+		chain:   c,
+		ev:      b.ev,
+	}, nil
 }
-
-// Submit submits Genesis to SPN to announce a new network.
-func (b *Builder) Submit(ctx context.Context, genesis []byte) (err error) { return nil }

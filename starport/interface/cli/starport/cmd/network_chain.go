@@ -8,5 +8,6 @@ func NewNetworkChain() *cobra.Command {
 		Args: cobra.ExactArgs(1),
 	}
 	c.AddCommand(NewNetworkChainCreate())
+	c.AddCommand(NewNetworkChainJoin())
 	return c
 }

@@ -69,7 +69,7 @@ func New(app App, logLevel LogLevel) (*Chain, error) {
 
 	var err error
 
-	if _, err := s.config(); err != nil {
+	if _, err := s.Config(); err != nil {
 		return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
 	}
 
@@ -118,7 +118,7 @@ func (c *Chain) GenesisPath() (string, error) {
 func (s *Chain) rpcPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
-		conf, err := s.config()
+		conf, err := s.Config()
 		if err != nil {
 			return "", err
 		}
@@ -127,7 +127,7 @@ func (s *Chain) rpcPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (s *Chain) config() (conf.Config, error) {
+func (s *Chain) Config() (conf.Config, error) {
 	var paths []string
 	for _, name := range conf.FileNames {
 		paths = append(paths, filepath.Join(s.app.Path, name))

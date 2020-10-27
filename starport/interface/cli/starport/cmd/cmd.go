@@ -1,12 +1,16 @@
 package starportcmd
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"path/filepath"
 	"strings"
 
+	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -44,4 +48,16 @@ func logLevel(cmd *cobra.Command) chain.LogLevel {
 		return chain.LogVerbose
 	}
 	return chain.LogRegular
+}
+
+func printEvents(bus events.Bus, s *spinner.Spinner) {
+	for event := range bus {
+		s.Suffix = " " + event.Text()
+		if event.IsOngoing() {
+			s.Start()
+		} else {
+			s.Stop()
+			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✓"), event.Description)
+		}
+	}
 }

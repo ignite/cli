@@ -141,7 +141,7 @@ func (s *Chain) cmdOptions() []cmdrunner.Option {
 }
 
 func (s *Chain) serve(ctx context.Context) error {
-	conf, err := s.config()
+	conf, err := s.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
@@ -288,7 +288,7 @@ func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.C
 }
 
 func (s *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := s.config()
+	conf, err := s.Config()
 	if err != nil {
 		return err
 	}
@@ -334,7 +334,7 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 }
 
 func (s *Chain) runDevServer(ctx context.Context) error {
-	c, err := s.config()
+	c, err := s.Config()
 	if err != nil {
 		return err
 	}

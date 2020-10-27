@@ -6,7 +6,6 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
-	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
@@ -16,7 +15,7 @@ import (
 
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:  "create [git-url]",
+		Use:  "create [repo]",
 		RunE: networkChainCreateHandler,
 		Args: cobra.ExactArgs(1),
 	}
@@ -28,24 +27,14 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		ctx = clictx.From(context.Background())
 		ev  = events.NewBus()
 		nb  = networkbuilder.New(networkbuilder.CollectEvents(ev))
-		s   = spinner.New(spinner.CharSets[11], 100*time.Millisecond)
+		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
 	)
 	s.Color("blue")
 	defer s.Stop()
 
-	go func() {
-		for event := range ev {
-			s.Suffix = " " + event.Text()
-			if event.IsOngoing() {
-				s.Start()
-			} else {
-				s.Stop()
-				fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✓"), event.Description)
-			}
-		}
-	}()
+	go printEvents(ev, s)
 
-	genesis, err := nb.Init(ctx, args[0])
+	blockchain, err := nb.InitBlockchain(ctx, args[0])
 	if err == context.Canceled {
 		s.Stop()
 		fmt.Println("aborted")
@@ -54,8 +43,14 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	defer blockchain.Cleanup()
 
-	fmt.Printf("\nGenesis: \n\n%s\n\n", string(genesis))
+	info, err := blockchain.Info()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("\nGenesis: \n\n%s\n\n", string(info.Genesis))
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Genesis above",
 		IsConfirm: true,
@@ -66,7 +61,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		fmt.Println("said no")
 		return nil
 	}
-	if err := nb.Submit(ctx, genesis); err != nil {
+	if err := blockchain.Create(ctx, info.Genesis); err != nil {
 		return err
 	}
 

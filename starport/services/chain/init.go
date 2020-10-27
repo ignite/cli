@@ -16,7 +16,7 @@ import (
 
 // Init initializes chain.
 func (c *Chain) Init(ctx context.Context) error {
-	conf, err := c.config()
+	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
