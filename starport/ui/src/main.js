@@ -4,7 +4,8 @@ import router from './router'
 import store from './store'
 import UUID from 'vue-uuid'
 
-import '@/styles/main.css'
+// import '@/styles/main.css'
+import '@tendermint/vue/src/styles/main.css'
 
 Vue.config.productionTip = false
 

@@ -23,7 +23,9 @@ export default {
      // 1. Fetch backend status regularly
      *
      */
-    this.timer = setInterval(this.setStatusState.bind(this), 5000)
+    this.setTimer({
+      timer: setInterval(this.setStatusState.bind(this), 5000)
+    })
     
     try {
       await this.setStatusState()
@@ -47,9 +49,9 @@ export default {
 <style>
 body {
   margin: 0;
-  font-family: var(--f-primary);
-  color: var(--c-txt-primary);
-  background-color: var(--c-bg-primary);
+  font-family: var(--sp-f-primary);
+  color: var(--sp-c-txt-primary);
+  background-color: var(--sp-c-bg-primary);
 }
 
 button:hover {
@@ -57,9 +59,9 @@ button:hover {
 }
 
 a {
-  color: var(--c-txt-primary);
+  color: var(--sp-c-txt-primary);
 }
-a:visited {
+/* a:visited {
   color: inherit;
-}
+} */
 </style>

@@ -13,9 +13,9 @@
           <div v-if="!backendRunningStates[chip.id]" class="chip__head-icon -is-loading"><Spinner/></div>
           <span v-else class="chip__head-icon -is-active"></span>
         </div>
-        <TooltipWrapper :content="backendRunningStates[chip.id] ? chip.noteActive : chip.noteInactive">
+        <SpTooltipWrapper :content="backendRunningStates[chip.id] ? chip.noteActive : chip.noteInactive">
           <p class="chip__main"><a :href="getBackendUrl(chip.port)">{{chip.name}}</a></p>
-        </TooltipWrapper>            
+        </SpTooltipWrapper>            
       </div>
     </div>  
   </div>
@@ -23,7 +23,7 @@
 
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
-import TooltipWrapper from '@/components/tooltip/TooltipWrapper'
+import { SpTooltipWrapper } from '@tendermint/vue'
 import Headline from '@/components/typography/Headline'
 import Spinner from '@/components/loaders/Spinner'
 
@@ -53,7 +53,7 @@ const localHosts = [
 
 export default {
   components: {
-    TooltipWrapper,
+    SpTooltipWrapper,
     Headline,
     Spinner
   },  
