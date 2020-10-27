@@ -62,7 +62,7 @@ func New(app App, logLevel LogLevel) (*Chain, error) {
 		stderr:         ioutil.Discard,
 	}
 
-	if logLevel > LogSilent {
+	if logLevel == LogVerbose {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}

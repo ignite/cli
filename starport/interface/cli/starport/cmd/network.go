@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/briandowns/spinner"
+	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
@@ -19,26 +20,36 @@ func NewNetwork() *cobra.Command {
 		Short: "Create and start Blochains collaboratively",
 		Args:  cobra.ExactArgs(1),
 	}
-	c.AddCommand(NewNetworkCreate())
+	c.AddCommand(NewNetworkChain())
 	return c
 }
 
-func NewNetworkCreate() *cobra.Command {
+func NewNetworkChain() *cobra.Command {
+	c := &cobra.Command{
+		Use:  "chain",
+		Args: cobra.ExactArgs(1),
+	}
+	c.AddCommand(NewNetworkChainCreate())
+	return c
+}
+
+func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:  "create [git-url]",
-		RunE: networkCreateHandler,
+		RunE: networkChainCreateHandler,
 		Args: cobra.ExactArgs(1),
 	}
 	return c
 }
 
-func networkCreateHandler(cmd *cobra.Command, args []string) error {
+func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	var (
 		ctx = clictx.From(context.Background())
 		ev  = events.NewBus()
 		nb  = networkbuilder.New(networkbuilder.CollectEvents(ev))
 		s   = spinner.New(spinner.CharSets[11], 100*time.Millisecond)
 	)
+	s.Color("blue")
 	defer s.Stop()
 
 	go func() {
@@ -48,7 +59,7 @@ func networkCreateHandler(cmd *cobra.Command, args []string) error {
 				s.Start()
 			} else {
 				s.Stop()
-				fmt.Printf("✔️  %s\n", event.Description)
+				fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✓"), event.Description)
 			}
 		}
 	}()
@@ -71,7 +82,7 @@ func networkCreateHandler(cmd *cobra.Command, args []string) error {
 
 	if _, err := prompt.Run(); err != nil {
 		s.Stop()
-		fmt.Println("aborted")
+		fmt.Println("said no")
 		return nil
 	}
 	if err := nb.Submit(ctx, genesis); err != nil {
