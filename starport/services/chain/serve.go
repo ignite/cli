@@ -273,10 +273,8 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 				return nil
 			}),
 		))
-	}else{
-
-		fmt.Fprintf(s.stdLog(logStarport).out, "❌ Relayer error: %s\n", err)
-
+	} else {
+		fmt.Fprintf(s.stdLog(logStarport).out, "⚠️ Relayer error: %s\n", err)
 	}
 
 	for _, execOption := range s.plugin.ConfigCommands() {
