@@ -1,16 +1,16 @@
 # An introduction to Starport
 
-Let us dive into what is special about Starport, what we can achieve with it, and which other technologies play well with it.
+Let us dive into Starport, what we can achieve with it, and which other technologies play well with it.
 
 ## What is Starport?
 
 Starport is a tool that makes it easier to create blockchains.
 
-Starport uses the Tendermint Consensus engine and Cosmos SDK to create a blockchain application in Go programming language. This blockchain has a Proof-of-Stake system with validators (https://en.longhash.com/news/how-cosmos-governance-works-and-how-you-can-become-a-validator) that can be defined in the genesis block.
+Starport uses the Tendermint Consensus engine and the Cosmos SDK to create a blockchain application in the Go programming language. This blockchain has a Proof-of-Stake system with validators (https://en.longhash.com/news/how-cosmos-governance-works-and-how-you-can-become-a-validator) that can be defined in the genesis block.
 
-With just a few commands, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
+With just a few command lines, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
 
-Bootstrapping blockchains was initially the job of a `scaffold` program, which helped in create a blockchain application. Starport takes it to the next level and also creates a user interface with Vue.js that provides a good starting point for developing a browser-based client-side application for your blockchain.
+Bootstrapping blockchains was initially the job of the `scaffold` program, which helped to create a blockchain application. Starport takes it to the next level and also creates a user interface with Vue.js that provides a good starting point for developing a browser-based client-side application for your blockchain.
 
 The scaffolded application still includes a command line interface that lets you manage keys, create validators, send tokens.
 
