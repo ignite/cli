@@ -31,7 +31,7 @@ The technology stack is being used by projects such as:
 
 [See the full list here](https://cosmonauts.world/).
 
-The basis of the consensus protocol, network management and blockchain initialisation has been proven to be reliable and competitive. From there, only your imagination can stop you from what can be built with the technology stack.
+The basis of the consensus protocol, network management and blockchain initialization has been proven to be very reliable. From there, you can build anything with this technology stack.
 
 ## Modules
 
@@ -43,7 +43,7 @@ The most basic set of modules that are created with starport are `auth`, `bank`,
 
 ## Summary
 
-- Starport lets you create, develop, host in the cloud and manage the initiation of the blockchain.
+- Starport lets you create, develop, and build a blockchain.
 - Starport and Cosmos are written in Go
-- Today, Cosmos SDK has a unique position worldwide of the most successful blockchains being built with it.
-- A combination of different modules with the Cosmos SDK will create different technology opportunities for a blockchain.
+- Today, Cosmos SDK has a unique position worldwide as one of the most successful blockchains.
+- Developers can use different Cosmos Modules to customize their blockchain. 
