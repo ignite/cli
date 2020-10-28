@@ -33,7 +33,7 @@ type Plugin interface {
 	ConfigCommands() []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(starportconf.Config) step.Option
+	GentxCommand(Validator) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error

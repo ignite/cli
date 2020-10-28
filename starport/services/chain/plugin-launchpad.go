@@ -145,14 +145,32 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(conf starportconf.Config) step.Option {
-	return step.Exec(
-		p.app.d(),
+func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
+	args := []string{
 		"gentx",
-		"--name", conf.Validator.Name,
+		"--name", v.Name,
 		"--keyring-backend", "test",
-		"--amount", conf.Validator.Staked,
-	)
+		"--amount", v.StakingAmount,
+	}
+	if v.Moniker != "" {
+		args = append(args, "--moniker", v.Moniker)
+	}
+	if v.CommissionRate != "" {
+		args = append(args, "--commission-rate", v.CommissionRate)
+	}
+	if v.CommissionMaxRate != "" {
+		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
+	}
+	if v.CommissionMaxChangeRate != "" {
+		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
+	}
+	if v.MinSelfDelegation != "" {
+		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
+	}
+	if v.GasPrices != "" {
+		args = append(args, "--gas-prices", v.GasPrices)
+	}
+	return step.Exec(p.app.d(), args...)
 }
 
 func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {

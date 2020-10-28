@@ -3,7 +3,6 @@ package chain
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"go/build"
 	"net"
@@ -12,7 +11,6 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"strings"
 	"sync"
 	"time"
 
@@ -24,6 +22,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain/conf"
+	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -145,6 +144,10 @@ func (s *Chain) serve(ctx context.Context) error {
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
+	sconf, err := secretconf.Open(s.app.Path)
+	if err != nil {
+		return err
+	}
 
 	buildSteps, _ := s.buildSteps(ctx, conf)
 	if err := cmdrunner.
@@ -156,20 +159,34 @@ func (s *Chain) serve(ctx context.Context) error {
 	if err := s.Init(ctx); err != nil {
 		return err
 	}
+
+	for _, account := range conf.Accounts {
+		if _, err := s.CreateAccount(ctx, account.Name, "", account.Coins, false); err != nil {
+			return err
+		}
+	}
+	for _, account := range sconf.Accounts {
+		if _, err := s.CreateAccount(ctx, account.Name, account.Mnemonic, account.Coins, false); err != nil {
+			return err
+		}
+	}
+
 	setupSteps, err := s.setupSteps(ctx, conf)
 	if err != nil {
 		return err
 	}
-	setupSteps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.d(),
-			"collect-gentxs",
-		)).
-		Add(s.stdSteps(logAppd)...)...,
-	))
 	if err := cmdrunner.
 		New(s.cmdOptions()...).
 		Run(ctx, setupSteps...); err != nil {
+		return err
+	}
+	if _, err := s.Gentx(ctx, Validator{
+		Name:          conf.Validator.Name,
+		StakingAmount: conf.Validator.Staked,
+	}); err != nil {
+		return err
+	}
+	if err := s.CollectGentx(ctx); err != nil {
 		return err
 	}
 
@@ -186,75 +203,6 @@ func (s *Chain) serve(ctx context.Context) error {
 	return cmdrunner.
 		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
 		Run(ctx, s.serverSteps(ctx, &wr, conf)...)
-}
-
-func (s *Chain) createAccountSteps(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (steps step.Steps) {
-	if mnemonic != "" {
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(s.plugin.ImportUserCommand(name, mnemonic)...)...,
-			),
-		)
-	} else {
-		generatedMnemonic := &bytes.Buffer{}
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(s.plugin.AddUserCommand(name)...).
-					Add(
-						step.PostExec(func(exitErr error) error {
-							if exitErr != nil {
-								return errors.Wrapf(exitErr, "cannot create %s account", name)
-							}
-							var user struct {
-								Mnemonic string `json:"mnemonic"`
-							}
-							if err := json.NewDecoder(generatedMnemonic).Decode(&user); err != nil {
-								return errors.Wrap(err, "cannot decode mnemonic")
-							}
-							if !isSilent {
-								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
-							}
-							return nil
-						}),
-					).
-					Add(s.stdSteps(logAppcli)...).
-					// Stargate pipes from stdout, Launchpad pipes from stderr.
-					Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
-			),
-		)
-	}
-
-	key := &bytes.Buffer{}
-	steps.Add(
-		step.New(step.NewOptions().
-			Add(
-				s.plugin.ShowAccountCommand(name),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					coins := strings.Join(coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.d(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stdout(key))...,
-		),
-	)
-	return
 }
 
 func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {

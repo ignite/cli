@@ -91,14 +91,32 @@ func (p *stargatePlugin) ConfigCommands() []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
-	return step.Exec(
-		p.app.d(),
-		"gentx", conf.Validator.Name,
+func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
+	args := []string{
+		"gentx", v.Name,
 		"--chain-id", p.app.n(),
 		"--keyring-backend", "test",
-		"--amount", conf.Validator.Staked,
-	)
+		"--amount", v.StakingAmount,
+	}
+	if v.Moniker != "" {
+		args = append(args, "--moniker", v.Moniker)
+	}
+	if v.CommissionRate != "" {
+		args = append(args, "--commission-rate", v.CommissionRate)
+	}
+	if v.CommissionMaxRate != "" {
+		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
+	}
+	if v.CommissionMaxChangeRate != "" {
+		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
+	}
+	if v.MinSelfDelegation != "" {
+		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
+	}
+	if v.GasPrices != "" {
+		args = append(args, "--gas-prices", v.GasPrices)
+	}
+	return step.Exec(p.app.d(), args...)
 }
 
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {

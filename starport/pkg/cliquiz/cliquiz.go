@@ -24,6 +24,7 @@ func Ask(question ...Question) error {
 		prompt := promptui.Prompt{
 			Label:   q.Question,
 			Default: fmt.Sprintf("%v", q.DefaultAnswer),
+			Pointer: promptui.PipeCursor,
 		}
 
 		result, err := prompt.Run()

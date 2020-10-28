@@ -57,7 +57,7 @@ func printEvents(bus events.Bus, s *spinner.Spinner) {
 			s.Start()
 		} else {
 			s.Stop()
-			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✓"), event.Description)
+			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
 		}
 	}
 }
