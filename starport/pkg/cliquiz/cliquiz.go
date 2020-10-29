@@ -2,11 +2,9 @@
 package cliquiz
 
 import (
-	"encoding/json"
 	"fmt"
-	"strconv"
 
-	"github.com/manifoldco/promptui"
+	"github.com/AlecAivazis/survey/v2"
 )
 
 type Question struct {
@@ -21,22 +19,12 @@ func NewQuestion(question string, defaultAnswer, answer interface{}) Question {
 
 func Ask(question ...Question) error {
 	for _, q := range question {
-		prompt := promptui.Prompt{
-			Label:   q.Question,
+		prompt := &survey.Input{
+			Message: q.Question,
 			Default: fmt.Sprintf("%v", q.DefaultAnswer),
-			Pointer: promptui.PipeCursor,
 		}
 
-		result, err := prompt.Run()
-		if err != nil {
-			return err
-		}
-		if _, ok := q.Answer.(*string); ok {
-			result = strconv.Quote(result)
-		}
-		// instead of going with the type switches to convert result to propver type,
-		// we can let this big work to json package.
-		if err := json.Unmarshal([]byte(result), q.Answer); err != nil {
+		if err := survey.AskOne(prompt, q.Answer); err != nil {
 			return err
 		}
 	}
