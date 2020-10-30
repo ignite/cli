@@ -1,0 +1,9 @@
+dictionaries:
+  - en
+  - en_GB
+  excluded_files:
+    - "e2e/**/*"
+    - "integration/**/*"
+    - "scripts/**/*"
+    - "starport/**/*"
+  spellcheck_filenames: false
