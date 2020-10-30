@@ -42,4 +42,4 @@ Many of the live blockchains use multiple Cosmos modules. The foundational modul
 - Starport lets you create, develop, and build a blockchain.
 - Starport and Cosmos are written in Go.
 - Today, Cosmos SDK has a unique position worldwide as one of the most successful blockchains.
-- Developers can use different Cosmos Modules to customize their blockchain.
+- Developers can use different Cosmos SDK modules to customize their blockchain.
