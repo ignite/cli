@@ -113,9 +113,9 @@ func (c *Chain) GenesisPath() (string, error) {
 	return c.plugin.GenesisPath()
 }
 
-// rpcPublicAddress points to the public address of Tendermint RPC, this is shared by
+// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
-func (s *Chain) rpcPublicAddress() (string, error) {
+func (s *Chain) RPCPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
 		conf, err := s.Config()

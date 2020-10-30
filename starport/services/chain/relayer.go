@@ -56,7 +56,7 @@ func (s *Chain) RelayerInfo() (base64Info string, err error) {
 			return "", err
 		}
 	}
-	rpcAddress, err := s.rpcPublicAddress()
+	rpcAddress, err := s.RPCPublicAddress()
 	if err != nil {
 		return "", err
 	}
@@ -121,7 +121,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	}
 	configPath := filepath.Join(relayerHome, "config/config.yaml")
 
-	rpcAddress, err := s.rpcPublicAddress()
+	rpcAddress, err := s.RPCPublicAddress()
 	if err != nil {
 		return err
 	}

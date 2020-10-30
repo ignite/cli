@@ -60,6 +60,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		proposal networkbuilder.Proposal
 		account  networkbuilder.Account
 		denom    string
+		address  string
 	)
 	if info.Config.Validator.Staked != "" {
 		if c, err := types.ParseCoin(info.Config.Validator.Staked); err == nil {
@@ -70,6 +71,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
 	questions := []cliquiz.Question{
+		cliquiz.NewQuestion("Public address", info.RPCPublicAddress, &address),
 		cliquiz.NewQuestion("Account name", acc.Name, &account.Name),
 		cliquiz.NewQuestion("Account mnemonic", acc.Mnemonic, &account.Mnemonic),
 		cliquiz.NewQuestion("Account coins", strings.Join(acc.Coins, ","), &account.Coins),
@@ -109,7 +111,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if err := blockchain.Join(ctx, gentx); err != nil {
+	if err := blockchain.Join(ctx, address, gentx); err != nil {
 		return err
 	}
 

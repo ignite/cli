@@ -235,3 +235,21 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 			Add(c.stdSteps(logAppd)...)...,
 		))
 }
+
+// ShowNodeID shows node's id.
+func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
+	key := &bytes.Buffer{}
+	err := cmdrunner.
+		New(c.cmdOptions()...).
+		Run(ctx,
+			step.New(
+				step.Exec(
+					c.app.d(),
+					"tendermint",
+					"show-node-id",
+				),
+				step.Stdout(key),
+			),
+		)
+	return strings.TrimSpace(key.String()), err
+}

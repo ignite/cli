@@ -3,6 +3,7 @@ package networkbuilder
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -20,8 +21,9 @@ type Blockchain struct {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
-	Genesis []byte
-	Config  conf.Config
+	Genesis          []byte
+	Config           conf.Config
+	RPCPublicAddress string
 }
 
 // Info returns information about the blockchain.
@@ -38,9 +40,14 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
+	paddr, err := b.chain.RPCPublicAddress()
+	if err != nil {
+		return BlockchainInfo{}, err
+	}
 	return BlockchainInfo{
-		Genesis: genesis,
-		Config:  config,
+		Genesis:          genesis,
+		Config:           config,
+		RPCPublicAddress: paddr,
 	}, nil
 }
 
@@ -87,8 +94,18 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 	return gentx, mnemonic, nil
 }
 
-// Join proposes a gentx via SPN to a network.
-func (b *Blockchain) Join(ctx context.Context, gentx interface{}) error {
+// Join proposes a validator to a network.
+//
+// address is the ip+port combination of a p2p address of a node (does not include id).
+// https://docs.tendermint.com/master/spec/p2p/config.html.
+func (b *Blockchain) Join(ctx context.Context, address string, gentx interface{}) error {
+	key, err := b.chain.ShowNodeID(ctx)
+	if err != nil {
+		return err
+	}
+	p2pAddress := fmt.Sprintf("%s@%s", key, address)
+	_ = p2pAddress
+
 	return nil
 }
 
