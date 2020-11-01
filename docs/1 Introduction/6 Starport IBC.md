@@ -1,6 +1,6 @@
 # Starport IBC
 
-Inter-Blockchain Communication Protocol in short [IBC](https://github.com/cosmos/ics#ibc-quick-references), enables communication of blockchains. IBC allows a reliable and secure connection between two chains which can be used for transfers of tokens, multi-chain smart contracts, atomic swaps or data and code sharding of any kind.
+Inter-Blockchain Communication Protocol in short [IBC](https://github.com/cosmos/ics#ibc-quick-references), enables communication of blockchains. IBC allows a reliable and secure connection between two chains which can be used for transferring of tokens, multi-chain smart contracts, atomic swaps or data and code sharding of any kind.
 
 In order to communicate between chains, bootstrapping two blockchains with starport will give us a picture of how it is intended to work and what happens on each of the blockchain applications in the communication process. In this tutorial, we will be creating two blockchains, connecting those blockchains and transferring tokens via IBC.
 
@@ -56,7 +56,7 @@ Once the chains are connected, you can use a [relayer](https://github.com/ovrclk
 rly tx transfer foo bar 5token $(rly chains address bar)
 ```
 
-After a transaction is successfully created, you can now relay it to a connected chain: 
+After a transaction is successfully created, you can now relay it to a connected chain:
 
 ```
 rly tx relay foo-bar
@@ -70,7 +70,7 @@ To verify that an IBC transaction was relayed correctly, let's check the balance
 bard q bank balances $(bard keys show bar -a --keyring-backend test)
 ```
 
-This command will output token balances for the relayer account and you should see 5 token transfered with IBC.
+This command will output token balances for the relayer account and you should see 5 token transferred with IBC.
 
 ## Configuration
 
