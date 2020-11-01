@@ -1,6 +1,6 @@
 # Introduction
 
-Starport creates a blockchain for you in Go. Requirements for this is to have Go installed. You can get all the information here https://golang.org/doc/install.
+Starport creates a blockchain for you in Golang. Requirements for this is to have Golang installed. You can get all the information here https://golang.org/doc/install.
 
 Starport installation instructions can be found here: https://github.com/tendermint/starport#install
 

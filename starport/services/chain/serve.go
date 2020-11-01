@@ -266,12 +266,15 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 				}
 				info, err := s.RelayerInfo()
 				if err != nil {
+
 					return err
 				}
 				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
 				return nil
 			}),
 		))
+	} else {
+		fmt.Fprintf(s.stdLog(logStarport).out, "⚠️ Relayer error: %s\n", err)
 	}
 
 	for _, execOption := range s.plugin.ConfigCommands() {

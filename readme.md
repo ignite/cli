@@ -8,7 +8,7 @@ Starport is the easiest way to build a blockchain. It is a developer-friendly in
 
 ## Quick start
 
-Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/), or [install it](/docs/install.md). Then:
+Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/), or [install it](/docs/1%20Introduction/2%20Install.md). Then:
 
 ```
 starport app github.com/foo/mychain

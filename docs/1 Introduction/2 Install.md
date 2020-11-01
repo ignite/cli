@@ -16,7 +16,7 @@ npm i -g @tendermint/starport
 brew install tendermint/tap/starport
 ```
 
-### Debian/Ubuntu with Snapcraft
+<!-- ### Debian/Ubuntu with Snapcraft
 
 ```
 snap install --classic node
@@ -26,13 +26,10 @@ Append your current working directory to the environment variable `PATH`:
 
 ```
 export PATH=$PATH:$PWD/node_modules/.bin/
-```
+``` -->
 
 ### Build from source
 
 ```
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
-
-Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
-
