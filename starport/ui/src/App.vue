@@ -12,37 +12,17 @@ export default {
   components: {
     Layout
   },
-  methods: {
-    ...mapMutations('cosmos/env', [ 'setTimer', 'clearTimer' ]),
-    ...mapActions('cosmos/env', [ 'setStatusState' ]),
-    ...mapActions('cosmos/blocks', [ 'initBlockConnection' ]),
-  },
+  // methods: {
+  //   ...mapMutations('cosmos/env', [ 'setTimer', 'clearTimer' ]),
+  //   ...mapActions('cosmos/env', [ 'setStatusState' ]),
+  //   ...mapActions('cosmos/blocks', [ 'initBlockConnection' ]),
+  // },
   async created() {
-    /*
-     *
-     // 1. Fetch backend status regularly
-     *
-     */
-    this.setTimer({
-      timer: setInterval(this.setStatusState.bind(this), 5000)
-    })
-    
-    try {
-      await this.setStatusState()
-    } catch {
-      console.log(`Can't fetch /env`)
-    }
-
-    /*
-     *
-     // 2. Start block fetching 
-     *
-     */
-    this.initBlockConnection()
+    this.$store.dispatch("cosmos/init", { account: false })    
   },
-  beforeDestroy() {
-    this.clearTimer()
-  }  
+  // beforeDestroy() {
+  //   this.clearTimer()
+  // }  
 };
 </script>
 

@@ -37,7 +37,6 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
-import BackendIndicators from '@/modules/BackendIndicators'
 import LogoStarport from '@/assets/logos/LogoStarportSmall'
 import HamIcon from '@/assets/icons/Ham'
 import CompassIcon from '@/assets/icons/Compass'
@@ -47,7 +46,6 @@ export default {
   components: {
     LogoStarport,
     HamIcon,
-    BackendIndicators,
     CompassIcon,
     BlocksIcon
   },

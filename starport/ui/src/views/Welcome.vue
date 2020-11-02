@@ -12,7 +12,7 @@
       <div class="-center-top -sp-f-overline-0">STACK</div>
 
       <div class="-left dashboard__card -log">
-        <SpIconText 
+        <SpStandardIconText 
           v-for="(item, index) in staticLogs"
           :key="index+item"
           :iconType="'check'"
@@ -146,7 +146,7 @@
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 import moment from 'moment'
 
-import { SpBlockInfoCard, SpIconText, SpLoaderIconText } from '@tendermint/vue'
+import { SpBlockInfoCard, SpStandardIconText, SpLoaderIconText } from '@tendermint/vue'
 import LogoTendermint from "@/assets/logos/LogoTendermint"
 import LogoCosmosSdk from "@/assets/logos/LogoCosmosSdk"
 import LogoStarport from "@/assets/logos/LogoStarport"
@@ -240,7 +240,7 @@ export default {
     LogoStarport,
     LogoGithub,
     SpBlockInfoCard,
-    SpIconText,
+    SpStandardIconText,
     SpLoaderIconText
   },
   data() {

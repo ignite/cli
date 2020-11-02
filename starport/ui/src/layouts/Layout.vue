@@ -8,7 +8,7 @@
     <div class="container">
       <div class="container__main">
         <div class="content">
-          <transition name="fade" mode="out-in" @enter="enter">
+          <transition name="sp-fade" mode="out-in" @enter="enter">
             <keep-alive include="Welcome">
               <router-view />
             </keep-alive>
@@ -36,9 +36,6 @@
             >Blocks</router-link>          
           </div>
         </div>
-        <div class="sheet__sub">
-          <BackendIndicators/>
-        </div>
       </div>
     </Modal>    
   </div>
@@ -47,7 +44,6 @@
 <script>
 import Navbar from '@/components/Navbar'
 import Modal from '@/components/Modal'
-import BackendIndicators from '@/modules/BackendIndicators'
 import Headline from '@/components/typography/Headline'
 import Planet from "@/assets/images/Planet.vue";
 
@@ -55,7 +51,6 @@ export default {
   components: {
     Navbar,
     Modal,
-    BackendIndicators,
     Headline,
     Planet
   },  
