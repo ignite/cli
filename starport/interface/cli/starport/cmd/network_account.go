@@ -3,7 +3,6 @@ package starportcmd
 import (
 	"fmt"
 
-	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -34,6 +33,6 @@ func networkAccountGetHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("🗿 Your spn account is: %s\n", color.New(color.FgYellow).SprintFunc()(account.Name))
+	fmt.Printf("🗿 Your spn account is: %s\n", infoColor(account.Name))
 	return nil
 }

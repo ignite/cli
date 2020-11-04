@@ -14,6 +14,10 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+var (
+	infoColor = color.New(color.FgYellow).SprintFunc()
+)
+
 // New creates a new root command for `starport` with its sub commands.
 func New() *cobra.Command {
 	c := &cobra.Command{
