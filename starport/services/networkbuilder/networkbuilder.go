@@ -34,11 +34,7 @@ func CollectEvents(ev events.Bus) Option {
 }
 
 // New creates a Builder.
-func New(spnAddress string, options ...Option) (*Builder, error) {
-	spnclient, err := spn.New(spnAddress)
-	if err != nil {
-		return nil, err
-	}
+func New(spnclient spn.Client, options ...Option) (*Builder, error) {
 	b := &Builder{
 		spnclient: spnclient,
 	}

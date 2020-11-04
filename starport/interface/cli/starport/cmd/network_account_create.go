@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkAccountCreate() *cobra.Command {
@@ -18,7 +17,7 @@ func NewNetworkAccountCreate() *cobra.Command {
 }
 
 func networkAccountCreateHandler(cmd *cobra.Command, args []string) error {
-	b, err := networkbuilder.New(spnAddress)
+	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}

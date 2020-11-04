@@ -8,7 +8,6 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 const (
@@ -28,7 +27,7 @@ func NewNetworkAccountExport() *cobra.Command {
 }
 
 func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
-	b, err := networkbuilder.New(spnAddress)
+	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}

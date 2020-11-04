@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkAccount() *cobra.Command {
@@ -25,7 +24,7 @@ If no account is picked, default "spn" account is used.
 }
 
 func networkAccountGetHandler(cmd *cobra.Command, args []string) error {
-	b, err := networkbuilder.New(spnAddress)
+	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}

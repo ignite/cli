@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkAccountImport() *cobra.Command {
@@ -24,7 +23,7 @@ func networkAccountImportHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	b, err := networkbuilder.New(spnAddress)
+	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}

@@ -7,7 +7,6 @@ import (
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkAccountUse() *cobra.Command {
@@ -23,7 +22,7 @@ Picked account will be used while interacting with Starport Network.`,
 }
 
 func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
-	b, err := networkbuilder.New(spnAddress)
+	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}

@@ -33,7 +33,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		ev  = events.NewBus()
 		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
 	)
-	nb, err := networkbuilder.New(spnAddress, networkbuilder.CollectEvents(ev))
+	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}

@@ -38,10 +38,10 @@ type options struct {
 // Option configures Client options.
 type Option func(*options)
 
-// UseMemoryKeyring uses memory as keyring storage. Useful for unit testing.
-func UseMemoryKeyring() Option {
+// Keyring uses given keyring type as storage.
+func Keyring(keyring string) Option {
 	return func(c *options) {
-		c.keyringBackend = keyring.BackendMemory
+		c.keyringBackend = keyring
 	}
 }
 

@@ -28,7 +28,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		ev  = events.NewBus()
 		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
 	)
-	nb, err := networkbuilder.New(spnAddress, networkbuilder.CollectEvents(ev))
+	b, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
@@ -37,7 +37,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 	go printEvents(ev, s)
 
-	blockchain, err := nb.InitBlockchain(ctx, args[0])
+	blockchain, err := b.InitBlockchain(ctx, args[0])
 	if err == context.Canceled {
 		s.Stop()
 		fmt.Println("aborted")
