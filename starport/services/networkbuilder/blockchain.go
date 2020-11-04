@@ -17,6 +17,7 @@ type Blockchain struct {
 	appPath string
 	chain   *chain.Chain
 	ev      events.Bus
+	b       *Builder
 }
 
 // BlockchainInfo hold information about a Blokchain.
@@ -52,7 +53,13 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 }
 
 // Create submits Genesis to SPN to announce a new network.
-func (b *Blockchain) Create(ctx context.Context, genesis []byte) error { return nil }
+func (b *Blockchain) Create(ctx context.Context, genesis []byte) error {
+	account, err := b.b.AccountInUse()
+	if err != nil {
+		return err
+	}
+	return b.b.spnclient.ChainCreate(account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
+}
 
 // Proposal holds proposal info of validator candidate to join to a network.
 type Proposal struct {

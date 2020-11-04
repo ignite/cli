@@ -2,7 +2,9 @@ package starportcmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/briandowns/spinner"
@@ -65,6 +67,9 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 	if err := blockchain.Create(ctx, info.Genesis); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return errors.New("make sure that your SPN account has enough balance")
+		}
 		return err
 	}
 

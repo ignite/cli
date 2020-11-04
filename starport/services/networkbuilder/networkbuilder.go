@@ -85,5 +85,6 @@ func (b *Builder) InitBlockchain(ctx context.Context, gitURL string) (*Blockchai
 		appPath: appPath,
 		chain:   c,
 		ev:      b.ev,
+		b:       b,
 	}, nil
 }

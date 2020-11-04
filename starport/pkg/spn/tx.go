@@ -16,7 +16,7 @@ import (
 
 const (
 	defaultGasAdjustment = 1.0
-	defaultGasLimit      = 200000
+	defaultGasLimit      = 300000
 )
 
 func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP) client.Context {
