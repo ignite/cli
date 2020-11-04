@@ -3,12 +3,17 @@ package spn
 import (
 	"os"
 
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
+	chattypes "github.com/tendermint/spn/x/chat/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
+var spn = "spn"
 var homedir = os.ExpandEnv("$HOME/spnd")
 
 // Account represents an account on SPN.
@@ -20,8 +25,9 @@ type Account struct {
 
 // Client is client to interact with SPN.
 type Client struct {
-	kr          keyring.Keyring
-	nodeAddress string
+	kr        keyring.Keyring
+	factory   tx.Factory
+	clientCtx client.Context
 }
 
 type options struct {
@@ -51,9 +57,17 @@ func New(nodeAddress string, option ...Option) (Client, error) {
 	if err != nil {
 		return Client{}, err
 	}
+
+	client, err := rpchttp.New(nodeAddress, "/websocket")
+	if err != nil {
+		return Client{}, err
+	}
+	clientCtx := NewClientCtx(kr, client)
+	factory := NewFactory(clientCtx)
 	return Client{
-		kr:          kr,
-		nodeAddress: nodeAddress,
+		kr:        kr,
+		factory:   factory,
+		clientCtx: clientCtx,
 	}, nil
 }
 
@@ -112,4 +126,29 @@ func (c Client) AccountExport(accountName, password string) (privateKey string, 
 // AccountImport imports an account to the keyring by account name, privateKey and decryption password.
 func (c Client) AccountImport(accountName, privateKey, password string) error {
 	return c.kr.ImportPrivKey(accountName, privateKey, password)
+}
+
+// ChainCreate creates a new chain.
+// TODO right now this uses chat module, use genesis.
+func (c Client) ChainCreate(accountName, chainID, genesis, sourceURL, sourceHash string) error {
+	info, err := c.kr.Key(accountName)
+	if err != nil {
+		return err
+	}
+	clientCtx := c.clientCtx.
+		WithFromName(accountName).
+		WithFromAddress(info.GetAddress())
+	msg, err := chattypes.NewMsgCreateChannel(
+		clientCtx.GetFromAddress(),
+		chainID,
+		sourceURL,
+		[]byte(genesis),
+	)
+	if err != nil {
+		return err
+	}
+	if err := msg.ValidateBasic(); err != nil {
+		return err
+	}
+	return tx.BroadcastTx(clientCtx, c.factory, msg)
 }
