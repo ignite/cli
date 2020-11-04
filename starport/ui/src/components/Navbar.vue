@@ -55,7 +55,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [ 'latestBlock' ]),
+    ...mapGetters('cosmos', [ 'latestBlock' ]),
   },
   methods: {
     handleHamClick() {

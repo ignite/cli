@@ -254,8 +254,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/env', [ 'backendRunningStates', 'backendEnv', 'appEnv' ]),   
-    ...mapGetters('cosmos/blocks', [ 'latestBlock', 'blockByHeight' ])
+    ...mapGetters('cosmos', [ 'backendRunningStates', 'backendEnv', 'appEnv', 'latestBlock', 'blockByHeight' ])
   },    
   methods: {
     insertBlockToStack(index, block) {
