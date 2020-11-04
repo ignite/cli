@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/go-bip39"
 	chattypes "github.com/tendermint/spn/x/chat/types"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
@@ -58,7 +59,7 @@ func New(nodeAddress string, option ...Option) (Client, error) {
 		return Client{}, err
 	}
 
-	client, err := rpchttp.New(nodeAddress, "/websocket")
+	client, err := rpchttp.New(xurl.TCP(nodeAddress), "/websocket")
 	if err != nil {
 		return Client{}, err
 	}
@@ -78,6 +79,19 @@ func (c Client) AccountGet(accountName string) (Account, error) {
 		return Account{}, err
 	}
 	return toAccount(info), nil
+}
+
+// AccountList returns a list of accounts.
+func (c Client) AccountList() ([]Account, error) {
+	var accounts []Account
+	infos, err := c.kr.List()
+	if err != nil {
+		return nil, err
+	}
+	for _, info := range infos {
+		accounts = append(accounts, toAccount(info))
+	}
+	return accounts, nil
 }
 
 // AccountCreate creates an account by name in the keyring.

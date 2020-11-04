@@ -3,16 +3,25 @@ package networkbuilder
 import (
 	"context"
 	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+var (
+	starportConfDir = os.ExpandEnv("$HOME/.starport")
+	confPath        = filepath.Join(starportConfDir, "networkbuilder")
 )
 
 // Builder is network builder.
 type Builder struct {
-	ev events.Bus
+	ev        events.Bus
+	spnclient spn.Client
 }
 
 type Option func(*Builder)
@@ -25,13 +34,18 @@ func CollectEvents(ev events.Bus) Option {
 }
 
 // New creates a Builder.
-// TODO receive SPN info here.
-func New(options ...Option) *Builder {
-	b := &Builder{}
+func New(spnAddress string, options ...Option) (*Builder, error) {
+	spnclient, err := spn.New(spnAddress)
+	if err != nil {
+		return nil, err
+	}
+	b := &Builder{
+		spnclient: spnclient,
+	}
 	for _, opt := range options {
 		opt(b)
 	}
-	return b
+	return b, nil
 }
 
 // InitBlockchain initializes blockchain from a gitURL.

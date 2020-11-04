@@ -26,9 +26,12 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	var (
 		ctx = clictx.From(context.Background())
 		ev  = events.NewBus()
-		nb  = networkbuilder.New(networkbuilder.CollectEvents(ev))
 		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
 	)
+	nb, err := networkbuilder.New(spnAddress, networkbuilder.CollectEvents(ev))
+	if err != nil {
+		return err
+	}
 	s.Color("blue")
 	defer s.Stop()
 

@@ -17,6 +17,7 @@ func NewQuestion(question string, defaultAnswer, answer interface{}) Question {
 	return Question{question, defaultAnswer, answer}
 }
 
+// Ask asks questions and collect answers.
 func Ask(question ...Question) error {
 	for _, q := range question {
 		prompt := &survey.Input{
