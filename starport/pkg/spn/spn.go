@@ -166,3 +166,17 @@ func (c Client) ChainCreate(accountName, chainID, genesis, sourceURL, sourceHash
 	}
 	return tx.BroadcastTx(clientCtx, c.factory, msg)
 }
+
+// Chain represents a chain in Genesis module of SPN.
+type Chain struct {
+	URL  string
+	Hash string
+}
+
+// TODO ShowChain shows chain info.
+func (c Client) ShowChain(accountName, chainID string) (Chain, error) {
+	return Chain{
+		URL:  "https://github.com/tendermint/spn",
+		Hash: "df49c9256dfcbd0096fd0a8acdd4907ba3332cd5",
+	}, nil
+}

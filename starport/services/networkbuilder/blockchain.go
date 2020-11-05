@@ -9,15 +9,57 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type Blockchain struct {
 	appPath string
+	url     string
+	hash    string
 	chain   *chain.Chain
-	ev      events.Bus
-	b       *Builder
+	builder *Builder
+}
+
+func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string) (*Blockchain, error) {
+	bc := &Blockchain{
+		appPath: appPath,
+		url:     url,
+		hash:    hash,
+		builder: builder,
+	}
+	return bc, bc.init(ctx)
+}
+
+// init initializes blockchain by building the binaries and running the init command and
+// applies some post init configuration.
+func (b *Blockchain) init(ctx context.Context) error {
+	path, err := gomodulepath.ParseFile(b.appPath)
+	if err != nil {
+		return err
+	}
+	app := chain.App{
+		Name: path.Root,
+		Path: b.appPath,
+	}
+
+	c, err := chain.New(app, chain.LogSilent)
+	if err != nil {
+		return err
+	}
+
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+	if err := c.Build(ctx); err != nil {
+		return err
+	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
+	if err := c.Init(ctx); err != nil {
+		return err
+	}
+
+	b.chain = c
+	return nil
 }
 
 // BlockchainInfo hold information about a Blokchain.
@@ -54,11 +96,11 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 
 // Create submits Genesis to SPN to announce a new network.
 func (b *Blockchain) Create(ctx context.Context, genesis []byte) error {
-	account, err := b.b.AccountInUse()
+	account, err := b.builder.AccountInUse()
 	if err != nil {
 		return err
 	}
-	return b.b.spnclient.ChainCreate(account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
+	return b.builder.spnclient.ChainCreate(account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -118,6 +160,7 @@ func (b *Blockchain) Join(ctx context.Context, address string, gentx interface{}
 
 // Cleanup closes the event bus and cleanups everyting related to installed blockchain.
 func (b *Blockchain) Cleanup() error {
-	b.ev.Shutdown()
-	return os.RemoveAll(b.appPath)
+	b.builder.ev.Shutdown()
+	//return os.RemoveAll(b.appPath)
+	return nil
 }

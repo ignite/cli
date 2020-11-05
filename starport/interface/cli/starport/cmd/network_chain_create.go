@@ -39,7 +39,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 	go printEvents(ev, s)
 
-	blockchain, err := b.InitBlockchain(ctx, args[0])
+	blockchain, err := b.InitBlockchainFromPath(ctx, args[0])
 	if err == context.Canceled {
 		s.Stop()
 		fmt.Println("aborted")

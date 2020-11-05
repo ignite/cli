@@ -23,7 +23,6 @@ func NewNetworkChainJoin() *cobra.Command {
 		RunE: networkChainJoinHandler,
 		Args: cobra.ExactArgs(1),
 	}
-	c.Flags().StringP("repo", "r", ".", "repo of the blockchain")
 	return c
 }
 
@@ -43,8 +42,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	go printEvents(ev, s)
 
-	repo, _ := cmd.Flags().GetString("repo")
-	blockchain, err := nb.InitBlockchain(ctx, repo)
+	blockchain, err := nb.InitBlockchainFromChainID(ctx, args[0])
 	if err == context.Canceled {
 		s.Stop()
 		fmt.Println("aborted")
