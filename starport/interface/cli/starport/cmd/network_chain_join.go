@@ -5,14 +5,13 @@ import (
 	"encoding/json"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -27,20 +26,18 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
-	var (
-		ctx = clictx.From(context.Background())
-		ev  = events.NewBus()
-		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
-	)
+	s := clispinner.New()
+	defer s.Stop()
+
+	ev := events.NewBus()
+	go printEvents(ev, s)
+
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
 
-	s.Color("blue")
-	defer s.Stop()
-
-	go printEvents(ev, s)
+	ctx := clictx.From(context.Background())
 
 	blockchain, err := nb.InitBlockchainFromChainID(ctx, args[0])
 	if err == context.Canceled {
@@ -73,20 +70,20 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
 	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Public address", info.RPCPublicAddress, &address),
-		cliquiz.NewQuestion("Account name", acc.Name, &account.Name),
-		cliquiz.NewQuestion("Account mnemonic", acc.Mnemonic, &account.Mnemonic),
-		cliquiz.NewQuestion("Account coins", strings.Join(acc.Coins, ","), &account.Coins),
-		cliquiz.NewQuestion("Staking amount", info.Config.Validator.Staked, &proposal.Validator.StakingAmount),
-		cliquiz.NewQuestion("Moniker", "mynode", &proposal.Validator.Moniker),
-		cliquiz.NewQuestion("Commission rate", "0.10", &proposal.Validator.CommissionRate),
-		cliquiz.NewQuestion("Commission max rate", "0.20", &proposal.Validator.CommissionMaxRate),
-		cliquiz.NewQuestion("Commission max change rate", "0.01", &proposal.Validator.CommissionMaxChangeRate),
-		cliquiz.NewQuestion("Min self delegation", "1", &proposal.Validator.MinSelfDelegation),
-		cliquiz.NewQuestion("Gas prices", "0.025"+denom, &proposal.Validator.GasPrices),
-		cliquiz.NewQuestion("Website", "", &proposal.Meta.Website),
-		cliquiz.NewQuestion("Identity", "", &proposal.Meta.Identity),
-		cliquiz.NewQuestion("Details", "", &proposal.Meta.Details),
+		cliquiz.NewQuestion("Public address", &address, cliquiz.DefaultAnswer(info.RPCPublicAddress)),
+		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
+		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
+		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
+		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer(info.Config.Validator.Staked)),
+		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
+		cliquiz.NewQuestion("Commission rate", &proposal.Validator.CommissionRate, cliquiz.DefaultAnswer("0.10")),
+		cliquiz.NewQuestion("Commission max rate", &proposal.Validator.CommissionMaxRate, cliquiz.DefaultAnswer("0.20")),
+		cliquiz.NewQuestion("Commission max change rate", &proposal.Validator.CommissionMaxChangeRate, cliquiz.DefaultAnswer("0.01")),
+		cliquiz.NewQuestion("Min self delegation", &proposal.Validator.MinSelfDelegation, cliquiz.DefaultAnswer("1")),
+		cliquiz.NewQuestion("Gas prices", &proposal.Validator.GasPrices, cliquiz.DefaultAnswer("0.025"+denom)),
+		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
+		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
+		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
 	}
 
 	if err := cliquiz.Ask(questions...); err != nil {
@@ -103,6 +100,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("\nGentx: \n\n%s\n\n", gentxFormatted)
+
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Gentx above",
 		IsConfirm: true,

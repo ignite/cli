@@ -53,7 +53,7 @@ func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
 
 	// ask for encryption password.
 	var password string
-	if err := cliquiz.Ask(cliquiz.NewQuestion("Encytrpion password", "", &password)); err != nil {
+	if err := cliquiz.Ask(cliquiz.NewQuestion("Encytrpion password", &password, cliquiz.HideAnswer())); err != nil {
 		return err
 	}
 	if password == "" {
@@ -72,7 +72,8 @@ func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf(`📩 Account exported.
+	fmt.Printf(`
+📩 Account exported.
 
 Account name: %s
 Your private key saved to: %s

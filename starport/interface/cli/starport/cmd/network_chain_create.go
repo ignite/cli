@@ -5,12 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"strings"
-	"time"
 
-	"github.com/briandowns/spinner"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -25,19 +24,18 @@ func NewNetworkChainCreate() *cobra.Command {
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
-	var (
-		ctx = clictx.From(context.Background())
-		ev  = events.NewBus()
-		s   = spinner.New(spinner.CharSets[42], 100*time.Millisecond)
-	)
+	s := clispinner.New()
+	defer s.Stop()
+
+	ev := events.NewBus()
+	go printEvents(ev, s)
+
 	b, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
-	s.Color("blue")
-	defer s.Stop()
 
-	go printEvents(ev, s)
+	ctx := clictx.From(context.Background())
 
 	blockchain, err := b.InitBlockchainFromPath(ctx, args[0])
 	if err == context.Canceled {
@@ -56,16 +54,17 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Printf("\nGenesis: \n\n%s\n\n", string(info.Genesis))
+
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Genesis above",
 		IsConfirm: true,
 	}
-
 	if _, err := prompt.Run(); err != nil {
 		s.Stop()
 		fmt.Println("said no")
 		return nil
 	}
+
 	if err := blockchain.Create(ctx, info.Genesis); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your SPN account has enough balance")

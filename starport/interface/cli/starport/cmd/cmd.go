@@ -7,9 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/briandowns/spinner"
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
 )
@@ -54,9 +54,9 @@ func logLevel(cmd *cobra.Command) chain.LogLevel {
 	return chain.LogRegular
 }
 
-func printEvents(bus events.Bus, s *spinner.Spinner) {
+func printEvents(bus events.Bus, s *clispinner.Spinner) {
 	for event := range bus {
-		s.Suffix = " " + event.Text()
+		s.SetText(event.Text())
 		if event.IsOngoing() {
 			s.Start()
 		} else {
