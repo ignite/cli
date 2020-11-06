@@ -13,7 +13,7 @@ tasks:
       brew install gh
 
       # install rly
-      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 438815d47a857318199d556f4c1115f2fa6315a2 && make -C /tmp/relayer install)
+      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 3080dab10e37e6db9e691c343b1c0cdb6d845753 && make -C /tmp/relayer install)
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)

@@ -3,6 +3,10 @@
 ## Fixes:
 * routing REST API endpoints of querier on Stargate.
 
+### Features:
+* Upgraded Stargate's version to v0.40.0-rc3.
+* Added a gRPC-Web proxy which is available under http://localhost:12345/grpc.
+
 ## `v0.12.0`
 
 ### Features:
