@@ -3,8 +3,7 @@
 Starport is the easiest way to build a blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
 * [**Build a blockchain with Starport in a web-based IDE**](https://gitpod.io/#https://github.com/tendermint/starport/)
-* [Win prizes with Starport at HackAtom V (Oct 16th-30th)](https://five.hackatom.org)
-* [Check out the latest features in v0.11](https://www.youtube.com/watch?v=Guz1Opfzvyw)
+* [Check out the latest features in v0.12](https://www.youtube.com/watch?v=eQYf0Z2pJD0)
 
 ## Quick start
 
