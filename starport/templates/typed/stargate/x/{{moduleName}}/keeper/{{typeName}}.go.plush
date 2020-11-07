@@ -9,7 +9,7 @@ import (
 func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.Msg<%= title(TypeName) %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key), b)
+	store.Set(types.KeyPrefix(<%= TypeName %>.Id), b)
 }
 
 func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (msgs []types.Msg<%= title(TypeName) %>) {

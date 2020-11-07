@@ -266,12 +266,15 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 				}
 				info, err := s.RelayerInfo()
 				if err != nil {
+
 					return err
 				}
 				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
 				return nil
 			}),
 		))
+	} else {
+		fmt.Fprintf(s.stdLog(logStarport).out, "⚠️ Relayer error: %s\n", err)
 	}
 
 	for _, execOption := range s.plugin.ConfigCommands() {
@@ -446,13 +449,20 @@ func (s *Chain) runDevServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(c.Servers.GRPCAddr)
+	if err != nil {
+		return err
+	}
+	defer grpcconn.Close()
+
 	conf := Config{
 		SdkVersion:      s.plugin.Name(),
 		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
 		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
 		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(s.app, conf)
+	handler, err := newDevHandler(s.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
@@ -460,12 +470,14 @@ func (s *Chain) runDevServer(ctx context.Context) error {
 		Addr:    c.Servers.DevUIAddr,
 		Handler: handler,
 	}
+
 	go func() {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 		sv.Shutdown(shutdownCtx)
 	}()
+
 	err = sv.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil

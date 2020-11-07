@@ -1,7 +1,13 @@
 package keeper
 
 import (
+	"context"
+
 	"<%= ModulePath %>/x/<%= AppName %>/types"
 )
 
 var _ types.QueryServer = Keeper{}
+
+func (k Keeper) AppVersion(context.Context, *types.AppVersionRequest) (*types.AppVersionResponse, error) {
+	return nil, nil
+}
