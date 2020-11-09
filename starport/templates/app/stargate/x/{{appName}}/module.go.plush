@@ -1,7 +1,6 @@
 package <%= AppName %>
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -79,7 +78,6 @@ func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Rout
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the auth module.
 func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
 }
 
 // RegisterGRPCRoutes registers the gRPC Gateway routes for the capability module.
