@@ -96,6 +96,16 @@ func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) erro
 					return nil
 				}),
 			),
+			// install grpc-gateway.
+			step.New(
+				step.Exec(
+					"go",
+					"install",
+					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
+					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
+					"github.com/golang/protobuf/protoc-gen-go",
+				),
+			),
 			// generate pb files.
 			step.New(
 				step.Exec(

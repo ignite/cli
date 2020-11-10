@@ -99,7 +99,7 @@ func ExecRetry() execOption {
 
 // Exec executes a command step with options where msg describes the expectation from the test.
 // unless calling with Must(), Exec() will not exit test runtime on failure.
-func (e env) Exec(msg string, step *step.Step, options ...execOption) (ok bool) {
+func (e env) Exec(msg string, steps step.Steps, options ...execOption) (ok bool) {
 	opts := &execOptions{
 		ctx:    e.ctx,
 		stdout: ioutil.Discard,
@@ -121,13 +121,16 @@ func (e env) Exec(msg string, step *step.Step, options ...execOption) (ok bool) 
 	}
 	err := cmdrunner.
 		New(copts...).
-		Run(opts.ctx, step)
+		Run(opts.ctx, steps...)
 	if err == context.Canceled {
 		err = nil
 	}
-	if err != nil && opts.shouldRetry && opts.ctx.Err() == nil {
-		time.Sleep(time.Second)
-		return e.Exec(msg, step, options...)
+	if err != nil {
+		fmt.Fprintln(os.Stderr, err)
+		if opts.shouldRetry && opts.ctx.Err() == nil {
+			time.Sleep(time.Second)
+			return e.Exec(msg, steps, options...)
+		}
 	}
 	if err != nil {
 		msg = fmt.Sprintf("%s\n\nLogs:\n\n%s\n\nError Logs:\n\n%s\n",
@@ -150,7 +153,7 @@ const (
 func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold a launchpad app",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
 				"app",
@@ -159,7 +162,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 				sdkVersion,
 			),
 			step.Workdir(root),
-		),
+		)),
 	)
 	return filepath.Join(root, appName)
 }
@@ -169,14 +172,14 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // unless calling with Must(), Serve() will not exit test runtime on failure.
 func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
 	return e.Exec(msg,
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
 				"serve",
 				"-v",
 			),
 			step.Workdir(path),
-		),
+		)),
 		options...,
 	)
 }
@@ -185,10 +188,10 @@ func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
 // are passing.
 func (e env) EnsureAppIsSteady(appPath string) {
 	e.Exec("make sure app is steady",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("go", "test", "./..."),
 			step.Workdir(appPath),
-		),
+		)),
 	)
 }
 

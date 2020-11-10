@@ -20,10 +20,10 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 	)
 
 	env.Must(env.Exec("add CosmWasm module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(apath),
-		),
+		)),
 	))
 
 	var (
