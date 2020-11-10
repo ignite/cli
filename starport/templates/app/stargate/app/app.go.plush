@@ -3,9 +3,11 @@ package app
 import (
 	"io"
 	"os"
+    "path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec/types"
+    "github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -538,12 +540,19 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 
 // RegisterTxService implements the Application.RegisterTxService method.
 func (app *App) RegisterTxService(clientCtx client.Context) {
-	c, err := rpchttp.New("tcp://127.0.0.1:26657", "/websocket")
+	// TODO remove this workaround after https://github.com/cosmos/cosmos-sdk/pull/7840 has merged.
+	// -- right now, clientCtx does not have a Client set. this workaround fixes that.
+	config, err := toml.LoadFile(filepath.Join(DefaultNodeHome(""), "config/config.toml"))
 	if err != nil {
 		panic(err)
 	}
-	cl := clientCtx.WithClient(c)
-	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), cl, app.BaseApp.Simulate, app.interfaceRegistry)
+	client, err := rpchttp.New(config.Get("rpc.laddr").(string), "/websocket")
+	if err != nil {
+		panic(err)
+	}
+	clientCtx = clientCtx.WithClient(client)
+	// -- end of the workaround.
+	authtx.RegisterTxService(app.BaseApp.GRPCQueryRouter(), clientCtx, app.BaseApp.Simulate, app.interfaceRegistry)
 }
 
 // GetMaccPerms returns a copy of the module account permissions
