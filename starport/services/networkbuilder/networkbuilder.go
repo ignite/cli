@@ -9,13 +9,11 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/spn"
-)
-
-var (
-	starportConfDir = os.ExpandEnv("$HOME/.starport")
-	confPath        = filepath.Join(starportConfDir, "networkbuilder")
+	"github.com/tendermint/starport/starport/services/chain"
 )
 
 // Builder is network builder.
@@ -50,7 +48,7 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string)
 	if err != nil {
 		return nil, err
 	}
-	chain, err := b.spnclient.ShowChain(account.Name, chainID)
+	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
 	if err != nil {
 		return nil, err
 	}
@@ -142,4 +140,64 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string) (*
 	}
 
 	return newBlockchain(ctx, b, appPath, url, hash.String())
+}
+
+// StartChain downloads the final version version of Genesis on the first start or fails if Genesis
+// has not finalized yet.
+// After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
+// executing the start command on its appd binary with optionally provided flags.
+func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
+	app := chain.App{
+		Name: chainID,
+	}
+	c, err := ConfigGet()
+	if err != nil {
+		return err
+	}
+
+	// save the finalized version of Genesis if this isn't done before.
+	if !c.IsChainMarkedFinalized(chainID) {
+		account, err := b.AccountInUse()
+		if err != nil {
+			return err
+		}
+		chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+		if err != nil {
+			return err
+		}
+		//genesisjson, err := json.Marshal(chain.Genesis)
+		//if err != nil {
+		//return err
+		//}
+		genesisjson := chain.Genesis.([]byte)
+		homedir, err := os.UserHomeDir()
+		if err != nil {
+			return err
+		}
+		genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
+		if err := ioutil.WriteFile(genesisPath, genesisjson, 0644); err != nil {
+			return err
+		}
+		if err := cmdrunner.New().Run(ctx, step.New(
+			step.Exec(
+				app.D(),
+				"collect-gentxs",
+			),
+		)); err != nil {
+			return err
+		}
+		c.MarkFinalized(chainID)
+		if err := ConfigSave(c); err != nil {
+			return err
+		}
+	}
+
+	return cmdrunner.New().Run(ctx, step.New(
+		step.Exec(
+			app.D(),
+			append([]string{"start"}, flags...)...,
+		),
+		step.Stdout(os.Stdout),
+		step.Stderr(os.Stderr),
+	))
 }

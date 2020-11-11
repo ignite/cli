@@ -4,10 +4,11 @@ import "github.com/spf13/cobra"
 
 func NewNetworkChain() *cobra.Command {
 	c := &cobra.Command{
-		Use:  "chain",
-		Args: cobra.ExactArgs(1),
+		Use:   "chain",
+		Short: "Build networks",
 	}
 	c.AddCommand(NewNetworkChainCreate())
 	c.AddCommand(NewNetworkChainJoin())
+	c.AddCommand(NewNetworkChainStart())
 	return c
 }

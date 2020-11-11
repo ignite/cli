@@ -1,18 +1,17 @@
 package networkbuilder
 
 import (
-	"io/ioutil"
-	"os"
-
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
 
 // AccountUse sets the account to be used while working with SPN.
 func (b *Builder) AccountUse(name string) error {
-	if err := os.MkdirAll(starportConfDir, 0755); err != nil {
+	c, err := ConfigGet()
+	if err != nil {
 		return err
 	}
-	return ioutil.WriteFile(confPath, []byte(name), 0755)
+	c.SPNAccount = name
+	return ConfigSave(c)
 }
 
 // AccountInUse gets the account in use while working with SPN.
@@ -20,7 +19,7 @@ func (b *Builder) AccountUse(name string) error {
 // and puts into use.
 func (b *Builder) AccountInUse() (spn.Account, error) {
 	var name string
-	nameb, err := ioutil.ReadFile(confPath)
+	c, err := ConfigGet()
 	if err != nil {
 		name = "spn"
 		b.AccountCreate(name)
@@ -28,7 +27,7 @@ func (b *Builder) AccountInUse() (spn.Account, error) {
 			return spn.Account{}, err
 		}
 	} else {
-		name = string(nameb)
+		name = string(c.SPNAccount)
 	}
 	return b.AccountGet(name)
 }

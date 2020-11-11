@@ -43,10 +43,10 @@ func (c *Chain) Init(ctx context.Context) error {
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				c.app.d(),
+				c.app.D(),
 				"init",
 				"mynode",
-				"--chain-id", c.app.n(),
+				"--chain-id", c.app.N(),
 			),
 			step.PostExec(func(err error) error {
 				// overwrite Genesis with user configs.
@@ -178,7 +178,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 						New().
 						Run(ctx, step.New(step.NewOptions().
 							Add(step.Exec(
-								s.app.d(),
+								s.app.D(),
 								"add-genesis-account",
 								key,
 								coins,
@@ -229,7 +229,7 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(step.NewOptions().
 			Add(step.Exec(
-				c.app.d(),
+				c.app.D(),
 				"collect-gentxs",
 			)).
 			Add(c.stdSteps(logAppd)...)...,
@@ -244,7 +244,7 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 		Run(ctx,
 			step.New(
 				step.Exec(
-					c.app.d(),
+					c.app.D(),
 					"tendermint",
 					"show-node-id",
 				),

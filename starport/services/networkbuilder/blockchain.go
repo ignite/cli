@@ -8,8 +8,11 @@ import (
 	"os"
 	"strings"
 
+	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
@@ -19,6 +22,7 @@ type Blockchain struct {
 	url     string
 	hash    string
 	chain   *chain.Chain
+	app     chain.App
 	builder *Builder
 }
 
@@ -48,6 +52,12 @@ func (b *Blockchain) init(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	// cleanup home dir of app if exists.
+	for _, path := range c.StoragePaths() {
+		if err := xos.RemoveAllUnderHome(path); err != nil {
+			return err
+		}
+	}
 
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 	if err := c.Build(ctx); err != nil {
@@ -59,6 +69,7 @@ func (b *Blockchain) init(ctx context.Context) error {
 	}
 
 	b.chain = c
+	b.app = app
 	return nil
 }
 
@@ -100,7 +111,7 @@ func (b *Blockchain) Create(ctx context.Context, genesis []byte) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
+	return b.builder.spnclient.ChainCreate(ctx, account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -147,15 +158,26 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, address string, gentx interface{}) error {
+func (b *Blockchain) Join(ctx context.Context, address string, coins []types.Coin, gentx interface{}) error {
 	key, err := b.chain.ShowNodeID(ctx)
 	if err != nil {
 		return err
 	}
 	p2pAddress := fmt.Sprintf("%s@%s", key, address)
-	_ = p2pAddress
-
-	return nil
+	if err := b.builder.ProposeAddAccount(ctx, b.chain.ID(), spn.ProposalAddAccount{
+		Address: address,
+		Coins:   coins,
+	}); err != nil {
+		return err
+	}
+	gentxjson, err := json.Marshal(gentx)
+	if err != nil {
+		return err
+	}
+	return b.builder.ProposeAddValidator(ctx, b.chain.ID(), spn.ProposalAddValidator{
+		Gentx:         string(gentxjson),
+		PublicAddress: p2pAddress,
+	})
 }
 
 // Cleanup closes the event bus and cleanups everyting related to installed blockchain.

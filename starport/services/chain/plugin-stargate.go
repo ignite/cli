@@ -40,10 +40,10 @@ func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option,
 				"install",
 				"-mod", "readonly",
 				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.d()),
+				filepath.Join(p.app.Root(), "cmd", p.app.D()),
 			),
 		}, []string{
-			p.app.d(),
+			p.app.D(),
 		}
 }
 
@@ -51,7 +51,7 @@ func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.d(),
+				p.app.D(),
 				"keys",
 				"add",
 				accountName,
@@ -65,7 +65,7 @@ func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.d(),
+				p.app.D(),
 				"keys",
 				"add",
 				name,
@@ -78,7 +78,7 @@ func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 
 func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 	return step.Exec(
-		p.app.d(),
+		p.app.D(),
 		"keys",
 		"show",
 		accountName,
@@ -94,7 +94,7 @@ func (p *stargatePlugin) ConfigCommands() []step.Option {
 func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
 	args := []string{
 		"gentx", v.Name,
-		"--chain-id", p.app.n(),
+		"--chain-id", p.app.N(),
 		"--keyring-backend", "test",
 		"--amount", v.StakingAmount,
 	}
@@ -116,7 +116,7 @@ func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
 	if v.GasPrices != "" {
 		args = append(args, "--gas-prices", v.GasPrices)
 	}
-	return step.Exec(p.app.d(), args...)
+	return step.Exec(p.app.D(), args...)
 }
 
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
@@ -132,7 +132,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(home, p.app.nd(), "config/app.toml")
+	path := filepath.Join(home, p.app.ND(), "config/app.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -156,7 +156,7 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(home, p.app.nd(), "config/config.toml")
+	path := filepath.Join(home, p.app.ND(), "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -181,7 +181,7 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 		step.NewOptions().
 			Add(
 				step.Exec(
-					p.app.d(),
+					p.app.D(),
 					"start",
 					"--pruning", "nothing",
 					"--grpc.address", conf.Servers.GRPCAddr,
@@ -195,7 +195,7 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 
 func (p *stargatePlugin) StoragePaths() []string {
 	return []string{
-		p.app.nd(),
+		p.app.ND(),
 	}
 }
 
@@ -204,7 +204,7 @@ func (p *stargatePlugin) GenesisPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, p.app.nd(), "config/genesis.json"), nil
+	return filepath.Join(home, p.app.ND(), "config/genesis.json"), nil
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

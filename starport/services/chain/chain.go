@@ -82,6 +82,7 @@ func New(app App, logLevel LogLevel) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return s, nil
 }
 
@@ -125,6 +126,10 @@ func (s *Chain) RPCPublicAddress() (string, error) {
 		rpcAddress = conf.Servers.RPCAddr
 	}
 	return rpcAddress, nil
+}
+
+func (s *Chain) StoragePaths() []string {
+	return s.plugin.StoragePaths()
 }
 
 func (s *Chain) Config() (conf.Config, error) {

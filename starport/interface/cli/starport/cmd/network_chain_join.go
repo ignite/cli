@@ -18,9 +18,10 @@ import (
 
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
-		Use:  "join [chain-id]",
-		RunE: networkChainJoinHandler,
-		Args: cobra.ExactArgs(1),
+		Use:   "join [chain-id]",
+		Short: "Propose to join to a network as a validator",
+		RunE:  networkChainJoinHandler,
+		Args:  cobra.ExactArgs(1),
 	}
 	return c
 }
@@ -74,7 +75,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
 		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
 		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
-		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer(info.Config.Validator.Staked)),
+		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer("95000000stake")),
 		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
 		cliquiz.NewQuestion("Commission rate", &proposal.Validator.CommissionRate, cliquiz.DefaultAnswer("0.10")),
 		cliquiz.NewQuestion("Commission max rate", &proposal.Validator.CommissionMaxRate, cliquiz.DefaultAnswer("0.20")),
@@ -111,7 +112,16 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	if err := blockchain.Join(ctx, address, gentx); err != nil {
+	var coins []types.Coin
+	for _, c := range strings.Split(account.Coins, ",") {
+		cc, err := types.ParseCoin(c)
+		if err != nil {
+			return err
+		}
+		coins = append(coins, cc)
+	}
+
+	if err := blockchain.Join(ctx, address, coins, gentx); err != nil {
 		return err
 	}
 

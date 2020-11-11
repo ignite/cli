@@ -14,7 +14,7 @@ var spnAddress string
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "network",
-		Short: "Create and start Blochains collaboratively",
+		Short: "Create and start blockchains collaboratively",
 		Args:  cobra.ExactArgs(1),
 	}
 
@@ -22,8 +22,9 @@ func NewNetwork() *cobra.Command {
 	c.PersistentFlags().StringVarP(&spnAddress, "spn-address", "s", "localhost:26657", "An SPN node address")
 
 	// add sub commands.
-	c.AddCommand(NewNetworkChain())
 	c.AddCommand(NewNetworkAccount())
+	c.AddCommand(NewNetworkChain())
+	c.AddCommand(NewNetworkProposal())
 	return c
 }
 
