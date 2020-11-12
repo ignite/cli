@@ -178,7 +178,7 @@ const articles = [
     tagline: 'tutorial',
     title: 'Build a Polling App',
     blurb: 'Build a voting application with a web-based UI.',
-    link: 'https://tutorials.cosmos.network/starport-polling-app/'
+    link: 'https://tutorials.cosmos.network/voter/'
   },
   {
     tagline: 'documentation',
@@ -190,7 +190,7 @@ const articles = [
     tagline: 'tutorial',
     title: 'Build a Blog',
     blurb: 'Learn how Starport works by building a blog.',
-    link: 'https://tutorials.cosmos.network/starport-blog/tutorial/01-index.html'
+    link: 'https://tutorials.cosmos.network/blog/tutorial/01-index.html'
   },
 ]
 
@@ -219,9 +219,9 @@ const videos = [
 ]
 
 const footerBlocks = [
-  { title: 'Chat with developers', link: { text: 'Cosmos Discord', url: '#' } },
-  { title: 'Join the community', link: { text: 'Cosmos SDK Forum', url: '#' } },
-  { title: 'Found an issue?', link: { text: 'Suggest improvements', url: '#' } },
+  { title: 'Chat with developers', link: { text: 'Cosmos Discord', url: 'https://discord.gg/W8trcGV' } },
+  { title: 'Join the community', link: { text: 'Cosmos SDK Forum', url: 'https://forum.cosmos.network' } },
+  { title: 'Found an issue?', link: { text: 'Suggest improvements', url: 'https://github.com/tendermint/starport/issues' } },
 ]
 
 const staticLogs = [
