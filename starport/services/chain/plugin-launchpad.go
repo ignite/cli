@@ -110,7 +110,7 @@ func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 	)
 }
 
-func (p *launchpadPlugin) ConfigCommands() []step.Option {
+func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
 		step.Exec(
 			p.app.cli(),
@@ -122,7 +122,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 			p.app.cli(),
 			"config",
 			"chain-id",
-			p.app.n(),
+			chainID,
 		),
 		step.Exec(
 			p.app.cli(),
@@ -145,7 +145,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(conf starportconf.Config) step.Option {
+func (p *launchpadPlugin) GentxCommand(_ string, conf starportconf.Config) step.Option {
 	return step.Exec(
 		p.app.d(),
 		"gentx",
@@ -218,8 +218,12 @@ func (p *launchpadPlugin) StoragePaths() []string {
 	}
 }
 
-func (p *launchpadPlugin) GenesisPath() string {
-	return fmt.Sprintf(".%s/config/genesis.json", p.app.nd())
+func (p *launchpadPlugin) Home() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "."+p.app.nd()), nil
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }
