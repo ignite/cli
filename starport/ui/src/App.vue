@@ -12,17 +12,9 @@ export default {
   components: {
     Layout
   },
-  // methods: {
-  //   ...mapMutations('cosmos/env', [ 'setTimer', 'clearTimer' ]),
-  //   ...mapActions('cosmos/env', [ 'setStatusState' ]),
-  //   ...mapActions('cosmos/blocks', [ 'initBlockConnection' ]),
-  // },
   async created() {
     this.$store.dispatch("cosmos/init", { account: false })    
-  },
-  // beforeDestroy() {
-  //   this.clearTimer()
-  // }  
+  }
 };
 </script>
 
