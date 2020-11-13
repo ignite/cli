@@ -8,6 +8,7 @@
 * Added a gRPC-Web proxy which is available under http://localhost:12345/grpc.
 * Added chain id configurability by recognizing `chain_id` from `genesis` section of `config.yml`.
 * Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`.
+* Point to Stargate as default SDK version for scaffolding.
 
 ## `v0.12.0`
 
