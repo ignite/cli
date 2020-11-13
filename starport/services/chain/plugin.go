@@ -30,10 +30,10 @@ type Plugin interface {
 	ShowAccountCommand(accountName string) step.Option
 
 	// ConfigCommands returns step.Exec configuration for config commands.
-	ConfigCommands() []step.Option
+	ConfigCommands(chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(starportconf.Config) step.Option
+	GentxCommand(chainID string, c starportconf.Config) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
@@ -44,8 +44,8 @@ type Plugin interface {
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
-	// GenesisPath returns path of genesis.json.
-	GenesisPath() string
+	// Home returns the root config dir's path of app.
+	Home() (string, error)
 
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion
