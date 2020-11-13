@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/gertd/go-pluralize"
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -39,8 +40,15 @@ func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-case *types.Msg%[2]v:
-return handleMsgCreate%[2]v(ctx, k, msg)`
+case *types.MsgCreate%[2]v:
+	return handleMsgCreate%[2]v(ctx, k, msg)
+
+case *types.MsgSet%[2]v:
+	return handleMsgSet%[2]v(ctx, k, msg)
+
+case *types.MsgDelete%[2]v:
+	return handleMsgDelete%[2]v(ctx, k, msg)
+`
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -74,13 +82,11 @@ func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%s
-	rpc All%s(QueryAll%sRequest) returns (QueryAll%sResponse);`
-		replacement := fmt.Sprintf(template, placeholder2,
-			strings.Title(opts.TypeName),
-			strings.Title(opts.TypeName),
-			strings.Title(opts.TypeName),
-		)
+		template := `%[1]v
+	rpc One%[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse);
+	rpc All%[2]v(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse);
+`
+		replacement := fmt.Sprintf(template, placeholder2, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -94,18 +100,24 @@ func (t *typedStargate) protoRPCMessageModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%s
-message QueryAll%sRequest {
+		template := `%[1]v
+message QueryGet%[2]vRequest {
+	string id = 1;
+}
+
+message QueryGet%[2]vResponse {
+	%[2]v %[2]v = 1;
+}
+
+message QueryAll%[2]vRequest {
 	cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
 
-message QueryAll%sResponse {
-	repeated Msg%s %s = 1;
+message QueryAll%[2]vResponse {
+	repeated %[2]v %[2]v = 1;
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacement := fmt.Sprintf(template, placeholder3,
-			strings.Title(opts.TypeName),
-			strings.Title(opts.TypeName),
 			strings.Title(opts.TypeName),
 			opts.TypeName,
 		)
@@ -154,7 +166,10 @@ func (t *typedStargate) typesCodecModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-cdc.RegisterConcrete(Msg%[2]v{}, "%[3]v/Create%[2]v", nil)`
+cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+cdc.RegisterConcrete(MsgSet%[2]v{}, "%[3]v/Set%[2]v", nil)
+cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
+`
 		replacement := fmt.Sprintf(template, placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -171,7 +186,9 @@ func (t *typedStargate) typesCodecInterfaceModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 registry.RegisterImplementations((*sdk.Msg)(nil),
-	&Msg%[2]v{},
+	&MsgCreate%[2]v{},
+	&MsgSet%[2]v{},
+	&MsgDelete%[2]v{},
 )`
 		replacement := fmt.Sprintf(template, placeholder3, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder3, replacement, 1)
@@ -187,12 +204,13 @@ func (t *typedStargate) clientCliTxModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%s
+		template := `%[1]v
 
-	cmd.AddCommand(CmdCreate%s())`
-		replacement := fmt.Sprintf(template, placeholder,
-			strings.Title(opts.TypeName),
-		)
+	cmd.AddCommand(CmdCreate%[2]v())
+	cmd.AddCommand(CmdSet%[2]v())
+	cmd.AddCommand(CmdDelete%[2]v())
+`
+		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -206,9 +224,11 @@ func (t *typedStargate) clientCliQueryModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%s
+		template := `%[1]v
 
-	cmd.AddCommand(CmdList%s())`
+	cmd.AddCommand(CmdList%[2]v())
+	cmd.AddCommand(CmdGet%[2]v())
+`
 		replacement := fmt.Sprintf(template, placeholder,
 			strings.Title(opts.TypeName),
 		)
@@ -226,7 +246,10 @@ func (t *typedStargate) typesQuerierModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `
-const (QueryList%[2]v = "list-%[1]v")
+const (
+	QueryGet%[2]v  = "get-%[1]v"
+	QueryList%[2]v = "list-%[1]v"
+)
 `
 		content := f.String() + fmt.Sprintf(template, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
@@ -246,8 +269,12 @@ func (t *typedStargate) keeperQuerierModify(opts *Options) genny.RunFn {
 "%[2]v/x/%[3]v/types"
 `
 		template3 := `%[1]v
+	case types.QueryGet%[2]v:
+		return get%[2]v(ctx, path[1], k, legacyQuerierCdc)
+
 	case types.QueryList%[2]v:
-		return list%[2]v(ctx, k, legacyQuerierCdc)`
+		return list%[2]v(ctx, k, legacyQuerierCdc)
+`
 		replacement := fmt.Sprintf(template, opts.ModulePath, opts.ModuleName)
 		replacement2 := fmt.Sprintf(template2, placeholder, opts.ModulePath, opts.ModuleName)
 		replacement3 := fmt.Sprintf(template3, placeholder2, strings.Title(opts.TypeName))
@@ -276,20 +303,19 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
 
 		template = `%[1]v
-    r.HandleFunc("/custom/%[2]v/" + types.QueryList%[3]v, list%[3]vHandler(clientCtx)).Methods("GET")
+    r.HandleFunc("/%[2]v/%[3]v/{id}", get%[4]vHandler(clientCtx)).Methods("GET")
+    r.HandleFunc("/%[2]v/%[3]v", list%[4]vHandler(clientCtx)).Methods("GET")
 `
-		replacement = fmt.Sprintf(template, placeholder3, opts.ModuleName, strings.Title(opts.TypeName))
+		replacement = fmt.Sprintf(template, placeholder3, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder3, replacement, 1)
 
-		template = `%s
-    r.HandleFunc("/custom/%s/%s", create%sHandler(clientCtx)).Methods("POST")
+		template = `%[1]v
+    r.HandleFunc("/%[2]v/%[3]v", create%[4]vHandler(clientCtx)).Methods("POST")
+    r.HandleFunc("/%[2]v/%[3]v/{id}", set%[4]vHandler(clientCtx)).Methods("PUT")
+    r.HandleFunc("/%[2]v/%[3]v/{id}", delete%[4]vHandler(clientCtx)).Methods("DELETE")
 `
-		replacement = fmt.Sprintf(template, placeholder44, opts.ModuleName, opts.TypeName, strings.Title(opts.TypeName))
+		replacement = fmt.Sprintf(template, placeholder44, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder44, replacement, 1)
-
-		template = `"%s/x/%s/types"`
-		replacement = fmt.Sprintf(template, opts.ModulePath, opts.ModuleName)
-		content = strings.Replace(content, placeholder, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

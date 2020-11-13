@@ -44,3 +44,35 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
 
     return cmd
 }
+
+func CmdGet<%= title(TypeName) %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "get-<%= TypeName %> [id]",
+		Short: "get a <%= TypeName %>",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+            clientCtx := client.GetClientContextFromCmd(cmd)
+            clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
+            if err != nil {
+                return err
+            }
+
+            queryClient := types.NewQueryClient(clientCtx)
+
+            params := &types.QueryGet<%= title(TypeName) %>Request{
+                Id: args[0],
+            }
+
+            res, err := queryClient.One<%= title(TypeName) %>(context.Background(), params)
+            if err != nil {
+                return err
+            }
+
+            return clientCtx.PrintOutput(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+    return cmd
+}

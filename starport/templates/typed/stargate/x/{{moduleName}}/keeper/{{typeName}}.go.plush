@@ -6,20 +6,48 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
-func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.Msg<%= title(TypeName) %>) {
+func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-	store.Set(types.KeyPrefix(<%= TypeName %>.Id), b)
+	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key + <%= TypeName %>.Id), b)
 }
 
-func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (msgs []types.Msg<%= title(TypeName) %>) {
+func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
+	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key + <%= TypeName %>.Id), b)
+}
+
+func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, key string) types.<%= title(TypeName) %> {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	var <%= TypeName %> types.<%= title(TypeName) %>
+	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.<%= title(TypeName) %>Key + key)), &<%= TypeName %>)
+	return <%= TypeName %>
+}
+
+func (k Keeper) Has<%= title(TypeName) %>(ctx sdk.Context, id string) bool {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	return store.Has(types.KeyPrefix(types.<%= title(TypeName) %>Key + id))
+}
+
+func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) sdk.AccAddress {
+    return k.Get<%= title(TypeName) %>(ctx, key).Creator
+}
+
+// Delete<%= title(TypeName) %> deletes a <%= TypeName %>
+func (k Keeper) Delete<%= title(TypeName) %>(ctx sdk.Context, key string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	store.Delete(types.KeyPrefix(types.<%= title(TypeName) %>Key + key))
+}
+
+func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (msgs []types.<%= title(TypeName) %>) {
     store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var msg types.Msg<%= title(TypeName) %>
+		var msg types.<%= title(TypeName) %>
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &msg)
         msgs = append(msgs, msg)
 	}
