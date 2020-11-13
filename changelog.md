@@ -1,7 +1,8 @@
 # Changelog
 
 ## Fixes:
-* routing REST API endpoints of querier on Stargate.
+* Routing REST API endpoints of querier on Stargate.
+* Evaluate `--address-prefix` option when scaffolding for Stargate.
 
 ### Features:
 * Upgraded Stargate's version to v0.40.0-rc3.

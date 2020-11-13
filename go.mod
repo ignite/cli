@@ -37,7 +37,7 @@ require (
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
+	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
