@@ -6,7 +6,7 @@
 ### Features:
 * Upgraded Stargate's version to v0.40.0-rc3.
 * Added a gRPC-Web proxy which is available under http://localhost:12345/grpc.
-* Point to Starport as default SDK version for scaffolding.
+* Point to Stargate as default SDK version for scaffolding.
 
 ## `v0.12.0`
 
