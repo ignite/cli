@@ -5,12 +5,13 @@ go 1.15
 require (
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/cosmos/cosmos-sdk v0.40.0-rc3.0.20201112190122-c0d723314133 // indirect
 	github.com/cosmos/go-bip39 v0.0.0-20200817134856-d632e0d11689
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/envy v1.9.0 // indirect
 	github.com/gobuffalo/genny v0.6.0
-	github.com/gobuffalo/packr/v2 v2.8.0
+	github.com/gobuffalo/packr/v2 v2.8.1
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
@@ -19,8 +20,8 @@ require (
 	github.com/google/uuid v1.1.2
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.0.0
-	github.com/grpc-ecosystem/grpc-gateway v1.9.5
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
+	github.com/grpc-ecosystem/grpc-gateway v1.15.2
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/karrick/godirwalk v1.16.1 // indirect
@@ -37,14 +38,14 @@ require (
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
-	golang.org/x/crypto v0.0.0-20201016220609-9e8e0b390897 // indirect
+	golang.org/x/crypto v0.0.0-20201112155050-0c6587e931a9 // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201107080550-4d91cf3a1aaf // indirect
+	golang.org/x/sys v0.0.0-20201112073958-5cba982894dd // indirect
 	golang.org/x/xerrors v0.0.0-20200804184101-5ec99f83aff1 // indirect
 	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154 // indirect
-	google.golang.org/grpc v1.30.0
+	google.golang.org/grpc v1.33.0
 	google.golang.org/protobuf v1.25.0 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )
