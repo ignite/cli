@@ -268,3 +268,14 @@ func (e env) Home() string {
 	require.NoError(e.t, err)
 	return home
 }
+
+// AppHome returns appd's home dir.
+func (e env) AppdHome(name, sdkVersion string) string {
+	switch sdkVersion {
+	case Stargate:
+		return filepath.Join(e.Home(), fmt.Sprintf("%sd", name))
+	case Launchpad:
+		return filepath.Join(e.Home(), fmt.Sprintf(".%sd", name))
+	}
+	return ""
+}

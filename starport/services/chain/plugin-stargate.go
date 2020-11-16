@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -88,15 +87,15 @@ func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 	)
 }
 
-func (p *stargatePlugin) ConfigCommands() []step.Option {
+func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
+func (p *stargatePlugin) GentxCommand(chainID string, conf starportconf.Config) step.Option {
 	return step.Exec(
 		p.app.d(),
 		"gentx", conf.Validator.Name,
-		"--chain-id", p.app.n(),
+		"--chain-id", chainID,
 		"--keyring-backend", "test",
 		"--amount", conf.Validator.Staked,
 	)
@@ -182,8 +181,12 @@ func (p *stargatePlugin) StoragePaths() []string {
 	}
 }
 
-func (p *stargatePlugin) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
+func (p *stargatePlugin) Home() (string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, p.app.nd()), nil
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

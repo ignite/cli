@@ -69,6 +69,8 @@ func NewRootCmd() (*cobra.Command, params.EncodingConfig) {
 
 // Execute executes the root command.
 func Execute(rootCmd *cobra.Command) error {
+	app.SetConfig()
+
 	// Create and set a client.Context on the command's Context. During the pre-run
 	// of the root command, a default initialized client.Context is provided to
 	// seed child command execution with values such as AccountRetriver, Keyring,
