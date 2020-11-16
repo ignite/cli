@@ -224,14 +224,6 @@ const footerBlocks = [
   { title: 'Found an issue?', link: { text: 'Suggest improvements', url: 'https://github.com/tendermint/starport/issues' } },
 ]
 
-const staticLogs = [
-  'Dependencies installed',
-  'Source code scaffolded',
-  'Build complete',
-  'Blockchain initialized',
-  'Accounts created'
-]
-
 export default {
   name: 'Welcome',
   components: {
@@ -249,7 +241,6 @@ export default {
       articles,
       videos,
       footerBlocks,
-      staticLogs,
       blockCards: []
     }
   },
