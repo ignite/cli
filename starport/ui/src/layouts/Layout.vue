@@ -8,7 +8,7 @@
     <div class="container">
       <div class="container__main">
         <div class="content">
-          <transition name="fade" mode="out-in" @enter="enter">
+          <transition name="sp-fade" mode="out-in" @enter="enter">
             <keep-alive include="Welcome">
               <router-view />
             </keep-alive>
@@ -36,9 +36,6 @@
             >Blocks</router-link>          
           </div>
         </div>
-        <div class="sheet__sub">
-          <BackendIndicators/>
-        </div>
       </div>
     </Modal>    
   </div>
@@ -47,7 +44,6 @@
 <script>
 import Navbar from '@/components/Navbar'
 import Modal from '@/components/Modal'
-import BackendIndicators from '@/modules/BackendIndicators'
 import Headline from '@/components/typography/Headline'
 import Planet from "@/assets/images/Planet.vue";
 
@@ -55,7 +51,6 @@ export default {
   components: {
     Navbar,
     Modal,
-    BackendIndicators,
     Headline,
     Planet
   },  
@@ -84,7 +79,6 @@ export default {
 <style scoped>
 .layout {
   --g-offset-side: 3rem;
-  --g-offset-top: 10rem;
   --header-height: 72px;
 }
 
@@ -102,13 +96,11 @@ export default {
 }
 .layout.-route-blocks .container__main {
   padding: 0;
-  /* max-width: 100%; */
   max-width: 1440px;
 }
 @media only screen and (max-width: 1200px) {
   .layout {
     --g-offset-side: 2rem;
-    --g-offset-top: 5rem;
   }  
   .container {
     flex-direction: column;
@@ -120,7 +112,7 @@ export default {
     margin-right: 0;
     padding: 0 var(--g-offset-side);
     margin-bottom: 2rem;
-    border-bottom: 1px solid var(--c-txt-contrast-secondary);
+    border-bottom: 1px solid var(--sp-c-border-primary);
   }
   .container__main {
     padding: 0 var(--g-offset-side);
@@ -132,14 +124,11 @@ export default {
 
 
 .navbar {
-  /* position: sticky;
-  z-index: 2;
-  top: 0; */
   width: 100%;
   max-width: 100vw;
   padding: 0 var(--g-offset-side);
   box-sizing: border-box;
-  border-bottom: 1px solid var(--c-border-primary);
+  border-bottom: 1px solid var(--sp-c-border-primary);
 }
 
 

@@ -20,6 +20,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
@@ -181,6 +182,11 @@ func (s *Chain) serve(ctx context.Context) error {
 }
 
 func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Steps, err error) {
+	chainID, err := s.ID()
+	if err != nil {
+		return nil, err
+	}
+
 	sconf, err := secretconf.Open(s.app.Path)
 	if err != nil {
 		return nil, err
@@ -205,40 +211,39 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 				s.app.d(),
 				"init",
 				"mynode",
-				"--chain-id", s.app.n(),
+				"--chain-id", chainID,
 			),
+			// overwrite configuration changes from Starport's config.yml to
+			// over app's sdk configs.
 			step.PostExec(func(err error) error {
-				// overwrite Genesis with user configs.
 				if err != nil {
 					return err
 				}
-				if conf.Genesis == nil {
-					return nil
+
+				appconfigs := []struct {
+					ec      confile.EncodingCreator
+					path    string
+					changes map[string]interface{}
+				}{
+					{confile.DefaultJSONEncodingCreator, s.GenesisPath(), conf.Genesis},
+					{confile.DefaultTOMLEncodingCreator, s.AppTOMLPath(), conf.Init.App},
+					{confile.DefaultTOMLEncodingCreator, s.ConfigTOMLPath(), conf.Init.Config},
 				}
-				home, err := os.UserHomeDir()
-				if err != nil {
-					return err
+
+				for _, ac := range appconfigs {
+					cf := confile.New(ac.ec, ac.path)
+					var conf map[string]interface{}
+					if err := cf.Load(&conf); err != nil {
+						return err
+					}
+					if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
+						return err
+					}
+					if err := cf.Save(conf); err != nil {
+						return err
+					}
 				}
-				path := filepath.Join(home, s.plugin.GenesisPath())
-				file, err := os.OpenFile(path, os.O_RDWR, 644)
-				if err != nil {
-					return err
-				}
-				defer file.Close()
-				var genesis map[string]interface{}
-				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
-					return err
-				}
-				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
-					return err
-				}
-				if err := file.Truncate(0); err != nil {
-					return err
-				}
-				if _, err := file.Seek(0, 0); err != nil {
-					return err
-				}
-				return json.NewEncoder(file).Encode(&genesis)
+				return nil
 			}),
 			step.PostExec(func(err error) error {
 				if err != nil {
@@ -266,15 +271,18 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 				}
 				info, err := s.RelayerInfo()
 				if err != nil {
+
 					return err
 				}
 				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
 				return nil
 			}),
 		))
+	} else {
+		fmt.Fprintf(s.stdLog(logStarport).out, "⚠️ Relayer error: %s\n", err)
 	}
 
-	for _, execOption := range s.plugin.ConfigCommands() {
+	for _, execOption := range s.plugin.ConfigCommands(chainID) {
 		execOption := execOption
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption).
@@ -283,7 +291,7 @@ func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Ste
 	}
 
 	steps.Add(step.New(step.NewOptions().
-		Add(s.plugin.GentxCommand(conf)).
+		Add(s.plugin.GentxCommand(chainID, conf)).
 		Add(s.stdSteps(logAppd)...)...,
 	))
 	steps.Add(step.New(step.NewOptions().
@@ -446,13 +454,20 @@ func (s *Chain) runDevServer(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(c.Servers.GRPCAddr)
+	if err != nil {
+		return err
+	}
+	defer grpcconn.Close()
+
 	conf := Config{
 		SdkVersion:      s.plugin.Name(),
 		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
 		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
 		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(s.app, conf)
+	handler, err := newDevHandler(s.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
@@ -460,12 +475,14 @@ func (s *Chain) runDevServer(ctx context.Context) error {
 		Addr:    c.Servers.DevUIAddr,
 		Handler: handler,
 	}
+
 	go func() {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 		sv.Shutdown(shutdownCtx)
 	}()
+
 	err = sv.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil
