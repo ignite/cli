@@ -26,7 +26,7 @@ func handleMsgSet<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg *t
     	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
 	}
 
-    if !msg.Creator.Equals(k.GetUserOwner(ctx, msg.Id)) { // Checks if the the msg sender is the same as the current owner                                                                             
+    if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.Id)) { // Checks if the the msg sender is the same as the current owner                                                                             
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner") // If not, throw an error                                                                                             
     }          
 
@@ -36,10 +36,10 @@ func handleMsgSet<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg *t
 }
 
 func handleMsgDelete<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDelete<%= title(TypeName) %>) (*sdk.Result, error) {
-    if !k.HasUser(ctx, msg.Id) {                                                                                                                                                                    
+    if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {                                                                                                                                                                    
         return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, msg.Id)                                                                                                                                
     }                                                                                                                                                                                                  
-    if !msg.Creator.Equals(k.GetUserOwner(ctx, msg.Id)) {
+    if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.Id)) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")                                                                                                                       
     } 
 
