@@ -12,7 +12,7 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> ty
 	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key + <%= TypeName %>.Id), b)
 }
 
-func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
+func (k Keeper) Update<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
 	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key + <%= TypeName %>.Id), b)

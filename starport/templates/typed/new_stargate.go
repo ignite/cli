@@ -26,8 +26,8 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.protoRPCMessageModify(opts))
 	g.RunFn(t.clientCliTxModify(opts))
 	g.RunFn(t.clientCliQueryModify(opts))
-	g.RunFn(t.typesQuerierModify(opts))
-	g.RunFn(t.keeperQuerierModify(opts))
+	g.RunFn(t.typesQueryModify(opts))
+	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	return g, box(cosmosver.Stargate, opts, g)
 }
@@ -43,8 +43,8 @@ func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
 case *types.MsgCreate%[2]v:
 	return handleMsgCreate%[2]v(ctx, k, msg)
 
-case *types.MsgSet%[2]v:
-	return handleMsgSet%[2]v(ctx, k, msg)
+case *types.MsgUpdate%[2]v:
+	return handleMsgUpdate%[2]v(ctx, k, msg)
 
 case *types.MsgDelete%[2]v:
 	return handleMsgDelete%[2]v(ctx, k, msg)
@@ -58,13 +58,13 @@ case *types.MsgDelete%[2]v:
 
 func (t *typedStargate) protoRPCImportModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.ModuleName)
+		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 		template := `%s
-import "%s/v1beta/%s.proto";`
+import "%s/%s.proto";`
 		replacement := fmt.Sprintf(template, placeholder,
 			opts.ModuleName,
 			opts.TypeName,
@@ -77,16 +77,28 @@ import "%s/v1beta/%s.proto";`
 
 func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.ModuleName)
+		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
+
+		owner := strings.Join(strings.Split(opts.ModulePath, "/")[1:], "/")
+
 		template := `%[1]v
-	rpc One%[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse);
-	rpc All%[2]v(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse);
+	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
+		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v/{id}";
+	}
+	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
+		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v";
+	}
 `
-		replacement := fmt.Sprintf(template, placeholder2, strings.Title(opts.TypeName))
+		replacement := fmt.Sprintf(template, placeholder2,
+			strings.Title(opts.TypeName),
+			pluralize.NewClient().Plural(opts.TypeName),
+			owner,
+			opts.ModuleName,
+		)
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -95,7 +107,7 @@ func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 
 func (t *typedStargate) protoRPCMessageModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/v1beta/querier.proto", opts.ModuleName)
+		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -167,7 +179,7 @@ func (t *typedStargate) typesCodecModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(MsgSet%[2]v{}, "%[3]v/Set%[2]v", nil)
+cdc.RegisterConcrete(MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 `
 		replacement := fmt.Sprintf(template, placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
@@ -187,7 +199,7 @@ func (t *typedStargate) typesCodecInterfaceModify(opts *Options) genny.RunFn {
 		template := `%[1]v
 registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgCreate%[2]v{},
-	&MsgSet%[2]v{},
+	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
 )`
 		replacement := fmt.Sprintf(template, placeholder3, strings.Title(opts.TypeName))
@@ -207,7 +219,7 @@ func (t *typedStargate) clientCliTxModify(opts *Options) genny.RunFn {
 		template := `%[1]v
 
 	cmd.AddCommand(CmdCreate%[2]v())
-	cmd.AddCommand(CmdSet%[2]v())
+	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
 `
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
@@ -227,7 +239,7 @@ func (t *typedStargate) clientCliQueryModify(opts *Options) genny.RunFn {
 		template := `%[1]v
 
 	cmd.AddCommand(CmdList%[2]v())
-	cmd.AddCommand(CmdGet%[2]v())
+	cmd.AddCommand(CmdShow%[2]v())
 `
 		replacement := fmt.Sprintf(template, placeholder,
 			strings.Title(opts.TypeName),
@@ -238,9 +250,9 @@ func (t *typedStargate) clientCliQueryModify(opts *Options) genny.RunFn {
 	}
 }
 
-func (t *typedStargate) typesQuerierModify(opts *Options) genny.RunFn {
+func (t *typedStargate) typesQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/querier.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/types/query.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -257,9 +269,9 @@ const (
 	}
 }
 
-func (t *typedStargate) keeperQuerierModify(opts *Options) genny.RunFn {
+func (t *typedStargate) keeperQueryModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/querier.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/keeper/query.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -311,8 +323,8 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 
 		template = `%[1]v
     r.HandleFunc("/%[2]v/%[3]v", create%[4]vHandler(clientCtx)).Methods("POST")
-    r.HandleFunc("/%[2]v/%[3]v/{id}", set%[4]vHandler(clientCtx)).Methods("PUT")
-    r.HandleFunc("/%[2]v/%[3]v/{id}", delete%[4]vHandler(clientCtx)).Methods("DELETE")
+    r.HandleFunc("/%[2]v/%[3]v/{id}", update%[4]vHandler(clientCtx)).Methods("POST")
+    r.HandleFunc("/%[2]v/%[3]v/{id}", delete%[4]vHandler(clientCtx)).Methods("POST")
 `
 		replacement = fmt.Sprintf(template, placeholder44, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder44, replacement, 1)

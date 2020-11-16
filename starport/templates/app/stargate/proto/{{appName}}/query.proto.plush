@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= AppName %>.<%= AppName %>.v1beta1;
+package <%= AppName %>.<%= AppName %>;
 
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";

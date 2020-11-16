@@ -68,7 +68,7 @@ func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 	}
 }
 
-type set<%= title(TypeName) %>Request struct {
+type update<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
 	<%= for (i, field) in Fields { %><%= title(field.Name) %> string `json:"<%= field.Name %>"`
@@ -76,11 +76,11 @@ type set<%= title(TypeName) %>Request struct {
 }
 
 
-func set<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
+func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
         id := mux.Vars(r)["id"]
 
-		var req set<%= title(TypeName) %>Request
+		var req update<%= title(TypeName) %>Request
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
 			return
@@ -114,7 +114,7 @@ func set<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc
 		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
 		<% } %><% } %>
 
-		msg := types.NewMsgSet<%= title(TypeName) %>(
+		msg := types.NewMsgUpdate<%= title(TypeName) %>(
 			creator,
             id,
 			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,

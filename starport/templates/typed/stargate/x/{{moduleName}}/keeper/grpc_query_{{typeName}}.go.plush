@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) All<%= title(TypeName) %>(c context.Context, req *types.QueryAll<%= title(TypeName) %>Request) (*types.QueryAll<%= title(TypeName) %>Response, error) {
+func (k Keeper) <%= title(TypeName) %>All(c context.Context, req *types.QueryAll<%= title(TypeName) %>Request) (*types.QueryAll<%= title(TypeName) %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
@@ -39,7 +39,7 @@ func (k Keeper) All<%= title(TypeName) %>(c context.Context, req *types.QueryAll
 	return &types.QueryAll<%= title(TypeName) %>Response{<%= title(TypeName) %>: <%= TypeName %>s, Pagination: pageRes}, nil
 }
 
-func (k Keeper) One<%= title(TypeName) %>(c context.Context, req *types.QueryGet<%= title(TypeName) %>Request) (*types.QueryGet<%= title(TypeName) %>Response, error) {
+func (k Keeper) <%= title(TypeName) %>(c context.Context, req *types.QueryGet<%= title(TypeName) %>Request) (*types.QueryGet<%= title(TypeName) %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}

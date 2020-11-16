@@ -37,10 +37,10 @@ func CmdCreate<%= title(TypeName) %>() *cobra.Command {
     return cmd
 }
 
-func CmdSet<%= title(TypeName) %>() *cobra.Command {
+func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "set-<%= TypeName %> [id]<%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
-		Short: "Set a <%= TypeName %>",
+		Use:   "update-<%= TypeName %> [id]<%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Short: "Update a <%= TypeName %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             id := args[0]
@@ -52,7 +52,7 @@ func CmdSet<%= title(TypeName) %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgSet<%= title(TypeName) %>(clientCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgUpdate<%= title(TypeName) %>(clientCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

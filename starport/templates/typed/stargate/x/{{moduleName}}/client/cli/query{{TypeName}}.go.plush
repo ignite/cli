@@ -31,7 +31,7 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
                 Pagination: pageReq,
             }
 
-            res, err := queryClient.All<%= title(TypeName) %>(context.Background(), params)
+            res, err := queryClient.<%= title(TypeName) %>All(context.Background(), params)
             if err != nil {
                 return err
             }
@@ -45,10 +45,10 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
     return cmd
 }
 
-func CmdGet<%= title(TypeName) %>() *cobra.Command {
+func CmdShow<%= title(TypeName) %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "get-<%= TypeName %> [id]",
-		Short: "get a <%= TypeName %>",
+		Use:   "show-<%= TypeName %> [id]",
+		Short: "shows a <%= TypeName %>",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
@@ -63,7 +63,7 @@ func CmdGet<%= title(TypeName) %>() *cobra.Command {
                 Id: args[0],
             }
 
-            res, err := queryClient.One<%= title(TypeName) %>(context.Background(), params)
+            res, err := queryClient.<%= title(TypeName) %>(context.Background(), params)
             if err != nil {
                 return err
             }
