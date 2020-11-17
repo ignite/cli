@@ -1,7 +1,7 @@
 import Vue from "vue"
 import Vuex from "vuex"
 
-import cosmos from "./cosmos"
+import cosmos from '@tendermint/vue/src/store/cosmos.js'
 
 Vue.use(Vuex)
 
