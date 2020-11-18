@@ -11,7 +11,7 @@ import (
 
 func NewNetworkProposalDescribe() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "describe [chain-id] [number]",
+		Use:   "show [chain-id] [number]",
 		Short: "Show details of a proposal",
 		RunE:  networkProposalDescribeHandler,
 		Args:  cobra.ExactArgs(2),

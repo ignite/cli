@@ -123,7 +123,7 @@ func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.St
 
 // CreateAccount creates an account on chain.
 // cmnemonic is returned when account is created but not restored.
-func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (cmnemonic string, err error) {
+func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (address, cmnemonic string, err error) {
 	var steps step.Steps
 	var user struct {
 		Mnemonic string `json:"mnemonic"`
@@ -192,7 +192,10 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 		),
 	)
 
-	return user.Mnemonic, cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...)
+	if err := cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...); err != nil {
+		return "", "", err
+	}
+	return key.String(), user.Mnemonic, nil
 }
 
 type Validator struct {

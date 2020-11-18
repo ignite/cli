@@ -57,7 +57,7 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string)
 
 // InitBlockchainFromURL initializes blockchain from a remote git repo.
 func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string) (*Blockchain, error) {
-	appPath, err := ioutil.TempDir("", "")
+	appPath, err := ioutil.TempDir("./tmp", "")
 	if err != nil {
 		return nil, err
 	}
@@ -165,25 +165,12 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		if err != nil {
 			return err
 		}
-		//genesisjson, err := json.Marshal(chain.Genesis)
-		//if err != nil {
-		//return err
-		//}
-		genesisjson := chain.Genesis.([]byte)
 		homedir, err := os.UserHomeDir()
 		if err != nil {
 			return err
 		}
 		genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
-		if err := ioutil.WriteFile(genesisPath, genesisjson, 0644); err != nil {
-			return err
-		}
-		if err := cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				"collect-gentxs",
-			),
-		)); err != nil {
+		if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0644); err != nil {
 			return err
 		}
 		c.MarkFinalized(chainID)

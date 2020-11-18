@@ -57,10 +57,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	var (
-		proposal networkbuilder.Proposal
-		account  networkbuilder.Account
-		denom    string
-		address  string
+		proposal      networkbuilder.Proposal
+		account       networkbuilder.Account
+		denom         string
+		publicAddress string
 	)
 	if info.Config.Validator.Staked != "" {
 		if c, err := types.ParseCoin(info.Config.Validator.Staked); err == nil {
@@ -71,7 +71,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
 	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Public address", &address, cliquiz.DefaultAnswer(info.RPCPublicAddress)),
+		cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(info.RPCPublicAddress)),
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
 		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
 		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
@@ -90,7 +90,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, mnemonic, err := blockchain.IssueGentx(ctx, account, proposal)
+	gentx, address, mnemonic, err := blockchain.IssueGentx(ctx, account, proposal)
 	if err != nil {
 		return err
 	}
@@ -112,16 +112,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	var coins []types.Coin
-	for _, c := range strings.Split(account.Coins, ",") {
-		cc, err := types.ParseCoin(c)
-		if err != nil {
-			return err
-		}
-		coins = append(coins, cc)
+	coins, err := types.ParseCoins(account.Coins)
+	if err != nil {
+		return err
 	}
-
-	if err := blockchain.Join(ctx, address, coins, gentx); err != nil {
+	if err := blockchain.Join(ctx, address, publicAddress, coins, gentx); err != nil {
 		return err
 	}
 

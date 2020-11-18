@@ -11,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const statusFlag = "status"
+
 func NewNetworkProposalList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [chain-id]",
@@ -18,16 +20,22 @@ func NewNetworkProposalList() *cobra.Command {
 		RunE:  networkProposalListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
+	c.Flags().String(statusFlag,  "pending", "Filter proposals by status")
 	return c
 }
 
 func networkProposalListHandler(cmd *cobra.Command, args []string) error {
+	status, err := cmd.Flags().GetString(statusFlag)
+	if err != nil {
+		return err
+	}
+
 	b, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}
 
-	proposals, err := b.ProposalList(context.Background(), args[0], spn.ProposalPending)
+	proposals, err := b.ProposalList(context.Background(), args[0], spn.ProposalStatus(status))
 	if err != nil {
 		return err
 	}

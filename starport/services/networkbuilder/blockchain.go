@@ -48,7 +48,7 @@ func (b *Blockchain) init(ctx context.Context) error {
 		Path: b.appPath,
 	}
 
-	c, err := chain.New(app, chain.LogSilent)
+	c, err := chain.New(app, chain.LogVerbose)
 	if err != nil {
 		return err
 	}
@@ -111,7 +111,7 @@ func (b *Blockchain) Create(ctx context.Context, genesis []byte) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(ctx, account.Name, b.chain.ID(), string(genesis), "githuburl", "repohash")
+	return b.builder.spnclient.ChainCreate(ctx, account.Name, b.chain.ID(), string(genesis), b.url, b.hash)
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -133,49 +133,50 @@ type Account struct {
 }
 
 // IssueGentx creates a Genesis transaction for account with proposal.
-func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx interface{}, mnemonic string, err error) {
+func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx interface{}, address, mnemonic string, err error) {
 	proposal.Validator.Name = account.Name
-	mnemonic, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
+	address, mnemonic, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	gentxFile, err := os.Open(gentxPath)
 	if err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
 	defer gentxFile.Close()
 	if err := json.NewDecoder(gentxFile).Decode(&gentx); err != nil {
-		return "", "", err
+		return "", "", "", err
 	}
-	return gentx, mnemonic, nil
+	return gentx, address, mnemonic, nil
 }
 
 // Join proposes a validator to a network.
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, address string, coins []types.Coin, gentx interface{}) error {
+func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx interface{}) error {
 	key, err := b.chain.ShowNodeID(ctx)
 	if err != nil {
 		return err
 	}
-	p2pAddress := fmt.Sprintf("%s@%s", key, address)
+	p2pAddress := fmt.Sprintf("%s@%s", key, publicAddress)
 	if err := b.builder.ProposeAddAccount(ctx, b.chain.ID(), spn.ProposalAddAccount{
-		Address: address,
+		Address: accountAddress,
 		Coins:   coins,
 	}); err != nil {
 		return err
 	}
+
 	gentxjson, err := json.Marshal(gentx)
 	if err != nil {
 		return err
 	}
 	return b.builder.ProposeAddValidator(ctx, b.chain.ID(), spn.ProposalAddValidator{
-		Gentx:         string(gentxjson),
+		Gentx:         gentxjson,
 		PublicAddress: p2pAddress,
 	})
 }

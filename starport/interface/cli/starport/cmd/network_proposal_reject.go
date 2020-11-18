@@ -29,7 +29,7 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = b.ProposalApprove(context.Background(), args[0], int(id))
+	err = b.ProposalReject(context.Background(), args[0], int(id))
 	if err != nil {
 		return err
 	}
