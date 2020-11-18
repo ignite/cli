@@ -48,26 +48,11 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.d()),
-			),
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.cli()),
-			),
-		}, []string{
-			p.app.d(),
-			p.app.cli(),
-		}
+func (p *launchpadPlugin) Binaries() []string {
+	return []string{
+		p.app.d(),
+		p.app.cli(),
+	}
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
@@ -216,14 +201,6 @@ func (p *launchpadPlugin) StoragePaths() []string {
 		fmt.Sprintf(".%s", p.app.nd()),
 		fmt.Sprintf(".%s", p.app.ncli()),
 	}
-}
-
-func (p *launchpadPlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "."+p.app.nd()), nil
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

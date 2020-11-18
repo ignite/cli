@@ -35,7 +35,7 @@ func appHandler(cmd *cobra.Command, args []string) error {
 		scaffolder.AddressPrefix(addressPrefix),
 		scaffolder.SdkVersion(version),
 	)
-	path, err := sc.Init(name)
+	appdir, err := sc.Init(name)
 	if err != nil {
 		return err
 	}
@@ -48,7 +48,8 @@ func appHandler(cmd *cobra.Command, args []string) error {
 
 NOTE: add --verbose flag for verbose (detailed) output.
 `
-	fmt.Printf(message, path)
+	fmt.Printf(message, appdir)
+
 	return nil
 }
 

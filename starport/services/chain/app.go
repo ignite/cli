@@ -8,8 +8,9 @@ import (
 
 // App keeps info about scaffold.
 type App struct {
-	Name string
-	Path string
+	Name       string
+	Path       string
+	ImportPath string
 }
 
 // n returns app name without dashes.
@@ -35,6 +36,12 @@ func (a App) nd() string {
 // ncli returns no-dash appcli name.
 func (a App) ncli() string {
 	return a.n() + "cli"
+}
+
+// home returns the home config path of app.
+func (a App) home() string {
+	h, _ := os.UserHomeDir()
+	return filepath.Join(h, "."+a.Name)
 }
 
 // root returns the root path of app.

@@ -135,18 +135,15 @@ func (s *Chain) ID() (string, error) {
 
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/genesis.json", home)
+	return fmt.Sprintf("%s/config/genesis.json", c.app.home())
 }
 
 // AppTOMLPath returns app.toml path of the app.
 func (c *Chain) AppTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/app.toml", home)
+	return fmt.Sprintf("%s/config/app.toml", c.app.home())
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/config.toml", home)
+	return fmt.Sprintf("%s/config/config.toml", c.app.home())
 }

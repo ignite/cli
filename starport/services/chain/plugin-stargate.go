@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -33,18 +34,10 @@ func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.d()),
-			),
-		}, []string{
-			p.app.d(),
-		}
+func (p *stargatePlugin) Binaries() []string {
+	return []string{
+		p.app.d(),
+	}
 }
 
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
@@ -177,16 +170,8 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 
 func (p *stargatePlugin) StoragePaths() []string {
 	return []string{
-		p.app.nd(),
+		fmt.Sprintf(".%s", p.app.Name),
 	}
-}
-
-func (p *stargatePlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, p.app.nd()), nil
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

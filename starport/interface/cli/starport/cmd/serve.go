@@ -32,8 +32,9 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	app := chain.App{
-		Name: path.Root,
-		Path: appPath,
+		Name:       path.Root,
+		Path:       appPath,
+		ImportPath: path.RawPath,
 	}
 
 	ctx, cancel := context.WithCancel(context.Background())

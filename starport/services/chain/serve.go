@@ -149,7 +149,10 @@ func (s *Chain) serve(ctx context.Context) error {
 		return &CannotBuildAppError{err}
 	}
 
-	buildSteps, _ := s.buildSteps(ctx, conf)
+	buildSteps, err := s.buildSteps(ctx, conf)
+	if err != nil {
+		return err
+	}
 	if err := cmdrunner.
 		New(s.cmdOptions()...).
 		Run(ctx, buildSteps...); err != nil {
