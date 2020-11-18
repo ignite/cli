@@ -1,10 +1,11 @@
 syntax = "proto3";
-package <%= appName %>.<%= moduleName %>.v1beta1;
+package <%= AppName %>.<%= AppName %>;
 
+import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 // this line is used by starport scaffolding # 1
 
-option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+option go_package = "<%= ModulePath %>/x/<%= AppName %>/types";
 
 // Query defines the gRPC querier service.
 service Query {
