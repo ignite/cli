@@ -195,7 +195,10 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 	if err := cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...); err != nil {
 		return "", "", err
 	}
-	return key.String(), user.Mnemonic, nil
+
+	address = strings.TrimSpace(key.String())
+
+	return address, user.Mnemonic, nil
 }
 
 type Validator struct {

@@ -2,7 +2,6 @@ package networkbuilder
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
