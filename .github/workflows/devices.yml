@@ -64,5 +64,5 @@ jobs:
 
       - name: Build Docker
         run: |
-          cd .pi
+          cd {{ env.working-directory }}/.pi
           docker buildx build --tag starport --platform linux/arm64 --load --progress plain .
