@@ -54,6 +54,6 @@ jobs:
           name: starport arm64
           path: go/bin/starport
           
-      - name: Build starport-pi.img with packer-builder-arm
-        working-directory: ${{ env.working-directory }}
-        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json
+      - name: Pull SOS
+        run: docker pull faddat/spos
+        
