@@ -1,4 +1,4 @@
-FROM faddat/sos
+FROM faddat/spos
 
 RUN pacman -Syyu base-devel \
 				nvim \
