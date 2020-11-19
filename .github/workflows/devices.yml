@@ -49,8 +49,10 @@ jobs:
           packr2 -v
           
       - name: Upload Starport Artifact
-        name: starport arm64
-        path: go/bin/starport
+        uses: actions/checkout@v2
+        with:
+          name: starport arm64
+          path: go/bin/starport
           
       - name: Build starport-pi.img with packer-builder-arm
         working-directory: ${{ env.working-directory }}
