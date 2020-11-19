@@ -63,4 +63,6 @@ jobs:
           version: latest
 
       - name: Build Docker
-        run: docker buildx build --tag starport --platform linux/arm64 --load --progress plain .pi
+        run: |
+          cd .pi
+          docker buildx build --tag starport --platform linux/arm64 --load --progress plain .
