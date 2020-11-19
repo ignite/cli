@@ -1,6 +1,6 @@
 FROM faddat/spos
 
-RUN pacman -Syyu base-devel \
+RUN pacman -Syyu --noconfirm base-devel \
 				nvim \
 				colordiff \
 				tree \
