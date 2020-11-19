@@ -18,6 +18,7 @@ RUN pacman -Syyu --noconfirm base-devel \
 				bc \
 				wget \
 				go-ipfs \
+				jq \
 				go
 
 
