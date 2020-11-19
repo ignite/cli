@@ -1,0 +1,57 @@
+# This workflow makes a 64 bit Raspberry Pi Arch Linux Image.  
+# It does not have the security issues mentioned here: https://github.com/tendermint/tendermint/blob/master/docs/tendermint-core/running-in-production.md#validator-signing-on-32-bit-architectures-or-arm
+# Later, more devices will be supported, as well. 
+# The "base" is built by: https://github.com/faddat/sos
+# The base image is located at: https://hub.docker.com/r/faddat/spos
+
+name: Pi Image
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Starport Pi Image
+    runs-on: ubuntu-latest
+    env:
+      working-directory: go/src/github.com/tendermint/starport
+    steps:
+    
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.15
+
+      - name: Set up Node
+        uses: actions/setup-node@v2
+
+      - name: Set up packr2
+        run: go get -u github.com/gobuffalo/packr/v2/packr2
+
+      - name: Set up Snapcraft
+        run: |
+          sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
+          
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          path: ${{ env.working-directory }}
+          fetch-depth: 0
+
+      - name: Build UI
+        working-directory: ${{ env.working-directory }}
+        run: make ui
+
+      - name: Run packr2
+        working-directory: ${{ env.working-directory }}
+        run: |
+          export GOPATH=$GITHUB_WORKSPACE/go
+          export PATH=$PATH:$GOPATH
+          cd starport/interface/cli/starport
+          packr2 -v
+          
+      - name: Upload Starport Artifact
+        name: starport arm64
+        path: go/bin/starport
+          
+      - name: Build starport-pi.img with packer-builder-arm
+        working-directory: ${{ env.working-directory }}
+        run: docker run --rm --privileged -v /dev:/dev -v ${PWD}:/build mkaczanowski/packer-builder-arm build .pi/starport.json
