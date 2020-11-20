@@ -54,7 +54,7 @@ jobs:
           path: go/bin/starport
 
       - name: Set up QEMU
-        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes
+        run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
 
       - name: Set up Docker Buildx
         id: buildx
@@ -64,4 +64,4 @@ jobs:
 
       - name: Build Docker
         working-directory: ${{ env.working-directory }}
-        run: docker buildx build --tag starport --platform linux/arm64 --load --progress plain .pi
+        run: docker buildx build --tag starport --platform linux/arm64 --load --progress tty .pi
