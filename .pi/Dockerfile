@@ -1,7 +1,6 @@
 FROM faddat/spos
 
-RUN pacman -Syyu --noconfirm base-devel \
-				nvim \
+RUN pacman -Syyu --noconfirm neovim \
 				colordiff \
 				tree \
 				unzip \
