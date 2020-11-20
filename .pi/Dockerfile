@@ -21,6 +21,13 @@ RUN pacman -Syyu --noconfirm base-devel \
 				jq \
 				go
 
+# INSTALL YAY: WE BECOME THE BUILDUSER HERE
+USER builduser
+RUN cd ~/ && \
+		git clone https://aur.archlinux.org/yay.git yay && \
+		cd yay && \
+		makepkg -si --noconfirm --clean --rmdeps
+
 
 # Test 1
 
