@@ -61,3 +61,7 @@ jobs:
       - name: Build Docker
         working-directory: ${{ env.working-directory }}
         run: docker buildx build --tag starport --platform linux/arm64 --load --progress tty .pi
+
+      - name: Build Image
+        working-directory: ${{ env.working-directory }}
+        run: bash build.sh
