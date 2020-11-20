@@ -1,4 +1,4 @@
-FROM faddat/spos
+FROM faddat/sos
 
 RUN pacman -Syyu --noconfirm neovim \
 				colordiff \
