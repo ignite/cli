@@ -1,6 +1,7 @@
 [Unit]
 Description=IPFS daemon
 After=network.target
+After=firstboot.service
 
 [Service]
 ExecStart=/usr/bin/ipfs daemon --migrate
