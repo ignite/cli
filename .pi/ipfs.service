@@ -1,0 +1,10 @@
+[Unit]
+Description=IPFS daemon
+After=network.target
+
+[Service]
+ExecStart=/usr/bin/ipfs daemon --migrate
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
