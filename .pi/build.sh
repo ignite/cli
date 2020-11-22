@@ -23,6 +23,8 @@ set -o xtrace
 rm -rf .tmp || true
 mkdir .tmp
 
+docker buildx build --tag starport --platform linux/arm64 --cache-from faddat/starport:cache --load --progress tty .pi
+
 # save the image to result-rootfs.tar
 docker save --output ./.tmp/result-rootfs.tar starport
 
