@@ -23,14 +23,11 @@ set -o xtrace
 rm -rf .tmp || true
 mkdir .tmp
 
-# remove anything in the way of extraction
-docker run --rm --tty --volume $(pwd)/./.tmp:/root/./.tmp --workdir /root/./.tmp/.. toolbox rm -rf ./.tmp/result-rootfs
-
 # save the image to result-rootfs.tar
 docker save --output ./.tmp/result-rootfs.tar starport
 
 # Extract the image using docker-extract
-docker run --rm --tty --volume $(pwd)/./.tmp:/root/./.tmp --workdir /root/./.tmp/.. toolbox /tools/docker-extract --root ./.tmp/result-rootfs  ./.tmp/result-rootfs.tar
+docker run --rm --tty --volume $(pwd)/./.tmp:/root/./.tmp --workdir /root/./.tmp/.. faddat/toolbox /tools/docker-extract --root ./.tmp/result-rootfs  ./.tmp/result-rootfs.tar
 
 # Set hostname while the image is just in the filesystem.
 sudo bash -c "echo starport > ./.tmp/result-rootfs/etc/hostname"
@@ -82,9 +79,6 @@ rsync -a --info=progress2 ./.tmp/result-rootfs/boot/* mnt/boot
 rsync -a --info=progress2 ./.tmp/result-rootfs/* mnt/rootfs --exclude boot
 mkdir mnt/rootfs/boot
 umount mnt/boot mnt/rootfs
-
-# Tell pi where its memory card is:  This is needed only with the mainline linux kernel provied by linux-aarch64
-# sed -i 's/mmcblk0/mmcblk1/g' ./.tmp/result-rootfs/etc/fstab
 
 # Drop the loop mount
 sudo losetup -d /dev/loop0
