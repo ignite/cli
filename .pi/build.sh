@@ -86,4 +86,4 @@ sudo umount mnt/boot mnt/rootfs
 sudo losetup -d /dev/loop0
 
 # Compress the image
-pishrink.sh -Z -a -p images/starport.img
+pishrink.sh -a -p images/starport.img
