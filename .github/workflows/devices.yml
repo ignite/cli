@@ -60,4 +60,7 @@ jobs:
 
       - name: Build Image
         working-directory: ${{ env.working-directory }}/.pi
-        run: bash build.sh
+        run: |
+           pwd
+           ls -a
+           bash build.sh
