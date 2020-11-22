@@ -6,7 +6,7 @@
 
 ### NPM
 
-```
+```bash
 npm i -g @tendermint/starport
 ```
 
@@ -18,7 +18,7 @@ brew install tendermint/tap/starport
 
 <!-- ### Debian/Ubuntu with Snapcraft
 
-```
+```bash
 snap install --classic node
 ```
 
@@ -28,8 +28,19 @@ Append your current working directory to the environment variable `PATH`:
 export PATH=$PATH:$PWD/node_modules/.bin/
 ``` -->
 
-### Build from source
+### Build from source on Mac, Linux, and WSL
 
-```
+```bash
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
+You'll find a freshly-baked `starport` binary in the build folder.
+
+
+Note: When building from source, it is important to have your GOPATH set correctly.  When in doubt, the folllowing should do:
+
+```bash
+mkdir ~/go
+export GOPATH=~/go
+```
+
+
