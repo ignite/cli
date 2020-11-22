@@ -3,9 +3,11 @@ package networkbuilder
 import (
 	"context"
 	"errors"
+	"github.com/pelletier/go-toml"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -155,8 +157,9 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// save the finalized version of Genesis if this isn't done before.
+	// save the finalized version of configurations if this isn't done before
 	if !c.IsChainMarkedFinalized(chainID) {
+		// save the finalized version of Genesis
 		account, err := b.AccountInUse()
 		if err != nil {
 			return err
@@ -173,6 +176,25 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0666); err != nil {
 			return err
 		}
+
+		// save the finalized version of config.toml
+		configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
+		configToml, err := toml.LoadFile(configTomlPath)
+		if err != nil {
+			return err
+		}
+		configToml.Set("p2p.persistent_peers", strings.Join(chain.Peers, ","))
+		configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
+		if err != nil {
+			return err
+		}
+		defer configTomlFile.Close()
+		_, err = configToml.WriteTo(configTomlFile)
+		if err != nil {
+			return err
+		}
+
+		// mark starport config as finalized and save it
 		c.MarkFinalized(chainID)
 		if err := ConfigSave(c); err != nil {
 			return err

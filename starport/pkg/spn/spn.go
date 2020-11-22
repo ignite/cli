@@ -206,6 +206,7 @@ type Chain struct {
 	URL     string
 	Hash    string
 	Genesis jsondoc.Doc
+	Peers   []string
 }
 
 // ChainGet shows chain info.
@@ -238,6 +239,7 @@ func (c Client) ChainGet(ctx context.Context, accountName, chainID string) (Chai
 		URL:     res.Chain.SourceURL,
 		Hash:    res.Chain.SourceHash,
 		Genesis: currentGenesisRes.Genesis,
+		Peers:   res.Chain.Peers,
 	}, nil
 }
 
