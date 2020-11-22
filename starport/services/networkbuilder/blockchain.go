@@ -5,12 +5,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -48,7 +48,7 @@ func (b *Blockchain) init(ctx context.Context) error {
 		Path: b.appPath,
 	}
 
-	c, err := chain.New(app, chain.LogVerbose)
+	c, err := chain.New(app, chain.LogSilent)
 	if err != nil {
 		return err
 	}
@@ -75,7 +75,7 @@ func (b *Blockchain) init(ctx context.Context) error {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
-	Genesis          []byte
+	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
 }
@@ -106,7 +106,7 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 }
 
 // Create submits Genesis to SPN to announce a new network.
-func (b *Blockchain) Create(ctx context.Context, genesis []byte) error {
+func (b *Blockchain) Create(ctx context.Context, genesis jsondoc.Doc) error {
 	account, err := b.builder.AccountInUse()
 	if err != nil {
 		return err
@@ -133,25 +133,18 @@ type Account struct {
 }
 
 // IssueGentx creates a Genesis transaction for account with proposal.
-func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx interface{}, address, mnemonic string, err error) {
+func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, address, mnemonic string, err error) {
 	proposal.Validator.Name = account.Name
 	address, mnemonic, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
 	if err != nil {
-		return "", "", "", err
+		return nil, "", "", err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
 	if err != nil {
-		return "", "", "", err
+		return nil, "", "", err
 	}
-	gentxFile, err := os.Open(gentxPath)
-	if err != nil {
-		return "", "", "", err
-	}
-	defer gentxFile.Close()
-	if err := json.NewDecoder(gentxFile).Decode(&gentx); err != nil {
-		return "", "", "", err
-	}
-	return gentx, address, mnemonic, nil
+	gentx, err = ioutil.ReadFile(gentxPath)
+	return gentx, address, mnemonic, err
 }
 
 // Join proposes a validator to a network.

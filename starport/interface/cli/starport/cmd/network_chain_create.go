@@ -54,7 +54,11 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("\nGenesis: \n\n%s\n\n", string(info.Genesis))
+	prettyGenesis, err := info.Genesis.Pretty()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
 
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Genesis above",

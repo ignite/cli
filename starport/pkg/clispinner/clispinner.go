@@ -7,8 +7,8 @@ import (
 )
 
 var (
-	refreshRate = 100 * time.Millisecond
-	charset     = spinner.CharSets[42]
+	refreshRate = time.Second
+	charset     = spinner.CharSets[4]
 	color       = "blue"
 )
 
@@ -20,18 +20,27 @@ type Spinner struct {
 func New() *Spinner {
 	sp := spinner.New(charset, refreshRate)
 	sp.Color(color)
-	return &Spinner{
+	s := &Spinner{
 		sp: sp,
 	}
+	s.SetText("Initializing...")
+	return s
 }
 
 // SetText sets the text for spinner.
-func (s *Spinner) SetText(text string) {
+func (s *Spinner) SetText(text string) *Spinner {
 	s.sp.Suffix = " " + text
+	return s
 }
 
 // Start starts spinning.
-func (s *Spinner) Start() { s.sp.Start() }
+func (s *Spinner) Start() *Spinner {
+	s.sp.Start()
+	return s
+}
 
 // Stop stops spinning.
-func (s *Spinner) Stop() { s.sp.Stop() }
+func (s *Spinner) Stop() *Spinner {
+	s.sp.Stop()
+	return s
+}

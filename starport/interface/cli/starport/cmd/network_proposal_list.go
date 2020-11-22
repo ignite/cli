@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/tendermint/starport/starport/pkg/spn"
@@ -20,7 +21,7 @@ func NewNetworkProposalList() *cobra.Command {
 		RunE:  networkProposalListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().String(statusFlag,  "pending", "Filter proposals by status")
+	c.Flags().String(statusFlag, "pending", "Filter proposals by status")
 	return c
 }
 
@@ -46,11 +47,11 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		var content string
 		switch {
 		case p.Account != nil:
-			content = fmt.Sprintf("account   | %s, %s", p.Account.Address, p.Account.Coins.String())
+			content = fmt.Sprintf("Add Account   | %s, %s", p.Account.Address, p.Account.Coins.String())
 		case p.Validator != nil:
-			content = fmt.Sprintf("validator | (run 'chain describe' to see gentx), %s", p.Validator.PublicAddress)
+			content = fmt.Sprintf("Add Validator | (run 'chain describe' to see gentx), %s", p.Validator.PublicAddress)
 		}
-		fmt.Fprintf(w, "%d\t%s\t%s\n", p.ID, p.Status, content)
+		fmt.Fprintf(w, "%d\t%s\t%s\n", p.ID, strings.Title(string(p.Status)), content)
 	}
 	w.Flush()
 

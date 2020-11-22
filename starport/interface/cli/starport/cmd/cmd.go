@@ -56,8 +56,8 @@ func logLevel(cmd *cobra.Command) chain.LogLevel {
 
 func printEvents(bus events.Bus, s *clispinner.Spinner) {
 	for event := range bus {
-		s.SetText(event.Text())
 		if event.IsOngoing() {
+			s.SetText(event.Text())
 			s.Start()
 		} else {
 			s.Stop()

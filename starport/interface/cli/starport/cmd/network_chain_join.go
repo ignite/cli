@@ -2,12 +2,12 @@ package starportcmd
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/manifoldco/promptui"
+	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -70,10 +70,16 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
+	ip, err := ipify.GetIp()
+	if err != nil {
+		return err
+	}
+	publicAddr := fmt.Sprintf("%s:26657", ip)
+
 	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(info.RPCPublicAddress)),
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
 		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
+		cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(publicAddr)),
 		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
 		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer("95000000stake")),
 		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
@@ -95,12 +101,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	gentxFormatted, err := json.MarshalIndent(gentx, "", "  ")
+	prettyGentx, err := gentx.Pretty()
 	if err != nil {
 		return err
 	}
-
-	fmt.Printf("\nGentx: \n\n%s\n\n", gentxFormatted)
+	fmt.Printf("\nGentx: \n\n%s\n\n", prettyGentx)
 
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Gentx above",

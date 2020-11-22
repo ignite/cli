@@ -34,6 +34,6 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("🧐 Proposal rejected.")
+	fmt.Printf("Proposal #%d rejected ⛔️\n", id)
 	return nil
 }

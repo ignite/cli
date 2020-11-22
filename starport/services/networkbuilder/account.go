@@ -15,21 +15,12 @@ func (b *Builder) AccountUse(name string) error {
 }
 
 // AccountInUse gets the account in use while working with SPN.
-// if there is no account in use, it creates "spn" account if not exists
-// and puts into use.
 func (b *Builder) AccountInUse() (spn.Account, error) {
-	var name string
 	c, err := ConfigGet()
 	if err != nil {
-		name = "spn"
-		b.AccountCreate(name)
-		if err := b.AccountUse(name); err != nil {
-			return spn.Account{}, err
-		}
-	} else {
-		name = string(c.SPNAccount)
+		return spn.Account{}, nil
 	}
-	return b.AccountGet(name)
+	return b.AccountGet(string(c.SPNAccount))
 }
 
 // AccountList lists all accounts in OS keyring.
@@ -43,8 +34,8 @@ func (b *Builder) AccountGet(name string) (spn.Account, error) {
 }
 
 // AccountCreate creates a new account in OS keyring.
-func (b *Builder) AccountCreate(name string) (spn.Account, error) {
-	return b.spnclient.AccountCreate(name)
+func (b *Builder) AccountCreate(name, mnemonic string) (spn.Account, error) {
+	return b.spnclient.AccountCreate(name, mnemonic)
 }
 
 // AccountExport exports an account in OS keyring with name and password.

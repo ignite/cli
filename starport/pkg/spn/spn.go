@@ -1,8 +1,14 @@
 package spn
 
 import (
+	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
+	"fmt"
+	"os"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -10,11 +16,10 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/go-bip39"
-	"github.com/goccy/go-yaml"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
+	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"os"
 )
 
 var spn = "spn"
@@ -32,6 +37,7 @@ type Client struct {
 	kr        keyring.Keyring
 	factory   tx.Factory
 	clientCtx client.Context
+	out       *bytes.Buffer
 }
 
 type options struct {
@@ -66,12 +72,14 @@ func New(nodeAddress string, option ...Option) (Client, error) {
 	if err != nil {
 		return Client{}, err
 	}
-	clientCtx := NewClientCtx(kr, client)
+	out := &bytes.Buffer{}
+	clientCtx := NewClientCtx(kr, client, out)
 	factory := NewFactory(clientCtx)
 	return Client{
 		kr:        kr,
 		factory:   factory,
 		clientCtx: clientCtx,
+		out:       out,
 	}, nil
 }
 
@@ -97,21 +105,19 @@ func (c Client) AccountList() ([]Account, error) {
 	return accounts, nil
 }
 
-// AccountCreate creates an account by name in the keyring.
-func (c Client) AccountCreate(accountName string) (Account, error) {
-	entropySeed, err := bip39.NewEntropy(256)
-	if err != nil {
-		return Account{}, err
-	}
-
-	mnemonic, err := bip39.NewMnemonic(entropySeed)
-	if err != nil {
-		return Account{}, err
+// AccountCreate creates an account by name and mnemonic (optional) in the keyring.
+func (c Client) AccountCreate(accountName, mnemonic string) (Account, error) {
+	if mnemonic == "" {
+		entropySeed, err := bip39.NewEntropy(256)
+		if err != nil {
+			return Account{}, err
+		}
+		mnemonic, err = bip39.NewMnemonic(entropySeed)
+		if err != nil {
+			return Account{}, err
+		}
 	}
 	algos, _ := c.kr.SupportedAlgorithms()
-	if err != nil {
-		return Account{}, err
-	}
 	algo, err := keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
 	if err != nil {
 		return Account{}, err
@@ -175,14 +181,31 @@ func (c Client) broadcast(clientCtx client.Context, msg types.Msg) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
-	return tx.BroadcastTx(clientCtx, c.factory, msg)
+	c.out.Reset()
+	if err := tx.BroadcastTx(clientCtx, c.factory, msg); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return errors.New("make sure that your SPN account has enough balance")
+		}
+		return err
+	}
+	out := struct {
+		Code int    `json:"code"`
+		Log  string `json:"raw_log"`
+	}{}
+	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
+		return err
+	}
+	if out.Code > 0 {
+		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
+	}
+	return nil
 }
 
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
 	URL     string
 	Hash    string
-	Genesis Genesis
+	Genesis jsondoc.Doc
 }
 
 // ChainGet shows chain info.
@@ -243,28 +266,8 @@ type ProposalAddAccount struct {
 
 // ProposalAddValidator used to propose adding a validator.
 type ProposalAddValidator struct {
-	Gentx         Gentx
+	Gentx         jsondoc.Doc
 	PublicAddress string
-}
-
-type Gentx []byte
-
-func (g Gentx) MarshalYAML() ([]byte, error) {
-	var out interface{}
-	if err := json.Unmarshal(g, &out); err != nil {
-		return nil, err
-	}
-	return yaml.Marshal(out)
-}
-
-type Genesis []byte
-
-func (g Genesis) MarshalYAML() ([]byte, error) {
-	var out interface{}
-	if err := json.Unmarshal(g, &out); err != nil {
-		return nil, err
-	}
-	return yaml.Marshal(out)
 }
 
 // ProposalList lists proposals on a chain by status.

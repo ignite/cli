@@ -25,17 +25,18 @@ require (
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
+	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/regen-network/cosmos-proto v0.3.0
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/spn v0.0.0-20201117101632-e6e7d89e7820
 	github.com/tendermint/tendermint v0.34.0-rc4.0.20201005135527-d7d0ffea13c6
-	golang.org/x/crypto v0.0.0-20201116153603-4be66e5b6582 // indirect
+	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201116194326-cc9327a14d48 // indirect
+	golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 // indirect
 	gopkg.in/yaml.v2 v2.3.0
 )
 

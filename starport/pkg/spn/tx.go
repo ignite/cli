@@ -1,6 +1,7 @@
 package spn
 
 import (
+	"io"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -22,7 +23,7 @@ const (
 	defaultGasLimit      = 300000
 )
 
-func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP) client.Context {
+func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer) client.Context {
 	encodingConfig := params.MakeEncodingConfig()
 	authtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	codec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
@@ -38,6 +39,7 @@ func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP) client.Context {
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
+		WithOutput(out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(homedir).

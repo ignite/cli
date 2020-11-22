@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/AlecAivazis/survey/v2"
@@ -31,13 +32,12 @@ func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
 	// when name is not provided by the flag,
 	// list all accounts for user to pick one.
 	if name == "" {
-		var names []string
-		accounts, err := b.AccountList()
+		accounts, err := accountNames(b)
 		if err != nil {
 			return err
 		}
-		for _, account := range accounts {
-			names = append(names, account.Name)
+		if len(accounts) == 0 {
+			return errors.New("no account found. please create one with 'starport network account create'")
 		}
 		var (
 			qs = []*survey.Question{
@@ -45,7 +45,7 @@ func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
 					Name: "account",
 					Prompt: &survey.Select{
 						Message: "Choose an account:",
-						Options: names,
+						Options: accounts,
 					},
 				},
 			}

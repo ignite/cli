@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	if err := os.MkdirAll(starportConfDir, 0644); err != nil {
+	if err := os.MkdirAll(starportConfDir, 0666); err != nil {
 		panic(err)
 	}
 }
@@ -54,7 +54,7 @@ func ConfigGet() (*Config, error) {
 
 // ConfigSave saves the current state of Config.
 func ConfigSave(c *Config) error {
-	cf, err := os.OpenFile(confPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+	cf, err := os.OpenFile(confPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}
