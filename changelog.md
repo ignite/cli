@@ -11,6 +11,7 @@
 * Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`.
 * Point to Stargate as default SDK version for scaffolding.
 * Covered CRUD operations for Stargate scaffolding.
+* Added docs on gopath to build from source directions
 
 ## `v0.12.0`
 
