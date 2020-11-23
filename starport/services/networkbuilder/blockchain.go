@@ -26,19 +26,20 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string) (*Blockchain, error) {
+func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string,
+	mustNotInitializedBefore bool) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx)
+	return bc, bc.init(ctx, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context) error {
+func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) error {
 	path, err := gomodulepath.ParseFile(b.appPath)
 	if err != nil {
 		return err
@@ -58,8 +59,10 @@ func (b *Blockchain) init(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
-		return &DataDirExistsError{chainID, c.Home()}
+	if mustNotInitializedBefore {
+		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, c.Home()}
+		}
 	}
 
 	// cleanup home dir of app if exists.

@@ -46,7 +46,7 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 }
 
 // InitBlockchainFromChainID initializes blockchain from chain id.
-func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string, mustNotInitializedBefore bool) (*Blockchain, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
@@ -55,11 +55,11 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string)
 	if err != nil {
 		return nil, err
 	}
-	return b.InitBlockchainFromURL(ctx, chain.URL, chain.Hash)
+	return b.InitBlockchainFromURL(ctx, chain.URL, chain.Hash, mustNotInitializedBefore)
 }
 
 // InitBlockchainFromURL initializes blockchain from a remote git repo.
-func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string, mustNotInitializedBefore bool) (*Blockchain, error) {
 	appPath, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string) (
 
 	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
 
-	return newBlockchain(ctx, b, appPath, url, hash)
+	return newBlockchain(ctx, b, appPath, url, hash, mustNotInitializedBefore)
 }
 
 // InitBlockchainFromPath initializes blockchain from a local git repo.
@@ -97,7 +97,7 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string) (
 //
 // TODO: It requires that there will be no unstaged changes in the code and HEAD is synced with the upstream
 // branch (if there is one).
-func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string, mustNotInitializedBefore bool) (*Blockchain, error) {
 	repo, err := git.PlainOpen(appPath)
 	if err != nil {
 		return nil, err
@@ -142,7 +142,7 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string) (*
 		return nil, err
 	}
 
-	return newBlockchain(ctx, b, appPath, url, hash.String())
+	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
 }
 
 // StartChain downloads the final version version of Genesis on the first start or fails if Genesis

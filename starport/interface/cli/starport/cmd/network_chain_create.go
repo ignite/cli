@@ -39,7 +39,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ctx := clictx.From(context.Background())
 	path := args[0]
 
-	blockchain, err := nb.InitBlockchainFromPath(ctx, path)
+	blockchain, err := nb.InitBlockchainFromPath(ctx, path, true)
 
 	// handle if data dir for the chain already exists.
 	var e *networkbuilder.DataDirExistsError
@@ -62,7 +62,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		blockchain, err = nb.InitBlockchainFromPath(ctx, path)
+		blockchain, err = nb.InitBlockchainFromPath(ctx, path, true)
 	}
 
 	if err == context.Canceled {
