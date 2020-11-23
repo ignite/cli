@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/client"
@@ -18,12 +20,16 @@ import (
 	"github.com/cosmos/go-bip39"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var spn = "spn"
 var homedir = os.ExpandEnv("$HOME/spnd")
+
+const (
+	faucetDenom     = "token"
+	faucetMinAmount = 100
+)
 
 // Account represents an account on SPN.
 type Account struct {
@@ -34,10 +40,12 @@ type Account struct {
 
 // Client is client to interact with SPN.
 type Client struct {
-	kr        keyring.Keyring
-	factory   tx.Factory
-	clientCtx client.Context
-	out       *bytes.Buffer
+	kr            keyring.Keyring
+	factory       tx.Factory
+	clientCtx     client.Context
+	apiAddress    string
+	faucetAddress string
+	out           *bytes.Buffer
 }
 
 type options struct {
@@ -56,7 +64,7 @@ func Keyring(keyring string) Option {
 
 // New creates a new SPN Client with nodeAddress of a full SPN node.
 // by default, OS is used as keyring backend.
-func New(nodeAddress string, option ...Option) (*Client, error) {
+func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Client, error) {
 	opts := &options{
 		keyringBackend: keyring.BackendOS,
 	}
@@ -68,7 +76,7 @@ func New(nodeAddress string, option ...Option) (*Client, error) {
 		return nil, err
 	}
 
-	client, err := rpchttp.New(xurl.TCP(nodeAddress), "/websocket")
+	client, err := rpchttp.New(nodeAddress, "/websocket")
 	if err != nil {
 		return nil, err
 	}
@@ -76,10 +84,12 @@ func New(nodeAddress string, option ...Option) (*Client, error) {
 	clientCtx := NewClientCtx(kr, client, out)
 	factory := NewFactory(clientCtx)
 	return &Client{
-		kr:        kr,
-		factory:   factory,
-		clientCtx: clientCtx,
-		out:       out,
+		kr:            kr,
+		factory:       factory,
+		clientCtx:     clientCtx,
+		apiAddress:    apiAddress,
+		faucetAddress: faucetAddress,
+		out:           out,
 	}, nil
 }
 
@@ -157,7 +167,7 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, g
 	if err != nil {
 		return err
 	}
-	return c.broadcast(clientCtx, genesistypes.NewMsgChainCreate(
+	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
 		chainID,
 		clientCtx.GetFromAddress(),
 		sourceURL,
@@ -176,17 +186,99 @@ func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
 		WithFromAddress(info.GetAddress()), nil
 }
 
-func (c *Client) broadcast(clientCtx client.Context, msg types.Msg) error {
+func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
+	// check the balance.
+	balancesEndpoint := fmt.Sprintf("%s/bank/balances/%s", c.apiAddress, address)
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, balancesEndpoint, nil)
+	if err != nil {
+		return err
+	}
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	var balances struct {
+		Result []struct {
+			Denom  string `json:"denom"`
+			Amount string `json:"amount"`
+		} `json:"result"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&balances); err != nil {
+		return err
+	}
+
+	// if the balance is enough do nothing.
+	if len(balances.Result) > 0 {
+		for _, c := range balances.Result {
+			amount, err := strconv.ParseInt(c.Amount, 10, 32)
+			if err != nil {
+				return err
+			}
+			if c.Denom == faucetDenom && amount >= faucetMinAmount {
+				return nil
+			}
+		}
+	}
+
+	// request amounts from faucet.
+	body, err := json.Marshal(struct {
+		Address string `json:"address"`
+	}{address})
+	if err != nil {
+		return err
+	}
+
+	req, err = http.NewRequestWithContext(ctx, http.MethodPost, c.faucetAddress, bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+
+	resp, err = http.DefaultClient.Do(req)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+
+	var result struct {
+		Status string `json:"status"`
+		Error  string `json:"error"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
+		return err
+	}
+
+	if result.Status != "ok" {
+		return fmt.Errorf("cannot retrieve tokens from faucet: %s", result.Error)
+	}
+
+	return nil
+}
+
+func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg types.Msg) error {
+	// make sure that account has enough balances before broadcasting.
+	if err := c.makeSureAccountHasTokens(ctx, clientCtx.GetFromAddress().String()); err != nil {
+		return err
+	}
+
+	// validate msg.
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
+
 	c.out.Reset()
+
+	// broadcast tx.
 	if err := tx.BroadcastTx(clientCtx, c.factory, msg); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your SPN account has enough balance")
 		}
 		return err
 	}
+
+	// handle results.
 	out := struct {
 		Code int    `json:"code"`
 		Log  string `json:"raw_log"`
@@ -391,7 +483,7 @@ func (c *Client) ProposeAddAccount(ctx context.Context, accountName, chainID str
 		payload,
 	)
 
-	return c.broadcast(clientCtx, msg)
+	return c.broadcast(ctx, clientCtx, msg)
 }
 
 // ProposeAddValidator proposes to add a validator to chain.
@@ -420,7 +512,7 @@ func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID s
 		payload,
 	)
 
-	return c.broadcast(clientCtx, msg)
+	return c.broadcast(ctx, clientCtx, msg)
 }
 
 // ProposalApprove approves a proposal by id.
@@ -433,7 +525,7 @@ func (c *Client) ProposalApprove(ctx context.Context, accountName, chainID strin
 	// Create approve message
 	msg := genesistypes.NewMsgApprove(chainID, int32(id), clientCtx.GetFromAddress())
 
-	return c.broadcast(clientCtx, msg)
+	return c.broadcast(ctx, clientCtx, msg)
 }
 
 // ProposalReject rejects a proposal by id.
@@ -446,5 +538,5 @@ func (c *Client) ProposalReject(ctx context.Context, accountName, chainID string
 	// Create reject message
 	msg := genesistypes.NewMsgReject(chainID, int32(id), clientCtx.GetFromAddress())
 
-	return c.broadcast(clientCtx, msg)
+	return c.broadcast(ctx, clientCtx, msg)
 }

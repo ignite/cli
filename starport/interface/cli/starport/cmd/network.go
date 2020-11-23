@@ -14,7 +14,11 @@ import (
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
-var spnAddress string
+var (
+	spnNodeAddress   string
+	spnAPIAddress    string
+	spnFaucetAddress string
+)
 
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
@@ -24,7 +28,9 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().StringVarP(&spnAddress, "spn-address", "s", "localhost:26657", "An SPN node address")
+	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "http://localhost:26657", "SPN node address")
+	c.PersistentFlags().StringVar(&spnAPIAddress, "spn-api-address", "http://localhost:1317", "SPN api address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, "spn-faucet-address", "http://localhost:8000", "SPN Faucet address")
 
 	// add sub commands.
 	c.AddCommand(NewNetworkAccount())
@@ -48,7 +54,7 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 	// reuse unlocked keyring in the following steps.
 	if spnclient == nil {
 		var err error
-		if spnclient, err = spn.New(spnAddress, spnoptions...); err != nil {
+		if spnclient, err = spn.New(spnNodeAddress, spnAPIAddress, spnFaucetAddress, spnoptions...); err != nil {
 			return nil, err
 		}
 	}
