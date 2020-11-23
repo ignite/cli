@@ -495,7 +495,7 @@ func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID s
 
 	// Read the gentx
 	var gentx txtypes.Tx
-	err = clientCtx.JSONMarshaler.UnmarshalJSON(validator.Gentx, &gentx)
+	err = clientCtx.JSONMarshaler.UnmarshalJSON([]byte(validator.Gentx), &gentx)
 	if err != nil {
 		return err
 	}
