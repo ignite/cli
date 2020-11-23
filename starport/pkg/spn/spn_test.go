@@ -10,7 +10,7 @@ import (
 )
 
 func TestAccountCreate(t *testing.T) {
-	c, err := New("", Keyring(keyring.BackendMemory))
+	c, err := New("", "", "", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
 	account, err := c.AccountCreate("spn", "")
@@ -26,7 +26,7 @@ func TestAccountCreate(t *testing.T) {
 }
 
 func TestAccountGet(t *testing.T) {
-	c, err := New("", Keyring(keyring.BackendMemory))
+	c, err := New("", "", "", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
 	accountcreate, err := c.AccountCreate("spn", "")
@@ -40,7 +40,7 @@ func TestAccountGet(t *testing.T) {
 }
 
 func TestAccountExportAndImport(t *testing.T) {
-	c, err := New("", Keyring(keyring.BackendMemory))
+	c, err := New("", "", "", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
 	account, err := c.AccountCreate("spn", "")
@@ -49,7 +49,7 @@ func TestAccountExportAndImport(t *testing.T) {
 	privateKey, err := c.AccountExport("spn", "very-secure-password")
 	require.NoError(t, err, "should export the account")
 
-	cother, err := New("", Keyring(keyring.BackendMemory))
+	cother, err := New("", "", "", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init a new client with empty keyring")
 
 	err = cother.AccountImport("spn", privateKey, "very-secure-password")
