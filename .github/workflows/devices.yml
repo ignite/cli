@@ -78,4 +78,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: sos
-          path: go/src/github.com/tendermint/starport/images/starport.img.bz2
+          path: go/src/github.com/tendermint/starport/.pi/images/starport.img.bz2
