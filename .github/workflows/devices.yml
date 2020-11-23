@@ -48,6 +48,9 @@ jobs:
         with:
           name: starport arm64
           path: ${{ env.working-directory }}/go/bin/starport
+        
+      - name: Copy Starport
+        run: cp  ${{ env.working-directory }}/go/bin/starport ${{ env.working-directory }}/.pi
 
       - name: Set up QEMU
         run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
