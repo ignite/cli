@@ -15,15 +15,6 @@ import (
 )
 
 var spnAddress string
-var nb *networkbuilder.Builder
-
-func init() {
-	var err error
-	nb, err = newNetworkBuilder()
-	if err != nil {
-		panic(err)
-	}
-}
 
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
@@ -42,6 +33,8 @@ func NewNetwork() *cobra.Command {
 	return c
 }
 
+var spnclient *spn.Client
+
 func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builder, error) {
 	var spnoptions []spn.Option
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -51,9 +44,13 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
 	}
-	spnclient, err := spn.New(spnAddress, spnoptions...)
-	if err != nil {
-		return nil, err
+	// init spnclient only once on start in order to spnclient to
+	// reuse unlocked keyring in the following steps.
+	if spnclient == nil {
+		var err error
+		if spnclient, err = spn.New(spnAddress, spnoptions...); err != nil {
+			return nil, err
+		}
 	}
 	return networkbuilder.New(spnclient, options...)
 }
@@ -168,7 +165,11 @@ func accountNames(b *networkbuilder.Builder) ([]string, error) {
 }
 
 func ensureSPNAccountHook(cmd *cobra.Command, args []string) error {
-	err := ensureSPNAccount(nb)
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+	err = ensureSPNAccount(nb)
 	if err == context.Canceled {
 		return errors.New("aborted")
 	}

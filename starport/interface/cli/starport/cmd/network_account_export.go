@@ -27,6 +27,10 @@ func NewNetworkAccountExport() *cobra.Command {
 }
 
 func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
 	// prep path and name.
 	path, _ := cmd.Flags().GetString("path")
 	name, _ := cmd.Flags().GetString("account")

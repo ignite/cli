@@ -23,6 +23,11 @@ Picked account will be used while interacting with Starport Network.`,
 }
 
 func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+
 	name, _ := cmd.Flags().GetString("name")
 
 	// when name is not provided by the flag,

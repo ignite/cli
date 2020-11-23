@@ -19,6 +19,11 @@ func NewNetworkChainShow() *cobra.Command {
 }
 
 func networkChainShowHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+
 	chain, err := nb.ChainShow(context.Background(), args[0])
 	if err != nil {
 		return err

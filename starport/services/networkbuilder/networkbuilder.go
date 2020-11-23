@@ -3,11 +3,12 @@ package networkbuilder
 import (
 	"context"
 	"errors"
-	"github.com/pelletier/go-toml"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/pelletier/go-toml"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
@@ -21,7 +22,7 @@ import (
 // Builder is network builder.
 type Builder struct {
 	ev        events.Bus
-	spnclient spn.Client
+	spnclient *spn.Client
 }
 
 type Option func(*Builder)
@@ -34,7 +35,7 @@ func CollectEvents(ev events.Bus) Option {
 }
 
 // New creates a Builder.
-func New(spnclient spn.Client, options ...Option) (*Builder, error) {
+func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 	b := &Builder{
 		spnclient: spnclient,
 	}

@@ -19,6 +19,11 @@ func NewNetworkProposalReject() *cobra.Command {
 }
 
 func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+
 	id, err := strconv.ParseInt(args[1], 10, 32)
 	if err != nil {
 		return err

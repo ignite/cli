@@ -19,6 +19,11 @@ func NewNetworkChainStart() *cobra.Command {
 }
 
 func networkChainStartHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+
 	var startFlags []string
 	chainID := args[0]
 	if len(args) > 1 { // first arg is always `chain-id`.
@@ -27,7 +32,7 @@ func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 
 	ctx := clictx.From(context.Background())
 
-	err := nb.StartChain(ctx, chainID, startFlags)
+	err = nb.StartChain(ctx, chainID, startFlags)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil

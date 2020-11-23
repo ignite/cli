@@ -56,7 +56,7 @@ func Keyring(keyring string) Option {
 
 // New creates a new SPN Client with nodeAddress of a full SPN node.
 // by default, OS is used as keyring backend.
-func New(nodeAddress string, option ...Option) (Client, error) {
+func New(nodeAddress string, option ...Option) (*Client, error) {
 	opts := &options{
 		keyringBackend: keyring.BackendOS,
 	}
@@ -65,17 +65,17 @@ func New(nodeAddress string, option ...Option) (Client, error) {
 	}
 	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homedir, os.Stdin)
 	if err != nil {
-		return Client{}, err
+		return nil, err
 	}
 
 	client, err := rpchttp.New(xurl.TCP(nodeAddress), "/websocket")
 	if err != nil {
-		return Client{}, err
+		return nil, err
 	}
 	out := &bytes.Buffer{}
 	clientCtx := NewClientCtx(kr, client, out)
 	factory := NewFactory(clientCtx)
-	return Client{
+	return &Client{
 		kr:        kr,
 		factory:   factory,
 		clientCtx: clientCtx,
@@ -84,7 +84,7 @@ func New(nodeAddress string, option ...Option) (Client, error) {
 }
 
 // AccountGet retrieves an account by name from the keyring.
-func (c Client) AccountGet(accountName string) (Account, error) {
+func (c *Client) AccountGet(accountName string) (Account, error) {
 	info, err := c.kr.Key(accountName)
 	if err != nil {
 		return Account{}, err
@@ -93,7 +93,7 @@ func (c Client) AccountGet(accountName string) (Account, error) {
 }
 
 // AccountList returns a list of accounts.
-func (c Client) AccountList() ([]Account, error) {
+func (c *Client) AccountList() ([]Account, error) {
 	var accounts []Account
 	infos, err := c.kr.List()
 	if err != nil {
@@ -106,7 +106,7 @@ func (c Client) AccountList() ([]Account, error) {
 }
 
 // AccountCreate creates an account by name and mnemonic (optional) in the keyring.
-func (c Client) AccountCreate(accountName, mnemonic string) (Account, error) {
+func (c *Client) AccountCreate(accountName, mnemonic string) (Account, error) {
 	if mnemonic == "" {
 		entropySeed, err := bip39.NewEntropy(256)
 		if err != nil {
@@ -142,18 +142,17 @@ func toAccount(info keyring.Info) Account {
 
 // AccountExport exports an account in the keyring by name and an encryption password into privateKey.
 // password later can be used to decrypt the privateKey.
-func (c Client) AccountExport(accountName, password string) (privateKey string, err error) {
+func (c *Client) AccountExport(accountName, password string) (privateKey string, err error) {
 	return c.kr.ExportPrivKeyArmor(accountName, password)
 }
 
 // AccountImport imports an account to the keyring by account name, privateKey and decryption password.
-func (c Client) AccountImport(accountName, privateKey, password string) error {
+func (c *Client) AccountImport(accountName, privateKey, password string) error {
 	return c.kr.ImportPrivKey(accountName, privateKey, password)
 }
 
 // ChainCreate creates a new chain.
-// TODO right now this uses chat module, use genesis.
-func (c Client) ChainCreate(ctx context.Context, accountName, chainID, genesis, sourceURL, sourceHash string) error {
+func (c *Client) ChainCreate(ctx context.Context, accountName, chainID, genesis, sourceURL, sourceHash string) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -167,7 +166,7 @@ func (c Client) ChainCreate(ctx context.Context, accountName, chainID, genesis, 
 	))
 }
 
-func (c Client) buildClientCtx(accountName string) (client.Context, error) {
+func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
 	info, err := c.kr.Key(accountName)
 	if err != nil {
 		return client.Context{}, err
@@ -177,7 +176,7 @@ func (c Client) buildClientCtx(accountName string) (client.Context, error) {
 		WithFromAddress(info.GetAddress()), nil
 }
 
-func (c Client) broadcast(clientCtx client.Context, msg types.Msg) error {
+func (c *Client) broadcast(clientCtx client.Context, msg types.Msg) error {
 	if err := msg.ValidateBasic(); err != nil {
 		return err
 	}
@@ -210,7 +209,7 @@ type Chain struct {
 }
 
 // ChainGet shows chain info.
-func (c Client) ChainGet(ctx context.Context, accountName, chainID string) (Chain, error) {
+func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Chain, error) {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return Chain{}, err
@@ -273,7 +272,7 @@ type ProposalAddValidator struct {
 }
 
 // ProposalList lists proposals on a chain by status.
-func (c Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus) ([]Proposal, error) {
+func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus) ([]Proposal, error) {
 	var proposals []Proposal
 	var spnProposals []*genesistypes.Proposal
 
@@ -324,7 +323,7 @@ var toStatus = map[genesistypes.ProposalState_Status]ProposalStatus{
 	genesistypes.ProposalState_REJECTED: ProposalRejected,
 }
 
-func (c Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
+func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 	p := Proposal{
 		ID:     int(proposal.ProposalInformation.ProposalID),
 		Status: toStatus[proposal.ProposalState.GetStatus()],
@@ -352,7 +351,7 @@ func (c Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 	return p, nil
 }
 
-func (c Client) ProposalGet(ctx context.Context, accountName, chainID string, id int) (Proposal, error) {
+func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, id int) (Proposal, error) {
 	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
 	// Query the proposal
@@ -369,7 +368,7 @@ func (c Client) ProposalGet(ctx context.Context, accountName, chainID string, id
 }
 
 // ProposeAddAccount proposes to add a validator to chain.
-func (c Client) ProposeAddAccount(ctx context.Context, accountName, chainID string, account ProposalAddAccount) error {
+func (c *Client) ProposeAddAccount(ctx context.Context, accountName, chainID string, account ProposalAddAccount) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -396,7 +395,7 @@ func (c Client) ProposeAddAccount(ctx context.Context, accountName, chainID stri
 }
 
 // ProposeAddValidator proposes to add a validator to chain.
-func (c Client) ProposeAddValidator(ctx context.Context, accountName, chainID string, validator ProposalAddValidator) error {
+func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID string, validator ProposalAddValidator) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -425,7 +424,7 @@ func (c Client) ProposeAddValidator(ctx context.Context, accountName, chainID st
 }
 
 // ProposalApprove approves a proposal by id.
-func (c Client) ProposalApprove(ctx context.Context, accountName, chainID string, id int) error {
+func (c *Client) ProposalApprove(ctx context.Context, accountName, chainID string, id int) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -438,7 +437,7 @@ func (c Client) ProposalApprove(ctx context.Context, accountName, chainID string
 }
 
 // ProposalReject rejects a proposal by id.
-func (c Client) ProposalReject(ctx context.Context, accountName, chainID string, id int) error {
+func (c *Client) ProposalReject(ctx context.Context, accountName, chainID string, id int) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err

@@ -26,6 +26,11 @@ func NewNetworkProposalList() *cobra.Command {
 }
 
 func networkProposalListHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
+
 	status, err := cmd.Flags().GetString(statusFlag)
 	if err != nil {
 		return err

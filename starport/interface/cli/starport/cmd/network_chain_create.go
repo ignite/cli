@@ -2,15 +2,14 @@ package starportcmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
-	"strings"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkChainCreate() *cobra.Command {
@@ -29,6 +28,11 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 	ev := events.NewBus()
 	go printEvents(ev, s)
+
+	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
+	if err != nil {
+		return err
+	}
 
 	ctx := clictx.From(context.Background())
 
@@ -52,6 +56,8 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	s.Stop()
 	fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
 
 	prompt := promptui.Prompt{
@@ -65,9 +71,6 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if err := blockchain.Create(ctx, info.Genesis); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return errors.New("make sure that your SPN account has enough balance")
-		}
 		return err
 	}
 

@@ -18,6 +18,10 @@ func NewNetworkAccountImport() *cobra.Command {
 }
 
 func networkAccountImportHandler(cmd *cobra.Command, args []string) error {
+	nb, err := newNetworkBuilder()
+	if err != nil {
+		return err
+	}
 	var name, password, privateKeyPath = args[0], args[1], args[2]
 	privateKey, err := ioutil.ReadFile(privateKeyPath)
 	if err != nil {
