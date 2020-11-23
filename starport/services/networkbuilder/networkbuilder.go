@@ -153,53 +153,40 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
-	c, err := ConfigGet()
+
+	account, err := b.AccountInUse()
+	if err != nil {
+		return err
+	}
+	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
 	if err != nil {
 		return err
 	}
 
-	// save the finalized version of configurations if this isn't done before
-	if !c.IsChainMarkedFinalized(chainID) {
-		// save the finalized version of Genesis
-		account, err := b.AccountInUse()
-		if err != nil {
-			return err
-		}
-		chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
-		if err != nil {
-			return err
-		}
-		homedir, err := os.UserHomeDir()
-		if err != nil {
-			return err
-		}
-		genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
-		if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0666); err != nil {
-			return err
-		}
+	// update genesis.
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
+	if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0666); err != nil {
+		return err
+	}
 
-		// save the finalized version of config.toml
-		configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
-		configToml, err := toml.LoadFile(configTomlPath)
-		if err != nil {
-			return err
-		}
-		configToml.Set("p2p.persistent_peers", strings.Join(chain.Peers, ","))
-		configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
-		if err != nil {
-			return err
-		}
-		defer configTomlFile.Close()
-		_, err = configToml.WriteTo(configTomlFile)
-		if err != nil {
-			return err
-		}
-
-		// mark starport config as finalized and save it
-		c.MarkFinalized(chainID)
-		if err := ConfigSave(c); err != nil {
-			return err
-		}
+	// save the finalized version of config.toml with peers.
+	configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
+	configToml, err := toml.LoadFile(configTomlPath)
+	if err != nil {
+		return err
+	}
+	configToml.Set("p2p.persistent_peers", strings.Join(chain.Peers, ","))
+	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
+	if err != nil {
+		return err
+	}
+	defer configTomlFile.Close()
+	if _, err = configToml.WriteTo(configTomlFile); err != nil {
+		return err
 	}
 
 	return cmdrunner.New().Run(ctx, step.New(
