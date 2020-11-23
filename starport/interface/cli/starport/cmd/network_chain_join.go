@@ -75,7 +75,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	publicAddr := fmt.Sprintf("%s:26657", ip)
+	publicAddr := fmt.Sprintf("%s:26656", ip)
 
 	questions := []cliquiz.Question{
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
