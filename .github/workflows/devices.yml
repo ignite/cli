@@ -40,20 +40,24 @@ jobs:
         run: |
           export GOPATH=$GITHUB_WORKSPACE/go
           export PATH=$PATH:$GOPATH
+          export GOARCH=arm64
           cd starport/interface/cli/starport
           packr2 -v
+          cd ../../../..
+          mkdir build
+          go build -mod=readonly -o build/ ./starport/interface/cli/...
 
       - name: Upload Starport Artifact
         uses: actions/checkout@v2
         with:
           name: starport arm64
-          path: ${{ env.working-directory }}/go/bin/starport
+          path: ${{ env.working-directory }}/go/bin/starport/build/starport
           
       - name: Setup tmate session
         uses: mxschmitt/action-tmate@v3
         
       - name: Copy Starport
-        run: cp  ${{ env.working-directory }}/go/bin/starport ${{ env.working-directory }}/.pi
+        run: cp  ${{ env.working-directory }}/go/bin/starport/build/starport ${{ env.working-directory }}/.pi
 
       - name: Set up QEMU
         run: docker run --rm --privileged multiarch/qemu-user-static --reset -p yes --credential yes
