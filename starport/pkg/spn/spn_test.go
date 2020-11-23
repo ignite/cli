@@ -13,7 +13,7 @@ func TestAccountCreate(t *testing.T) {
 	c, err := New("", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
-	account, err := c.AccountCreate("spn")
+	account, err := c.AccountCreate("spn", "")
 	require.NoError(t, err, "create an account")
 
 	_, err = types.AccAddressFromBech32(account.Address)
@@ -21,7 +21,7 @@ func TestAccountCreate(t *testing.T) {
 	require.True(t, bip39.IsMnemonicValid(account.Mnemonic), "created account's mnemonic should be valid")
 	require.Equal(t, "spn", account.Name, "account's name should be correct")
 
-	_, err = c.AccountCreate("spn")
+	_, err = c.AccountCreate("spn", "")
 	require.Error(t, err, "should not create an account with the same name")
 }
 
@@ -29,7 +29,7 @@ func TestAccountGet(t *testing.T) {
 	c, err := New("", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
-	accountcreate, err := c.AccountCreate("spn")
+	accountcreate, err := c.AccountCreate("spn", "")
 	require.NoError(t, err, "create an account")
 
 	accountget, err := c.AccountGet("spn")
@@ -43,7 +43,7 @@ func TestAccountExportAndImport(t *testing.T) {
 	c, err := New("", Keyring(keyring.BackendMemory))
 	require.NoError(t, err, "init client")
 
-	account, err := c.AccountCreate("spn")
+	account, err := c.AccountCreate("spn", "")
 	require.NoError(t, err, "create an account")
 
 	privateKey, err := c.AccountExport("spn", "very-secure-password")
