@@ -66,7 +66,9 @@ jobs:
 
       - name: Build Image
         working-directory: ${{ env.working-directory }}/.pi
-        run: bash build.sh
+        run: | 
+          cp ../build/starport .
+          bash build.sh
   
       - name: Compress
         working-directory: ${{ env.working-directory }}/.pi
