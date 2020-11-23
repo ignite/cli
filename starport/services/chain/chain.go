@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -104,16 +105,6 @@ func (s *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// ID returns the chain's id.
-func (s *Chain) ID() string {
-	return s.app.Name
-}
-
-// GenesisPath returns the genesis.json path of chain.
-func (c *Chain) GenesisPath() (string, error) {
-	return c.plugin.GenesisPath()
-}
-
 // RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
 func (s *Chain) RPCPublicAddress() (string, error) {
@@ -143,4 +134,36 @@ func (s *Chain) Config() (conf.Config, error) {
 	}
 	defer confFile.Close()
 	return conf.Parse(confFile)
+}
+
+// ID returns the chain's id.
+func (s *Chain) ID() (string, error) {
+	id := s.app.N()
+	c, err := s.Config()
+	if err != nil {
+		return "", err
+	}
+	genid, ok := c.Genesis["chain_id"]
+	if ok {
+		id = genid.(string)
+	}
+	return id, nil
+}
+
+// GenesisPath returns genesis.json path of the app.
+func (c *Chain) GenesisPath() string {
+	home, _ := c.plugin.Home()
+	return fmt.Sprintf("%s/config/genesis.json", home)
+}
+
+// AppTOMLPath returns app.toml path of the app.
+func (c *Chain) AppTOMLPath() string {
+	home, _ := c.plugin.Home()
+	return fmt.Sprintf("%s/config/app.toml", home)
+}
+
+// ConfigTOMLPath returns config.toml path of the app.
+func (c *Chain) ConfigTOMLPath() string {
+	home, _ := c.plugin.Home()
+	return fmt.Sprintf("%s/config/config.toml", home)
 }

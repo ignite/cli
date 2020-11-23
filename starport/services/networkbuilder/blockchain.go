@@ -81,11 +81,7 @@ type BlockchainInfo struct {
 
 // Info returns information about the blockchain.
 func (b *Blockchain) Info() (BlockchainInfo, error) {
-	genesisPath, err := b.chain.GenesisPath()
-	if err != nil {
-		return BlockchainInfo{}, err
-	}
-	genesis, err := ioutil.ReadFile(genesisPath)
+	genesis, err := ioutil.ReadFile(b.chain.GenesisPath())
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
@@ -110,7 +106,11 @@ func (b *Blockchain) Create(ctx context.Context, genesis jsondoc.Doc) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(ctx, account.Name, b.chain.ID(), string(genesis), b.url, b.hash)
+	chainID, err := b.chain.ID()
+	if err != nil {
+		return err
+	}
+	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, string(genesis), b.url, b.hash)
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -156,13 +156,17 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 		return err
 	}
 	p2pAddress := fmt.Sprintf("%s@%s", key, publicAddress)
-	if err := b.builder.ProposeAddAccount(ctx, b.chain.ID(), spn.ProposalAddAccount{
+	chainID, err := b.chain.ID()
+	if err != nil {
+		return err
+	}
+	if err := b.builder.ProposeAddAccount(ctx, chainID, spn.ProposalAddAccount{
 		Address: accountAddress,
 		Coins:   coins,
 	}); err != nil {
 		return err
 	}
-	return b.builder.ProposeAddValidator(ctx, b.chain.ID(), spn.ProposalAddValidator{
+	return b.builder.ProposeAddValidator(ctx, chainID, spn.ProposalAddValidator{
 		Gentx:         gentx,
 		PublicAddress: p2pAddress,
 	})

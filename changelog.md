@@ -1,5 +1,18 @@
 # Changelog
 
+## Fixes:
+* Routing REST API endpoints of querier on Stargate.
+* Evaluate `--address-prefix` option when scaffolding for Stargate.
+
+### Features:
+* Upgraded Stargate's version to v0.40.0-rc3.
+* Added a gRPC-Web proxy which is available under http://localhost:12345/grpc.
+* Added chain id configurability by recognizing `chain_id` from `genesis` section of `config.yml`.
+* Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`.
+* Point to Stargate as default SDK version for scaffolding.
+* Covered CRUD operations for Stargate scaffolding.
+* Added docs on gopath to build from source directions
+
 ## `v0.12.0`
 
 ### Features:

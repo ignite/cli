@@ -17,63 +17,63 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 	)
 
 	env.Must(env.Exec("create a type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type with int",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "employee", "name:string", "level:int"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type with bool",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "document", "signed:bool"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a type with duplicated fields",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "company", "name", "name"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "employee", "level:itn"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "map", "size:int"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "document", "type:int"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
@@ -89,63 +89,63 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	)
 
 	env.Must(env.Exec("create a type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type with int",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "employee", "name:string", "level:int"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type with bool",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "document", "signed:bool"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a type with duplicated fields",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "company", "name", "name"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "employee", "level:itn"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "map", "size:int"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "document", "type:int"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
@@ -161,39 +161,39 @@ func TestCreateTypeInCustomModule(t *testing.T) {
 	)
 
 	env.Must(env.Exec("create a module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type in the app's module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a type in a non existant module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
@@ -209,39 +209,39 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	)
 
 	env.Must(env.Exec("create a module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("create a type in the app's module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
-		),
+		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a type in a non existant module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
 			step.Workdir(path),
-		),
+		)),
 		ExecShouldError(),
 	))
 

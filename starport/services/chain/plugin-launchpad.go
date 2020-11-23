@@ -110,7 +110,7 @@ func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 	)
 }
 
-func (p *launchpadPlugin) ConfigCommands() []step.Option {
+func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
 		step.Exec(
 			p.app.CLI(),
@@ -122,7 +122,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 			p.app.CLI(),
 			"config",
 			"chain-id",
-			p.app.N(),
+			chainID,
 		),
 		step.Exec(
 			p.app.CLI(),
@@ -145,7 +145,7 @@ func (p *launchpadPlugin) ConfigCommands() []step.Option {
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
+func (p *launchpadPlugin) GentxCommand(_ string, v Validator) step.Option {
 	args := []string{
 		"gentx",
 		"--name", v.Name,
@@ -236,12 +236,12 @@ func (p *launchpadPlugin) StoragePaths() []string {
 	}
 }
 
-func (p *launchpadPlugin) GenesisPath() (string, error) {
+func (p *launchpadPlugin) Home() (string, error) {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, "."+p.app.ND(), "config/genesis.json"), nil
+	return filepath.Join(home, "."+p.app.ND()), nil
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

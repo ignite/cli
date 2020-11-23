@@ -9,6 +9,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/rest"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+    "github.com/gorilla/mux"
 )
 
 // Used to not have an error if strconv is unused
@@ -57,10 +58,102 @@ func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
 		<% } %><% } %>
 
-		msg := types.NewMsg<%= title(TypeName) %>(
+		msg := types.NewMsgCreate<%= title(TypeName) %>(
 			creator,
 			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
 			<% } %>
+		)
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type update<%= title(TypeName) %>Request struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string `json:"creator"`
+	<%= for (i, field) in Fields { %><%= title(field.Name) %> string `json:"<%= field.Name %>"`
+	<% } %>
+}
+
+
+func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+        id := mux.Vars(r)["id"]
+
+		var req update<%= title(TypeName) %>Request
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		<%= for (i, field) in Fields { %><%= if (field.Datatype == "int32") { %>
+		parsed<%= title(field.Name) %>64, err := strconv.ParseInt(req.<%= title(field.Name) %>, 10, 32)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+		parsed<%= title(field.Name) %> := int32(parsed<%= title(field.Name) %>64)
+			<% } else if (field.Datatype == "bool") { %>
+		parsed<%= title(field.Name) %>, err := strconv.ParseBool(req.<%= title(field.Name) %>)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}	
+			<% } else { %>
+		parsed<%= title(field.Name) %> := req.<%= title(field.Name) %>
+		<% } %><% } %>
+
+		msg := types.NewMsgUpdate<%= title(TypeName) %>(
+			creator,
+            id,
+			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
+			<% } %>
+		)
+
+		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)
+	}
+}
+
+type delete<%= title(TypeName) %>Request struct {
+	BaseReq rest.BaseReq `json:"base_req"`
+	Creator string `json:"creator"`
+}
+
+func delete<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+        id := mux.Vars(r)["id"]
+
+		var req delete<%= title(TypeName) %>Request
+		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, "failed to parse request")
+			return
+		}
+
+		baseReq := req.BaseReq.Sanitize()
+		if !baseReq.ValidateBasic(w) {
+			return
+		}
+
+		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		if err != nil {
+			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
+			return
+		}
+
+		msg := types.NewMsgDelete<%= title(TypeName) %>(
+			creator,
+            id,
 		)
 
 		tx.WriteGeneratedTxResponse(clientCtx, w, req.BaseReq, msg)

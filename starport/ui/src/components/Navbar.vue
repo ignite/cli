@@ -9,7 +9,7 @@
       </router-link>      
     </div>
     <div class="nav__center">
-      <div v-if="this.$route.name === 'welcome'" class="nav__center-msg -f-cosmos-overline-0">Welcome to Starport</div>
+      <div v-if="this.$route.name === 'welcome'" class="nav__center-msg -sp-f-overline-0 -sp-c-txt-third">Welcome to Starport</div>
     </div>
     <div class="nav__sub">
       <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>      
@@ -37,7 +37,6 @@
 <script>
 import { mapGetters, mapMutations, mapActions } from 'vuex'
 
-import BackendIndicators from '@/modules/BackendIndicators'
 import LogoStarport from '@/assets/logos/LogoStarportSmall'
 import HamIcon from '@/assets/icons/Ham'
 import CompassIcon from '@/assets/icons/Compass'
@@ -47,7 +46,6 @@ export default {
   components: {
     LogoStarport,
     HamIcon,
-    BackendIndicators,
     CompassIcon,
     BlocksIcon
   },
@@ -57,7 +55,7 @@ export default {
     }
   },
   computed: {
-    ...mapGetters('cosmos/blocks', [ 'latestBlock' ]),
+    ...mapGetters('cosmos', [ 'latestBlock' ]),
   },
   methods: {
     handleHamClick() {
@@ -115,12 +113,8 @@ nav {
 }
 .nav__logo h1 {
   font-size: 20px;
-  font-weight: var(--f-w-bold);
+  font-weight: var(--sp-f-w-bold);
   letter-spacing: -0.016em;
-}
-
-.nav__center-msg {
-  color: var(--c-txt-third);
 }
 
 @media only screen and (max-width: 768px) {
@@ -153,25 +147,22 @@ nav {
   display: flex;
   align-items: center;  
 
-  font-weight: var(--f-w-medium);
+  font-weight: var(--sp-f-w-medium);
   line-height: 130%;
-  color: var(--c-txt-third);
+  color: var(--sp-c-txt-third);
 }
 .tab:hover {
-  color: var(--c-txt-primary);
+  color: var(--sp-c-txt-primary);
   transition: color .3s;
 }
 .tab:hover .tab__icon svg >>> path {
-  fill: var(--c-txt-primary);
+  fill: var(--sp-c-txt-primary);
   transition: fill .3s;
 }
 
 .tab.router-link-exact-active {
   pointer-events: none;  
-  color: var(--c-txt-primary);
-}
-.tab.router-link-exact-active .tab__icon svg >>> path {
-  fill: #4251FA;
+  color: var(--sp-c-txt-primary);
 }
 
 @media only screen and (max-width: 1200px) {
@@ -181,7 +172,7 @@ nav {
   }
   .tab:hover {
     background-color: transparent;
-    color: var(--c-txt-primary);
+    color: var(--sp-c-txt-primary);
     transition: color .3s;
   }  
   .tab:not(:last-child) {

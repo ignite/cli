@@ -31,6 +31,7 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
+	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
 }
@@ -59,6 +60,15 @@ type Account struct {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
+}
+
+// Init overwrites sdk configurations with given values.
+type Init struct {
+	// App overwrites appd's config/app.toml configs.
+	App map[string]interface{} `yaml:"app"`
+
+	// Config overwrites appd's config/config.toml configs.
+	Config map[string]interface{} `yaml:"config"`
 }
 
 // Servers keeps configuration related to started servers.
