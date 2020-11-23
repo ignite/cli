@@ -29,9 +29,8 @@ func networkAccountGetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	account, err := b.AccountInUse()
-	if err != nil {
-		return err
+	if err == nil {
+		fmt.Printf("🗿 Your spn account is: %s: %s\n", infoColor(account.Name), infoColor(account.Address))
 	}
-	fmt.Printf("🗿 Your spn account is: %s: %s\n", infoColor(account.Name), infoColor(account.Address))
 	return nil
 }
