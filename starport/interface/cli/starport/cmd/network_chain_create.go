@@ -11,7 +11,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 func NewNetworkChainCreate() *cobra.Command {
@@ -31,14 +30,9 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
-	b, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
-	if err != nil {
-		return err
-	}
-
 	ctx := clictx.From(context.Background())
 
-	blockchain, err := b.InitBlockchainFromPath(ctx, args[0])
+	blockchain, err := nb.InitBlockchainFromPath(ctx, args[0])
 	if err == context.Canceled {
 		s.Stop()
 		fmt.Println("aborted")

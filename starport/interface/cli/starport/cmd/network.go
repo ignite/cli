@@ -15,6 +15,15 @@ import (
 )
 
 var spnAddress string
+var nb *networkbuilder.Builder
+
+func init() {
+	var err error
+	nb, err = newNetworkBuilder()
+	if err != nil {
+		panic(err)
+	}
+}
 
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
@@ -159,11 +168,7 @@ func accountNames(b *networkbuilder.Builder) ([]string, error) {
 }
 
 func ensureSPNAccountHook(cmd *cobra.Command, args []string) error {
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-	err = ensureSPNAccount(b)
+	err := ensureSPNAccount(nb)
 	if err == context.Canceled {
 		return errors.New("aborted")
 	}

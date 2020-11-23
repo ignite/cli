@@ -27,16 +27,11 @@ func NewNetworkAccountExport() *cobra.Command {
 }
 
 func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-
 	// prep path and name.
 	path, _ := cmd.Flags().GetString("path")
 	name, _ := cmd.Flags().GetString("account")
 	if name == accountPlaceholder {
-		account, err := b.AccountInUse()
+		account, err := nb.AccountInUse()
 		if err != nil {
 			return err
 		}
@@ -47,7 +42,7 @@ func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if chosen account exists before asking a password.
-	if _, err := b.AccountGet(name); err != nil {
+	if _, err := nb.AccountGet(name); err != nil {
 		return errors.New("account does not exist")
 	}
 
@@ -61,7 +56,7 @@ func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// generate the private key and save.
-	privateKey, err := b.AccountExport(name, password)
+	privateKey, err := nb.AccountExport(name, password)
 	if err != nil {
 		return err
 	}

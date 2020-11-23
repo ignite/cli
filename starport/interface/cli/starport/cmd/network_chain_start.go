@@ -25,14 +25,9 @@ func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 		startFlags = args[1:]
 	}
 
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-
 	ctx := clictx.From(context.Background())
 
-	err = b.StartChain(ctx, chainID, startFlags)
+	err := nb.StartChain(ctx, chainID, startFlags)
 	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil

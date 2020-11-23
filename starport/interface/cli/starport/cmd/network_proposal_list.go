@@ -31,12 +31,7 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-
-	proposals, err := b.ProposalList(context.Background(), args[0], spn.ProposalStatus(status))
+	proposals, err := nb.ProposalList(context.Background(), args[0], spn.ProposalStatus(status))
 	if err != nil {
 		return err
 	}

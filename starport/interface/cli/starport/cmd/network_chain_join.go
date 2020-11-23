@@ -33,11 +33,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
-	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
-	if err != nil {
-		return err
-	}
-
 	ctx := clictx.From(context.Background())
 
 	blockchain, err := nb.InitBlockchainFromChainID(ctx, args[0])

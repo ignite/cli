@@ -17,11 +17,7 @@ func NewNetworkAccountCreate() *cobra.Command {
 }
 
 func networkAccountCreateHandler(cmd *cobra.Command, args []string) error {
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-	account, err := b.AccountCreate(args[0], "")
+	account, err := nb.AccountCreate(args[0], "")
 	if err != nil {
 		return err
 	}

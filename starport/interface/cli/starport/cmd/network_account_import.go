@@ -23,11 +23,7 @@ func networkAccountImportHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-	if err := b.AccountImport(name, string(privateKey), password); err != nil {
+	if err := nb.AccountImport(name, string(privateKey), password); err != nil {
 		return err
 	}
 	fmt.Println("🗿 Account imported")

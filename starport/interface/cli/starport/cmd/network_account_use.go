@@ -23,16 +23,12 @@ Picked account will be used while interacting with Starport Network.`,
 }
 
 func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
 	name, _ := cmd.Flags().GetString("name")
 
 	// when name is not provided by the flag,
 	// list all accounts for user to pick one.
 	if name == "" {
-		accounts, err := accountNames(b)
+		accounts, err := accountNames(nb)
 		if err != nil {
 			return err
 		}
@@ -63,7 +59,7 @@ func networkAccountUseHandler(cmd *cobra.Command, args []string) error {
 		}
 		name = answers.AccountName
 	}
-	if err := b.AccountUse(name); err != nil {
+	if err := nb.AccountUse(name); err != nil {
 		return err
 	}
 	fmt.Printf("📒 Account put into use: %s\n", color.New(color.FgYellow).SprintFunc()(name))

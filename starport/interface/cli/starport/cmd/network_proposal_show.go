@@ -20,17 +20,12 @@ func NewNetworkProposalDescribe() *cobra.Command {
 }
 
 func networkProposalDescribeHandler(cmd *cobra.Command, args []string) error {
-	b, err := newNetworkBuilder()
-	if err != nil {
-		return err
-	}
-
 	id, err := strconv.ParseInt(args[1], 10, 32)
 	if err != nil {
 		return err
 	}
 
-	proposal, err := b.ProposalGet(context.Background(), args[0], int(id))
+	proposal, err := nb.ProposalGet(context.Background(), args[0], int(id))
 	if err != nil {
 		return err
 	}
