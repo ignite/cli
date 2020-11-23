@@ -20,13 +20,6 @@ RUN pacman -Syyu --noconfirm neovim \
 				jq \
 				go
 
-# INSTALL YAY: WE BECOME THE BUILDUSER HERE
-USER builduser
-RUN cd ~/ && \
-		git clone https://aur.archlinux.org/yay.git yay && \
-		cd yay && \
-		makepkg -si --noconfirm --clean --rmdeps
-USER root
 
 # Add development environment dependencies
 RUN echo "zerotier-cli join 35c192ce9bf02045" >> /usr/local/bin/firstboot.sh && \
