@@ -30,7 +30,7 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
-	github.com/tendermint/spn v0.0.0-20201117101632-e6e7d89e7820
+	github.com/tendermint/spn v0.0.0-20201120084032-2f16b05379db
 	github.com/tendermint/tendermint v0.34.0-rc4.0.20201005135527-d7d0ffea13c6
 	golang.org/x/crypto v0.0.0-20201117144127-c1f2f97bffc9 // indirect
 	golang.org/x/mod v0.3.0

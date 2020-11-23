@@ -2,7 +2,6 @@ package networkbuilder
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"strings"
@@ -151,7 +150,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx interface{}) error {
+func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte) error {
 	key, err := b.chain.ShowNodeID(ctx)
 	if err != nil {
 		return err
@@ -163,13 +162,8 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 	}); err != nil {
 		return err
 	}
-
-	gentxjson, err := json.Marshal(gentx)
-	if err != nil {
-		return err
-	}
 	return b.builder.ProposeAddValidator(ctx, b.chain.ID(), spn.ProposalAddValidator{
-		Gentx:         gentxjson,
+		Gentx:         gentx,
 		PublicAddress: p2pAddress,
 	})
 }
