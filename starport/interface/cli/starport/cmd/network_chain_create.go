@@ -2,7 +2,9 @@ package starportcmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"os"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -35,10 +37,35 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	ctx := clictx.From(context.Background())
+	path := args[0]
 
-	blockchain, err := nb.InitBlockchainFromPath(ctx, args[0])
-	if err == context.Canceled {
+	blockchain, err := nb.InitBlockchainFromPath(ctx, path)
+
+	// handle if data dir for the chain already exists.
+	var e *networkbuilder.DataDirExistsError
+	if errors.As(err, &e) {
 		s.Stop()
+
+		prompt := promptui.Prompt{
+			Label: fmt.Sprintf("Data directory for %q blockchain already exists: %s. Would you like to overwrite it",
+				e.ID,
+				e.Home,
+			),
+			IsConfirm: true,
+		}
+		if _, err := prompt.Run(); err != nil {
+			fmt.Println("said no")
+			return nil
+		}
+
+		if err := os.RemoveAll(e.Home); err != nil {
+			return err
+		}
+
+		blockchain, err = nb.InitBlockchainFromPath(ctx, path)
+	}
+
+	if err == context.Canceled {
 		fmt.Println("aborted")
 		return nil
 	}
@@ -52,12 +79,14 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	s.Stop()
+
+	// ask to confirm genesis.
 	prettyGenesis, err := info.Genesis.Pretty()
 	if err != nil {
 		return err
 	}
 
-	s.Stop()
 	fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
 
 	prompt := promptui.Prompt{
@@ -65,11 +94,11 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		IsConfirm: true,
 	}
 	if _, err := prompt.Run(); err != nil {
-		s.Stop()
 		fmt.Println("said no")
 		return nil
 	}
 
+	// create blockchain.
 	if err := blockchain.Create(ctx, info.Genesis); err != nil {
 		return err
 	}

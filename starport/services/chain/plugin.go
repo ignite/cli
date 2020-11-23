@@ -44,7 +44,7 @@ type Plugin interface {
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
-	// Home returns the root config dir's path of app.
+	// Home returns the blockchain node's home dir.
 	Home() (string, error)
 
 	// Version of the plugin.

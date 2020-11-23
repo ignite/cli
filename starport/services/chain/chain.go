@@ -150,6 +150,12 @@ func (s *Chain) ID() (string, error) {
 	return id, nil
 }
 
+// Home returns the blockchain node's home dir.
+func (c *Chain) Home() string {
+	home, _ := c.plugin.Home()
+	return home
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() string {
 	home, _ := c.plugin.Home()

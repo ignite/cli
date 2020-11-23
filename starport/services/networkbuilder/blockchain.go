@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -51,6 +52,16 @@ func (b *Blockchain) init(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
+	chainID, err := c.ID()
+	if err != nil {
+		return err
+	}
+
+	if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
+		return &DataDirExistsError{chainID, c.Home()}
+	}
+
 	// cleanup home dir of app if exists.
 	for _, path := range c.StoragePaths() {
 		if err := xos.RemoveAllUnderHome(path); err != nil {
@@ -74,6 +85,8 @@ func (b *Blockchain) init(ctx context.Context) error {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
+	ID               string
+	Home             string
 	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
@@ -93,7 +106,13 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
+	chainID, err := b.chain.ID()
+	if err != nil {
+		return BlockchainInfo{}, err
+	}
 	return BlockchainInfo{
+		ID:               chainID,
+		Home:             b.chain.Home(),
 		Genesis:          genesis,
 		Config:           config,
 		RPCPublicAddress: paddr,
@@ -110,7 +129,7 @@ func (b *Blockchain) Create(ctx context.Context, genesis jsondoc.Doc) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, string(genesis), b.url, b.hash)
+	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, genesis, b.url, b.hash)
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -177,4 +196,13 @@ func (b *Blockchain) Cleanup() error {
 	b.builder.ev.Shutdown()
 	//return os.RemoveAll(b.appPath)
 	return nil
+}
+
+type DataDirExistsError struct {
+	ID   string
+	Home string
+}
+
+func (e DataDirExistsError) Error() string {
+	return "cannot initialize. chain's data dir already exists"
 }

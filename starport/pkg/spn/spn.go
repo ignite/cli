@@ -152,7 +152,7 @@ func (c *Client) AccountImport(accountName, privateKey, password string) error {
 }
 
 // ChainCreate creates a new chain.
-func (c *Client) ChainCreate(ctx context.Context, accountName, chainID, genesis, sourceURL, sourceHash string) error {
+func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, genesis []byte, sourceURL, sourceHash string) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -162,7 +162,7 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID, genesis,
 		clientCtx.GetFromAddress(),
 		sourceURL,
 		sourceHash,
-		[]byte(genesis),
+		genesis,
 	))
 }
 
