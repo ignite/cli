@@ -67,3 +67,14 @@ jobs:
       - name: Build Image
         working-directory: ${{ env.working-directory }}/.pi
         run: bash build.sh
+  
+      - name: Compress
+        run: |
+          sudo apt install -y pbzip2
+          pbzip2 images/sos.img
+      
+      - name: Upload image
+        uses: actions/upload-artifact@v2
+        with:
+          name: sos
+          path: images/sos.img.bz2
