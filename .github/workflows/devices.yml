@@ -73,9 +73,7 @@ jobs:
 
       - name: Build Image
         working-directory: ${{ env.working-directory }}/.pi
-        run: | 
-          cp $GITHUB_WORKSPACE/go/bin/starport .
-          bash build.sh
+        run: bash build.sh
   
       - name: Compress
         working-directory: ${{ env.working-directory }}/.pi
