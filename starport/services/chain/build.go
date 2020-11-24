@@ -18,7 +18,7 @@ func (s *Chain) Build(ctx context.Context) error {
 	if err := s.setup(ctx); err != nil {
 		return err
 	}
-	conf, err := s.config()
+	conf, err := s.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}

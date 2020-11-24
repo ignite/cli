@@ -26,7 +26,6 @@ func NewServe() *cobra.Command {
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	verbose, _ := cmd.Flags().GetBool("verbose")
 	path, err := gomodulepath.Parse(getModule(appPath))
 	if err != nil {
 		return err
@@ -46,7 +45,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		cancel()
 	}()
 
-	s, err := chain.New(app, verbose)
+	s, err := chain.New(app, logLevel(cmd))
 	if err != nil {
 		return err
 	}
