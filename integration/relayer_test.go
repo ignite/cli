@@ -185,7 +185,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 
 		ctx, cancel                = context.WithCancel(env.Ctx())
-		relayerHome                = filepath.Join(env.Home(), "blogd/relayer")
+		relayerHome                = filepath.Join(env.Home(), ".blog/relayer")
 		balance                    = &bytes.Buffer{}
 		canCheckBalanceWithRelayer bool
 	)

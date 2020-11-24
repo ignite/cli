@@ -273,7 +273,7 @@ func (e env) Home() string {
 func (e env) AppdHome(name, sdkVersion string) string {
 	switch sdkVersion {
 	case Stargate:
-		return filepath.Join(e.Home(), fmt.Sprintf("%sd", name))
+		return filepath.Join(e.Home(), fmt.Sprintf("%s", name))
 	case Launchpad:
 		return filepath.Join(e.Home(), fmt.Sprintf(".%sd", name))
 	}

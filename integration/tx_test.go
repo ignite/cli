@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -26,6 +27,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname, Stargate)
 		servers     = env.RandomizeServerPorts(path)
+		home        = filepath.Join(env.Home(), "."+appname)
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -56,6 +58,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 			"list",
 			"--keyring-backend", "test",
 			"--output", "json",
+			"--home", home,
 		),
 		step.PreExec(func() error {
 			output.Reset()
@@ -99,6 +102,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					"--keyring-backend", "test",
 					"--chain-id", appname,
 					"--node", xurl.TCP(servers.RPCAddr),
+					"--home", home,
 					"--yes",
 				),
 				step.PreExec(func() error {
