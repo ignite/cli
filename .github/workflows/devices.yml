@@ -51,7 +51,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           name: starport arm64
-          path: ${{ env.working-directory }}/go/bin/starport/build/starport
+          path: ${{ env.working-directory }}/starport/build/starport
         
         
       - name: Copy Starport
