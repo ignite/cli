@@ -21,8 +21,10 @@ var (
 // New creates a new root command for `starport` with its sub commands.
 func New() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "starport",
-		Short: "A tool for scaffolding out Cosmos applications",
+		Use:           "starport",
+		Short:         "A tool for scaffolding out Cosmos applications",
+		SilenceUsage:  true,
+		SilenceErrors: true,
 	}
 	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
