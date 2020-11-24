@@ -53,7 +53,7 @@ type env struct {
 
 // development handler builder.
 type development struct {
-	app  App
+	app  *App
 	conf Config
 	uifs http.FileSystem
 }
@@ -67,7 +67,7 @@ type Config struct {
 }
 
 // newDevHandler creates a new development server handler for app by given conf.
-func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
+func newDevHandler(app *App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
 	uifs, err := fs.New()
 	if err != nil {
 		return nil, err

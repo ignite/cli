@@ -164,17 +164,18 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// update genesis.
-	homedir, err := os.UserHomeDir()
+	home, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
-	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
+	chainHome := filepath.Join(home, "."+chainID)
+	genesisPath := filepath.Join(chainHome, "config/genesis.json")
 	if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0666); err != nil {
 		return err
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
+	configTomlPath := filepath.Join(chainHome, "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -192,7 +193,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	return cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
-			append([]string{"start"}, flags...)...,
+			append([]string{"start", "--home", chainHome}, flags...)...,
 		),
 		step.Stdout(os.Stdout),
 		step.Stderr(os.Stderr),

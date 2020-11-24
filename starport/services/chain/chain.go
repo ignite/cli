@@ -12,6 +12,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/pkg/errors"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
@@ -45,7 +46,7 @@ const (
 )
 
 type Chain struct {
-	app            App
+	app            *App
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
@@ -56,7 +57,7 @@ type Chain struct {
 
 func New(app App, logLevel LogLevel) (*Chain, error) {
 	s := &Chain{
-		app:            app,
+		app:            &app,
 		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
@@ -82,6 +83,20 @@ func New(app App, logLevel LogLevel) (*Chain, error) {
 	s.plugin, err = s.pickPlugin()
 	if err != nil {
 		return nil, err
+	}
+
+	if s.plugin.Version() == cosmosver.Stargate {
+		// configure home dir for Stargate by using chain-id as the name of
+		// home dir for app.
+		chainID, err := s.ID()
+		if err != nil {
+			return nil, err
+		}
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return nil, err
+		}
+		s.app.HomeDirPath = filepath.Join(home, "."+chainID)
 	}
 
 	return s, nil
@@ -152,24 +167,20 @@ func (s *Chain) ID() (string, error) {
 
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() string {
-	home, _ := c.plugin.Home()
-	return home
+	return c.plugin.Home()
 }
 
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/genesis.json", home)
+	return fmt.Sprintf("%s/config/genesis.json", c.Home())
 }
 
 // AppTOMLPath returns app.toml path of the app.
 func (c *Chain) AppTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/app.toml", home)
+	return fmt.Sprintf("%s/config/app.toml", c.Home())
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/config.toml", home)
+	return fmt.Sprintf("%s/config/config.toml", c.Home())
 }

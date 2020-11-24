@@ -14,11 +14,11 @@ import (
 )
 
 type stargatePlugin struct {
-	app   App
+	app   *App
 	chain *Chain
 }
 
-func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
+func newStargatePlugin(app *App, chain *Chain) *stargatePlugin {
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
@@ -57,6 +57,7 @@ func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
 				accountName,
 				"--output", "json",
 				"--keyring-backend", "test",
+				"--home", p.Home(),
 			),
 		)
 }
@@ -71,6 +72,7 @@ func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 				name,
 				"--recover",
 				"--keyring-backend", "test",
+				"--home", p.Home(),
 			),
 			step.Write([]byte(mnemonic+"\n")),
 		)
@@ -84,6 +86,7 @@ func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 		accountName,
 		"-a",
 		"--keyring-backend", "test",
+		"--home", p.Home(),
 	)
 }
 
@@ -97,6 +100,7 @@ func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
 		"--chain-id", chainID,
 		"--keyring-backend", "test",
 		"--amount", v.StakingAmount,
+		"--home", p.Home(),
 	}
 	if v.Moniker != "" {
 		args = append(args, "--moniker", v.Moniker)
@@ -128,11 +132,7 @@ func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
 
 func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.ND(), "config/app.toml")
+	path := filepath.Join(p.Home(), "config/app.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -152,11 +152,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 
 func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.ND(), "config/config.toml")
+	path := filepath.Join(p.Home(), "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -185,6 +181,7 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 					"start",
 					"--pruning", "nothing",
 					"--grpc.address", conf.Servers.GRPCAddr,
+					"--home", p.Home(),
 				),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
@@ -195,16 +192,16 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 
 func (p *stargatePlugin) StoragePaths() []string {
 	return []string{
-		p.app.ND(),
+		p.Home(),
 	}
 }
 
-func (p *stargatePlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
+func (p *stargatePlugin) Home() string {
+	if p.app.HomeDirPath != "" {
+		return p.app.HomeDirPath
 	}
-	return filepath.Join(home, p.app.ND()), nil
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, p.app.ND())
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

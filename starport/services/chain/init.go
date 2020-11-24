@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
@@ -36,7 +37,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	steps.Add(step.New(
 		step.PreExec(func() error {
 			for _, path := range c.plugin.StoragePaths() {
-				if err := xos.RemoveAllUnderHome(path); err != nil {
+				if err := os.RemoveAll(path); err != nil {
 					return err
 				}
 			}
@@ -52,6 +53,7 @@ func (c *Chain) Init(ctx context.Context) error {
 				"init",
 				"mynode",
 				"--chain-id", chainID,
+				"--home", c.Home(),
 			),
 			// overwrite configuration changes from Starport's config.yml to
 			// over app's sdk configs.
@@ -192,6 +194,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 								"add-genesis-account",
 								key,
 								coins,
+								"--home", s.Home(),
 							)).
 							Add(s.stdSteps(logAppd)...)...,
 						))
@@ -252,6 +255,7 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 			Add(step.Exec(
 				c.app.D(),
 				"collect-gentxs",
+				"--home", c.Home(),
 			)).
 			Add(c.stdSteps(logAppd)...)...,
 		))
@@ -268,6 +272,7 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 					c.app.D(),
 					"tendermint",
 					"show-node-id",
+					"--home", c.Home(),
 				),
 				step.Stdout(key),
 			),

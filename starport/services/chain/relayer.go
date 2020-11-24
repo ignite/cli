@@ -259,7 +259,7 @@ func (s *Chain) initRelayerHome() (path string, err error) {
 	if err != nil {
 		return "", err
 	}
-	relayerHome := filepath.Join(home, s.app.ND(), "relayer")
+	relayerHome := filepath.Join(s.Home(), "relayer")
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		relayerHome = filepath.Join(home, ".relayer")
 	}

@@ -7,8 +7,9 @@ import (
 
 // App keeps info about scaffold.
 type App struct {
-	Name string
-	Path string
+	Name        string
+	Path        string
+	HomeDirPath string
 }
 
 // N returns app name without dashes.
