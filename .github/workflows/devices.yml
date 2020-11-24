@@ -29,11 +29,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
-        working-directory: ${{ env.working-directory }}/.pi
+        working-directory: .pi
         run: bash build.sh
   
       - name: Compress
-        working-directory: ${{ env.working-directory }}/.pi
+        working-directory: .pi
         run: |
           sudo apt install -y pbzip2
           pbzip2 images/starport.img
@@ -42,4 +42,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: sos
-          path: go/src/github.com/tendermint/starport/.pi/images/starport.img.bz2
+          path: .pi/images/starport.img.bz2
