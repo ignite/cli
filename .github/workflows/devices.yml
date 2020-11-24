@@ -43,7 +43,7 @@ jobs:
           export GOARCH=arm64
           cd starport/interface/cli/starport
           packr2 -v
-          cd ${{ env.working-directory }}
+          cd /home/runner/work/starport/starport/go/src/github.com/tendermint/starport/
           mkdir build
           go build -v -mod=readonly -o build/ ./starport/interface/cli/...
 
@@ -51,8 +51,7 @@ jobs:
         uses: actions/checkout@v2
         with:
           name: starport arm64
-          path: ${{ env.working-directory }}/starport/build/starport
-        
+          path: ${{ env.working-directory }}/build/starport
         
       - name: Copy Starport
         run: cp  ${{ env.working-directory }}/starport/build/starport ${{ env.working-directory }}/.pi
