@@ -29,11 +29,11 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
-        working-directory: .pi
+        working-directory: .pi/
         run: bash build.sh
   
       - name: Compress
-        working-directory: .pi
+        working-directory: .pi/
         run: |
           sudo apt install -y pbzip2
           pbzip2 images/starport.img
