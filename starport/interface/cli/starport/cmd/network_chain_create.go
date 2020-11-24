@@ -8,7 +8,6 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
@@ -36,10 +35,9 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ctx := clictx.From(context.Background())
 	path := args[0]
 
-	blockchain, err := nb.InitBlockchainFromPath(ctx, path, true)
+	blockchain, err := nb.InitBlockchainFromPath(cmd.Context(), path, true)
 
 	// handle if data dir for the chain already exists.
 	var e *networkbuilder.DataDirExistsError
@@ -62,7 +60,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		blockchain, err = nb.InitBlockchainFromPath(ctx, path, true)
+		blockchain, err = nb.InitBlockchainFromPath(cmd.Context(), path, true)
 	}
 
 	if err == context.Canceled {
@@ -99,7 +97,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create blockchain.
-	if err := blockchain.Create(ctx, info.Genesis); err != nil {
+	if err := blockchain.Create(cmd.Context(), info.Genesis); err != nil {
 		return err
 	}
 

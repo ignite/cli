@@ -1,11 +1,7 @@
 package starportcmd
 
 import (
-	"context"
-	"fmt"
-
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clictx"
 )
 
 func NewNetworkChainStart() *cobra.Command {
@@ -30,16 +26,5 @@ func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 		startFlags = args[1:]
 	}
 
-	ctx := clictx.From(context.Background())
-
-	err = nb.StartChain(ctx, chainID, startFlags)
-	if err == context.Canceled {
-		fmt.Println("aborted")
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return nb.StartChain(cmd.Context(), chainID, startFlags)
 }

@@ -9,7 +9,6 @@ import (
 	"github.com/manifoldco/promptui"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -38,9 +37,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ctx := clictx.From(context.Background())
-
-	blockchain, err := nb.InitBlockchainFromChainID(ctx, args[0], false)
+	blockchain, err := nb.InitBlockchainFromChainID(cmd.Context(), args[0], false)
 
 	if err == context.Canceled {
 		s.Stop()
@@ -99,7 +96,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, address, mnemonic, err := blockchain.IssueGentx(ctx, account, proposal)
+	gentx, address, mnemonic, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}
@@ -124,7 +121,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := blockchain.Join(ctx, address, publicAddress, coins, gentx); err != nil {
+	if err := blockchain.Join(cmd.Context(), address, publicAddress, coins, gentx); err != nil {
 		return err
 	}
 
