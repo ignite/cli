@@ -13,6 +13,9 @@
 * Covered CRUD operations for Stargate scaffolding.
 * Added docs on gopath to build from source directions
 
+### Changes:
+* Home dir for Stargate changed to `~/.app`.
+
 ## `v0.12.0`
 
 ### Features:
