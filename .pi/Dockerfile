@@ -1,4 +1,3 @@
-
 FROM archlinux AS builder
 ENV GOPATH=/go
 RUN pacman -S --noconfirm go npm && \
