@@ -31,8 +31,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image
-        working-directory: .pi/
-        run: bash build.sh
+        run: bash .pi/build.sh
 
       - name: Compress
         working-directory: .pi/
