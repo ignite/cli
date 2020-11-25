@@ -1,4 +1,4 @@
-FROM archlinux AS builder
+FROM mydatakeeper/archlinuxarm:aarch64 AS builder
 ENV GOPATH=/go
 RUN pacman -S --noconfirm go npm && \
 	mkdir /go
