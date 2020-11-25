@@ -1,10 +1,12 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
+	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/gacli"
 )
 
@@ -31,11 +33,20 @@ func main() {
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
 		addMetric(Metric{})
 	}
-	err := starportcmd.New().Execute()
+
+	ctx := clictx.From(context.Background())
+	err := starportcmd.New().ExecuteContext(ctx)
+
 	addMetric(Metric{
 		Err: err,
 	})
+
+	if err == context.Canceled {
+		fmt.Println("aborted")
+		return
+	}
 	if err != nil {
+		fmt.Println()
 		fmt.Println(err)
 		os.Exit(1)
 	}

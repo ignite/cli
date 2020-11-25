@@ -36,6 +36,16 @@ type Config struct {
 	Servers   Servers                `yaml:"servers"`
 }
 
+// AccountByName finds account by name.
+func (c Config) AccountByName(name string) (acc Account, found bool) {
+	for _, acc := range c.Accounts {
+		if acc.Name == name {
+			return acc, true
+		}
+	}
+	return Account{}, false
+}
+
 // Account holds the options related to setting up Cosmos wallets.
 type Account struct {
 	Name     string   `yaml:"name"`

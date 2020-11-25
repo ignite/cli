@@ -66,7 +66,7 @@ func (s *Chain) stdLog(logType logType) std {
 		stdout io.Writer = prefixed(s.stdout)
 		stderr io.Writer = prefixed(s.stderr)
 	)
-	if logType == logStarport && !s.verbose {
+	if logType == logStarport && s.logLevel == LogRegular {
 		stdout = os.Stdout
 		stderr = os.Stderr
 	}

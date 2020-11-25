@@ -18,7 +18,7 @@ func (s *Chain) Build(ctx context.Context) error {
 	if err := s.setup(ctx); err != nil {
 		return err
 	}
-	conf, err := s.config()
+	conf, err := s.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
@@ -55,7 +55,7 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		s.version.tag,
 		s.version.hash,
 		s.app.ImportPath,
-		s.app.d(),
+		s.app.D(),
 		chainID,
 	)
 	var (
