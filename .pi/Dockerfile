@@ -7,7 +7,6 @@ WORKDIR /starport
 RUN make
 
 
-
 FROM faddat/sos
 
 RUN pacman -Syyu --noconfirm neovim \
