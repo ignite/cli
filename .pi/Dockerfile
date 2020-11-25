@@ -4,7 +4,8 @@ RUN pacman -S --noconfirm go npm make && \
 	mkdir /go
 COPY . /starport
 WORKDIR /starport
-RUN make
+RUN PATH=$PATH:/go/bin &&\
+		make
 
 
 FROM faddat/sos
