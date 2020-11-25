@@ -8,7 +8,7 @@ RUN PATH=$PATH:/go/bin &&\
 		make
 
 
-FROM faddat/sos
+FROM faddat/sos-full
 
 # IPFS systemD service
 COPY --from=builder /starport/build/starport /usr/bin/starport
