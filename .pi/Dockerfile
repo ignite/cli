@@ -1,6 +1,6 @@
 FROM mydatakeeper/archlinuxarm:aarch64 AS builder
 ENV GOPATH=/go
-RUN pacman -S --noconfirm go npm && \
+RUN pacman -S --noconfirm go npm make && \
 	mkdir /go
 COPY . /starport
 WORKDIR /starport
