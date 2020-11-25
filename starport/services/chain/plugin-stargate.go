@@ -141,6 +141,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(conf.Servers.APIAddr))
+	config.Set("grpc.address", xurl.TCP(conf.Servers.GRPCAddr))
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
