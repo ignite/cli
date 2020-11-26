@@ -54,7 +54,7 @@ rm -rf images || true
 mkdir -p images
 
 # Make the image file
-fallocate -l 4G "images/starport.img"
+fallocate -l 5G "images/starport.img"
 
 # loop-mount the image file so it becomes a disk
 sudo losetup --find --show images/starport.img
