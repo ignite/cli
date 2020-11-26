@@ -31,6 +31,9 @@ docker save --output ./.tmp/result-rootfs.tar starport
 # Extract the image using docker-extract
 docker run --rm --tty --volume $(pwd)/./.tmp:/root/./.tmp --workdir /root/./.tmp/.. faddat/toolbox /tools/docker-extract --root ./.tmp/result-rootfs  ./.tmp/result-rootfs.tar
 
+# get rid of result-rootfs.tar to save space
+rm ./.tmp/result-rootfs.tar
+
 # Set hostname while the image is just in the filesystem.
 sudo bash -c "echo starport > ./.tmp/result-rootfs/etc/hostname"
 
@@ -54,7 +57,7 @@ rm -rf images || true
 mkdir -p images
 
 # Make the image file
-fallocate -l 5G "images/starport.img"
+fallocate -l 4G "images/starport.img"
 
 # loop-mount the image file so it becomes a disk
 sudo losetup --find --show images/starport.img
