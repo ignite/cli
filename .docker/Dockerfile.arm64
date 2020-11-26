@@ -1,6 +1,6 @@
 FROM faddat/sos-base
 ENV GOPATH=/go
-RUN pacman -S --noconfirm go npm make && \
+RUN pacman -Syyu --noconfirm go npm make && \
 	mkdir /go
 COPY . /starport
 WORKDIR /starport
