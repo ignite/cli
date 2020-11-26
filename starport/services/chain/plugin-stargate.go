@@ -33,18 +33,10 @@ func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.Root(), "cmd", p.app.D()),
-			),
-		}, []string{
-			p.app.D(),
-		}
+func (p *stargatePlugin) Binaries() []string {
+	return []string{
+		p.app.D(),
+	}
 }
 
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {

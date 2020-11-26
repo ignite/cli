@@ -26,8 +26,9 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	app := chain.App{
-		Name: path.Root,
-		Path: appPath,
+		Name:       path.Root,
+		Path:       appPath,
+		ImportPath: path.RawPath,
 	}
 
 	s, err := chain.New(app, logLevel(cmd))

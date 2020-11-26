@@ -48,26 +48,11 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.Root(), "cmd", p.app.D()),
-			),
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.Root(), "cmd", p.app.CLI()),
-			),
-		}, []string{
-			p.app.D(),
-			p.app.CLI(),
-		}
+func (p *launchpadPlugin) Binaries() []string {
+	return []string{
+		p.app.D(),
+		p.app.CLI(),
+	}
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
