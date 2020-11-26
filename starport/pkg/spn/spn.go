@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/go-bip39"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
@@ -359,8 +358,10 @@ type ProposalAddAccount struct {
 
 // ProposalAddValidator used to propose adding a validator.
 type ProposalAddValidator struct {
-	Gentx         jsondoc.Doc
-	PublicAddress string
+	Gentx            jsondoc.Doc
+	ValidatorAddress string
+	SelfDelegation   types.Coin
+	P2PAddress       string
 }
 
 // ProposalList lists proposals on a chain by status.
@@ -429,15 +430,9 @@ func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 
 	case *genesistypes.Proposal_AddValidatorPayload:
 		p.Validator = &ProposalAddValidator{
-			PublicAddress: payload.AddValidatorPayload.Peer,
+			P2PAddress: payload.AddValidatorPayload.Peer,
 		}
-
-		// Marshal gentx
-		gentx, err := c.clientCtx.JSONMarshaler.MarshalJSON(payload.AddValidatorPayload.GenTx)
-		if err != nil {
-			return Proposal{}, err
-		}
-		p.Validator.Gentx = gentx
+		p.Validator.Gentx = payload.AddValidatorPayload.GenTx
 	}
 
 	return p, nil
@@ -493,17 +488,18 @@ func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID s
 		return err
 	}
 
-	// Read the gentx
-	var gentx txtypes.Tx
-	err = clientCtx.JSONMarshaler.UnmarshalJSON([]byte(validator.Gentx), &gentx)
+	// Get the validator address
+	addr, err := types.ValAddressFromBech32(validator.ValidatorAddress)
 	if err != nil {
 		return err
 	}
 
 	// Create the proposal payload
 	payload := genesistypes.NewProposalAddValidatorPayload(
-		gentx,
-		validator.PublicAddress,
+		validator.Gentx,
+		addr,
+		validator.SelfDelegation,
+		validator.P2PAddress,
 	)
 
 	msg := genesistypes.NewMsgProposalAddValidator(

@@ -172,7 +172,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte) error {
+func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
 	key, err := b.chain.ShowNodeID(ctx)
 	if err != nil {
 		return err
@@ -189,8 +189,10 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 		return err
 	}
 	return b.builder.ProposeAddValidator(ctx, chainID, spn.ProposalAddValidator{
-		Gentx:         gentx,
-		PublicAddress: p2pAddress,
+		Gentx:            gentx,
+		ValidatorAddress: accountAddress,
+		SelfDelegation:   selfDelegation,
+		P2PAddress:       p2pAddress,
 	})
 }
 

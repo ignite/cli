@@ -117,11 +117,19 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	// Parse the coins of the account
 	coins, err := types.ParseCoins(account.Coins)
 	if err != nil {
 		return err
 	}
-	if err := blockchain.Join(cmd.Context(), address, publicAddress, coins, gentx); err != nil {
+
+	// Parse the self delegation of this account for the validator
+	selfDelegation, err := types.ParseCoin(proposal.Validator.StakingAmount)
+	if err != nil {
+		return err
+	}
+
+	if err := blockchain.Join(cmd.Context(), address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
 
