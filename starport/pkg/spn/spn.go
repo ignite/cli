@@ -291,12 +291,20 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg ty
 	return nil
 }
 
+// Represent a genesis account inside a chain with its allocated coins
+type GenesisAccount struct {
+	Address types.AccAddress
+	Coins types.Coins
+}
+
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
-	URL     string
-	Hash    string
-	Genesis jsondoc.Doc
-	Peers   []string
+	URL             string
+	Hash            string
+	Genesis         jsondoc.Doc
+	Peers           []string
+	GenesisAccounts []GenesisAccount
+	GenTxs          [][]byte
 }
 
 // ChainGet shows chain info.
@@ -317,19 +325,32 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	}
 
 	// Get the updated genesis
-	currentGenesisReq := &genesistypes.QueryCurrentGenesisRequest{
+	launchInformationReq := &genesistypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	}
-	currentGenesisRes, err := q.CurrentGenesis(ctx, currentGenesisReq)
+	launchInformationRes, err := q.LaunchInformation(ctx, launchInformationReq)
 	if err != nil {
 		return Chain{}, err
+	}
+
+	// Get the genesis accounts
+	var genesisAccounts []GenesisAccount
+	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
+		genesisAccount := GenesisAccount{
+			Address: addAccountProposalPayload.Address,
+			Coins: addAccountProposalPayload.Coins,
+		}
+
+		genesisAccounts = append(genesisAccounts, genesisAccount)
 	}
 
 	return Chain{
 		URL:     res.Chain.SourceURL,
 		Hash:    res.Chain.SourceHash,
-		Genesis: currentGenesisRes.Genesis,
-		Peers:   res.Chain.Peers,
+		Genesis: launchInformationRes.InitialGenesis,
+		Peers:   launchInformationRes.Peers,
+		GenesisAccounts: genesisAccounts,
+		GenTxs: launchInformationRes.GenTxs,
 	}, nil
 }
 
