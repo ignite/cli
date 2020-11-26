@@ -61,7 +61,7 @@ jobs:
   pi:
     name: Starport Pi
     runs-on: ubuntu-latest
-	needs: arm64
+    needs: arm64
     steps:
       - name: checkout
         uses: actions/checkout@v2
