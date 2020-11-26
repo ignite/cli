@@ -85,7 +85,6 @@ jobs:
         run: bash .pi/build.sh
 
       - name: Compress
-        working-directory: .pi/
         run: |
           sudo apt install -y pbzip2
           pbzip2 images/starport.img
