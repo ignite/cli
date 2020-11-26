@@ -87,10 +87,10 @@ jobs:
       - name: Compress
         run: |
           sudo apt install -y pbzip2
-          pbzip2 images/starport.img
+          xz -T $(nproc) images/starport.img
 
       - name: Upload image
         uses: actions/upload-artifact@v2
         with:
           name: sos
-          path: images/starport.img.bz2
+          path: images/starport.img.xz
