@@ -34,7 +34,7 @@ jobs:
         run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport --file .docker/Dockerfile.amd64 --platform linux/amd64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --push --progress tty .
 
   arm64:
-    name: amd64 docker
+    name: arm64 docker
     runs-on: ubuntu-latest
     steps:
       - name: checkout
