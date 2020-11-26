@@ -1,6 +1,6 @@
 FROM archlinux
 ENV GOPATH=/go
-RUN pacman -Syyu --noconfirm go npm make && \
+RUN pacman -Syyu --noconfirm go npm make which && \
 	mkdir /go
 COPY . /starport
 WORKDIR /starport
