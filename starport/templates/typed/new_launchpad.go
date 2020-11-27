@@ -57,7 +57,8 @@ func (t *typedLaunchpad) typesKeyModify(opts *Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[2]vPrefix = "%[1]v-"
+	%[2]vPrefix = "%[1]v-value-"
+	%[2]vCountPrefix = "%[1]v-count-"
 )
 		`, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)

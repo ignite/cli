@@ -3,20 +3,17 @@ package types
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/google/uuid"
 )
 
 var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
 
 type MsgCreate<%= title(TypeName) %> struct {
-  ID      string
   Creator sdk.AccAddress `json:"creator" yaml:"creator"`<%= for (field) in Fields { %>
   <%= title(field.Name) %> <%= field.Datatype %> `json:"<%= field.Name %>" yaml:"<%= field.Name %>"`<% } %>
 }
 
 func NewMsgCreate<%= title(TypeName) %>(creator sdk.AccAddress<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) MsgCreate<%= title(TypeName) %> {
   return MsgCreate<%= title(TypeName) %>{
-    ID: uuid.New().String(),
 		Creator: creator,<%= for (field) in Fields { %>
     <%= title(field.Name) %>: <%= field.Name %>,<% } %>
 	}

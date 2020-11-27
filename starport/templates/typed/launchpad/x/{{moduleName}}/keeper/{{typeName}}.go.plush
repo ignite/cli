@@ -3,17 +3,60 @@ package keeper
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"strconv"
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
     "github.com/cosmos/cosmos-sdk/codec"
 )
 
+// Get<%= title(TypeName) %>Count get the total number of <%= TypeName %>
+func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) int64 {
+	store := ctx.KVStore(k.storeKey)
+	byteKey := []byte(types.<%= title(TypeName) %>CountPrefix)
+	bz := store.Get(byteKey)
+
+	// Count doesn't exist: no element
+	if bz == nil {
+		return 0
+	}
+
+	// Parse bytes
+	count, err := strconv.ParseInt(string(bz), 10, 64)
+	if err != nil {
+		// Panic because the count should be always formattable to int64
+		panic("cannot decode count")
+	}
+
+	return count
+}
+
+// Set<%= title(TypeName) %>Count set the total number of <%= TypeName %>
+func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count int64)  {
+	store := ctx.KVStore(k.storeKey)
+	byteKey := []byte(types.<%= title(TypeName) %>CountPrefix)
+	bz := []byte(strconv.FormatInt(count, 10))
+	store.Set(byteKey, bz)
+}
+
 // Create<%= title(TypeName) %> creates a <%= TypeName %>
-func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
+func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreate<%= title(TypeName) %>) {
+	// Create the <%= TypeName %>
+	count := k.Get<%= title(TypeName) %>Count(ctx)
+    var <%= TypeName %> = types.<%= title(TypeName) %>{
+        Creator: msg.Creator,
+        ID:      strconv.FormatInt(count, 10),<%= for (field) in Fields { %>
+        <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+    }
+
+
+
 	store := ctx.KVStore(k.storeKey)
 	key := []byte(types.<%= title(TypeName) %>Prefix + <%= TypeName %>.ID)
 	value := k.cdc.MustMarshalBinaryLengthPrefixed(<%= TypeName %>)
 	store.Set(key, value)
+
+	// Update user count
+    k.Set<%= title(TypeName) %>Count(ctx, count+1)
 }
 
 // Get<%= title(TypeName) %> returns the <%= TypeName %> information
