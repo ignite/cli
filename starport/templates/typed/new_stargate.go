@@ -195,9 +195,9 @@ func (t *typedStargate) typesCodecModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
-cdc.RegisterConcrete(MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
-cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
+cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
+cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 `
 		replacement := fmt.Sprintf(template, placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
