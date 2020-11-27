@@ -48,14 +48,12 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreat
         <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
     }
 
-
-
 	store := ctx.KVStore(k.storeKey)
 	key := []byte(types.<%= title(TypeName) %>Prefix + <%= TypeName %>.ID)
 	value := k.cdc.MustMarshalBinaryLengthPrefixed(<%= TypeName %>)
 	store.Set(key, value)
 
-	// Update user count
+	// Update <%= TypeName %> count
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
 }
 
