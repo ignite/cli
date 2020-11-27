@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os/exec"
+	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -113,7 +114,7 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				step.Exec(
 					"bash", "-c", fmt.Sprintf("go install -mod readonly -ldflags '%s'", ldflags),
 				),
-				step.Workdir(fmt.Sprintf("cmd/%s", binary)),
+				step.Workdir(filepath.Join(s.app.Path, "cmd", binary)),
 				step.PostExec(captureBuildErr),
 			).
 			Add(s.stdSteps(logStarport)...).
