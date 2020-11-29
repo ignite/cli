@@ -513,15 +513,16 @@ func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID s
 	}
 
 	// Get the validator address
-	addr, err := types.ValAddressFromBech32(validator.ValidatorAddress)
+	addr, err := types.AccAddressFromBech32(validator.ValidatorAddress)
 	if err != nil {
 		return err
 	}
+	validatorAddress := types.ValAddress(addr)
 
 	// Create the proposal payload
 	payload := genesistypes.NewProposalAddValidatorPayload(
 		validator.Gentx,
-		addr,
+		validatorAddress,
 		validator.SelfDelegation,
 		validator.P2PAddress,
 	)

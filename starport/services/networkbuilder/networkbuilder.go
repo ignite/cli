@@ -185,6 +185,17 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		}
 	}
 
+	// reset gentx directory
+	dir, err := ioutil.ReadDir(filepath.Join(homedir, app.ND(), "config/gentx"))
+	if err != nil {
+		return err
+	}
+	for _, d := range dir {
+		if err := os.RemoveAll(filepath.Join(homedir, app.ND(), "config/gentx", d.Name())); err != nil {
+			return err
+		}
+	}
+
 	// add and collect the gentxs
 	for i, gentx := range launchInformation.GenTxs {
 		// Save the gentx in the gentx directory
