@@ -3,6 +3,7 @@
 ## Fixes:
 * Routing REST API endpoints of querier on Stargate.
 * Evaluate `--address-prefix` option when scaffolding for Stargate.
+* Use a deterministic method to generate scaffolded type ids
 
 ### Features:
 * Upgraded Stargate's version to v0.40.0-rc3.
