@@ -3,6 +3,7 @@ package networkbuilder
 import (
 	"context"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -153,12 +154,16 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
+	chain, err := chain.New(app, chain.LogSilent)
+	if err != nil {
+		return err
+	}
 
 	account, err := b.AccountInUse()
 	if err != nil {
 		return err
 	}
-	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+	launchInformation, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
 	if err != nil {
 		return err
 	}
@@ -169,7 +174,37 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
-	if err := ioutil.WriteFile(genesisPath, chain.Genesis, 0666); err != nil {
+	if err := ioutil.WriteFile(genesisPath, launchInformation.Genesis, 0666); err != nil {
+		return err
+	}
+
+	// add the genesis accounts
+	for _, account := range launchInformation.GenesisAccounts {
+		if err = chain.AddGenesisAccount(ctx, account); err != nil {
+			return err
+		}
+	}
+
+	// reset gentx directory
+	dir, err := ioutil.ReadDir(filepath.Join(homedir, app.ND(), "config/gentx"))
+	if err != nil {
+		return err
+	}
+	for _, d := range dir {
+		if err := os.RemoveAll(filepath.Join(homedir, app.ND(), "config/gentx", d.Name())); err != nil {
+			return err
+		}
+	}
+
+	// add and collect the gentxs
+	for i, gentx := range launchInformation.GenTxs {
+		// Save the gentx in the gentx directory
+		gentxPath := filepath.Join(homedir, app.ND(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
+			return err
+		}
+	}
+	if err = chain.CollectGentx(ctx); err != nil {
 		return err
 	}
 
@@ -179,7 +214,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if err != nil {
 		return err
 	}
-	configToml.Set("p2p.persistent_peers", strings.Join(chain.Peers, ","))
+	configToml.Set("p2p.persistent_peers", strings.Join(launchInformation.Peers, ","))
 	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err

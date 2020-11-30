@@ -15,6 +15,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/xos"
+	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
@@ -242,6 +243,21 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 		return "", err
 	}
 	return gentxRe.FindStringSubmatch(gentxPathMessage.String())[1], nil
+}
+
+// AddGenesisAccount add a genesis account in the chain
+func (c *Chain) AddGenesisAccount(ctx context.Context, account spn.GenesisAccount) error {
+	return cmdrunner.
+		New(c.cmdOptions()...).
+		Run(ctx, step.New(step.NewOptions().
+			Add(step.Exec(
+				c.app.D(),
+				"add-genesis-account",
+				account.Address.String(),
+				account.Coins.String(),
+			)).
+			Add(c.stdSteps(logAppd)...)...,
+		))
 }
 
 // CollectGentx collects gentxs on chain.

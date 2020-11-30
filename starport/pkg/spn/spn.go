@@ -16,7 +16,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	txtypes "github.com/cosmos/cosmos-sdk/types/tx"
 	"github.com/cosmos/go-bip39"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
@@ -241,6 +240,9 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("faucet server request failed: %v", resp.Status)
+	}
 
 	var result struct {
 		Status string `json:"status"`
@@ -292,12 +294,20 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg ty
 	return nil
 }
 
+// Represent a genesis account inside a chain with its allocated coins
+type GenesisAccount struct {
+	Address types.AccAddress
+	Coins types.Coins
+}
+
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
-	URL     string
-	Hash    string
-	Genesis jsondoc.Doc
-	Peers   []string
+	URL             string
+	Hash            string
+	Genesis         jsondoc.Doc
+	Peers           []string
+	GenesisAccounts []GenesisAccount
+	GenTxs          [][]byte
 }
 
 // ChainGet shows chain info.
@@ -318,19 +328,32 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	}
 
 	// Get the updated genesis
-	currentGenesisReq := &genesistypes.QueryCurrentGenesisRequest{
+	launchInformationReq := &genesistypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	}
-	currentGenesisRes, err := q.CurrentGenesis(ctx, currentGenesisReq)
+	launchInformationRes, err := q.LaunchInformation(ctx, launchInformationReq)
 	if err != nil {
 		return Chain{}, err
+	}
+
+	// Get the genesis accounts
+	var genesisAccounts []GenesisAccount
+	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
+		genesisAccount := GenesisAccount{
+			Address: addAccountProposalPayload.Address,
+			Coins: addAccountProposalPayload.Coins,
+		}
+
+		genesisAccounts = append(genesisAccounts, genesisAccount)
 	}
 
 	return Chain{
 		URL:     res.Chain.SourceURL,
 		Hash:    res.Chain.SourceHash,
-		Genesis: currentGenesisRes.Genesis,
-		Peers:   res.Chain.Peers,
+		Genesis: launchInformationRes.InitialGenesis,
+		Peers:   launchInformationRes.Peers,
+		GenesisAccounts: genesisAccounts,
+		GenTxs: launchInformationRes.GenTxs,
 	}, nil
 }
 
@@ -359,8 +382,10 @@ type ProposalAddAccount struct {
 
 // ProposalAddValidator used to propose adding a validator.
 type ProposalAddValidator struct {
-	Gentx         jsondoc.Doc
-	PublicAddress string
+	Gentx            jsondoc.Doc
+	ValidatorAddress string
+	SelfDelegation   types.Coin
+	P2PAddress       string
 }
 
 // ProposalList lists proposals on a chain by status.
@@ -429,15 +454,9 @@ func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 
 	case *genesistypes.Proposal_AddValidatorPayload:
 		p.Validator = &ProposalAddValidator{
-			PublicAddress: payload.AddValidatorPayload.Peer,
+			P2PAddress: payload.AddValidatorPayload.Peer,
 		}
-
-		// Marshal gentx
-		gentx, err := c.clientCtx.JSONMarshaler.MarshalJSON(payload.AddValidatorPayload.GenTx)
-		if err != nil {
-			return Proposal{}, err
-		}
-		p.Validator.Gentx = gentx
+		p.Validator.Gentx = payload.AddValidatorPayload.GenTx
 	}
 
 	return p, nil
@@ -493,17 +512,19 @@ func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID s
 		return err
 	}
 
-	// Read the gentx
-	var gentx txtypes.Tx
-	err = clientCtx.JSONMarshaler.UnmarshalJSON([]byte(validator.Gentx), &gentx)
+	// Get the validator address
+	addr, err := types.AccAddressFromBech32(validator.ValidatorAddress)
 	if err != nil {
 		return err
 	}
+	validatorAddress := types.ValAddress(addr)
 
 	// Create the proposal payload
 	payload := genesistypes.NewProposalAddValidatorPayload(
-		gentx,
-		validator.PublicAddress,
+		validator.Gentx,
+		validatorAddress,
+		validator.SelfDelegation,
+		validator.P2PAddress,
 	)
 
 	msg := genesistypes.NewMsgProposalAddValidator(

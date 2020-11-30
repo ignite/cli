@@ -49,7 +49,7 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		case p.Account != nil:
 			content = fmt.Sprintf("Add Account   | %s, %s", p.Account.Address, p.Account.Coins.String())
 		case p.Validator != nil:
-			content = fmt.Sprintf("Add Validator | (run 'chain describe' to see gentx), %s", p.Validator.PublicAddress)
+			content = fmt.Sprintf("Add Validator | (run 'chain describe' to see gentx), %s", p.Validator.P2PAddress)
 		}
 		fmt.Fprintf(w, "%d\t%s\t%s\n", p.ID, strings.Title(string(p.Status)), content)
 	}
