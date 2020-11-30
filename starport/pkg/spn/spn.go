@@ -480,7 +480,7 @@ func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, i
 	return c.toProposal(*res.Proposal)
 }
 
-// Propositon represents a proposal request of SPN's Genesis module.
+// Proposition configures Proposal to make a proposition.
 type Proposition func(*Proposal)
 
 // AddAccountProposition creates an add account proposition.
@@ -562,7 +562,7 @@ type reviewal struct {
 	isApproved bool
 }
 
-// Reviewal configures a proposal's reviewal.
+// Reviewal configures reviewal to create a review for a proposal.
 type Reviewal func(*reviewal)
 
 // ApproveProposal returns approval for a proposal with id.

@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
@@ -30,7 +29,7 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := nb.SubmitReviewals(context.Background(), args[0], spn.RejectProposal(int(id))); err != nil {
+	if err := nb.SubmitReviewals(cmd.Context(), args[0], spn.RejectProposal(int(id))); err != nil {
 		return err
 	}
 
