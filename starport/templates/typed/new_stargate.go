@@ -165,9 +165,10 @@ func (t *typedStargate) typesKeyModify(opts *Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%sKey= "%s"
+	%[1]vKey= "%[1]v-value-"
+	%[1]vCountKey= "%[1]v-count-"
 )
-`, strings.Title(opts.TypeName), strings.Title(opts.TypeName))
+`, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
