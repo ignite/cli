@@ -499,6 +499,10 @@ func AddValidatorProposition(gentx jsondoc.Doc, validatorAddress string, selfDel
 
 // Propose proposes given propositions in batch for chainID by using SPN accountName.
 func (c *Client) Propose(ctx context.Context, accountName, chainID string, propositions ...Proposition) error {
+	if len(propositions) == 0 {
+		return errors.New("at least one proposition required")
+	}
+
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -582,6 +586,10 @@ func RejectProposal(id int) Reviewal {
 
 // SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
 func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID string, reviewals ...Reviewal) error {
+	if len(reviewals) == 0 {
+		return errors.New("at least one reviewal required")
+	}
+
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
