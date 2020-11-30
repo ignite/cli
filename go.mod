@@ -38,13 +38,13 @@ require (
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.1.1
 	github.com/stretchr/testify v1.6.1
-	github.com/tendermint/spn v0.0.0-20201130065511-9ab122293612 // indirect
+	github.com/tendermint/spn v0.0.0-20201130065511-9ab122293612
 	github.com/tendermint/tendermint v0.34.0-rc6
 	golang.org/x/crypto v0.0.0-20201124201722-c8d3bf9c5392 // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201020160332-67f06af15bc9
-	golang.org/x/sys v0.0.0-20201126233918-771906719818 // indirect
+	golang.org/x/sys v0.0.0-20201130072748-111129e158e2 // indirect
 	golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1 // indirect
 	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154 // indirect
 	google.golang.org/grpc v1.33.0
