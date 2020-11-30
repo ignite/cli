@@ -240,7 +240,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 		return err
 	}
 	defer resp.Body.Close()
-	if resp.StatusCode != 200 {
+	if resp.StatusCode != http.StatusOK {
 		return fmt.Errorf("faucet server request failed: %v", resp.Status)
 	}
 
