@@ -259,21 +259,23 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	return nil
 }
 
-func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg types.Msg) error {
-	// make sure that account has enough balances before broadcasting.
-	if err := c.makeSureAccountHasTokens(ctx, clientCtx.GetFromAddress().String()); err != nil {
-		return err
+func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+	// validate msgs.
+	for _, msg := range msgs {
+		if err := msg.ValidateBasic(); err != nil {
+			return err
+		}
 	}
 
-	// validate msg.
-	if err := msg.ValidateBasic(); err != nil {
+	// make sure that account has enough balances before broadcasting.
+	if err := c.makeSureAccountHasTokens(ctx, clientCtx.GetFromAddress().String()); err != nil {
 		return err
 	}
 
 	c.out.Reset()
 
 	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, c.factory, msg); err != nil {
+	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your SPN account has enough balance")
 		}
@@ -297,7 +299,7 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg ty
 // Represent a genesis account inside a chain with its allocated coins
 type GenesisAccount struct {
 	Address types.AccAddress
-	Coins types.Coins
+	Coins   types.Coins
 }
 
 // Chain represents a chain in Genesis module of SPN.
@@ -341,19 +343,19 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
 		genesisAccount := GenesisAccount{
 			Address: addAccountProposalPayload.Address,
-			Coins: addAccountProposalPayload.Coins,
+			Coins:   addAccountProposalPayload.Coins,
 		}
 
 		genesisAccounts = append(genesisAccounts, genesisAccount)
 	}
 
 	return Chain{
-		URL:     res.Chain.SourceURL,
-		Hash:    res.Chain.SourceHash,
-		Genesis: launchInformationRes.InitialGenesis,
-		Peers:   launchInformationRes.Peers,
+		URL:             res.Chain.SourceURL,
+		Hash:            res.Chain.SourceHash,
+		Genesis:         launchInformationRes.InitialGenesis,
+		Peers:           launchInformationRes.Peers,
 		GenesisAccounts: genesisAccounts,
-		GenTxs: launchInformationRes.GenTxs,
+		GenTxs:          launchInformationRes.GenTxs,
 	}, nil
 }
 
@@ -455,8 +457,8 @@ func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 	case *genesistypes.Proposal_AddValidatorPayload:
 		p.Validator = &ProposalAddValidator{
 			P2PAddress: payload.AddValidatorPayload.Peer,
+			Gentx:      payload.AddValidatorPayload.GenTx,
 		}
-		p.Validator.Gentx = payload.AddValidatorPayload.GenTx
 	}
 
 	return p, nil
@@ -478,86 +480,125 @@ func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, i
 	return c.toProposal(*res.Proposal)
 }
 
-// ProposeAddAccount proposes to add a validator to chain.
-func (c *Client) ProposeAddAccount(ctx context.Context, accountName, chainID string, account ProposalAddAccount) error {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return err
+// Propositon represents a proposal request of SPN's Genesis module.
+type Proposition func(*Proposal)
+
+// AddAccountProposition creates an add account proposition.
+func AddAccountProposition(address string, coins types.Coins) Proposition {
+	return func(p *Proposal) {
+		p.Account = &ProposalAddAccount{address, coins}
 	}
-
-	addr, err := types.AccAddressFromBech32(account.Address)
-	if err != nil {
-		return err
-	}
-
-	// Create the proposal payload
-	payload := genesistypes.NewProposalAddAccountPayload(
-		addr,
-		account.Coins,
-	)
-
-	msg := genesistypes.NewMsgProposalAddAccount(
-		chainID,
-		clientCtx.GetFromAddress(),
-		payload,
-	)
-
-	return c.broadcast(ctx, clientCtx, msg)
 }
 
-// ProposeAddValidator proposes to add a validator to chain.
-func (c *Client) ProposeAddValidator(ctx context.Context, accountName, chainID string, validator ProposalAddValidator) error {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return err
+// AddValidatorProposition creates an add validator proposition.
+func AddValidatorProposition(gentx jsondoc.Doc, validatorAddress string, selfDelegation types.Coin, p2pAddress string) Proposition {
+	return func(p *Proposal) {
+		p.Validator = &ProposalAddValidator{gentx, validatorAddress, selfDelegation, p2pAddress}
 	}
-
-	// Get the validator address
-	addr, err := types.AccAddressFromBech32(validator.ValidatorAddress)
-	if err != nil {
-		return err
-	}
-	validatorAddress := types.ValAddress(addr)
-
-	// Create the proposal payload
-	payload := genesistypes.NewProposalAddValidatorPayload(
-		validator.Gentx,
-		validatorAddress,
-		validator.SelfDelegation,
-		validator.P2PAddress,
-	)
-
-	msg := genesistypes.NewMsgProposalAddValidator(
-		chainID,
-		clientCtx.GetFromAddress(),
-		payload,
-	)
-
-	return c.broadcast(ctx, clientCtx, msg)
 }
 
-// ProposalApprove approves a proposal by id.
-func (c *Client) ProposalApprove(ctx context.Context, accountName, chainID string, id int) error {
+// Propose proposes given propositions in batch for chainID by using SPN accountName.
+func (c *Client) Propose(ctx context.Context, accountName, chainID string, propositions ...Proposition) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
 	}
 
-	// Create approve message
-	msg := genesistypes.NewMsgApprove(chainID, int32(id), clientCtx.GetFromAddress())
+	var msgs []types.Msg
 
-	return c.broadcast(ctx, clientCtx, msg)
+	for _, proposition := range propositions {
+		var proposal Proposal
+		proposition(&proposal)
+
+		switch {
+		case proposal.Account != nil:
+			addr, err := types.AccAddressFromBech32(proposal.Account.Address)
+			if err != nil {
+				return err
+			}
+
+			// Create the proposal payload
+			payload := genesistypes.NewProposalAddAccountPayload(
+				addr,
+				proposal.Account.Coins,
+			)
+
+			msgs = append(msgs, genesistypes.NewMsgProposalAddAccount(
+				chainID,
+				clientCtx.GetFromAddress(),
+				payload,
+			))
+
+		case proposal.Validator != nil:
+			// Get the validator address
+			addr, err := types.AccAddressFromBech32(proposal.Validator.ValidatorAddress)
+			if err != nil {
+				return err
+			}
+			validatorAddress := types.ValAddress(addr)
+
+			// Create the proposal payload
+			payload := genesistypes.NewProposalAddValidatorPayload(
+				proposal.Validator.Gentx,
+				validatorAddress,
+				proposal.Validator.SelfDelegation,
+				proposal.Validator.P2PAddress,
+			)
+
+			msgs = append(msgs, genesistypes.NewMsgProposalAddValidator(
+				chainID,
+				clientCtx.GetFromAddress(),
+				payload,
+			))
+		}
+	}
+
+	return c.broadcast(ctx, clientCtx, msgs...)
 }
 
-// ProposalReject rejects a proposal by id.
-func (c *Client) ProposalReject(ctx context.Context, accountName, chainID string, id int) error {
+// reviewal keeps a proposal's reviewal.
+type reviewal struct {
+	id         int
+	isApproved bool
+}
+
+// Reviewal configures a proposal's reviewal.
+type Reviewal func(*reviewal)
+
+// ApproveProposal returns approval for a proposal with id.
+func ApproveProposal(id int) Reviewal {
+	return func(r *reviewal) {
+		r.id = id
+		r.isApproved = true
+	}
+}
+
+// RejectProposal returns rejection for a proposals with id.
+func RejectProposal(id int) Reviewal {
+	return func(r *reviewal) {
+		r.id = id
+	}
+}
+
+// SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
+func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID string, reviewals ...Reviewal) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
 	}
 
-	// Create reject message
-	msg := genesistypes.NewMsgReject(chainID, int32(id), clientCtx.GetFromAddress())
+	var msgs []types.Msg
 
-	return c.broadcast(ctx, clientCtx, msg)
+	for _, r := range reviewals {
+		var rev reviewal
+		r(&rev)
+
+		if rev.isApproved {
+			msgs = append(msgs, genesistypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+		} else {
+			msgs = append(msgs, genesistypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+		}
+	}
+
+	return c.broadcast(ctx, clientCtx, msgs...)
 }

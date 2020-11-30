@@ -1,11 +1,11 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
 	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/spn"
 )
 
 func NewNetworkProposalApprove() *cobra.Command {
@@ -29,8 +29,7 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	err = nb.ProposalApprove(context.Background(), args[0], int(id))
-	if err != nil {
+	if err := nb.SubmitReviewals(cmd.Context(), args[0], spn.ApproveProposal(int(id))); err != nil {
 		return err
 	}
 
