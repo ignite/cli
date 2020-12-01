@@ -74,15 +74,6 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	prompt := promptui.Prompt{
-		Label:     "Do you confirm the Genesis above",
-		IsConfirm: true,
-	}
-	if _, err := prompt.Run(); err != nil {
-		fmt.Println("said no")
-		return nil
-	}
-
 	// create blockchain.
 	if err := blockchain.Create(cmd.Context()); err != nil {
 		return err
