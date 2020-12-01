@@ -177,23 +177,20 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 	if err != nil {
 		return err
 	}
+
 	p2pAddress := fmt.Sprintf("%s@%s", key, publicAddress)
+
 	chainID, err := b.chain.ID()
 	if err != nil {
 		return err
 	}
-	if err := b.builder.ProposeAddAccount(ctx, chainID, spn.ProposalAddAccount{
-		Address: accountAddress,
-		Coins:   coins,
-	}); err != nil {
-		return err
-	}
-	return b.builder.ProposeAddValidator(ctx, chainID, spn.ProposalAddValidator{
-		Gentx:            gentx,
-		ValidatorAddress: accountAddress,
-		SelfDelegation:   selfDelegation,
-		P2PAddress:       p2pAddress,
-	})
+
+	return b.builder.Propose(
+		ctx,
+		chainID,
+		spn.AddAccountProposal(accountAddress, coins),
+		spn.AddValidatorProposal(gentx, accountAddress, selfDelegation, p2pAddress),
+	)
 }
 
 // Cleanup closes the event bus and cleanups everyting related to installed blockchain.
