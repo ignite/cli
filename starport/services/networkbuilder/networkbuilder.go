@@ -154,7 +154,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
-	c, err := chain.New(app, true, chain.LogVerbose)
+	c, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return err
 	}
