@@ -90,17 +90,12 @@ func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) er
 type BlockchainInfo struct {
 	ID               string
 	Home             string
-	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
 }
 
 // Info returns information about the blockchain.
 func (b *Blockchain) Info() (BlockchainInfo, error) {
-	genesis, err := ioutil.ReadFile(b.chain.GenesisPath())
-	if err != nil {
-		return BlockchainInfo{}, err
-	}
 	config, err := b.chain.Config()
 	if err != nil {
 		return BlockchainInfo{}, err
@@ -116,14 +111,13 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	return BlockchainInfo{
 		ID:               chainID,
 		Home:             b.chain.Home(),
-		Genesis:          genesis,
 		Config:           config,
 		RPCPublicAddress: paddr,
 	}, nil
 }
 
 // Create submits Genesis to SPN to announce a new network.
-func (b *Blockchain) Create(ctx context.Context, genesis jsondoc.Doc) error {
+func (b *Blockchain) Create(ctx context.Context) error {
 	account, err := b.builder.AccountInUse()
 	if err != nil {
 		return err
@@ -132,7 +126,7 @@ func (b *Blockchain) Create(ctx context.Context, genesis jsondoc.Doc) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, genesis, b.url, b.hash)
+	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, b.url, b.hash)
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.

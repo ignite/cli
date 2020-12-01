@@ -72,20 +72,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer blockchain.Cleanup()
 
-	info, err := blockchain.Info()
-	if err != nil {
-		return err
-	}
-
 	s.Stop()
-
-	// ask to confirm genesis.
-	prettyGenesis, err := info.Genesis.Pretty()
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
 
 	prompt := promptui.Prompt{
 		Label:     "Do you confirm the Genesis above",
@@ -97,7 +84,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create blockchain.
-	if err := blockchain.Create(cmd.Context(), info.Genesis); err != nil {
+	if err := blockchain.Create(cmd.Context()); err != nil {
 		return err
 	}
 

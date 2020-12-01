@@ -161,7 +161,7 @@ func (c *Client) AccountImport(accountName, privateKey, password string) error {
 }
 
 // ChainCreate creates a new chain.
-func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, genesis []byte, sourceURL, sourceHash string) error {
+func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, sourceURL, sourceHash string) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -171,7 +171,6 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, g
 		clientCtx.GetFromAddress(),
 		sourceURL,
 		sourceHash,
-		genesis,
 	))
 }
 
@@ -304,7 +303,6 @@ type GenesisAccount struct {
 type Chain struct {
 	URL             string
 	Hash            string
-	Genesis         jsondoc.Doc
 	Peers           []string
 	GenesisAccounts []GenesisAccount
 	GenTxs          [][]byte
@@ -350,7 +348,6 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	return Chain{
 		URL:     res.Chain.SourceURL,
 		Hash:    res.Chain.SourceHash,
-		Genesis: launchInformationRes.InitialGenesis,
 		Peers:   launchInformationRes.Peers,
 		GenesisAccounts: genesisAccounts,
 		GenTxs: launchInformationRes.GenTxs,
