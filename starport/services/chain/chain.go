@@ -54,7 +54,9 @@ type Chain struct {
 	stdout, stderr io.Writer
 }
 
-func New(app App, logLevel LogLevel) (*Chain, error) {
+// TODO document noCheck (basically it stands to enable Chain initialization without
+// need of source code)
+func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	s := &Chain{
 		app:            app,
 		logLevel:       logLevel,
@@ -70,18 +72,20 @@ func New(app App, logLevel LogLevel) (*Chain, error) {
 
 	var err error
 
-	if _, err := s.Config(); err != nil {
-		return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
-	}
+	if !noCheck {
+		if _, err := s.Config(); err != nil {
+			return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+		}
 
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return nil, err
-	}
+		s.version, err = s.appVersion()
+		if err != nil && err != git.ErrRepositoryNotExists {
+			return nil, err
+		}
 
-	s.plugin, err = s.pickPlugin()
-	if err != nil {
-		return nil, err
+		s.plugin, err = s.pickPlugin()
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	return s, nil

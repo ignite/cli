@@ -15,7 +15,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/xos"
-	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
@@ -134,11 +133,12 @@ func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.St
 
 // CreateAccount creates an account on chain.
 // cmnemonic is returned when account is created but not restored.
-func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (address, cmnemonic string, err error) {
-	var steps step.Steps
-	var user struct {
-		Mnemonic string `json:"mnemonic"`
+func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (Account, error) {
+	acc := Account{
+		Coins: strings.Join(coins, ","),
 	}
+
+	var steps step.Steps
 
 	if mnemonic != "" {
 		steps.Add(
@@ -158,11 +158,11 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 							if exitErr != nil {
 								return errors.Wrapf(exitErr, "cannot create %s account", name)
 							}
-							if err := json.NewDecoder(generatedMnemonic).Decode(&user); err != nil {
+							if err := json.NewDecoder(generatedMnemonic).Decode(&acc); err != nil {
 								return errors.Wrap(err, "cannot decode mnemonic")
 							}
 							if !isSilent {
-								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
 							}
 							return nil
 						}),
@@ -175,6 +175,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 	}
 
 	key := &bytes.Buffer{}
+
 	steps.Add(
 		step.New(step.NewOptions().
 			Add(
@@ -183,19 +184,8 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 					if err != nil {
 						return err
 					}
-					coins := strings.Join(coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.D(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
+					acc.Address = strings.TrimSpace(key.String())
+					return nil
 				}),
 			).
 			Add(s.stdSteps(logAppcli)...).
@@ -204,12 +194,10 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 	)
 
 	if err := cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...); err != nil {
-		return "", "", err
+		return Account{}, err
 	}
 
-	address = strings.TrimSpace(key.String())
-
-	return address, user.Mnemonic, nil
+	return acc, nil
 }
 
 type Validator struct {
@@ -245,18 +233,37 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 	return gentxRe.FindStringSubmatch(gentxPathMessage.String())[1], nil
 }
 
-// AddGenesisAccount add a genesis account in the chain
-func (c *Chain) AddGenesisAccount(ctx context.Context, account spn.GenesisAccount) error {
+// Account represents an account in the chain.
+type Account struct {
+	Name     string
+	Address  string
+	Mnemonic string `json:"mnemonic"`
+	Coins    string
+}
+
+// AddGenesisAccount add a genesis account in the chain.
+func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
+	errb := &bytes.Buffer{}
+
 	return cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(step.NewOptions().
-			Add(step.Exec(
-				c.app.D(),
-				"add-genesis-account",
-				account.Address.String(),
-				account.Coins.String(),
-			)).
-			Add(c.stdSteps(logAppd)...)...,
+			Add(
+				step.Exec(
+					c.app.D(),
+					"add-genesis-account",
+					account.Address,
+					account.Coins,
+				),
+				step.PostExec(func(exitErr error) error {
+					// ignore if returns with an error related to genesis account being exists.
+					if strings.Contains(errb.String(), "existing") {
+						return nil
+					}
+					return exitErr
+				}),
+				step.Stderr(errb),
+			)...,
 		))
 }
 

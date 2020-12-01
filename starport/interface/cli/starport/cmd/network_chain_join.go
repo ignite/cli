@@ -96,7 +96,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, address, mnemonic, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
+	gentx, a, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}
@@ -129,12 +129,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := blockchain.Join(cmd.Context(), address, publicAddress, coins, gentx, selfDelegation); err != nil {
+	if err := blockchain.Join(cmd.Context(), a.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
 
-	if mnemonic != "" {
-		fmt.Printf("\n*** IMPORTANT - Save your mnemonic in a secret place:\n%s\n", mnemonic)
+	if a.Mnemonic != "" {
+		fmt.Printf("\n*** IMPORTANT - Save your mnemonic in a secret place:\n%s\n", a.Mnemonic)
 	}
 
 	fmt.Println("\n📜 Proposed validator to join to network")
