@@ -23,10 +23,10 @@ set -o xtrace
 rm -rf .tmp || true
 mkdir .tmp
 
-docker buildx build --tag starport:arm64 --file .pi/Dockerfile --platform linux/arm64 --cache-from faddat/starport-pi:cache --cache-to faddat/starport-pi:cache --load --progress tty .
+docker buildx build --tag $GITHUB_REPOSITORY:arm64 --file .pi/Dockerfile --platform linux/arm64 --cache-from $GITHUB_REPOSITORY:cache --cache-to $GITHUB_REPOSITORY:cache --load --progress tty .
 
 # save the image to result-rootfs.tar
-docker save --output ./.tmp/result-rootfs.tar starport
+docker save --output ./.tmp/result-rootfs.tar $GITHUB_REPOSITORY:arm64
 
 # Extract the image using docker-extract
 docker run --rm --tty --volume $(pwd)/./.tmp:/root/./.tmp --workdir /root/./.tmp/.. faddat/toolbox /tools/docker-extract --root ./.tmp/result-rootfs  ./.tmp/result-rootfs.tar
