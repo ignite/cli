@@ -188,8 +188,8 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 	return b.builder.Propose(
 		ctx,
 		chainID,
-		spn.AddAccountProposition(accountAddress, coins),
-		spn.AddValidatorProposition(gentx, accountAddress, selfDelegation, p2pAddress),
+		spn.AddAccountProposal(accountAddress, coins),
+		spn.AddValidatorProposal(gentx, accountAddress, selfDelegation, p2pAddress),
 	)
 }
 

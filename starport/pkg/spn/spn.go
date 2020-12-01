@@ -480,27 +480,27 @@ func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, i
 	return c.toProposal(*res.Proposal)
 }
 
-// Proposition configures Proposal to make a proposition.
-type Proposition func(*Proposal)
+// ProposalOption configures Proposal to set a spesific type of proposal.
+type ProposalOption func(*Proposal)
 
-// AddAccountProposition creates an add account proposition.
-func AddAccountProposition(address string, coins types.Coins) Proposition {
+// AddAccountProposal creates an add account proposal option.
+func AddAccountProposal(address string, coins types.Coins) ProposalOption {
 	return func(p *Proposal) {
 		p.Account = &ProposalAddAccount{address, coins}
 	}
 }
 
-// AddValidatorProposition creates an add validator proposition.
-func AddValidatorProposition(gentx jsondoc.Doc, validatorAddress string, selfDelegation types.Coin, p2pAddress string) Proposition {
+// AddValidatorProposal creates an add validator proposal option.
+func AddValidatorProposal(gentx jsondoc.Doc, validatorAddress string, selfDelegation types.Coin, p2pAddress string) ProposalOption {
 	return func(p *Proposal) {
 		p.Validator = &ProposalAddValidator{gentx, validatorAddress, selfDelegation, p2pAddress}
 	}
 }
 
-// Propose proposes given propositions in batch for chainID by using SPN accountName.
-func (c *Client) Propose(ctx context.Context, accountName, chainID string, propositions ...Proposition) error {
-	if len(propositions) == 0 {
-		return errors.New("at least one proposition required")
+// Propose proposes given proposals in batch for chainID by using SPN accountName.
+func (c *Client) Propose(ctx context.Context, accountName, chainID string, proposals ...ProposalOption) error {
+	if len(proposals) == 0 {
+		return errors.New("at least one proposal required")
 	}
 
 	clientCtx, err := c.buildClientCtx(accountName)
@@ -510,9 +510,9 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 
 	var msgs []types.Msg
 
-	for _, proposition := range propositions {
+	for _, p := range proposals {
 		var proposal Proposal
-		proposition(&proposal)
+		p(&proposal)
 
 		switch {
 		case proposal.Account != nil:

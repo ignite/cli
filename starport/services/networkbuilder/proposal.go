@@ -24,13 +24,13 @@ func (b *Builder) ProposalGet(ctx context.Context, chainID string, id int) (spn.
 	return b.spnclient.ProposalGet(ctx, account.Name, chainID, id)
 }
 
-// Propose proposes given propositions in batch for chainID by using SPN accountName.
-func (b *Builder) Propose(ctx context.Context, chainID string, propositions ...spn.Proposition) error {
+// Propose proposes given proposals in batch for chainID by using SPN accountName.
+func (b *Builder) Propose(ctx context.Context, chainID string, proposals ...spn.ProposalOption) error {
 	acc, err := b.AccountInUse()
 	if err != nil {
 		return err
 	}
-	return b.spnclient.Propose(ctx, acc.Name, chainID, propositions...)
+	return b.spnclient.Propose(ctx, acc.Name, chainID, proposals...)
 }
 
 // SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
