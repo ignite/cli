@@ -7,6 +7,7 @@ tasks:
       # Install Starport
       export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
+      export CHISEL_ADDR=$(gp url 7575)
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
       # Install Github CLI
@@ -34,3 +35,4 @@ ports:
   - port: 1317
   - port: 26657
   - port: 8080
+  - port: 7575 

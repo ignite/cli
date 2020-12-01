@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
@@ -77,7 +78,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	questions := []cliquiz.Question{
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
 		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
-		cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(publicAddr)),
 		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
 		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer("95000000stake")),
 		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
@@ -89,6 +89,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
 		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
 		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
+	}
+
+	if !xchisel.IsEnabled() {
+		questions = append(questions, cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(publicAddr)))
 	}
 
 	s.Stop()

@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/chain/conf"
@@ -179,6 +180,10 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 	key, err := b.chain.ShowNodeID(ctx)
 	if err != nil {
 		return err
+	}
+
+	if xchisel.IsEnabled() {
+		publicAddress = xchisel.ServerAddr()
 	}
 
 	p2pAddress := fmt.Sprintf("%s@%s", key, publicAddress)

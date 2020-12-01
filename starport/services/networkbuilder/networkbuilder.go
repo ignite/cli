@@ -10,13 +10,16 @@ import (
 	"strings"
 
 	"github.com/pelletier/go-toml"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -206,13 +209,34 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	// prep peer configs.
+	p2pAddresses := launchInformation.Peers
+	chiselAddreses := make(map[string]int) // server addr-local p2p port pair.
+
+	if xchisel.IsEnabled() {
+		for i, peer := range launchInformation.Peers {
+			ports, err := availableport.Find(1)
+			if err != nil {
+				return err
+			}
+
+			localPort := ports[0]
+			sp := strings.Split(peer, "@")
+			nodeID := sp[0]
+			serverAddr := sp[1]
+
+			p2pAddresses[i] = fmt.Sprintf("%s@127.0.0.1:%d", nodeID, localPort)
+			chiselAddreses[serverAddr] = localPort
+		}
+	}
+
 	// save the finalized version of config.toml with peers.
 	configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
 	}
-	configToml.Set("p2p.persistent_peers", strings.Join(launchInformation.Peers, ","))
+	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
 	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
@@ -222,12 +246,34 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	return cmdrunner.New().Run(ctx, step.New(
-		step.Exec(
-			app.D(),
-			append([]string{"start"}, flags...)...,
-		),
-		step.Stdout(os.Stdout),
-		step.Stderr(os.Stderr),
-	))
+	g, ctx := errgroup.WithContext(ctx)
+
+	// run the start command of the chain.
+	g.Go(func() error {
+		return cmdrunner.New().Run(ctx, step.New(
+			step.Exec(
+				app.D(),
+				append([]string{"start"}, flags...)...,
+			),
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
+		))
+	})
+
+	if xchisel.IsEnabled() {
+		// start Chisel server.
+		g.Go(func() error {
+			return xchisel.StartServer(ctx, xchisel.DefaultServerPort)
+		})
+
+		// start Chisel clients for all other validators.
+		for serverAddr, localPort := range chiselAddreses {
+			serverAddr, localPort := serverAddr, localPort
+			g.Go(func() error {
+				return xchisel.StartClient(ctx, serverAddr, fmt.Sprintf("%d", localPort), "26656")
+			})
+		}
+	}
+
+	return g.Wait()
 }
