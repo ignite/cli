@@ -6,7 +6,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"io"
-	"io/ioutil"
 	"regexp"
 	"strings"
 )
@@ -99,10 +98,4 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 			),
 		)
 	return strings.TrimSpace(key.String()), err
-}
-
-// GetInitialGenesis gets the initial genesis of the chain
-func (c *Chain) GetInitialGenesis(ctx context.Context, chainID string) ([]byte, error) {
-	// Read and return the genesis initial genesis file
-	return ioutil.ReadFile(c.InitialGenesisPath())
 }

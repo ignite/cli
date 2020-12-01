@@ -171,11 +171,13 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	initialGenesis, err := c.GetInitialGenesis(ctx, chainID)
+	initialGenesisPath := filepath.Join(homedir, app.ND(), "config/initialGenesis.json")
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(c.GenesisPath(), initialGenesis, 0666); err != nil {
+	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
+	if err := ioutil.WriteFile(genesisPath, initialGenesis, 0666); err != nil {
 		return err
 	}
 
