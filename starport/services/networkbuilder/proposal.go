@@ -24,39 +24,20 @@ func (b *Builder) ProposalGet(ctx context.Context, chainID string, id int) (spn.
 	return b.spnclient.ProposalGet(ctx, account.Name, chainID, id)
 }
 
-// ProposeAddAccount proposes to add an account to chain.
-func (b *Builder) ProposeAddAccount(ctx context.Context, chainID string, account spn.ProposalAddAccount) error {
+// Propose proposes given proposals in batch for chainID by using SPN accountName.
+func (b *Builder) Propose(ctx context.Context, chainID string, proposals ...spn.ProposalOption) error {
 	acc, err := b.AccountInUse()
 	if err != nil {
 		return err
 	}
-	return b.spnclient.ProposeAddAccount(ctx, acc.Name, chainID, account)
+	return b.spnclient.Propose(ctx, acc.Name, chainID, proposals...)
 }
 
-// ProposeAddValidator proposes to add a validator to chain.
-func (b *Builder) ProposeAddValidator(ctx context.Context, chainID string, validator spn.ProposalAddValidator) error {
+// SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
+func (b *Builder) SubmitReviewals(ctx context.Context, chainID string, reviewals ...spn.Reviewal) error {
 	acc, err := b.AccountInUse()
 	if err != nil {
 		return err
 	}
-	return b.spnclient.ProposeAddValidator(ctx, acc.Name, chainID, validator)
-}
-
-// ProposalApprove approves a proposal by id.
-func (b *Builder) ProposalApprove(ctx context.Context, chainID string, id int) error {
-	acc, err := b.AccountInUse()
-	if err != nil {
-		return err
-	}
-	return b.spnclient.ProposalApprove(ctx, acc.Name, chainID, id)
-}
-
-// ProposalReject rejects a proposal by id.
-func (b *Builder) ProposalReject(ctx context.Context, chainID string, id int) error {
-	acc, err := b.AccountInUse()
-	if err != nil {
-		return err
-	}
-	return b.spnclient.ProposalReject(ctx, acc.Name, chainID, id)
-
+	return b.spnclient.SubmitReviewals(ctx, acc.Name, chainID, reviewals...)
 }
