@@ -10,7 +10,7 @@ import (
 
 func NewNetworkProposalApprove() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "approve [chain-id] [number<, ...>]",
+		Use:   "approve [chain-id] [number<,...>]",
 		Short: "Approve proposals",
 		RunE:  networkProposalApproveHandler,
 		Args:  cobra.ExactArgs(2),

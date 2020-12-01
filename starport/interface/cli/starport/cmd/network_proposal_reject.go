@@ -10,7 +10,7 @@ import (
 
 func NewNetworkProposalReject() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "reject [chain-id] [number<, ...>]",
+		Use:   "reject [chain-id] [number<,...>]",
 		Short: "Reject proposals",
 		RunE:  networkProposalRejectHandler,
 		Args:  cobra.ExactArgs(2),
