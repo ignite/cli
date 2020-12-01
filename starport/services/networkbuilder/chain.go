@@ -7,10 +7,10 @@ import (
 )
 
 // ChainShow shows details of a chain.
-func (b *Builder) ChainShow(ctx context.Context, chainID string) (spn.Chain, error) {
+func (b *Builder) ChainShow(ctx context.Context, chainID string) (spn.ChainInformation, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
-		return spn.Chain{}, err
+		return spn.ChainInformation{}, err
 	}
-	return b.spnclient.GetChain(ctx, account.Name, chainID)
+	return b.spnclient.GetChainInformation(ctx, account.Name, chainID)
 }
