@@ -296,23 +296,33 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msg ty
 // Represent a genesis account inside a chain with its allocated coins
 type GenesisAccount struct {
 	Address types.AccAddress
-	Coins types.Coins
+	Coins   types.Coins
 }
 
-// Chain represents a chain in Genesis module of SPN.
-type Chain struct {
-	URL             string
-	Hash            string
+// ChainInformation represents the static information of a chain in Genesis module of SPN
+type ChainInformation struct {
+	URL  string
+	Hash string
+}
+
+// LaunchInformation represents the necessary information to launch a chain in Genesis module of SPN
+type LaunchInformation struct {
 	Peers           []string
 	GenesisAccounts []GenesisAccount
 	GenTxs          [][]byte
 }
 
-// ChainGet shows chain info.
-func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Chain, error) {
+// Chain represents the overall data of a chain
+type Chain struct {
+	LaunchInformation LaunchInformation
+	ChainInformation  ChainInformation
+}
+
+// GetChainInformation gets the static information of a chain
+func (c *Client) GetChainInformation(ctx context.Context, accountName, chainID string) (ChainInformation, error) {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
-		return Chain{}, err
+		return ChainInformation{}, err
 	}
 
 	// Query the chain from spnd
@@ -322,16 +332,30 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	}
 	res, err := q.ShowChain(ctx, params)
 	if err != nil {
-		return Chain{}, err
+		return ChainInformation{}, err
 	}
 
-	// Get the updated genesis
+	return ChainInformation{
+		URL:             res.Chain.SourceURL,
+		Hash:            res.Chain.SourceHash,
+	}, nil
+}
+
+// GetLaunchInformation gets the information to launch a chain
+func (c *Client) GetLaunchInformation(ctx context.Context, accountName, chainID string) (LaunchInformation, error) {
+	clientCtx, err := c.buildClientCtx(accountName)
+	if err != nil {
+		return LaunchInformation{}, err
+	}
+
+	// Query the launch information from spnd
+	q := genesistypes.NewQueryClient(clientCtx)
 	launchInformationReq := &genesistypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	}
 	launchInformationRes, err := q.LaunchInformation(ctx, launchInformationReq)
 	if err != nil {
-		return Chain{}, err
+		return LaunchInformation{}, err
 	}
 
 	// Get the genesis accounts
@@ -339,18 +363,34 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
 		genesisAccount := GenesisAccount{
 			Address: addAccountProposalPayload.Address,
-			Coins: addAccountProposalPayload.Coins,
+			Coins:   addAccountProposalPayload.Coins,
 		}
 
 		genesisAccounts = append(genesisAccounts, genesisAccount)
 	}
 
-	return Chain{
-		URL:     res.Chain.SourceURL,
-		Hash:    res.Chain.SourceHash,
-		Peers:   launchInformationRes.Peers,
+	return LaunchInformation{
+		Peers:           launchInformationRes.Peers,
 		GenesisAccounts: genesisAccounts,
-		GenTxs: launchInformationRes.GenTxs,
+		GenTxs:          launchInformationRes.GenTxs,
+	}, nil
+}
+
+
+// GetChain gets the overall data of a chain
+func (c *Client) GetChain(ctx context.Context, accountName, chainID string) (Chain, error) {
+	chainInformation, err := c.GetChainInformation(ctx, accountName, chainID)
+	if err != nil {
+		return Chain{}, err
+	}
+	launchInformation, err := c.GetLaunchInformation(ctx, accountName, chainID)
+	if err != nil {
+		return Chain{}, err
+	}
+
+	return Chain{
+		ChainInformation: chainInformation,
+		LaunchInformation: launchInformation,
 	}, nil
 }
 

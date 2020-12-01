@@ -52,11 +52,11 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string,
 	if err != nil {
 		return nil, err
 	}
-	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+	chainInfo, err := b.spnclient.GetChainInformation(ctx, account.Name, chainID)
 	if err != nil {
 		return nil, err
 	}
-	return b.InitBlockchainFromURL(ctx, chain.URL, chain.Hash, mustNotInitializedBefore)
+	return b.InitBlockchainFromURL(ctx, chainInfo.URL, chainInfo.Hash, mustNotInitializedBefore)
 }
 
 // InitBlockchainFromURL initializes blockchain from a remote git repo.
@@ -163,7 +163,9 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if err != nil {
 		return err
 	}
-	launchInformation, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+
+	// fet teh launch information
+	launchInformation, err := b.spnclient.GetLaunchInformation(ctx, account.Name, chainID)
 	if err != nil {
 		return err
 	}

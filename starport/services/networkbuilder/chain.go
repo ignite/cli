@@ -12,5 +12,5 @@ func (b *Builder) ChainShow(ctx context.Context, chainID string) (spn.Chain, err
 	if err != nil {
 		return spn.Chain{}, err
 	}
-	return b.spnclient.ChainGet(ctx, account.Name, chainID)
+	return b.spnclient.GetChain(ctx, account.Name, chainID)
 }
