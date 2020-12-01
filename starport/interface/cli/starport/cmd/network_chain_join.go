@@ -69,12 +69,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
-	ip, err := ipify.GetIp()
-	if err != nil {
-		return err
-	}
-	publicAddr := fmt.Sprintf("%s:26656", ip)
-
 	questions := []cliquiz.Question{
 		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
 		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
@@ -92,6 +86,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !xchisel.IsEnabled() {
+		ip, err := ipify.GetIp()
+		if err != nil {
+			return err
+		}
+		publicAddr := fmt.Sprintf("%s:26656", ip)
+
 		questions = append(questions, cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(publicAddr)))
 	}
 
