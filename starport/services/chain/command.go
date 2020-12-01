@@ -99,7 +99,7 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 // Therefore, we run the init command in a temporary directory and then delete it
 func (c *Chain) GetInitialGenesis(ctx context.Context, chainID string) ([]byte, error) {
 	// Generate the temporary dir
-	tmpDir, err := ioutil.TempDir("appd", "prefix")
+	tmpDir, err := ioutil.TempDir("/tmp", "prefix")
 	if err != nil {
 		return nil, err
 	}
