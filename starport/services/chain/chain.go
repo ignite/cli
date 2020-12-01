@@ -174,3 +174,8 @@ func (c *Chain) AppTOMLPath() string {
 func (c *Chain) ConfigTOMLPath() string {
 	return fmt.Sprintf("%s/config/config.toml", c.Home())
 }
+
+// InitialGenesisPath returns initialGenesis.json path of the app.
+func (c *Chain) InitialGenesisPath() string {
+	return fmt.Sprintf("%s/config/initialGenesis.json", c.Home())
+}

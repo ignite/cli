@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"strings"
 
 	"github.com/imdario/mergo"
@@ -80,6 +81,23 @@ func (c *Chain) Init(ctx context.Context) error {
 					if err := cf.Save(conf); err != nil {
 						return err
 					}
+				}
+
+				// Save a copy of the generated genesis
+				genesisData, err := ioutil.ReadFile(c.GenesisPath())
+				if err != nil {
+					return err
+				}
+				err = ioutil.WriteFile(c.InitialGenesisPath(), genesisData, 0644)
+				if err != nil {
+					return err
+				}
+
+				return nil
+			}),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
 				}
 				return nil
 			}),

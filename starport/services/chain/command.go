@@ -3,13 +3,10 @@ package chain
 import (
 	"bytes"
 	"context"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"io"
+	"io/ioutil"
 	"regexp"
 	"strings"
 )
@@ -105,36 +102,7 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 }
 
 // GetInitialGenesis gets the initial genesis of the chain
-// Currently the only way to get the initial genesis of a chain through its CLI is by running the init command
-// Therefore, we run the init command in a temporary directory and then delete it
 func (c *Chain) GetInitialGenesis(ctx context.Context, chainID string) ([]byte, error) {
-	// Generate the temporary dir
-	tmpDir, err := ioutil.TempDir("/tmp", "prefix")
-	if err != nil {
-		return nil, err
-	}
-	defer os.RemoveAll(tmpDir)
-
-	// Init command
-	err = cmdrunner.
-		New(c.cmdOptions()...).
-		Run(ctx,
-			step.New(
-				step.Exec(
-					c.app.D(),
-					"init",
-					"moniker",
-					"--chain-id",
-					chainID,
-					"--home",
-					tmpDir,
-				),
-			),
-		)
-	if err != nil {
-		return nil, err
-	}
-
-	// Read and return the genesis file
-	return ioutil.ReadFile(filepath.Join(tmpDir, "config/genesis.json"))
+	// Read and return the genesis initial genesis file
+	return ioutil.ReadFile(c.InitialGenesisPath())
 }
