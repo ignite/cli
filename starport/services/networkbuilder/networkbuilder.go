@@ -154,7 +154,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
-	chain, err := chain.New(app, chain.LogSilent)
+	c, err := chain.New(app, true, chain.LogVerbose)
 	if err != nil {
 		return err
 	}
@@ -168,19 +168,17 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// update genesis.
 	homedir, err := os.UserHomeDir()
 	if err != nil {
-		return err
-	}
-	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
-	if err := ioutil.WriteFile(genesisPath, launchInformation.Genesis, 0666); err != nil {
 		return err
 	}
 
 	// add the genesis accounts
 	for _, account := range launchInformation.GenesisAccounts {
-		if err = chain.AddGenesisAccount(ctx, account); err != nil {
+		if err = c.AddGenesisAccount(ctx, chain.Account{
+			Address: account.Address.String(),
+			Coins:   account.Coins.String(),
+		}); err != nil {
 			return err
 		}
 	}
@@ -204,7 +202,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 			return err
 		}
 	}
-	if err = chain.CollectGentx(ctx); err != nil {
+	if err = c.CollectGentx(ctx); err != nil {
 		return err
 	}
 

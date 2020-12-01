@@ -164,12 +164,20 @@ func (s *Chain) serve(ctx context.Context) error {
 	}
 
 	for _, account := range conf.Accounts {
-		if _, _, err := s.CreateAccount(ctx, account.Name, "", account.Coins, false); err != nil {
+		acc, err := s.CreateAccount(ctx, account.Name, "", account.Coins, false)
+		if err != nil {
+			return err
+		}
+		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}
 	for _, account := range sconf.Accounts {
-		if _, _, err := s.CreateAccount(ctx, account.Name, account.Mnemonic, account.Coins, false); err != nil {
+		acc, err := s.CreateAccount(ctx, account.Name, account.Mnemonic, account.Coins, false)
+		if err != nil {
+			return err
+		}
+		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}

@@ -97,7 +97,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create blockchain.
-	if err := blockchain.Create(cmd.Context(), info.Genesis); err != nil {
+	if err := blockchain.Create(cmd.Context()); err != nil {
 		return err
 	}
 
