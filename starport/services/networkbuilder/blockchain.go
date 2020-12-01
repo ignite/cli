@@ -49,7 +49,7 @@ func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) er
 		Path: b.appPath,
 	}
 
-	c, err := chain.New(app, chain.LogSilent)
+	c, err := chain.New(app, false, chain.LogSilent)
 	if err != nil {
 		return err
 	}
@@ -148,18 +148,21 @@ type Account struct {
 }
 
 // IssueGentx creates a Genesis transaction for account with proposal.
-func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, address, mnemonic string, err error) {
+func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, acc chain.Account, err error) {
 	proposal.Validator.Name = account.Name
-	address, mnemonic, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
+	acc, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
 	if err != nil {
-		return nil, "", "", err
+		return nil, chain.Account{}, err
+	}
+	if err := b.chain.AddGenesisAccount(ctx, acc); err != nil {
+		return nil, chain.Account{}, err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
 	if err != nil {
-		return nil, "", "", err
+		return nil, chain.Account{}, err
 	}
 	gentx, err = ioutil.ReadFile(gentxPath)
-	return gentx, address, mnemonic, err
+	return gentx, acc, err
 }
 
 // Join proposes a validator to a network.

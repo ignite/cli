@@ -131,11 +131,12 @@ func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.St
 
 // CreateAccount creates an account on chain.
 // cmnemonic is returned when account is created but not restored.
-func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (address, cmnemonic string, err error) {
-	var steps step.Steps
-	var user struct {
-		Mnemonic string `json:"mnemonic"`
+func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (Account, error) {
+	acc := Account{
+		Coins: strings.Join(coins, ","),
 	}
+
+	var steps step.Steps
 
 	if mnemonic != "" {
 		steps.Add(
@@ -155,11 +156,11 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 							if exitErr != nil {
 								return errors.Wrapf(exitErr, "cannot create %s account", name)
 							}
-							if err := json.NewDecoder(generatedMnemonic).Decode(&user); err != nil {
+							if err := json.NewDecoder(generatedMnemonic).Decode(&acc); err != nil {
 								return errors.Wrap(err, "cannot decode mnemonic")
 							}
 							if !isSilent {
-								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
+								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
 							}
 							return nil
 						}),
@@ -172,6 +173,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 	}
 
 	key := &bytes.Buffer{}
+
 	steps.Add(
 		step.New(step.NewOptions().
 			Add(
@@ -180,19 +182,8 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 					if err != nil {
 						return err
 					}
-					coins := strings.Join(coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.D(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
+					acc.Address = strings.TrimSpace(key.String())
+					return nil
 				}),
 			).
 			Add(s.stdSteps(logAppcli)...).
@@ -201,11 +192,12 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins 
 	)
 
 	if err := cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...); err != nil {
-		return "", "", err
+		return Account{}, err
 	}
 
-	address = strings.TrimSpace(key.String())
-
-	return address, user.Mnemonic, nil
+	return acc, nil
 }
+
+
+
 

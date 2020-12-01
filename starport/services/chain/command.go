@@ -7,7 +7,6 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"io"
@@ -48,20 +47,31 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 	return gentxRe.FindStringSubmatch(gentxPathMessage.String())[1], nil
 }
 
-// AddGenesisAccount add a genesis account in the chain
-func (c *Chain) AddGenesisAccount(ctx context.Context, account spn.GenesisAccount) error {
+// Account represents an account in the chain.
+type Account struct {
+	Name     string
+	Address  string
+	Mnemonic string `json:"mnemonic"`
+	Coins    string
+}
+
+// AddGenesisAccount add a genesis account in the chain.
+func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 	return cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(step.NewOptions().
-			Add(step.Exec(
-				c.app.D(),
-				"add-genesis-account",
-				account.Address.String(),
-				account.Coins.String(),
-			)).
-			Add(c.stdSteps(logAppd)...)...,
+			Add(
+				step.Exec(
+					c.app.D(),
+					"add-genesis-account",
+					account.Address,
+					account.Coins,
+				),
+			)...,
 		))
 }
+
+
 
 // CollectGentx collects gentxs on chain.
 func (c *Chain) CollectGentx(ctx context.Context) error {

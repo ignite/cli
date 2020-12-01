@@ -154,7 +154,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
-	chain, err := chain.New(app, chain.LogSilent)
+	c, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return err
 	}
@@ -170,6 +170,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if err != nil {
 		return err
 	}
+
 	initialGenesis, err := chain.GetInitialGenesis(ctx, chainID)
 	if err != nil {
 		return err
@@ -188,7 +189,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// add the genesis accounts
 	for _, account := range launchInformation.GenesisAccounts {
-		if err = chain.AddGenesisAccount(ctx, account); err != nil {
+		if err = c.AddGenesisAccount(ctx, chain.Account{
+			Address: account.Address.String(),
+			Coins:   account.Coins.String(),
+		}); err != nil {
 			return err
 		}
 	}
@@ -212,7 +216,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 			return err
 		}
 	}
-	if err = chain.CollectGentx(ctx); err != nil {
+	if err = c.CollectGentx(ctx); err != nil {
 		return err
 	}
 
