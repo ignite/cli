@@ -2,16 +2,16 @@ package starportcmd
 
 import (
 	"fmt"
-	"strconv"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
 
 func NewNetworkProposalApprove() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "approve [chain-id] [number]",
-		Short: "Approve a proposal",
+		Use:   "approve [chain-id] [number<,...>]",
+		Short: "Approve proposals",
 		RunE:  networkProposalApproveHandler,
 		Args:  cobra.ExactArgs(2),
 	}
@@ -19,20 +19,30 @@ func NewNetworkProposalApprove() *cobra.Command {
 }
 
 func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
+	var (
+		chainID      = args[0]
+		proposalList = args[1]
+	)
+
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}
 
-	id, err := strconv.ParseInt(args[1], 10, 32)
+	var reviewals []spn.Reviewal
+
+	ids, err := numbers.ParseList(proposalList)
 	if err != nil {
 		return err
 	}
+	for _, id := range ids {
+		reviewals = append(reviewals, spn.ApproveProposal(id))
+	}
 
-	if err := nb.SubmitReviewals(cmd.Context(), args[0], spn.ApproveProposal(int(id))); err != nil {
+	if err := nb.SubmitReviewals(cmd.Context(), chainID, reviewals...); err != nil {
 		return err
 	}
 
-	fmt.Printf("Proposal #%d approved ✅\n", id)
+	fmt.Printf("Proposal(s) %s approved ✅\n", numbers.List(ids, "#"))
 	return nil
 }
