@@ -164,21 +164,27 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// fet teh launch information
+
+	// reset the genesis in its initial form to ensure a deterministic generation
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	initialGenesis, err := chain.GetInitialGenesis(ctx, chainID)
+	if err != nil {
+		return err
+	}
+	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
+	if err := ioutil.WriteFile(genesisPath, initialGenesis, 0666); err != nil {
+		return err
+	}
+
+	// fetch the launch information
 	launchInformation, err := b.spnclient.GetLaunchInformation(ctx, account.Name, chainID)
 	if err != nil {
 		return err
 	}
 
-	// update genesis.
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	genesisPath := filepath.Join(homedir, app.ND(), "config/genesis.json")
-	if err := ioutil.WriteFile(genesisPath, launchInformation.Genesis, 0666); err != nil {
-		return err
-	}
 
 	// add the genesis accounts
 	for _, account := range launchInformation.GenesisAccounts {
