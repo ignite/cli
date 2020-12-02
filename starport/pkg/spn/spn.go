@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -308,6 +309,7 @@ type Chain struct {
 	Peers           []string
 	GenesisAccounts []GenesisAccount
 	GenTxs          [][]byte
+	CreatedAt       time.Time
 }
 
 // ChainGet shows chain info.
@@ -353,6 +355,7 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 		Peers:           launchInformationRes.Peers,
 		GenesisAccounts: genesisAccounts,
 		GenTxs:          launchInformationRes.GenTxs,
+		CreatedAt:       time.Unix(res.Chain.CreatedAt, 0),
 	}, nil
 }
 
