@@ -64,9 +64,7 @@ func New(options ...Option) *Runner {
 // Run blocks untill all steps are complated their executions.
 func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	if len(steps) == 0 {
-		// this is a programmer error so better to panic instead of
-		// returning an err.
-		panic("no steps to run")
+		return nil
 	}
 	g, ctx := errgroup.WithContext(ctx)
 	for _, s := range steps {

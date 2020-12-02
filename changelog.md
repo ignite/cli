@@ -3,6 +3,7 @@
 ## Fixes:
 * Routing REST API endpoints of querier on Stargate.
 * Evaluate `--address-prefix` option when scaffolding for Stargate.
+* Use a deterministic method to generate scaffolded type ids
 
 ### Features:
 * Upgraded Stargate's version to v0.40.0-rc3.
@@ -11,6 +12,7 @@
 * Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`.
 * Point to Stargate as default SDK version for scaffolding.
 * Covered CRUD operations for Stargate scaffolding.
+* Added docs on gopath to build from source directions
 
 ## `v0.12.0`
 

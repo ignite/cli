@@ -36,41 +36,58 @@ type version struct {
 	hash string
 }
 
+type LogLevel int
+
+const (
+	LogSilent LogLevel = iota
+	LogRegular
+	LogVerbose
+)
+
 type Chain struct {
 	app            App
 	plugin         Plugin
 	version        version
-	verbose        bool
+	logLevel       LogLevel
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
 }
 
-func New(app App, verbose bool) (*Chain, error) {
+// TODO document noCheck (basically it stands to enable Chain initialization without
+// need of source code)
+func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	s := &Chain{
 		app:            app,
-		verbose:        verbose,
+		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
 
-	if verbose {
+	if logLevel == LogVerbose {
 		s.stdout = os.Stdout
 		s.stderr = os.Stderr
 	}
 
 	var err error
 
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return nil, err
+	if !noCheck {
+		if _, err := s.Config(); err != nil {
+			return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+		}
+
+		s.version, err = s.appVersion()
+		if err != nil && err != git.ErrRepositoryNotExists {
+			return nil, err
+		}
+
+		s.plugin, err = s.pickPlugin()
+		if err != nil {
+			return nil, err
+		}
 	}
 
-	s.plugin, err = s.pickPlugin()
-	if err != nil {
-		return nil, err
-	}
 	return s, nil
 }
 
@@ -92,12 +109,12 @@ func (s *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// rpcPublicAddress points to the public address of Tendermint RPC, this is shared by
+// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
-func (s *Chain) rpcPublicAddress() (string, error) {
+func (s *Chain) RPCPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
-		conf, err := s.config()
+		conf, err := s.Config()
 		if err != nil {
 			return "", err
 		}
@@ -106,7 +123,11 @@ func (s *Chain) rpcPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (s *Chain) config() (conf.Config, error) {
+func (s *Chain) StoragePaths() []string {
+	return s.plugin.StoragePaths()
+}
+
+func (s *Chain) Config() (conf.Config, error) {
 	var paths []string
 	for _, name := range conf.FileNames {
 		paths = append(paths, filepath.Join(s.app.Path, name))
@@ -121,8 +142,8 @@ func (s *Chain) config() (conf.Config, error) {
 
 // ID returns the chain's id.
 func (s *Chain) ID() (string, error) {
-	id := s.app.n()
-	c, err := s.config()
+	id := s.app.N()
+	c, err := s.Config()
 	if err != nil {
 		return "", err
 	}
@@ -133,20 +154,23 @@ func (s *Chain) ID() (string, error) {
 	return id, nil
 }
 
+// Home returns the blockchain node's home dir.
+func (c *Chain) Home() string {
+	home, _ := c.plugin.Home()
+	return home
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/genesis.json", home)
+	return fmt.Sprintf("%s/config/genesis.json", c.Home())
 }
 
 // AppTOMLPath returns app.toml path of the app.
 func (c *Chain) AppTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/app.toml", home)
+	return fmt.Sprintf("%s/config/app.toml", c.Home())
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() string {
-	home, _ := c.plugin.Home()
-	return fmt.Sprintf("%s/config/config.toml", home)
+	return fmt.Sprintf("%s/config/config.toml", c.Home())
 }

@@ -48,33 +48,18 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.d()),
-			),
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.cli()),
-			),
-		}, []string{
-			p.app.d(),
-			p.app.cli(),
-		}
+func (p *launchpadPlugin) Binaries() []string {
+	return []string{
+		p.app.D(),
+		p.app.CLI(),
+	}
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.cli(),
+				p.app.CLI(),
 				"keys",
 				"add",
 				accountName,
@@ -88,7 +73,7 @@ func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options 
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.cli(),
+				p.app.CLI(),
 				"keys",
 				"add",
 				name,
@@ -101,7 +86,7 @@ func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options 
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 	return step.Exec(
-		p.app.cli(),
+		p.app.CLI(),
 		"keys",
 		"show",
 		accountName,
@@ -113,31 +98,31 @@ func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
 		step.Exec(
-			p.app.cli(),
+			p.app.CLI(),
 			"config",
 			"keyring-backend",
 			"test",
 		),
 		step.Exec(
-			p.app.cli(),
+			p.app.CLI(),
 			"config",
 			"chain-id",
 			chainID,
 		),
 		step.Exec(
-			p.app.cli(),
+			p.app.CLI(),
 			"config",
 			"output",
 			"json",
 		),
 		step.Exec(
-			p.app.cli(),
+			p.app.CLI(),
 			"config",
 			"indent",
 			"true",
 		),
 		step.Exec(
-			p.app.cli(),
+			p.app.CLI(),
 			"config",
 			"trust-node",
 			"true",
@@ -145,14 +130,32 @@ func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(_ string, conf starportconf.Config) step.Option {
-	return step.Exec(
-		p.app.d(),
+func (p *launchpadPlugin) GentxCommand(_ string, v Validator) step.Option {
+	args := []string{
 		"gentx",
-		"--name", conf.Validator.Name,
+		"--name", v.Name,
 		"--keyring-backend", "test",
-		"--amount", conf.Validator.Staked,
-	)
+		"--amount", v.StakingAmount,
+	}
+	if v.Moniker != "" {
+		args = append(args, "--moniker", v.Moniker)
+	}
+	if v.CommissionRate != "" {
+		args = append(args, "--commission-rate", v.CommissionRate)
+	}
+	if v.CommissionMaxRate != "" {
+		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
+	}
+	if v.CommissionMaxChangeRate != "" {
+		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
+	}
+	if v.MinSelfDelegation != "" {
+		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
+	}
+	if v.GasPrices != "" {
+		args = append(args, "--gas-prices", v.GasPrices)
+	}
+	return step.Exec(p.app.D(), args...)
 }
 
 func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
@@ -165,7 +168,7 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	if err != nil {
 		return err
 	}
-	path := filepath.Join(home, "."+p.app.nd(), "config/config.toml")
+	path := filepath.Join(home, "."+p.app.ND(), "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -188,7 +191,7 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 		step.NewOptions().
 			Add(
 				step.Exec(
-					p.app.d(),
+					p.app.D(),
 					"start",
 				),
 				step.PostExec(func(exitErr error) error {
@@ -198,7 +201,7 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 		step.NewOptions().
 			Add(
 				step.Exec(
-					p.app.cli(),
+					p.app.CLI(),
 					"rest-server",
 					"--unsafe-cors",
 					"--laddr", xurl.TCP(conf.Servers.APIAddr),
@@ -213,8 +216,8 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 
 func (p *launchpadPlugin) StoragePaths() []string {
 	return []string{
-		fmt.Sprintf(".%s", p.app.nd()),
-		fmt.Sprintf(".%s", p.app.ncli()),
+		fmt.Sprintf(".%s", p.app.ND()),
+		fmt.Sprintf(".%s", p.app.NCLI()),
 	}
 }
 
@@ -223,7 +226,7 @@ func (p *launchpadPlugin) Home() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return filepath.Join(home, "."+p.app.nd()), nil
+	return filepath.Join(home, "."+p.app.ND()), nil
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

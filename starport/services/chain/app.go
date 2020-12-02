@@ -1,44 +1,44 @@
 package chain
 
 import (
-	"os"
 	"path/filepath"
 	"strings"
 )
 
 // App keeps info about scaffold.
 type App struct {
-	Name string
-	Path string
+	Name       string
+	Path       string
+	ImportPath string
 }
 
-// n returns app name without dashes.
-func (a App) n() string {
+// N returns app name without dashes.
+func (a App) N() string {
 	return strings.ReplaceAll(a.Name, "-", "")
 }
 
-// d returns appd name.
-func (a App) d() string {
+// D returns appd name.
+func (a App) D() string {
 	return a.Name + "d"
 }
 
-// cli return appcli name.
-func (a App) cli() string {
+// CLI return appcli name.
+func (a App) CLI() string {
 	return a.Name + "cli"
 }
 
-// nd returns no-dash appd name.
-func (a App) nd() string {
-	return a.n() + "d"
+// ND returns no-dash appd name.
+func (a App) ND() string {
+	return a.N() + "d"
 }
 
-// ncli returns no-dash appcli name.
-func (a App) ncli() string {
-	return a.n() + "cli"
+// NCLI returns no-dash appcli name.
+func (a App) NCLI() string {
+	return a.N() + "cli"
 }
 
-// root returns the root path of app.
-func (a App) root() string {
-	cwd, _ := os.Getwd()
-	return filepath.Join(cwd, a.Path)
+// Root returns the root path of app.
+func (a App) Root() string {
+	path, _ := filepath.Abs(a.Path)
+	return path
 }

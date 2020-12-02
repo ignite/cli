@@ -17,8 +17,8 @@ type Plugin interface {
 	// Setup performs the initial setup for plugin.
 	Setup(context.Context) error
 
-	// InstallCommands returns step.Exec configurations to install app.
-	InstallCommands(ldflags string) (options []step.Option, binaries []string)
+	// Binaries returns a list of binaries that will be compiled for the app.
+	Binaries() []string
 
 	// AddUserCommand returns step.Exec configuration to add users.
 	AddUserCommand(name string) step.Options
@@ -33,7 +33,7 @@ type Plugin interface {
 	ConfigCommands(chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(chainID string, c starportconf.Config) step.Option
+	GentxCommand(chainID string, v Validator) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
@@ -44,7 +44,7 @@ type Plugin interface {
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
-	// Home returns the root config dir's path of app.
+	// Home returns the blockchain node's home dir.
 	Home() (string, error)
 
 	// Version of the plugin.

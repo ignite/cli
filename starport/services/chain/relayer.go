@@ -46,22 +46,22 @@ func (s *Chain) RelayerInfo() (base64Info string, err error) {
 	if err != nil {
 		return "", err
 	}
-	relayerAcc, found := sconf.SelfRelayerAccount(s.app.n())
+	relayerAcc, found := sconf.SelfRelayerAccount(s.app.N())
 	if !found {
-		if err := sconf.SetSelfRelayerAccount(s.app.n()); err != nil {
+		if err := sconf.SetSelfRelayerAccount(s.app.N()); err != nil {
 			return "", err
 		}
-		relayerAcc, _ = sconf.SelfRelayerAccount(s.app.n())
+		relayerAcc, _ = sconf.SelfRelayerAccount(s.app.N())
 		if err := secretconf.Save(s.app.Path, sconf); err != nil {
 			return "", err
 		}
 	}
-	rpcAddress, err := s.rpcPublicAddress()
+	rpcAddress, err := s.RPCPublicAddress()
 	if err != nil {
 		return "", err
 	}
 	info := relayerInfo{
-		ChainID:    s.app.n(),
+		ChainID:    s.app.N(),
 		Mnemonic:   relayerAcc.Mnemonic,
 		RPCAddress: rpcAddress,
 	}
@@ -121,12 +121,12 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 	}
 	configPath := filepath.Join(relayerHome, "config/config.yaml")
 
-	rpcAddress, err := s.rpcPublicAddress()
+	rpcAddress, err := s.RPCPublicAddress()
 	if err != nil {
 		return err
 	}
 
-	selfacc, _ := sconf.SelfRelayerAccount(s.app.n())
+	selfacc, _ := sconf.SelfRelayerAccount(s.app.N())
 	selfacc.RPCAddress = rpcAddress
 
 	// prep and save relayer config.
@@ -259,7 +259,7 @@ func (s *Chain) initRelayerHome() (path string, err error) {
 	if err != nil {
 		return "", err
 	}
-	relayerHome := filepath.Join(home, s.app.nd(), "relayer")
+	relayerHome := filepath.Join(home, s.app.ND(), "relayer")
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		relayerHome = filepath.Join(home, ".relayer")
 	}
