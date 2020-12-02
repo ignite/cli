@@ -12,7 +12,7 @@ var (
 )
 
 func init() {
-	if err := os.MkdirAll(starportConfDir, 0666); err != nil {
+	if err := os.MkdirAll(starportConfDir, 0755); err != nil {
 		panic(err)
 	}
 }
