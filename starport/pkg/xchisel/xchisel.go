@@ -38,6 +38,7 @@ func StartServer(ctx context.Context, port string) error {
 func StartClient(ctx context.Context, serverAddr, localPort, remotePort string) error {
 	c, err := chclient.NewClient(&chclient.Config{
 		MaxRetryInterval: time.Second,
+		MaxRetryCount:    -1,
 		Server:           serverAddr,
 		Remotes:          []string{fmt.Sprintf("127.0.0.1:%s:127.0.0.1:%s", localPort, remotePort)},
 	})
