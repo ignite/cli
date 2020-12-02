@@ -173,6 +173,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	if len(launchInformation.GenTxs) == 0 {
+		return errors.New("There are no approved validators yet")
+	}
+
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return err
