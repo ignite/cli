@@ -4,7 +4,7 @@
 # The "base" is built by: https://github.com/faddat/sos
 # The base image is located at: https://hub.docker.com/r/faddat/spos
 
-name: Images
+name: Rpi
 on: [push, pull_request]
 
 jobs:
@@ -85,9 +85,7 @@ jobs:
         run: bash .pi/build.sh
 
       - name: Compress
-        run: |
-          sudo apt install -y pbzip2
-          xz -T $(nproc) images/starport.img
+        run: xz -T $(nproc) images/starport.img
 
       - name: Upload image
         uses: actions/upload-artifact@v2
