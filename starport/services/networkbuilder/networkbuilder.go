@@ -154,7 +154,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	app := chain.App{
 		Name: chainID,
 	}
-	c, err := chain.New(app, true, chain.LogSilent)
+	c, err := chain.New(app, true, chain.LogVerbose)
 	if err != nil {
 		return err
 	}
@@ -172,6 +172,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if err != nil {
 		return err
 	}
+
+	// overwrite genesis with initial genesis.
+	appHome := filepath.Join(homedir, app.ND())
+	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
 
 	// add the genesis accounts
 	for _, account := range launchInformation.GenesisAccounts {
