@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/pelletier/go-toml"
 
@@ -15,6 +16,7 @@ import (
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -176,6 +178,17 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// overwrite genesis with initial genesis.
 	appHome := filepath.Join(homedir, app.ND())
 	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
+
+	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(appHome))
+	var genesis map[string]interface{}
+	if err := cf.Load(&genesis); err != nil {
+		return err
+	}
+	genesis["genesis_time"] = launchInformation.CreatedAt.UTC().Format(time.RFC3339)
+	if err := cf.Save(genesis); err != nil {
+		return err
+	}
 
 	// add the genesis accounts
 	for _, account := range launchInformation.GenesisAccounts {
