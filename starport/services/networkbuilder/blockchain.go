@@ -82,9 +82,26 @@ func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) er
 		return err
 	}
 
+	// backup initial genesis so it can be used during `start`.
+	genesis, err := ioutil.ReadFile(c.GenesisPath())
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(initialGenesisPath(c.Home()), genesis, 0644); err != nil {
+		return err
+	}
+
 	b.chain = c
 	b.app = app
 	return nil
+}
+
+func genesisPath(appHome string) string {
+	return fmt.Sprintf("%s/config/genesis.json", appHome)
+}
+
+func initialGenesisPath(appHome string) string {
+	return fmt.Sprintf("%s/config/initial_genesis.json", appHome)
 }
 
 // BlockchainInfo hold information about a Blokchain.
