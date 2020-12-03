@@ -28,9 +28,9 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "http://138.197.195.46:26657", "SPN node address")
-	c.PersistentFlags().StringVar(&spnAPIAddress, "spn-api-address", "http://138.197.195.46:1317", "SPN api address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, "spn-faucet-address", "http://138.197.195.46:8000", "SPN Faucet address")
+	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "https://rpc.alpha.starport.network", "SPN node address")
+	c.PersistentFlags().StringVar(&spnAPIAddress, "spn-api-address", "https://rest.alpha.starport.network", "SPN api address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, "spn-faucet-address", "https://faucet.alpha.starport.network", "SPN Faucet address")
 
 	// add sub commands.
 	c.AddCommand(NewNetworkAccount())
