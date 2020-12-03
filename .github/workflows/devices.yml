@@ -81,9 +81,8 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-
-	  - name:  Build Image in Docker
-	    run: docker buildx build --tag starport --file .pi/Dockerfile --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --load --progress tty .
+      - name: Build Image in Docker
+        run: docker buildx build --tag starport --file .pi/Dockerfile --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --load --progress tty .
 
       - name: Build Image
         run: bash .pi/build.sh
