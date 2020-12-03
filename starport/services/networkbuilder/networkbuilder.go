@@ -258,6 +258,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
+	configToml.Set("p2p.allow_duplicate_ip", true)
 	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return err
