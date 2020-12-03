@@ -3,6 +3,7 @@ package cliquiz
 
 import (
 	"fmt"
+	"reflect"
 
 	"github.com/AlecAivazis/survey/v2"
 )
@@ -14,6 +15,7 @@ type Question struct {
 	defaultAnswer interface{}
 	answer        interface{}
 	hidden        bool
+	required      bool
 }
 
 // Option configures Question.
@@ -23,6 +25,13 @@ type Option func(*Question)
 func DefaultAnswer(answer interface{}) Option {
 	return func(q *Question) {
 		q.defaultAnswer = answer
+	}
+}
+
+// Required marks the answer as required.
+func Required() Option {
+	return func(q *Question) {
+		q.required = true
 	}
 }
 
@@ -48,6 +57,7 @@ func NewQuestion(question string, answer interface{}, options ...Option) Questio
 // Ask asks questions and collect answers.
 func Ask(question ...Question) error {
 	for _, q := range question {
+
 		var prompt survey.Prompt
 		if !q.hidden {
 			input := &survey.Input{
@@ -62,8 +72,16 @@ func Ask(question ...Question) error {
 				Message: q.question,
 			}
 		}
+
 		if err := survey.AskOne(prompt, q.answer); err != nil {
 			return err
+		}
+
+		if q.required && reflect.ValueOf(q.answer).Elem().IsZero() {
+			fmt.Println("This information is required, please retry:")
+			if err := Ask(q); err != nil {
+				return err
+			}
 		}
 	}
 	return nil
