@@ -173,6 +173,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	if len(launchInformation.GenTxs) == 0 {
+		return errors.New("There are no approved validators yet")
+	}
+
 	homedir, err := os.UserHomeDir()
 	if err != nil {
 		return err
@@ -229,15 +233,15 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// prep peer configs.
 	p2pAddresses := launchInformation.Peers
 	chiselAddreses := make(map[string]int) // server addr-local p2p port pair.
+	ports, err := availableport.Find(len(launchInformation.Peers))
+	if err != nil {
+		return err
+	}
+	time.Sleep(time.Second * 2) // make sure that ports are released by the OS before being used.
 
 	if xchisel.IsEnabled() {
 		for i, peer := range launchInformation.Peers {
-			ports, err := availableport.Find(1)
-			if err != nil {
-				return err
-			}
-
-			localPort := ports[0]
+			localPort := ports[i]
 			sp := strings.Split(peer, "@")
 			nodeID := sp[0]
 			serverAddr := sp[1]
