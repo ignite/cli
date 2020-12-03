@@ -86,13 +86,14 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !xchisel.IsEnabled() {
-		ip, err := ipify.GetIp()
-		if err != nil {
-			return err
+		opts := []cliquiz.Option{
+			cliquiz.Required(),
 		}
-		publicAddr := fmt.Sprintf("%s:26656", ip)
-
-		questions = append(questions, cliquiz.NewQuestion("Public address", &publicAddress, cliquiz.DefaultAnswer(publicAddr)))
+		ip, err := ipify.GetIp()
+		if err == nil {
+			opts = append(opts, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+		}
+		questions = append(questions, cliquiz.NewQuestion("Public address", &publicAddress, opts...))
 	}
 
 	s.Stop()
