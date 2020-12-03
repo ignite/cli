@@ -182,6 +182,7 @@ func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
 	}
 	return c.clientCtx.
 		WithFromName(accountName).
+		WithSimulation(true).
 		WithFromAddress(info.GetAddress()), nil
 }
 
