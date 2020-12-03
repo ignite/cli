@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"net/http"
 	"os"
 	"strconv"
@@ -167,7 +168,7 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, s
 	if err != nil {
 		return err
 	}
-	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
+	return c.broadcast(ctx, clientCtx, false, genesistypes.NewMsgChainCreate(
 		chainID,
 		clientCtx.GetFromAddress(),
 		sourceURL,
@@ -259,7 +260,7 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	return nil
 }
 
-func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, confirmPrompt bool, msgs ...types.Msg) error {
 	// validate msgs.
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
@@ -288,6 +289,19 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 	// We add an additional amount to endure sufficient gas is provided
 	gas += 10000
 	c.factory = c.factory.WithGas(gas)
+
+	// Prompt for confirmation
+	if confirmPrompt {
+		prompt := promptui.Prompt{
+			Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction?",
+				gas,
+			),
+			IsConfirm: true,
+		}
+		if _, err := prompt.Run(); err != nil {
+			return errors.New("transaction aborted")
+		}
+	}
 
 	// broadcast tx.
 	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
@@ -572,7 +586,7 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 		}
 	}
 
-	return c.broadcast(ctx, clientCtx, msgs...)
+	return c.broadcast(ctx, clientCtx, false, msgs...)
 }
 
 // reviewal keeps a proposal's reviewal.
@@ -623,5 +637,5 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		}
 	}
 
-	return c.broadcast(ctx, clientCtx, msgs...)
+	return c.broadcast(ctx, clientCtx, true, msgs...)
 }
