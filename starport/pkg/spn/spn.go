@@ -182,7 +182,6 @@ func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
 	}
 	return c.clientCtx.
 		WithFromName(accountName).
-		WithSimulation(true).
 		WithFromAddress(info.GetAddress()), nil
 }
 
@@ -274,6 +273,21 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 	}
 
 	c.out.Reset()
+
+	// calculate the necessary gas for the transaction
+	txf, err := tx.PrepareFactory(clientCtx, c.factory)
+	if err != nil {
+		return err
+	}
+	c.factory = txf
+	_, gas, err := tx.CalculateGas(clientCtx.QueryWithData, c.factory, msgs...)
+	if err != nil {
+		return nil
+	}
+	// The simulated gas can vary from the actual gas needed for a real transaction
+	// We add an additional amount to endure sufficient gas is provided
+	gas += 10000
+	c.factory = c.factory.WithGas(gas)
 
 	// broadcast tx.
 	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
