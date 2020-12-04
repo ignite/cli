@@ -16,7 +16,7 @@ import (
 
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [repo]",
+		Use:   "create [chainID] [repo]",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
 		Args:  cobra.ExactArgs(2),

@@ -296,7 +296,7 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 	return nil
 }
 
-// GenesisAccount Represent a genesis account inside a chain with its allocated coins.
+// GenesisAccount represents a genesis account inside a chain with its allocated coins.
 type GenesisAccount struct {
 	Address types.AccAddress
 	Coins   types.Coins
