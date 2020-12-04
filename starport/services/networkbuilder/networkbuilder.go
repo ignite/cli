@@ -209,7 +209,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// overwrite genesis with initial genesis.
-	appHome := filepath.Join(homedir, path.Root+"d")
+	appHome := filepath.Join(homedir, app.ND())
 	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
 
 	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
@@ -301,10 +301,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return cmdrunner.New().Run(ctx, step.New(
 			step.Exec(
 				app.D(),
-				append([]string{
-					"start",
-					"--home", appHome,
-				}, flags...)...,
+				append([]string{"start"}, flags...)...,
 			),
 			step.Stdout(os.Stdout),
 			step.Stderr(os.Stderr),
