@@ -11,6 +11,7 @@ url="https://github.com/tendermint/starport"
 md5sums=('SKIP')
 
 depends=("nodejs"
+         "protobuf"
 	 "go")
 
 makedepends=("npm"
