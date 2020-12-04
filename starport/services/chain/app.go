@@ -3,10 +3,14 @@ package chain
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
-// App keeps info about scaffold.
+// App keeps info about chain.
 type App struct {
+	ChainID    string
+	Version    cosmosver.MajorVersion
 	Name       string
 	Path       string
 	ImportPath string

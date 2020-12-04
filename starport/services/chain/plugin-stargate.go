@@ -120,11 +120,7 @@ func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
 
 func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.ND(), "config/app.toml")
+	path := filepath.Join(p.Home(), "config/app.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -145,11 +141,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 
 func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.ND(), "config/config.toml")
+	path := filepath.Join(p.Home(), "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -188,16 +180,13 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 
 func (p *stargatePlugin) StoragePaths() []string {
 	return []string{
-		p.app.ND(),
+		p.Home(),
 	}
 }
 
-func (p *stargatePlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, p.app.ND()), nil
+func (p *stargatePlugin) Home() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, p.app.ND())
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

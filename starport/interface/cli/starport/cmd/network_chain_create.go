@@ -16,10 +16,10 @@ import (
 
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [repo]",
+		Use:   "create [chainID] [repo]",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 	}
 	return c
 }
@@ -31,23 +31,34 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	var (
+		chainID = args[0]
+		repo    = args[1]
+	)
+
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
 
-	address := args[0]
+	// check if chain already exists on SPN.
+	if _, err := nb.ChainShow(cmd.Context(), chainID); err == nil {
+		s.Stop()
 
-	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(address) {
-			return nb.InitBlockchainFromPath(cmd.Context(), address, true)
-		}
-		return nb.InitBlockchainFromURL(cmd.Context(), address, "", true)
+		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
+	initChain := func() (*networkbuilder.Blockchain, error) {
+		if xurl.IsLocalPath(repo) {
+			return nb.InitBlockchainFromPath(cmd.Context(), chainID, repo, true)
+		}
+		return nb.InitBlockchainFromURL(cmd.Context(), chainID, repo, "", true)
+	}
+
+	// init the chain.
 	blockchain, err := initChain()
 
-	// handle if data dir for the chain already exists.
+	// ask to delete data dir for the chain if already exists on the fs.
 	var e *networkbuilder.DataDirExistsError
 	if errors.As(err, &e) {
 		s.Stop()
@@ -68,8 +79,12 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
+		s.Start()
+
 		blockchain, err = initChain()
 	}
+
+	s.Stop()
 
 	if err == context.Canceled {
 		fmt.Println("aborted")
@@ -85,9 +100,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
-	// ask to confirm genesis.
+	// ask to confirm Genesis.
 	prettyGenesis, err := info.Genesis.Pretty()
 	if err != nil {
 		return err
