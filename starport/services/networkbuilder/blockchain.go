@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
@@ -25,19 +27,20 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string) (*Blockchain, error) {
+func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string,
+	mustNotInitializedBefore bool) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID)
+	return bc, bc.init(ctx, chainID, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, chainID string) error {
+func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
 	path, err := gomodulepath.ParseFile(b.appPath)
 	if err != nil {
 		return err
@@ -51,6 +54,19 @@ func (b *Blockchain) init(ctx context.Context, chainID string) error {
 	c, err := chain.New(app, false, chain.LogSilent)
 	if err != nil {
 		return err
+	}
+
+	if mustNotInitializedBefore {
+		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, c.Home()}
+		}
+	}
+
+	// cleanup home dir of app if exists.
+	for _, path := range c.StoragePaths() {
+		if err := xos.RemoveAllUnderHome(path); err != nil {
+			return err
+		}
 	}
 
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))

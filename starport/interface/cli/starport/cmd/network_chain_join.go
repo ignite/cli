@@ -38,7 +38,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	blockchain, err := nb.InitBlockchainFromChainID(cmd.Context(), args[0])
+	blockchain, err := nb.InitBlockchainFromChainID(cmd.Context(), args[0], false)
 
 	if err == context.Canceled {
 		s.Stop()

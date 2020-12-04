@@ -2,9 +2,9 @@ package starportcmd
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -48,20 +48,25 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
-	// ask to delete data dir for the chain if already exists on the fs.
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return err
+	initChain := func() (*networkbuilder.Blockchain, error) {
+		if xurl.IsLocalPath(repo) {
+			return nb.InitBlockchainFromPath(cmd.Context(), chainID, repo, true)
+		}
+		return nb.InitBlockchainFromURL(cmd.Context(), chainID, repo, "", true)
 	}
-	apphome := filepath.Join(homedir, chainID)
 
-	if _, err := os.Stat(apphome); !os.IsNotExist(err) {
+	// init the chain.
+	blockchain, err := initChain()
+
+	// ask to delete data dir for the chain if already exists on the fs.
+	var e *networkbuilder.DataDirExistsError
+	if errors.As(err, &e) {
 		s.Stop()
 
 		prompt := promptui.Prompt{
 			Label: fmt.Sprintf("Data directory for %q blockchain already exists: %s. Would you like to overwrite it",
-				chainID,
-				apphome,
+				e.ID,
+				e.Home,
 			),
 			IsConfirm: true,
 		}
@@ -70,19 +75,13 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 
-		if err := os.RemoveAll(apphome); err != nil {
+		if err := os.RemoveAll(e.Home); err != nil {
 			return err
 		}
-	}
-	s.Start()
 
-	var blockchain *networkbuilder.Blockchain
+		s.Start()
 
-	// init the chain.
-	if xurl.IsLocalPath(repo) {
-		blockchain, err = nb.InitBlockchainFromPath(cmd.Context(), chainID, repo)
-	} else {
-		blockchain, err = nb.InitBlockchainFromURL(cmd.Context(), chainID, repo, "")
+		blockchain, err = initChain()
 	}
 
 	s.Stop()
