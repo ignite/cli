@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -46,7 +45,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	if _, err := nb.ChainShow(cmd.Context(), chainID); err == nil {
 		s.Stop()
 
-		return errors.New("chain with id %q already exists")
+		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
 	// ask to delete data dir for the chain if already exists on the fs.
