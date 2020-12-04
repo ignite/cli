@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
@@ -35,9 +36,16 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	path := args[0]
+	address := args[0]
 
-	blockchain, err := nb.InitBlockchainFromPath(cmd.Context(), path, true)
+	initChain := func() (*networkbuilder.Blockchain, error) {
+		if xurl.IsLocalPath(address) {
+			return nb.InitBlockchainFromPath(cmd.Context(), address, true)
+		}
+		return nb.InitBlockchainFromURL(cmd.Context(), address, "", true)
+	}
+
+	blockchain, err := initChain()
 
 	// handle if data dir for the chain already exists.
 	var e *networkbuilder.DataDirExistsError
@@ -60,7 +68,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		blockchain, err = nb.InitBlockchainFromPath(cmd.Context(), path, true)
+		blockchain, err = initChain()
 	}
 
 	if err == context.Canceled {
