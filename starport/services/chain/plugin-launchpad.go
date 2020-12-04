@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -215,18 +214,16 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {
+	home, _ := os.UserHomeDir()
 	return []string{
-		fmt.Sprintf(".%s", p.app.ND()),
-		fmt.Sprintf(".%s", p.app.NCLI()),
+		filepath.Join(home, "."+p.app.ND()),
+		filepath.Join(home, "."+p.app.NCLI()),
 	}
 }
 
-func (p *launchpadPlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "."+p.app.ND()), nil
+func (p *launchpadPlugin) Home() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+p.app.ND())
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

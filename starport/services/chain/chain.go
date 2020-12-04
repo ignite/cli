@@ -81,11 +81,11 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 		if err != nil && err != git.ErrRepositoryNotExists {
 			return nil, err
 		}
+	}
 
-		s.plugin, err = s.pickPlugin()
-		if err != nil {
-			return nil, err
-		}
+	s.plugin, err = s.pickPlugin()
+	if err != nil {
+		return nil, err
 	}
 
 	return s, nil
@@ -142,22 +142,28 @@ func (s *Chain) Config() (conf.Config, error) {
 
 // ID returns the chain's id.
 func (s *Chain) ID() (string, error) {
-	id := s.app.N()
+	// chainID in App has the most priority.
+	if s.app.ChainID != "" {
+		return s.app.ChainID, nil
+	}
+
+	// otherwise uses defined in config.yml
 	c, err := s.Config()
 	if err != nil {
 		return "", err
 	}
 	genid, ok := c.Genesis["chain_id"]
 	if ok {
-		id = genid.(string)
+		return genid.(string), nil
 	}
-	return id, nil
+
+	// use app name by default.
+	return s.app.N(), nil
 }
 
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() string {
-	home, _ := c.plugin.Home()
-	return home
+	return c.plugin.Home()
 }
 
 // GenesisPath returns genesis.json path of the app.

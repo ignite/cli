@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"os"
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
@@ -13,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
@@ -27,50 +25,32 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string,
-	mustNotInitializedBefore bool) (*Blockchain, error) {
+func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) error {
+func (b *Blockchain) init(ctx context.Context, chainID string) error {
 	path, err := gomodulepath.ParseFile(b.appPath)
 	if err != nil {
 		return err
 	}
 	app := chain.App{
-		Name: path.Root,
-		Path: b.appPath,
+		ChainID: chainID,
+		Name:    path.Root,
+		Path:    b.appPath,
 	}
 
 	c, err := chain.New(app, false, chain.LogSilent)
 	if err != nil {
 		return err
-	}
-
-	chainID, err := c.ID()
-	if err != nil {
-		return err
-	}
-
-	if mustNotInitializedBefore {
-		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
-			return &DataDirExistsError{chainID, c.Home()}
-		}
-	}
-
-	// cleanup home dir of app if exists.
-	for _, path := range c.StoragePaths() {
-		if err := xos.RemoveAllUnderHome(path); err != nil {
-			return err
-		}
 	}
 
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
@@ -106,8 +86,6 @@ func initialGenesisPath(appHome string) string {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
-	ID               string
-	Home             string
 	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
@@ -127,13 +105,7 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
-	chainID, err := b.chain.ID()
-	if err != nil {
-		return BlockchainInfo{}, err
-	}
 	return BlockchainInfo{
-		ID:               chainID,
-		Home:             b.chain.Home(),
 		Genesis:          genesis,
 		Config:           config,
 		RPCPublicAddress: paddr,

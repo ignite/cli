@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -19,7 +20,7 @@ func NewNetworkChainCreate() *cobra.Command {
 		Use:   "create [repo]",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 	}
 	return c
 }
@@ -31,31 +32,37 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	var (
+		chainID = args[0]
+		repo    = args[1]
+	)
+
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
 
-	address := args[0]
+	// check if chain already exists on SPN.
+	if _, err := nb.ChainShow(cmd.Context(), chainID); err == nil {
+		s.Stop()
 
-	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(address) {
-			return nb.InitBlockchainFromPath(cmd.Context(), address, true)
-		}
-		return nb.InitBlockchainFromURL(cmd.Context(), address, "", true)
+		return errors.New("chain with id %q already exists")
 	}
 
-	blockchain, err := initChain()
+	// ask to delete data dir for the chain if already exists on the fs.
+	homedir, err := os.UserHomeDir()
+	if err != nil {
+		return err
+	}
+	apphome := filepath.Join(homedir, chainID)
 
-	// handle if data dir for the chain already exists.
-	var e *networkbuilder.DataDirExistsError
-	if errors.As(err, &e) {
+	if _, err := os.Stat(apphome); !os.IsNotExist(err) {
 		s.Stop()
 
 		prompt := promptui.Prompt{
 			Label: fmt.Sprintf("Data directory for %q blockchain already exists: %s. Would you like to overwrite it",
-				e.ID,
-				e.Home,
+				chainID,
+				apphome,
 			),
 			IsConfirm: true,
 		}
@@ -64,12 +71,22 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 
-		if err := os.RemoveAll(e.Home); err != nil {
+		if err := os.RemoveAll(apphome); err != nil {
 			return err
 		}
-
-		blockchain, err = initChain()
 	}
+	s.Start()
+
+	var blockchain *networkbuilder.Blockchain
+
+	// init the chain.
+	if xurl.IsLocalPath(repo) {
+		blockchain, err = nb.InitBlockchainFromPath(cmd.Context(), chainID, repo)
+	} else {
+		blockchain, err = nb.InitBlockchainFromURL(cmd.Context(), chainID, repo, "")
+	}
+
+	s.Stop()
 
 	if err == context.Canceled {
 		fmt.Println("aborted")
@@ -85,9 +102,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
-	// ask to confirm genesis.
+	// ask to confirm Genesis.
 	prettyGenesis, err := info.Genesis.Pretty()
 	if err != nil {
 		return err

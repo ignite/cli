@@ -5,7 +5,9 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/url"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -19,7 +21,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -52,7 +56,7 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 }
 
 // InitBlockchainFromChainID initializes blockchain from chain id.
-func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string, mustNotInitializedBefore bool) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string) (*Blockchain, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
@@ -61,11 +65,11 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string,
 	if err != nil {
 		return nil, err
 	}
-	return b.InitBlockchainFromURL(ctx, chain.URL, chain.Hash, mustNotInitializedBefore)
+	return b.InitBlockchainFromURL(ctx, chainID, chain.URL, chain.Hash)
 }
 
 // InitBlockchainFromURL initializes blockchain from a remote git repo.
-func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, rev string, mustNotInitializedBefore bool) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromURL(ctx context.Context, chainID, url, rev string) (*Blockchain, error) {
 	appPath, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, err
@@ -107,7 +111,7 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, rev string, mu
 
 	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
 
-	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
+	return newBlockchain(ctx, b, chainID, appPath, url, hash.String())
 }
 
 // InitBlockchainFromPath initializes blockchain from a local git repo.
@@ -116,7 +120,7 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, rev string, mu
 //
 // TODO: It requires that there will be no unstaged changes in the code and HEAD is synced with the upstream
 // branch (if there is one).
-func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string, mustNotInitializedBefore bool) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromPath(ctx context.Context, chainID string, appPath string) (*Blockchain, error) {
 	repo, err := git.PlainOpen(appPath)
 	if err != nil {
 		return nil, err
@@ -161,7 +165,7 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string, mu
 		return nil, err
 	}
 
-	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
+	return newBlockchain(ctx, b, chainID, appPath, url, hash.String())
 }
 
 // StartChain downloads the final version version of Genesis on the first start or fails if Genesis
@@ -169,19 +173,28 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string, mu
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
-	app := chain.App{
-		Name: chainID,
-	}
-	c, err := chain.New(app, true, chain.LogSilent)
+	launchInformation, err := b.ChainShow(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
-	account, err := b.AccountInUse()
+	// find out the app's name form url.
+	u, err := url.Parse(launchInformation.URL)
 	if err != nil {
 		return err
 	}
-	launchInformation, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+	importPath := path.Join(u.Host, u.Path)
+	path, err := gomodulepath.Parse(importPath)
+	if err != nil {
+		return err
+	}
+
+	app := chain.App{
+		ChainID: chainID,
+		Name:    path.Root,
+		Version: cosmosver.Stargate,
+	}
+	c, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return err
 	}
@@ -196,7 +209,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// overwrite genesis with initial genesis.
-	appHome := filepath.Join(homedir, app.ND())
+	appHome := filepath.Join(homedir, path.Root+"d")
 	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
 
 	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
@@ -221,12 +234,12 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// reset gentx directory
-	dir, err := ioutil.ReadDir(filepath.Join(homedir, app.ND(), "config/gentx"))
+	dir, err := ioutil.ReadDir(filepath.Join(appHome, "config/gentx"))
 	if err != nil {
 		return err
 	}
 	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(homedir, app.ND(), "config/gentx", d.Name())); err != nil {
+		if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
 			return err
 		}
 	}
@@ -234,7 +247,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// add and collect the gentxs
 	for i, gentx := range launchInformation.GenTxs {
 		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(homedir, app.ND(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		gentxPath := filepath.Join(appHome, fmt.Sprintf("config/gentx/gentx%v.json", i))
 		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}
@@ -265,7 +278,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
+	configTomlPath := filepath.Join(appHome, "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -288,7 +301,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return cmdrunner.New().Run(ctx, step.New(
 			step.Exec(
 				app.D(),
-				append([]string{"start"}, flags...)...,
+				append([]string{
+					"start",
+					"--home", appHome,
+				}, flags...)...,
 			),
 			step.Stdout(os.Stdout),
 			step.Stderr(os.Stderr),
