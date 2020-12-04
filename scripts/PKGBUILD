@@ -1,0 +1,48 @@
+# Maintainer: jacobgadikian@gmail.com
+
+pkgname=starport-git
+pkgdesc="The fastest way to build a blockchainn"
+pkgver=0.0.0.ga59748e
+pkgrel=1
+arch=("any")
+provides=("starport")
+conflicts=("starport")
+url="https://github.com/tendermint/starport"
+md5sums=('SKIP')
+
+depends=("nodejs"
+	 "go")
+
+makedepends=("npm"
+             "nodejs"
+             "node-gyp"
+             "make"
+             "go")
+
+source=("${pkgname}::git+https://github.com/tendermint/starport.git")
+
+pkgver() {
+  cd "$pkgname"
+  #git describe | sed 's/^v//;s/-/./g'
+  echo 0.0.0.g$(git rev-parse --short HEAD)
+}
+
+build() {
+    cd "$pkgname"
+    mkdir $(pwd)/go
+    export GOPATH=$(pwd)/go
+    export PATH=$PATH:$(pwd)/go/bin
+    which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null && cd ../..
+    go get github.com/rakyll/statik
+    go get -u github.com/gobuffalo/packr/v2/packr2
+    cd starport/interface/cli/starport
+    packr2
+    cd ../../../..
+    mkdir -p build/
+    go build -o build/ ./starport/interface/cli/...
+}
+
+package() {
+      cd "$pkgname"
+      install -D -m755 build/starport "$pkgdir/usr/bin/starport"
+}
