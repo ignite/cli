@@ -28,7 +28,7 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "https://rpc.alpha.starport.network", "SPN node address")
+	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "https://rpc.alpha.starport.network:443", "SPN node address")
 	c.PersistentFlags().StringVar(&spnAPIAddress, "spn-api-address", "https://rest.alpha.starport.network", "SPN api address")
 	c.PersistentFlags().StringVar(&spnFaucetAddress, "spn-faucet-address", "https://faucet.alpha.starport.network", "SPN Faucet address")
 
