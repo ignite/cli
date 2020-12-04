@@ -14,6 +14,8 @@
 * Covered CRUD operations for Stargate scaffolding.
 * Added docs on gopath to build from source directions
 * Arch Linux Based Raspberry Pi development environment
+* Arch PKGBUILD in `scripts`
+
 
 ## `v0.12.0`
 
