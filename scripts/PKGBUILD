@@ -12,7 +12,7 @@ md5sums=('SKIP')
 
 depends=("nodejs"
          "protobuf"
-	 "go")
+         "go")
 
 makedepends=("npm"
              "nodejs"
