@@ -65,7 +65,7 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string,
 }
 
 // InitBlockchainFromURL initializes blockchain from a remote git repo.
-func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string, mustNotInitializedBefore bool) (*Blockchain, error) {
+func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, rev string, mustNotInitializedBefore bool) (*Blockchain, error) {
 	appPath, err := ioutil.TempDir("", "")
 	if err != nil {
 		return nil, err
@@ -73,28 +73,41 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, hash string, m
 
 	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
 
-	// clone the repo first and then checkout to the correct version (hash).
+	// clone the repo.
 	repo, err := git.PlainCloneContext(ctx, appPath, false, &git.CloneOptions{
 		URL: url,
 	})
 	if err != nil {
 		return nil, err
 	}
-	wt, err := repo.Worktree()
-	if err != nil {
-		return nil, err
+
+	var hash plumbing.Hash
+
+	// checkout to the revision if provided, otherwise default branch is used.
+	if rev != "" {
+		wt, err := repo.Worktree()
+		if err != nil {
+			return nil, err
+		}
+		h, err := repo.ResolveRevision(plumbing.Revision(rev))
+		if err != nil {
+			return nil, err
+		}
+		hash = *h
+		wt.Checkout(&git.CheckoutOptions{
+			Hash: hash,
+		})
+	} else {
+		ref, err := repo.Head()
+		if err != nil {
+			return nil, err
+		}
+		hash = ref.Hash()
 	}
-	h, err := repo.ResolveRevision(plumbing.Revision(hash))
-	if err != nil {
-		return nil, err
-	}
-	wt.Checkout(&git.CheckoutOptions{
-		Hash: *h,
-	})
 
 	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
 
-	return newBlockchain(ctx, b, appPath, url, hash, mustNotInitializedBefore)
+	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
 }
 
 // InitBlockchainFromPath initializes blockchain from a local git repo.

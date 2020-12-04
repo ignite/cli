@@ -33,3 +33,17 @@ func Address(address string) string {
 	}
 	return address
 }
+
+// IsLocalPath checks if given address is a local fs path or a URL.
+func IsLocalPath(address string) bool {
+	for _, pattern := range []string{
+		"http://",
+		"https://",
+		"git@",
+	} {
+		if strings.HasPrefix(address, pattern) {
+			return false
+		}
+	}
+	return true
+}
