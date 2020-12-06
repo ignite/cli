@@ -3,14 +3,15 @@ package version
 import (
 	"fmt"
 	"runtime"
+	"time"
 )
 
 var (
 	// Version is the semantic version of Starport.
-	Version = "dev"
+	Version = "0.12.0-develop"
 
 	// Date is the build date of Starport.
-	Date = ""
+	Date = time.Now()
 )
 
 // Long generates a detailed version info.
@@ -19,5 +20,5 @@ func Long() string {
 		Version,
 		runtime.GOOS,
 		runtime.GOARCH,
-		Date)
+		Date.Format(time.RFC3339))
 }
