@@ -54,7 +54,7 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 			content = fmt.Sprintf("%s, %s", proposal.Account.Address, proposal.Account.Coins.String())
 		case proposal.Validator != nil:
 			proposalType = "Add Validator"
-			content = fmt.Sprintf("(run 'chain describe' to see gentx), %s", proposal.Validator.P2PAddress)
+			content = fmt.Sprintf("(run 'chain show' to see gentx), %s", proposal.Validator.P2PAddress)
 		}
 
 		proposalTable.Append([]string{
