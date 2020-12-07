@@ -6,6 +6,7 @@ import (
 	"reflect"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/spf13/pflag"
 )
 
 // Question holds information on what to ask to user and where
@@ -85,4 +86,43 @@ func Ask(question ...Question) error {
 		}
 	}
 	return nil
+}
+
+// ValuesFromFlagsOrAsk returns values of requiredFlags within map[string]string where map's
+// key is the name of the flag and value is flag's value.
+// when provided, values are collected through command otherwise they're asked to user by prompting.
+// title used as a message while prompting.
+func ValuesFromFlagsOrAsk(flags *pflag.FlagSet, title string, requiredFlags []string) (values map[string]string, err error) {
+	values = make(map[string]string)
+
+	answers := make(map[string]*string)
+	var questions []Question
+
+	for _, name := range requiredFlags {
+		flag := flags.Lookup(name)
+		if flag == nil {
+			return nil, fmt.Errorf("flag %q is not defined", name)
+		}
+		if value, _ := flags.GetString(name); value != "" {
+			values[name] = value
+			continue
+		}
+
+		var value string
+		answers[name] = &value
+		questions = append(questions, NewQuestion(flag.Usage, &value, Required()))
+	}
+
+	if len(questions) > 0 && title != "" {
+		fmt.Println(title)
+	}
+	if err := Ask(questions...); err != nil {
+		return values, err
+	}
+
+	for name, answer := range answers {
+		values[name] = *answer
+	}
+
+	return values, nil
 }

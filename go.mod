@@ -39,6 +39,7 @@ require (
 	github.com/regen-network/cosmos-proto v0.3.0
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.1.1
+	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/spn v0.0.0-20201205140131-cf864f668b46
 	github.com/tendermint/tendermint v0.34.0-rc6
