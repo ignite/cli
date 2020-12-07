@@ -67,7 +67,7 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 
 		proposalTable.Append([]string{
 			id,
-			status,
+			string(proposal.Status),
 			proposalType,
 			content,
 		})
