@@ -31,6 +31,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	var steps step.Steps
+	var errb bytes.Buffer
 
 	// cleanup persistent data from previous `serve`.
 	steps.Add(step.New(
@@ -45,62 +46,62 @@ func (c *Chain) Init(ctx context.Context) error {
 	))
 
 	// init node.
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				c.app.D(),
-				"init",
-				"mynode",
-				"--chain-id", chainID,
-			),
-			// overwrite configuration changes from Starport's config.yml to
-			// over app's sdk configs.
-			step.PostExec(func(err error) error {
-				if err != nil {
+	steps.Add(step.New(
+		step.Exec(
+			c.app.D(),
+			"init",
+			"mynode",
+			"--chain-id", chainID,
+		),
+		// overwrite configuration changes from Starport's config.yml to
+		// over app's sdk configs.
+		step.PostExec(func(err error) error {
+			if err != nil {
+				return err
+			}
+
+			// make sure that chain id given during chain.New() has the most priority.
+			if conf.Genesis != nil {
+				conf.Genesis["chain_id"] = chainID
+			}
+
+			appconfigs := []struct {
+				ec      confile.EncodingCreator
+				path    string
+				changes map[string]interface{}
+			}{
+				{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
+				{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
+				{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
+			}
+
+			for _, ac := range appconfigs {
+				cf := confile.New(ac.ec, ac.path)
+				var conf map[string]interface{}
+				if err := cf.Load(&conf); err != nil {
 					return err
 				}
-
-				// make sure that chain id given during chain.New() has the most priority.
-				if conf.Genesis != nil {
-					conf.Genesis["chain_id"] = chainID
-				}
-
-				appconfigs := []struct {
-					ec      confile.EncodingCreator
-					path    string
-					changes map[string]interface{}
-				}{
-					{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
-					{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
-					{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
-				}
-
-				for _, ac := range appconfigs {
-					cf := confile.New(ac.ec, ac.path)
-					var conf map[string]interface{}
-					if err := cf.Load(&conf); err != nil {
-						return err
-					}
-					if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
-						return err
-					}
-					if err := cf.Save(conf); err != nil {
-						return err
-					}
-				}
-				return nil
-			}),
-			step.PostExec(func(err error) error {
-				if err != nil {
+				if err := mergo.Merge(&conf, ac.changes, mergo.WithOverride); err != nil {
 					return err
 				}
-				return c.plugin.PostInit(conf)
-			}),
-		).
-		Add(c.stdSteps(logAppd)...)...,
+				if err := cf.Save(conf); err != nil {
+					return err
+				}
+			}
+			return nil
+		}),
+		step.PostExec(func(err error) error {
+			if err != nil {
+				return err
+			}
+			return c.plugin.PostInit(conf)
+		}),
+		step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
+		step.Stdout(c.stdLog(logAppd).out),
 	))
 
-	return cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...)
+	err = cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...)
+	return errors.Wrap(err, errb.String())
 }
 
 func (c *Chain) setupSteps() (steps step.Steps, err error) {
@@ -143,66 +144,62 @@ func (c *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 		Name: name,
 	}
 
-	var steps step.Steps
+	var (
+		steps step.Steps
+		key   = &bytes.Buffer{}
+		errb  = &bytes.Buffer{}
+	)
 
 	if mnemonic != "" {
 		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(c.plugin.ImportUserCommand(name, mnemonic)...)...,
+			step.New(step.NewOptions().
+				Add(c.plugin.ImportUserCommand(name, mnemonic)...).
+				Add(step.Stderr(errb))...,
 			),
 		)
 	} else {
 		generatedMnemonic := &bytes.Buffer{}
 		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(c.plugin.AddUserCommand(name)...).
-					Add(
-						step.PostExec(func(exitErr error) error {
-							if exitErr != nil {
-								return errors.Wrapf(exitErr, "cannot create %s account", name)
-							}
-							if err := json.NewDecoder(generatedMnemonic).Decode(&acc); err != nil {
-								return errors.Wrap(err, "cannot decode mnemonic")
-							}
-							if !isSilent {
-								fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
-							}
-							return nil
-						}),
-					).
-					Add(c.stdSteps(logAppcli)...).
-					// Stargate pipes from stdout, Launchpad pipes from stderr.
-					Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
+			step.New(step.NewOptions().
+				Add(c.plugin.AddUserCommand(name)...).
+				Add(
+					step.PostExec(func(exitErr error) error {
+						if exitErr != nil {
+							return errors.Wrapf(exitErr, "cannot create %s account", name)
+						}
+						if err := json.NewDecoder(generatedMnemonic).Decode(&acc); err != nil {
+							return errors.Wrap(err, "cannot decode mnemonic")
+						}
+						if !isSilent {
+							fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
+						}
+						return nil
+					}),
+				).
+				Add(c.stdSteps(logAppcli)...).
+				// Stargate pipes from stdout, Launchpad pipes from stderr.
+				Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
 			),
 		)
 	}
 
-	key := &bytes.Buffer{}
-
 	steps.Add(
-		step.New(step.NewOptions().
-			Add(
-				c.plugin.ShowAccountCommand(name),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					acc.Address = strings.TrimSpace(key.String())
-					return nil
-				}),
-			).
-			Add(c.stdSteps(logAppcli)...).
-			Add(step.Stdout(key))...,
+		step.New(
+			c.plugin.ShowAccountCommand(name),
+			step.PostExec(func(err error) error {
+				if err != nil {
+					return err
+				}
+				acc.Address = strings.TrimSpace(key.String())
+				return nil
+			}),
+			step.Stderr(io.MultiWriter(c.stdLog(logAppcli).err, errb)),
+			step.Stdout(key),
 		),
 	)
 
-	if err := cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...); err != nil {
-		return Account{}, err
-	}
-
-	return acc, nil
+	err := cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...)
+	return acc, errors.Wrap(err, errb.String())
 }
 
 type Validator struct {
@@ -225,16 +222,21 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 		return "", err
 	}
 
-	gentxPathMessage := &bytes.Buffer{}
+	var (
+		gentxPathMessage = &bytes.Buffer{}
+		errb             = &bytes.Buffer{}
+	)
+
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
 			c.plugin.GentxCommand(chainID, v),
-			step.Stderr(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).err)),
+			step.Stderr(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).err, errb)),
 			step.Stdout(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).out)),
 		)); err != nil {
-		return "", err
+		return "", errors.Wrap(err, errb.String())
 	}
+
 	return gentxRe.FindStringSubmatch(gentxPathMessage.String())[1], nil
 }
 
@@ -250,28 +252,27 @@ type Account struct {
 func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 	errb := &bytes.Buffer{}
 
-	return cmdrunner.
+	err := cmdrunner.
 		New(c.cmdOptions()...).
-		Run(ctx, step.New(step.NewOptions().
-			Add(
-				step.Exec(
-					c.app.D(),
-					"add-genesis-account",
-					account.Address,
-					account.Coins,
-					"--home",
-					c.Home(),
-				),
-				step.Stderr(errb),
-			)...,
+		Run(ctx, step.New(
+			step.Exec(
+				c.app.D(),
+				"add-genesis-account",
+				account.Address,
+				account.Coins,
+				"--home",
+				c.Home(),
+			),
+			step.Stderr(errb),
 		))
+	return errors.Wrap(err, errb.String())
 }
 
 // CollectGentx collects gentxs on chain.
 func (c *Chain) CollectGentx(ctx context.Context) error {
-	var errb bytes.Buffer
+	errb := &bytes.Buffer{}
 
-	if err := cmdrunner.
+	err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
 			step.Exec(
@@ -280,19 +281,18 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 				"--home",
 				c.Home(),
 			),
-			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
+			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, errb)),
 			step.Stdout(c.stdLog(logAppd).out),
-		)); err != nil {
-		return errors.Wrap(err, errb.String())
-	}
-
-	return nil
+		))
+	return errors.Wrap(err, errb.String())
 }
 
 // ShowNodeID shows node's id.
 func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
-	var key bytes.Buffer
-	var errb bytes.Buffer
+	var (
+		key  = &bytes.Buffer{}
+		errb = &bytes.Buffer{}
+	)
 
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
@@ -303,8 +303,8 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 					"tendermint",
 					"show-node-id",
 				),
-				step.Stdout(&key),
-				step.Stderr(&errb),
+				step.Stdout(key),
+				step.Stderr(errb),
 			),
 		); err != nil {
 		return "", errors.Wrap(err, errb.String())
