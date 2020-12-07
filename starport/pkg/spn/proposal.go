@@ -8,13 +8,23 @@ import (
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
-// ProposalStatus keeps a proposal's status state.
+// ProposalType represents the type of the proposal
+type ProposalType string
+
+const (
+	ProposalTypeAll          ProposalType = ""
+	ProposalTypeAddAccount   ProposalType = "add-account"
+	ProposalTypeAddValidator ProposalType = "add-validator"
+)
+
+// ProposalStatus represents the status of the proposal
 type ProposalStatus string
 
 const (
-	ProposalPending  = "pending"
-	ProposalApproved = "approved"
-	ProposalRejected = "rejected"
+	ProposalStatusAll      ProposalStatus = ""
+	ProposalStatusPending  ProposalStatus = "pending"
+	ProposalStatusApproved ProposalStatus = "approved"
+	ProposalStatusRejected ProposalStatus = "rejected"
 )
 
 // Proposal represents a proposal.
@@ -39,46 +49,56 @@ type ProposalAddValidator struct {
 	P2PAddress       string
 }
 
+var statusFromSPN = map[genesistypes.ProposalStatus]ProposalStatus{
+	genesistypes.ProposalStatus_PENDING:  ProposalStatusPending,
+	genesistypes.ProposalStatus_APPROVED: ProposalStatusApproved,
+	genesistypes.ProposalStatus_REJECTED: ProposalStatusRejected,
+}
+
+var statusToSPN = map[ProposalStatus]genesistypes.ProposalStatus{
+	ProposalStatusAll:      genesistypes.ProposalStatus_ANY_STATUS,
+	ProposalStatusPending:  genesistypes.ProposalStatus_PENDING,
+	ProposalStatusApproved: genesistypes.ProposalStatus_APPROVED,
+	ProposalStatusRejected: genesistypes.ProposalStatus_REJECTED,
+}
+
+var proposalTypeToSPN = map[ProposalType]genesistypes.ProposalType{
+	ProposalTypeAll:          genesistypes.ProposalType_ANY_TYPE,
+	ProposalTypeAddAccount:   genesistypes.ProposalType_ADD_ACCOUNT,
+	ProposalTypeAddValidator: genesistypes.ProposalType_ADD_VALIDATOR,
+}
+
 // ProposalList lists proposals on a chain by status.
-func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus) ([]Proposal, error) {
+func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus, proposalType ProposalType) ([]Proposal, error) {
 	var proposals []Proposal
 	var spnProposals []*genesistypes.Proposal
 
 	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
-	switch status {
-	case ProposalPending:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_PENDING,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
-	case ProposalApproved:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_APPROVED,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
-	case ProposalRejected:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_REJECTED,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
+	// Get spn proposal status
+	spnStatus, ok := statusToSPN[status]
+	if !ok {
+		return nil, errors.New("unrecognized status")
 	}
 
+	// Get spn proposal type
+	spnType, ok := proposalTypeToSPN[proposalType]
+	if !ok {
+		return nil, errors.New("unrecognized type")
+	}
+
+	// Send query
+	res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
+		ChainID: chainID,
+		Status:  spnStatus,
+		Type:    spnType,
+	})
+	if err != nil {
+		return nil, err
+	}
+	spnProposals = res.Proposals
+
+	// Format proposals
 	for _, gp := range spnProposals {
 		proposal, err := c.toProposal(*gp)
 		if err != nil {
@@ -91,16 +111,10 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	return proposals, nil
 }
 
-var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
-	genesistypes.ProposalStatus_PENDING:  ProposalPending,
-	genesistypes.ProposalStatus_APPROVED: ProposalApproved,
-	genesistypes.ProposalStatus_REJECTED: ProposalRejected,
-}
-
 func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 	p := Proposal{
 		ID:     int(proposal.ProposalInformation.ProposalID),
-		Status: toStatus[proposal.ProposalState.GetStatus()],
+		Status: statusFromSPN[proposal.ProposalState.GetStatus()],
 	}
 	switch payload := proposal.Payload.(type) {
 	case *genesistypes.Proposal_AddAccountPayload:

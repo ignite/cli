@@ -7,12 +7,12 @@ import (
 )
 
 // ProposalList lists proposals on a chain by status.
-func (b *Builder) ProposalList(ctx context.Context, chainID string, status spn.ProposalStatus) ([]spn.Proposal, error) {
+func (b *Builder) ProposalList(ctx context.Context, chainID string, status spn.ProposalStatus, proposalType spn.ProposalType) ([]spn.Proposal, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
 	}
-	return b.spnclient.ProposalList(ctx, account.Name, chainID, status)
+	return b.spnclient.ProposalList(ctx, account.Name, chainID, status, proposalType)
 }
 
 // ProposalGet retrieves a proposal on a chain by id.
