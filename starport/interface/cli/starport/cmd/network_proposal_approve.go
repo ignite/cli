@@ -3,9 +3,11 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
+  
 	"github.com/manifoldco/promptui"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
@@ -58,10 +60,17 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("transaction aborted")
 	}
 
+	s := clispinner.New()
+	defer s.Stop()
+
+	s.SetText("Approving...")
+	s.Start()
+
 	// Broadcast the transaction
 	if err := broadcast(); err != nil {
 		return err
 	}
+	s.Stop()
 
 	fmt.Printf("Proposal(s) %s approved ✅\n", numbers.List(ids, "#"))
 	return nil
