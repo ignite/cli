@@ -1,3 +1,11 @@
+VERSION := $(shell git describe --tags)
+HEAD := $(shell git rev-parse HEAD)
+DATE := $(shell date +%Y%m%d%H%M%S)
+LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='$(VERSION)' \
+	-X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
+	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
+BUILD_FLAGS := -mod=readonly -ldflags='$(LD_FLAGS)'
+
 all: install
 
 mod:
@@ -7,7 +15,7 @@ build: mod
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@cd ./starport/interface/cli/starport && packr2
 	@mkdir -p build/
-	@go build -mod=readonly -o build/ ./starport/interface/cli/...
+	@go build $(BUILD_FLAGS) -o build/ ./starport/interface/cli/...
 	@packr2 clean
 	@go mod tidy
 
@@ -20,10 +28,10 @@ ui:
 	go get github.com/rakyll/statik
 
 install: ui build
-	@go install -mod=readonly ./...
+	@go install $(BUILD_FLAGS) ./...
 
 cli: build
-	@go install -mod=readonly ./...
+	@go install $(BUILD_FLAGS) ./...
 
 lint:
 	golangci-lint run --out-format=tab --issues-exit-code=0
