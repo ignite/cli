@@ -10,7 +10,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/manifoldco/promptui"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"net/http"
 	"os"
@@ -74,16 +73,8 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 	}, nil
 }
 
-func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
-	info, err := c.kr.Key(accountName)
-	if err != nil {
-		return client.Context{}, err
-	}
-	return c.clientCtx.
-		WithFromName(accountName).
-		WithFromAddress(info.GetAddress()), nil
-}
-
+// makeSureAccountHasTokens makes sure the address has a positive balance
+// it requests funds from the faucet if the address has an empty balance
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
 	// check the balance.
 	balancesEndpoint := fmt.Sprintf("%s/bank/balances/%s", c.apiAddress, address)
@@ -158,7 +149,23 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	return nil
 }
 
-func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, confirmPrompt bool, msgs ...types.Msg) error {
+// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
+func (c *Client) handleBroadcastResult() error {
+	out := struct {
+		Code int    `json:"code"`
+		Log  string `json:"raw_log"`
+	}{}
+	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
+		return err
+	}
+	if out.Code > 0 {
+		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
+	}
+	return nil
+}
+
+// prepareBroadcast performs checks and operations before broadcasting messages
+func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
 	// validate msgs.
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
@@ -173,51 +180,53 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, confir
 
 	c.out.Reset()
 
-	// calculate the necessary gas for the transaction
-	txf, err := tx.PrepareFactory(clientCtx, c.factory)
-	if err != nil {
-		return err
-	}
-	_, gas, err := tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
-	if err != nil {
-		return nil
-	}
-	// The simulated gas can vary from the actual gas needed for a real transaction
-	// We add an additional amount to endure sufficient gas is provided
-	gas += 10000
-	txf = txf.WithGas(gas)
+	return nil
+}
 
-	// Prompt for confirmation
-	if confirmPrompt {
-		prompt := promptui.Prompt{
-			Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction?",
-				gas,
-			),
-			IsConfirm: true,
-		}
-		if _, err := prompt.Run(); err != nil {
-			return errors.New("transaction aborted")
-		}
+// broadcast directly broadcasts the messages into spn handlers
+func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+		return err
 	}
 
 	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your SPN account has enough balance")
 		}
 		return err
 	}
 
-	// handle results.
-	out := struct {
-		Code int    `json:"code"`
-		Log  string `json:"raw_log"`
-	}{}
-	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
-		return err
+	return c.handleBroadcastResult()
+}
+
+// broadcastProvision provides a provision function to broadcast the messages with returned amount of gas
+func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Context, confirmPrompt bool, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
+	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+		return 0, nil, err
 	}
-	if out.Code > 0 {
-		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
+
+	// calculate the necessary gas for the transaction
+	txf, err := tx.PrepareFactory(clientCtx, c.factory)
+	if err != nil {
+		return 0, nil, err
 	}
-	return nil
+	_, gas, err = tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
+	if err != nil {
+		return 0, nil, err
+	}
+	// the simulated gas can vary from the actual gas needed for a real transaction
+	// we add an additional amount to endure sufficient gas is provided
+	gas += 10000
+	txf = txf.WithGas(gas)
+
+	// broadcast tx.
+	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return 0, nil, errors.New("make sure that your SPN account has enough balance")
+		}
+		return 0, nil, err
+	}
+
+	return 0, nil, c.handleBroadcastResult()
 }

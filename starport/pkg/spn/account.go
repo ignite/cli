@@ -1,6 +1,7 @@
 package spn
 
 import (
+	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -87,4 +88,15 @@ func (c *Client) AccountExport(accountName, password string) (privateKey string,
 // AccountImport imports an account to the keyring by account name, privateKey and decryption password.
 func (c *Client) AccountImport(accountName, privateKey, password string) error {
 	return c.kr.ImportPrivKey(accountName, privateKey, password)
+}
+
+// buildClientCtx builds the context for the client
+func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
+	info, err := c.kr.Key(accountName)
+	if err != nil {
+		return client.Context{}, err
+	}
+	return c.clientCtx.
+		WithFromName(accountName).
+		WithFromAddress(info.GetAddress()), nil
 }
