@@ -49,6 +49,25 @@ type ProposalAddValidator struct {
 	P2PAddress       string
 }
 
+var statusFromSPN = map[genesistypes.ProposalStatus]ProposalStatus{
+	genesistypes.ProposalStatus_PENDING:  ProposalStatusPending,
+	genesistypes.ProposalStatus_APPROVED: ProposalStatusApproved,
+	genesistypes.ProposalStatus_REJECTED: ProposalStatusRejected,
+}
+
+var statusToSPN = map[ProposalStatus]genesistypes.ProposalStatus{
+	ProposalStatusAll:      genesistypes.ProposalStatus_ANY_STATUS,
+	ProposalStatusPending:  genesistypes.ProposalStatus_PENDING,
+	ProposalStatusApproved: genesistypes.ProposalStatus_APPROVED,
+	ProposalStatusRejected: genesistypes.ProposalStatus_REJECTED,
+}
+
+var proposalTypeToSPN = map[ProposalType]genesistypes.ProposalType{
+	ProposalTypeAll:          genesistypes.ProposalType_ANY_TYPE,
+	ProposalTypeAddAccount:   genesistypes.ProposalType_ADD_ACCOUNT,
+	ProposalTypeAddValidator: genesistypes.ProposalType_ADD_VALIDATOR,
+}
+
 // ProposalList lists proposals on a chain by status.
 func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus, proposalType ProposalType) ([]Proposal, error) {
 	var proposals []Proposal
@@ -56,31 +75,15 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 
 	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
-	// Dispatch spn proposal status
-	var spnStatus genesistypes.ProposalStatus
-	switch status {
-	case ProposalStatusAll:
-		spnStatus = genesistypes.ProposalStatus_ANY_STATUS
-	case ProposalStatusPending:
-		spnStatus = genesistypes.ProposalStatus_PENDING
-	case ProposalStatusApproved:
-		spnStatus = genesistypes.ProposalStatus_APPROVED
-	case ProposalStatusRejected:
-		spnStatus = genesistypes.ProposalStatus_REJECTED
-	default:
+	// Get spn proposal status
+	spnStatus, ok := statusToSPN[status]
+	if !ok {
 		return nil, errors.New("unrecognized status")
 	}
 
-	// Dispatch spn proposal type
-	var spnType genesistypes.ProposalType
-	switch proposalType {
-	case ProposalTypeAll:
-		spnType = genesistypes.ProposalType_ANY_TYPE
-	case ProposalTypeAddAccount:
-		spnType = genesistypes.ProposalType_ADD_ACCOUNT
-	case ProposalTypeAddValidator:
-		spnType = genesistypes.ProposalType_ADD_VALIDATOR
-	default:
+	// Get spn proposal type
+	spnType, ok := proposalTypeToSPN[proposalType]
+	if !ok {
 		return nil, errors.New("unrecognized type")
 	}
 
@@ -108,16 +111,10 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	return proposals, nil
 }
 
-var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
-	genesistypes.ProposalStatus_PENDING:  ProposalStatusPending,
-	genesistypes.ProposalStatus_APPROVED: ProposalStatusApproved,
-	genesistypes.ProposalStatus_REJECTED: ProposalStatusRejected,
-}
-
 func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 	p := Proposal{
 		ID:     int(proposal.ProposalInformation.ProposalID),
-		Status: toStatus[proposal.ProposalState.GetStatus()],
+		Status: statusFromSPN[proposal.ProposalState.GetStatus()],
 	}
 	switch payload := proposal.Payload.(type) {
 	case *genesistypes.Proposal_AddAccountPayload:
