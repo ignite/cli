@@ -2,12 +2,12 @@ package spn
 
 import (
 	"context"
-	"golang.org/x/sync/errgroup"
-	"time"
-
+	"sync"
 	"github.com/cosmos/cosmos-sdk/types"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
+	"golang.org/x/sync/errgroup"
+	"time"
 )
 
 // ChainSummary represents the summary of a chain in Genesis module of SPN.
@@ -37,82 +37,68 @@ func (c *Client) ChainList(ctx context.Context, accountName string) ([]ChainSumm
 
 	// Get the summary of each chain
 	chainSummaries := make([]ChainSummary, len(chainList.Chains))
-	g, ctx := errgroup.WithCancel(ctx)
+	chainSummariesGroup, ctx := errgroup.WithContext(ctx)
+	mutex := &sync.Mutex{}
 
 	for i, chain := range chainList.Chains {
 		i, chain := i, chain // https://golang.org/doc/faq#closures_and_goroutines
 		chainSummariesGroup.Go(func() error {
-			g, ctx := errgroup.WithCancel(ctx)
-
 			var chainSummary ChainSummary
 			chainSummary.ChainID = chain.ChainID
 			chainSummary.Source = chain.SourceURL
 
 			// Get the number of validators
-			chainSummaryGroup.Go(func() error {
-				reqValidators := &genesistypes.QueryListProposalsRequest{
-					ChainID: chain.ChainID,
-					Status:  genesistypes.ProposalStatus_ANY_STATUS,
-					Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-				}
-				resValidators, err := q.ListProposals(ctx, reqValidators)
-				if err != nil {
-					return err
-				}
-				chainSummary.TotalValidators = len(resValidators.Proposals)
-				return nil
-			})
-
-			// Get the number of approved validators
-			chainSummaryGroup.Go(func() error {
-				reqApprovedValidators := &genesistypes.QueryListProposalsRequest{
-					ChainID: chain.ChainID,
-					Status:  genesistypes.ProposalStatus_APPROVED,
-					Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-				}
-				resApprovedValidators, err := q.ListProposals(ctx, reqApprovedValidators)
-				if err != nil {
-					return err
-				}
-				chainSummary.ApprovedValidators = len(resApprovedValidators.Proposals)
-				return nil
-			})
-
-			// Get the number of proposals
-			chainSummaryGroup.Go(func() error {
-				reqProposals := &genesistypes.QueryListProposalsRequest{
-					ChainID: chain.ChainID,
-					Status:  genesistypes.ProposalStatus_ANY_STATUS,
-					Type:    genesistypes.ProposalType_ANY_TYPE,
-				}
-				resProposals, err := q.ListProposals(ctx, reqProposals)
-				if err != nil {
-					return err
-				}
-				chainSummary.TotalProposals = len(resProposals.Proposals)
-				return nil
-			})
-
-			// Get the number of approved proposals
-			chainSummaryGroup.Go(func() error {
-				reqApprovedProposals := &genesistypes.QueryListProposalsRequest{
-					ChainID: chain.ChainID,
-					Status:  genesistypes.ProposalStatus_APPROVED,
-					Type:    genesistypes.ProposalType_ANY_TYPE,
-				}
-				resApprovedProposals, err := q.ListProposals(ctx, reqApprovedProposals)
-				if err != nil {
-					return err
-				}
-				chainSummary.ApprovedProposals = len(resApprovedProposals.Proposals)
-				return nil
-			})
-
-			if err := chainSummaryGroup.Wait(); err != nil {
+			reqValidators := &genesistypes.QueryListProposalsRequest{
+				ChainID: chain.ChainID,
+				Status:  genesistypes.ProposalStatus_ANY_STATUS,
+				Type:    genesistypes.ProposalType_ADD_VALIDATOR,
+			}
+			resValidators, err := q.ListProposals(ctx, reqValidators)
+			if err != nil {
 				return err
 			}
+			chainSummary.TotalValidators = len(resValidators.Proposals)
 
+			// Get the number of approved validators
+			reqApprovedValidators := &genesistypes.QueryListProposalsRequest{
+				ChainID: chain.ChainID,
+				Status:  genesistypes.ProposalStatus_APPROVED,
+				Type:    genesistypes.ProposalType_ADD_VALIDATOR,
+			}
+			resApprovedValidators, err := q.ListProposals(ctx, reqApprovedValidators)
+			if err != nil {
+				return err
+			}
+			chainSummary.ApprovedValidators = len(resApprovedValidators.Proposals)
+
+			// Get the number of proposals
+			reqProposals := &genesistypes.QueryListProposalsRequest{
+				ChainID: chain.ChainID,
+				Status:  genesistypes.ProposalStatus_ANY_STATUS,
+				Type:    genesistypes.ProposalType_ANY_TYPE,
+			}
+			resProposals, err := q.ListProposals(ctx, reqProposals)
+			if err != nil {
+				return err
+			}
+			chainSummary.TotalProposals = len(resProposals.Proposals)
+
+			// Get the number of approved proposals
+			reqApprovedProposals := &genesistypes.QueryListProposalsRequest{
+				ChainID: chain.ChainID,
+				Status:  genesistypes.ProposalStatus_APPROVED,
+				Type:    genesistypes.ProposalType_ANY_TYPE,
+			}
+			resApprovedProposals, err := q.ListProposals(ctx, reqApprovedProposals)
+			if err != nil {
+				return err
+			}
+			chainSummary.ApprovedProposals = len(resApprovedProposals.Proposals)
+
+			// Append the summary
+			mutex.Lock()
 			chainSummaries[i] = chainSummary
+			mutex.Unlock()
 
 			return nil
 		})
