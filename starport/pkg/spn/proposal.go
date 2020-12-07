@@ -50,8 +50,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalPending:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_PENDING,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_PENDING,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -60,8 +60,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalApproved:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_APPROVED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_APPROVED,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -70,8 +70,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalRejected:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_REJECTED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_REJECTED,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
