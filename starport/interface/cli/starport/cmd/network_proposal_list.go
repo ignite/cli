@@ -3,11 +3,9 @@ package starportcmd
 import (
 	"context"
 	"fmt"
-	"os"
-	"strings"
-	"text/tabwriter"
-
+	"github.com/olekukonko/tablewriter"
 	"github.com/tendermint/starport/starport/pkg/spn"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -41,19 +39,32 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	w := tabwriter.NewWriter(os.Stdout, 0, 5, 1, '\t', tabwriter.AlignRight)
-	fmt.Fprintln(w, "id\tstatus\tcontent")
-	for _, p := range proposals {
-		var content string
+	// Rendering
+	proposalTable := tablewriter.NewWriter(os.Stdout)
+	proposalTable.SetHeader([]string{"ID", "Status", "Type", "Content"})
+
+	for _, proposal := range proposals {
+		id := fmt.Sprintf("%d", proposal.ID)
+		proposalType := "Unknown"
+		content := ""
+
 		switch {
-		case p.Account != nil:
-			content = fmt.Sprintf("Add Account   | %s, %s", p.Account.Address, p.Account.Coins.String())
-		case p.Validator != nil:
-			content = fmt.Sprintf("Add Validator | (run 'chain describe' to see gentx), %s", p.Validator.P2PAddress)
+		case proposal.Account != nil:
+			proposalType = "Add Account"
+			content = fmt.Sprintf("%s, %s", proposal.Account.Address, proposal.Account.Coins.String())
+		case proposal.Validator != nil:
+			proposalType = "Add Validator"
+			content = fmt.Sprintf("(run 'chain show' to see gentx), %s", proposal.Validator.P2PAddress)
 		}
-		fmt.Fprintf(w, "%d\t%s\t%s\n", p.ID, strings.Title(string(p.Status)), content)
+
+		proposalTable.Append([]string{
+			id,
+			status,
+			proposalType,
+			content,
+		})
 	}
-	w.Flush()
+	proposalTable.Render()
 
 	return nil
 }
