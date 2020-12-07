@@ -14,7 +14,7 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, s
 	if err != nil {
 		return err
 	}
-	return c.broadcast(ctx, clientCtx, false, genesistypes.NewMsgChainCreate(
+	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
 		chainID,
 		clientCtx.GetFromAddress(),
 		sourceURL,

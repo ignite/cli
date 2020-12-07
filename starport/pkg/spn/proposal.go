@@ -206,5 +206,5 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 		}
 	}
 
-	return c.broadcast(ctx, clientCtx, false, msgs...)
+	return c.broadcast(ctx, clientCtx, msgs...)
 }

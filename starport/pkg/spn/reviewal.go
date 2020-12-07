@@ -32,14 +32,14 @@ func RejectProposal(id int) Reviewal {
 }
 
 // SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
-func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID string, reviewals ...Reviewal) error {
+func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID string, reviewals ...Reviewal) (gas uint64, broadcast func() error, err error) {
 	if len(reviewals) == 0 {
-		return errors.New("at least one reviewal required")
+		return 0, nil, errors.New("at least one reviewal required")
 	}
 
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
-		return err
+		return 0, nil, err
 	}
 
 	var msgs []types.Msg
@@ -55,5 +55,5 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		}
 	}
 
-	return c.broadcast(ctx, clientCtx, true, msgs...)
+	return c.broadcastProvision(ctx, clientCtx, msgs...)
 }

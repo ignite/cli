@@ -201,7 +201,7 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 }
 
 // broadcastProvision provides a provision function to broadcast the messages with returned amount of gas
-func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Context, confirmPrompt bool, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
+func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
 	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
 		return 0, nil, err
 	}
@@ -220,13 +220,16 @@ func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Contex
 	gas += 10000
 	txf = txf.WithGas(gas)
 
-	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return 0, nil, errors.New("make sure that your SPN account has enough balance")
+	// Return the provision function
+	return gas, func() error {
+		// broadcast tx.
+		if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+			if strings.Contains(err.Error(), "not found") {
+				return errors.New("make sure that your SPN account has enough balance")
+			}
+			return err
 		}
-		return 0, nil, err
-	}
 
-	return 0, nil, c.handleBroadcastResult()
+		return c.handleBroadcastResult()
+	}, nil
 }

@@ -34,10 +34,10 @@ func (b *Builder) Propose(ctx context.Context, chainID string, proposals ...spn.
 }
 
 // SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
-func (b *Builder) SubmitReviewals(ctx context.Context, chainID string, reviewals ...spn.Reviewal) error {
+func (b *Builder) SubmitReviewals(ctx context.Context, chainID string, reviewals ...spn.Reviewal) (gas uint64, broadcast func() error, err error) {
 	acc, err := b.AccountInUse()
 	if err != nil {
-		return err
+		return 0, nil, err
 	}
 	return b.spnclient.SubmitReviewals(ctx, acc.Name, chainID, reviewals...)
 }
