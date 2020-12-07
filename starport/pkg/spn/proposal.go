@@ -12,9 +12,10 @@ import (
 type ProposalStatus string
 
 const (
-	ProposalPending  = "pending"
-	ProposalApproved = "approved"
-	ProposalRejected = "rejected"
+	ProposalAll			= ""
+	ProposalPending  	= "pending"
+	ProposalApproved 	= "approved"
+	ProposalRejected 	= "rejected"
 )
 
 // Proposal represents a proposal.
@@ -46,39 +47,33 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 
 	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
+	// Dispatch spn status type
+	var spnStatus genesistypes.ProposalStatus
 	switch status {
+	case ProposalAll:
+		spnStatus = genesistypes.ProposalStatus_ANY_STATUS
 	case ProposalPending:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_PENDING,
-			Type: genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
+		spnStatus = genesistypes.ProposalStatus_PENDING
 	case ProposalApproved:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_APPROVED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
+		spnStatus = genesistypes.ProposalStatus_APPROVED
 	case ProposalRejected:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_REJECTED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
+		spnStatus = genesistypes.ProposalStatus_REJECTED
+	default:
+		return nil, errors.New("unrecognized status")
 	}
 
+	// Send query
+	res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
+		ChainID: chainID,
+		Status: spnStatus,
+		Type: genesistypes.ProposalType_ANY_TYPE,
+	})
+	if err != nil {
+		return nil, err
+	}
+	spnProposals = res.Proposals
+
+	// Format proposals
 	for _, gp := range spnProposals {
 		proposal, err := c.toProposal(*gp)
 		if err != nil {

@@ -21,7 +21,7 @@ func NewNetworkProposalList() *cobra.Command {
 		RunE:  networkProposalListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().String(statusFlag, "pending", "Filter proposals by status")
+	c.Flags().String(statusFlag, "", "Filter proposals by status (pending|approved|rejected)")
 	return c
 }
 
