@@ -1,6 +1,6 @@
 VERSION := $(shell git describe --tags)
 HEAD := $(shell git rev-parse HEAD)
-DATE := $(shell date +%Y%m%d%H%M%S)
+DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='$(VERSION)' \
 	-X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
