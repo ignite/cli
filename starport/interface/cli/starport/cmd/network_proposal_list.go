@@ -13,6 +13,8 @@ import (
 )
 
 const statusFlag = "status"
+const typeFlag = "type"
+
 
 func NewNetworkProposalList() *cobra.Command {
 	c := &cobra.Command{
@@ -22,6 +24,7 @@ func NewNetworkProposalList() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 	c.Flags().String(statusFlag, "", "Filter proposals by status (pending|approved|rejected)")
+	c.Flags().String(typeFlag, "", "Filter proposals by type (add-account|add-validator)")
 	return c
 }
 
@@ -31,12 +34,17 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Parse flags
 	status, err := cmd.Flags().GetString(statusFlag)
 	if err != nil {
 		return err
 	}
+	proposalType, err := cmd.Flags().GetString(typeFlag)
+	if err != nil {
+		return err
+	}
 
-	proposals, err := nb.ProposalList(context.Background(), args[0], spn.ProposalStatus(status))
+	proposals, err := nb.ProposalList(context.Background(), args[0], spn.ProposalStatus(status), spn.ProposalType(proposalType))
 	if err != nil {
 		return err
 	}

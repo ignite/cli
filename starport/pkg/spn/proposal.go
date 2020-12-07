@@ -8,14 +8,23 @@ import (
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
-// ProposalStatus keeps a proposal's status state.
+// ProposalType represents the type of the proposal
+type ProposalType string
+
+const (
+	ProposalTypeAll          = ""
+	ProposalTypeAddAccount   = "add-account"
+	ProposalTypeAddValidator = "add-validator"
+)
+
+// ProposalStatus represents the status of the proposal
 type ProposalStatus string
 
 const (
-	ProposalAll			= ""
-	ProposalPending  	= "pending"
-	ProposalApproved 	= "approved"
-	ProposalRejected 	= "rejected"
+	ProposalStatusAll      = ""
+	ProposalStatusPending  = "pending"
+	ProposalStatusApproved = "approved"
+	ProposalStatusRejected = "rejected"
 )
 
 // Proposal represents a proposal.
@@ -41,32 +50,45 @@ type ProposalAddValidator struct {
 }
 
 // ProposalList lists proposals on a chain by status.
-func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus) ([]Proposal, error) {
+func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus, proposalType ProposalType) ([]Proposal, error) {
 	var proposals []Proposal
 	var spnProposals []*genesistypes.Proposal
 
 	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
-	// Dispatch spn status type
+	// Dispatch spn proposal status
 	var spnStatus genesistypes.ProposalStatus
 	switch status {
-	case ProposalAll:
+	case ProposalStatusAll:
 		spnStatus = genesistypes.ProposalStatus_ANY_STATUS
-	case ProposalPending:
+	case ProposalStatusPending:
 		spnStatus = genesistypes.ProposalStatus_PENDING
-	case ProposalApproved:
+	case ProposalStatusApproved:
 		spnStatus = genesistypes.ProposalStatus_APPROVED
-	case ProposalRejected:
+	case ProposalStatusRejected:
 		spnStatus = genesistypes.ProposalStatus_REJECTED
 	default:
 		return nil, errors.New("unrecognized status")
 	}
 
+	// Dispatch spn proposal type
+	var spnType genesistypes.ProposalType
+	switch proposalType {
+	case ProposalTypeAll:
+		spnType = genesistypes.ProposalType_ANY_TYPE
+	case ProposalTypeAddAccount:
+		spnType = genesistypes.ProposalType_ADD_ACCOUNT
+	case ProposalTypeAddValidator:
+		spnType = genesistypes.ProposalType_ADD_VALIDATOR
+	default:
+		return nil, errors.New("unrecognized type")
+	}
+
 	// Send query
 	res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 		ChainID: chainID,
-		Status: spnStatus,
-		Type: genesistypes.ProposalType_ANY_TYPE,
+		Status:  spnStatus,
+		Type:    spnType,
 	})
 	if err != nil {
 		return nil, err
@@ -87,9 +109,9 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 }
 
 var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
-	genesistypes.ProposalStatus_PENDING:  ProposalPending,
-	genesistypes.ProposalStatus_APPROVED: ProposalApproved,
-	genesistypes.ProposalStatus_REJECTED: ProposalRejected,
+	genesistypes.ProposalStatus_PENDING:  ProposalStatusPending,
+	genesistypes.ProposalStatus_APPROVED: ProposalStatusApproved,
+	genesistypes.ProposalStatus_REJECTED: ProposalStatusRejected,
 }
 
 func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
