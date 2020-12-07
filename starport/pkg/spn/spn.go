@@ -164,6 +164,7 @@ func (c *Client) handleBroadcastResult() error {
 	return nil
 }
 
+
 // prepareBroadcast performs checks and operations before broadcasting messages
 func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
 	// validate msgs.
@@ -191,10 +192,7 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 
 	// broadcast tx.
 	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return errors.New("make sure that your SPN account has enough balance")
-		}
-		return err
+		return handleBroadcastError(err)
 	}
 
 	return c.handleBroadcastResult()
@@ -224,12 +222,20 @@ func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Contex
 	return gas, func() error {
 		// broadcast tx.
 		if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
-			if strings.Contains(err.Error(), "not found") {
-				return errors.New("make sure that your SPN account has enough balance")
-			}
-			return err
+			return handleBroadcastError(err)
 		}
 
 		return c.handleBroadcastResult()
 	}, nil
+}
+
+// handleBroadcastError returns a correct error message following the error from  the broadcast
+func handleBroadcastError(err error) error {
+	if err == nil {
+		return nil
+	}
+	if strings.Contains(err.Error(), "not found") {
+		return errors.New("make sure that your SPN account has enough balance")
+	}
+	return err
 }
