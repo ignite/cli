@@ -32,7 +32,7 @@ func NewNetworkChainCreate() *cobra.Command {
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
-	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:", []string{
+	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:\n", []string{
 		flagChainID,
 		flagSource,
 	})
