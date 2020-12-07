@@ -23,3 +23,12 @@ func (b *Builder) LaunchInformation(ctx context.Context, chainID string) (spn.La
 	}
 	return b.spnclient.LaunchInformation(ctx, account.Name, chainID)
 }
+
+// ChainShow lists summaries of chains
+func (b *Builder) ChainList(ctx context.Context) ([]spn.ChainSummary, error) {
+	account, err := b.AccountInUse()
+	if err != nil {
+		return []spn.ChainSummary{}, err
+	}
+	return b.spnclient.ChainList(ctx, account.Name)
+}

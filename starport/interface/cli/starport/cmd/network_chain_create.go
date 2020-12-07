@@ -8,33 +8,43 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
+const (
+	flagChainID = "chain"
+	flagSource  = "source"
+)
+
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [chainID] [repo]",
+		Use:   "create",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
-		Args:  cobra.ExactArgs(2),
 	}
+	c.Flags().String(flagChainID, "", "Chain ID")
+	c.Flags().String(flagSource, "", "Git repository of the chain's source code (local or remote)")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
+	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:\n", []string{
+		flagChainID,
+		flagSource,
+	})
+	if err != nil {
+		return err
+	}
+
 	s := clispinner.New()
 	defer s.Stop()
 
 	ev := events.NewBus()
 	go printEvents(ev, s)
-
-	var (
-		chainID = args[0]
-		repo    = args[1]
-	)
 
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
@@ -42,17 +52,17 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if chain already exists on SPN.
-	if _, err := nb.ShowChain(cmd.Context(), chainID); err == nil {
+	if _, err := nb.ShowChain(cmd.Context(), values[flagChainID]); err == nil {
 		s.Stop()
 
-		return fmt.Errorf("chain with id %q already exists", chainID)
+		return fmt.Errorf("chain with id %q already exists", values[flagChainID])
 	}
 
 	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(repo) {
-			return nb.InitBlockchainFromPath(cmd.Context(), chainID, repo, true)
+		if xurl.IsLocalPath(values[flagSource]) {
+			return nb.InitBlockchainFromPath(cmd.Context(), values[flagChainID], values[flagSource], true)
 		}
-		return nb.InitBlockchainFromURL(cmd.Context(), chainID, repo, "", true)
+		return nb.InitBlockchainFromURL(cmd.Context(), values[flagChainID], values[flagSource], "", true)
 	}
 
 	// init the chain.

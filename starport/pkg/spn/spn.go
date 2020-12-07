@@ -164,7 +164,6 @@ func (c *Client) handleBroadcastResult() error {
 	return nil
 }
 
-
 // prepareBroadcast performs checks and operations before broadcasting messages
 func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
 	// validate msgs.
