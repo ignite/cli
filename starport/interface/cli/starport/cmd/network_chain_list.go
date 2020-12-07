@@ -26,7 +26,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the chain summaries
-	chainSummaries, err := nb.ChainList(context.Background())
+	chainSummaries, err := nb.ChainList(cmd.Context())
 	if err != nil {
 		return err
 	}
