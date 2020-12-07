@@ -18,10 +18,14 @@ var (
 
 // Long generates a detailed version info.
 func Long() string {
-	return fmt.Sprintf("starport version %s %s/%s -build date: %s\ngit object hash: %s",
+	output := fmt.Sprintf("starport version %s %s/%s -build date: %s",
 		Version,
 		runtime.GOOS,
 		runtime.GOARCH,
-		Date,
-		Head)
+		Date)
+
+	if Head != "" {
+		output = fmt.Sprintf("%s\ngit object hash: %s", output, Head)
+	}
+	return output
 }
