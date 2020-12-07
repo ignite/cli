@@ -48,24 +48,30 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 
 	switch status {
 	case ProposalPending:
-		res, err := queryClient.PendingProposals(ctx, &genesistypes.QueryPendingProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_PENDING,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
 		}
 		spnProposals = res.Proposals
 	case ProposalApproved:
-		res, err := queryClient.ApprovedProposals(ctx, &genesistypes.QueryApprovedProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_APPROVED,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
 		}
 		spnProposals = res.Proposals
 	case ProposalRejected:
-		res, err := queryClient.RejectedProposals(ctx, &genesistypes.QueryRejectedProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_REJECTED,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -85,10 +91,10 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	return proposals, nil
 }
 
-var toStatus = map[genesistypes.ProposalState_Status]ProposalStatus{
-	genesistypes.ProposalState_PENDING:  ProposalPending,
-	genesistypes.ProposalState_APPROVED: ProposalApproved,
-	genesistypes.ProposalState_REJECTED: ProposalRejected,
+var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
+	genesistypes.ProposalStatus_PENDING:  ProposalPending,
+	genesistypes.ProposalStatus_APPROVED: ProposalApproved,
+	genesistypes.ProposalStatus_REJECTED: ProposalRejected,
 }
 
 func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {

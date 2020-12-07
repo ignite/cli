@@ -27,7 +27,7 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string,
+func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string,
 	mustNotInitializedBefore bool) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
@@ -35,27 +35,23 @@ func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash str
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) error {
+func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
 	path, err := gomodulepath.ParseFile(b.appPath)
 	if err != nil {
 		return err
 	}
 	app := chain.App{
-		Name: path.Root,
-		Path: b.appPath,
+		ChainID: chainID,
+		Name:    path.Root,
+		Path:    b.appPath,
 	}
 
 	c, err := chain.New(app, false, chain.LogSilent)
-	if err != nil {
-		return err
-	}
-
-	chainID, err := c.ID()
 	if err != nil {
 		return err
 	}
@@ -106,8 +102,6 @@ func initialGenesisPath(appHome string) string {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
-	ID               string
-	Home             string
 	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
@@ -127,13 +121,7 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
-	chainID, err := b.chain.ID()
-	if err != nil {
-		return BlockchainInfo{}, err
-	}
 	return BlockchainInfo{
-		ID:               chainID,
-		Home:             b.chain.Home(),
 		Genesis:          genesis,
 		Config:           config,
 		RPCPublicAddress: paddr,

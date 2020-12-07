@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"os"
 	"regexp"
 	"strings"
 
@@ -36,7 +37,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	steps.Add(step.New(
 		step.PreExec(func() error {
 			for _, path := range c.plugin.StoragePaths() {
-				if err := xos.RemoveAllUnderHome(path); err != nil {
+				if err := os.RemoveAll(path); err != nil {
 					return err
 				}
 			}
@@ -58,6 +59,11 @@ func (c *Chain) Init(ctx context.Context) error {
 			step.PostExec(func(err error) error {
 				if err != nil {
 					return err
+				}
+
+				// make sure that chain id given during chain.New() has the most priority.
+				if conf.Genesis != nil {
+					conf.Genesis["chain_id"] = chainID
 				}
 
 				appconfigs := []struct {
