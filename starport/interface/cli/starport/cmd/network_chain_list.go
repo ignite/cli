@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
 	"github.com/olekukonko/tablewriter"
 	"os"
