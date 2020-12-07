@@ -280,15 +280,14 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, confir
 	if err != nil {
 		return err
 	}
-	c.factory = txf
-	_, gas, err := tx.CalculateGas(clientCtx.QueryWithData, c.factory, msgs...)
+	_, gas, err := tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
 	if err != nil {
 		return nil
 	}
 	// The simulated gas can vary from the actual gas needed for a real transaction
 	// We add an additional amount to endure sufficient gas is provided
 	gas += 10000
-	c.factory = c.factory.WithGas(gas)
+	txf = txf.WithGas(gas)
 
 	// Prompt for confirmation
 	if confirmPrompt {
@@ -304,7 +303,7 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, confir
 	}
 
 	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
+	if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
 		if strings.Contains(err.Error(), "not found") {
 			return errors.New("make sure that your SPN account has enough balance")
 		}
