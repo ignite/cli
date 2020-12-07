@@ -61,7 +61,7 @@ func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string,
 	if err != nil {
 		return nil, err
 	}
-	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+	chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
 	if err != nil {
 		return nil, err
 	}
@@ -174,13 +174,18 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, chainID string, ap
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
-	launchInformation, err := b.ChainShow(ctx, chainID)
+	c, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return err
+	}
+
+	info, err := b.LaunchInformation(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
 	// find out the app's name form url.
-	u, err := url.Parse(launchInformation.URL)
+	u, err := url.Parse(c.URL)
 	if err != nil {
 		return err
 	}
@@ -195,12 +200,12 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		Name:    path.Root,
 		Version: cosmosver.Stargate,
 	}
-	c, err := chain.New(app, true, chain.LogSilent)
+	ch, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return err
 	}
 
-	if len(launchInformation.GenTxs) == 0 {
+	if len(info.GenTxs) == 0 {
 		return errors.New("There are no approved validators yet")
 	}
 
@@ -219,14 +224,14 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if err := cf.Load(&genesis); err != nil {
 		return err
 	}
-	genesis["genesis_time"] = launchInformation.CreatedAt.UTC().Format(time.RFC3339)
+	genesis["genesis_time"] = c.CreatedAt.UTC().Format(time.RFC3339)
 	if err := cf.Save(genesis); err != nil {
 		return err
 	}
 
 	// add the genesis accounts
-	for _, account := range launchInformation.GenesisAccounts {
-		if err = c.AddGenesisAccount(ctx, chain.Account{
+	for _, account := range info.GenesisAccounts {
+		if err = ch.AddGenesisAccount(ctx, chain.Account{
 			Address: account.Address.String(),
 			Coins:   account.Coins.String(),
 		}); err != nil {
@@ -246,28 +251,28 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// add and collect the gentxs
-	for i, gentx := range launchInformation.GenTxs {
+	for i, gentx := range info.GenTxs {
 		// Save the gentx in the gentx directory
 		gentxPath := filepath.Join(appHome, fmt.Sprintf("config/gentx/gentx%v.json", i))
 		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}
 	}
-	if err = c.CollectGentx(ctx); err != nil {
+	if err = ch.CollectGentx(ctx); err != nil {
 		return err
 	}
 
 	// prep peer configs.
-	p2pAddresses := launchInformation.Peers
+	p2pAddresses := info.Peers
 	chiselAddreses := make(map[string]int) // server addr-local p2p port pair.
-	ports, err := availableport.Find(len(launchInformation.Peers))
+	ports, err := availableport.Find(len(info.Peers))
 	if err != nil {
 		return err
 	}
 	time.Sleep(time.Second * 2) // make sure that ports are released by the OS before being used.
 
 	if xchisel.IsEnabled() {
-		for i, peer := range launchInformation.Peers {
+		for i, peer := range info.Peers {
 			localPort := ports[i]
 			sp := strings.Split(peer, "@")
 			nodeID := sp[0]

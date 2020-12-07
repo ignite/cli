@@ -14,6 +14,7 @@
 * Covered CRUD operations for Stargate scaffolding.
 * Added docs on gopath to build from source directions
 * Arch Linux Based Raspberry Pi development environment
+* Calculate the necessary gas for sending transactions to spn
 
 ## `v0.12.0`
 

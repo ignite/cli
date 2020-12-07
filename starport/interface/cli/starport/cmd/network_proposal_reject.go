@@ -2,6 +2,8 @@ package starportcmd
 
 import (
 	"fmt"
+	"errors"
+	"github.com/manifoldco/promptui"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/numbers"
@@ -39,7 +41,24 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 		reviewals = append(reviewals, spn.RejectProposal(id))
 	}
 
-	if err := nb.SubmitReviewals(cmd.Context(), chainID, reviewals...); err != nil {
+	gas, broadcast, err := nb.SubmitReviewals(cmd.Context(), chainID, reviewals...)
+	if err != nil {
+		return err
+	}
+
+	// Prompt for confirmation
+	prompt := promptui.Prompt{
+		Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction?",
+			gas,
+		),
+		IsConfirm: true,
+	}
+	if _, err := prompt.Run(); err != nil {
+		return errors.New("transaction aborted")
+	}
+
+	// Broadcast the transaction
+	if err := broadcast(); err != nil {
 		return err
 	}
 

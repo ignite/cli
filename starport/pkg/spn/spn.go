@@ -6,21 +6,15 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/cosmos/cosmos-sdk/types"
+	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
-	"time"
-
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/go-bip39"
-	genesistypes "github.com/tendermint/spn/x/genesis/types"
-	"github.com/tendermint/starport/starport/pkg/jsondoc"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var spn = "spn"
@@ -30,13 +24,6 @@ const (
 	faucetDenom     = "token"
 	faucetMinAmount = 100
 )
-
-// Account represents an account on SPN.
-type Account struct {
-	Name     string
-	Address  string
-	Mnemonic string
-}
 
 // Client is client to interact with SPN.
 type Client struct {
@@ -54,13 +41,6 @@ type options struct {
 
 // Option configures Client options.
 type Option func(*options)
-
-// Keyring uses given keyring type as storage.
-func Keyring(keyring string) Option {
-	return func(c *options) {
-		c.keyringBackend = keyring
-	}
-}
 
 // New creates a new SPN Client with nodeAddress of a full SPN node.
 // by default, OS is used as keyring backend.
@@ -93,98 +73,8 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 	}, nil
 }
 
-// AccountGet retrieves an account by name from the keyring.
-func (c *Client) AccountGet(accountName string) (Account, error) {
-	info, err := c.kr.Key(accountName)
-	if err != nil {
-		return Account{}, err
-	}
-	return toAccount(info), nil
-}
-
-// AccountList returns a list of accounts.
-func (c *Client) AccountList() ([]Account, error) {
-	var accounts []Account
-	infos, err := c.kr.List()
-	if err != nil {
-		return nil, err
-	}
-	for _, info := range infos {
-		accounts = append(accounts, toAccount(info))
-	}
-	return accounts, nil
-}
-
-// AccountCreate creates an account by name and mnemonic (optional) in the keyring.
-func (c *Client) AccountCreate(accountName, mnemonic string) (Account, error) {
-	if mnemonic == "" {
-		entropySeed, err := bip39.NewEntropy(256)
-		if err != nil {
-			return Account{}, err
-		}
-		mnemonic, err = bip39.NewMnemonic(entropySeed)
-		if err != nil {
-			return Account{}, err
-		}
-	}
-	algos, _ := c.kr.SupportedAlgorithms()
-	algo, err := keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
-	if err != nil {
-		return Account{}, err
-	}
-	hdPath := hd.CreateHDPath(types.GetConfig().GetCoinType(), 0, 0).String()
-	info, err := c.kr.NewAccount(accountName, mnemonic, "", hdPath, algo)
-	if err != nil {
-		return Account{}, err
-	}
-	account := toAccount(info)
-	account.Mnemonic = mnemonic
-	return account, nil
-}
-
-func toAccount(info keyring.Info) Account {
-	ko, _ := keyring.Bech32KeyOutput(info)
-	return Account{
-		Name:    ko.Name,
-		Address: ko.Address,
-	}
-}
-
-// AccountExport exports an account in the keyring by name and an encryption password into privateKey.
-// password later can be used to decrypt the privateKey.
-func (c *Client) AccountExport(accountName, password string) (privateKey string, err error) {
-	return c.kr.ExportPrivKeyArmor(accountName, password)
-}
-
-// AccountImport imports an account to the keyring by account name, privateKey and decryption password.
-func (c *Client) AccountImport(accountName, privateKey, password string) error {
-	return c.kr.ImportPrivKey(accountName, privateKey, password)
-}
-
-// ChainCreate creates a new chain.
-func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, sourceURL, sourceHash string) error {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return err
-	}
-	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
-		chainID,
-		clientCtx.GetFromAddress(),
-		sourceURL,
-		sourceHash,
-	))
-}
-
-func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
-	info, err := c.kr.Key(accountName)
-	if err != nil {
-		return client.Context{}, err
-	}
-	return c.clientCtx.
-		WithFromName(accountName).
-		WithFromAddress(info.GetAddress()), nil
-}
-
+// makeSureAccountHasTokens makes sure the address has a positive balance
+// it requests funds from the faucet if the address has an empty balance
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
 	// check the balance.
 	balancesEndpoint := fmt.Sprintf("%s/bank/balances/%s", c.apiAddress, address)
@@ -259,7 +149,23 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	return nil
 }
 
-func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+// handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
+func (c *Client) handleBroadcastResult() error {
+	out := struct {
+		Code int    `json:"code"`
+		Log  string `json:"raw_log"`
+	}{}
+	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
+		return err
+	}
+	if out.Code > 0 {
+		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
+	}
+	return nil
+}
+
+// prepareBroadcast performs checks and operations before broadcasting messages
+func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
 	// validate msgs.
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
@@ -274,432 +180,61 @@ func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs .
 
 	c.out.Reset()
 
-	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
-		if strings.Contains(err.Error(), "not found") {
-			return errors.New("make sure that your SPN account has enough balance")
-		}
-		return err
-	}
-
-	// handle results.
-	out := struct {
-		Code int    `json:"code"`
-		Log  string `json:"raw_log"`
-	}{}
-	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
-		return err
-	}
-	if out.Code > 0 {
-		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
-	}
 	return nil
 }
 
-// GenesisAccount represents a genesis account inside a chain with its allocated coins.
-type GenesisAccount struct {
-	Address types.AccAddress
-	Coins   types.Coins
+// broadcast directly broadcasts the messages into spn handlers
+func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+		return err
+	}
+
+	// broadcast tx.
+	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
+		return handleBroadcastError(err)
+	}
+
+	return c.handleBroadcastResult()
 }
 
-// ChainSummary represents the summary of a chain in Genesis module of SPN.
-type ChainSummary struct {
-	ChainID            string
-	Source             string
-	TotalValidators    int
-	ApprovedValidators int
-	TotalProposals     int
-	ApprovedProposals  int
-}
+// broadcastProvision provides a provision function to broadcast the messages with returned amount of gas
+func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
+	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+		return 0, nil, err
+	}
 
-// ChainList lists chain summaries
-func (c *Client) ChainList(ctx context.Context, accountName string) ([]ChainSummary, error) {
-	clientCtx, err := c.buildClientCtx(accountName)
+	// calculate the necessary gas for the transaction
+	txf, err := tx.PrepareFactory(clientCtx, c.factory)
 	if err != nil {
-		return []ChainSummary{}, err
+		return 0, nil, err
 	}
-
-	// List the chains
-	q := genesistypes.NewQueryClient(clientCtx)
-	req := &genesistypes.QueryListChainsRequest{}
-	chainList, err := q.ListChains(ctx, req)
+	_, gas, err = tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
 	if err != nil {
-		return []ChainSummary{}, err
+		return 0, nil, err
 	}
+	// the simulated gas can vary from the actual gas needed for a real transaction
+	// we add an additional amount to endure sufficient gas is provided
+	gas += 10000
+	txf = txf.WithGas(gas)
 
-	var chainSummaries []ChainSummary
-
-	// Get the summary of each chain
-	for _, chain := range chainList.Chains {
-		var chainSummary ChainSummary
-		chainSummary.ChainID = chain.ChainID
-		chainSummary.Source = chain.SourceURL
-
-		// Get the number of validators
-		reqValidators := &genesistypes.QueryListProposalsRequest{
-			ChainID: chain.ChainID,
-			Status:  genesistypes.ProposalStatus_ANY_STATUS,
-			Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-		}
-		resValidators, err := q.ListProposals(ctx, reqValidators)
-		if err != nil {
-			return []ChainSummary{}, err
-		}
-		chainSummary.TotalValidators = len(resValidators.Proposals)
-
-		// Get the number of approved validators
-		reqApprovedValidators := &genesistypes.QueryListProposalsRequest{
-			ChainID: chain.ChainID,
-			Status:  genesistypes.ProposalStatus_APPROVED,
-			Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-		}
-		resApprovedValidators, err := q.ListProposals(ctx, reqApprovedValidators)
-		if err != nil {
-			return []ChainSummary{}, err
-		}
-		chainSummary.ApprovedValidators = len(resApprovedValidators.Proposals)
-
-		// Get the number of proposals
-		reqProposals := &genesistypes.QueryListProposalsRequest{
-			ChainID: chain.ChainID,
-			Status:  genesistypes.ProposalStatus_ANY_STATUS,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		}
-		resProposals, err := q.ListProposals(ctx, reqProposals)
-		if err != nil {
-			return []ChainSummary{}, err
-		}
-		chainSummary.TotalProposals = len(resProposals.Proposals)
-
-		// Get the number of approved proposals
-		reqApprovedProposals := &genesistypes.QueryListProposalsRequest{
-			ChainID: chain.ChainID,
-			Status:  genesistypes.ProposalStatus_APPROVED,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		}
-		resApprovedProposals, err := q.ListProposals(ctx, reqApprovedProposals)
-		if err != nil {
-			return []ChainSummary{}, err
-		}
-		chainSummary.ApprovedProposals = len(resApprovedProposals.Proposals)
-
-		chainSummaries = append(chainSummaries, chainSummary)
-	}
-
-	return chainSummaries, nil
-}
-
-// Chain represents a chain in Genesis module of SPN.
-type Chain struct {
-	URL             string
-	Hash            string
-	Peers           []string
-	GenesisAccounts []GenesisAccount
-	GenTxs          [][]byte
-	CreatedAt       time.Time
-}
-
-// ChainGet shows chain info.
-func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Chain, error) {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return Chain{}, err
-	}
-
-	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	params := &genesistypes.QueryShowChainRequest{
-		ChainID: chainID,
-	}
-	res, err := q.ShowChain(ctx, params)
-	if err != nil {
-		return Chain{}, err
-	}
-
-	// Get the updated genesis
-	launchInformationReq := &genesistypes.QueryLaunchInformationRequest{
-		ChainID: chainID,
-	}
-	launchInformationRes, err := q.LaunchInformation(ctx, launchInformationReq)
-	if err != nil {
-		return Chain{}, err
-	}
-
-	// Get the genesis accounts
-	var genesisAccounts []GenesisAccount
-	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
-		genesisAccount := GenesisAccount{
-			Address: addAccountProposalPayload.Address,
-			Coins:   addAccountProposalPayload.Coins,
+	// Return the provision function
+	return gas, func() error {
+		// broadcast tx.
+		if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
+			return handleBroadcastError(err)
 		}
 
-		genesisAccounts = append(genesisAccounts, genesisAccount)
-	}
-
-	return Chain{
-		URL:             res.Chain.SourceURL,
-		Hash:            res.Chain.SourceHash,
-		Peers:           launchInformationRes.Peers,
-		GenesisAccounts: genesisAccounts,
-		GenTxs:          launchInformationRes.GenTxs,
-		CreatedAt:       time.Unix(res.Chain.CreatedAt, 0),
+		return c.handleBroadcastResult()
 	}, nil
 }
 
-// ProposalStatus keeps a proposal's status state.
-type ProposalStatus string
-
-const (
-	ProposalPending  = "pending"
-	ProposalApproved = "approved"
-	ProposalRejected = "rejected"
-)
-
-// Proposal represents a proposal.
-type Proposal struct {
-	ID        int                   `yaml:",omitempty"`
-	Status    ProposalStatus        `yaml:",omitempty"`
-	Account   *ProposalAddAccount   `yaml:",omitempty"`
-	Validator *ProposalAddValidator `yaml:",omitempty"`
-}
-
-// ProposalAddAccount used to propose adding an account.
-type ProposalAddAccount struct {
-	Address string
-	Coins   types.Coins
-}
-
-// ProposalAddValidator used to propose adding a validator.
-type ProposalAddValidator struct {
-	Gentx            jsondoc.Doc
-	ValidatorAddress string
-	SelfDelegation   types.Coin
-	P2PAddress       string
-}
-
-// ProposalList lists proposals on a chain by status.
-func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus) ([]Proposal, error) {
-	var proposals []Proposal
-	var spnProposals []*genesistypes.Proposal
-
-	queryClient := genesistypes.NewQueryClient(c.clientCtx)
-
-	switch status {
-	case ProposalPending:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_PENDING,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
-	case ProposalApproved:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_APPROVED,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
-	case ProposalRejected:
-		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
-			ChainID: chainID,
-			Status:  genesistypes.ProposalStatus_REJECTED,
-			Type:    genesistypes.ProposalType_ANY_TYPE,
-		})
-		if err != nil {
-			return nil, err
-		}
-		spnProposals = res.Proposals
+// handleBroadcastError returns a correct error message following the error from  the broadcast
+func handleBroadcastError(err error) error {
+	if err == nil {
+		return nil
 	}
-
-	for _, gp := range spnProposals {
-		proposal, err := c.toProposal(*gp)
-		if err != nil {
-			return nil, err
-		}
-
-		proposals = append(proposals, proposal)
+	if strings.Contains(err.Error(), "not found") {
+		return errors.New("make sure that your SPN account has enough balance")
 	}
-
-	return proposals, nil
-}
-
-var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
-	genesistypes.ProposalStatus_PENDING:  ProposalPending,
-	genesistypes.ProposalStatus_APPROVED: ProposalApproved,
-	genesistypes.ProposalStatus_REJECTED: ProposalRejected,
-}
-
-func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
-	p := Proposal{
-		ID:     int(proposal.ProposalInformation.ProposalID),
-		Status: toStatus[proposal.ProposalState.GetStatus()],
-	}
-	switch payload := proposal.Payload.(type) {
-	case *genesistypes.Proposal_AddAccountPayload:
-		p.Account = &ProposalAddAccount{
-			Address: payload.AddAccountPayload.Address.String(),
-			Coins:   payload.AddAccountPayload.Coins,
-		}
-
-	case *genesistypes.Proposal_AddValidatorPayload:
-		p.Validator = &ProposalAddValidator{
-			P2PAddress: payload.AddValidatorPayload.Peer,
-			Gentx:      payload.AddValidatorPayload.GenTx,
-		}
-	}
-
-	return p, nil
-}
-
-func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, id int) (Proposal, error) {
-	queryClient := genesistypes.NewQueryClient(c.clientCtx)
-
-	// Query the proposal
-	param := &genesistypes.QueryShowProposalRequest{
-		ChainID:    chainID,
-		ProposalID: int32(id),
-	}
-	res, err := queryClient.ShowProposal(ctx, param)
-	if err != nil {
-		return Proposal{}, err
-	}
-
-	return c.toProposal(*res.Proposal)
-}
-
-// ProposalOption configures Proposal to set a spesific type of proposal.
-type ProposalOption func(*Proposal)
-
-// AddAccountProposal creates an add account proposal option.
-func AddAccountProposal(address string, coins types.Coins) ProposalOption {
-	return func(p *Proposal) {
-		p.Account = &ProposalAddAccount{address, coins}
-	}
-}
-
-// AddValidatorProposal creates an add validator proposal option.
-func AddValidatorProposal(gentx jsondoc.Doc, validatorAddress string, selfDelegation types.Coin, p2pAddress string) ProposalOption {
-	return func(p *Proposal) {
-		p.Validator = &ProposalAddValidator{gentx, validatorAddress, selfDelegation, p2pAddress}
-	}
-}
-
-// Propose proposes given proposals in batch for chainID by using SPN accountName.
-func (c *Client) Propose(ctx context.Context, accountName, chainID string, proposals ...ProposalOption) error {
-	if len(proposals) == 0 {
-		return errors.New("at least one proposal required")
-	}
-
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return err
-	}
-
-	var msgs []types.Msg
-
-	for _, p := range proposals {
-		var proposal Proposal
-		p(&proposal)
-
-		switch {
-		case proposal.Account != nil:
-			addr, err := types.AccAddressFromBech32(proposal.Account.Address)
-			if err != nil {
-				return err
-			}
-
-			// Create the proposal payload
-			payload := genesistypes.NewProposalAddAccountPayload(
-				addr,
-				proposal.Account.Coins,
-			)
-
-			msgs = append(msgs, genesistypes.NewMsgProposalAddAccount(
-				chainID,
-				clientCtx.GetFromAddress(),
-				payload,
-			))
-
-		case proposal.Validator != nil:
-			// Get the validator address
-			addr, err := types.AccAddressFromBech32(proposal.Validator.ValidatorAddress)
-			if err != nil {
-				return err
-			}
-			validatorAddress := types.ValAddress(addr)
-
-			// Create the proposal payload
-			payload := genesistypes.NewProposalAddValidatorPayload(
-				proposal.Validator.Gentx,
-				validatorAddress,
-				proposal.Validator.SelfDelegation,
-				proposal.Validator.P2PAddress,
-			)
-
-			msgs = append(msgs, genesistypes.NewMsgProposalAddValidator(
-				chainID,
-				clientCtx.GetFromAddress(),
-				payload,
-			))
-		}
-	}
-
-	return c.broadcast(ctx, clientCtx, msgs...)
-}
-
-// reviewal keeps a proposal's reviewal.
-type reviewal struct {
-	id         int
-	isApproved bool
-}
-
-// Reviewal configures reviewal to create a review for a proposal.
-type Reviewal func(*reviewal)
-
-// ApproveProposal returns approval for a proposal with id.
-func ApproveProposal(id int) Reviewal {
-	return func(r *reviewal) {
-		r.id = id
-		r.isApproved = true
-	}
-}
-
-// RejectProposal returns rejection for a proposals with id.
-func RejectProposal(id int) Reviewal {
-	return func(r *reviewal) {
-		r.id = id
-	}
-}
-
-// SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
-func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID string, reviewals ...Reviewal) error {
-	if len(reviewals) == 0 {
-		return errors.New("at least one reviewal required")
-	}
-
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return err
-	}
-
-	var msgs []types.Msg
-
-	for _, r := range reviewals {
-		var rev reviewal
-		r(&rev)
-
-		if rev.isApproved {
-			msgs = append(msgs, genesistypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress()))
-		} else {
-			msgs = append(msgs, genesistypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress()))
-		}
-	}
-
-	return c.broadcast(ctx, clientCtx, msgs...)
+	return err
 }
