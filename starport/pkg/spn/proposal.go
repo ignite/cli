@@ -12,19 +12,19 @@ import (
 type ProposalType string
 
 const (
-	ProposalTypeAll          = ""
-	ProposalTypeAddAccount   = "add-account"
-	ProposalTypeAddValidator = "add-validator"
+	ProposalTypeAll          ProposalType = ""
+	ProposalTypeAddAccount   ProposalType = "add-account"
+	ProposalTypeAddValidator ProposalType = "add-validator"
 )
 
 // ProposalStatus represents the status of the proposal
 type ProposalStatus string
 
 const (
-	ProposalStatusAll      = ""
-	ProposalStatusPending  = "pending"
-	ProposalStatusApproved = "approved"
-	ProposalStatusRejected = "rejected"
+	ProposalStatusAll      ProposalStatus = ""
+	ProposalStatusPending  ProposalStatus = "pending"
+	ProposalStatusApproved ProposalStatus = "approved"
+	ProposalStatusRejected ProposalStatus = "rejected"
 )
 
 // Proposal represents a proposal.
