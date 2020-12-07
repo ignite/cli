@@ -42,7 +42,7 @@ func (c *Client) ChainList(ctx context.Context, accountName string) ([]ChainSumm
 	for i, chain := range chainList.Chains {
 		i, chain := i, chain // https://golang.org/doc/faq#closures_and_goroutines
 		chainSummariesGroup.Go(func() error {
-			chainSummaryGroup := new(errgroup.Group)
+			g, ctx := errgroup.WithCancel(ctx)
 
 			var chainSummary ChainSummary
 			chainSummary.ChainID = chain.ChainID
