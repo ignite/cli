@@ -52,7 +52,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if chain already exists on SPN.
-	if _, err := nb.ChainShow(cmd.Context(), values[flagChainID]); err == nil {
+	if _, err := nb.ShowChain(cmd.Context(), values[flagChainID]); err == nil {
 		s.Stop()
 
 		return fmt.Errorf("chain with id %q already exists", values[flagChainID])

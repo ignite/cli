@@ -304,16 +304,15 @@ type GenesisAccount struct {
 
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
-	URL             string
-	Hash            string
-	Peers           []string
-	GenesisAccounts []GenesisAccount
-	GenTxs          [][]byte
-	CreatedAt       time.Time
+	ChainID   string
+	Creator   string
+	URL       string
+	Hash      string
+	CreatedAt time.Time
 }
 
-// ChainGet shows chain info.
-func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Chain, error) {
+// ShowChain shows chain info.
+func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Chain, error) {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return Chain{}, err
@@ -321,26 +320,48 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 
 	// Query the chain from spnd
 	q := genesistypes.NewQueryClient(clientCtx)
-	params := &genesistypes.QueryShowChainRequest{
+	res, err := q.ShowChain(ctx, &genesistypes.QueryShowChainRequest{
 		ChainID: chainID,
-	}
-	res, err := q.ShowChain(ctx, params)
+	})
 	if err != nil {
 		return Chain{}, err
 	}
 
-	// Get the updated genesis
-	launchInformationReq := &genesistypes.QueryLaunchInformationRequest{
-		ChainID: chainID,
-	}
-	launchInformationRes, err := q.LaunchInformation(ctx, launchInformationReq)
+	return Chain{
+		ChainID:   res.Chain.ChainID,
+		Creator:   res.Chain.Creator,
+		URL:       res.Chain.SourceURL,
+		Hash:      res.Chain.SourceHash,
+		CreatedAt: time.Unix(res.Chain.CreatedAt, 0),
+	}, nil
+}
+
+// LaunchInformation keeps the chain's launch information.
+type LaunchInformation struct {
+	GenesisAccounts []GenesisAccount
+	GenTxs          []jsondoc.Doc
+	Peers           []string
+}
+
+// LaunchInformation retrieves chain's launch information.
+func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID string) (LaunchInformation, error) {
+	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
-		return Chain{}, err
+		return LaunchInformation{}, err
+	}
+
+	// Query the chain from spnd
+	q := genesistypes.NewQueryClient(clientCtx)
+	res, err := q.LaunchInformation(ctx, &genesistypes.QueryLaunchInformationRequest{
+		ChainID: chainID,
+	})
+	if err != nil {
+		return LaunchInformation{}, err
 	}
 
 	// Get the genesis accounts
 	var genesisAccounts []GenesisAccount
-	for _, addAccountProposalPayload := range launchInformationRes.Accounts {
+	for _, addAccountProposalPayload := range res.Accounts {
 		genesisAccount := GenesisAccount{
 			Address: addAccountProposalPayload.Address,
 			Coins:   addAccountProposalPayload.Coins,
@@ -349,13 +370,10 @@ func (c *Client) ChainGet(ctx context.Context, accountName, chainID string) (Cha
 		genesisAccounts = append(genesisAccounts, genesisAccount)
 	}
 
-	return Chain{
-		URL:             res.Chain.SourceURL,
-		Hash:            res.Chain.SourceHash,
-		Peers:           launchInformationRes.Peers,
+	return LaunchInformation{
 		GenesisAccounts: genesisAccounts,
-		GenTxs:          launchInformationRes.GenTxs,
-		CreatedAt:       time.Unix(res.Chain.CreatedAt, 0),
+		GenTxs:          jsondoc.ToDocs(res.GenTxs),
+		Peers:           res.Peers,
 	}, nil
 }
 
@@ -399,24 +417,30 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 
 	switch status {
 	case ProposalPending:
-		res, err := queryClient.PendingProposals(ctx, &genesistypes.QueryPendingProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_PENDING,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
 		}
 		spnProposals = res.Proposals
 	case ProposalApproved:
-		res, err := queryClient.ApprovedProposals(ctx, &genesistypes.QueryApprovedProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_APPROVED,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
 		}
 		spnProposals = res.Proposals
 	case ProposalRejected:
-		res, err := queryClient.RejectedProposals(ctx, &genesistypes.QueryRejectedProposalsRequest{
+		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
+			Status: genesistypes.ProposalStatus_REJECTED,
+			Type: genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -436,10 +460,10 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	return proposals, nil
 }
 
-var toStatus = map[genesistypes.ProposalState_Status]ProposalStatus{
-	genesistypes.ProposalState_PENDING:  ProposalPending,
-	genesistypes.ProposalState_APPROVED: ProposalApproved,
-	genesistypes.ProposalState_REJECTED: ProposalRejected,
+var toStatus = map[genesistypes.ProposalStatus]ProposalStatus{
+	genesistypes.ProposalStatus_PENDING:  ProposalPending,
+	genesistypes.ProposalStatus_APPROVED: ProposalApproved,
+	genesistypes.ProposalStatus_REJECTED: ProposalRejected,
 }
 
 func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
