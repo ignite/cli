@@ -302,6 +302,93 @@ type GenesisAccount struct {
 	Coins   types.Coins
 }
 
+// ChainSummary represents the summary of a chain in Genesis module of SPN.
+type ChainSummary struct {
+	ChainID            string
+	Source             string
+	TotalValidators    int
+	ApprovedValidators int
+	TotalProposals     int
+	ApprovedProposals  int
+}
+
+// ChainList lists chain summaries
+func (c *Client) ChainList(ctx context.Context, accountName string) ([]ChainSummary, error) {
+	clientCtx, err := c.buildClientCtx(accountName)
+	if err != nil {
+		return []ChainSummary{}, err
+	}
+
+	// List the chains
+	q := genesistypes.NewQueryClient(clientCtx)
+	req := &genesistypes.QueryListChainsRequest{}
+	chainList, err := q.ListChains(ctx, req)
+	if err != nil {
+		return []ChainSummary{}, err
+	}
+
+	var chainSummaries []ChainSummary
+
+	// Get the summary of each chain
+	for _, chain := range chainList.Chains {
+		var chainSummary ChainSummary
+		chainSummary.ChainID = chain.ChainID
+		chainSummary.Source = chain.SourceURL
+
+		// Get the number of validators
+		reqValidators := &genesistypes.QueryListProposalsRequest{
+			ChainID: chain.ChainID,
+			Status:  genesistypes.ProposalStatus_ANY_STATUS,
+			Type:    genesistypes.ProposalType_ADD_VALIDATOR,
+		}
+		resValidators, err := q.ListProposals(ctx, reqValidators)
+		if err != nil {
+			return []ChainSummary{}, err
+		}
+		chainSummary.TotalValidators = len(resValidators.Proposals)
+
+		// Get the number of approved validators
+		reqApprovedValidators := &genesistypes.QueryListProposalsRequest{
+			ChainID: chain.ChainID,
+			Status:  genesistypes.ProposalStatus_APPROVED,
+			Type:    genesistypes.ProposalType_ADD_VALIDATOR,
+		}
+		resApprovedValidators, err := q.ListProposals(ctx, reqApprovedValidators)
+		if err != nil {
+			return []ChainSummary{}, err
+		}
+		chainSummary.ApprovedValidators = len(resApprovedValidators.Proposals)
+
+		// Get the number of proposals
+		reqProposals := &genesistypes.QueryListProposalsRequest{
+			ChainID: chain.ChainID,
+			Status:  genesistypes.ProposalStatus_ANY_STATUS,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
+		}
+		resProposals, err := q.ListProposals(ctx, reqProposals)
+		if err != nil {
+			return []ChainSummary{}, err
+		}
+		chainSummary.TotalProposals = len(resProposals.Proposals)
+
+		// Get the number of approved proposals
+		reqApprovedProposals := &genesistypes.QueryListProposalsRequest{
+			ChainID: chain.ChainID,
+			Status:  genesistypes.ProposalStatus_APPROVED,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
+		}
+		resApprovedProposals, err := q.ListProposals(ctx, reqApprovedProposals)
+		if err != nil {
+			return []ChainSummary{}, err
+		}
+		chainSummary.ApprovedProposals = len(resApprovedProposals.Proposals)
+
+		chainSummaries = append(chainSummaries, chainSummary)
+	}
+
+	return chainSummaries, nil
+}
+
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
 	URL             string
@@ -401,8 +488,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalPending:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_PENDING,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_PENDING,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -411,8 +498,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalApproved:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_APPROVED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_APPROVED,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
@@ -421,8 +508,8 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	case ProposalRejected:
 		res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
 			ChainID: chainID,
-			Status: genesistypes.ProposalStatus_REJECTED,
-			Type: genesistypes.ProposalType_ANY_TYPE,
+			Status:  genesistypes.ProposalStatus_REJECTED,
+			Type:    genesistypes.ProposalType_ANY_TYPE,
 		})
 		if err != nil {
 			return nil, err
