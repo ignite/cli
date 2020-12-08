@@ -5,16 +5,16 @@
 </template>
 
 <script>
-import { mapActions, mapMutations } from 'vuex'
-import Layout from '@/layouts/Layout'
+import { mapActions, mapMutations } from "vuex";
+import Layout from "@/layouts/Layout";
 
 export default {
   components: {
-    Layout
+    Layout,
   },
   async created() {
-    this.$store.dispatch("cosmos/init", { account: false })    
-  }
+    this.$store.dispatch("explorer/init", { account: false });
+  },
 };
 </script>
 

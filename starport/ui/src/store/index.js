@@ -1,16 +1,17 @@
-import Vue from "vue"
-import Vuex from "vuex"
+import Vue from "vue";
+import Vuex from "vuex";
 
-import cosmos from '@tendermint/vue/src/store/cosmos.js'
+import explorer from "@tendermint/vue/src/store/common/explorer/explorer";
 
-Vue.use(Vuex)
+Vue.use(Vuex);
 
 export default new Vuex.Store({
+  namespaced: true,
   state: {},
   getters: {},
   mutations: {},
   actions: {},
   modules: {
-    cosmos
-  }
-})
+    explorer,
+  },
+});

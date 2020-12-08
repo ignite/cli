@@ -1,82 +1,85 @@
 <template>
   <nav>
     <div class="nav__main">
-      <router-link to="/">      
+      <router-link to="/">
         <div class="nav__logo">
-          <span><LogoStarport/></span>
+          <span><LogoStarport /></span>
           <h1>Starport</h1>
         </div>
-      </router-link>      
+      </router-link>
     </div>
     <div class="nav__center">
-      <div v-if="this.$route.name === 'welcome'" class="nav__center-msg -sp-f-overline-0 -sp-c-txt-third">Welcome to Starport</div>
+      <div
+        v-if="this.$route.name === 'welcome'"
+        class="nav__center-msg -sp-f-overline-0 -sp-c-txt-third"
+      >
+        Welcome to Starport
+      </div>
     </div>
     <div class="nav__sub">
-      <button class="nav__ham" @click="handleHamClick"><HamIcon/></button>      
+      <button class="nav__ham" @click="handleHamClick"><HamIcon /></button>
       <div class="nav__tabs">
-        <router-link
-          class="tab"
-          to="/"
-        >
+        <router-link class="tab" to="/">
           <!-- <div class="tab__icon"><CompassIcon/></div> -->
           Welcome
         </router-link>
-        <router-link
-          class="tab -flex"
-          to="/blocks"
-        >
-          <span :class="['circle', {'-is-active': isBlinking}]" ref="circle"></span>
+        <router-link class="tab -flex" to="/blocks">
+          <span
+            :class="['circle', { '-is-active': isBlinking }]"
+            ref="circle"
+          ></span>
           <!-- <div class="tab__icon"><BlocksIcon/></div> -->
           Blocks
         </router-link>
-      </div>      
+      </div>
     </div>
   </nav>
 </template>
 
 <script>
-import { mapGetters, mapMutations, mapActions } from 'vuex'
+import { mapGetters, mapMutations, mapActions } from "vuex";
 
-import LogoStarport from '@/assets/logos/LogoStarportSmall'
-import HamIcon from '@/assets/icons/Ham'
-import CompassIcon from '@/assets/icons/Compass'
-import BlocksIcon from '@/assets/icons/Blocks'
+import LogoStarport from "@/assets/logos/LogoStarportSmall";
+import HamIcon from "@/assets/icons/Ham";
+import CompassIcon from "@/assets/icons/Compass";
+import BlocksIcon from "@/assets/icons/Blocks";
 
 export default {
   components: {
     LogoStarport,
     HamIcon,
     CompassIcon,
-    BlocksIcon
+    BlocksIcon,
   },
   data() {
     return {
-      isBlinking: false
-    }
+      isBlinking: false,
+    };
   },
   computed: {
-    ...mapGetters('cosmos', [ 'latestBlock' ]),
+    ...mapGetters("explorer", ["latestBlock"]),
   },
   methods: {
     handleHamClick() {
-      this.$emit('ham-clicked')
-    }
+      this.$emit("ham-clicked");
+    },
   },
   watch: {
     latestBlock() {
       /* TODO: refactor this temp code */
-      this.isBlinking = true
-      setTimeout(function() {
-        this.isBlinking = false
-      }.bind(this), 1500)
-    }
-  }
-}
-
+      this.isBlinking = true;
+      setTimeout(
+        function () {
+          this.isBlinking = false;
+        }.bind(this),
+        1500
+      );
+    },
+  },
+};
 </script>
 
 <style scoped>
-
 nav {
   width: 100%;
   height: var(--header-height);
@@ -132,7 +135,7 @@ nav {
   .nav__main {
     display: grid;
     grid-template-columns: 30% 1fr 30%;
-    align-items: center;    
+    align-items: center;
     padding: 0 0.25rem;
   }
   .nav__tabs {
@@ -145,7 +148,7 @@ nav {
   text-decoration: none;
 
   display: flex;
-  align-items: center;  
+  align-items: center;
 
   font-weight: var(--sp-f-w-medium);
   line-height: 130%;
@@ -153,15 +156,15 @@ nav {
 }
 .tab:hover {
   color: var(--sp-c-txt-primary);
-  transition: color .3s;
+  transition: color 0.3s;
 }
 .tab:hover .tab__icon svg >>> path {
   fill: var(--sp-c-txt-primary);
-  transition: fill .3s;
+  transition: fill 0.3s;
 }
 
 .tab.router-link-exact-active {
-  pointer-events: none;  
+  pointer-events: none;
   color: var(--sp-c-txt-primary);
 }
 
@@ -173,12 +176,12 @@ nav {
   .tab:hover {
     background-color: transparent;
     color: var(--sp-c-txt-primary);
-    transition: color .3s;
-  }  
+    transition: color 0.3s;
+  }
   .tab:not(:last-child) {
     margin-right: 2.25rem;
     margin-bottom: 0;
-  }  
+  }
   .tab.router-link-exact-active {
     background-color: transparent;
   }
@@ -186,7 +189,7 @@ nav {
 
 /* temp loading effect */
 .circle {
-  --c-active: #4ACF4A;
+  --c-active: #4acf4a;
   --circle-size: 6px;
 }
 .circle {
@@ -209,18 +212,25 @@ nav {
   animation-iteration-count: 1;
 }
 @keyframes tempActiveEffect {
-  0% { background-color: var(--c-active); }
-  50% { background-color: transparent; }
-  75% { background-color: var(--c-active); }
-  100% { background-color: transparent; }
+  0% {
+    background-color: var(--c-active);
+  }
+  50% {
+    background-color: transparent;
+  }
+  75% {
+    background-color: var(--c-active);
+  }
+  100% {
+    background-color: transparent;
+  }
 }
 @media only screen and (max-width: 1200px) {
   .circle {
     --circle-size: 6px;
-  }  
+  }
   .circle {
     left: -0.8rem;
   }
 }
-
 </style>
