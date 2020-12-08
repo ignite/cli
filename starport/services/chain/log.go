@@ -60,7 +60,7 @@ func (s *Chain) stdLog(logType logType) std {
 		} else {
 			prefixStr = gen.Gen()
 		}
-		return lineprefixer.NewWriter(w, prefixStr)
+		return lineprefixer.NewWriter(w, func() string { return prefixStr })
 	}
 	var (
 		stdout io.Writer = prefixed(s.stdout)

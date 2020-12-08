@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -12,6 +13,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/dariubs/percent"
+	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
 	"golang.org/x/sync/errgroup"
 
@@ -24,9 +27,15 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/lineprefixer"
 	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+const (
+	tendermintrpcAddr = "http://localhost:26657"
 )
 
 // Builder is network builder.
@@ -300,6 +309,22 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	// peerCountPrefixer adds peer count prefix to each log line.
+	peerCountPrefixer := func(w io.Writer) io.Writer {
+		tc := tendermintrpc.New(tendermintrpcAddr)
+
+		return lineprefixer.NewWriter(w, func() string {
+			netInfo, err := tc.GetNetInfo(ctx)
+			if err != nil {
+				fmt.Println(err)
+				return ""
+			}
+			count := netInfo.ConnectedPeers + 1 // +1 is itself.
+			prefix := fmt.Sprintf("%d (%v%%) peers online", count, percent.PercentOf(count, len(p2pAddresses)))
+			return color.New(color.FgYellow).SprintFunc()(prefix)
+		})
+	}
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	// run the start command of the chain.
@@ -309,8 +334,8 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 				app.D(),
 				append([]string{"start"}, flags...)...,
 			),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
+			step.Stdout(peerCountPrefixer(os.Stdout)),
+			step.Stderr(peerCountPrefixer(os.Stderr)),
 		))
 	})
 
