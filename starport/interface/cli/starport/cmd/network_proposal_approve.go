@@ -3,7 +3,7 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
-  
+
 	"github.com/manifoldco/promptui"
 
 	"github.com/spf13/cobra"
@@ -24,6 +24,11 @@ func NewNetworkProposalApprove() *cobra.Command {
 }
 
 func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New()
+	defer s.Stop()
+
+	s.SetText("Calculating gas...")
+
 	var (
 		chainID      = args[0]
 		proposalList = args[1]
@@ -49,6 +54,8 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	s.Stop()
+
 	// Prompt for confirmation
 	prompt := promptui.Prompt{
 		Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction?",
@@ -59,9 +66,6 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 	if _, err := prompt.Run(); err != nil {
 		return errors.New("transaction aborted")
 	}
-
-	s := clispinner.New()
-	defer s.Stop()
 
 	s.SetText("Approving...")
 	s.Start()

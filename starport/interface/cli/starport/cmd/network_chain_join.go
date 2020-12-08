@@ -134,9 +134,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	s.SetText("Proposing...")
+	s.Start()
+
 	if err := blockchain.Join(cmd.Context(), a.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
+	s.Stop()
 
 	if a.Mnemonic != "" {
 		fmt.Printf("\n*** IMPORTANT - Save your mnemonic in a secret place:\n%s\n", a.Mnemonic)
