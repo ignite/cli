@@ -45,6 +45,8 @@ func StartClient(ctx context.Context, serverAddr, localPort, remotePort string) 
 	if err != nil {
 		return err
 	}
+	c.Logger.Info = false
+	c.Logger.Debug = false
 	if err := c.Start(ctx); err != nil {
 		log.Fatal(err)
 	}
