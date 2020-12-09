@@ -181,6 +181,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	s.Stop()
 
-	fmt.Println("\n📜 Proposal to join as a validator has been submitted successfully!")
+	fmt.Println("\n📜  Proposal about joining as a validator has been successfully submitted!")
 	return nil
 }

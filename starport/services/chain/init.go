@@ -275,21 +275,30 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 
 // CollectGentx collects gentxs on chain.
 func (c *Chain) CollectGentx(ctx context.Context) error {
-	return cmdrunner.
+	var errb bytes.Buffer
+
+	if err := cmdrunner.
 		New(c.cmdOptions()...).
-		Run(ctx, step.New(step.NewOptions().
-			Add(step.Exec(
+		Run(ctx, step.New(
+			step.Exec(
 				c.app.D(),
 				"collect-gentxs",
-			)).
-			Add(c.stdSteps(logAppd)...)...,
-		))
+			),
+			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
+			step.Stdout(c.stdLog(logAppd).out),
+		)); err != nil {
+		return errors.Wrap(err, errb.String())
+	}
+
+	return nil
 }
 
 // ShowNodeID shows node's id.
 func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
-	key := &bytes.Buffer{}
-	err := cmdrunner.
+	var key bytes.Buffer
+	var errb bytes.Buffer
+
+	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx,
 			step.New(
@@ -298,8 +307,12 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 					"tendermint",
 					"show-node-id",
 				),
-				step.Stdout(key),
+				step.Stdout(&key),
+				step.Stderr(&errb),
 			),
-		)
-	return strings.TrimSpace(key.String()), err
+		); err != nil {
+		return "", errors.Wrap(err, errb.String())
+	}
+
+	return strings.TrimSpace(key.String()), nil
 }
