@@ -19,14 +19,15 @@ func Find(n int) (ports []int, err error) {
 			rand.Seed(time.Now().UnixNano())
 			port := rand.Intn(max-min+1) + min
 
-			conn, err := net.Dial("tcp", fmt.Sprintf("%d", port))
+			conn, err := net.Dial("tcp", fmt.Sprintf(":%d", port))
 			// if there is an error, this might mean that no one is listening from this port
 			// which is what we need.
-			if err != nil {
+			if err == nil {
+				conn.Close()
 				continue
 			}
-			conn.Close()
 			ports = append(ports, port)
+			break
 		}
 	}
 	return ports, nil
