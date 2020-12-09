@@ -23,9 +23,9 @@ func Find(n int) (ports []int, err error) {
 			// if there is an error, this might mean that no one is listening from this port
 			// which is what we need.
 			if err != nil {
-				conn.Close()
 				continue
 			}
+			conn.Close()
 			ports = append(ports, port)
 		}
 	}
