@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
@@ -12,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
@@ -63,7 +66,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// hold default values and user inputs for target chain to later use these to join to the chain.
 	var (
 		proposal      networkbuilder.Proposal
-		account       networkbuilder.Account
+		account       chain.Account
 		denom         string
 		publicAddress string
 	)
@@ -76,12 +79,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	choosenAccount, err := createAccount(nb, fmt.Sprintf("%s blockchain", chainID))
+	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID))
 	if err != nil {
 		return err
 	}
-	account.Name = choosenAccount.Name
-	account.Mnemonic = choosenAccount.Mnemonic
 
 	// ask to create an account proposal,
 	printSection("Account proposal")
@@ -128,7 +129,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, _, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
+	gentx, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}
@@ -176,11 +177,75 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	s.SetText("Proposing...")
 	s.Start()
 
-	if err := blockchain.Join(cmd.Context(), choosenAccount.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
+	if err := blockchain.Join(cmd.Context(), account.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
 	s.Stop()
 
 	fmt.Println("\n📜  Proposal about joining as a validator has been successfully submitted!")
 	return nil
+}
+
+func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title string) (account chain.Account, err error) {
+	var (
+		createAccount = "Create a new account"
+		importAccount = "Import an account from mnemonic"
+	)
+	var (
+		qs = []*survey.Question{
+			{
+				Name: "account",
+				Prompt: &survey.Select{
+					Message: "Choose an account:",
+					Options: []string{createAccount, importAccount},
+				},
+			},
+		}
+		answers = struct {
+			Account string `survey:"account"`
+		}{}
+	)
+	if err := survey.Ask(qs, &answers); err != nil {
+		if err == terminal.InterruptErr {
+			return account, context.Canceled
+		}
+		return account, err
+	}
+
+	switch answers.Account {
+	case createAccount:
+		var name string
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
+			return account, err
+		}
+
+		if account, err = blockchain.CreateAccount(ctx, chain.Account{Name: name}); err != nil {
+			return account, err
+		}
+
+		fmt.Printf("\n%s account has been created successfully!\nAccount address: %s \nMnemonic: %s\n\n",
+			title,
+			account.Address,
+			account.Mnemonic,
+		)
+
+	case importAccount:
+		var name string
+		var mnemonic string
+		if err := cliquiz.Ask(
+			cliquiz.NewQuestion("Account name", &name),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+		); err != nil {
+			return account, err
+		}
+
+		if account, err = blockchain.CreateAccount(ctx, chain.Account{
+			Name:     name,
+			Mnemonic: mnemonic,
+		}); err != nil {
+			return account, err
+		}
+		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, account.Address)
+	}
+	return account, nil
 }
