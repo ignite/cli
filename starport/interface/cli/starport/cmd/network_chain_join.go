@@ -144,7 +144,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	var answerYes, answerNo = "yes", "no"
 
 	for {
-		if err := cliquiz.Ask(cliquiz.NewQuestion(fmt.Sprintf("Please type %q or %q", answerYes, answerNo),
+		if err := cliquiz.Ask(cliquiz.NewQuestion(fmt.Sprintf("Please enter %q or %q", answerYes, answerNo),
 			&shouldJoin,
 			cliquiz.Required(),
 		)); err != nil {
