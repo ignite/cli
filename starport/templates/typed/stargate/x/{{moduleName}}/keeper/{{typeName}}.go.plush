@@ -72,7 +72,7 @@ func (k Keeper) Has<%= title(TypeName) %>(ctx sdk.Context, id string) bool {
 	return store.Has(types.KeyPrefix(types.<%= title(TypeName) %>Key + id))
 }
 
-func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) sdk.AccAddress {
+func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) string {
     return k.Get<%= title(TypeName) %>(ctx, key).Creator
 }
 

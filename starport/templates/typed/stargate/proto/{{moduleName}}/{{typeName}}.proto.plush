@@ -7,22 +7,22 @@ import "gogoproto/gogo.proto";
 
 message <%= title(TypeName) %> {
   string id = 1;
-  bytes creator = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];<%= for (i, field) in Fields { %>
+  string creator = 2;<%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
 }
 
 message MsgCreate<%= title(TypeName) %> {
-  bytes creator = 1 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];<%= for (i, field) in Fields { %>
+  string creator = 1;<%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name %> = <%= i+2 %>; <% } %>
 }
 
 message MsgUpdate<%= title(TypeName) %> {
   string id = 1;
-  bytes creator = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];<%= for (i, field) in Fields { %>
+  string creator = 2;<%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
 }
 
 message MsgDelete<%= title(TypeName) %> {
   string id = 1;
-  bytes creator = 2 [(gogoproto.casttype) = "github.com/cosmos/cosmos-sdk/types.AccAddress"];
+  string creator = 2;
 }

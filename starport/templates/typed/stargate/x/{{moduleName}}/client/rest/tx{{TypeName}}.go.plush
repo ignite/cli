@@ -35,7 +35,7 @@ func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err := sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -59,7 +59,7 @@ func create<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 		<% } %><% } %>
 
 		msg := types.NewMsgCreate<%= title(TypeName) %>(
-			creator,
+			req.Creator,
 			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
 			<% } %>
 		)
@@ -91,7 +91,7 @@ func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err := sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -115,7 +115,7 @@ func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 		<% } %><% } %>
 
 		msg := types.NewMsgUpdate<%= title(TypeName) %>(
-			creator,
+			req.Creator,
             id,
 			<%= for (i, field) in Fields { %>parsed<%= title(field.Name) %>,
 			<% } %>
@@ -145,14 +145,14 @@ func delete<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		creator, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err := sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
 		}
 
 		msg := types.NewMsgDelete<%= title(TypeName) %>(
-			creator,
+			req.Creator,
             id,
 		)
 
