@@ -317,7 +317,6 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return lineprefixer.NewWriter(w, func() string {
 			netInfo, err := tc.GetNetInfo(ctx)
 			if err != nil {
-				fmt.Println(err)
 				return ""
 			}
 			count := netInfo.ConnectedPeers + 1 // +1 is itself.
