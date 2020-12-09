@@ -79,7 +79,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID))
+	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), acc.Name)
 	if err != nil {
 		return err
 	}
@@ -186,7 +186,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title string) (account chain.Account, err error) {
+func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
 	var (
 		createAccount = "Create a new account"
 		importAccount = "Import an account from mnemonic"
@@ -215,7 +215,7 @@ func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockcha
 	switch answers.Account {
 	case createAccount:
 		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.DefaultAnswer(defaultAccountName), cliquiz.Required())); err != nil {
 			return account, err
 		}
 
@@ -233,8 +233,8 @@ func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockcha
 		var name string
 		var mnemonic string
 		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+			cliquiz.NewQuestion("Account name", &name, cliquiz.DefaultAnswer(defaultAccountName), cliquiz.Required()),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.DefaultAnswer(defaultAccountName), cliquiz.Required()),
 		); err != nil {
 			return account, err
 		}
