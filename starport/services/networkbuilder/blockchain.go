@@ -74,10 +74,10 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	if err := c.Build(ctx); err != nil {
 		return err
 	}
-	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 	if err := c.Init(ctx); err != nil {
 		return err
 	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
 	genesis, err := ioutil.ReadFile(c.GenesisPath())
