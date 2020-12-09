@@ -74,20 +74,20 @@ func ensureSPNAccount(b *networkbuilder.Builder) error {
 	printSection(fmt.Sprintf("Account on %s", title))
 	fmt.Printf("To use %s you need an account.\nPlease, select an account or create a new one:\n\n", title)
 
-	accountName, err := createAccount(b, title)
+	account, err := createAccount(b, title)
 	if err != nil {
 		return err
 	}
 
-	return b.AccountUse(accountName)
+	return b.AccountUse(account.Name)
 }
 
 // createAccount interactively creates a Cosmos account in OS keyring or fs keyring depending
 // on the system.
-func createAccount(b *networkbuilder.Builder, title string) (name string, err error) {
+func createAccount(b *networkbuilder.Builder, title string) (account spn.Account, err error) {
 	accounts, err := accountNames(b)
 	if err != nil {
-		return "", err
+		return account, err
 	}
 	var (
 		createAccount = "Create a new account"
@@ -110,31 +110,27 @@ func createAccount(b *networkbuilder.Builder, title string) (name string, err er
 	)
 	if err = survey.Ask(qs, &answers); err != nil {
 		if err == terminal.InterruptErr {
-			return "", context.Canceled
+			return account, context.Canceled
 		}
-		return "", err
+		return account, err
 	}
-
-	var chosenAccountName string
 
 	switch answers.Account {
 	case createAccount:
 		var name string
 		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
-			return "", err
+			return account, err
 		}
 
-		acc, err := b.AccountCreate(name, "")
-		if err != nil {
-			return "", err
+		if account, err = b.AccountCreate(name, ""); err != nil {
+			return account, err
 		}
 
 		fmt.Printf("\n%s account has been created successfully!\nAccount address: %s \nMnemonic: %s\n\n",
 			title,
-			acc.Address,
-			acc.Mnemonic,
+			account.Address,
+			account.Mnemonic,
 		)
-		chosenAccountName = name
 
 	case importAccount:
 		var name string
@@ -143,31 +139,26 @@ func createAccount(b *networkbuilder.Builder, title string) (name string, err er
 			cliquiz.NewQuestion("Account name", &name),
 			cliquiz.NewQuestion("Mnemonic", &mnemonic),
 		); err != nil {
-			return "", err
+			return account, err
 		}
 
-		acc, err := b.AccountCreate(name, mnemonic)
-		if err != nil {
-			return "", err
+		if account, err = b.AccountCreate(name, mnemonic); err != nil {
+			return account, err
 		}
-		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, acc.Address)
-		chosenAccountName = name
+		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, account.Address)
 
 	default:
-		acc, err := b.AccountGet(answers.Account)
-		if err != nil {
-			return "", err
+		if account, err = b.AccountGet(answers.Account); err != nil {
+			return account, err
 		}
-		fmt.Printf("\n%s account has been selected.\nAccount address: %s\n\n", title, acc.Address)
-		chosenAccountName = answers.Account
-
+		fmt.Printf("\n%s account has been selected.\nAccount address: %s\n\n", title, account.Address)
 	}
 
-	return chosenAccountName, nil
+	return account, nil
 }
 
 func printSection(title string) {
-	fmt.Printf("----\n---- %s\n---------------------------------------------\n\n", title)
+	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
 }
 
 // accountNames retrieves a name list of accounts in the OS keyring.

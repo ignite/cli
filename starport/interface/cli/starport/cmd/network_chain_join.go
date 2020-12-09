@@ -76,10 +76,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	account.Name, err = createAccount(nb, fmt.Sprintf("%s blockchain", chainID))
+	choosenAccount, err := createAccount(nb, fmt.Sprintf("%s blockchain", chainID))
 	if err != nil {
 		return err
 	}
+	account.Name = choosenAccount.Name
+	account.Mnemonic = choosenAccount.Mnemonic
 
 	// ask to create an account proposal,
 	printSection("Account proposal")
@@ -126,7 +128,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, a, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
+	gentx, _, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}
@@ -174,14 +176,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	s.SetText("Proposing...")
 	s.Start()
 
-	if err := blockchain.Join(cmd.Context(), a.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
+	if err := blockchain.Join(cmd.Context(), choosenAccount.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
 	s.Stop()
-
-	if a.Mnemonic != "" {
-		fmt.Printf("\n*** IMPORTANT - Save your mnemonic in a secret place:\n%s\n", a.Mnemonic)
-	}
 
 	fmt.Println("\n📜 Proposal to join as a validator has been submitted successfully!")
 	return nil
