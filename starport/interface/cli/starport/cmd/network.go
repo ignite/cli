@@ -118,7 +118,7 @@ func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Acco
 	switch answers.Account {
 	case createAccount:
 		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.Required())); err != nil {
 			return account, err
 		}
 
@@ -136,8 +136,8 @@ func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Acco
 		var name string
 		var mnemonic string
 		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+			cliquiz.NewQuestion("Account name", &name, cliquiz.Required()),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.Required()),
 		); err != nil {
 			return account, err
 		}
