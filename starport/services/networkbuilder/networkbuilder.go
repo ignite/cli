@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
+	"math"
 	"net/url"
 	"os"
 	"path"
@@ -320,7 +321,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 				return ""
 			}
 			count := netInfo.ConnectedPeers + 1 // +1 is itself.
-			prefix := fmt.Sprintf("%d (%v%%) peers online", count, percent.PercentOf(count, len(p2pAddresses)))
+			prefix := fmt.Sprintf("%d (%v%%) peers online ", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
 			return color.New(color.FgYellow).SprintFunc()(prefix)
 		})
 	}
