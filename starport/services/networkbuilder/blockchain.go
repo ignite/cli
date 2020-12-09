@@ -52,7 +52,7 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		Path:    b.appPath,
 	}
 
-	c, err := chain.New(app, false, chain.LogVerbose)
+	c, err := chain.New(app, false, chain.LogSilent)
 	if err != nil {
 		return err
 	}
