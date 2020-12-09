@@ -6,15 +6,16 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net/http"
+	"os"
+	"strconv"
+	"strings"
+
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
-	"net/http"
-	"os"
-	"strconv"
-	"strings"
 )
 
 var spn = "spn"
@@ -51,7 +52,9 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 	for _, o := range option {
 		o(opts)
 	}
-	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homedir, os.Stdin)
+	// TODO do not use NewApp
+	// types.KeyringServiceName()
+	kr, err := keyring.New("NewApp", opts.keyringBackend, homedir, os.Stdin)
 	if err != nil {
 		return nil, err
 	}

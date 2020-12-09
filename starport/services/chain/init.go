@@ -220,7 +220,7 @@ type Validator struct {
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
 // Gentx generates a gentx for v.
-func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err error) {
+func (c *Chain) Gentx(ctx context.Context, v Validator, backend string) (gentxPath string, err error) {
 	chainID, err := c.ID()
 	if err != nil {
 		return "", err
@@ -230,7 +230,7 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
-			c.plugin.GentxCommand(chainID, v),
+			c.plugin.GentxCommand(chainID, v, backend),
 			step.Stderr(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).err)),
 			step.Stdout(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).out)),
 		)); err != nil {
@@ -251,7 +251,7 @@ type Account struct {
 func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 	errb := &bytes.Buffer{}
 
-	return cmdrunner.
+	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(step.NewOptions().
 			Add(
@@ -270,7 +270,11 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 				}),
 				step.Stderr(errb),
 			)...,
-		))
+		)); err != nil {
+		return errors.Wrap(err, errb.String())
+	}
+
+	return nil
 }
 
 // CollectGentx collects gentxs on chain.

@@ -33,7 +33,8 @@ type Plugin interface {
 	ConfigCommands(chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(chainID string, v Validator) step.Option
+	// TODO do not get backend like this.
+	GentxCommand(chainID string, v Validator, backend string) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error

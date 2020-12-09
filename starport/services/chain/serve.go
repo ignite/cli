@@ -194,7 +194,7 @@ func (s *Chain) serve(ctx context.Context) error {
 	if _, err := s.Gentx(ctx, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
-	}); err != nil {
+	}, "test"); err != nil {
 		return err
 	}
 	if err := s.CollectGentx(ctx); err != nil {

@@ -52,7 +52,7 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		Path:    b.appPath,
 	}
 
-	c, err := chain.New(app, false, chain.LogSilent)
+	c, err := chain.New(app, false, chain.LogVerbose)
 	if err != nil {
 		return err
 	}
@@ -169,12 +169,11 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 	}); err != nil {
 		return nil, err
 	}
-	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
+	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator, "os")
 	if err != nil {
 		return nil, err
 	}
-	gentx, err = ioutil.ReadFile(gentxPath)
-	return gentx, err
+	return ioutil.ReadFile(gentxPath)
 }
 
 // Join proposes a validator to a network.

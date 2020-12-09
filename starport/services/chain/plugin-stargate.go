@@ -83,12 +83,14 @@ func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
+func (p *stargatePlugin) GentxCommand(chainID string, v Validator, backend string) step.Option {
 	args := []string{
 		"gentx", v.Name,
 		"--chain-id", chainID,
-		"--keyring-backend", "test",
 		"--amount", v.StakingAmount,
+	}
+	if backend != "" {
+		args = append(args, "--keyring-backend", backend)
 	}
 	if v.Moniker != "" {
 		args = append(args, "--moniker", v.Moniker)

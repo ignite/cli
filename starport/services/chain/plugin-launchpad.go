@@ -129,12 +129,14 @@ func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(_ string, v Validator) step.Option {
+func (p *launchpadPlugin) GentxCommand(_ string, v Validator, backend string) step.Option {
 	args := []string{
 		"gentx",
 		"--name", v.Name,
-		"--keyring-backend", "test",
 		"--amount", v.StakingAmount,
+	}
+	if backend != "" {
+		args = append(args, "--keyring-backend", backend)
 	}
 	if v.Moniker != "" {
 		args = append(args, "--moniker", v.Moniker)
