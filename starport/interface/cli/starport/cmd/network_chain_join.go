@@ -79,7 +79,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID))
+	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), acc.Name)
 	if err != nil {
 		return err
 	}
@@ -101,13 +101,40 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	printSection("Validator proposal")
 
 	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer("95000000stake")),
-		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
-		cliquiz.NewQuestion("Commission rate", &proposal.Validator.CommissionRate, cliquiz.DefaultAnswer("0.10")),
-		cliquiz.NewQuestion("Commission max rate", &proposal.Validator.CommissionMaxRate, cliquiz.DefaultAnswer("0.20")),
-		cliquiz.NewQuestion("Commission max change rate", &proposal.Validator.CommissionMaxChangeRate, cliquiz.DefaultAnswer("0.01")),
-		cliquiz.NewQuestion("Min self delegation", &proposal.Validator.MinSelfDelegation, cliquiz.DefaultAnswer("1")),
-		cliquiz.NewQuestion("Gas prices", &proposal.Validator.GasPrices, cliquiz.DefaultAnswer("0.025"+denom)),
+		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount,
+			cliquiz.DefaultAnswer("95000000stake"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Moniker",
+			&proposal.Validator.Moniker,
+			cliquiz.DefaultAnswer("mynode"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission rate",
+			&proposal.Validator.CommissionRate,
+			cliquiz.DefaultAnswer("0.10"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission max rate",
+			&proposal.Validator.CommissionMaxRate,
+			cliquiz.DefaultAnswer("0.20"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission max change rate",
+			&proposal.Validator.CommissionMaxChangeRate,
+			cliquiz.DefaultAnswer("0.01"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Min self delegation",
+			&proposal.Validator.MinSelfDelegation,
+			cliquiz.DefaultAnswer("1"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Gas prices",
+			&proposal.Validator.GasPrices,
+			cliquiz.DefaultAnswer("0.025"+denom),
+			cliquiz.Required(),
+		),
 		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
 		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
 		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
@@ -186,7 +213,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title string) (account chain.Account, err error) {
+func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
 	var (
 		createAccount = "Create a new account"
 		importAccount = "Import an account from mnemonic"
@@ -215,7 +242,7 @@ func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockcha
 	switch answers.Account {
 	case createAccount:
 		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.DefaultAnswer(defaultAccountName), cliquiz.Required())); err != nil {
 			return account, err
 		}
 
@@ -233,8 +260,8 @@ func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockcha
 		var name string
 		var mnemonic string
 		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+			cliquiz.NewQuestion("Account name", &name, cliquiz.DefaultAnswer(defaultAccountName), cliquiz.Required()),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.Required()),
 		); err != nil {
 			return account, err
 		}

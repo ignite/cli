@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
@@ -83,7 +84,19 @@ func Ask(question ...Question) error {
 			return err
 		}
 
-		if q.required && reflect.ValueOf(q.answer).Elem().IsZero() {
+		isValid := func() bool {
+			if answer, ok := q.answer.(string); ok {
+				if strings.TrimSpace(answer) == "" {
+					return false
+				}
+			}
+			if reflect.ValueOf(q.answer).Elem().IsZero() {
+				return false
+			}
+			return true
+		}
+
+		if q.required && !isValid() {
 			fmt.Println("This information is required, please retry:")
 			if err := Ask(q); err != nil {
 				return err
