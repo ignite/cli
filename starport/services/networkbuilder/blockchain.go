@@ -41,6 +41,8 @@ func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url,
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
 func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+
 	path, err := gomodulepath.ParseFile(b.appPath)
 	if err != nil {
 		return err
@@ -69,7 +71,6 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		}
 	}
 
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 	if err := c.Build(ctx); err != nil {
 		return err
 	}

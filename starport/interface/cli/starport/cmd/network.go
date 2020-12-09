@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -68,13 +69,25 @@ func ensureSPNAccount(b *networkbuilder.Builder) error {
 		return nil
 	}
 
-	fmt.Println(`To use Starport Network you need an account.
-Please, select an account or create a new one.
-	`)
+	title := "Starport Network"
 
-	accounts, err := accountNames(b)
+	printSection(fmt.Sprintf("Account on %s", title))
+	fmt.Printf("To use %s you need an account.\nPlease, select an account or create a new one:\n\n", title)
+
+	accountName, err := createAccount(b, title)
 	if err != nil {
 		return err
+	}
+
+	return b.AccountUse(accountName)
+}
+
+// createAccount interactively creates a Cosmos account in OS keyring or fs keyring depending
+// on the system.
+func createAccount(b *networkbuilder.Builder, title string) (name string, err error) {
+	accounts, err := accountNames(b)
+	if err != nil {
+		return "", err
 	}
 	var (
 		createAccount = "Create a new account"
@@ -95,9 +108,11 @@ Please, select an account or create a new one.
 			Account string `survey:"account"`
 		}{}
 	)
-	err = survey.Ask(qs, &answers)
-	if err != nil {
-		return err
+	if err = survey.Ask(qs, &answers); err != nil {
+		if err == terminal.InterruptErr {
+			return "", context.Canceled
+		}
+		return "", err
 	}
 
 	var chosenAccountName string
@@ -106,18 +121,19 @@ Please, select an account or create a new one.
 	case createAccount:
 		var name string
 		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
-			return err
+			return "", err
 		}
 
 		acc, err := b.AccountCreate(name, "")
 		if err != nil {
-			return err
+			return "", err
 		}
-		fmt.Printf(`Starport Network account has been created successfully!
-Account address: %s 
-Mnemonic: %s 
 
-`, acc.Address, acc.Mnemonic)
+		fmt.Printf("\n%s account has been created successfully!\nAccount address: %s \nMnemonic: %s\n\n",
+			title,
+			acc.Address,
+			acc.Mnemonic,
+		)
 		chosenAccountName = name
 
 	case importAccount:
@@ -127,34 +143,31 @@ Mnemonic: %s
 			cliquiz.NewQuestion("Account name", &name),
 			cliquiz.NewQuestion("Mnemonic", &mnemonic),
 		); err != nil {
-			return err
+			return "", err
 		}
 
 		acc, err := b.AccountCreate(name, mnemonic)
 		if err != nil {
-			return err
+			return "", err
 		}
-		fmt.Printf(`Starport Network account has been imported successfully!
-Account address: %s 
-
-`, acc.Address)
+		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, acc.Address)
 		chosenAccountName = name
 
 	default:
 		acc, err := b.AccountGet(answers.Account)
 		if err != nil {
-			return err
+			return "", err
 		}
-		fmt.Printf(`Starport Network account has been selected.
-Account address: %s
-
-
-`, acc.Address)
+		fmt.Printf("\n%s account has been selected.\nAccount address: %s\n\n", title, acc.Address)
 		chosenAccountName = answers.Account
 
 	}
 
-	return b.AccountUse(chosenAccountName)
+	return chosenAccountName, nil
+}
+
+func printSection(title string) {
+	fmt.Printf("----\n---- %s\n---------------------------------------------\n\n", title)
 }
 
 // accountNames retrieves a name list of accounts in the OS keyring.

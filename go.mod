@@ -43,7 +43,7 @@ require (
 	github.com/stretchr/testify v1.6.1
 	github.com/tendermint/spn v0.0.0-20201205140131-cf864f668b46
 	github.com/tendermint/tendermint v0.34.0-rc6
-	golang.org/x/crypto v0.0.0-20201203163018-be400aefbc4c // indirect
+	golang.org/x/crypto v0.0.0-20201208171446-5f87f3452ae9 // indirect
 	golang.org/x/mod v0.3.0
 	golang.org/x/net v0.0.0-20201021035429-f5854403a974 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
