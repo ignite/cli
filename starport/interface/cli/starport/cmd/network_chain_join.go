@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	"github.com/manifoldco/promptui"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -27,6 +26,10 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
+	var (
+		chainID = args[0]
+	)
+
 	s := clispinner.New()
 	defer s.Stop()
 
@@ -38,7 +41,8 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	blockchain, err := nb.InitBlockchainFromChainID(cmd.Context(), args[0], false)
+	// init the blockchain.
+	blockchain, err := nb.InitBlockchainFromChainID(cmd.Context(), chainID, false)
 
 	if err == context.Canceled {
 		s.Stop()
@@ -50,11 +54,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer blockchain.Cleanup()
 
+	// get blockchain's info.
 	info, err := blockchain.Info()
 	if err != nil {
 		return err
 	}
 
+	// hold default values and user inputs for target chain to later use these to join to the chain.
 	var (
 		proposal      networkbuilder.Proposal
 		account       networkbuilder.Account
@@ -66,13 +72,34 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			denom = c.Denom
 		}
 	}
-
 	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
+	// ask to create an account on target blockchain.
+	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
+	choosenAccount, err := createAccount(nb, fmt.Sprintf("%s blockchain", chainID))
+	if err != nil {
+		return err
+	}
+	account.Name = choosenAccount.Name
+	account.Mnemonic = choosenAccount.Mnemonic
+
+	// ask to create an account proposal,
+	printSection("Account proposal")
+
+	if err := cliquiz.Ask(
+		cliquiz.NewQuestion("Account coins",
+			&account.Coins,
+			cliquiz.DefaultAnswer(strings.Join(acc.Coins, ",")),
+		),
+	); err != nil {
+		return err
+	}
+
+	// ask to create a validator proposal.
+	fmt.Println()
+	printSection("Validator proposal")
+
 	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Account name", &account.Name, cliquiz.DefaultAnswer(acc.Name)),
-		cliquiz.NewQuestion("Account mnemonic", &account.Mnemonic, cliquiz.DefaultAnswer(acc.Mnemonic)),
-		cliquiz.NewQuestion("Account coins", &account.Coins, cliquiz.DefaultAnswer(strings.Join(acc.Coins, ","))),
 		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount, cliquiz.DefaultAnswer("95000000stake")),
 		cliquiz.NewQuestion("Moniker", &proposal.Validator.Moniker, cliquiz.DefaultAnswer("mynode")),
 		cliquiz.NewQuestion("Commission rate", &proposal.Validator.CommissionRate, cliquiz.DefaultAnswer("0.10")),
@@ -93,7 +120,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		if err == nil {
 			opts = append(opts, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
 		}
-		questions = append(questions, cliquiz.NewQuestion("Public address", &publicAddress, opts...))
+		questions = append(questions, cliquiz.NewQuestion("Peer's address", &publicAddress, opts...))
 	}
 
 	s.Stop()
@@ -101,7 +128,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, a, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
+	gentx, _, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}
@@ -110,26 +137,38 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("\nGentx: \n\n%s\n\n", prettyGentx)
 
-	prompt := promptui.Prompt{
-		Label:     "Do you confirm the Gentx above",
-		IsConfirm: true,
-	}
-	if _, err := prompt.Run(); err != nil {
-		s.Stop()
-		fmt.Println("said no")
-		return nil
+	// ask to confirm to join to network.
+	fmt.Printf("\nYour validator's details (Gentx): \n\n%s\n\n", prettyGentx)
+	fmt.Printf("Confirm joining to %s as a validator with the Gentx above:\n", chainID)
+
+	var shouldJoin string
+	var answerYes, answerNo = "yes", "no"
+
+	for {
+		if err := cliquiz.Ask(cliquiz.NewQuestion(fmt.Sprintf("Please enter %q or %q", answerYes, answerNo),
+			&shouldJoin,
+			cliquiz.Required(),
+		)); err != nil {
+			return err
+		}
+		if shouldJoin == answerNo {
+			s.Stop()
+			fmt.Println("said no")
+			return nil
+		}
+		if shouldJoin == answerYes {
+			break
+		}
 	}
 
-	// Parse the coins of the account
-	coins, err := types.ParseCoins(account.Coins)
+	// propose to join to the network.
+	coins, err := types.ParseCoins(account.Coins) // parse the coins of the account
 	if err != nil {
 		return err
 	}
 
-	// Parse the self delegation of this account for the validator
-	selfDelegation, err := types.ParseCoin(proposal.Validator.StakingAmount)
+	selfDelegation, err := types.ParseCoin(proposal.Validator.StakingAmount) // parse the self delegation of this account for the validator
 	if err != nil {
 		return err
 	}
@@ -137,15 +176,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	s.SetText("Proposing...")
 	s.Start()
 
-	if err := blockchain.Join(cmd.Context(), a.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
+	if err := blockchain.Join(cmd.Context(), choosenAccount.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
 		return err
 	}
 	s.Stop()
 
-	if a.Mnemonic != "" {
-		fmt.Printf("\n*** IMPORTANT - Save your mnemonic in a secret place:\n%s\n", a.Mnemonic)
-	}
-
-	fmt.Println("\n📜 Proposed validator to join to network")
+	fmt.Println("\n📜 Proposal to join as a validator has been submitted successfully!")
 	return nil
 }

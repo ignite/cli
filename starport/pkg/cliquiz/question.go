@@ -2,10 +2,12 @@
 package cliquiz
 
 import (
+	"context"
 	"fmt"
 	"reflect"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/spf13/pflag"
 )
 
@@ -75,6 +77,9 @@ func Ask(question ...Question) error {
 		}
 
 		if err := survey.AskOne(prompt, q.answer); err != nil {
+			if err == terminal.InterruptErr {
+				return context.Canceled
+			}
 			return err
 		}
 

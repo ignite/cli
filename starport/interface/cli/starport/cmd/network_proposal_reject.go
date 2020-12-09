@@ -57,7 +57,7 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 
 	// Prompt for confirmation
 	prompt := promptui.Prompt{
-		Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction?",
+		Label: fmt.Sprintf("This operation will cost about %v gas. Confirm the transaction",
 			gas,
 		),
 		IsConfirm: true,

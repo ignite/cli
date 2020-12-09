@@ -136,6 +136,6 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 	s.Stop()
 
-	fmt.Println("\n🌐 Network submited")
+	fmt.Println("\n🌐  Network submited")
 	return nil
 }
