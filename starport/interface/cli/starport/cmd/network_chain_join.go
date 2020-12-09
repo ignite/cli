@@ -81,7 +81,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	account.Name = choosenAccount.Name
-	account.Mnemonic = choosenAccount.Mnemonic
+	account.Address = choosenAccount.Address
 
 	// ask to create an account proposal,
 	printSection("Account proposal")
@@ -128,7 +128,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
-	gentx, _, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
+	gentx, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
 	if err != nil {
 		return err
 	}

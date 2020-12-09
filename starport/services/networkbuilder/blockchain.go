@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -156,26 +155,26 @@ type ProposalMeta struct {
 
 type Account struct {
 	Name     string
+	Address  string
 	Mnemonic string
 	Coins    string
 }
 
 // IssueGentx creates a Genesis transaction for account with proposal.
-func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, acc chain.Account, err error) {
+func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
 	proposal.Validator.Name = account.Name
-	acc, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
-	if err != nil {
-		return nil, chain.Account{}, err
-	}
-	if err := b.chain.AddGenesisAccount(ctx, acc); err != nil {
-		return nil, chain.Account{}, err
+	if err := b.chain.AddGenesisAccount(ctx, chain.Account{
+		Address: account.Address,
+		Coins:   account.Coins,
+	}); err != nil {
+		return nil, err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
 	if err != nil {
-		return nil, chain.Account{}, err
+		return nil, err
 	}
 	gentx, err = ioutil.ReadFile(gentxPath)
-	return gentx, acc, err
+	return gentx, err
 }
 
 // Join proposes a validator to a network.
