@@ -139,9 +139,9 @@ func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.St
 
 // CreateAccount creates an account on chain.
 // cmnemonic is returned when account is created but not restored.
-func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (Account, error) {
+func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSilent bool) (Account, error) {
 	acc := Account{
-		Coins: strings.Join(coins, ","),
+		Name: name,
 	}
 
 	var steps step.Steps
