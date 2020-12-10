@@ -32,6 +32,7 @@ require (
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/olekukonko/tablewriter v0.0.4
+	github.com/otiai10/copy v1.2.0
 	github.com/pelletier/go-toml v1.8.0
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7

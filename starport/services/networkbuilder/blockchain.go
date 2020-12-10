@@ -167,7 +167,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 	if err != nil {
 		return nil, chain.Account{}, err
 	}
-	if err := b.chain.AddGenesisAccount(ctx, acc); err != nil {
+	if err := b.chain.AddGenesisAccount(ctx, acc, ""); err != nil {
 		return nil, chain.Account{}, err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
