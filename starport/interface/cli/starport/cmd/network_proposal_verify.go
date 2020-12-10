@@ -7,17 +7,17 @@ import (
 	"github.com/tendermint/starport/starport/pkg/numbers"
 )
 
-func NewNetworkProposalTest() *cobra.Command {
+func NewNetworkProposalVerify() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "test [chain-id] [number<,...>]",
-		Short: "Test proposals validity",
-		RunE:  networkProposalTestHandler,
+		Use:   "verify [chain-id] [number<,...>]",
+		Short: "Simulate and verify proposals validity",
+		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
 	return c
 }
 
-func networkProposalTestHandler(cmd *cobra.Command, args []string) error {
+func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New()
 	defer s.Stop()
 
@@ -43,6 +43,6 @@ func networkProposalTestHandler(cmd *cobra.Command, args []string) error {
 	s.Start()
 	s.Stop()
 
-	fmt.Printf("Proposal(s) %s tested ✅\n", numbers.List(ids, "#"))
+	fmt.Printf("Proposal(s) %s verified 🔍✔️\n", numbers.List(ids, "#"))
 	return nil
 }
