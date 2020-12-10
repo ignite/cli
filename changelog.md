@@ -5,6 +5,7 @@
 * Evaluate `--address-prefix` option when scaffolding for Stargate.
 * Use a deterministic method to generate scaffolded type ids
 * Modify scaffolded type's creator type from address to string
+* Added git to amd64 docker image
 
 ### Features:
 * Upgraded Stargate's version to v0.40.0-rc3.
