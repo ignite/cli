@@ -7,7 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
 
-func NewMsgCreate<%= title(TypeName) %>(creator sdk.AccAddress<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgCreate<%= title(TypeName) %> {
+func NewMsgCreate<%= title(TypeName) %>(creator string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgCreate<%= title(TypeName) %> {
   return &MsgCreate<%= title(TypeName) %>{
 		Creator: creator,<%= for (field) in Fields { %>
     <%= title(field.Name) %>: <%= field.Name %>,<% } %>
@@ -23,7 +23,11 @@ func (msg *MsgCreate<%= title(TypeName) %>) Type() string {
 }
 
 func (msg *MsgCreate<%= title(TypeName) %>) GetSigners() []sdk.AccAddress {
-  return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
 }
 
 func (msg *MsgCreate<%= title(TypeName) %>) GetSignBytes() []byte {
@@ -32,15 +36,16 @@ func (msg *MsgCreate<%= title(TypeName) %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgCreate<%= title(TypeName) %>) ValidateBasic() error {
-  if msg.Creator.Empty() {
-    return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
-  }
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  	if err != nil {
+  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+  	}
   return nil
 }
 
 var _ sdk.Msg = &MsgUpdate<%= title(TypeName) %>{}
 
-func NewMsgUpdate<%= title(TypeName) %>(creator sdk.AccAddress, id string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgUpdate<%= title(TypeName) %> {
+func NewMsgUpdate<%= title(TypeName) %>(creator string, id string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgUpdate<%= title(TypeName) %> {
   return &MsgUpdate<%= title(TypeName) %>{
         Id: id,
 		Creator: creator,<%= for (field) in Fields { %>
@@ -57,7 +62,11 @@ func (msg *MsgUpdate<%= title(TypeName) %>) Type() string {
 }
 
 func (msg *MsgUpdate<%= title(TypeName) %>) GetSigners() []sdk.AccAddress {
-  return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
 }
 
 func (msg *MsgUpdate<%= title(TypeName) %>) GetSignBytes() []byte {
@@ -66,15 +75,16 @@ func (msg *MsgUpdate<%= title(TypeName) %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgUpdate<%= title(TypeName) %>) ValidateBasic() error {
-  if msg.Creator.Empty() {
-    return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
   }
-  return nil
+   return nil
 }
 
 var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
 
-func NewMsgDelete<%= title(TypeName) %>(creator sdk.AccAddress, id string) *MsgDelete<%= title(TypeName) %> {
+func NewMsgDelete<%= title(TypeName) %>(creator string, id string) *MsgDelete<%= title(TypeName) %> {
   return &MsgDelete<%= title(TypeName) %>{
         Id: id,
 		Creator: creator,
@@ -89,7 +99,11 @@ func (msg *MsgDelete<%= title(TypeName) %>) Type() string {
 }
 
 func (msg *MsgDelete<%= title(TypeName) %>) GetSigners() []sdk.AccAddress {
-  return []sdk.AccAddress{sdk.AccAddress(msg.Creator)}
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
 }
 
 func (msg *MsgDelete<%= title(TypeName) %>) GetSignBytes() []byte {
@@ -98,8 +112,9 @@ func (msg *MsgDelete<%= title(TypeName) %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgDelete<%= title(TypeName) %>) ValidateBasic() error {
-  if msg.Creator.Empty() {
-    return sdkerrors.Wrap(sdkerrors.ErrInvalidAddress, "creator can't be empty")
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
   }
   return nil
 }

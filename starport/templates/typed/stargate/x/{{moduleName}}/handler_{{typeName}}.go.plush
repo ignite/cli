@@ -20,7 +20,7 @@ func handleMsgUpdate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg
     	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
 	}
 
-    if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.Id)) { // Checks if the the msg sender is the same as the current owner                                                                             
+    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) { // Checks if the the msg sender is the same as the current owner
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect owner") // If not, throw an error                                                                                             
     }          
 
@@ -33,7 +33,7 @@ func handleMsgDelete<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg
     if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {                                                                                                                                                                    
         return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, msg.Id)                                                                                                                                
     }                                                                                                                                                                                                  
-    if !msg.Creator.Equals(k.Get<%= title(TypeName) %>Owner(ctx, msg.Id)) {
+    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect owner")                                                                                                                       
     } 
 

@@ -74,7 +74,7 @@ func ensureSPNAccount(b *networkbuilder.Builder) error {
 	printSection(fmt.Sprintf("Account on %s", title))
 	fmt.Printf("To use %s you need an account.\nPlease, select an account or create a new one:\n\n", title)
 
-	account, err := createAccount(b, title)
+	account, err := createSPNAccount(b, title)
 	if err != nil {
 		return err
 	}
@@ -84,7 +84,7 @@ func ensureSPNAccount(b *networkbuilder.Builder) error {
 
 // createAccount interactively creates a Cosmos account in OS keyring or fs keyring depending
 // on the system.
-func createAccount(b *networkbuilder.Builder, title string) (account spn.Account, err error) {
+func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Account, err error) {
 	accounts, err := accountNames(b)
 	if err != nil {
 		return account, err
@@ -118,7 +118,7 @@ func createAccount(b *networkbuilder.Builder, title string) (account spn.Account
 	switch answers.Account {
 	case createAccount:
 		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.Required())); err != nil {
 			return account, err
 		}
 
@@ -136,8 +136,8 @@ func createAccount(b *networkbuilder.Builder, title string) (account spn.Account
 		var name string
 		var mnemonic string
 		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+			cliquiz.NewQuestion("Account name", &name, cliquiz.Required()),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.Required()),
 		); err != nil {
 			return account, err
 		}

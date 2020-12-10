@@ -24,7 +24,7 @@ func CmdCreate<%= title(TypeName) %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgCreate<%= title(TypeName) %>(clientCtx.GetFromAddress()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgCreate<%= title(TypeName) %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -52,7 +52,7 @@ func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdate<%= title(TypeName) %>(clientCtx.GetFromAddress(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgUpdate<%= title(TypeName) %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -79,7 +79,7 @@ func CmdDelete<%= title(TypeName) %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgDelete<%= title(TypeName) %>(clientCtx.GetFromAddress(), id)
+			msg := types.NewMsgDelete<%= title(TypeName) %>(clientCtx.GetFromAddress().String(), id)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
