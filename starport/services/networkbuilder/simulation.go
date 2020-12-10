@@ -59,7 +59,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	if err != nil {
 		return false, err
 	}
-	defer os.RemoveAll(tmpHome)
+	//defer os.RemoveAll(tmpHome)
 	err = copy.Copy(appHome, tmpHome)
 	if err != nil {
 		return false, err
