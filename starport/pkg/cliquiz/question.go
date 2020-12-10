@@ -106,29 +106,45 @@ func Ask(question ...Question) error {
 	return nil
 }
 
-// ValuesFromFlagsOrAsk returns values of requiredFlags within map[string]string where map's
+// Flag represents a cmd flag.
+type Flag struct {
+	Name       string
+	IsRequired bool
+}
+
+// NewFlag creates a new flag.
+func NewFlag(name string, isRequired bool) Flag {
+	return Flag{name, isRequired}
+}
+
+// ValuesFromFlagsOrAsk returns values of flags within map[string]string where map's
 // key is the name of the flag and value is flag's value.
 // when provided, values are collected through command otherwise they're asked to user by prompting.
 // title used as a message while prompting.
-func ValuesFromFlagsOrAsk(flags *pflag.FlagSet, title string, requiredFlags []string) (values map[string]string, err error) {
+func ValuesFromFlagsOrAsk(fset *pflag.FlagSet, title string, flags ...Flag) (values map[string]string, err error) {
 	values = make(map[string]string)
 
 	answers := make(map[string]*string)
 	var questions []Question
 
-	for _, name := range requiredFlags {
-		flag := flags.Lookup(name)
+	for _, f := range flags {
+		flag := fset.Lookup(f.Name)
 		if flag == nil {
-			return nil, fmt.Errorf("flag %q is not defined", name)
+			return nil, fmt.Errorf("flag %q is not defined", f.Name)
 		}
-		if value, _ := flags.GetString(name); value != "" {
-			values[name] = value
+		if value, _ := fset.GetString(f.Name); value != "" {
+			values[f.Name] = value
 			continue
 		}
 
 		var value string
-		answers[name] = &value
-		questions = append(questions, NewQuestion(flag.Usage, &value, Required()))
+		answers[f.Name] = &value
+
+		var options []Option
+		if f.IsRequired {
+			options = append(options, Required())
+		}
+		questions = append(questions, NewQuestion(flag.Usage, &value, options...))
 	}
 
 	if len(questions) > 0 && title != "" {

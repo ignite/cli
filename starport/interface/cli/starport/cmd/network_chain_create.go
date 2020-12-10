@@ -18,6 +18,7 @@ import (
 const (
 	flagChainID = "chain"
 	flagSource  = "source"
+	flagRev     = "rev"
 )
 
 func NewNetworkChainCreate() *cobra.Command {
@@ -28,14 +29,16 @@ func NewNetworkChainCreate() *cobra.Command {
 	}
 	c.Flags().String(flagChainID, "", "Chain ID")
 	c.Flags().String(flagSource, "", "Git repository of the chain's source code (local or remote)")
+	c.Flags().String(flagRev, "", "Git revision of the source code")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
-	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:\n", []string{
-		flagChainID,
-		flagSource,
-	})
+	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:\n",
+		cliquiz.NewFlag(flagChainID, true),
+		cliquiz.NewFlag(flagSource, true),
+		cliquiz.NewFlag(flagRev, false),
+	)
 	if err != nil {
 		return err
 	}
@@ -62,7 +65,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		if xurl.IsLocalPath(values[flagSource]) {
 			return nb.InitBlockchainFromPath(cmd.Context(), values[flagChainID], values[flagSource], true)
 		}
-		return nb.InitBlockchainFromURL(cmd.Context(), values[flagChainID], values[flagSource], "", true)
+		return nb.InitBlockchainFromURL(cmd.Context(), values[flagChainID], values[flagSource], values[flagRev], true)
 	}
 
 	// init the chain.
