@@ -190,7 +190,7 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 
 	// Get the genesis accounts
 	var genesisAccounts []GenesisAccount
-	for _, addAccountProposalPayload := range res.Accounts {
+	for _, addAccountProposalPayload := range res.LaunchInformation.Accounts {
 		genesisAccount := GenesisAccount{
 			Address: addAccountProposalPayload.Address,
 			Coins:   addAccountProposalPayload.Coins,
@@ -201,7 +201,7 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 
 	return LaunchInformation{
 		GenesisAccounts: genesisAccounts,
-		GenTxs:          jsondoc.ToDocs(res.GenTxs),
-		Peers:           res.Peers,
+		GenTxs:          jsondoc.ToDocs(res.LaunchInformation.GenTxs),
+		Peers:           res.LaunchInformation.Peers,
 	}, nil
 }
