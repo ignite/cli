@@ -22,11 +22,11 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	var (
-		_      			= args[0]
+		chainID			= args[0]
 		proposalList 	= args[1]
 	)
 
-	_, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err
 	}
@@ -36,13 +36,18 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
-
-	s.SetText("Test...")
+	s.SetText("Verifying proposals...")
 	s.Start()
-	s.Stop()
 
-	fmt.Printf("Proposal(s) %s verified 🔍✔️\n", numbers.List(ids, "#"))
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids)
+	if err != nil {
+		return err
+	}
+	if verified {
+		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
+	} else {
+		fmt.Printf("Genesis from proposal(s) %s is invalid 🔍❌️\n", numbers.List(ids, "#"))
+	}
+
 	return nil
 }
