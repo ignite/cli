@@ -6,4 +6,3 @@ node_modules
 .DS_Store
 apps/
 .idea
-package-lock.json
