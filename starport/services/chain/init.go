@@ -267,13 +267,6 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account, homeDir 
 					c.app.D(),
 					options...,
 				),
-				step.PostExec(func(exitErr error) error {
-					// ignore if returns with an error related to genesis account being exists.
-					if strings.Contains(errb.String(), "existing") {
-						return nil
-					}
-					return exitErr
-				}),
 				step.Stderr(errb),
 			)...,
 		))

@@ -2,6 +2,9 @@ package networkbuilder
 
 import (
 	"context"
+	"github.com/otiai10/copy"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -10,7 +13,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"github.com/otiai10/copy"
 )
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
@@ -59,19 +61,29 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	if err != nil {
 		return false, err
 	}
-	//defer os.RemoveAll(tmpHome)
+	defer os.RemoveAll(tmpHome)
 	err = copy.Copy(appHome, tmpHome)
 	if err != nil {
 		return false, err
 	}
-	os.Rename(initialGenesisPath(tmpHome), genesisPath(tmpHome))
 
 	// generate the genesis to test
 	if err := generateGenesis(ctx, tmpHome, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
 		return false, err
 	}
 
-	// try to start the chain
+	// run validate-genesis command on the generated genesis
+	err = cmdrunner.New().Run(ctx, step.New(
+		step.Exec(
+			app.D(),
+			"validate-genesis",
+			"--home",
+			tmpHome,
+		),
+	))
+	if err != nil {
+		return false, nil
+	}
 
 	return true, nil
 }

@@ -319,7 +319,12 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, appHome string, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainCmd *chain.Chain) error {
 	// overwrite genesis with initial genesis.
-	if err := os.Rename(initialGenesisPath(appHome), genesisPath(appHome)); err != nil {
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(appHome))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(genesisPath(appHome), initialGenesis, 755)
+	if err != nil {
 		return err
 	}
 
@@ -349,11 +354,20 @@ func generateGenesis(ctx context.Context, appHome string, chainInfo spn.Chain, l
 	// reset gentx directory
 	dir, err := ioutil.ReadDir(filepath.Join(appHome, "config/gentx"))
 	if err != nil {
-		return err
-	}
-	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
+		if strings.Contains(err.Error(), "no such file or directory") {
+			// create the gentx folder if it doesn't exist
+			if err := os.Mkdir(filepath.Join(appHome, "config/gentx"), os.ModePerm); err != nil {
+				return err
+			}
+		} else {
 			return err
+		}
+	} else {
+		// remove all the current gentxs
+		for _, d := range dir {
+			if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
+				return err
+			}
 		}
 	}
 
@@ -365,8 +379,10 @@ func generateGenesis(ctx context.Context, appHome string, chainInfo spn.Chain, l
 			return err
 		}
 	}
-	if err = chainCmd.CollectGentx(ctx, appHome); err != nil {
-		return err
+	if len(launchInfo.GenTxs) > 0 {
+		if err = chainCmd.CollectGentx(ctx, appHome); err != nil {
+			return err
+		}
 	}
 
 	return nil

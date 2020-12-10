@@ -7,6 +7,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/numbers"
 )
 
+const (
+	flagVerbose = "verbose"
+)
+
 func NewNetworkProposalVerify() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "verify [chain-id] [number<,...>]",
@@ -14,6 +18,7 @@ func NewNetworkProposalVerify() *cobra.Command {
 		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
+	c.Flags().Bool(flagVerbose, false, "Show output of verification command in the console")
 	return c
 }
 
@@ -38,6 +43,11 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	s.SetText("Verifying proposals...")
 	s.Start()
+
+	verbose, err := cmd.Flags().GetBool(flagVerbose)
+	if err != nil {
+		return err
+	}
 
 	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids)
 	if err != nil {
