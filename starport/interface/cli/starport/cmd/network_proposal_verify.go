@@ -5,6 +5,8 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
+	"io"
+	"os"
 )
 
 const (
@@ -18,7 +20,7 @@ func NewNetworkProposalVerify() *cobra.Command {
 		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
-	c.Flags().Bool(flagVerbose, false, "Show output of verification command in the console")
+	c.Flags().Bool(flagVerbose, false, "show output of verification command in the console")
 	return c
 }
 
@@ -44,12 +46,19 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	s.SetText("Verifying proposals...")
 	s.Start()
 
+	// Check verbose flag
+	var out io.Writer
 	verbose, err := cmd.Flags().GetBool(flagVerbose)
 	if err != nil {
 		return err
 	}
+	if verbose {
+		out = os.Stdout
+	} else {
+		out = nil
+	}
 
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids)
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)
 	if err != nil {
 		return err
 	}

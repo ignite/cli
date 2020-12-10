@@ -8,6 +8,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
+	"io"
 	"io/ioutil"
 	"net/url"
 	"os"
@@ -17,7 +18,7 @@ import (
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int) (bool, error) {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) (bool, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return false, err
@@ -80,6 +81,8 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			"--home",
 			tmpHome,
 		),
+		step.Stderr(commandOut),	// This is the error of the verifying command, therefore this is the same as stdout
+		step.Stdout(commandOut),
 	))
 	if err != nil {
 		return false, nil
