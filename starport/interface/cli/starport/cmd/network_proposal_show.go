@@ -9,17 +9,18 @@ import (
 	"github.com/spf13/cobra"
 )
 
-func NewNetworkProposalDescribe() *cobra.Command {
+// NewNetworkProposalShow creates a new command to show a proposal in a chain.
+func NewNetworkProposalShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [chain-id] [number]",
 		Short: "Show details of a proposal",
-		RunE:  networkProposalDescribeHandler,
+		RunE:  networkProposalShowHandler,
 		Args:  cobra.ExactArgs(2),
 	}
 	return c
 }
 
-func networkProposalDescribeHandler(cmd *cobra.Command, args []string) error {
+func networkProposalShowHandler(cmd *cobra.Command, args []string) error {
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err

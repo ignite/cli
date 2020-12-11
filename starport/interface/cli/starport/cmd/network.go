@@ -21,6 +21,8 @@ var (
 	spnFaucetAddress string
 )
 
+// NewNetwork creates a new network command that holds some other sub commands
+// related to creating a new network collaboratively.
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "network",

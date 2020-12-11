@@ -20,6 +20,8 @@ const (
 	flagSource  = "source"
 )
 
+// NewNetworkChainCreate creates a new chain create command to create
+// a new network.
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create",

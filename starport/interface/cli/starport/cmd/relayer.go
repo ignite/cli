@@ -8,6 +8,8 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+// NewRelayer creates a new command called chain that holds IBC Relayer related
+// sub commands.
 func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain",
@@ -18,6 +20,7 @@ func NewRelayer() *cobra.Command {
 	return c
 }
 
+// NewRelayerInfo creates a command that shows self chain information.
 func NewRelayerInfo() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "me",
@@ -27,6 +30,7 @@ func NewRelayerInfo() *cobra.Command {
 	return c
 }
 
+// NewRelayerAdd creates a command to connect added chain with relayer.
 func NewRelayerAdd() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "add [another]",
