@@ -27,6 +27,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+)
+
 // Serve serves an app.
 func (s *Chain) Serve(ctx context.Context) error {
 	// initial checks and setup.
@@ -65,6 +70,8 @@ func (s *Chain) Serve(ctx context.Context) error {
 					buildErr *CannotBuildAppError
 				)
 				serveCtx, s.serveCancel = context.WithCancel(ctx)
+
+				// serve the app.
 				err := s.serve(serveCtx)
 				switch {
 				case err == nil:
@@ -131,6 +138,7 @@ func (s *Chain) watchAppBackend(ctx context.Context) error {
 		fswatcher.Workdir(s.app.Path),
 		fswatcher.OnChange(s.refreshServe),
 		fswatcher.IgnoreHidden(),
+		fswatcher.IgnoreExt(ignoredExts...),
 	)
 }
 
