@@ -3,6 +3,7 @@ package app
 // Options ...
 type Options struct {
 	AppName          string
+	OwnerName        string
 	BinaryNamePrefix string
 	ModulePath       string
 	AddressPrefix    string

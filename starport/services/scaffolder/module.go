@@ -50,6 +50,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 			ModuleName: moduleName,
 			ModulePath: path.RawPath,
 			AppName:    path.Package,
+			OwnerName:  owner(path.RawPath),
 		}
 	)
 	if version == cosmosver.Launchpad {

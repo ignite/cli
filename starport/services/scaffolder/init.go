@@ -55,6 +55,7 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	g, err := app.New(s.options.sdkVersion, &app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
+		OwnerName:        owner(pathInfo.RawPath),
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    s.options.addressPrefix,
 	})

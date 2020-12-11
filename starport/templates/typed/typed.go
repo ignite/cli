@@ -32,6 +32,7 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 	ctx.Set("ModuleName", opts.ModuleName)
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("TypeName", opts.TypeName)
+	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("title", strings.Title)

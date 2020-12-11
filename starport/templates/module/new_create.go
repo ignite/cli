@@ -49,6 +49,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
+	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

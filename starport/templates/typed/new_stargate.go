@@ -84,20 +84,19 @@ func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		owner := strings.Join(strings.Split(opts.ModulePath, "/")[1:], "/")
-
 		template := `%[1]v
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v/{id}";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
 	}
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
 `
 		replacement := fmt.Sprintf(template, placeholder2,
 			strings.Title(opts.TypeName),
-			pluralize.NewClient().Plural(opts.TypeName),
-			owner,
+			opts.TypeName,
+			opts.OwnerName,
+			opts.AppName,
 			opts.ModuleName,
 		)
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
