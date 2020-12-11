@@ -128,6 +128,11 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					}
 					defer resp.Body.Close()
 
+					// Send error if the request failed
+					if resp.StatusCode != http.StatusOK {
+						return errors.New(resp.Status)
+					}
+
 					if err := json.NewDecoder(resp.Body).Decode(&txBody); err != nil {
 						return err
 					}

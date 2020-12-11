@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
@@ -87,22 +88,25 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		Add(step.Stderr(buildErr))...,
 	))
 
-	scriptPath := filepath.Join(s.app.Path, "scripts/protocgen")
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"/bin/bash",
-				scriptPath,
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building proto...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
+	// If protocgen exists, compile the proto file
+	protoScriptPath := filepath.Join(s.app.Path, "scripts/protocgen")
+	if _, err := os.Stat(protoScriptPath); !os.IsNotExist(err) {
+		steps.Add(step.New(step.NewOptions().
+			Add(
+				step.Exec(
+					"/bin/bash",
+					protoScriptPath,
+				),
+				step.PreExec(func() error {
+					fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building proto...")
+					return nil
+				}),
+				step.PostExec(captureBuildErr),
+			).
+			Add(s.stdSteps(logStarport)...).
+			Add(step.Stderr(buildErr))...,
+		))
+	}
 
 	steps.Add(step.New(step.NewOptions().
 		Add(
