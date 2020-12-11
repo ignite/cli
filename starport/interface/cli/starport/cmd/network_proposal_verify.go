@@ -6,6 +6,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"io"
+	"io/ioutil"
 	"os"
 )
 
@@ -55,7 +56,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	if debugSet {
 		out = os.Stdout
 	} else {
-		out = nil
+		out = ioutil.Discard
 	}
 
 	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)

@@ -78,7 +78,8 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 
 	// generate the genesis to test
 	if err := generateGenesis(ctx, tmpHome, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
-		return false, err
+		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
+		return false, nil
 	}
 
 	// set the config with random ports to test the start command
@@ -104,12 +105,6 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	// verify that the chain can be started with a valid genesis
 	// run validate-genesis command on the generated genesis
 	errb := &bytes.Buffer{}
-	var stdErr io.Writer
-	if commandOut != nil {
-		stdErr = io.MultiWriter(commandOut, errb)
-	} else {
-		stdErr = errb
-	}
 	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
@@ -128,7 +123,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			// We interpret any other error as if the genesis is broken
 			return exitErr
 		}),
-		step.Stderr(stdErr),
+		step.Stderr(io.MultiWriter(commandOut, errb)),
 		step.Stdout(commandOut),
 	))
 	if err != nil {
