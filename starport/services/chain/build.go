@@ -87,22 +87,22 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		Add(step.Stderr(buildErr))...,
 	))
 
-	scriptPath := filepath.Join(s.app.Path, "scripts/protocgen")
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				"/bin/bash",
-				scriptPath,
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building proto...")
-				return nil
-			}),
-			step.PostExec(captureBuildErr),
-		).
-		Add(s.stdSteps(logStarport)...).
-		Add(step.Stderr(buildErr))...,
-	))
+	//scriptPath := filepath.Join(s.app.Path, "scripts/protocgen")
+	//steps.Add(step.New(step.NewOptions().
+	//	Add(
+	//		step.Exec(
+	//			"/bin/bash",
+	//			scriptPath,
+	//		),
+	//		step.PreExec(func() error {
+	//			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building proto...")
+	//			return nil
+	//		}),
+	//		step.PostExec(captureBuildErr),
+	//	).
+	//	Add(s.stdSteps(logStarport)...).
+	//	Add(step.Stderr(buildErr))...,
+	//))
 
 	steps.Add(step.New(step.NewOptions().
 		Add(
