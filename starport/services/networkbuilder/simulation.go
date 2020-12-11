@@ -1,12 +1,16 @@
 package networkbuilder
 
 import (
+	"fmt"
 	"context"
 	"github.com/otiai10/copy"
+	"github.com/pelletier/go-toml"
+	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain"
 	"io"
 	"io/ioutil"
@@ -73,6 +77,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, err
 	}
 
+	// set the config with random ports to test the start command
+	if err := setSimulationConfig(tmpHome); err != nil {
+		return false, err
+	}
+
 	// run validate-genesis command on the generated genesis
 	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
@@ -88,5 +97,75 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, nil
 	}
 
+	// verify that the chain can be started with a valid genesis
+	// run validate-genesis command on the generated genesis
+	err = cmdrunner.New().Run(ctx, step.New(
+		step.Exec(
+			app.D(),
+			"validate-genesis",
+			"--home",
+			tmpHome,
+		),
+		step.Stderr(commandOut),
+		step.Stdout(commandOut),
+	))
+	if err != nil {
+		return false, nil
+	}
+
 	return true, nil
+}
+
+// setSimulationConfig sets the config for the temporary blockchain with random available port
+func setSimulationConfig(appHome string) error {
+	// generate random server ports and servers list.
+	ports, err := availableport.Find(5)
+	if err != nil {
+		return err
+	}
+	genAddr := func(port int) string {
+		return fmt.Sprintf("localhost:%d", port)
+	}
+
+	// updating app toml
+	appPath := filepath.Join(appHome, "config/app.toml")
+	config, err := toml.LoadFile(appPath)
+	if err != nil {
+		return err
+	}
+	config.Set("api.enable", true)
+	config.Set("api.enabled-unsafe-cors", true)
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("api.address", xurl.TCP(genAddr(ports[0])))
+	config.Set("grpc.address",genAddr(ports[1]))
+	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+	if err != nil {
+		return err
+	}
+
+	// updating config toml
+	configPath := filepath.Join(appHome, "config/config.toml")
+	config, err = toml.LoadFile(configPath)
+	if err != nil {
+		return err
+	}
+	config.Set("rpc.cors_allowed_origins", []string{"*"})
+	config.Set("consensus.timeout_commit", "1s")
+	config.Set("consensus.timeout_propose", "1s")
+	config.Set("rpc.laddr", xurl.TCP(genAddr(ports[2])))
+	config.Set("p2p.laddr", xurl.TCP(genAddr(ports[3])))
+	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
+	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+
+	return err
 }
