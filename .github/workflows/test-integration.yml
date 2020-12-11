@@ -48,8 +48,7 @@ jobs:
 
       - name: Install Starport
         working-directory: ${{ env.working-directory }}
-        run: |
-          go install ./...
+        run: make
 
       - name: Run Integration Tests
         working-directory: ${{ env.working-directory }}
