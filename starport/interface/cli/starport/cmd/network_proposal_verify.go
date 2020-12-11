@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	flagVerbose = "verbose"
+	flagDebug = "debug"
 )
 
 func NewNetworkProposalVerify() *cobra.Command {
@@ -20,7 +20,7 @@ func NewNetworkProposalVerify() *cobra.Command {
 		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
-	c.Flags().Bool(flagVerbose, false, "show output of verification command in the console")
+	c.Flags().Bool(flagDebug, false, "show output of verification command in the console")
 	return c
 }
 
@@ -48,11 +48,11 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	// Check verbose flag
 	var out io.Writer
-	verbose, err := cmd.Flags().GetBool(flagVerbose)
+	debugSet, err := cmd.Flags().GetBool(flagDebug)
 	if err != nil {
 		return err
 	}
-	if verbose {
+	if debugSet {
 		out = os.Stdout
 	} else {
 		out = nil
