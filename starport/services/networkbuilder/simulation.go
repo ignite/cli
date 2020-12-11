@@ -1,6 +1,7 @@
 package networkbuilder
 
 import (
+	"bytes"
 	"fmt"
 	"context"
 	"github.com/otiai10/copy"
@@ -18,7 +19,10 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"strings"
 )
+
+const ErrValidatorSetNil = "validator set is nil in genesis and still empty after InitChain"
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
@@ -99,14 +103,32 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 
 	// verify that the chain can be started with a valid genesis
 	// run validate-genesis command on the generated genesis
+	errb := &bytes.Buffer{}
+	var stdErr io.Writer
+	if commandOut != nil {
+		stdErr = io.MultiWriter(commandOut, errb)
+	} else {
+		stdErr = errb
+	}
 	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
-			"validate-genesis",
+			"start",
 			"--home",
 			tmpHome,
 		),
-		step.Stderr(commandOut),
+		step.PostExec(func (exitErr error) error {
+			// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
+			// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
+			// after the execution of gentxs
+			if strings.Contains(errb.String(), ErrValidatorSetNil) {
+				return nil
+			}
+
+			// We interpret any other error as if the genesis is broken
+			return exitErr
+		}),
+		step.Stderr(stdErr),
 		step.Stdout(commandOut),
 	))
 	if err != nil {
