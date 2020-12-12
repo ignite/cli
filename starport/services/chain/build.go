@@ -10,8 +10,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
@@ -79,7 +81,7 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				"tidy",
 			),
 			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
+				fmt.Fprintln(s.stdLog(logStarport).out, "📦 Installing dependencies...")
 				return nil
 			}),
 			step.PostExec(captureBuildErr),
@@ -87,26 +89,6 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		Add(s.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
-
-	// If protocgen exists, compile the proto file
-	protoScriptPath := filepath.Join(s.app.Path, "scripts/protocgen")
-	if _, err := os.Stat(protoScriptPath); !os.IsNotExist(err) {
-		steps.Add(step.New(step.NewOptions().
-			Add(
-				step.Exec(
-					"/bin/bash",
-					protoScriptPath,
-				),
-				step.PreExec(func() error {
-					fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building proto...")
-					return nil
-				}),
-				step.PostExec(captureBuildErr),
-			).
-			Add(s.stdSteps(logStarport)...).
-			Add(step.Stderr(buildErr))...,
-		))
-	}
 
 	steps.Add(step.New(step.NewOptions().
 		Add(
@@ -145,4 +127,42 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		))
 	}
 	return steps, nil
+}
+
+func (c *Chain) buildProto(ctx context.Context) error {
+	// If protocgen exists, compile the proto file
+	protoScriptPath := "scripts/protocgen"
+
+	if _, err := os.Stat(protoScriptPath); os.IsNotExist(err) {
+		return nil
+	}
+
+	if err := cosmosprotoc.InstallDependencies(context.Background(), c.app.Path); err != nil {
+		if err == cosmosprotoc.ErrProtocNotInstalled {
+			return starporterrors.ErrStarportRequiresProtoc
+		}
+		return err
+	}
+
+	var errb bytes.Buffer
+
+	err := cmdrunner.
+		New(c.cmdOptions()...).
+		Run(ctx, step.New(
+			step.Exec(
+				"/bin/bash",
+				protoScriptPath,
+			),
+			step.PreExec(func() error {
+				fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
+				return nil
+			}),
+			step.Stderr(&errb),
+		))
+
+	if err := errors.Wrap(err, errb.String()); err != nil {
+		return &CannotBuildAppError{err}
+	}
+
+	return nil
 }
