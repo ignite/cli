@@ -98,7 +98,7 @@ func (s *Chain) Serve(ctx context.Context) error {
 }
 
 func (s *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(s.plugin.Name()))
 
 	if err := s.checkSystem(); err != nil {
 		return err
@@ -155,6 +155,10 @@ func (s *Chain) serve(ctx context.Context) error {
 	}
 	sconf, err := secretconf.Open(s.app.Path)
 	if err != nil {
+		return err
+	}
+
+	if err := s.buildProto(ctx); err != nil {
 		return err
 	}
 
