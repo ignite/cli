@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewNetworkAccountUse creates a new account use command to pick a
+// default account to access SPN.
 func NewNetworkAccountUse() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "use",

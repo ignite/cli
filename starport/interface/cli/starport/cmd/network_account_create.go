@@ -6,6 +6,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewNetworkAccountCreate creates a new account create command to create
+// an account to be used in SPN.
 func NewNetworkAccountCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name]",

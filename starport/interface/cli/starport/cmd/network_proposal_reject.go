@@ -12,6 +12,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
 
+// NewNetworkProposalReject creates a new reject approve command to reject proposals
+// for a chain.
 func NewNetworkProposalReject() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "reject [chain-id] [number<,...>]",

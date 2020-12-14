@@ -8,6 +8,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewNetworkChainShow creates a new chain show command to show
+// a chain on SPN.
 func NewNetworkChainShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [chain-id]",

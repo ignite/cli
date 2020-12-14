@@ -2,12 +2,15 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/olekukonko/tablewriter"
 	"os"
+
+	"github.com/olekukonko/tablewriter"
 
 	"github.com/spf13/cobra"
 )
 
+// NewNetworkChainList creates a new chain list command to list
+// chains on SPN.
 func NewNetworkChainList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
