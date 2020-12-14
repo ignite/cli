@@ -20,6 +20,7 @@ var (
 	starportAnonIdentity = "anon"
 )
 
+// Metric represents an analytics metric.
 type Metric struct {
 	// IsInstallation sets metrics type as an installation metric.
 	IsInstallation bool

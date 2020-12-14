@@ -22,6 +22,8 @@ var (
 		"app",
 		"cmd",
 		"x",
+		"proto",
+		"third_party",
 		secretconf.SecretFile,
 	}, conf.FileNames...)
 

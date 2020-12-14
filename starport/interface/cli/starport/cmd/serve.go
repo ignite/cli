@@ -8,6 +8,7 @@ import (
 
 var appPath string
 
+// NewServe creates a new serve command to serve a blockchain.
 func NewServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",

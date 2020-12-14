@@ -7,6 +7,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewNetworkAccountImport creates a new account import command to import
+// an SPN account.
 func NewNetworkAccountImport() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "import [name] [password] [path-to-private-key]",

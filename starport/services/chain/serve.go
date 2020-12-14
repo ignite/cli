@@ -27,6 +27,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+)
+
 // Serve serves an app.
 func (s *Chain) Serve(ctx context.Context) error {
 	// initial checks and setup.
@@ -65,6 +70,8 @@ func (s *Chain) Serve(ctx context.Context) error {
 					buildErr *CannotBuildAppError
 				)
 				serveCtx, s.serveCancel = context.WithCancel(ctx)
+
+				// serve the app.
 				err := s.serve(serveCtx)
 				switch {
 				case err == nil:
@@ -91,7 +98,7 @@ func (s *Chain) Serve(ctx context.Context) error {
 }
 
 func (s *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(s.plugin.Name()))
 
 	if err := s.checkSystem(); err != nil {
 		return err
@@ -131,6 +138,7 @@ func (s *Chain) watchAppBackend(ctx context.Context) error {
 		fswatcher.Workdir(s.app.Path),
 		fswatcher.OnChange(s.refreshServe),
 		fswatcher.IgnoreHidden(),
+		fswatcher.IgnoreExt(ignoredExts...),
 	)
 }
 
@@ -147,6 +155,10 @@ func (s *Chain) serve(ctx context.Context) error {
 	}
 	sconf, err := secretconf.Open(s.app.Path)
 	if err != nil {
+		return err
+	}
+
+	if err := s.buildProto(ctx); err != nil {
 		return err
 	}
 

@@ -99,6 +99,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			AppName:    path.Package,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
+			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
 			Fields:     tfields,
 		}

@@ -18,6 +18,8 @@ import (
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
+// NewNetworkChainJoin creates a new chain join command to join
+// to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "join [chain-id]",

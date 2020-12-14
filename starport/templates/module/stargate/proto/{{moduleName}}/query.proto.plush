@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= appName %>.<%= moduleName %>;
+package <%= ownerName %>.<%= appName %>.<%= moduleName %>;
 
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
