@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= appName %>.<%= moduleName %>;
+package <%= ownerName %>.<%= appName %>.<%= moduleName %>;
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
