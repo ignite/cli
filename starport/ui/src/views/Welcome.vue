@@ -178,7 +178,7 @@ const articles = [
     tagline: 'tutorial',
     title: 'Build a Polling App',
     blurb: 'Build a voting application with a web-based UI.',
-    link: 'https://tutorials.cosmos.network/voter/'
+    link: 'https://tutorials.cosmos.network/blog/tutorial/01-index.html'
   },
   {
     tagline: 'documentation',
@@ -190,7 +190,7 @@ const articles = [
     tagline: 'tutorial',
     title: 'Build a Blog',
     blurb: 'Learn how Starport works by building a blog.',
-    link: 'https://tutorials.cosmos.network/blog/tutorial/01-index.html'
+    link: 'https://tutorials.cosmos.network/starport-blog/tutorial/01-index.html'
   },
 ]
 
