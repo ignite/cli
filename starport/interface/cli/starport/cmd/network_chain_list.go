@@ -8,6 +8,8 @@ import (
 
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/ctxreader"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"golang.org/x/sync/errgroup"
@@ -26,6 +28,9 @@ func NewNetworkChainList() *cobra.Command {
 }
 
 func networkChainListHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New()
+	defer s.Stop()
+
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err
@@ -34,11 +39,15 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	var pageKey []byte
 
 	for {
+		s.SetText("Querying chains...")
+		s.Start()
+
 		chainSummaries, nextPageKey, err := listChainSummaries(nb, cmd.Context(), pageKey)
 		if err != nil {
 			return err
 		}
 
+		s.Stop()
 		renderChainSummaries(chainSummaries)
 
 		// check if there is a next page, if so ask to load more result.
@@ -49,7 +58,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		}
 
 		fmt.Printf("\nPress <Enter> to show more blockchains.\n")
-		buf := bufio.NewReader(os.Stdin)
+		buf := bufio.NewReader(ctxreader.New(cmd.Context(), os.Stdin))
 		if _, err := buf.ReadBytes('\n'); err != nil {
 			return err
 		}
