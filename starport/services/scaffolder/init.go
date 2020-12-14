@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 	"time"
@@ -10,11 +9,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -76,37 +76,18 @@ func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) erro
 	if err := os.Chmod(scriptPath, 0700); err != nil {
 		return err
 	}
+	if err := cosmosprotoc.InstallDependencies(context.Background(), absRoot); err != nil {
+		if err == cosmosprotoc.ErrProtocNotInstalled {
+			return errors.ErrStarportRequiresProtoc
+		}
+		return err
+	}
 	return cmdrunner.
 		New(
 			cmdrunner.DefaultStderr(os.Stderr),
 			cmdrunner.DefaultWorkdir(absRoot),
 		).
 		Run(context.Background(),
-			// installs the gocosmos plugin with the version specified under the
-			// go.mod of the app.
-			step.New(
-				step.Exec(
-					"go",
-					"get",
-					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
-				),
-				step.PreExec(func() error {
-					if !xexec.IsCommandAvailable("protoc") {
-						return errors.New("Starport requires protoc installed.\nPlease, follow instructions on https://grpc.io/docs/protoc-installation")
-					}
-					return nil
-				}),
-			),
-			// install grpc-gateway.
-			step.New(
-				step.Exec(
-					"go",
-					"install",
-					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
-					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
-					"github.com/golang/protobuf/protoc-gen-go",
-				),
-			),
 			// generate pb files.
 			step.New(
 				step.Exec(

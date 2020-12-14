@@ -3,9 +3,10 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"os"
+
 	"github.com/olekukonko/tablewriter"
 	"github.com/tendermint/starport/starport/pkg/spn"
-	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -13,7 +14,8 @@ import (
 const statusFlag = "status"
 const typeFlag = "type"
 
-
+// NewNetworkProposalList creates a new proposal list command to list
+// proposals for a chain by filtering options.
 func NewNetworkProposalList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [chain-id]",

@@ -12,6 +12,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/spn"
 )
 
+// NewNetworkProposalApprove creates a new proposal approve command to approve proposals
+// for a chain.
 func NewNetworkProposalApprove() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "approve [chain-id] [number<,...>]",

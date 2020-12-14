@@ -7,6 +7,7 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+// NewModuleImport creates a new command to import an sdk module.
 func NewModuleImport() *cobra.Command {
 	c := &cobra.Command{
 		Use:       "import [feature]",

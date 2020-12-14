@@ -6,6 +6,7 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+// NewBuild returns a new build command to build a blockchain app.
 func NewBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
