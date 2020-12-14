@@ -361,7 +361,7 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 		}
 		fields := []string{` ['creator', '1', 'string'] `}
 		for id, field := range opts.Fields {
-			fields = append(fields, fmt.Sprintf(` ['%s', '%d', '%s'] `, field.Name, id+2, field.Datatype))
+			fields = append(fields, fmt.Sprintf(` ['%s', %d, '%s'] `, field.Name, id+2, field.Datatype))
 		}
 		replacement := fmt.Sprintf(`%[1]v
 		<sp-type-form path="%[2]v.%[3]v.%[4]v" type="%[5]v" :fields="[%[6]v]" />`,
