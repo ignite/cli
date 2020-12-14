@@ -94,46 +94,48 @@ func renderChainSummaries(chainSummaries []ChainSummary) {
 func listChainSummaries(nb *networkbuilder.Builder, ctx context.Context, pageKey []byte) (summaries []ChainSummary,
 	nextPageKey []byte, err error) {
 	var chains []spn.Chain
-	chains, nextPageKey, err = nb.ChainList(ctx, spn.PaginateChainListing(pageKey, 10))
+	chains, nextPageKey, err = nb.ChainList(ctx, spn.PaginateChainListing(pageKey, 40))
 	if err != nil {
 		return nil, nil, err
 	}
 
 	summaries = make([]ChainSummary, len(chains))
 
+	// fetchAndSetSummary creates a summary for chain and sets it to i index in summaries.
+	fetchAndSetSummary := func(i int, chain spn.Chain) error {
+		proposals, err := nb.ProposalList(ctx, chain.ChainID)
+		if err != nil {
+			return err
+		}
+
+		summary := ChainSummary{
+			ChainID:        chain.ChainID,
+			Source:         chain.URL,
+			TotalProposals: len(proposals),
+		}
+
+		for _, proposal := range proposals {
+			if proposal.Status == spn.ProposalStatusApproved {
+				summary.ApprovedProposals++
+			}
+			if proposal.Validator != nil {
+				summary.TotalValidators++
+				if proposal.Status == spn.ProposalStatusApproved {
+					summary.ApprovedValidators++
+				}
+			}
+		}
+
+		summaries[i] = summary
+		return nil
+	}
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	for i, chain := range chains {
 		i, chain := i, chain
 
-		g.Go(func() error {
-			proposals, err := nb.ProposalList(ctx, chain.ChainID)
-			if err != nil {
-				return err
-			}
-
-			summary := ChainSummary{
-				ChainID:        chain.ChainID,
-				Source:         chain.URL,
-				TotalProposals: len(proposals),
-			}
-
-			for _, proposal := range proposals {
-				if proposal.Status == spn.ProposalStatusApproved {
-					summary.ApprovedProposals++
-				}
-				if proposal.Validator != nil {
-					summary.TotalValidators++
-					if proposal.Status == spn.ProposalStatusApproved {
-						summary.ApprovedValidators++
-					}
-				}
-			}
-
-			summaries[i] = summary
-
-			return nil
-		})
+		g.Go(func() error { return fetchAndSetSummary(i, chain) })
 	}
 
 	return summaries, nextPageKey, g.Wait()
