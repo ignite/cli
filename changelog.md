@@ -8,6 +8,7 @@
 - Modify scaffolded type's creator type from address to string
 - Copy built starport arm64 binary from endermintdevelopment/starport:arm64 for device images
 - Added git to amd64 docker image
+- Comment out Gaia's seeds in the systemd unit template for downstream chains
 
 ### Features:
 
