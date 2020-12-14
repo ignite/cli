@@ -2,8 +2,10 @@ package networkbuilder
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"context"
+	"github.com/cenkalti/backoff"
 	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
 	"github.com/tendermint/starport/starport/pkg/availableport"
@@ -11,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain"
 	"io"
@@ -20,6 +23,7 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+	"time"
 )
 
 const ErrValidatorSetNil = "validator set is nil in genesis and still empty after InitChain"
@@ -83,7 +87,8 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// set the config with random ports to test the start command
-	if err := setSimulationConfig(tmpHome); err != nil {
+	addressAPI, err := setSimulationConfig(tmpHome)
+	if err != nil {
 		return false, err
 	}
 
@@ -104,28 +109,42 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 
 	// verify that the chain can be started with a valid genesis
 	// run validate-genesis command on the generated genesis
-	errb := &bytes.Buffer{}
-	err = cmdrunner.New().Run(ctx, step.New(
-		step.Exec(
-			app.D(),
-			"start",
-			"--home",
-			tmpHome,
-		),
-		step.PostExec(func (exitErr error) error {
-			// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
-			// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
-			// after the execution of gentxs
-			if strings.Contains(errb.String(), ErrValidatorSetNil) {
-				return nil
-			}
+	ctx, cancel := context.WithTimeout(ctx, time.Minute * 1)
+	exit := make(chan error)
 
-			// We interpret any other error as if the genesis is broken
-			return exitErr
-		}),
-		step.Stderr(io.MultiWriter(commandOut, errb)),
-		step.Stdout(commandOut),
-	))
+	// Go routine to check the app is listening
+	go func() {
+		defer cancel()
+		exit <- isBlockchainListening(ctx, addressAPI)
+	}()
+
+	// Go routine to start the app
+	go func() {
+		errBytes := &bytes.Buffer{}
+		exit <- cmdrunner.New().Run(ctx, step.New(
+			step.Exec(
+				app.D(),
+				"start",
+				"--home",
+				tmpHome,
+			),
+			step.PostExec(func(exitErr error) error {
+				// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
+				// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
+				// after the execution of gentxs
+				if strings.Contains(errBytes.String(), ErrValidatorSetNil) {
+					return nil
+				}
+
+				// We interpret any other error as if the genesis is broken
+				return exitErr
+			}),
+			step.Stderr(io.MultiWriter(commandOut, errBytes)),
+			step.Stdout(commandOut),
+		))
+	}()
+
+	err = <-exit
 	if err != nil {
 		return false, nil
 	}
@@ -134,11 +153,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 }
 
 // setSimulationConfig sets the config for the temporary blockchain with random available port
-func setSimulationConfig(appHome string) error {
+func setSimulationConfig(appHome string) (string, error) {
 	// generate random server ports and servers list.
 	ports, err := availableport.Find(5)
 	if err != nil {
-		return err
+		return "", err
 	}
 	genAddr := func(port int) string {
 		return fmt.Sprintf("localhost:%d", port)
@@ -148,7 +167,7 @@ func setSimulationConfig(appHome string) error {
 	appPath := filepath.Join(appHome, "config/app.toml")
 	config, err := toml.LoadFile(appPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
@@ -157,19 +176,19 @@ func setSimulationConfig(appHome string) error {
 	config.Set("grpc.address",genAddr(ports[1]))
 	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 	_, err = config.WriteTo(file)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	// updating config toml
 	configPath := filepath.Join(appHome, "config/config.toml")
 	config, err = toml.LoadFile(configPath)
 	if err != nil {
-		return err
+		return "", err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
@@ -179,10 +198,22 @@ func setSimulationConfig(appHome string) error {
 	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
 	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
-		return err
+		return "", err
 	}
 	defer file.Close()
 	_, err = config.WriteTo(file)
 
-	return err
+	return genAddr(ports[0]), err
+}
+
+// isBlockchainListening checks if the blockchain is listening for API queries on the specified address
+func isBlockchainListening(ctx context.Context, addressAPI string) error {
+	checkAlive := func() error {
+		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(addressAPI)+"/node_info")
+		if err == nil && !ok {
+			err = errors.New("app is not online")
+		}
+		return err
+	}
+	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
