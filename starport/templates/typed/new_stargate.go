@@ -359,7 +359,7 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		fields := []string{` ['creator', '1', 'string'] `}
+		fields := []string{` ['creator', 1, 'string'] `}
 		for id, field := range opts.Fields {
 			fields = append(fields, fmt.Sprintf(` ['%s', %d, '%s'] `, field.Name, id+2, field.Datatype))
 		}
