@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
@@ -31,7 +32,19 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, debug bool) (bool, error) {
+	// Logging functions
+	logOngoingCommand := func (s string) {
+		if debug {
+			b.ev.Send(events.New(events.StatusOngoing, s))
+		}
+	}
+	logFinishedCommand := func (s string) {
+		if debug {
+			b.ev.Send(events.New(events.StatusDone, s))
+		}
+	}
+
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return false, err
@@ -77,10 +90,12 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// generate the genesis to test
+	logOngoingCommand("generating genesis")
 	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
-		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
+		logFinishedCommand(fmt.Sprintf("error generating the genesis: %s\n", err.Error()))
 		return false, nil
 	}
+	logFinishedCommand("genesis generated")
 
 	// set the config with random ports to test the start command
 	addressAPI, err := setSimulationConfig(tmpHome)
@@ -89,7 +104,9 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// run validate-genesis command on the generated genesis
-	if err := cmdrunner.New().Run(ctx, step.New(
+	logOngoingCommand("validating genesis")
+	commandOut := &bytes.Buffer{}
+	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
 			"validate-genesis",
@@ -98,7 +115,9 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		),
 		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
-	)); err != nil {
+	))
+	logFinishedCommand(commandOut.String())
+	if err != nil {
 		return false, nil
 	}
 
@@ -113,9 +132,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	})
 
 	// Go routine to start the app
+	logOngoingCommand("starting genesis")
 	group.Go(func() error {
 		errBytes := &bytes.Buffer{}
-		return cmdrunner.New().Run(ctx, step.New(
+		commandOut := &bytes.Buffer{}
+		err := cmdrunner.New().Run(ctx, step.New(
 			step.Exec(
 				app.D(),
 				"start",
@@ -136,6 +157,9 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			step.Stderr(io.MultiWriter(commandOut, errBytes)),
 			step.Stdout(commandOut),
 		))
+		logFinishedCommand(commandOut.String())
+
+		return err
 	})
 
 	if err := group.Wait(); err != nil {
