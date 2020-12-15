@@ -34,12 +34,12 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 // The function returns false if the generated genesis is invalid
 func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, debug bool) (bool, error) {
 	// Logging functions
-	logOngoingCommand := func (s string) {
+	logOngoingCommand := func(s string) {
 		if debug {
 			b.ev.Send(events.New(events.StatusOngoing, s))
 		}
 	}
-	logFinishedCommand := func (s string) {
+	logFinishedCommand := func(s string) {
 		if debug {
 			b.ev.Send(events.New(events.StatusDone, s))
 		}
@@ -57,7 +57,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// create a temporary dir that holds the genesis to test
-	tmpHome, err := ioutil.TempDir("",chainID + "*")
+	tmpHome, err := ioutil.TempDir("", chainID+"*")
 	if err != nil {
 		return false, err
 	}
@@ -74,9 +74,9 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, err
 	}
 	app := chain.App{
-		ChainID: chainID,
-		Name:    path.Root,
-		Version: cosmosver.Stargate,
+		ChainID:  chainID,
+		Name:     path.Root,
+		Version:  cosmosver.Stargate,
 		HomePath: tmpHome,
 	}
 	chainCmd, err := chain.New(app, true, chain.LogSilent)

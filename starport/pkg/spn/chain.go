@@ -2,13 +2,10 @@ package spn
 
 import (
 	"context"
-	"time"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
-	"golang.org/x/sync/errgroup"
-	"sync"
 	"time"
 )
 
