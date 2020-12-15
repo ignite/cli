@@ -104,33 +104,33 @@ func (c *Chain) Init(ctx context.Context) error {
 	return cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...)
 }
 
-func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.Steps, err error) {
-	if err := s.checkIBCRelayerSupport(); err == nil {
+func (c *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.Steps, err error) {
+	if err := c.checkIBCRelayerSupport(); err == nil {
 		steps.Add(step.New(
 			step.PreExec(func() error {
 				if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
 					return err
 				}
-				info, err := s.RelayerInfo()
+				info, err := c.RelayerInfo()
 				if err != nil {
 					return err
 				}
-				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
+				fmt.Fprintf(c.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
 				return nil
 			}),
 		))
 	}
 
-	chainID, err := s.ID()
+	chainID, err := c.ID()
 	if err != nil {
 		return nil, err
 	}
 
-	for _, execOption := range s.plugin.ConfigCommands(chainID) {
+	for _, execOption := range c.plugin.ConfigCommands(chainID) {
 		execOption := execOption
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption).
-			Add(s.stdSteps(logAppcli)...)...,
+			Add(c.stdSteps(logAppcli)...)...,
 		))
 	}
 
@@ -139,7 +139,7 @@ func (s *Chain) setupSteps(ctx context.Context, conf conf.Config) (steps step.St
 
 // CreateAccount creates an account on chain.
 // cmnemonic is returned when account is created but not restored.
-func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSilent bool) (Account, error) {
+func (c *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSilent bool) (Account, error) {
 	acc := Account{
 		Name: name,
 	}
@@ -150,7 +150,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 		steps.Add(
 			step.New(
 				step.NewOptions().
-					Add(s.plugin.ImportUserCommand(name, mnemonic)...)...,
+					Add(c.plugin.ImportUserCommand(name, mnemonic)...)...,
 			),
 		)
 	} else {
@@ -158,7 +158,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 		steps.Add(
 			step.New(
 				step.NewOptions().
-					Add(s.plugin.AddUserCommand(name)...).
+					Add(c.plugin.AddUserCommand(name)...).
 					Add(
 						step.PostExec(func(exitErr error) error {
 							if exitErr != nil {
@@ -168,12 +168,12 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 								return errors.Wrap(err, "cannot decode mnemonic")
 							}
 							if !isSilent {
-								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
+								fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
 							}
 							return nil
 						}),
 					).
-					Add(s.stdSteps(logAppcli)...).
+					Add(c.stdSteps(logAppcli)...).
 					// Stargate pipes from stdout, Launchpad pipes from stderr.
 					Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
 			),
@@ -185,7 +185,7 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 	steps.Add(
 		step.New(step.NewOptions().
 			Add(
-				s.plugin.ShowAccountCommand(name),
+				c.plugin.ShowAccountCommand(name),
 				step.PostExec(func(err error) error {
 					if err != nil {
 						return err
@@ -194,12 +194,12 @@ func (s *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 					return nil
 				}),
 			).
-			Add(s.stdSteps(logAppcli)...).
+			Add(c.stdSteps(logAppcli)...).
 			Add(step.Stdout(key))...,
 		),
 	)
 
-	if err := cmdrunner.New(s.cmdOptions()...).Run(ctx, steps...); err != nil {
+	if err := cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...); err != nil {
 		return Account{}, err
 	}
 

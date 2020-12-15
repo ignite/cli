@@ -18,32 +18,32 @@ import (
 )
 
 // Build builds an app.
-func (s *Chain) Build(ctx context.Context) error {
-	if err := s.setup(ctx); err != nil {
+func (c *Chain) Build(ctx context.Context) error {
+	if err := c.setup(ctx); err != nil {
 		return err
 	}
-	conf, err := s.Config()
+	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 
-	steps, err := s.buildSteps(ctx, conf)
+	steps, err := c.buildSteps(ctx, conf)
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, steps...); err != nil {
 		return err
 	}
 
-	fmt.Fprintf(s.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(s.plugin.Binaries(), ", ")))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(c.plugin.Binaries(), ", ")))
 	return nil
 }
 
-func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
+func (c *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 	steps step.Steps, err error) {
-	chainID, err := s.ID()
+	chainID, err := c.ID()
 	if err != nil {
 		return nil, err
 	}
@@ -54,12 +54,12 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 -X github.com/cosmos/cosmos-sdk/version.Version=%s
 -X github.com/cosmos/cosmos-sdk/version.Commit=%s
 -X %s/cmd/%s/cmd.ChainID=%s`,
-		s.app.Name,
-		s.app.Name,
-		s.version.tag,
-		s.version.hash,
-		s.app.ImportPath,
-		s.app.D(),
+		c.app.Name,
+		c.app.Name,
+		c.version.tag,
+		c.version.hash,
+		c.app.ImportPath,
+		c.app.D(),
 		chainID,
 	)
 	var (
@@ -81,12 +81,12 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				"tidy",
 			),
 			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "📦 Installing dependencies...")
+				fmt.Fprintln(c.stdLog(logStarport).out, "📦 Installing dependencies...")
 				return nil
 			}),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.stdSteps(logStarport)...).
+		Add(c.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
 
@@ -99,19 +99,19 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 			),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.stdSteps(logBuild)...).
+		Add(c.stdSteps(logBuild)...).
 		Add(step.Stderr(buildErr))...,
 	))
 
 	// install the app.
 	steps.Add(step.New(
 		step.PreExec(func() error {
-			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
+			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the app...")
 			return nil
 		}),
 	))
 
-	for _, binary := range s.plugin.Binaries() {
+	for _, binary := range c.plugin.Binaries() {
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				// ldflags somehow won't work if directly execute go binary.
@@ -119,10 +119,10 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				step.Exec(
 					"bash", "-c", fmt.Sprintf("go install -mod readonly -ldflags '%s'", ldflags),
 				),
-				step.Workdir(filepath.Join(s.app.Path, "cmd", binary)),
+				step.Workdir(filepath.Join(c.app.Path, "cmd", binary)),
 				step.PostExec(captureBuildErr),
 			).
-			Add(s.stdSteps(logStarport)...).
+			Add(c.stdSteps(logStarport)...).
 			Add(step.Stderr(buildErr))...,
 		))
 	}

@@ -33,15 +33,15 @@ var (
 )
 
 // Serve serves an app.
-func (s *Chain) Serve(ctx context.Context) error {
+func (c *Chain) Serve(ctx context.Context) error {
 	// initial checks and setup.
-	if err := s.setup(ctx); err != nil {
+	if err := c.setup(ctx); err != nil {
 		return err
 	}
 	// initialize the relayer if application supports it so, secret.yml
 	// can be generated and watched for changes.
-	if err := s.checkIBCRelayerSupport(); err == nil {
-		if _, err := s.RelayerInfo(); err != nil {
+	if err := c.checkIBCRelayerSupport(); err == nil {
+		if _, err := c.RelayerInfo(); err != nil {
 			return err
 		}
 	}
@@ -49,13 +49,13 @@ func (s *Chain) Serve(ctx context.Context) error {
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
+		return c.watchAppFrontend(ctx)
 	})
 	g.Go(func() error {
-		return s.runDevServer(ctx)
+		return c.runDevServer(ctx)
 	})
 	g.Go(func() error {
-		s.refreshServe()
+		c.refreshServe()
 		for {
 			if ctx.Err() != nil {
 				return ctx.Err()
@@ -64,27 +64,27 @@ func (s *Chain) Serve(ctx context.Context) error {
 			case <-ctx.Done():
 				return ctx.Err()
 
-			case <-s.serveRefresher:
+			case <-c.serveRefresher:
 				var (
 					serveCtx context.Context
 					buildErr *CannotBuildAppError
 				)
-				serveCtx, s.serveCancel = context.WithCancel(ctx)
+				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
 				// serve the app.
-				err := s.serve(serveCtx)
+				err := c.serve(serveCtx)
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
 
 					var validationErr *conf.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+						fmt.Fprintln(c.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
 					}
 
-					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
 				}
@@ -92,18 +92,18 @@ func (s *Chain) Serve(ctx context.Context) error {
 		}
 	})
 	g.Go(func() error {
-		return s.watchAppBackend(ctx)
+		return c.watchAppBackend(ctx)
 	})
 	return g.Wait()
 }
 
-func (s *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(s.plugin.Name()))
+func (c *Chain) setup(ctx context.Context) error {
+	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(c.plugin.Name()))
 
-	if err := s.checkSystem(); err != nil {
+	if err := c.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.plugin.Setup(ctx); err != nil {
+	if err := c.plugin.Setup(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -111,7 +111,7 @@ func (s *Chain) setup(ctx context.Context) error {
 
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *Chain) checkSystem() error {
+func (c *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
@@ -124,95 +124,95 @@ func (s *Chain) checkSystem() error {
 	return nil
 }
 
-func (s *Chain) refreshServe() {
-	if s.serveCancel != nil {
-		s.serveCancel()
+func (c *Chain) refreshServe() {
+	if c.serveCancel != nil {
+		c.serveCancel()
 	}
-	s.serveRefresher <- struct{}{}
+	c.serveRefresher <- struct{}{}
 }
 
-func (s *Chain) watchAppBackend(ctx context.Context) error {
+func (c *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
-		fswatcher.Workdir(s.app.Path),
-		fswatcher.OnChange(s.refreshServe),
+		fswatcher.Workdir(c.app.Path),
+		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
 		fswatcher.IgnoreExt(ignoredExts...),
 	)
 }
 
-func (s *Chain) cmdOptions() []cmdrunner.Option {
+func (c *Chain) cmdOptions() []cmdrunner.Option {
 	return []cmdrunner.Option{
-		cmdrunner.DefaultWorkdir(s.app.Path),
+		cmdrunner.DefaultWorkdir(c.app.Path),
 	}
 }
 
-func (s *Chain) serve(ctx context.Context) error {
-	conf, err := s.Config()
+func (c *Chain) serve(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
-	sconf, err := secretconf.Open(s.app.Path)
+	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return err
 	}
 
-	if err := s.buildProto(ctx); err != nil {
+	if err := c.buildProto(ctx); err != nil {
 		return err
 	}
 
-	buildSteps, err := s.buildSteps(ctx, conf)
+	buildSteps, err := c.buildSteps(ctx, conf)
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, buildSteps...); err != nil {
 		return err
 	}
 
-	if err := s.Init(ctx); err != nil {
+	if err := c.Init(ctx); err != nil {
 		return err
 	}
 
 	for _, account := range conf.Accounts {
-		acc, err := s.CreateAccount(ctx, account.Name, "", false)
+		acc, err := c.CreateAccount(ctx, account.Name, "", false)
 		if err != nil {
 			return err
 		}
 		acc.Coins = strings.Join(account.Coins, ",")
-		if err := s.AddGenesisAccount(ctx, acc); err != nil {
+		if err := c.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}
 	for _, account := range sconf.Accounts {
-		acc, err := s.CreateAccount(ctx, account.Name, account.Mnemonic, false)
+		acc, err := c.CreateAccount(ctx, account.Name, account.Mnemonic, false)
 		if err != nil {
 			return err
 		}
 		acc.Coins = strings.Join(account.Coins, ",")
-		if err := s.AddGenesisAccount(ctx, acc); err != nil {
+		if err := c.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}
 
-	setupSteps, err := s.setupSteps(ctx, conf)
+	setupSteps, err := c.setupSteps(ctx, conf)
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, setupSteps...); err != nil {
 		return err
 	}
-	if _, err := s.Gentx(ctx, Validator{
+	if _, err := c.Gentx(ctx, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
 		return err
 	}
-	if err := s.CollectGentx(ctx); err != nil {
+	if err := c.CollectGentx(ctx); err != nil {
 		return err
 	}
 
@@ -221,28 +221,28 @@ func (s *Chain) serve(ctx context.Context) error {
 
 	go func() {
 		wr.Wait()
-		if err := s.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
-			fmt.Fprintf(s.stdLog(logStarport).err, "could not init relayer: %s", err)
+		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
 
 	return cmdrunner.
-		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps(ctx, &wr, conf)...)
+		New(append(c.cmdOptions(), cmdrunner.RunParallel())...).
+		Run(ctx, c.serverSteps(ctx, &wr, conf)...)
 }
 
-func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
+func (c *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(len(s.plugin.StartCommands(conf)))
+	wg.Add(len(c.plugin.StartCommands(conf)))
 	go func() {
 		wg.Wait()
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 		wr.Done()
 	}()
 
-	for _, exec := range s.plugin.StartCommands(conf) {
+	for _, exec := range c.plugin.StartCommands(conf) {
 		steps.Add(
 			step.New(
 				step.NewOptions().
@@ -253,7 +253,7 @@ func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.C
 							return nil
 						}),
 					).
-					Add(s.stdSteps(logAppd)...)...,
+					Add(c.stdSteps(logAppd)...)...,
 			),
 		)
 	}
@@ -261,12 +261,12 @@ func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.C
 	return
 }
 
-func (s *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := s.Config()
+func (c *Chain) watchAppFrontend(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
-	vueFullPath := filepath.Join(s.app.Path, vuePath)
+	vueFullPath := filepath.Join(c.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
 	}
@@ -274,7 +274,7 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 	postExec := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
-			fmt.Fprintf(s.stdLog(logStarport).err, "%s\n%s",
+			fmt.Fprintf(c.stdLog(logStarport).err, "%s\n%s",
 				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
 		}
 		return nil // ignore errors.
@@ -307,30 +307,30 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *Chain) runDevServer(ctx context.Context) error {
-	c, err := s.Config()
+func (c *Chain) runDevServer(ctx context.Context) error {
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(c.Servers.GRPCAddr)
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
 	if err != nil {
 		return err
 	}
 	defer grpcconn.Close()
 
 	conf := Config{
-		SdkVersion:      s.plugin.Name(),
-		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
-		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
-		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
+		SdkVersion:      c.plugin.Name(),
+		EngineAddr:      xurl.HTTP(config.Servers.RPCAddr),
+		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
+		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(s.app, conf, grpcHandler)
+	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
 	sv := &http.Server{
-		Addr:    c.Servers.DevUIAddr,
+		Addr:    config.Servers.DevUIAddr,
 		Handler: handler,
 	}
 
