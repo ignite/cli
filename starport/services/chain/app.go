@@ -50,6 +50,5 @@ func (a App) Root() string {
 
 // Home returns the node's home dir.
 func (a App) Home() string {
-	path, _ := filepath.Abs(a.HomePath)
-	return path
+	return a.HomePath
 }
