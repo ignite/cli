@@ -41,6 +41,7 @@ func (c *Client) ChainList(ctx context.Context, accountName string, prefix strin
 
 	q := genesistypes.NewQueryClient(clientCtx)
 	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+		Prefix: prefix,
 		Pagination: &query.PageRequest{
 			Key:   o.paginationKey,
 			Limit: o.paginationLimit,
