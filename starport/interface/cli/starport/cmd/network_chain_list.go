@@ -15,6 +15,10 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+const (
+	chainsPerPageCount = 40
+)
+
 // NewNetworkChainList creates a new chain list command to list
 // chains on SPN.
 func NewNetworkChainList() *cobra.Command {
@@ -65,7 +69,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	}
 }
 
-// ChainSummary keeys summarized chain info.
+// ChainSummary keys summarized chain info.
 type ChainSummary struct {
 	ChainID            string
 	Source             string
@@ -94,7 +98,7 @@ func renderChainSummaries(chainSummaries []ChainSummary) {
 func listChainSummaries(nb *networkbuilder.Builder, ctx context.Context, pageKey []byte) (summaries []ChainSummary,
 	nextPageKey []byte, err error) {
 	var chains []spn.Chain
-	chains, nextPageKey, err = nb.ChainList(ctx, spn.PaginateChainListing(pageKey, 40))
+	chains, nextPageKey, err = nb.ChainList(ctx, spn.PaginateChainListing(pageKey, chainsPerPageCount))
 	if err != nil {
 		return nil, nil, err
 	}
