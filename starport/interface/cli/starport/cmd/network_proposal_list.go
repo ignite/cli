@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -29,6 +28,10 @@ func NewNetworkProposalList() *cobra.Command {
 }
 
 func networkProposalListHandler(cmd *cobra.Command, args []string) error {
+	var (
+		chainID = args[0]
+	)
+
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err
@@ -44,7 +47,12 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	proposals, err := nb.ProposalList(context.Background(), args[0], spn.ProposalStatus(status), spn.ProposalType(proposalType))
+	proposals, err := nb.ProposalList(
+		cmd.Context(),
+		chainID,
+		spn.ProposalListStatus(spn.ProposalStatus(status)),
+		spn.ProposalListType(spn.ProposalType(proposalType)),
+	)
 	if err != nil {
 		return err
 	}
