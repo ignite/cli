@@ -168,9 +168,8 @@ func (c *Chain) Home() string {
 	appHome := c.app.Home()
 	if appHome == "" {
 		return c.DefaultHome()
-	} else {
-		return appHome
 	}
+	return appHome
 }
 
 // DefaultHome returns the blockchain node's default home dir when not specified.

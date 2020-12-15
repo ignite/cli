@@ -17,7 +17,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain"
-	"golang.org/x/sync/errgroup"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -32,19 +31,7 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, debug bool) (bool, error) {
-	// Logging functions
-	logOngoingCommand := func(s string) {
-		if debug {
-			b.ev.Send(events.New(events.StatusOngoing, s))
-		}
-	}
-	logFinishedCommand := func(s string) {
-		if debug {
-			b.ev.Send(events.New(events.StatusDone, s))
-		}
-	}
-
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) (bool, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return false, err
@@ -90,12 +77,12 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// generate the genesis to test
-	logOngoingCommand("generating genesis")
+	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
 	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
-		logFinishedCommand(fmt.Sprintf("error generating the genesis: %s\n", err.Error()))
+		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
 		return false, nil
 	}
-	logFinishedCommand("genesis generated")
+	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
 	// set the config with random ports to test the start command
 	addressAPI, err := setSimulationConfig(tmpHome)
@@ -104,8 +91,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// run validate-genesis command on the generated genesis
-	logOngoingCommand("validating genesis")
-	commandOut := &bytes.Buffer{}
+	b.ev.Send(events.New(events.StatusOngoing, "validating genesis"))
 	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
@@ -116,26 +102,25 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
 	))
-	logFinishedCommand(commandOut.String())
 	if err != nil {
 		return false, nil
 	}
+	b.ev.Send(events.New(events.StatusDone, "genesis validated"))
 
 	// verify that the chain can be started with a valid genesis
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
-	group, _ := errgroup.WithContext(ctx)
+	exit := make(chan error)
 
 	// Go routine to check the app is listening
-	group.Go(func() error {
+	go func() {
 		defer cancel()
-		return isBlockchainListening(ctx, addressAPI)
-	})
+		exit <- isBlockchainListening(ctx, addressAPI)
+	}()
 
 	// Go routine to start the app
-	logOngoingCommand("starting genesis")
-	group.Go(func() error {
+	b.ev.Send(events.New(events.StatusOngoing, "starting chain"))
+	go func() {
 		errBytes := &bytes.Buffer{}
-		commandOut := &bytes.Buffer{}
 		err := cmdrunner.New().Run(ctx, step.New(
 			step.Exec(
 				app.D(),
@@ -157,14 +142,13 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			step.Stderr(io.MultiWriter(commandOut, errBytes)),
 			step.Stdout(commandOut),
 		))
-		logFinishedCommand(commandOut.String())
+		exit <- err
+	}()
 
-		return err
-	})
-
-	if err := group.Wait(); err != nil {
+	if err := <-exit; err != nil {
 		return false, nil
 	}
+	b.ev.Send(events.New(events.StatusDone, "chain can be started"))
 
 	return true, nil
 }

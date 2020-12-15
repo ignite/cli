@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/numbers"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"io/ioutil"
+	"os"
 )
 
 const (
@@ -31,7 +35,10 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		proposalList = args[1]
 	)
 
-	nb, err := newNetworkBuilder()
+	ev := events.NewBus()
+	go printEvents(ev, s)
+
+	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
@@ -45,12 +52,16 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	s.Start()
 
 	// Check verbose flag
+	out := ioutil.Discard
 	debugSet, err := cmd.Flags().GetBool(flagDebug)
 	if err != nil {
 		return err
 	}
+	if debugSet {
+		out = os.Stdout
+	}
 
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, debugSet)
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)
 	if err != nil {
 		return err
 	}
