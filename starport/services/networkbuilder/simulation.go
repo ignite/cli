@@ -26,7 +26,7 @@ import (
 	"time"
 )
 
-const ErrValidatorSetNil = "validator set is nil in genesis and still empty after InitChain"
+const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
@@ -75,8 +75,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, err
 	}
 	defer os.RemoveAll(tmpHome)
-	err = copy.Copy(appHome, tmpHome)
-	if err != nil {
+	if err := copy.Copy(appHome, tmpHome); err != nil {
 		return false, err
 	}
 
@@ -93,7 +92,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// run validate-genesis command on the generated genesis
-	err = cmdrunner.New().Run(ctx, step.New(
+	if err := cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
 			"validate-genesis",
@@ -102,13 +101,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		),
 		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
-	))
-	if err != nil {
+	)); err != nil {
 		return false, nil
 	}
 
 	// verify that the chain can be started with a valid genesis
-	// run validate-genesis command on the generated genesis
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
 	exit := make(chan error)
 
@@ -132,7 +129,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 				// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 				// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
 				// after the execution of gentxs
-				if strings.Contains(errBytes.String(), ErrValidatorSetNil) {
+				if strings.Contains(errBytes.String(), ValidatorSetNilErrorMessage) {
 					return nil
 				}
 

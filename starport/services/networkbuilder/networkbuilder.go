@@ -352,22 +352,16 @@ func generateGenesis(ctx context.Context, appHome string, chainInfo spn.Chain, l
 	}
 
 	// reset gentx directory
+	os.Mkdir(filepath.Join(appHome, "config/gentx"), os.ModePerm)
 	dir, err := ioutil.ReadDir(filepath.Join(appHome, "config/gentx"))
 	if err != nil {
-		if strings.Contains(err.Error(), "no such file or directory") {
-			// create the gentx folder if it doesn't exist
-			if err := os.Mkdir(filepath.Join(appHome, "config/gentx"), os.ModePerm); err != nil {
-				return err
-			}
-		} else {
+		return err
+	}
+
+	// remove all the current gentxs
+	for _, d := range dir {
+		if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
 			return err
-		}
-	} else {
-		// remove all the current gentxs
-		for _, d := range dir {
-			if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
-				return err
-			}
 		}
 	}
 

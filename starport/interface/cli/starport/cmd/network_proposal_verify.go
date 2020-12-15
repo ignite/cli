@@ -5,7 +5,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
-	"io"
 	"io/ioutil"
 	"os"
 )
@@ -48,21 +47,20 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	s.Start()
 
 	// Check verbose flag
-	var out io.Writer
+	out := ioutil.Discard
 	debugSet, err := cmd.Flags().GetBool(flagDebug)
 	if err != nil {
 		return err
 	}
 	if debugSet {
 		out = os.Stdout
-	} else {
-		out = ioutil.Discard
 	}
 
 	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)
 	if err != nil {
 		return err
 	}
+	s.Stop()
 	if verified {
 		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 	} else {
