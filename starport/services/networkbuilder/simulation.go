@@ -91,7 +91,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// run validate-genesis command on the generated genesis
-	b.ev.Send(events.New(events.StatusOngoing, "validating genesis"))
+	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
 	err = cmdrunner.New().Run(ctx, step.New(
 		step.Exec(
 			app.D(),
@@ -105,7 +105,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	if err != nil {
 		return false, nil
 	}
-	b.ev.Send(events.New(events.StatusDone, "genesis validated"))
+	b.ev.Send(events.New(events.StatusDone, "genesis correctly formatted"))
 
 	// verify that the chain can be started with a valid genesis
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
