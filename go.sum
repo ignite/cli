@@ -739,10 +739,10 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spn v0.0.0-20201205140131-cf864f668b46 h1:BZ+KsQRppKzR0w6S/uIOLGBIGuVekoZrKvz5Qfms4Hs=
-github.com/tendermint/spn v0.0.0-20201205140131-cf864f668b46/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
 github.com/tendermint/spn v0.0.0-20201214112354-3d438f87b07f h1:OIIKSaC2bp5IZZRXpY5EC3JE4lD8O9Mu5OBf5uoUDvA=
 github.com/tendermint/spn v0.0.0-20201214112354-3d438f87b07f/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
+github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83 h1:WFzz9MyovYzKuNfj2i6VUz9STW+ug0vAG3PvjyWISHg=
+github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
 github.com/tendermint/starport v0.12.0/go.mod h1:iKwUbPpZeAe79FYGZDC85zV5sMLeVGH4zlWb4EiaoBU=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6 h1:SVuKGvvE22KxfuK8QUHctUrmOWJsncZSYXIYtcnoKN0=
@@ -928,8 +928,8 @@ golang.org/x/sys v0.0.0-20200930185726-fdedc70b468f/go.mod h1:h1NjWce9XRLGQEsW7w
 golang.org/x/sys v0.0.0-20201015000850-e3ed0017c211/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201018230417-eeed37f84f13/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20201214095126-aec9a390925b h1:tv7/y4pd+sR8bcNb2D6o7BNU6zjWm0VjQLac+w7fNNM=
-golang.org/x/sys v0.0.0-20201214095126-aec9a390925b/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
+golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e h1:AyodaIpKjppX+cBfTASF2E1US3H2JFBj920Ot3rtDjs=
+golang.org/x/sys v0.0.0-20201214210602-f9fddec55a1e/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221 h1:/ZHdbVpdR/jk3g30/d4yUL0JU9kksj8+F/bnQUVLGDM=
 golang.org/x/term v0.0.0-20201117132131-f5c789dd3221/go.mod h1:Nr5EML6q2oocZ2LXRh80K7BxOlk5/8JxuGnuhpl+muw=
 golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf h1:MZ2shdL+ZM/XzY3ZGOnh4Nlpnxz5GSOhOmtHo3iPU6M=
