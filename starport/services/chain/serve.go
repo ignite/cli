@@ -183,7 +183,7 @@ func (s *Chain) serve(ctx context.Context) error {
 		}
 
 		acc.Coins = strings.Join(account.Coins, ",")
-		if err := s.AddGenesisAccount(ctx, acc, ""); err != nil {
+		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}
@@ -194,7 +194,7 @@ func (s *Chain) serve(ctx context.Context) error {
 		}
 
 		acc.Coins = strings.Join(account.Coins, ",")
-		if err := s.AddGenesisAccount(ctx, acc, ""); err != nil {
+		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
 		}
 	}
@@ -214,7 +214,7 @@ func (s *Chain) serve(ctx context.Context) error {
 	}); err != nil {
 		return err
 	}
-	if err := s.CollectGentx(ctx, ""); err != nil {
+	if err := s.CollectGentx(ctx); err != nil {
 		return err
 	}
 

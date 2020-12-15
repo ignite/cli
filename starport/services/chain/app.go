@@ -14,6 +14,7 @@ type App struct {
 	Name       string
 	Path       string
 	ImportPath string
+	HomePath   string
 }
 
 // N returns app name without dashes.
@@ -44,5 +45,11 @@ func (a App) NCLI() string {
 // Root returns the root path of app.
 func (a App) Root() string {
 	path, _ := filepath.Abs(a.Path)
+	return path
+}
+
+// Home returns the node's home dir.
+func (a App) Home() string {
+	path, _ := filepath.Abs(a.HomePath)
 	return path
 }

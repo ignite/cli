@@ -16,6 +16,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"io/ioutil"
 	"net/url"
@@ -42,6 +43,13 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, err
 	}
 
+	// create a temporary dir that holds the genesis to test
+	tmpHome, err := ioutil.TempDir("",chainID + "*")
+	if err != nil {
+		return false, err
+	}
+	defer os.RemoveAll(tmpHome)
+
 	// find out the app's name form url
 	u, err := url.Parse(chainInfo.URL)
 	if err != nil {
@@ -56,31 +64,20 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		ChainID: chainID,
 		Name:    path.Root,
 		Version: cosmosver.Stargate,
+		HomePath: tmpHome,
 	}
 	chainCmd, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return false, err
 	}
 
-	// get app dir
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return false, err
-	}
-	appHome := filepath.Join(homedir, app.ND())
-
-	// create a temporary dir that holds the genesis to test
-	tmpHome, err := ioutil.TempDir("", app.ND()+"*")
-	if err != nil {
-		return false, err
-	}
-	defer os.RemoveAll(tmpHome)
-	if err := copy.Copy(appHome, tmpHome); err != nil {
+	// copy the config to the temporary directory
+	if err := copy.Copy(chainCmd.DefaultHome(), chainCmd.Home()); err != nil {
 		return false, err
 	}
 
 	// generate the genesis to test
-	if err := generateGenesis(ctx, tmpHome, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
+	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
 		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
 		return false, nil
 	}
@@ -107,18 +104,18 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 
 	// verify that the chain can be started with a valid genesis
 	ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
-	exit := make(chan error)
+	group, _ := errgroup.WithContext(ctx)
 
 	// Go routine to check the app is listening
-	go func() {
+	group.Go(func() error {
 		defer cancel()
-		exit <- isBlockchainListening(ctx, addressAPI)
-	}()
+		return isBlockchainListening(ctx, addressAPI)
+	})
 
 	// Go routine to start the app
-	go func() {
+	group.Go(func() error {
 		errBytes := &bytes.Buffer{}
-		exit <- cmdrunner.New().Run(ctx, step.New(
+		return cmdrunner.New().Run(ctx, step.New(
 			step.Exec(
 				app.D(),
 				"start",
@@ -139,10 +136,9 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			step.Stderr(io.MultiWriter(commandOut, errBytes)),
 			step.Stdout(commandOut),
 		))
-	}()
+	})
 
-	err = <-exit
-	if err != nil {
+	if err := group.Wait(); err != nil {
 		return false, nil
 	}
 

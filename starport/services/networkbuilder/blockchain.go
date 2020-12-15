@@ -166,7 +166,7 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 // IssueGentx creates a Genesis transaction for account with proposal.
 func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
 	proposal.Validator.Name = account.Name
-	if err := b.chain.AddGenesisAccount(ctx, account, ""); err != nil {
+	if err := b.chain.AddGenesisAccount(ctx, account); err != nil {
 		return nil, err
 	}
 	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)

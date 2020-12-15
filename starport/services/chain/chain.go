@@ -165,6 +165,16 @@ func (s *Chain) ID() (string, error) {
 
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() string {
+	appHome := c.app.Home()
+	if appHome == "" {
+		return c.DefaultHome()
+	} else {
+		return appHome
+	}
+}
+
+// DefaultHome returns the blockchain node's default home dir when not specified.
+func (c *Chain) DefaultHome() string {
 	return c.plugin.Home()
 }
 

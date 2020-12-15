@@ -248,16 +248,8 @@ type Account struct {
 }
 
 // AddGenesisAccount add a genesis account in the chain.
-func (c *Chain) AddGenesisAccount(ctx context.Context, account Account, homeDir string) error {
+func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 	errb := &bytes.Buffer{}
-
-	options := []string{"add-genesis-account", account.Address, account.Coins}
-
-	// Check if homedir is defined
-	if homeDir != "" {
-		options = append(options, "--home")
-		options = append(options, homeDir)
-	}
 
 	return cmdrunner.
 		New(c.cmdOptions()...).
@@ -265,7 +257,11 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account, homeDir 
 			Add(
 				step.Exec(
 					c.app.D(),
-					options...,
+					"add-genesis-account",
+					account.Address,
+					account.Coins,
+					"--home",
+					c.Home(),
 				),
 				step.Stderr(errb),
 			)...,
@@ -273,23 +269,17 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account, homeDir 
 }
 
 // CollectGentx collects gentxs on chain.
-func (c *Chain) CollectGentx(ctx context.Context, homeDir string) error {
+func (c *Chain) CollectGentx(ctx context.Context) error {
 	var errb bytes.Buffer
-
-	options := []string{"collect-gentxs"}
-
-	// Check if homedir is defined
-	if homeDir != "" {
-		options = append(options, "--home")
-		options = append(options, homeDir)
-	}
 
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
 			step.Exec(
 				c.app.D(),
-				options...,
+				"collect-gentxs",
+				"--home",
+				c.Home(),
 			),
 			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
 			step.Stdout(c.stdLog(logAppd).out),
