@@ -2,113 +2,59 @@ package spn
 
 import (
 	"context"
-	"sync"
+	"time"
+
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
-	"golang.org/x/sync/errgroup"
-	"time"
 )
 
-// ChainSummary represents the summary of a chain in Genesis module of SPN.
-type ChainSummary struct {
-	ChainID            string
-	Source             string
-	TotalValidators    int
-	ApprovedValidators int
-	TotalProposals     int
-	ApprovedProposals  int
+// chainListOptions holds chain listing options.
+type chainListOptions struct {
+	paginationKey   []byte
+	paginationLimit uint64
+}
+
+// ChainListOption configures chain listing options.
+type ChainListOption func(*chainListOptions)
+
+// PaginateChainListing sets pagination for chain listing.
+func PaginateChainListing(key []byte, limit uint64) ChainListOption {
+	return func(o *chainListOptions) {
+		o.paginationKey = key
+		o.paginationLimit = limit
+	}
 }
 
 // ChainList lists chain summaries
-func (c *Client) ChainList(ctx context.Context, accountName string, prefix string) ([]ChainSummary, error) {
+func (c *Client) ChainList(ctx context.Context, accountName string, prefix string, options ...ChainListOption) (chains []Chain, nextPageKey []byte, err error) {
+	o := &chainListOptions{}
+	for _, apply := range options {
+		apply(o)
+	}
+
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
-		return []ChainSummary{}, err
+		return nil, nil, err
 	}
 
-	// List the chains
 	q := genesistypes.NewQueryClient(clientCtx)
-	req := &genesistypes.QueryListChainsRequest{}
-	chainList, err := q.ListChains(ctx, req)
+	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+		Pagination: &query.PageRequest{
+			Key:   o.paginationKey,
+			Limit: o.paginationLimit,
+		},
+	})
 	if err != nil {
-		return []ChainSummary{}, err
+		return nil, nil, err
 	}
 
-	// Get the summary of each chain
-	chainSummaries := make([]ChainSummary, len(chainList.Chains))
-	chainSummariesGroup, ctx := errgroup.WithContext(ctx)
-	mutex := &sync.Mutex{}
-
-	for i, chain := range chainList.Chains {
-		i, chain := i, chain // https://golang.org/doc/faq#closures_and_goroutines
-		chainSummariesGroup.Go(func() error {
-			var chainSummary ChainSummary
-			chainSummary.ChainID = chain.ChainID
-			chainSummary.Source = chain.SourceURL
-
-			// Get the number of validators
-			reqValidators := &genesistypes.QueryListProposalsRequest{
-				ChainID: chain.ChainID,
-				Status:  genesistypes.ProposalStatus_ANY_STATUS,
-				Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-			}
-			resValidators, err := q.ListProposals(ctx, reqValidators)
-			if err != nil {
-				return err
-			}
-			chainSummary.TotalValidators = len(resValidators.Proposals)
-
-			// Get the number of approved validators
-			reqApprovedValidators := &genesistypes.QueryListProposalsRequest{
-				ChainID: chain.ChainID,
-				Status:  genesistypes.ProposalStatus_APPROVED,
-				Type:    genesistypes.ProposalType_ADD_VALIDATOR,
-			}
-			resApprovedValidators, err := q.ListProposals(ctx, reqApprovedValidators)
-			if err != nil {
-				return err
-			}
-			chainSummary.ApprovedValidators = len(resApprovedValidators.Proposals)
-
-			// Get the number of proposals
-			reqProposals := &genesistypes.QueryListProposalsRequest{
-				ChainID: chain.ChainID,
-				Status:  genesistypes.ProposalStatus_ANY_STATUS,
-				Type:    genesistypes.ProposalType_ANY_TYPE,
-			}
-			resProposals, err := q.ListProposals(ctx, reqProposals)
-			if err != nil {
-				return err
-			}
-			chainSummary.TotalProposals = len(resProposals.Proposals)
-
-			// Get the number of approved proposals
-			reqApprovedProposals := &genesistypes.QueryListProposalsRequest{
-				ChainID: chain.ChainID,
-				Status:  genesistypes.ProposalStatus_APPROVED,
-				Type:    genesistypes.ProposalType_ANY_TYPE,
-			}
-			resApprovedProposals, err := q.ListProposals(ctx, reqApprovedProposals)
-			if err != nil {
-				return err
-			}
-			chainSummary.ApprovedProposals = len(resApprovedProposals.Proposals)
-
-			// Append the summary
-			mutex.Lock()
-			chainSummaries[i] = chainSummary
-			mutex.Unlock()
-
-			return nil
-		})
+	for _, c := range chainList.Chains {
+		chains = append(chains, toChain(c))
 	}
 
-	if err := chainSummariesGroup.Wait(); err != nil {
-		return []ChainSummary{}, err
-	}
-
-	return chainSummaries, nil
+	return chains, chainList.Pagination.NextKey, nil
 }
 
 // ChainCreate creates a new chain.
@@ -156,13 +102,18 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 		return Chain{}, err
 	}
 
+	return toChain(res.Chain), nil
+}
+
+// toChain converts proto chain to Chain type.
+func toChain(chain *genesistypes.Chain) Chain {
 	return Chain{
-		ChainID:   res.Chain.ChainID,
-		Creator:   res.Chain.Creator,
-		URL:       res.Chain.SourceURL,
-		Hash:      res.Chain.SourceHash,
-		CreatedAt: time.Unix(res.Chain.CreatedAt, 0),
-	}, nil
+		ChainID:   chain.ChainID,
+		Creator:   chain.Creator,
+		URL:       chain.SourceURL,
+		Hash:      chain.SourceHash,
+		CreatedAt: time.Unix(chain.CreatedAt, 0),
+	}
 }
 
 // LaunchInformation keeps the chain's launch information.

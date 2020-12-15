@@ -3,6 +3,7 @@ package spn
 import (
 	"context"
 	"errors"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
@@ -68,24 +69,52 @@ var proposalTypeToSPN = map[ProposalType]genesistypes.ProposalType{
 	ProposalTypeAddValidator: genesistypes.ProposalType_ADD_VALIDATOR,
 }
 
-// ProposalList lists proposals on a chain by status.
-func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, status ProposalStatus, proposalType ProposalType) ([]Proposal, error) {
-	var proposals []Proposal
-	var spnProposals []*genesistypes.Proposal
+// proposalListOptions holds proposal listing options.
+type proposalListOptions struct {
+	typ    ProposalType
+	status ProposalStatus
+}
 
-	queryClient := genesistypes.NewQueryClient(c.clientCtx)
+// ProposalListOption configures proposal listing options.
+type ProposalListOption func(*proposalListOptions)
+
+// ProposalListStatus sets proposal status filter for proposal listing.
+func ProposalListStatus(status ProposalStatus) ProposalListOption {
+	return func(o *proposalListOptions) {
+		o.status = status
+	}
+}
+
+// ProposalListType sets proposal type filter for proposal listing.
+func ProposalListType(typ ProposalType) ProposalListOption {
+	return func(o *proposalListOptions) {
+		o.typ = typ
+	}
+}
+
+// ProposalList lists proposals on a chain by status.
+func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string, options ...ProposalListOption) ([]Proposal, error) {
+	o := &proposalListOptions{}
+	for _, apply := range options {
+		apply(o)
+	}
 
 	// Get spn proposal status
-	spnStatus, ok := statusToSPN[status]
+	spnStatus, ok := statusToSPN[o.status]
 	if !ok {
 		return nil, errors.New("unrecognized status")
 	}
 
 	// Get spn proposal type
-	spnType, ok := proposalTypeToSPN[proposalType]
+	spnType, ok := proposalTypeToSPN[o.typ]
 	if !ok {
 		return nil, errors.New("unrecognized type")
 	}
+
+	var proposals []Proposal
+	var spnProposals []*genesistypes.Proposal
+
+	queryClient := genesistypes.NewQueryClient(c.clientCtx)
 
 	// Send query
 	res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
