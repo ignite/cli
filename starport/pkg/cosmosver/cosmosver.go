@@ -53,7 +53,7 @@ func (v majorVersions) Parse(vs string) (MajorVersion, error) {
 			return MajorVersion(vs), nil
 		}
 	}
-	return "", fmt.Errorf("%q is an unkown sdk version", vs)
+	return "", fmt.Errorf("%q is an unknown sdk version", vs)
 }
 
 // String returns a string representation of the version list.

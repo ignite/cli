@@ -5,5 +5,5 @@ import "errors"
 
 var (
 	// ErrStarportRequiresProtoc returned when protoc is not installed.
-	ErrStarportRequiresProtoc = errors.New("Starport requires protoc installed.\nPlease, follow instructions on https://grpc.io/docs/protoc-installation")
+	ErrStarportRequiresProtoc = errors.New("starport requires protoc installed.\nPlease, follow instructions on https://grpc.io/docs/protoc-installation")
 )
