@@ -21,7 +21,7 @@ type ChainSummary struct {
 }
 
 // ChainList lists chain summaries
-func (c *Client) ChainList(ctx context.Context, accountName string) ([]ChainSummary, error) {
+func (c *Client) ChainList(ctx context.Context, accountName string, prefix string) ([]ChainSummary, error) {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return []ChainSummary{}, err

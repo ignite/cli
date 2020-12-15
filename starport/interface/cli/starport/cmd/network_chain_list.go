@@ -9,6 +9,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const searchFlag = "search"
+
 // NewNetworkChainList creates a new chain list command to list
 // chains on SPN.
 func NewNetworkChainList() *cobra.Command {
@@ -18,6 +20,7 @@ func NewNetworkChainList() *cobra.Command {
 		RunE:  networkChainListHandler,
 		Args:  cobra.NoArgs,
 	}
+	c.Flags().String(searchFlag, "", "List chains with the specified prefix in chain id")
 	return c
 }
 
@@ -27,8 +30,14 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Parse search flag
+	prefix, err := cmd.Flags().GetString(searchFlag)
+	if err != nil {
+		return err
+	}
+
 	// Get the chain summaries
-	chainSummaries, err := nb.ChainList(cmd.Context())
+	chainSummaries, err := nb.ChainList(cmd.Context(), prefix)
 	if err != nil {
 		return err
 	}
