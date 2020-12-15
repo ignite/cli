@@ -76,7 +76,7 @@ func New(format string, options ...Option) *Prefixer {
 func (p *Prefixer) Gen(s ...interface{}) string {
 	format := p.format
 	format = p.left + format
-	format = format + p.right
+	format += p.right
 	prefix := fmt.Sprintf(format, s...)
 	if p.convertUppercase {
 		prefix = strings.ToUpper(prefix)

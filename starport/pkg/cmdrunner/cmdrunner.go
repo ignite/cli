@@ -121,10 +121,8 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			g.Go(func() error {
 				return runPostExecs(c.Wait())
 			})
-		} else {
-			if err := runPostExecs(c.Wait()); err != nil {
-				return err
-			}
+		} else if err := runPostExecs(c.Wait()); err != nil {
+			return err
 		}
 	}
 	return g.Wait()
