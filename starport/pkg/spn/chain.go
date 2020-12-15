@@ -2,11 +2,11 @@ package spn
 
 import (
 	"context"
-	"sync"
 	"github.com/cosmos/cosmos-sdk/types"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"golang.org/x/sync/errgroup"
+	"sync"
 	"time"
 )
 
@@ -222,7 +222,7 @@ func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, ch
 	// Query the chain from spnd
 	q := genesistypes.NewQueryClient(clientCtx)
 	res, err := q.SimulatedLaunchInformation(ctx, &genesistypes.QuerySimulatedLaunchInformationRequest{
-		ChainID: chainID,
+		ChainID:     chainID,
 		ProposalIDs: proposalIDs32,
 	})
 	if err != nil {
@@ -246,4 +246,3 @@ func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, ch
 		Peers:           res.LaunchInformation.Peers,
 	}, nil
 }
-

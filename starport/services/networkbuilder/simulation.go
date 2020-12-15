@@ -2,9 +2,9 @@ package networkbuilder
 
 import (
 	"bytes"
+	"context"
 	"errors"
 	"fmt"
-	"context"
 	"github.com/cenkalti/backoff"
 	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
@@ -70,7 +70,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	appHome := filepath.Join(homedir, app.ND())
 
 	// create a temporary dir that holds the genesis to test
-	tmpHome, err := ioutil.TempDir("", app.ND() + "*")
+	tmpHome, err := ioutil.TempDir("", app.ND()+"*")
 	if err != nil {
 		return false, err
 	}
@@ -100,7 +100,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			"--home",
 			tmpHome,
 		),
-		step.Stderr(commandOut),	// This is the error of the verifying command, therefore this is the same as stdout
+		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
 	))
 	if err != nil {
@@ -109,7 +109,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 
 	// verify that the chain can be started with a valid genesis
 	// run validate-genesis command on the generated genesis
-	ctx, cancel := context.WithTimeout(ctx, time.Minute * 1)
+	ctx, cancel := context.WithTimeout(ctx, time.Minute*1)
 	exit := make(chan error)
 
 	// Go routine to check the app is listening
@@ -173,7 +173,7 @@ func setSimulationConfig(appHome string) (string, error) {
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(genAddr(ports[0])))
-	config.Set("grpc.address",genAddr(ports[1]))
+	config.Set("grpc.address", genAddr(ports[1]))
 	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 644)
 	if err != nil {
 		return "", err

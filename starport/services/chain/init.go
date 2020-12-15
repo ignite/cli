@@ -251,7 +251,7 @@ type Account struct {
 func (c *Chain) AddGenesisAccount(ctx context.Context, account Account, homeDir string) error {
 	errb := &bytes.Buffer{}
 
-	options := []string{"add-genesis-account", 	account.Address, account.Coins}
+	options := []string{"add-genesis-account", account.Address, account.Coins}
 
 	// Check if homedir is defined
 	if homeDir != "" {

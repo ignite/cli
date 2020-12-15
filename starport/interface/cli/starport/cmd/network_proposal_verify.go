@@ -30,8 +30,8 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	var (
-		chainID			= args[0]
-		proposalList 	= args[1]
+		chainID      = args[0]
+		proposalList = args[1]
 	)
 
 	nb, err := newNetworkBuilder()
