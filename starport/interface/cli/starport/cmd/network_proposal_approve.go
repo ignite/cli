@@ -35,8 +35,6 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New()
 	defer s.Stop()
 
-	s.SetText("Calculating gas...")
-
 	var (
 		chainID      = args[0]
 		proposalList = args[1]
@@ -83,6 +81,9 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		}
 		s.Stop()
 	}
+
+	s.SetText("Calculating gas...")
+	s.Start()
 
 	// Submit the approve reviewals
 	for _, id := range ids {
