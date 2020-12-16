@@ -37,5 +37,5 @@ linters:
     - nolintlint
 
 issues:
-  max-issues-per-linter: 10000
-  max-same-issues: 10000
+  max-issues-per-linter: 0
+  max-same-issues: 0
