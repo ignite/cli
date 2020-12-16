@@ -55,7 +55,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		s.SetText("Querying chains...")
 		s.Start()
 
-		chainSummaries, nextPageKey, err := listChainSummaries(cmd.Context(), nb , prefix, pageKey)
+		chainSummaries, nextPageKey, err := listChainSummaries(cmd.Context(), nb, prefix, pageKey)
 		if err != nil {
 			return err
 		}

@@ -316,7 +316,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 755)
+	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 0755)
 	if err != nil {
 		return err
 	}
