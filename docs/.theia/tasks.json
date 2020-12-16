@@ -1,0 +1,45 @@
+{
+    "tasks": [
+        {
+            "type": "npm",
+            "script": "install",
+            "path": "myapp/vue/",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "type": "npm",
+            "script": "serve",
+            "path": "myapp/vue/",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "type": "npm",
+            "script": "dev",
+            "path": "myapp/vue/",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "myapp/vue/",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
+        },
+        {
+            "type": "npm",
+            "script": "build",
+            "path": "blog/vue/",
+            "problemMatcher": [
+                "$eslint-compact"
+            ]
+        }
+    ]
+}
