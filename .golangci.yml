@@ -24,7 +24,6 @@ linters:
     - maligned
     - misspell
     - nakedret
-    - prealloc
     - scopelint
     - staticcheck
     - structcheck
