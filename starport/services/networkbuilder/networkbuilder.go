@@ -88,36 +88,23 @@ func (b *Builder) InitBlockchainFromURL(ctx context.Context, chainID, url, rev s
 	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
 
 	// clone the repo.
-	repo, err := git.PlainCloneContext(ctx, appPath, false, &git.CloneOptions{
+	o := &git.CloneOptions{
 		URL: url,
-	})
+	}
+	if rev != "" {
+		o.ReferenceName = plumbing.NewBranchReferenceName(rev)
+		o.SingleBranch = true
+	}
+	repo, err := git.PlainCloneContext(ctx, appPath, false, o)
 	if err != nil {
 		return nil, err
 	}
 
-	var hash plumbing.Hash
-
-	// checkout to the revision if provided, otherwise default branch is used.
-	if rev != "" {
-		wt, err := repo.Worktree()
-		if err != nil {
-			return nil, err
-		}
-		h, err := repo.ResolveRevision(plumbing.Revision(rev))
-		if err != nil {
-			return nil, err
-		}
-		hash = *h
-		wt.Checkout(&git.CheckoutOptions{
-			Hash: hash,
-		})
-	} else {
-		ref, err := repo.Head()
-		if err != nil {
-			return nil, err
-		}
-		hash = ref.Hash()
+	ref, err := repo.Head()
+	if err != nil {
+		return nil, err
 	}
+	hash := ref.Hash()
 
 	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
 

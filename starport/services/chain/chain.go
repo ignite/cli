@@ -18,6 +18,11 @@ import (
 )
 
 var (
+	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
+	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+)
+
+var (
 	appBackendWatchPaths = append([]string{
 		"app",
 		"cmd",
@@ -76,7 +81,7 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 
 	if !noCheck {
 		if _, err := s.Config(); err != nil {
-			return nil, errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+			return nil, ErrCouldntLocateConfig
 		}
 
 		s.version, err = s.appVersion()
