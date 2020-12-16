@@ -12,6 +12,7 @@ import (
 
 // chainListOptions holds chain listing options.
 type chainListOptions struct {
+	prefix			string
 	paginationKey   []byte
 	paginationLimit uint64
 }
@@ -27,6 +28,14 @@ func PaginateChainListing(key []byte, limit uint64) ChainListOption {
 	}
 }
 
+// PrefixChainListing sets the prefix for the chain to search for.
+func PrefixChainListing(prefix string) ChainListOption {
+	return func(o *chainListOptions) {
+		o.prefix = prefix
+	}
+}
+
+
 // ChainList lists chain summaries
 func (c *Client) ChainList(ctx context.Context, accountName string, options ...ChainListOption) (chains []Chain, nextPageKey []byte, err error) {
 	o := &chainListOptions{}
@@ -41,6 +50,7 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 
 	q := genesistypes.NewQueryClient(clientCtx)
 	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+		Prefix: o.prefix,
 		Pagination: &query.PageRequest{
 			Key:   o.paginationKey,
 			Limit: o.paginationLimit,
@@ -134,6 +144,47 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 	q := genesistypes.NewQueryClient(clientCtx)
 	res, err := q.LaunchInformation(ctx, &genesistypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
+	})
+	if err != nil {
+		return LaunchInformation{}, err
+	}
+
+	// Get the genesis accounts
+	var genesisAccounts []GenesisAccount
+	for _, addAccountProposalPayload := range res.LaunchInformation.Accounts {
+		genesisAccount := GenesisAccount{
+			Address: addAccountProposalPayload.Address,
+			Coins:   addAccountProposalPayload.Coins,
+		}
+
+		genesisAccounts = append(genesisAccounts, genesisAccount)
+	}
+
+	return LaunchInformation{
+		GenesisAccounts: genesisAccounts,
+		GenTxs:          jsondoc.ToDocs(res.LaunchInformation.GenTxs),
+		Peers:           res.LaunchInformation.Peers,
+	}, nil
+}
+
+// SimulatedLaunchInformation retrieves chain's simulated launch information.
+func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, chainID string, proposalIDs []int) (LaunchInformation, error) {
+	clientCtx, err := c.buildClientCtx(accountName)
+	if err != nil {
+		return LaunchInformation{}, err
+	}
+
+	// Convert proposal ids to int32
+	var proposalIDs32 []int32
+	for _, proposalID := range proposalIDs {
+		proposalIDs32 = append(proposalIDs32, int32(proposalID))
+	}
+
+	// Query the chain from spnd
+	q := genesistypes.NewQueryClient(clientCtx)
+	res, err := q.SimulatedLaunchInformation(ctx, &genesistypes.QuerySimulatedLaunchInformationRequest{
+		ChainID:     chainID,
+		ProposalIDs: proposalIDs32,
 	})
 	if err != nil {
 		return LaunchInformation{}, err

@@ -19,6 +19,8 @@ const (
 	chainsPerPageCount = 40
 )
 
+const searchFlag = "search"
+
 // NewNetworkChainList creates a new chain list command to list
 // chains on SPN.
 func NewNetworkChainList() *cobra.Command {
@@ -28,6 +30,7 @@ func NewNetworkChainList() *cobra.Command {
 		RunE:  networkChainListHandler,
 		Args:  cobra.NoArgs,
 	}
+	c.Flags().String(searchFlag, "", "List chains with the specified prefix in chain id")
 	return c
 }
 
@@ -40,13 +43,19 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Parse search flag
+	prefix, err := cmd.Flags().GetString(searchFlag)
+	if err != nil {
+		return err
+	}
+
 	var pageKey []byte
 
 	for {
 		s.SetText("Querying chains...")
 		s.Start()
 
-		chainSummaries, nextPageKey, err := listChainSummaries(cmd.Context(), nb, pageKey)
+		chainSummaries, nextPageKey, err := listChainSummaries(cmd.Context(), nb , prefix, pageKey)
 		if err != nil {
 			return err
 		}
@@ -95,10 +104,10 @@ func renderChainSummaries(chainSummaries []ChainSummary) {
 
 // listChainSummaries lists chains with their summary info by using nextPageKey as the
 // pagination key to fetch the next page.
-func listChainSummaries(ctx context.Context, nb *networkbuilder.Builder, pageKey []byte) (summaries []ChainSummary,
+func listChainSummaries(ctx context.Context, nb *networkbuilder.Builder, prefix string, pageKey []byte) (summaries []ChainSummary,
 	nextPageKey []byte, err error) {
 	var chains []spn.Chain
-	chains, nextPageKey, err = nb.ChainList(ctx, spn.PaginateChainListing(pageKey, chainsPerPageCount))
+	chains, nextPageKey, err = nb.ChainList(ctx, spn.PrefixChainListing(prefix), spn.PaginateChainListing(pageKey, chainsPerPageCount))
 	if err != nil {
 		return nil, nil, err
 	}

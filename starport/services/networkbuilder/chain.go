@@ -24,6 +24,15 @@ func (b *Builder) LaunchInformation(ctx context.Context, chainID string) (spn.La
 	return b.spnclient.LaunchInformation(ctx, account.Name, chainID)
 }
 
+// SimulatedLaunchInformation retrieves chain's simulated launch information from proposals to verify.
+func (b *Builder) SimulatedLaunchInformation(ctx context.Context, chainID string, proposalIDs []int) (spn.LaunchInformation, error) {
+	account, err := b.AccountInUse()
+	if err != nil {
+		return spn.LaunchInformation{}, err
+	}
+	return b.spnclient.SimulatedLaunchInformation(ctx, account.Name, chainID, proposalIDs)
+}
+
 // ChainList lists summaries of chains
 func (b *Builder) ChainList(ctx context.Context, options ...spn.ChainListOption) (chains []spn.Chain, nextPageKey []byte, err error) {
 	account, err := b.AccountInUse()

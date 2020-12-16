@@ -260,14 +260,9 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 					"add-genesis-account",
 					account.Address,
 					account.Coins,
+					"--home",
+					c.Home(),
 				),
-				step.PostExec(func(exitErr error) error {
-					// ignore if returns with an error related to genesis account being exists.
-					if strings.Contains(errb.String(), "existing") {
-						return nil
-					}
-					return exitErr
-				}),
 				step.Stderr(errb),
 			)...,
 		))
@@ -283,6 +278,8 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 			step.Exec(
 				c.app.D(),
 				"collect-gentxs",
+				"--home",
+				c.Home(),
 			),
 			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
 			step.Stdout(c.stdLog(logAppd).out),
