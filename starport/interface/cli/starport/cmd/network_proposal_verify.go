@@ -2,13 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
+	"io/ioutil"
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
-	"io/ioutil"
-	"os"
 )
 
 const (
