@@ -33,6 +33,7 @@ func NewNetworkProposalApprove() *cobra.Command {
 
 func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New()
+	s.Stop()
 	defer s.Stop()
 
 	var (
