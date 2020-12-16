@@ -9,7 +9,7 @@ import (
 // Doc represents a JSON encoded data.
 type Doc []byte
 
-// ToDocs convers a list of JSON encoded data to docs.
+// ToDocs converts a list of JSON encoded data to docs.
 func ToDocs(data [][]byte) []Doc {
 	var docs []Doc
 	for _, d := range data {
@@ -27,7 +27,7 @@ func (d Doc) MarshalYAML() ([]byte, error) {
 	return yaml.Marshal(out)
 }
 
-// Pretty converts a Doc to a human readible string.
+// Pretty converts a Doc to a human readable string.
 func (d Doc) Pretty() (string, error) {
 	proposalyaml, err := yaml.Marshal(d)
 	return string(proposalyaml), err
