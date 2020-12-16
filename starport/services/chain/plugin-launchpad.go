@@ -176,7 +176,7 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
 	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
 	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

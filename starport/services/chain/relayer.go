@@ -102,7 +102,7 @@ func (c *Chain) RelayerAdd(base64Info string) error {
 	return nil
 }
 
-func (c *Chain) initRelayer(ctx context.Context, config conf.Config) error {
+func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
 	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return err
@@ -179,7 +179,7 @@ func (c *Chain) initRelayer(ctx context.Context, config conf.Config) error {
 					for {
 						available, err := httpstatuschecker.Check(ctx, xurl.HTTP(account.RPCAddress))
 						if err == context.Canceled {
-							return fmt.Errorf("Tendermint RPC not online for %q", account.Name)
+							return fmt.Errorf("tendermint RPC not online for %q", account.Name)
 						}
 						if err != nil || !available {
 							time.Sleep(time.Millisecond * 300)

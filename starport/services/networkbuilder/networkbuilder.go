@@ -216,7 +216,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	if len(info.GenTxs) == 0 {
-		return errors.New("There are no approved validators yet")
+		return errors.New("there are no approved validators yet")
 	}
 
 	homedir, err := os.UserHomeDir()
@@ -301,7 +301,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
 	configToml.Set("p2p.allow_duplicate_ip", true)
-	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
+	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

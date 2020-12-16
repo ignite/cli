@@ -208,7 +208,6 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 // Cleanup closes the event bus and cleanups everything related to installed blockchain.
 func (b *Blockchain) Cleanup() error {
 	b.builder.ev.Shutdown()
-	//return os.RemoveAll(b.appPath)
 	return nil
 }
 

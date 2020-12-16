@@ -68,7 +68,7 @@ func prepLoginName() (name string, hadLogin bool) {
 	}
 	os.Mkdir(filepath.Join(home, starportDir), 0700)
 	anonPath := filepath.Join(home, starportDir, starportAnonIdentity)
-	data, err := ioutil.ReadFile(anonPath)
+	data, _ := ioutil.ReadFile(anonPath)
 	if len(data) != 0 {
 		return string(data), true
 	}

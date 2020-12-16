@@ -231,7 +231,7 @@ func (c *Chain) serve(ctx context.Context) error {
 		Run(ctx, c.serverSteps(ctx, &wr, conf)...)
 }
 
-func (c *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
+func (c *Chain) serverSteps(_ context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
 	wg.Add(len(c.plugin.StartCommands(conf)))
 	go func() {

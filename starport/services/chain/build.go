@@ -41,7 +41,7 @@ func (c *Chain) Build(ctx context.Context) error {
 	return nil
 }
 
-func (c *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
+func (c *Chain) buildSteps(_ context.Context, _ starportconf.Config) (
 	steps step.Steps, err error) {
 	chainID, err := c.ID()
 	if err != nil {
