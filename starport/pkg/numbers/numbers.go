@@ -25,9 +25,9 @@ func ParseList(list string) ([]int, error) {
 
 // List creates a comma separated int list with optional prefix for each int.
 func List(numbers []int, prefix string) string {
-	s := make([]string, len(numbers))
+	var s []string
 	for _, n := range numbers {
-		s[n] = fmt.Sprintf("%s%d", prefix, n)
+		s = append(s, fmt.Sprintf("%s%d", prefix, n))
 	}
 	return strings.Join(s, ", ")
 }
