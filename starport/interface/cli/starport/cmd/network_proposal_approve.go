@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	flagNoVerification = "--no-verification"
+	flagNoVerification = "no-verification"
 )
 
 // NewNetworkProposalApprove creates a new proposal approve command to approve proposals
