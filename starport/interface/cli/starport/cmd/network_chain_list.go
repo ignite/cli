@@ -107,7 +107,7 @@ func renderChainSummaries(chainSummaries []ChainSummary) {
 func listChainSummaries(nb *networkbuilder.Builder, ctx context.Context, prefix string, pageKey []byte) (summaries []ChainSummary,
 	nextPageKey []byte, err error) {
 	var chains []spn.Chain
-	chains, nextPageKey, err = nb.ChainList(ctx, prefix, spn.PaginateChainListing(pageKey, chainsPerPageCount))
+	chains, nextPageKey, err = nb.ChainList(ctx, spn.PrefixChainListing(prefix), spn.PaginateChainListing(pageKey, chainsPerPageCount))
 	if err != nil {
 		return nil, nil, err
 	}
