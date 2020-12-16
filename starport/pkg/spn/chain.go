@@ -12,6 +12,7 @@ import (
 
 // chainListOptions holds chain listing options.
 type chainListOptions struct {
+	prefix			string
 	paginationKey   []byte
 	paginationLimit uint64
 }
@@ -27,6 +28,14 @@ func PaginateChainListing(key []byte, limit uint64) ChainListOption {
 	}
 }
 
+// PrefixChainListing sets the prefix for the chain to search for.
+func PrefixChainListing(prefix string) ChainListOption {
+	return func(o *chainListOptions) {
+		o.prefix = prefix
+	}
+}
+
+
 // ChainList lists chain summaries
 func (c *Client) ChainList(ctx context.Context, accountName string, options ...ChainListOption) (chains []Chain, nextPageKey []byte, err error) {
 	o := &chainListOptions{}
@@ -41,6 +50,7 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 
 	q := genesistypes.NewQueryClient(clientCtx)
 	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+		Prefix: o.prefix,
 		Pagination: &query.PageRequest{
 			Key:   o.paginationKey,
 			Limit: o.paginationLimit,
