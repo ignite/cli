@@ -184,18 +184,18 @@ func (b *Builder) InitBlockchainFromPath(ctx context.Context, chainID string, ap
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
-	c, err := b.ShowChain(ctx, chainID)
+	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
-	info, err := b.LaunchInformation(ctx, chainID)
+	launchInfo, err := b.LaunchInformation(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
 	// find out the app's name form url.
-	u, err := url.Parse(c.URL)
+	u, err := url.Parse(chainInfo.URL)
 	if err != nil {
 		return err
 	}
@@ -210,79 +210,31 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		Name:    path.Root,
 		Version: cosmosver.Stargate,
 	}
-	ch, err := chain.New(app, true, chain.LogSilent)
+	chainCmd, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return err
 	}
 
-	if len(info.GenTxs) == 0 {
+	if len(launchInfo.GenTxs) == 0 {
 		return errors.New("There are no approved validators yet")
 	}
 
-	homedir, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-
-	// overwrite genesis with initial genesis.
-	appHome := filepath.Join(homedir, app.ND())
-	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
-
-	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
-	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(appHome))
-	var genesis map[string]interface{}
-	if err := cf.Load(&genesis); err != nil {
-		return err
-	}
-	genesis["genesis_time"] = c.CreatedAt.UTC().Format(time.RFC3339)
-	if err := cf.Save(genesis); err != nil {
-		return err
-	}
-
-	// add the genesis accounts
-	for _, account := range info.GenesisAccounts {
-		if err = ch.AddGenesisAccount(ctx, chain.Account{
-			Address: account.Address.String(),
-			Coins:   account.Coins.String(),
-		}); err != nil {
-			return err
-		}
-	}
-
-	// reset gentx directory
-	dir, err := ioutil.ReadDir(filepath.Join(appHome, "config/gentx"))
-	if err != nil {
-		return err
-	}
-	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(appHome, "config/gentx", d.Name())); err != nil {
-			return err
-		}
-	}
-
-	// add and collect the gentxs
-	for i, gentx := range info.GenTxs {
-		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(appHome, fmt.Sprintf("config/gentx/gentx%v.json", i))
-		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
-			return err
-		}
-	}
-	if err = ch.CollectGentx(ctx); err != nil {
+	// generate the genesis file for the chain to start
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainCmd); err != nil {
 		return err
 	}
 
 	// prep peer configs.
-	p2pAddresses := info.Peers
+	p2pAddresses := launchInfo.Peers
 	chiselAddreses := make(map[string]int) // server addr-local p2p port pair.
-	ports, err := availableport.Find(len(info.Peers))
+	ports, err := availableport.Find(len(launchInfo.Peers))
 	if err != nil {
 		return err
 	}
 	time.Sleep(time.Second * 2) // make sure that ports are released by the OS before being used.
 
 	if xchisel.IsEnabled() {
-		for i, peer := range info.Peers {
+		for i, peer := range launchInfo.Peers {
 			localPort := ports[i]
 			sp := strings.Split(peer, "@")
 			nodeID := sp[0]
@@ -294,7 +246,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(appHome, "config/config.toml")
+	configTomlPath := filepath.Join(chainCmd.Home(), "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -355,4 +307,70 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	return g.Wait()
+}
+
+// generateGenesis generate the genesis from the launch information in the specified app home
+func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainCmd *chain.Chain) error {
+	// overwrite genesis with initial genesis.
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(chainCmd.Home()))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 755)
+	if err != nil {
+		return err
+	}
+
+	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(chainCmd.Home()))
+	var genesis map[string]interface{}
+	if err := cf.Load(&genesis); err != nil {
+		return err
+	}
+	genesis["genesis_time"] = chainInfo.CreatedAt.UTC().Format(time.RFC3339)
+	if err := cf.Save(genesis); err != nil {
+		return err
+	}
+
+	// add the genesis accounts
+	for _, account := range launchInfo.GenesisAccounts {
+		genesisAccount := chain.Account{
+			Address: account.Address.String(),
+			Coins:   account.Coins.String(),
+		}
+
+		if err := chainCmd.AddGenesisAccount(ctx, genesisAccount); err != nil {
+			return err
+		}
+	}
+
+	// reset gentx directory
+	os.Mkdir(filepath.Join(chainCmd.Home(), "config/gentx"), os.ModePerm)
+	dir, err := ioutil.ReadDir(filepath.Join(chainCmd.Home(), "config/gentx"))
+	if err != nil {
+		return err
+	}
+
+	// remove all the current gentxs
+	for _, d := range dir {
+		if err := os.RemoveAll(filepath.Join(chainCmd.Home(), "config/gentx", d.Name())); err != nil {
+			return err
+		}
+	}
+
+	// add and collect the gentxs
+	for i, gentx := range launchInfo.GenTxs {
+		// Save the gentx in the gentx directory
+		gentxPath := filepath.Join(chainCmd.Home(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
+			return err
+		}
+	}
+	if len(launchInfo.GenTxs) > 0 {
+		if err = chainCmd.CollectGentx(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

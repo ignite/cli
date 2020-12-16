@@ -14,5 +14,6 @@ func NewNetworkProposal() *cobra.Command {
 	c.AddCommand(NewNetworkProposalShow())
 	c.AddCommand(NewNetworkProposalApprove())
 	c.AddCommand(NewNetworkProposalReject())
+	c.AddCommand(NewNetworkProposalVerify())
 	return c
 }

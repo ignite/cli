@@ -166,3 +166,44 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 		Peers:           res.LaunchInformation.Peers,
 	}, nil
 }
+
+// SimulatedLaunchInformation retrieves chain's simulated launch information.
+func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, chainID string, proposalIDs []int) (LaunchInformation, error) {
+	clientCtx, err := c.buildClientCtx(accountName)
+	if err != nil {
+		return LaunchInformation{}, err
+	}
+
+	// Convert proposal ids to int32
+	var proposalIDs32 []int32
+	for _, proposalID := range proposalIDs {
+		proposalIDs32 = append(proposalIDs32, int32(proposalID))
+	}
+
+	// Query the chain from spnd
+	q := genesistypes.NewQueryClient(clientCtx)
+	res, err := q.SimulatedLaunchInformation(ctx, &genesistypes.QuerySimulatedLaunchInformationRequest{
+		ChainID:     chainID,
+		ProposalIDs: proposalIDs32,
+	})
+	if err != nil {
+		return LaunchInformation{}, err
+	}
+
+	// Get the genesis accounts
+	var genesisAccounts []GenesisAccount
+	for _, addAccountProposalPayload := range res.LaunchInformation.Accounts {
+		genesisAccount := GenesisAccount{
+			Address: addAccountProposalPayload.Address,
+			Coins:   addAccountProposalPayload.Coins,
+		}
+
+		genesisAccounts = append(genesisAccounts, genesisAccount)
+	}
+
+	return LaunchInformation{
+		GenesisAccounts: genesisAccounts,
+		GenTxs:          jsondoc.ToDocs(res.LaunchInformation.GenTxs),
+		Peers:           res.LaunchInformation.Peers,
+	}, nil
+}

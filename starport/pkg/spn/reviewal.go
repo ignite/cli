@@ -3,6 +3,7 @@ package spn
 import (
 	"context"
 	"errors"
+
 	"github.com/cosmos/cosmos-sdk/types"
 	genesistypes "github.com/tendermint/spn/x/genesis/types"
 )

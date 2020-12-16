@@ -181,6 +181,7 @@ func (s *Chain) serve(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
 		acc.Coins = strings.Join(account.Coins, ",")
 		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
@@ -191,6 +192,7 @@ func (s *Chain) serve(ctx context.Context) error {
 		if err != nil {
 			return err
 		}
+
 		acc.Coins = strings.Join(account.Coins, ",")
 		if err := s.AddGenesisAccount(ctx, acc); err != nil {
 			return err
