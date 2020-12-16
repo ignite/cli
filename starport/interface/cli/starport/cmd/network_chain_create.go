@@ -16,33 +16,48 @@ import (
 )
 
 const (
-	flagChainID = "chain"
-	flagSource  = "source"
-	flagRev     = "rev"
+	flagRev = "rev"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
 // a new network.
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create",
+		Use:   "create [chain] [source]",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
 	}
-	c.Flags().String(flagChainID, "", "Chain ID")
-	c.Flags().String(flagSource, "", "Git repository of the chain's source code (local or remote)")
 	c.Flags().String(flagRev, "", "Git revision of the source code")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
-	values, err := cliquiz.ValuesFromFlagsOrAsk(cmd.Flags(), "Please, provide:\n",
-		cliquiz.NewFlag(flagChainID, true),
-		cliquiz.NewFlag(flagSource, true),
-		cliquiz.NewFlag(flagRev, false),
+	// collect required values.
+	var (
+		chainID string
+		source  string
+		rev, _  = cmd.Flags().GetString(flagRev)
 	)
-	if err != nil {
-		return err
+
+	if len(args) >= 1 {
+		chainID = args[0]
+	}
+
+	if len(args) >= 2 {
+		source = args[1]
+	}
+
+	var questions []cliquiz.Question
+	if chainID == "" {
+		questions = append(questions, cliquiz.NewQuestion("Chain ID", &chainID, cliquiz.Required()))
+	}
+	if source == "" {
+		questions = append(questions, cliquiz.NewQuestion("Git repository of the chain's source code (local or remote)", &source, cliquiz.Required()))
+	}
+	if len(questions) > 0 {
+		if err := cliquiz.Ask(questions...); err != nil {
+			return err
+		}
 	}
 
 	s := clispinner.New()
@@ -57,17 +72,17 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if chain already exists on SPN.
-	if _, err := nb.ShowChain(cmd.Context(), values[flagChainID]); err == nil {
+	if _, err := nb.ShowChain(cmd.Context(), chainID); err == nil {
 		s.Stop()
 
-		return fmt.Errorf("chain with id %q already exists", values[flagChainID])
+		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
 	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(values[flagSource]) {
-			return nb.InitBlockchainFromPath(cmd.Context(), values[flagChainID], values[flagSource], true)
+		if xurl.IsLocalPath(source) {
+			return nb.InitBlockchainFromPath(cmd.Context(), chainID, source, true)
 		}
-		return nb.InitBlockchainFromURL(cmd.Context(), values[flagChainID], values[flagSource], values[flagRev], true)
+		return nb.InitBlockchainFromURL(cmd.Context(), chainID, source, rev, true)
 	}
 
 	// init the chain.
