@@ -11,9 +11,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gacli"
 )
 
-// Google Analytics' tracking id.
 const (
-	gaid     = "UA-51029217-18"
+	gaid     = "UA-51029217-18" // Google Analytics' tracking id.
 	loginAny = "any"
 )
 
