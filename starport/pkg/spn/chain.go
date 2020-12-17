@@ -12,7 +12,7 @@ import (
 
 // chainListOptions holds chain listing options.
 type chainListOptions struct {
-	prefix			string
+	prefix          string
 	paginationKey   []byte
 	paginationLimit uint64
 }
@@ -34,7 +34,6 @@ func PrefixChainListing(prefix string) ChainListOption {
 		o.prefix = prefix
 	}
 }
-
 
 // ChainList lists chain summaries
 func (c *Client) ChainList(ctx context.Context, accountName string, options ...ChainListOption) (chains []Chain, nextPageKey []byte, err error) {

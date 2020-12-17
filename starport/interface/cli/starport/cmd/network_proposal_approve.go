@@ -59,16 +59,7 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if noVerification {
-		// If no verification, ask for a confirmation from the user
-		prompt := promptui.Prompt{
-			Label: fmt.Sprintf("You may approve incorrect proposals. Do you want to continue?"),
-			IsConfirm: true,
-		}
-		if _, err := prompt.Run(); err != nil {
-			return errors.New("approval aborted")
-		}
-	} else {
+	if !noVerification {
 		// Verify the proposal
 		// This operation generate the genesis in a temporary directory and verify this genesis is valid
 		s.SetText("Verifying proposals...")
