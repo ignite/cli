@@ -6,17 +6,20 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 const (
-	flagRev = "rev"
+	flagBranch = "branch"
+	spnBranch  = "spn"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
@@ -27,16 +30,16 @@ func NewNetworkChainCreate() *cobra.Command {
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
 	}
-	c.Flags().String(flagRev, "", "Git revision of the source code")
+	c.Flags().String(flagBranch, "", "Git branch to use")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	// collect required values.
 	var (
-		chainID string
-		source  string
-		rev, _  = cmd.Flags().GetString(flagRev)
+		chainID   string
+		source    string
+		branch, _ = cmd.Flags().GetString(flagBranch)
 	)
 
 	if len(args) >= 1 {
@@ -79,14 +82,25 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(source) {
-			return nb.InitBlockchainFromPath(cmd.Context(), chainID, source, true)
+		sourceOption := networkbuilder.SourceLocal(source)
+		if !xurl.IsLocalPath(source) {
+			sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
 		}
-		return nb.InitBlockchainFromURL(cmd.Context(), chainID, source, rev, true)
+		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
+	}
+
+	initChainWithSPNFallback := func() (*networkbuilder.Blockchain, error) {
+		nb, err := initChain()
+		if err == chain.ErrCouldntLocateConfig && branch != spnBranch {
+			fmt.Printf("%s Default branch does not have a config.yml, trying with 'spn' branch...\n", color.New(color.FgYellow).SprintFunc()("ℹ"))
+			branch = spnBranch
+			return initChain()
+		}
+		return nb, err
 	}
 
 	// init the chain.
-	blockchain, err := initChain()
+	blockchain, err := initChainWithSPNFallback()
 
 	// ask to delete data dir for the chain if already exists on the fs.
 	var e *networkbuilder.DataDirExistsError
@@ -111,7 +125,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 		s.Start()
 
-		blockchain, err = initChain()
+		blockchain, err = initChainWithSPNFallback()
 	}
 
 	s.Stop()

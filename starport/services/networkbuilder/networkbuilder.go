@@ -65,118 +65,199 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 	return b, nil
 }
 
-// InitBlockchainFromChainID initializes blockchain from chain id.
-func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string, mustNotInitializedBefore bool) (*Blockchain, error) {
+// initOptions holds blockchain initialization options.
+type initOptions struct {
+	isChainIDSource          bool
+	url                      string
+	branch                   string
+	hash                     string
+	path                     string
+	mustNotInitializedBefore bool
+}
+
+// SourceOption sets the source for blockchain.
+type SourceOption func(*initOptions)
+
+// InitOption sets other initialization options.
+type InitOption func(*initOptions)
+
+// SourceChainID makes source determined by the chain's id.
+func SourceChainID() SourceOption {
+	return func(o *initOptions) {
+		o.isChainIDSource = true
+	}
+}
+
+// SourceRemoteBranch sets a remote branch as source for the blockchain.
+func SourceRemoteBranch(url, branch string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.branch = branch
+	}
+}
+
+// SourceRemoteHash uses a remote hash as source for the blockchain.
+func SourceRemoteHash(url, hash string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.hash = hash
+	}
+}
+
+// SourceLocal uses a local git repo as source for the blockchain.
+func SourceLocal(path string) SourceOption {
+	return func(o *initOptions) {
+		o.path = path
+	}
+}
+
+// MustNotInitializedBefore makes the initialization process fail if data dir for
+// the blockchain already exists.
+func MustNotInitializedBefore() InitOption {
+	return func(o *initOptions) {
+		o.mustNotInitializedBefore = true
+	}
+}
+
+// Init initializes blockchain from by source option and init options.
+func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption, options ...InitOption) (*Blockchain, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
 	}
-	chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
-	if err != nil {
-		return nil, err
-	}
-	return b.InitBlockchainFromURL(ctx, chainID, chain.URL, chain.Hash, mustNotInitializedBefore)
-}
 
-// InitBlockchainFromURL initializes blockchain from a remote git repo.
-func (b *Builder) InitBlockchainFromURL(ctx context.Context, chainID, url, rev string, mustNotInitializedBefore bool) (*Blockchain, error) {
-	appPath, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, err
+	// set options.
+	o := &initOptions{}
+	source(o)
+	for _, option := range options {
+		option(o)
 	}
 
+	// determine final source configuration.
+	var (
+		url    = o.url
+		hash   = o.hash
+		path   = o.path
+		branch = o.branch
+	)
+
+	if o.isChainIDSource {
+		chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
+		if err != nil {
+			return nil, err
+		}
+		url = chain.URL
+		hash = chain.Hash
+	}
+
+	// pull the chain.
 	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
 
-	// clone the repo.
-	repo, err := git.PlainCloneContext(ctx, appPath, false, &git.CloneOptions{
-		URL: url,
-	})
-	if err != nil {
-		return nil, err
-	}
+	var (
+		repo    *git.Repository
+		githash plumbing.Hash
+	)
 
-	var hash plumbing.Hash
+	switch {
+	// clone git repo from local filesystem. this option only used by chain coordinators.
+	case path != "":
+		if repo, err = git.PlainOpen(path); err != nil {
+			return nil, err
+		}
+		if url, err = b.ensureRemoteSynced(repo); err != nil {
+			return nil, err
+		}
 
-	// checkout to the revision if provided, otherwise default branch is used.
-	if rev != "" {
-		wt, err := repo.Worktree()
-		if err != nil {
+	// otherwise clone from the remote. this option can be used by chain coordinators
+	// as well as validators.
+	default:
+		// use a tempdir to clone the source code inside.
+		if path, err = ioutil.TempDir("", ""); err != nil {
 			return nil, err
 		}
-		h, err := repo.ResolveRevision(plumbing.Revision(rev))
-		if err != nil {
+
+		// prepare clone options.
+		gitoptions := &git.CloneOptions{
+			URL: url,
+		}
+
+		// clone the branch when specificied. this is used by chain coordinators on create.
+		// when branch isn't provided, default branch(HEAD) is used.
+		// (only branch or hash can be set at the same time).
+		if branch != "" {
+			gitoptions.ReferenceName = plumbing.NewBranchReferenceName(branch)
+			gitoptions.SingleBranch = true
+		}
+		if repo, err = git.PlainCloneContext(ctx, path, false, gitoptions); err != nil {
 			return nil, err
 		}
-		hash = *h
-		wt.Checkout(&git.CheckoutOptions{
-			Hash: hash,
-		})
-	} else {
-		ref, err := repo.Head()
-		if err != nil {
-			return nil, err
+
+		if hash != "" {
+			// checkout to a certain hash when specified. this is used by validators to make sure to use
+			// the locked version of the blockchain.
+			// (only branch or hash can be set at the same time).
+			wt, err := repo.Worktree()
+			if err != nil {
+				return nil, err
+			}
+			h, err := repo.ResolveRevision(plumbing.Revision(hash))
+			if err != nil {
+				return nil, err
+			}
+			githash = *h
+			if err := wt.Checkout(&git.CheckoutOptions{
+				Hash: githash,
+			}); err != nil {
+				return nil, err
+			}
 		}
-		hash = ref.Hash()
 	}
 
 	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
 
-	return newBlockchain(ctx, b, chainID, appPath, url, hash.String(), mustNotInitializedBefore)
-}
-
-// InitBlockchainFromPath initializes blockchain from a local git repo.
-//
-// It uses the HEAD(latest commit in currently checked out branch) as the source code of blockchain.
-//
-// TODO: It requires that there will be no unstaged changes in the code and HEAD is synced with the upstream
-// branch (if there is one).
-func (b *Builder) InitBlockchainFromPath(ctx context.Context, chainID string, appPath string,
-	mustNotInitializedBefore bool) (*Blockchain, error) {
-	repo, err := git.PlainOpen(appPath)
-	if err != nil {
-		return nil, err
+	if hash == "" {
+		ref, err := repo.Head()
+		if err != nil {
+			return nil, err
+		}
+		githash = ref.Hash()
 	}
 
+	return newBlockchain(ctx, b, chainID, path, url, githash.String(), o.mustNotInitializedBefore)
+}
+
+// ensureRemoteSynced ensures that current worktree in the repository has no unstaged
+// changes and synced up with the remote.
+// it returns the url of repo or an error related to unstaged changes.
+func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err error) {
 	// check if there are un-committed changes.
 	wt, err := repo.Worktree()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	status, err := wt.Status()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if !status.IsClean() {
-		return nil, errors.New("please either revert or commit your changes")
+		return "", errors.New("please either revert or commit your changes")
 	}
 
 	// find out remote's url.
 	// TODO use the associated upstream branch's remote.
 	remotes, err := repo.Remotes()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if len(remotes) == 0 {
-		return nil, errors.New("please push your blockchain first")
+		return "", errors.New("please push your blockchain first")
 	}
 	remote := remotes[0]
 	rc := remote.Config()
 	if len(rc.URLs) == 0 {
-		return nil, errors.New("cannot find remote's url")
+		return "", errors.New("cannot find remote's url")
 	}
-	url := rc.URLs[0]
-
-	// find the hash pointing to HEAD.
-	ref, err := repo.Head()
-	if err != nil {
-		return nil, err
-	}
-	hash := ref.Hash()
-	if err != nil {
-		return nil, err
-	}
-
-	return newBlockchain(ctx, b, chainID, appPath, url, hash.String(), mustNotInitializedBefore)
+	return rc.URLs[0], nil
 }
 
 // StartChain downloads the final version version of Genesis on the first start or fails if Genesis

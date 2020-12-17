@@ -186,7 +186,7 @@ func (p *stargatePlugin) StoragePaths() []string {
 
 func (p *stargatePlugin) Home() string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, p.app.ND())
+	return filepath.Join(home, "."+p.app.N())
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
