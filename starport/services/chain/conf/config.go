@@ -12,7 +12,7 @@ var (
 	// FileNames holds a list of appropriate names for the config file.
 	FileNames = []string{"config.yml", "config.yaml"}
 
-	// defaultConf holds default configuraiton.
+	// defaultConf holds default configuration.
 	defaultConf = Config{
 		Servers: Servers{
 			RPCAddr:      "0.0.0.0:26657",

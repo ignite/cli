@@ -22,7 +22,7 @@ type Config struct {
 	// SPNAccount is the default spn account in use.
 	SPNAccount string
 
-	// FinalizedChains can be started without any further preperation.
+	// FinalizedChains can be started without any further preparation.
 	FinalizedChains []string
 }
 

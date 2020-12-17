@@ -61,6 +61,7 @@ func NewQuestion(question string, answer interface{}, options ...Option) Questio
 // Ask asks questions and collect answers.
 func Ask(question ...Question) error {
 	for _, q := range question {
+		q := q
 
 		var prompt survey.Prompt
 		if !q.hidden {

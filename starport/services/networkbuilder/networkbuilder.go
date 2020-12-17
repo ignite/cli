@@ -297,7 +297,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	if len(launchInfo.GenTxs) == 0 {
-		return errors.New("There are no approved validators yet")
+		return errors.New("there are no approved validators yet")
 	}
 
 	// generate the genesis file for the chain to start
@@ -334,7 +334,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
 	configToml.Set("p2p.allow_duplicate_ip", true)
-	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
+	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -397,7 +397,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 755)
+	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 0755)
 	if err != nil {
 		return err
 	}

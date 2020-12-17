@@ -37,7 +37,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		return err
 	}
 	if ok {
-		return errors.New(fmt.Sprintf("The module %v already exists.", moduleName))
+		return fmt.Errorf("the module %v already exists", moduleName)
 	}
 	path, err := gomodulepath.ParseFile(s.path)
 	if err != nil {
@@ -87,7 +87,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return err
 	}
 	if ok {
-		return errors.New("CosmWasm is already imported.")
+		return errors.New("CosmWasm is already imported")
 	}
 
 	// Import a specific version of ComsWasm

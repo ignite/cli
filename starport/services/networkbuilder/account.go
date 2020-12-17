@@ -20,7 +20,7 @@ func (b *Builder) AccountInUse() (spn.Account, error) {
 	if err != nil {
 		return spn.Account{}, nil
 	}
-	return b.AccountGet(string(c.SPNAccount))
+	return b.AccountGet(c.SPNAccount)
 }
 
 // AccountList lists all accounts in OS keyring.

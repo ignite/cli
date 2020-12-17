@@ -64,7 +64,7 @@ type Chain struct {
 // TODO document noCheck (basically it stands to enable Chain initialization without
 // need of source code)
 func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
-	s := &Chain{
+	c := &Chain{
 		app:            app,
 		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
@@ -73,33 +73,34 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	}
 
 	if logLevel == LogVerbose {
-		s.stdout = os.Stdout
-		s.stderr = os.Stderr
+		c.stdout = os.Stdout
+		c.stderr = os.Stderr
 	}
 
 	var err error
 
 	if !noCheck {
-		if _, err := s.Config(); err != nil {
+		if _, err := c.Config(); err != nil {
 			return nil, ErrCouldntLocateConfig
+
 		}
 
-		s.version, err = s.appVersion()
+		c.version, err = c.appVersion()
 		if err != nil && err != git.ErrRepositoryNotExists {
 			return nil, err
 		}
 	}
 
-	s.plugin, err = s.pickPlugin()
+	c.plugin, err = c.pickPlugin()
 	if err != nil {
 		return nil, err
 	}
 
-	return s, nil
+	return c, nil
 }
 
-func (s *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(s.app.Path)
+func (c *Chain) appVersion() (v version, err error) {
+	repo, err := git.PlainOpen(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
@@ -118,10 +119,10 @@ func (s *Chain) appVersion() (v version, err error) {
 
 // RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
-func (s *Chain) RPCPublicAddress() (string, error) {
+func (c *Chain) RPCPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
-		conf, err := s.Config()
+		conf, err := c.Config()
 		if err != nil {
 			return "", err
 		}
@@ -130,14 +131,14 @@ func (s *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (s *Chain) StoragePaths() []string {
-	return s.plugin.StoragePaths()
+func (c *Chain) StoragePaths() []string {
+	return c.plugin.StoragePaths()
 }
 
-func (s *Chain) Config() (conf.Config, error) {
+func (c *Chain) Config() (conf.Config, error) {
 	var paths []string
 	for _, name := range conf.FileNames {
-		paths = append(paths, filepath.Join(s.app.Path, name))
+		paths = append(paths, filepath.Join(c.app.Path, name))
 	}
 	confFile, err := xos.OpenFirst(paths...)
 	if err != nil {
@@ -148,24 +149,24 @@ func (s *Chain) Config() (conf.Config, error) {
 }
 
 // ID returns the chain's id.
-func (s *Chain) ID() (string, error) {
+func (c *Chain) ID() (string, error) {
 	// chainID in App has the most priority.
-	if s.app.ChainID != "" {
-		return s.app.ChainID, nil
+	if c.app.ChainID != "" {
+		return c.app.ChainID, nil
 	}
 
 	// otherwise uses defined in config.yml
-	c, err := s.Config()
+	chainConfig, err := c.Config()
 	if err != nil {
 		return "", err
 	}
-	genid, ok := c.Genesis["chain_id"]
+	genid, ok := chainConfig.Genesis["chain_id"]
 	if ok {
 		return genid.(string), nil
 	}
 
 	// use app name by default.
-	return s.app.N(), nil
+	return c.app.N(), nil
 }
 
 // Home returns the blockchain node's home dir.
