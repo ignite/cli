@@ -192,6 +192,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 
 	go func() {
 		defer cancel()
+		errb := &bytes.Buffer{}
 
 		canCheckBalanceWithRelayer = env.
 			Exec("check account balance with relayer",
@@ -208,6 +209,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 					}),
 					step.PostExec(func(execErr error) error {
 						if execErr != nil {
+							fmt.Printf("Error executing relayer:%v\n", errb.String())
 							return execErr
 						}
 						if strings.TrimSpace(balance.String()) == "" {
@@ -216,6 +218,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 						return nil
 					}),
 					step.Stdout(balance),
+					step.Stdout(errb),
 				)),
 				ExecRetry(),
 			)
