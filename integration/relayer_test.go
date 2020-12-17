@@ -202,6 +202,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 						"q",
 						"balance",
 						"blog",
+						"--debug",
 					),
 					step.PreExec(func() error {
 						return env.IsAppServed(ctx, servers)

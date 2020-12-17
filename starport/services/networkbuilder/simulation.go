@@ -176,7 +176,7 @@ func setSimulationConfig(appHome string) (string, error) {
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(genAddr(ports[0])))
 	config.Set("grpc.address", genAddr(ports[1]))
-	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 644)
+	file, err := os.OpenFile(appPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", err
 	}
@@ -198,7 +198,7 @@ func setSimulationConfig(appHome string) (string, error) {
 	config.Set("rpc.laddr", xurl.TCP(genAddr(ports[2])))
 	config.Set("p2p.laddr", xurl.TCP(genAddr(ports[3])))
 	config.Set("rpc.pprof_laddr", genAddr(ports[4]))
-	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 644)
+	file, err = os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return "", err
 	}

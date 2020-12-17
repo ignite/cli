@@ -14,7 +14,7 @@ func main() {
 	defer func() {
 		if r := recover(); r != nil {
 			addMetric(Metric{
-				Err: fmt.Errorf("%s", r),
+				Err: fmt.Errorf("%v", r),
 			})
 			fmt.Println(r)
 			os.Exit(1)
@@ -37,17 +37,15 @@ func main() {
 	ctx := clictx.From(context.Background())
 	err := starportcmd.New().ExecuteContext(ctx)
 
-	addMetric(Metric{
-		Err: err,
-	})
-
 	if err == context.Canceled {
+		addMetric(Metric{
+			Err: err,
+		})
 		fmt.Println("aborted")
 		return
 	}
 	if err != nil {
 		fmt.Println()
-		fmt.Println(err)
-		os.Exit(1)
+		panic(err)
 	}
 }

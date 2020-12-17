@@ -44,7 +44,7 @@ type Bus chan Event
 
 // NewBus creates a new event bus to send/receive events.
 func NewBus() Bus {
-	return make(Bus, 0)
+	return make(Bus)
 }
 
 // Send sends a new event to bus.
@@ -61,5 +61,4 @@ func (b Bus) Shutdown() {
 		return
 	}
 	close(b)
-	b = nil
 }

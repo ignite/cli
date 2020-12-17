@@ -4,7 +4,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// NewNetworkChainStart creates a network chain start commmand.
+// NewNetworkChainStart creates a network chain start command.
 // this command runs target chain's start command by default. any flags passed after
 // a double dash passed to the underlying start command.
 func NewNetworkChainStart() *cobra.Command {

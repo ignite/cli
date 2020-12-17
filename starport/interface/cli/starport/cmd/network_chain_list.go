@@ -55,7 +55,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 		s.SetText("Querying chains...")
 		s.Start()
 
-		chainSummaries, nextPageKey, err := listChainSummaries(nb, cmd.Context(), prefix, pageKey)
+		chainSummaries, nextPageKey, err := listChainSummaries(cmd.Context(), nb, prefix, pageKey)
 		if err != nil {
 			return err
 		}
@@ -104,7 +104,7 @@ func renderChainSummaries(chainSummaries []ChainSummary) {
 
 // listChainSummaries lists chains with their summary info by using nextPageKey as the
 // pagination key to fetch the next page.
-func listChainSummaries(nb *networkbuilder.Builder, ctx context.Context, prefix string, pageKey []byte) (summaries []ChainSummary,
+func listChainSummaries(ctx context.Context, nb *networkbuilder.Builder, prefix string, pageKey []byte) (summaries []ChainSummary,
 	nextPageKey []byte, err error) {
 	var chains []spn.Chain
 	chains, nextPageKey, err = nb.ChainList(ctx, spn.PrefixChainListing(prefix), spn.PaginateChainListing(pageKey, chainsPerPageCount))

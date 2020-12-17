@@ -61,7 +61,7 @@ func New(options ...Option) *Runner {
 	return r
 }
 
-// Run blocks untill all steps are complated their executions.
+// Run blocks until all steps have completed their executions.
 func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	if len(steps) == 0 {
 		return nil
@@ -121,10 +121,8 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			g.Go(func() error {
 				return runPostExecs(c.Wait())
 			})
-		} else {
-			if err := runPostExecs(c.Wait()); err != nil {
-				return err
-			}
+		} else if err := runPostExecs(c.Wait()); err != nil {
+			return err
 		}
 	}
 	return g.Wait()

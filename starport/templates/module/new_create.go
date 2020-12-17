@@ -58,7 +58,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 
 func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "app/app.go"
+		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -125,7 +125,7 @@ func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 
 func appModifyStargate(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "app/app.go"
+		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
