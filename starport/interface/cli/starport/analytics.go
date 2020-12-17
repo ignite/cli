@@ -12,7 +12,10 @@ import (
 )
 
 // Google Analytics' tracking id.
-const gaid = "UA-51029217-18"
+const (
+	gaid     = "UA-51029217-18"
+	loginAny = "any"
+)
 
 var (
 	gaclient             *gacli.Client
@@ -64,22 +67,22 @@ func addMetric(m Metric) {
 func prepLoginName() (name string, hadLogin bool) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "any", false
+		return loginAny, false
 	}
 	if err := os.Mkdir(filepath.Join(home, starportDir), 0700); err != nil {
-		return "any", false
+		return loginAny, false
 	}
 	anonPath := filepath.Join(home, starportDir, starportAnonIdentity)
 	data, err := ioutil.ReadFile(anonPath)
 	if err != nil {
-		return "any", false
+		return loginAny, false
 	}
 	if len(data) != 0 {
 		return string(data), true
 	}
 	name = randomdata.SillyName()
 	if err := ioutil.WriteFile(anonPath, []byte(name), 0700); err != nil {
-		return "any", false
+		return loginAny, false
 	}
 	return name, false
 }
