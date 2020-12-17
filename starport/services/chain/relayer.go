@@ -296,7 +296,7 @@ func (c *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []
 	}
 	defer file.Close()
 
-	err = yaml.NewEncoder(file).Encode(c)
+	err = yaml.NewEncoder(file).Encode(config)
 	return config, err
 }
 
