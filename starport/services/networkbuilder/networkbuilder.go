@@ -193,8 +193,8 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		}
 
 		if hash != "" {
-			// checkout to a certain hash when specified. this is used by validators to make sure to the locked
-			// version of the blockchain.
+			// checkout to a certain hash when specified. this is used by validators to make sure to use
+			// the locked version of the blockchain.
 			// (only branch or hash can be set at the same time).
 			wt, err := repo.Worktree()
 			if err != nil {
