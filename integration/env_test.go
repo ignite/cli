@@ -171,8 +171,6 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
 func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
-	errb := &bytes.Buffer{}
-
 	return e.Exec(msg,
 		step.NewSteps(step.New(
 			step.Exec(
@@ -181,15 +179,6 @@ func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
 				"-v",
 			),
 			step.Workdir(path),
-			step.PostExec(func(execErr error) error {
-				if execErr != nil {
-					fmt.Printf("Error starport serve:%v\n", errb.String())
-					return execErr
-				}
-				return nil
-			}),
-			step.Stderr(errb),
-			step.Stdout(errb),
 		)),
 		options...,
 	)
