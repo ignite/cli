@@ -219,7 +219,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 						return nil
 					}),
 					step.Stdout(balance),
-					step.Stdout(errb),
+					step.Stderr(errb),
 				)),
 				ExecRetry(),
 			)
