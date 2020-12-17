@@ -66,13 +66,20 @@ func prepLoginName() (name string, hadLogin bool) {
 	if err != nil {
 		return "any", false
 	}
-	os.Mkdir(filepath.Join(home, starportDir), 0700)
+	if err := os.Mkdir(filepath.Join(home, starportDir), 0700); err != nil {
+		return "any", false
+	}
 	anonPath := filepath.Join(home, starportDir, starportAnonIdentity)
-	data, _ := ioutil.ReadFile(anonPath)
+	data, err := ioutil.ReadFile(anonPath)
+	if err != nil {
+		return "any", false
+	}
 	if len(data) != 0 {
 		return string(data), true
 	}
 	name = randomdata.SillyName()
-	ioutil.WriteFile(anonPath, []byte(name), 0700)
+	if err := ioutil.WriteFile(anonPath, []byte(name), 0700); err != nil {
+		return "any", false
+	}
 	return name, false
 }
