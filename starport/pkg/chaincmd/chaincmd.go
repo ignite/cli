@@ -3,45 +3,44 @@ package chaincmd
 import "github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 
 const (
-	commandStart = "start"
-	commandInit = "init"
-	commandKeys = "keys"
+	commandStart             = "start"
+	commandInit              = "init"
+	commandKeys              = "keys"
 	commandAddGenesisAccount = "add-genesis-account"
-	commandGentx = "gentx"
-	commandCollectGentxs = "collect-gentxs"
-	commandValidateGenesis = "validate-genesis"
-	commandShowNodeID = "show-node-id"
+	commandGentx             = "gentx"
+	commandCollectGentxs     = "collect-gentxs"
+	commandValidateGenesis   = "validate-genesis"
+	commandShowNodeID        = "show-node-id"
 
-	optionHome = "--home"
-	optionKeyringBackend = "--keyring-backend"
-	optionChainID = "--chain-id"
-	optionOutput = "--output"
-	optionRecover = "--recover"
-	optionAddress = "--address"
-	optionName = "--name"
-	optionAmount = "--amount"
-	optionValidatorMoniker = "--moniker"
-	optionValidatorCommissionRate = "--commission-rate"
-	optionValidatorCommissionMaxRate = "commission-max-rate"
+	optionHome                             = "--home"
+	optionKeyringBackend                   = "--keyring-backend"
+	optionChainID                          = "--chain-id"
+	optionOutput                           = "--output"
+	optionRecover                          = "--recover"
+	optionAddress                          = "--address"
+	optionAmount                           = "--amount"
+	optionValidatorMoniker                 = "--moniker"
+	optionValidatorCommissionRate          = "--commission-rate"
+	optionValidatorCommissionMaxRate       = "--commission-max-rate"
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
-	optionValidatorMinSelfDelegation = "--min-self-delegation"
-	optionValidatorGasPrices = "--gas-prices"
+	optionValidatorMinSelfDelegation       = "--min-self-delegation"
+	optionValidatorGasPrices               = "--gas-prices"
 
 	constTendermint = "tendermint"
-	constJSON = "json"
+	constJSON       = "json"
 )
 
 type ChainCmd struct {
-	appCmd string
-	chainID string
-	homeDir   string
+	appCmd         string
+	chainID        string
+	homeDir        string
 	keyringBackend string
 }
 
-// NewChainCmd creates a new ChainCmd to launch command with the chain app
-func NewChainCmd(appName string, options ...Option) ChainCmd {
+// New creates a new ChainCmd to launch command with the chain app
+func New(appCmd string, options ...Option) ChainCmd {
 	chainCmd := ChainCmd{
-		appCmd: appName + "d",
+		appCmd: appCmd,
 	}
 
 	// Apply the options provided by the user
@@ -76,7 +75,7 @@ func WithKeyrinBackend(keyringBackend string) Option {
 }
 
 // StartCommand returns the command to start the daemon of the chain
-func (c ChainCmd) StartCommand(options... string) step.Option {
+func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
 	}, options...)
@@ -143,7 +142,6 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 // GentxCommand returns the command to generate a gentx for the chain
 func (c ChainCmd) GentxCommand(
 	validatorName string,
-	chainID string,
 	selfDelegation string,
 	moniker string,
 	commissionRate string,
@@ -151,10 +149,9 @@ func (c ChainCmd) GentxCommand(
 	commissionMaxChangeRate string,
 	minSelfDelegation string,
 	gasPrices string,
-	) step.Option {
+) step.Option {
 	command := []string{
 		commandGentx,
-		optionName,
 		validatorName,
 		optionAmount,
 		selfDelegation,
@@ -235,5 +232,3 @@ func (c ChainCmd) attachHome(command []string) []string {
 	}
 	return command
 }
-
-

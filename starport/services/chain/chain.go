@@ -79,6 +79,7 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 
 	var err error
 
+	// Check
 	if !noCheck {
 		if _, err := c.Config(); err != nil {
 			return nil, ErrCouldntLocateConfig
@@ -91,6 +92,7 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 		}
 	}
 
+	// initialize the plugin depending on the version of the chain
 	c.plugin, err = c.pickPlugin()
 	if err != nil {
 		return nil, err
