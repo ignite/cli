@@ -68,7 +68,7 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 type initOptions struct {
 	isChainIDSource          bool
 	url                      string
-	branch                   string
+	ref                      plumbing.ReferenceName
 	hash                     string
 	path                     string
 	mustNotInitializedBefore bool
@@ -87,11 +87,11 @@ func SourceChainID() SourceOption {
 	}
 }
 
-// SourceRemoteBranch sets a remote branch as source for the blockchain.
-func SourceRemoteBranch(url, branch string) SourceOption {
+// SourceRemote sets a remote reference as source for the blockchain.
+func SourceRemote(url string, ref plumbing.ReferenceName) SourceOption {
 	return func(o *initOptions) {
 		o.url = url
-		o.branch = branch
+		o.ref = ref
 	}
 }
 
@@ -134,10 +134,10 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 
 	// determine final source configuration.
 	var (
-		url    = o.url
-		hash   = o.hash
-		path   = o.path
-		branch = o.branch
+		url  = o.url
+		hash = o.hash
+		path = o.path
+		ref  = o.ref
 	)
 
 	if o.isChainIDSource {
@@ -180,11 +180,9 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 			URL: url,
 		}
 
-		// clone the branch when specificied. this is used by chain coordinators on create.
-		// when branch isn't provided, default branch(HEAD) is used.
-		// (only branch or hash can be set at the same time).
-		if branch != "" {
-			gitoptions.ReferenceName = plumbing.NewBranchReferenceName(branch)
+		// clone the ref when specificied. this is used by chain coordinators on create.
+		if ref != "" {
+			gitoptions.ReferenceName = ref
 			gitoptions.SingleBranch = true
 		}
 		if repo, err = git.PlainCloneContext(ctx, path, false, gitoptions); err != nil {
@@ -194,7 +192,6 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		if hash != "" {
 			// checkout to a certain hash when specified. this is used by validators to make sure to use
 			// the locked version of the blockchain.
-			// (only branch or hash can be set at the same time).
 			wt, err := repo.Worktree()
 			if err != nil {
 				return nil, err

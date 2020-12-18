@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -17,6 +18,7 @@ import (
 
 const (
 	flagBranch = "branch"
+	flagTag    = "tag"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
@@ -28,6 +30,7 @@ func NewNetworkChainCreate() *cobra.Command {
 		RunE:  networkChainCreateHandler,
 	}
 	c.Flags().String(flagBranch, "", "Git branch to use")
+	c.Flags().String(flagTag, "", "Git tag to use")
 	return c
 }
 
@@ -37,6 +40,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		chainID   string
 		source    string
 		branch, _ = cmd.Flags().GetString(flagBranch)
+		tag, _    = cmd.Flags().GetString(flagTag)
 	)
 
 	if len(args) >= 1 {
@@ -81,7 +85,16 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	initChain := func() (*networkbuilder.Blockchain, error) {
 		sourceOption := networkbuilder.SourceLocal(source)
 		if !xurl.IsLocalPath(source) {
-			sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
+			var ref plumbing.ReferenceName
+			switch {
+			case branch != "":
+				ref = plumbing.NewBranchReferenceName(branch)
+			case tag != "":
+				ref = plumbing.NewTagReferenceName(tag)
+			default:
+				ref = plumbing.HEAD
+			}
+			sourceOption = networkbuilder.SourceRemote(source, ref)
 		}
 		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
 	}
