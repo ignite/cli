@@ -87,11 +87,26 @@ func SourceChainID() SourceOption {
 	}
 }
 
-// SourceRemote sets a remote reference as source for the blockchain.
-func SourceRemote(url string, ref plumbing.ReferenceName) SourceOption {
+// SourceRemote sets the default branch on a remote as source for the blockchain.
+func SourceRemote(url string) SourceOption {
 	return func(o *initOptions) {
 		o.url = url
-		o.ref = ref
+	}
+}
+
+// SourceRemoteBranch sets the branch on a remote as source for the blockchain.
+func SourceRemoteBranch(url, branch string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewBranchReferenceName(branch)
+	}
+}
+
+// SourceRemoteTag sets the tag on a remote as source for the blockchain.
+func SourceRemoteTag(url, tag string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewTagReferenceName(tag)
 	}
 }
 

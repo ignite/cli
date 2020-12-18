@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -85,16 +84,14 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	initChain := func() (*networkbuilder.Blockchain, error) {
 		sourceOption := networkbuilder.SourceLocal(source)
 		if !xurl.IsLocalPath(source) {
-			var ref plumbing.ReferenceName
 			switch {
 			case branch != "":
-				ref = plumbing.NewBranchReferenceName(branch)
+				sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
 			case tag != "":
-				ref = plumbing.NewTagReferenceName(tag)
+				sourceOption = networkbuilder.SourceRemoteTag(source, tag)
 			default:
-				ref = plumbing.HEAD
+				sourceOption = networkbuilder.SourceRemote(source)
 			}
-			sourceOption = networkbuilder.SourceRemote(source, ref)
 		}
 		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
 	}
