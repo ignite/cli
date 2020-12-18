@@ -161,7 +161,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	s.SetText("Submiting...")
+	s.SetText("Submitting...")
 	s.Start()
 
 	// create blockchain.
@@ -170,6 +170,6 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 	s.Stop()
 
-	fmt.Println("\n🌐  Network submited")
+	fmt.Println("\n🌐  Network submitted")
 	return nil
 }
