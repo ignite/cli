@@ -76,5 +76,9 @@ func validatePackageName(name string) error {
 
 func root(path string) string {
 	sp := strings.Split(path, "/")
-	return sp[len(sp)-1]
+	name := sp[len(sp)-1]
+	if strings.HasPrefix(name, "v") { // omit versions.
+		name = sp[len(sp)-2]
+	}
+	return name
 }

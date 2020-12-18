@@ -3,7 +3,6 @@ package starportcmd
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
@@ -59,29 +58,16 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer blockchain.Cleanup()
 
-	// get blockchain's info.
-	info, err := blockchain.Info()
-	if err != nil {
-		return err
-	}
-
 	// hold default values and user inputs for target chain to later use these to join to the chain.
 	var (
 		proposal      networkbuilder.Proposal
 		account       chain.Account
-		denom         string
 		publicAddress string
 	)
-	if info.Config.Validator.Staked != "" {
-		if c, err := types.ParseCoin(info.Config.Validator.Staked); err == nil {
-			denom = c.Denom
-		}
-	}
-	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), acc.Name)
+	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), "user1")
 	if err != nil {
 		return err
 	}
@@ -92,7 +78,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(
 		cliquiz.NewQuestion("Account coins",
 			&account.Coins,
-			cliquiz.DefaultAnswer(strings.Join(acc.Coins, ",")),
+			cliquiz.DefaultAnswer("1000token,100000000stake"),
 		),
 	); err != nil {
 		return err
@@ -134,7 +120,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		),
 		cliquiz.NewQuestion("Gas prices",
 			&proposal.Validator.GasPrices,
-			cliquiz.DefaultAnswer("0.025"+denom),
+			cliquiz.DefaultAnswer("0.025stake"),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Website", &proposal.Meta.Website),

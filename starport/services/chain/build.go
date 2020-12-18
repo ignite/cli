@@ -14,7 +14,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 // Build builds an app.
@@ -22,12 +21,8 @@ func (c *Chain) Build(ctx context.Context) error {
 	if err := c.setup(ctx); err != nil {
 		return err
 	}
-	conf, err := c.Config()
-	if err != nil {
-		return &CannotBuildAppError{err}
-	}
 
-	steps, err := c.buildSteps(ctx, conf)
+	steps, err := c.buildSteps()
 	if err != nil {
 		return err
 	}
@@ -41,7 +36,7 @@ func (c *Chain) Build(ctx context.Context) error {
 	return nil
 }
 
-func (c *Chain) buildSteps(_ context.Context, _ starportconf.Config) (
+func (c *Chain) buildSteps() (
 	steps step.Steps, err error) {
 	chainID, err := c.ID()
 	if err != nil {
