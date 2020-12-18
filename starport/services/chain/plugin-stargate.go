@@ -25,7 +25,6 @@ func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend("test"),
-		chaincmd.WithChainID(app.ChainID),
 	)
 
 	return &stargatePlugin{
@@ -69,7 +68,8 @@ func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(_ string, v Validator) step.Option {
+func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
+	chaincmd.WithChainID(chainID)(&p.cmd)
 	return p.cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,

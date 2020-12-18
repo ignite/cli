@@ -56,7 +56,7 @@ type Option func(*ChainCmd)
 // WithHome replaces the default home used by the chain
 func WithHome(home string) Option {
 	return func(c *ChainCmd) {
-		c.chainID = home
+		c.homeDir = home
 	}
 }
 
