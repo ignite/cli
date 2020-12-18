@@ -84,7 +84,7 @@ sudo mount /dev/loop0p2 mnt/rootfs
 sudo rsync -a ./.tmp/result-rootfs/boot/* mnt/boot
 sudo rsync -a ./.tmp/result-rootfs/* mnt/rootfs --exclude boot
 sudo mkdir mnt/rootfs/boot
-sudo umount mnt/boot mnt/rootfs
+sudo umount mnt/boot mnt/rootfs || true
 
 # Drop the loop mount
 sudo losetup -d /dev/loop0
