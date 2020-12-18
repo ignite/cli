@@ -6,20 +6,17 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/fatih/color"
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 const (
 	flagBranch = "branch"
-	spnBranch  = "spn"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
@@ -89,18 +86,8 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
 	}
 
-	initChainWithSPNFallback := func() (*networkbuilder.Blockchain, error) {
-		nb, err := initChain()
-		if err == chain.ErrCouldntLocateConfig && branch != spnBranch {
-			fmt.Printf("%s Default branch does not have a config.yml, trying with 'spn' branch...\n", color.New(color.FgYellow).SprintFunc()("ℹ"))
-			branch = spnBranch
-			return initChain()
-		}
-		return nb, err
-	}
-
 	// init the chain.
-	blockchain, err := initChainWithSPNFallback()
+	blockchain, err := initChain()
 
 	// ask to delete data dir for the chain if already exists on the fs.
 	var e *networkbuilder.DataDirExistsError
@@ -125,7 +112,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 
 		s.Start()
 
-		blockchain, err = initChainWithSPNFallback()
+		blockchain, err = initChain()
 	}
 
 	s.Stop()

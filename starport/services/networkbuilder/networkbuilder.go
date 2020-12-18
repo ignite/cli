@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
 	"net/url"
@@ -26,9 +25,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/lineprefixer"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -343,21 +342,6 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// peerCountPrefixer adds peer count prefix to each log line.
-	peerCountPrefixer := func(w io.Writer) io.Writer {
-		tc := tendermintrpc.New(tendermintrpcAddr)
-
-		return lineprefixer.NewWriter(w, func() string {
-			netInfo, err := tc.GetNetInfo(ctx)
-			if err != nil {
-				return ""
-			}
-			count := netInfo.ConnectedPeers + 1 // +1 is itself.
-			prefix := fmt.Sprintf("%d (%v%%) peers online ", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
-			return color.New(color.FgYellow).SprintFunc()(prefix)
-		})
-	}
-
 	g, ctx := errgroup.WithContext(ctx)
 
 	// run the start command of the chain.
@@ -367,9 +351,23 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 				app.D(),
 				append([]string{"start"}, flags...)...,
 			),
-			step.Stdout(peerCountPrefixer(os.Stdout)),
-			step.Stderr(peerCountPrefixer(os.Stderr)),
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
 		))
+	})
+
+	// log connected peers info.
+	g.Go(func() error {
+		tc := tendermintrpc.New(tendermintrpcAddr)
+
+		return ctxticker.DoNow(ctx, time.Second*5, func() error {
+			netInfo, err := tc.GetNetInfo(ctx)
+			if err == nil {
+				count := netInfo.ConnectedPeers + 1 // +1 is itself.
+				color.New(color.FgYellow).Printf("%d (%v%%) PEERS ONLINE\n", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
+			}
+			return nil
+		})
 	})
 
 	if xchisel.IsEnabled() {

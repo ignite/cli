@@ -69,19 +69,24 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	var (
 		proposal      networkbuilder.Proposal
 		account       chain.Account
-		denom         string
 		publicAddress string
+		accountName   = "user1"
+		accountCoins  = "1000token,100000000stake"
+		denom         = "stake"
 	)
 	if info.Config.Validator.Staked != "" {
 		if c, err := types.ParseCoin(info.Config.Validator.Staked); err == nil {
 			denom = c.Denom
 		}
 	}
-	acc, _ := info.Config.AccountByName(info.Config.Validator.Name)
+	if acc, ok := info.Config.AccountByName(info.Config.Validator.Name); ok {
+		accountName = acc.Name
+		accountCoins = strings.Join(acc.Coins, ",")
+	}
 
 	// ask to create an account on target blockchain.
 	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
-	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), acc.Name)
+	account, err = createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), accountName)
 	if err != nil {
 		return err
 	}
@@ -92,7 +97,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err := cliquiz.Ask(
 		cliquiz.NewQuestion("Account coins",
 			&account.Coins,
-			cliquiz.DefaultAnswer(strings.Join(acc.Coins, ",")),
+			cliquiz.DefaultAnswer(accountCoins),
 		),
 	); err != nil {
 		return err

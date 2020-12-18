@@ -16,7 +16,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/xos"
-	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 // Init initializes chain.
@@ -104,7 +103,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	return cmdrunner.New(c.cmdOptions()...).Run(ctx, steps...)
 }
 
-func (c *Chain) setupSteps(_ context.Context, _ conf.Config) (steps step.Steps, err error) {
+func (c *Chain) setupSteps() (steps step.Steps, err error) {
 	if err := c.checkIBCRelayerSupport(); err == nil {
 		steps.Add(step.New(
 			step.PreExec(func() error {
