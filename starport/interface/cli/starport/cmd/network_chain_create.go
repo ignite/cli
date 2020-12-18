@@ -17,7 +17,6 @@ import (
 
 const (
 	flagBranch = "branch"
-	spnBranch  = "spn"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
