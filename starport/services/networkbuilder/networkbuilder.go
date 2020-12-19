@@ -68,7 +68,7 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 type initOptions struct {
 	isChainIDSource          bool
 	url                      string
-	branch                   string
+	ref                      plumbing.ReferenceName
 	hash                     string
 	path                     string
 	mustNotInitializedBefore bool
@@ -87,11 +87,26 @@ func SourceChainID() SourceOption {
 	}
 }
 
-// SourceRemoteBranch sets a remote branch as source for the blockchain.
+// SourceRemote sets the default branch on a remote as source for the blockchain.
+func SourceRemote(url string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+	}
+}
+
+// SourceRemoteBranch sets the branch on a remote as source for the blockchain.
 func SourceRemoteBranch(url, branch string) SourceOption {
 	return func(o *initOptions) {
 		o.url = url
-		o.branch = branch
+		o.ref = plumbing.NewBranchReferenceName(branch)
+	}
+}
+
+// SourceRemoteTag sets the tag on a remote as source for the blockchain.
+func SourceRemoteTag(url, tag string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewTagReferenceName(tag)
 	}
 }
 
@@ -134,10 +149,10 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 
 	// determine final source configuration.
 	var (
-		url    = o.url
-		hash   = o.hash
-		path   = o.path
-		branch = o.branch
+		url  = o.url
+		hash = o.hash
+		path = o.path
+		ref  = o.ref
 	)
 
 	if o.isChainIDSource {
@@ -180,11 +195,9 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 			URL: url,
 		}
 
-		// clone the branch when specificied. this is used by chain coordinators on create.
-		// when branch isn't provided, default branch(HEAD) is used.
-		// (only branch or hash can be set at the same time).
-		if branch != "" {
-			gitoptions.ReferenceName = plumbing.NewBranchReferenceName(branch)
+		// clone the ref when specificied. this is used by chain coordinators on create.
+		if ref != "" {
+			gitoptions.ReferenceName = ref
 			gitoptions.SingleBranch = true
 		}
 		if repo, err = git.PlainCloneContext(ctx, path, false, gitoptions); err != nil {
@@ -194,7 +207,6 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		if hash != "" {
 			// checkout to a certain hash when specified. this is used by validators to make sure to use
 			// the locked version of the blockchain.
-			// (only branch or hash can be set at the same time).
 			wt, err := repo.Worktree()
 			if err != nil {
 				return nil, err

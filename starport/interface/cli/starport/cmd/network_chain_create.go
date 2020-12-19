@@ -17,6 +17,7 @@ import (
 
 const (
 	flagBranch = "branch"
+	flagTag    = "tag"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
@@ -28,6 +29,7 @@ func NewNetworkChainCreate() *cobra.Command {
 		RunE:  networkChainCreateHandler,
 	}
 	c.Flags().String(flagBranch, "", "Git branch to use")
+	c.Flags().String(flagTag, "", "Git tag to use")
 	return c
 }
 
@@ -37,6 +39,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		chainID   string
 		source    string
 		branch, _ = cmd.Flags().GetString(flagBranch)
+		tag, _    = cmd.Flags().GetString(flagTag)
 	)
 
 	if len(args) >= 1 {
@@ -81,7 +84,14 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	initChain := func() (*networkbuilder.Blockchain, error) {
 		sourceOption := networkbuilder.SourceLocal(source)
 		if !xurl.IsLocalPath(source) {
-			sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
+			switch {
+			case branch != "":
+				sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
+			case tag != "":
+				sourceOption = networkbuilder.SourceRemoteTag(source, tag)
+			default:
+				sourceOption = networkbuilder.SourceRemote(source)
+			}
 		}
 		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
 	}
