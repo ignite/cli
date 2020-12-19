@@ -238,7 +238,7 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
