@@ -19,6 +19,10 @@ import (
 	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
+const (
+	moniker = "mynode"
+)
+
 // Init initializes chain.
 func (c *Chain) Init(ctx context.Context) error {
 	chainID, err := c.ID()
@@ -48,12 +52,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	// init node.
 	steps.Add(step.New(step.NewOptions().
 		Add(
-			step.Exec(
-				c.app.D(),
-				"init",
-				"mynode",
-				"--chain-id", chainID,
-			),
+			c.cmd.InitCommand(moniker),
 			// overwrite configuration changes from Starport's config.yml to
 			// over app's sdk configs.
 			step.PostExec(func(err error) error {
@@ -255,14 +254,7 @@ func (c *Chain) AddGenesisAccount(ctx context.Context, account Account) error {
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(step.NewOptions().
 			Add(
-				step.Exec(
-					c.app.D(),
-					"add-genesis-account",
-					account.Address,
-					account.Coins,
-					"--home",
-					c.Home(),
-				),
+				c.cmd.AddGenesisAccountCommand(account.Address,account.Coins),
 				step.Stderr(errb),
 			)...,
 		))
@@ -275,12 +267,7 @@ func (c *Chain) CollectGentx(ctx context.Context) error {
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
-			step.Exec(
-				c.app.D(),
-				"collect-gentxs",
-				"--home",
-				c.Home(),
-			),
+			c.cmd.CollectGentxsCommand(),
 			step.Stderr(io.MultiWriter(c.stdLog(logAppd).err, &errb)),
 			step.Stdout(c.stdLog(logAppd).out),
 		)); err != nil {
@@ -297,13 +284,8 @@ func (c *Chain) ShowNodeID(ctx context.Context) (string, error) {
 
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
-		Run(ctx,
-			step.New(
-				step.Exec(
-					c.app.D(),
-					"tendermint",
-					"show-node-id",
-				),
+		Run(ctx, step.New(
+				c.cmd.ShowNodeIDCommand(),
 				step.Stdout(&key),
 				step.Stderr(&errb),
 			),

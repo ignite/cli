@@ -74,6 +74,16 @@ func WithKeyrinBackend(keyringBackend string) Option {
 	}
 }
 
+// SetChainID sets the chain ID attached to commands
+func (c *ChainCmd) SetChainID(chainID string) {
+	c.chainID = chainID
+}
+
+// SetKeyringBackend sets the keyring backend attached to commands
+func (c *ChainCmd) SetKeyringBackend(keyringBackend string) {
+	c.keyringBackend = keyringBackend
+}
+
 // StartCommand returns the command to start the daemon of the chain
 func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
@@ -83,7 +93,7 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 }
 
 // InitCommand returns the command to initialize the chain
-func (c ChainCmd) InitCommand(moniker string, chainID string) step.Option {
+func (c ChainCmd) InitCommand(moniker string) step.Option {
 	command := []string{
 		commandInit,
 		moniker,

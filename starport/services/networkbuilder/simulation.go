@@ -94,12 +94,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
 	err = cmdrunner.New().Run(ctx, step.New(
-		step.Exec(
-			app.D(),
-			"validate-genesis",
-			"--home",
-			tmpHome,
-		),
+		chainHandler.Commands().ValidateGenesisCommand(),
 		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
 	))
@@ -123,12 +118,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	go func() {
 		errBytes := &bytes.Buffer{}
 		err := cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				"start",
-				"--home",
-				tmpHome,
-			),
+			chainHandler.Commands().StartCommand(),
 			step.PostExec(func(exitErr error) error {
 				// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 				// The genesis was correctly generated but we don't have the necessary proposals to have a validator set

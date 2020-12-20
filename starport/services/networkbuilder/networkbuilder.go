@@ -363,10 +363,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// run the start command of the chain.
 	g.Go(func() error {
 		return cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				append([]string{"start"}, flags...)...,
-			),
+			chainHandler.Commands().StartCommand(flags...),
 			step.Stdout(peerCountPrefixer(os.Stdout)),
 			step.Stderr(peerCountPrefixer(os.Stderr)),
 		))

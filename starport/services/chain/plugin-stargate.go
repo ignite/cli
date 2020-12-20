@@ -69,7 +69,7 @@ func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 }
 
 func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
-	chaincmd.WithChainID(chainID)(&p.cmd)
+	p.cmd.SetChainID(chainID)
 	return p.cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,

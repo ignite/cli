@@ -3,6 +3,7 @@ package chain
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"io"
 	"io/ioutil"
 	"os"
@@ -56,6 +57,7 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
+	cmd				chaincmd.ChainCmd
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
@@ -97,6 +99,13 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// initialize the chain commands
+	c.cmd = chaincmd.New(
+		app.D(),
+		chaincmd.WithChainID(app.D()),
+		chaincmd.WithHome(c.Home()),
+	)
 
 	return c, nil
 }
@@ -198,4 +207,9 @@ func (c *Chain) AppTOMLPath() string {
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() string {
 	return fmt.Sprintf("%s/config/config.toml", c.Home())
+}
+
+// Commands returns the chaincmd object to perform command with the chain binary
+func (c *Chain) Commands() chaincmd.ChainCmd {
+	return c.cmd
 }
