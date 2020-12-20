@@ -38,6 +38,12 @@ func (c *Chain) Serve(ctx context.Context) error {
 	if err := c.setup(ctx); err != nil {
 		return err
 	}
+
+	// make sure that config.yml exists.
+	if _, err := conf.Locate(c.app.Path); err != nil {
+		return err
+	}
+
 	// initialize the relayer if application supports it so, secret.yml
 	// can be generated and watched for changes.
 	if err := c.checkIBCRelayerSupport(); err == nil {
@@ -162,7 +168,7 @@ func (c *Chain) serve(ctx context.Context) error {
 		return err
 	}
 
-	buildSteps, err := c.buildSteps(ctx, conf)
+	buildSteps, err := c.buildSteps()
 	if err != nil {
 		return err
 	}
@@ -199,7 +205,7 @@ func (c *Chain) serve(ctx context.Context) error {
 		}
 	}
 
-	setupSteps, err := c.setupSteps(ctx, conf)
+	setupSteps, err := c.setupSteps()
 	if err != nil {
 		return err
 	}

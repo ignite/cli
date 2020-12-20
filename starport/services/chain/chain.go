@@ -7,20 +7,12 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
-)
-
-var (
-	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
 )
 
 var (
@@ -83,11 +75,6 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 
 	// Check
 	if !noCheck {
-		if _, err := c.Config(); err != nil {
-			return nil, ErrCouldntLocateConfig
-
-		}
-
 		c.version, err = c.appVersion()
 		if err != nil && err != git.ErrRepositoryNotExists {
 			return nil, err
@@ -147,16 +134,11 @@ func (c *Chain) StoragePaths() []string {
 }
 
 func (c *Chain) Config() (conf.Config, error) {
-	var paths []string
-	for _, name := range conf.FileNames {
-		paths = append(paths, filepath.Join(c.app.Path, name))
-	}
-	confFile, err := xos.OpenFirst(paths...)
+	path, err := conf.Locate(c.app.Path)
 	if err != nil {
-		return conf.Config{}, errors.Wrap(err, "config file cannot be found")
+		return conf.DefaultConf, nil
 	}
-	defer confFile.Close()
-	return conf.Parse(confFile)
+	return conf.ParseFile(path)
 }
 
 // ID returns the chain's id.

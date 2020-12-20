@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"io/ioutil"
 	"math"
 	"net/url"
@@ -26,9 +25,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/lineprefixer"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -69,7 +68,7 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 type initOptions struct {
 	isChainIDSource          bool
 	url                      string
-	branch                   string
+	ref                      plumbing.ReferenceName
 	hash                     string
 	path                     string
 	mustNotInitializedBefore bool
@@ -88,11 +87,26 @@ func SourceChainID() SourceOption {
 	}
 }
 
-// SourceRemoteBranch sets a remote branch as source for the blockchain.
+// SourceRemote sets the default branch on a remote as source for the blockchain.
+func SourceRemote(url string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+	}
+}
+
+// SourceRemoteBranch sets the branch on a remote as source for the blockchain.
 func SourceRemoteBranch(url, branch string) SourceOption {
 	return func(o *initOptions) {
 		o.url = url
-		o.branch = branch
+		o.ref = plumbing.NewBranchReferenceName(branch)
+	}
+}
+
+// SourceRemoteTag sets the tag on a remote as source for the blockchain.
+func SourceRemoteTag(url, tag string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewTagReferenceName(tag)
 	}
 }
 
@@ -135,10 +149,10 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 
 	// determine final source configuration.
 	var (
-		url    = o.url
-		hash   = o.hash
-		path   = o.path
-		branch = o.branch
+		url  = o.url
+		hash = o.hash
+		path = o.path
+		ref  = o.ref
 	)
 
 	if o.isChainIDSource {
@@ -181,11 +195,9 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 			URL: url,
 		}
 
-		// clone the branch when specificied. this is used by chain coordinators on create.
-		// when branch isn't provided, default branch(HEAD) is used.
-		// (only branch or hash can be set at the same time).
-		if branch != "" {
-			gitoptions.ReferenceName = plumbing.NewBranchReferenceName(branch)
+		// clone the ref when specificied. this is used by chain coordinators on create.
+		if ref != "" {
+			gitoptions.ReferenceName = ref
 			gitoptions.SingleBranch = true
 		}
 		if repo, err = git.PlainCloneContext(ctx, path, false, gitoptions); err != nil {
@@ -195,7 +207,6 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		if hash != "" {
 			// checkout to a certain hash when specified. this is used by validators to make sure to use
 			// the locked version of the blockchain.
-			// (only branch or hash can be set at the same time).
 			wt, err := repo.Worktree()
 			if err != nil {
 				return nil, err
@@ -343,30 +354,29 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// peerCountPrefixer adds peer count prefix to each log line.
-	peerCountPrefixer := func(w io.Writer) io.Writer {
-		tc := tendermintrpc.New(tendermintrpcAddr)
-
-		return lineprefixer.NewWriter(w, func() string {
-			netInfo, err := tc.GetNetInfo(ctx)
-			if err != nil {
-				return ""
-			}
-			count := netInfo.ConnectedPeers + 1 // +1 is itself.
-			prefix := fmt.Sprintf("%d (%v%%) peers online ", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
-			return color.New(color.FgYellow).SprintFunc()(prefix)
-		})
-	}
-
 	g, ctx := errgroup.WithContext(ctx)
 
 	// run the start command of the chain.
 	g.Go(func() error {
 		return cmdrunner.New().Run(ctx, step.New(
 			chainHandler.Commands().StartCommand(flags...),
-			step.Stdout(peerCountPrefixer(os.Stdout)),
-			step.Stderr(peerCountPrefixer(os.Stderr)),
+			step.Stdout(os.Stdout),
+			step.Stderr(os.Stderr),
 		))
+	})
+
+	// log connected peers info.
+	g.Go(func() error {
+		tc := tendermintrpc.New(tendermintrpcAddr)
+
+		return ctxticker.DoNow(ctx, time.Second*5, func() error {
+			netInfo, err := tc.GetNetInfo(ctx)
+			if err == nil {
+				count := netInfo.ConnectedPeers + 1 // +1 is itself.
+				color.New(color.FgYellow).Printf("%d (%v%%) PEERS ONLINE\n", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
+			}
+			return nil
+		})
 	})
 
 	if xchisel.IsEnabled() {
