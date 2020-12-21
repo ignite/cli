@@ -22,16 +22,10 @@ type launchpadPlugin struct {
 }
 
 func newLaunchpadPlugin(app App, chain *Chain) (*launchpadPlugin, error) {
-	id, err := chain.ID()
-	if err != nil {
-		return nil, err
-	}
-
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend("test"),
-		chaincmd.WithChainID(id),
 		chaincmd.WithLaunchpadCLI(app.CLI()),
 	)
 
@@ -98,7 +92,7 @@ func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 }
 
 func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.GentxCommand(
+	return p.cmd.LaunchpadGentxCommand(
 		v.Name,
 		v.StakingAmount,
 		v.Moniker,

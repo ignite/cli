@@ -9,6 +9,7 @@ const (
 	optionUnsafeCors = "--unsafe-cors"
 	optionAPIAddress = "--laddr"
 	optionRPCAddress = "--node"
+	optionName 		= "--name"
 )
 
 // LaunchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
@@ -70,4 +71,46 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 	}
 	command = c.attachKeyringBackend(command)
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
+}
+
+// LaunchpadGentxCommand returns the command to generate a gentx for the chain
+func (c ChainCmd) LaunchpadGentxCommand(
+	validatorName string,
+	selfDelegation string,
+	moniker string,
+	commissionRate string,
+	commissionMaxRate string,
+	commissionMaxChangeRate string,
+	minSelfDelegation string,
+	gasPrices string,
+) step.Option {
+	command := []string{
+		commandGentx,
+		optionName,
+		validatorName,
+		optionAmount,
+		selfDelegation,
+	}
+
+	// Append optional validator information
+	if moniker != "" {
+		command = append(command, optionValidatorMoniker, moniker)
+	}
+	if commissionRate != "" {
+		command = append(command, optionValidatorCommissionRate, commissionRate)
+	}
+	if commissionMaxRate != "" {
+		command = append(command, optionValidatorCommissionMaxRate, commissionMaxRate)
+	}
+	if commissionMaxChangeRate != "" {
+		command = append(command, optionValidatorCommissionMaxChangeRate, commissionMaxChangeRate)
+	}
+	if minSelfDelegation != "" {
+		command = append(command, optionValidatorMinSelfDelegation, minSelfDelegation)
+	}
+	if gasPrices != "" {
+		command = append(command, optionValidatorGasPrices, gasPrices)
+	}
+
+	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
