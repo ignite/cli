@@ -165,7 +165,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	}
 
 	// pull the chain.
-	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
+	b.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
 
 	var (
 		repo    *git.Repository
@@ -224,7 +224,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		}
 	}
 
-	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
+	b.ev.Send(events.New(events.StatusDone, "Fetched the source code"))
 
 	if hash == "" {
 		ref, err := repo.Head()
