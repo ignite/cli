@@ -224,7 +224,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		}
 	}
 
-	b.ev.Send(events.New(events.StatusDone, "Fetched the source code"))
+	b.ev.Send(events.New(events.StatusDone, "Source code fetched"))
 
 	if hash == "" {
 		ref, err := repo.Head()
