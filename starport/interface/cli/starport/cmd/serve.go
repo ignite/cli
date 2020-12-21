@@ -1,11 +1,6 @@
 package starportcmd
 
 import (
-	"context"
-	"fmt"
-	"os"
-	"os/signal"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -13,6 +8,7 @@ import (
 
 var appPath string
 
+// NewServe creates a new serve command to serve a blockchain.
 func NewServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",
@@ -26,34 +22,19 @@ func NewServe() *cobra.Command {
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	verbose, _ := cmd.Flags().GetBool("verbose")
 	path, err := gomodulepath.Parse(getModule(appPath))
 	if err != nil {
 		return err
 	}
 	app := chain.App{
-		Name: path.Root,
-		Path: appPath,
+		Name:       path.Root,
+		Path:       appPath,
+		ImportPath: path.RawPath,
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	go func() {
-		<-quit
-		cancel()
-	}()
-
-	s, err := chain.New(app, verbose)
+	s, err := chain.New(app, false, logLevel(cmd))
 	if err != nil {
 		return err
 	}
-	err = s.Serve(ctx)
-	if err == context.Canceled {
-		fmt.Println("aborted")
-		return nil
-	}
-	return err
+	return s.Serve(cmd.Context())
 }

@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
@@ -34,25 +33,17 @@ func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) InstallCommands(ldflags string) (options []step.Option, binaries []string) {
-	return []step.Option{
-			step.Exec(
-				"go",
-				"install",
-				"-mod", "readonly",
-				"-ldflags", ldflags,
-				filepath.Join(p.app.root(), "cmd", p.app.d()),
-			),
-		}, []string{
-			p.app.d(),
-		}
+func (p *stargatePlugin) Binaries() []string {
+	return []string{
+		p.app.D(),
+	}
 }
 
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.d(),
+				p.app.D(),
 				"keys",
 				"add",
 				accountName,
@@ -66,7 +57,7 @@ func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
 			step.Exec(
-				p.app.d(),
+				p.app.D(),
 				"keys",
 				"add",
 				name,
@@ -79,7 +70,7 @@ func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 
 func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 	return step.Exec(
-		p.app.d(),
+		p.app.D(),
 		"keys",
 		"show",
 		accountName,
@@ -88,18 +79,36 @@ func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
 	)
 }
 
-func (p *stargatePlugin) ConfigCommands() []step.Option {
+func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(conf starportconf.Config) step.Option {
-	return step.Exec(
-		p.app.d(),
-		"gentx", conf.Validator.Name,
-		"--chain-id", p.app.n(),
+func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
+	args := []string{
+		"gentx", v.Name,
+		"--chain-id", chainID,
 		"--keyring-backend", "test",
-		"--amount", conf.Validator.Staked,
-	)
+		"--amount", v.StakingAmount,
+	}
+	if v.Moniker != "" {
+		args = append(args, "--moniker", v.Moniker)
+	}
+	if v.CommissionRate != "" {
+		args = append(args, "--commission-rate", v.CommissionRate)
+	}
+	if v.CommissionMaxRate != "" {
+		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
+	}
+	if v.CommissionMaxChangeRate != "" {
+		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
+	}
+	if v.MinSelfDelegation != "" {
+		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
+	}
+	if v.GasPrices != "" {
+		args = append(args, "--gas-prices", v.GasPrices)
+	}
+	return step.Exec(p.app.D(), args...)
 }
 
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
@@ -111,11 +120,7 @@ func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
 
 func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.nd(), "config/app.toml")
+	path := filepath.Join(p.Home(), "config/app.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -124,7 +129,8 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(conf.Servers.APIAddr))
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	config.Set("grpc.address", conf.Servers.GRPCAddr)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -135,11 +141,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 
 func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, p.app.nd(), "config/config.toml")
+	path := filepath.Join(p.Home(), "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -150,7 +152,7 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
 	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
 	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -164,7 +166,7 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 		step.NewOptions().
 			Add(
 				step.Exec(
-					p.app.d(),
+					p.app.D(),
 					"start",
 					"--pruning", "nothing",
 					"--grpc.address", conf.Servers.GRPCAddr,
@@ -178,12 +180,13 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 
 func (p *stargatePlugin) StoragePaths() []string {
 	return []string{
-		p.app.nd(),
+		p.Home(),
 	}
 }
 
-func (p *stargatePlugin) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", p.app.nd())
+func (p *stargatePlugin) Home() string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+p.app.N())
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

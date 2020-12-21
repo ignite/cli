@@ -5,14 +5,15 @@
 </template>
 
 <script>
-import initCosmos from '@/mixins/initCosmos'
-
-import Layout from "@/layouts/Layout"
+import { mapActions, mapMutations } from 'vuex'
+import Layout from '@/layouts/Layout'
 
 export default {
-  mixins: [initCosmos],
   components: {
-    Layout,
+    Layout
+  },
+  async created() {
+    this.$store.dispatch("cosmos/init", { account: false })    
   }
 };
 </script>
@@ -20,9 +21,9 @@ export default {
 <style>
 body {
   margin: 0;
-  font-family: var(--f-primary);
-  color: var(--c-txt-primary);
-  background-color: var(--c-bg-primary);
+  font-family: var(--sp-f-primary);
+  color: var(--sp-c-txt-primary);
+  background-color: var(--sp-c-bg-primary);
 }
 
 button:hover {
@@ -30,9 +31,9 @@ button:hover {
 }
 
 a {
-  color: var(--c-txt-primary);
+  color: var(--sp-c-txt-primary);
 }
-a:visited {
+/* a:visited {
   color: inherit;
-}
+} */
 </style>

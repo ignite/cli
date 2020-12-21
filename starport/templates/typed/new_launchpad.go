@@ -23,7 +23,7 @@ func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQuerierModify(opts))
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
-	g.RunFn(frontendSrcStoreAppModify(opts))
+	g.RunFn(t.frontendSrcStoreAppModify(opts))
 	return g, box(cosmosver.Launchpad, opts, g)
 }
 
@@ -57,7 +57,8 @@ func (t *typedLaunchpad) typesKeyModify(opts *Options) genny.RunFn {
 		}
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[2]vPrefix = "%[1]v-"
+	%[2]vPrefix = "%[1]v-value-"
+	%[2]vCountPrefix = "%[1]v-count-"
 )
 		`, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
@@ -180,6 +181,25 @@ func (t *typedLaunchpad) clientRestRestModify(opts *Options) genny.RunFn {
 		`
 		replacement := fmt.Sprintf(template, placeholder, opts.ModuleName, strings.Title(opts.TypeName), opts.TypeName)
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedLaunchpad) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := "vue/src/views/Index.vue"
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		fields := ""
+		for _, field := range opts.Fields {
+			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
+		}
+		replacement := fmt.Sprintf(`%[1]v
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, placeholder4, opts.TypeName, fields, opts.ModuleName)
+		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

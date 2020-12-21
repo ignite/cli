@@ -1,12 +1,12 @@
 # Install Starport 
 
-**Prerequisites:** If you want to install Starport locally, make sure to have [Golang >=1.14](https://golang.org/) and [Node.js >=12.19.0](https://nodejs.org/) installed on your system.
+**Prerequisites:** If you want to install Starport locally, make sure to have [Golang >=1.14](https://golang.org/) and [Node.js >=12.19.0](https://nodejs.org/) installed on your system. The latest version of Starport also requires [Protocol Buffer compiler](https://grpc.io/docs/protoc-installation/) to be installed.
 
 ## Installation Options
 
 ### NPM
 
-```
+```bash
 npm i -g @tendermint/starport
 ```
 
@@ -16,9 +16,9 @@ npm i -g @tendermint/starport
 brew install tendermint/tap/starport
 ```
 
-### Debian/Ubuntu with Snapcraft
+<!-- ### Debian/Ubuntu with Snapcraft
 
-```
+```bash
 snap install --classic node
 ```
 
@@ -26,13 +26,19 @@ Append your current working directory to the environment variable `PATH`:
 
 ```
 export PATH=$PATH:$PWD/node_modules/.bin/
-```
+``` -->
 
-### Build from source
+### Build from source on Mac, Linux, and WSL
 
-```
+```bash
 git clone https://github.com/tendermint/starport && cd starport && make
 ```
 
-Scaffold your application - [more](02%20Using%20Starport/01_using_starport/01_using_starport.md#your-blockchain-application)
+You'll find a freshly-baked `starport` binary in the build folder.
 
+Note: When building from source, it is important to have your GOPATH set correctly.  When in doubt, the folllowing should do:
+
+```bash
+mkdir ~/go
+export GOPATH=~/go
+```

@@ -49,6 +49,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
+	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
@@ -57,7 +58,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 
 func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "app/app.go"
+		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -124,7 +125,7 @@ func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 
 func appModifyStargate(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "app/app.go"
+		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

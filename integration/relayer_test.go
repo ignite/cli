@@ -6,7 +6,6 @@ import (
 	"bufio"
 	"bytes"
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
@@ -91,7 +90,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 	// retrieve each chain's relayer connection string.
 	for _, chain := range chains {
 		env.Must(env.Exec(fmt.Sprintf("should get base64 relayer connection string from chain %q", chain.name),
-			step.New(
+			step.NewSteps(step.New(
 				step.Exec(
 					"starport",
 					"chain",
@@ -99,7 +98,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 				),
 				step.Workdir(chain.path),
 				step.Stdout(chain.connstr),
-			),
+			)),
 			ExecCtx(ctx),
 		))
 	}
@@ -111,7 +110,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 				continue
 			}
 			env.Must(env.Exec(fmt.Sprintf("adding chain %q to chain %q", dstchain.name, srcchain.name),
-				step.New(
+				step.NewSteps(step.New(
 					step.Exec(
 						"starport",
 						"chain",
@@ -119,7 +118,7 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 						dstchain.connstr.String(),
 					),
 					step.Workdir(srcchain.path),
-				),
+				)),
 				ExecCtx(ctx),
 			))
 		}
@@ -186,28 +185,39 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 
 		ctx, cancel                = context.WithCancel(env.Ctx())
-		relayerHome                = filepath.Join(env.Home(), "blogd/relayer")
+		relayerHome                = filepath.Join(env.Home(), ".blog/relayer")
 		balance                    = &bytes.Buffer{}
 		canCheckBalanceWithRelayer bool
 	)
 
 	go func() {
 		defer cancel()
+
 		canCheckBalanceWithRelayer = env.
 			Exec("check account balance with relayer",
-				step.New(
+				step.NewSteps(step.New(
 					step.Exec(
 						"rly",
 						"--home", relayerHome,
 						"q",
 						"balance",
 						"blog",
+						"--debug",
 					),
 					step.PreExec(func() error {
 						return env.IsAppServed(ctx, servers)
 					}),
+					step.PostExec(func(execErr error) error {
+						if execErr != nil {
+							return execErr
+						}
+						if strings.TrimSpace(balance.String()) == "" {
+							return errors.New("chain is not ready")
+						}
+						return nil
+					}),
 					step.Stdout(balance),
-				),
+				)),
 				ExecRetry(),
 			)
 	}()
@@ -217,11 +227,5 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 		t.FailNow()
 	}
 
-	var balances []struct {
-		Amount string "json:`amount`"
-	}
-
-	require.NoError(t, json.NewDecoder(balance).Decode(&balances))
-	require.Len(t, balances, 1)
-	require.Equal(t, "800", balances[0].Amount)
+	require.Equal(t, "800token", strings.TrimSpace(balance.String()))
 }

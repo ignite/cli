@@ -2,16 +2,15 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/xos"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 )
@@ -21,6 +20,8 @@ var (
 		"app",
 		"cmd",
 		"x",
+		"proto",
+		"third_party",
 		secretconf.SecretFile,
 	}, conf.FileNames...)
 
@@ -35,46 +36,59 @@ type version struct {
 	hash string
 }
 
+type LogLevel int
+
+const (
+	LogSilent LogLevel = iota
+	LogRegular
+	LogVerbose
+)
+
 type Chain struct {
 	app            App
 	plugin         Plugin
 	version        version
-	verbose        bool
+	logLevel       LogLevel
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
 }
 
-func New(app App, verbose bool) (*Chain, error) {
-	s := &Chain{
+// TODO document noCheck (basically it stands to enable Chain initialization without
+// need of source code)
+func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
+	c := &Chain{
 		app:            app,
-		verbose:        verbose,
+		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
 
-	if verbose {
-		s.stdout = os.Stdout
-		s.stderr = os.Stderr
+	if logLevel == LogVerbose {
+		c.stdout = os.Stdout
+		c.stderr = os.Stderr
 	}
 
 	var err error
 
-	s.version, err = s.appVersion()
-	if err != nil && err != git.ErrRepositoryNotExists {
-		return nil, err
+	if !noCheck {
+		c.version, err = c.appVersion()
+		if err != nil && err != git.ErrRepositoryNotExists {
+			return nil, err
+		}
 	}
 
-	s.plugin, err = s.pickPlugin()
+	c.plugin, err = c.pickPlugin()
 	if err != nil {
 		return nil, err
 	}
-	return s, nil
+
+	return c, nil
 }
 
-func (s *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(s.app.Path)
+func (c *Chain) appVersion() (v version, err error) {
+	repo, err := git.PlainOpen(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
@@ -91,12 +105,17 @@ func (s *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// rpcPublicAddress points to the public address of Tendermint RPC, this is shared by
+// SDKVersion returns the version of SDK used to build the blockchain.
+func (c *Chain) SDKVersion() cosmosver.MajorVersion {
+	return c.plugin.Version()
+}
+
+// RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
-func (s *Chain) rpcPublicAddress() (string, error) {
+func (c *Chain) RPCPublicAddress() (string, error) {
 	rpcAddress := os.Getenv("RPC_ADDRESS")
 	if rpcAddress == "" {
-		conf, err := s.config()
+		conf, err := c.Config()
 		if err != nil {
 			return "", err
 		}
@@ -105,15 +124,64 @@ func (s *Chain) rpcPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (s *Chain) config() (conf.Config, error) {
-	var paths []string
-	for _, name := range conf.FileNames {
-		paths = append(paths, filepath.Join(s.app.Path, name))
-	}
-	confFile, err := xos.OpenFirst(paths...)
+func (c *Chain) StoragePaths() []string {
+	return c.plugin.StoragePaths()
+}
+
+func (c *Chain) Config() (conf.Config, error) {
+	path, err := conf.Locate(c.app.Path)
 	if err != nil {
-		return conf.Config{}, errors.Wrap(err, "config file cannot be found")
+		return conf.DefaultConf, nil
 	}
-	defer confFile.Close()
-	return conf.Parse(confFile)
+	return conf.ParseFile(path)
+}
+
+// ID returns the chain's id.
+func (c *Chain) ID() (string, error) {
+	// chainID in App has the most priority.
+	if c.app.ChainID != "" {
+		return c.app.ChainID, nil
+	}
+
+	// otherwise uses defined in config.yml
+	chainConfig, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+	genid, ok := chainConfig.Genesis["chain_id"]
+	if ok {
+		return genid.(string), nil
+	}
+
+	// use app name by default.
+	return c.app.N(), nil
+}
+
+// Home returns the blockchain node's home dir.
+func (c *Chain) Home() string {
+	appHome := c.app.Home()
+	if appHome == "" {
+		return c.DefaultHome()
+	}
+	return appHome
+}
+
+// DefaultHome returns the blockchain node's default home dir when not specified.
+func (c *Chain) DefaultHome() string {
+	return c.plugin.Home()
+}
+
+// GenesisPath returns genesis.json path of the app.
+func (c *Chain) GenesisPath() string {
+	return fmt.Sprintf("%s/config/genesis.json", c.Home())
+}
+
+// AppTOMLPath returns app.toml path of the app.
+func (c *Chain) AppTOMLPath() string {
+	return fmt.Sprintf("%s/config/app.toml", c.Home())
+}
+
+// ConfigTOMLPath returns config.toml path of the app.
+func (c *Chain) ConfigTOMLPath() string {
+	return fmt.Sprintf("%s/config/config.toml", c.Home())
 }

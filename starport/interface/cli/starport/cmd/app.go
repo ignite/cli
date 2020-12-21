@@ -35,7 +35,7 @@ func appHandler(cmd *cobra.Command, args []string) error {
 		scaffolder.AddressPrefix(addressPrefix),
 		scaffolder.SdkVersion(version),
 	)
-	path, err := sc.Init(name)
+	appdir, err := sc.Init(name)
 	if err != nil {
 		return err
 	}
@@ -48,19 +48,20 @@ func appHandler(cmd *cobra.Command, args []string) error {
 
 NOTE: add --verbose flag for verbose (detailed) output.
 `
-	fmt.Printf(message, path)
+	fmt.Printf(message, appdir)
+
 	return nil
 }
 
 func addSdkVersionFlag(c *cobra.Command) {
-	c.Flags().String(sdkVersionFlag, string(cosmosver.Launchpad), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
+	c.Flags().String(sdkVersionFlag, string(cosmosver.Stargate), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
 }
 
 func sdkVersion(c *cobra.Command) (cosmosver.MajorVersion, error) {
 	v, _ := c.Flags().GetString(sdkVersionFlag)
 	parsed, err := cosmosver.MajorVersions.Parse(v)
 	if err != nil {
-		return "", fmt.Errorf("%q is an unkown sdk version", v)
+		return "", fmt.Errorf("%q is an unknown sdk version", v)
 	}
 	return parsed, nil
 }

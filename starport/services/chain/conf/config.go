@@ -1,19 +1,25 @@
 package conf
 
 import (
+	"errors"
 	"fmt"
 	"io"
+	"os"
+	"path/filepath"
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
 )
 
 var (
+	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
+	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+
 	// FileNames holds a list of appropriate names for the config file.
 	FileNames = []string{"config.yml", "config.yaml"}
 
-	// defaultConf holds default configuraiton.
-	defaultConf = Config{
+	// DefaultConf holds default configuration.
+	DefaultConf = Config{
 		Servers: Servers{
 			RPCAddr:      "0.0.0.0:26657",
 			P2PAddr:      "0.0.0.0:26656",
@@ -31,8 +37,19 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
+	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
+}
+
+// AccountByName finds account by name.
+func (c Config) AccountByName(name string) (acc Account, found bool) {
+	for _, acc := range c.Accounts {
+		if acc.Name == name {
+			return acc, true
+		}
+	}
+	return Account{}, false
 }
 
 // Account holds the options related to setting up Cosmos wallets.
@@ -49,6 +66,15 @@ type Account struct {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
+}
+
+// Init overwrites sdk configurations with given values.
+type Init struct {
+	// App overwrites appd's config/app.toml configs.
+	App map[string]interface{} `yaml:"app"`
+
+	// Config overwrites appd's config/config.toml configs.
+	Config map[string]interface{} `yaml:"config"`
 }
 
 // Servers keeps configuration related to started servers.
@@ -68,10 +94,20 @@ func Parse(r io.Reader) (Config, error) {
 	if err := yaml.NewDecoder(r).Decode(&conf); err != nil {
 		return conf, err
 	}
-	if err := mergo.Merge(&conf, defaultConf); err != nil {
+	if err := mergo.Merge(&conf, DefaultConf); err != nil {
 		return Config{}, err
 	}
 	return conf, validate(conf)
+}
+
+// ParseFile parses config.yml from the path.
+func ParseFile(path string) (Config, error) {
+	file, err := os.Open(path)
+	if err != nil {
+		return Config{}, nil
+	}
+	defer file.Close()
+	return Parse(file)
 }
 
 // validate validates user config.
@@ -92,4 +128,15 @@ type ValidationError struct {
 
 func (e *ValidationError) Error() string {
 	return fmt.Sprintf("config is not valid: %s", e.Message)
+}
+
+// Locate locates the path for the config file otherwise returns ErrCouldntLocateConfig.
+func Locate(root string) (path string, err error) {
+	for _, name := range FileNames {
+		path = filepath.Join(root, name)
+		if _, err := os.Stat(path); !os.IsNotExist(err) {
+			return path, nil
+		}
+	}
+	return "", ErrCouldntLocateConfig
 }

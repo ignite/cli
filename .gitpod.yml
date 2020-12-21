@@ -7,16 +7,18 @@ tasks:
       # Install Starport
       export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
+      export CHISEL_ADDR=$(gp url 7575)
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
       # Install Github CLI
       brew install gh
 
       # install rly
-      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 438815d47a857318199d556f4c1115f2fa6315a2 && make -C /tmp/relayer install)
+      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 3080dab10e37e6db9e691c343b1c0cdb6d845753 && make -C /tmp/relayer install)
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
+      export CHISEL_ADDR=$(gp url 7575)
       export RPC_ADDRESS=$(gp url 26657):443
 
       clear && printf '\e[3J'
@@ -34,3 +36,4 @@ ports:
   - port: 1317
   - port: 26657
   - port: 8080
+  - port: 7575 

@@ -29,7 +29,7 @@ func NewImport(opts *ImportOptions) (*genny.Generator, error) {
 
 func appModify(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "app/app.go"
+		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

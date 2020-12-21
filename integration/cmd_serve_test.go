@@ -20,10 +20,10 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 	)
 
 	env.Must(env.Exec("add CosmWasm module",
-		step.New(
+		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(apath),
-		),
+		)),
 	))
 
 	var (
@@ -35,6 +35,28 @@ func TestServeAppWithCosmWasm(t *testing.T) {
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
 	env.Must(env.Serve("should serve with CosmWasm", apath, ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+}
+
+func TestServeAppStargate(t *testing.T) {
+	t.Parallel()
+
+	var (
+		env     = newEnv(t)
+		apath   = env.Scaffold("sgblog", Stargate)
+		servers = env.RandomizeServerPorts(apath)
+	)
+
+	var (
+		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
+		isBackendAliveErr error
+	)
+	go func() {
+		defer cancel()
+		isBackendAliveErr = env.IsAppServed(ctx, servers)
+	}()
+	env.Must(env.Serve("should serve with Stargate version", apath, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

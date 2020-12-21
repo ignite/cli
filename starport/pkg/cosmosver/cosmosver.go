@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"golang.org/x/mod/semver"
 )
 
 type MajorVersion string
@@ -21,8 +22,8 @@ const (
 var MajorVersions = majorVersions{Launchpad, Stargate}
 
 const (
-	tendermintPath                = "github.com/tendermint/tendermint"
-	cosmosStargateTendermintMajor = "v0.34.0"
+	referenceModulePath      = "github.com/cosmos/cosmos-sdk"
+	referenceModuleLatestTag = "v0.39.99"
 )
 
 // Detect dedects major version of Cosmos.
@@ -33,8 +34,8 @@ func Detect(appPath string) (MajorVersion, error) {
 	}
 	for _, r := range parsed.Require {
 		v := r.Mod
-		if v.Path == tendermintPath {
-			if strings.HasPrefix(v.Version, cosmosStargateTendermintMajor) {
+		if v.Path == referenceModulePath {
+			if semver.Compare(v.Version, referenceModuleLatestTag) >= 0 {
 				return Stargate, nil
 			}
 			break
@@ -53,7 +54,7 @@ func (v majorVersions) Parse(vs string) (MajorVersion, error) {
 			return MajorVersion(vs), nil
 		}
 	}
-	return "", fmt.Errorf("%q is an unkown sdk version", vs)
+	return "", fmt.Errorf("%q is an unknown sdk version", vs)
 }
 
 // String returns a string representation of the version list.

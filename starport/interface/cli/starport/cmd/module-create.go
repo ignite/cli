@@ -7,6 +7,8 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+// NewModuleCreate creates a new module create command to scaffold an
+// sdk module.
 func NewModuleCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name]",

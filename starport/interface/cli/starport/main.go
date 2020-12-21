@@ -1,45 +1,51 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
-	"github.com/tendermint/starport/starport/internal/version"
-	"github.com/tendermint/starport/starport/pkg/analyticsutil"
+	"github.com/tendermint/starport/starport/pkg/clictx"
+	"github.com/tendermint/starport/starport/pkg/gacli"
 )
 
 func main() {
 	defer func() {
 		if r := recover(); r != nil {
 			addMetric(Metric{
-				Err: fmt.Errorf("%s", r),
+				Err: fmt.Errorf("%v", r),
 			})
-			analyticsc.Close()
 			fmt.Println(r)
 			os.Exit(1)
 		}
 	}()
-	analyticsc = analyticsutil.New(analyticsEndpoint, analyticsKey)
-	// TODO add version of new installation.
+	gaclient = gacli.New(gaid)
 	name, hadLogin := prepLoginName()
-	analyticsc.Login(name, version.Version)
 	if !hadLogin {
 		addMetric(Metric{
 			Login:          name,
 			IsInstallation: true,
 		})
 	}
+	// if running serve command, don't wait sending metric until the end of
+	// execution because it takes a long time.
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
 		addMetric(Metric{})
 	}
-	err := starportcmd.New().Execute()
-	addMetric(Metric{
-		Err: err,
-	})
-	analyticsc.Close()
+
+	ctx := clictx.From(context.Background())
+	err := starportcmd.New().ExecuteContext(ctx)
+
+	if err == context.Canceled {
+		addMetric(Metric{
+			Err: err,
+		})
+		fmt.Println("aborted")
+		return
+	}
 	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
+		fmt.Println()
+		panic(err)
 	}
 }

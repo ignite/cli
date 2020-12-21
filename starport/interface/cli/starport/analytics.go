@@ -7,21 +7,22 @@ import (
 	"strings"
 
 	"github.com/Pallinder/go-randomdata"
-	"github.com/ilgooz/analytics-go"
-	"github.com/tendermint/starport/starport/pkg/analyticsutil"
+	"github.com/tendermint/starport/starport/internal/version"
+	"github.com/tendermint/starport/starport/pkg/gacli"
 )
 
 const (
-	analyticsEndpoint = "https://analytics.starport.cloud"
-	analyticsKey      = "ib6mwzNSLW6qIFRTyftezJL8cX4jWkQY"
+	gaid     = "UA-51029217-18" // Google Analytics' tracking id.
+	loginAny = "any"
 )
 
 var (
-	analyticsc           *analyticsutil.Client
+	gaclient             *gacli.Client
 	starportDir          = ".starport"
 	starportAnonIdentity = "anon"
 )
 
+// Metric represents an analytics metric.
 type Metric struct {
 	// IsInstallation sets metrics type as an installation metric.
 	IsInstallation bool
@@ -39,44 +40,48 @@ func addMetric(m Metric) {
 	if len(os.Args) > 1 { // first is starport (binary name).
 		rootCommand = os.Args[1]
 	}
-	var (
-		category string
-		event    string
-	)
-	props := analytics.NewProperties()
+
+	var met gacli.Metric
 	switch {
 	case m.IsInstallation:
-		category = "install"
+		met.Category = "install"
 	case m.Err == nil:
-		category = "success"
+		met.Category = "success"
 	case m.Err != nil:
-		category = "error"
-		props.Set("value", m.Err.Error())
+		met.Category = "error"
+		met.Value = m.Err.Error()
 	}
 	if m.IsInstallation {
-		event = m.Login
+		met.Action = m.Login
 	} else {
-		event = rootCommand
-		props.Set("label", strings.Join(fullCommand, " "))
+		met.Action = rootCommand
+		met.Label = strings.Join(fullCommand, " ")
 	}
-	props.Set("category", category)
-	analyticsc.Track(analytics.Track{
-		Event:      event,
-		Properties: props,
-	})
+	user, _ := prepLoginName()
+	met.User = user
+	met.Version = version.Version
+	gaclient.Send(met)
 }
 
 func prepLoginName() (name string, hadLogin bool) {
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return "any", false
+		return loginAny, false
+	}
+	if err := os.Mkdir(filepath.Join(home, starportDir), 0700); err != nil {
+		return loginAny, false
 	}
 	anonPath := filepath.Join(home, starportDir, starportAnonIdentity)
 	data, err := ioutil.ReadFile(anonPath)
+	if err != nil {
+		return loginAny, false
+	}
 	if len(data) != 0 {
 		return string(data), true
 	}
 	name = randomdata.SillyName()
-	ioutil.WriteFile(anonPath, []byte(name), 0644)
+	if err := ioutil.WriteFile(anonPath, []byte(name), 0700); err != nil {
+		return loginAny, false
+	}
 	return name, false
 }

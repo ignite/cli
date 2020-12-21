@@ -2,7 +2,11 @@
 // to add more features in a later time.
 package scaffolder
 
-import "github.com/tendermint/starport/starport/pkg/cosmosver"
+import (
+	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+)
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
@@ -23,4 +27,8 @@ func New(path string, options ...Option) *Scaffolder {
 
 func (s *Scaffolder) version() (cosmosver.MajorVersion, error) {
 	return cosmosver.Detect(s.path)
+}
+
+func owner(modulePath string) string {
+	return strings.Split(modulePath, "/")[1]
 }

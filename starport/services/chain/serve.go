@@ -3,7 +3,6 @@ package chain
 import (
 	"bytes"
 	"context"
-	"encoding/json"
 	"fmt"
 	"go/build"
 	"net"
@@ -16,7 +15,6 @@ import (
 	"sync"
 	"time"
 
-	"github.com/imdario/mergo"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -29,16 +27,27 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+)
+
 // Serve serves an app.
-func (s *Chain) Serve(ctx context.Context) error {
+func (c *Chain) Serve(ctx context.Context) error {
 	// initial checks and setup.
-	if err := s.setup(ctx); err != nil {
+	if err := c.setup(ctx); err != nil {
 		return err
 	}
+
+	// make sure that config.yml exists.
+	if _, err := conf.Locate(c.app.Path); err != nil {
+		return err
+	}
+
 	// initialize the relayer if application supports it so, secret.yml
 	// can be generated and watched for changes.
-	if err := s.checkIBCRelayerSupport(); err == nil {
-		if _, err := s.RelayerInfo(); err != nil {
+	if err := c.checkIBCRelayerSupport(); err == nil {
+		if _, err := c.RelayerInfo(); err != nil {
 			return err
 		}
 	}
@@ -46,13 +55,13 @@ func (s *Chain) Serve(ctx context.Context) error {
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
 	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
+		return c.watchAppFrontend(ctx)
 	})
 	g.Go(func() error {
-		return s.runDevServer(ctx)
+		return c.runDevServer(ctx)
 	})
 	g.Go(func() error {
-		s.refreshServe()
+		c.refreshServe()
 		for {
 			if ctx.Err() != nil {
 				return ctx.Err()
@@ -61,25 +70,27 @@ func (s *Chain) Serve(ctx context.Context) error {
 			case <-ctx.Done():
 				return ctx.Err()
 
-			case <-s.serveRefresher:
+			case <-c.serveRefresher:
 				var (
 					serveCtx context.Context
 					buildErr *CannotBuildAppError
 				)
-				serveCtx, s.serveCancel = context.WithCancel(ctx)
-				err := s.serve(serveCtx)
+				serveCtx, c.serveCancel = context.WithCancel(ctx)
+
+				// serve the app.
+				err := c.serve(serveCtx)
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
 
 					var validationErr *conf.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+						fmt.Fprintln(c.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
 					}
 
-					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
 				}
@@ -87,18 +98,18 @@ func (s *Chain) Serve(ctx context.Context) error {
 		}
 	})
 	g.Go(func() error {
-		return s.watchAppBackend(ctx)
+		return c.watchAppBackend(ctx)
 	})
 	return g.Wait()
 }
 
-func (s *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+func (c *Chain) setup(ctx context.Context) error {
+	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(c.plugin.Name()))
 
-	if err := s.checkSystem(); err != nil {
+	if err := c.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.plugin.Setup(ctx); err != nil {
+	if err := c.plugin.Setup(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -106,7 +117,7 @@ func (s *Chain) setup(ctx context.Context) error {
 
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *Chain) checkSystem() error {
+func (c *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
@@ -119,49 +130,97 @@ func (s *Chain) checkSystem() error {
 	return nil
 }
 
-func (s *Chain) refreshServe() {
-	if s.serveCancel != nil {
-		s.serveCancel()
+func (c *Chain) refreshServe() {
+	if c.serveCancel != nil {
+		c.serveCancel()
 	}
-	s.serveRefresher <- struct{}{}
+	c.serveRefresher <- struct{}{}
 }
 
-func (s *Chain) watchAppBackend(ctx context.Context) error {
+func (c *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
-		fswatcher.Workdir(s.app.Path),
-		fswatcher.OnChange(s.refreshServe),
+		fswatcher.Workdir(c.app.Path),
+		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
+		fswatcher.IgnoreExt(ignoredExts...),
 	)
 }
 
-func (s *Chain) cmdOptions() []cmdrunner.Option {
+func (c *Chain) cmdOptions() []cmdrunner.Option {
 	return []cmdrunner.Option{
-		cmdrunner.DefaultWorkdir(s.app.Path),
+		cmdrunner.DefaultWorkdir(c.app.Path),
 	}
 }
 
-func (s *Chain) serve(ctx context.Context) error {
-	conf, err := s.config()
+func (c *Chain) serve(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
+	sconf, err := secretconf.Open(c.app.Path)
+	if err != nil {
+		return err
+	}
 
-	buildSteps, _ := s.buildSteps(ctx, conf)
+	if err := c.buildProto(ctx); err != nil {
+		return err
+	}
+
+	buildSteps, err := c.buildSteps()
+	if err != nil {
+		return err
+	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, buildSteps...); err != nil {
 		return err
 	}
 
-	initSteps, err := s.initSteps(ctx, conf)
+	if err := c.Init(ctx); err != nil {
+		return err
+	}
+
+	for _, account := range conf.Accounts {
+		acc, err := c.CreateAccount(ctx, account.Name, "", false)
+		if err != nil {
+			return err
+		}
+
+		acc.Coins = strings.Join(account.Coins, ",")
+		if err := c.AddGenesisAccount(ctx, acc); err != nil {
+			return err
+		}
+	}
+	for _, account := range sconf.Accounts {
+		acc, err := c.CreateAccount(ctx, account.Name, account.Mnemonic, false)
+		if err != nil {
+			return err
+		}
+
+		acc.Coins = strings.Join(account.Coins, ",")
+		if err := c.AddGenesisAccount(ctx, acc); err != nil {
+			return err
+		}
+	}
+
+	setupSteps, err := c.setupSteps()
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
-		Run(ctx, initSteps...); err != nil {
+		New(c.cmdOptions()...).
+		Run(ctx, setupSteps...); err != nil {
+		return err
+	}
+	if _, err := c.Gentx(ctx, Validator{
+		Name:          conf.Validator.Name,
+		StakingAmount: conf.Validator.Staked,
+	}); err != nil {
+		return err
+	}
+	if err := c.CollectGentx(ctx); err != nil {
 		return err
 	}
 
@@ -170,213 +229,28 @@ func (s *Chain) serve(ctx context.Context) error {
 
 	go func() {
 		wr.Wait()
-		if err := s.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
-			fmt.Fprintf(s.stdLog(logStarport).err, "could not init relayer: %s", err)
+		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
 
 	return cmdrunner.
-		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps(ctx, &wr, conf)...)
+		New(append(c.cmdOptions(), cmdrunner.RunParallel())...).
+		Run(ctx, c.serverSteps(ctx, &wr, conf)...)
 }
 
-func (s *Chain) initSteps(ctx context.Context, conf conf.Config) (steps step.Steps, err error) {
-	sconf, err := secretconf.Open(s.app.Path)
-	if err != nil {
-		return nil, err
-	}
-
-	// cleanup persistent data from previous `serve`.
-	steps.Add(step.New(
-		step.PreExec(func() error {
-			for _, path := range s.plugin.StoragePaths() {
-				if err := xos.RemoveAllUnderHome(path); err != nil {
-					return err
-				}
-			}
-			return nil
-		}),
-	))
-
-	// init node.
-	steps.Add(step.New(step.NewOptions().
-		Add(
-			step.Exec(
-				s.app.d(),
-				"init",
-				"mynode",
-				"--chain-id", s.app.n(),
-			),
-			step.PostExec(func(err error) error {
-				// overwrite Genesis with user configs.
-				if err != nil {
-					return err
-				}
-				if conf.Genesis == nil {
-					return nil
-				}
-				home, err := os.UserHomeDir()
-				if err != nil {
-					return err
-				}
-				path := filepath.Join(home, s.plugin.GenesisPath())
-				file, err := os.OpenFile(path, os.O_RDWR, 644)
-				if err != nil {
-					return err
-				}
-				defer file.Close()
-				var genesis map[string]interface{}
-				if err := json.NewDecoder(file).Decode(&genesis); err != nil {
-					return err
-				}
-				if err := mergo.Merge(&genesis, conf.Genesis, mergo.WithOverride); err != nil {
-					return err
-				}
-				if err := file.Truncate(0); err != nil {
-					return err
-				}
-				if _, err := file.Seek(0, 0); err != nil {
-					return err
-				}
-				return json.NewEncoder(file).Encode(&genesis)
-			}),
-			step.PostExec(func(err error) error {
-				if err != nil {
-					return err
-				}
-				return s.plugin.PostInit(conf)
-			}),
-		).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-
-	for _, account := range conf.Accounts {
-		steps.Add(s.createAccountSteps(ctx, account.Name, "", account.Coins, false)...)
-	}
-
-	for _, account := range sconf.Accounts {
-		steps.Add(s.createAccountSteps(ctx, account.Name, account.Mnemonic, account.Coins, false)...)
-	}
-
-	if err := s.checkIBCRelayerSupport(); err == nil {
-		steps.Add(step.New(
-			step.PreExec(func() error {
-				if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
-					return err
-				}
-				info, err := s.RelayerInfo()
-				if err != nil {
-					return err
-				}
-				fmt.Fprintf(s.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
-				return nil
-			}),
-		))
-	}
-
-	for _, execOption := range s.plugin.ConfigCommands() {
-		execOption := execOption
-		steps.Add(step.New(step.NewOptions().
-			Add(execOption).
-			Add(s.stdSteps(logAppcli)...)...,
-		))
-	}
-
-	steps.Add(step.New(step.NewOptions().
-		Add(s.plugin.GentxCommand(conf)).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	steps.Add(step.New(step.NewOptions().
-		Add(step.Exec(
-			s.app.d(),
-			"collect-gentxs",
-		)).
-		Add(s.stdSteps(logAppd)...)...,
-	))
-	return steps, nil
-}
-
-func (s *Chain) createAccountSteps(ctx context.Context, name, mnemonic string, coins []string, isSilent bool) (steps step.Steps) {
-	if mnemonic != "" {
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(s.plugin.ImportUserCommand(name, mnemonic)...)...,
-			),
-		)
-	} else {
-		generatedMnemonic := &bytes.Buffer{}
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(s.plugin.AddUserCommand(name)...).
-					Add(
-						step.PostExec(func(exitErr error) error {
-							if exitErr != nil {
-								return errors.Wrapf(exitErr, "cannot create %s account", name)
-							}
-							var user struct {
-								Mnemonic string `json:"mnemonic"`
-							}
-							if err := json.NewDecoder(generatedMnemonic).Decode(&user); err != nil {
-								return errors.Wrap(err, "cannot decode mnemonic")
-							}
-							if !isSilent {
-								fmt.Fprintf(s.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", user.Mnemonic)
-							}
-							return nil
-						}),
-					).
-					Add(s.stdSteps(logAppcli)...).
-					// Stargate pipes from stdout, Launchpad pipes from stderr.
-					Add(step.Stderr(generatedMnemonic), step.Stdout(generatedMnemonic))...,
-			),
-		)
-	}
-
-	key := &bytes.Buffer{}
-	steps.Add(
-		step.New(step.NewOptions().
-			Add(
-				s.plugin.ShowAccountCommand(name),
-				step.PostExec(func(err error) error {
-					if err != nil {
-						return err
-					}
-					coins := strings.Join(coins, ",")
-					key := strings.TrimSpace(key.String())
-					return cmdrunner.
-						New().
-						Run(ctx, step.New(step.NewOptions().
-							Add(step.Exec(
-								s.app.d(),
-								"add-genesis-account",
-								key,
-								coins,
-							)).
-							Add(s.stdSteps(logAppd)...)...,
-						))
-				}),
-			).
-			Add(s.stdSteps(logAppcli)...).
-			Add(step.Stdout(key))...,
-		),
-	)
-	return
-}
-
-func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
+func (c *Chain) serverSteps(_ context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(len(s.plugin.StartCommands(conf)))
+	wg.Add(len(c.plugin.StartCommands(conf)))
 	go func() {
 		wg.Wait()
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+		fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 		wr.Done()
 	}()
 
-	for _, exec := range s.plugin.StartCommands(conf) {
+	for _, exec := range c.plugin.StartCommands(conf) {
 		steps.Add(
 			step.New(
 				step.NewOptions().
@@ -387,7 +261,7 @@ func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.C
 							return nil
 						}),
 					).
-					Add(s.stdSteps(logAppd)...)...,
+					Add(c.stdSteps(logAppd)...)...,
 			),
 		)
 	}
@@ -395,12 +269,12 @@ func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.C
 	return
 }
 
-func (s *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := s.config()
+func (c *Chain) watchAppFrontend(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
-	vueFullPath := filepath.Join(s.app.Path, vuePath)
+	vueFullPath := filepath.Join(c.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
 	}
@@ -408,7 +282,7 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 	postExec := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
-			fmt.Fprintf(s.stdLog(logStarport).err, "%s\n%s",
+			fmt.Fprintf(c.stdLog(logStarport).err, "%s\n%s",
 				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
 		}
 		return nil // ignore errors.
@@ -441,31 +315,40 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *Chain) runDevServer(ctx context.Context) error {
-	c, err := s.config()
+func (c *Chain) runDevServer(ctx context.Context) error {
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
+
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
+	if err != nil {
+		return err
+	}
+	defer grpcconn.Close()
+
 	conf := Config{
-		SdkVersion:      s.plugin.Name(),
-		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
-		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
-		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
+		SdkVersion:      c.plugin.Name(),
+		EngineAddr:      xurl.HTTP(config.Servers.RPCAddr),
+		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
+		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(s.app, conf)
+	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
 	sv := &http.Server{
-		Addr:    c.Servers.DevUIAddr,
+		Addr:    config.Servers.DevUIAddr,
 		Handler: handler,
 	}
+
 	go func() {
 		<-ctx.Done()
 		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
 		defer cancel()
 		sv.Shutdown(shutdownCtx)
 	}()
+
 	err = sv.ListenAndServe()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil

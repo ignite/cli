@@ -140,7 +140,7 @@
   height: 100vh;
 }
 .sidebar__content {
-  background: var(--c-bg-primary);
+  background: var(--sp-c-bg-primary);
   position: absolute;
   pointer-events: all;
   /* overflow-y: scroll; */

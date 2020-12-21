@@ -17,8 +17,8 @@ type Plugin interface {
 	// Setup performs the initial setup for plugin.
 	Setup(context.Context) error
 
-	// InstallCommands returns step.Exec configurations to install app.
-	InstallCommands(ldflags string) (options []step.Option, binaries []string)
+	// Binaries returns a list of binaries that will be compiled for the app.
+	Binaries() []string
 
 	// AddUserCommand returns step.Exec configuration to add users.
 	AddUserCommand(name string) step.Options
@@ -30,10 +30,10 @@ type Plugin interface {
 	ShowAccountCommand(accountName string) step.Option
 
 	// ConfigCommands returns step.Exec configuration for config commands.
-	ConfigCommands() []step.Option
+	ConfigCommands(chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(starportconf.Config) step.Option
+	GentxCommand(chainID string, v Validator) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
@@ -44,8 +44,8 @@ type Plugin interface {
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
-	// GenesisPath returns path of genesis.json.
-	GenesisPath() string
+	// Home returns the blockchain node's home dir.
+	Home() string
 
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion
@@ -54,16 +54,20 @@ type Plugin interface {
 	SupportsIBC() bool
 }
 
-func (s *Chain) pickPlugin() (Plugin, error) {
-	version, err := cosmosver.Detect(s.app.Path)
-	if err != nil {
-		return nil, err
+func (c *Chain) pickPlugin() (Plugin, error) {
+	version := c.app.Version
+	if version == "" {
+		var err error
+		version, err = cosmosver.Detect(c.app.Path)
+		if err != nil {
+			return nil, err
+		}
 	}
 	switch version {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(s.app), nil
+		return newLaunchpadPlugin(c.app), nil
 	case cosmosver.Stargate:
-		return newStargatePlugin(s.app, s), nil
+		return newStargatePlugin(c.app, c), nil
 	}
 	panic("unknown cosmos version")
 }
