@@ -16,7 +16,7 @@
 - Arch Linux Based Raspberry Pi development environment
 - Calculate the necessary gas for sending transactions to SPN
 
-## Fixes:
+### Fixes:
 
 - Routing REST API endpoints of querier on Stargate.
 - Evaluate `--address-prefix` option when scaffolding for Stargate.
