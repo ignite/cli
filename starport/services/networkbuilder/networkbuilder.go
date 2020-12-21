@@ -375,8 +375,10 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return ctxticker.DoNow(ctx, time.Second*5, func() error {
 			netInfo, err := tc.GetNetInfo(ctx)
 			if err == nil {
-				count := netInfo.ConnectedPeers + 1 // +1 is itself.
-				color.New(color.FgYellow).Printf("%d (%v%%) PEERS ONLINE\n", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
+				// +1 is itself.
+				count := netInfo.ConnectedPeers + 1
+				total := len(p2pAddresses) + 1
+				color.New(color.FgYellow).Printf("%d (%v%%) PEERS ONLINE\n", count, math.Trunc(percent.PercentOf(count, total)))
 			}
 			return nil
 		})
