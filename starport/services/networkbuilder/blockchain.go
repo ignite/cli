@@ -2,10 +2,10 @@ package networkbuilder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -60,7 +60,7 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	}
 
 	if v := c.SDKVersion(); v != cosmosver.Stargate {
-		return fmt.Errorf("%q apps aren't supported", strings.Title(string(v)))
+		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
 	if mustNotInitializedBefore {
