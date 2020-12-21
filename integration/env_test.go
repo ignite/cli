@@ -152,7 +152,7 @@ const (
 // Scaffold scaffolds an app to a unique appPath and returns it.
 func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 	root := e.TmpDir()
-	e.Exec("scaffold a launchpad app",
+	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
