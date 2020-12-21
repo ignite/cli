@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 )
@@ -102,6 +103,11 @@ func (c *Chain) appVersion() (v version, err error) {
 	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
 	v.hash = ref.Hash().String()
 	return v, nil
+}
+
+// SDKVersion returns the version of SDK used to build the blockchain.
+func (c *Chain) SDKVersion() cosmosver.MajorVersion {
+	return c.plugin.Version()
 }
 
 // RPCPublicAddress points to the public address of Tendermint RPC, this is shared by

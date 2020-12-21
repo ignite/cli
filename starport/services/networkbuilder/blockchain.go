@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
@@ -55,6 +57,10 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	c, err := chain.New(app, false, chain.LogSilent)
 	if err != nil {
 		return err
+	}
+
+	if v := c.SDKVersion(); v != cosmosver.Stargate {
+		return fmt.Errorf("%q apps aren't supported", strings.Title(string(v)))
 	}
 
 	if mustNotInitializedBefore {
