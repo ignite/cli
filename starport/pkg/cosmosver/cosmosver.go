@@ -23,7 +23,7 @@ var MajorVersions = majorVersions{Launchpad, Stargate}
 
 const (
 	referenceModulePath      = "github.com/cosmos/cosmos-sdk"
-	referenceModuleLatestTag = "v0.40.0"
+	referenceModuleLatestTag = "v0.39.99"
 )
 
 // Detect dedects major version of Cosmos.
@@ -35,7 +35,7 @@ func Detect(appPath string) (MajorVersion, error) {
 	for _, r := range parsed.Require {
 		v := r.Mod
 		if v.Path == referenceModulePath {
-			if semver.Compare(referenceModuleLatestTag, v.Version) >= 0 {
+			if semver.Compare(v.Version, referenceModuleLatestTag) >= 0 {
 				return Stargate, nil
 			}
 			break
