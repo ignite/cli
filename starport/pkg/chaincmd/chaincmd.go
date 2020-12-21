@@ -35,6 +35,7 @@ type ChainCmd struct {
 	chainID        string
 	homeDir        string
 	keyringBackend string
+	cliCmd         string
 }
 
 // New creates a new ChainCmd to launch command with the chain app
@@ -74,14 +75,11 @@ func WithKeyrinBackend(keyringBackend string) Option {
 	}
 }
 
-// SetChainID sets the chain ID attached to commands
-func (c *ChainCmd) SetChainID(chainID string) {
-	c.chainID = chainID
-}
-
-// SetKeyringBackend sets the keyring backend attached to commands
-func (c *ChainCmd) SetKeyringBackend(keyringBackend string) {
-	c.keyringBackend = keyringBackend
+// WithLaunchpadCLI provides the name of the CLI application to call Launchpad CLI commands
+func WithLaunchpadCLI(cliCmd string) Option {
+	return func(c *ChainCmd) {
+		c.cliCmd = cliCmd
+	}
 }
 
 // StartCommand returns the command to start the daemon of the chain

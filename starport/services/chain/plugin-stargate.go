@@ -2,9 +2,10 @@ package chain
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"os"
 	"path/filepath"
+
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
@@ -20,18 +21,24 @@ type stargatePlugin struct {
 	cmd   chaincmd.ChainCmd
 }
 
-func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
+func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
+	id, err := chain.ID()
+	if err != nil {
+		return nil, err
+	}
+
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend("test"),
+		chaincmd.WithChainID(id),
 	)
 
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
 		cmd:   cmd,
-	}
+	}, nil
 }
 
 func (p *stargatePlugin) Name() string {
@@ -68,8 +75,7 @@ func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
-	p.cmd.SetChainID(chainID)
+func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
 	return p.cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,

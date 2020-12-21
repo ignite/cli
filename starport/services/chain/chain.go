@@ -3,11 +3,12 @@ package chain
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"io"
 	"io/ioutil"
 	"os"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
@@ -49,7 +50,7 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
-	cmd				chaincmd.ChainCmd
+	cmd            chaincmd.ChainCmd
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
@@ -88,9 +89,13 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	}
 
 	// initialize the chain commands
+	id, err := c.ID()
+	if err != nil {
+		return nil, err
+	}
 	c.cmd = chaincmd.New(
 		app.D(),
-		chaincmd.WithChainID(app.D()),
+		chaincmd.WithChainID(id),
 		chaincmd.WithHome(c.Home()),
 	)
 
