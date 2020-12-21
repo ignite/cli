@@ -84,7 +84,7 @@ func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options 
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.LaunchpadImportKeyCommand(accountName)
+	return p.cmd.LaunchpadShowKeyAddressCommand(accountName)
 }
 
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
