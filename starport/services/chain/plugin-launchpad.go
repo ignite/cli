@@ -21,7 +21,7 @@ type launchpadPlugin struct {
 	cmd chaincmd.ChainCmd
 }
 
-func newLaunchpadPlugin(app App, chain *Chain) (*launchpadPlugin, error) {
+func newLaunchpadPlugin(app App) *launchpadPlugin {
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
@@ -32,7 +32,7 @@ func newLaunchpadPlugin(app App, chain *Chain) (*launchpadPlugin, error) {
 	return &launchpadPlugin{
 		app: app,
 		cmd: cmd,
-	}, nil
+	}
 }
 
 func (p *launchpadPlugin) Name() string {

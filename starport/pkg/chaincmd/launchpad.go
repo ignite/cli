@@ -9,7 +9,7 @@ const (
 	optionUnsafeCors = "--unsafe-cors"
 	optionAPIAddress = "--laddr"
 	optionRPCAddress = "--node"
-	optionName 		= "--name"
+	optionName       = "--name"
 )
 
 // LaunchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
@@ -69,7 +69,6 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 		optionRPCAddress,
 		rpcAddress,
 	}
-	command = c.attachKeyringBackend(command)
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
 

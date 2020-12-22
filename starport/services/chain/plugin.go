@@ -65,7 +65,7 @@ func (c *Chain) pickPlugin() (Plugin, error) {
 	}
 	switch version {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(c.app, c)
+		return newLaunchpadPlugin(c.app), nil
 	case cosmosver.Stargate:
 		return newStargatePlugin(c.app, c)
 	}
