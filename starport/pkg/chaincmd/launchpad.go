@@ -111,6 +111,6 @@ func (c ChainCmd) LaunchpadGentxCommand(
 	if gasPrices != "" {
 		command = append(command, optionValidatorGasPrices, gasPrices)
 	}
-
+	command = c.attachKeyringBackend(command)
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
