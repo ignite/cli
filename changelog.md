@@ -1,26 +1,30 @@
 # Changelog
 
-## Fixes:
-
-- Routing REST API endpoints of querier on Stargate.
-- Evaluate `--address-prefix` option when scaffolding for Stargate.
-- Use a deterministic method to generate scaffolded type ids
-- Modify scaffolded type's creator type from address to string
-- Copy built starport arm64 binary from endermintdevelopment/starport:arm64 for device images
-- Added git to amd64 docker image
-- Comment out Gaia's seeds in the systemd unit template for downstream chains
+## `v0.13.0`
 
 ### Features:
 
-- Upgraded Stargate's version to v0.40.0-rc3.
-- Added a gRPC-Web proxy which is available under http://localhost:12345/grpc.
+- Added `starport network` commands for launching blockchains
+- Added proxy (Chisel) to support launching blockchains from Gitpod
+- Upgraded the template (Stargate) to Cosmos SDK v0.40.0-rc3
+- Added a gRPC-Web proxy, which is available under http://localhost:12345/grpc.
 - Added chain id configurability by recognizing `chain_id` from `genesis` section of `config.yml`.
 - Added `config/app.toml` and `config/config.toml` configurability for appd under new `init.app` and `init.config` sections of `config.yml`.
 - Point to Stargate as default SDK version for scaffolding.
 - Covered CRUD operations for Stargate scaffolding.
 - Added docs on gopath to build from source directions
 - Arch Linux Based Raspberry Pi development environment
-- Calculate the necessary gas for sending transactions to spn
+- Calculate the necessary gas for sending transactions to SPN
+
+### Fixes:
+
+- Routing REST API endpoints of querier on Stargate.
+- Evaluate `--address-prefix` option when scaffolding for Stargate.
+- Use a deterministic method to generate scaffolded type IDs
+- Modify scaffolded type's creator type from address to string
+- Copy built starport arm64 binary from tendermintdevelopment/starport:arm64 for device images
+- Added git to amd64 docker image
+- Comment out Gaia's seeds in the systemd unit template for downstream chains
 
 ## `v0.12.0`
 
