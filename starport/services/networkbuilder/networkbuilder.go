@@ -186,8 +186,20 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// as well as validators.
 	default:
 		// use a tempdir to clone the source code inside.
-		if path, err = ioutil.TempDir("", ""); err != nil {
-			return nil, err
+		tmpDir := os.TempDir()
+		path = filepath.Join(tmpDir, "spn-" + chainID)
+		if err := os.Mkdir(path, 0700); err != nil {
+			if os.IsExist(err) {
+				// if the directory already exists, we overwrite it to ensure we have the last version
+				if err := os.RemoveAll(path); err != nil {
+					return nil, err
+				}
+				if err := os.Mkdir(path, 0700); err != nil {
+					return nil, err
+				}
+			} else {
+				return nil, err
+			}
 		}
 
 		// prepare clone options.
