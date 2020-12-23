@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -77,7 +78,7 @@ func validatePackageName(name string) error {
 func root(path string) string {
 	sp := strings.Split(path, "/")
 	name := sp[len(sp)-1]
-	if strings.HasPrefix(name, "v") { // omit versions.
+	if hasVer, _ := regexp.MatchString(`^v\d+$`, name); hasVer { // omit versions.
 		name = sp[len(sp)-2]
 	}
 	return name
