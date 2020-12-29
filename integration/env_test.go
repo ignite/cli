@@ -164,6 +164,18 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 			step.Workdir(root),
 		)),
 	)
+
+	// Cleanup the home directory of the app
+	e.t.Cleanup(func() {
+		switch sdkVersion {
+		case Stargate:
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
+		case Launchpad:
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%sd", appName)))
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%scli", appName)))
+		}
+	})
+
 	return filepath.Join(root, appName)
 }
 
