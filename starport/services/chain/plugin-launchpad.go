@@ -22,9 +22,14 @@ type launchpadPlugin struct {
 }
 
 func newLaunchpadPlugin(app App) *launchpadPlugin {
+	// Define homes
 	home := app.Home()
 	if home == "" {
 		home = launchpadHome(app)
+	}
+	cliHome := app.CLIHome()
+	if cliHome == "" {
+		cliHome = launchpadCLIHome(app)
 	}
 
 	// initialize the chain command with keyring backend test
@@ -33,6 +38,7 @@ func newLaunchpadPlugin(app App) *launchpadPlugin {
 		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
 		chaincmd.WithLaunchpadCLI(app.CLI()),
 		chaincmd.WithHome(home),
+		chaincmd.WithLaunchpadCLIHome(cliHome),
 	)
 
 	return &launchpadPlugin{
@@ -158,10 +164,9 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {
-	home, _ := os.UserHomeDir()
 	return []string{
-		filepath.Join(home, "."+p.app.ND()),
-		filepath.Join(home, "."+p.app.NCLI()),
+		launchpadHome(p.app),
+		launchpadCLIHome(p.app),
 	}
 }
 
@@ -172,6 +177,11 @@ func (p *launchpadPlugin) Home() string {
 func launchpadHome(app App) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, "."+app.ND())
+}
+
+func launchpadCLIHome(app App) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+app.NCLI())
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

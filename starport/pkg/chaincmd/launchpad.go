@@ -22,7 +22,7 @@ func (c ChainCmd) LaunchpadAddKeyCommand(accountName string) step.Option {
 		constJSON,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // LaunchpadImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic with Launchpad chains
@@ -34,7 +34,7 @@ func (c ChainCmd) LaunchpadImportKeyCommand(accountName string) step.Option {
 		optionRecover,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // LaunchpadShowKeyAddressCommand returns the command to print the address of a key in the chain keyring with Launchpad chains
@@ -46,7 +46,7 @@ func (c ChainCmd) LaunchpadShowKeyAddressCommand(accountName string) step.Option
 		optionAddress,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // LaunchpadSetConfigCommand
@@ -56,7 +56,7 @@ func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Opti
 		name,
 		value,
 	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // LaunchpadRestServerCommand
@@ -69,7 +69,7 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 		optionRPCAddress,
 		rpcAddress,
 	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // LaunchpadGentxCommand returns the command to generate a gentx for the chain
@@ -93,4 +93,12 @@ func (c ChainCmd) LaunchpadGentxCommand(
 
 	command = c.attachKeyringBackend(command)
 	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
+// attachCLIHome appends the home flag to the provided CLI command
+func (c ChainCmd) attachCLIHome(command []string) []string {
+	if c.cliHome != "" {
+		command = append(command, []string{optionHome, c.cliHome}...)
+	}
+	return command
 }

@@ -9,12 +9,13 @@ import (
 
 // App keeps info about chain.
 type App struct {
-	ChainID    string
-	Version    cosmosver.MajorVersion
-	Name       string
-	Path       string
-	ImportPath string
-	HomePath   string
+	ChainID    	string
+	Version    	cosmosver.MajorVersion
+	Name       	string
+	Path       	string
+	ImportPath 	string
+	HomePath   	string
+	CLIHomePath string
 }
 
 // N returns app name without dashes.
@@ -52,3 +53,9 @@ func (a App) Root() string {
 func (a App) Home() string {
 	return a.HomePath
 }
+
+// Home returns the node's CLI home dir (only used with Launchpad).
+func (a App) CLIHome() string {
+	return a.CLIHomePath
+}
+

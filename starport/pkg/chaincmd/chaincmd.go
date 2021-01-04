@@ -46,6 +46,7 @@ type ChainCmd struct {
 	homeDir        string
 	keyringBackend KeyringBackend
 	cliCmd         string
+	cliHome         string
 }
 
 // New creates a new ChainCmd to launch command with the chain app
@@ -89,6 +90,13 @@ func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
 func WithLaunchpadCLI(cliCmd string) Option {
 	return func(c *ChainCmd) {
 		c.cliCmd = cliCmd
+	}
+}
+
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
+	return func(c *ChainCmd) {
+		c.cliHome = cliHome
 	}
 }
 

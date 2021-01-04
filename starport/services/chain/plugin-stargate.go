@@ -22,6 +22,7 @@ type stargatePlugin struct {
 }
 
 func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
+	// Define home
 	home := app.Home()
 	if home == "" {
 		home = stargateHome(app)
