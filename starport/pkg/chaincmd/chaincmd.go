@@ -165,9 +165,8 @@ func GentxWithMoniker(moniker string) GentxOption {
 	return func(command []string) []string {
 		if len(moniker) > 0 {
 			return append(command, optionValidatorMoniker, moniker)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
@@ -176,9 +175,8 @@ func GentxWithCommissionRate(commissionRate string) GentxOption {
 	return func(command []string) []string {
 		if len(commissionRate) > 0 {
 			return append(command, optionValidatorCommissionRate, commissionRate)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
@@ -187,9 +185,8 @@ func GentxWithCommissionMaxRate(commissionMaxRate string) GentxOption {
 	return func(command []string) []string {
 		if len(commissionMaxRate) > 0 {
 			return append(command, optionValidatorCommissionMaxRate, commissionMaxRate)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
@@ -198,9 +195,8 @@ func GentxWithCommissionMaxChangeRate(commissionMaxChangeRate string) GentxOptio
 	return func(command []string) []string {
 		if len(commissionMaxChangeRate) > 0 {
 			return append(command, optionValidatorCommissionMaxChangeRate, commissionMaxChangeRate)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
@@ -209,9 +205,8 @@ func GentxWithMinSelfDelegation(minSelfDelegation string) GentxOption {
 	return func(command []string) []string {
 		if len(minSelfDelegation) > 0 {
 			return append(command, optionValidatorMinSelfDelegation, minSelfDelegation)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
@@ -220,9 +215,8 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	return func(command []string) []string {
 		if len(gasPrices) > 0 {
 			return append(command, optionValidatorGasPrices, gasPrices)
-		} else {
-			return command
 		}
+		return command
 	}
 }
 
