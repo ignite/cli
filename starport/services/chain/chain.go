@@ -8,6 +8,8 @@ import (
 	"os"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -49,6 +51,7 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
+	cmd            chaincmd.ChainCmd
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
@@ -72,6 +75,7 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 
 	var err error
 
+	// Check
 	if !noCheck {
 		c.version, err = c.appVersion()
 		if err != nil && err != git.ErrRepositoryNotExists {
@@ -79,10 +83,22 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 		}
 	}
 
+	// initialize the plugin depending on the version of the chain
 	c.plugin, err = c.pickPlugin()
 	if err != nil {
 		return nil, err
 	}
+
+	// initialize the chain commands
+	id, err := c.ID()
+	if err != nil {
+		return nil, err
+	}
+	c.cmd = chaincmd.New(
+		app.D(),
+		chaincmd.WithChainID(id),
+		chaincmd.WithHome(c.Home()),
+	)
 
 	return c, nil
 }
@@ -184,4 +200,9 @@ func (c *Chain) AppTOMLPath() string {
 // ConfigTOMLPath returns config.toml path of the app.
 func (c *Chain) ConfigTOMLPath() string {
 	return fmt.Sprintf("%s/config/config.toml", c.Home())
+}
+
+// Commands returns the chaincmd object to perform command with the chain binary
+func (c *Chain) Commands() chaincmd.ChainCmd {
+	return c.cmd
 }

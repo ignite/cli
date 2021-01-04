@@ -33,7 +33,7 @@ type Plugin interface {
 	ConfigCommands(chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(chainID string, v Validator) step.Option
+	GentxCommand(v Validator) step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
@@ -67,7 +67,7 @@ func (c *Chain) pickPlugin() (Plugin, error) {
 	case cosmosver.Launchpad:
 		return newLaunchpadPlugin(c.app), nil
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c), nil
+		return newStargatePlugin(c.app, c)
 	}
 	panic("unknown cosmos version")
 }
