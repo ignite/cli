@@ -30,7 +30,7 @@ func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
-		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
+		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
 		chaincmd.WithChainID(id),
 	)
 

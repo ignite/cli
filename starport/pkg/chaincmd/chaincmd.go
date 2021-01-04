@@ -79,8 +79,8 @@ func WithChainID(chainID string) Option {
 	}
 }
 
-// WithKeyrinBackend provides a specific keyring backend for the commands that accept this option
-func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
+// WithKeyringBackend provides a specific keyring backend for the commands that accept this option
+func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
 	}
@@ -152,6 +152,18 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	return c.cliCommand(command)
 }
 
+// ListKeysCommand returns the command to print the list of a keys in the chain keyring
+func (c ChainCmd) ListKeysCommand() step.Option {
+	command := []string{
+		commandKeys,
+		"list",
+		optionOutput,
+		constJSON,
+	}
+	command = c.attachKeyringBackend(command)
+	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
 func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Option {
 	command := []string{
@@ -162,7 +174,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 	return c.daemonCommand(command)
 }
 
-// Options for the GentxCommand
+// GentxOption for the GentxCommand
 type GentxOption func([]string) []string
 
 // GentxWithMoniker provides moniker option for the gentx command
