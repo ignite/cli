@@ -22,11 +22,17 @@ type launchpadPlugin struct {
 }
 
 func newLaunchpadPlugin(app App) *launchpadPlugin {
+	home := app.Home()
+	if home == "" {
+		home = launchpadHome(app)
+	}
+
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
 		chaincmd.WithLaunchpadCLI(app.CLI()),
+		chaincmd.WithHome(home),
 	)
 
 	return &launchpadPlugin{
@@ -160,8 +166,12 @@ func (p *launchpadPlugin) StoragePaths() []string {
 }
 
 func (p *launchpadPlugin) Home() string {
+	return launchpadHome(p.app)
+}
+
+func launchpadHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+p.app.ND())
+	return filepath.Join(home, "."+app.ND())
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

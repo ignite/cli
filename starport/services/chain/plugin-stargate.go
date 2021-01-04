@@ -22,6 +22,11 @@ type stargatePlugin struct {
 }
 
 func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
+	home := app.Home()
+	if home == "" {
+		home = stargateHome(app)
+	}
+
 	id, err := chain.ID()
 	if err != nil {
 		return nil, err
@@ -32,6 +37,7 @@ func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
 		app.D(),
 		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
 		chaincmd.WithChainID(id),
+		chaincmd.WithHome(home),
 	)
 
 	return &stargatePlugin{
@@ -162,9 +168,14 @@ func (p *stargatePlugin) StoragePaths() []string {
 }
 
 func (p *stargatePlugin) Home() string {
-	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+p.app.N())
+	return stargateHome(p.app)
 }
+
+func stargateHome(app App) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+app.N())
+}
+
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
 
