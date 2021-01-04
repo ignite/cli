@@ -177,7 +177,6 @@ func stargateHome(app App) string {
 	return filepath.Join(home, "."+app.N())
 }
 
-
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
 
 func (p *stargatePlugin) SupportsIBC() bool { return true }

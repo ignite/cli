@@ -46,7 +46,7 @@ type ChainCmd struct {
 	homeDir        string
 	keyringBackend KeyringBackend
 	cliCmd         string
-	cliHome         string
+	cliHome        string
 }
 
 // New creates a new ChainCmd to launch command with the chain app

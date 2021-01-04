@@ -9,12 +9,12 @@ import (
 
 // App keeps info about chain.
 type App struct {
-	ChainID    	string
-	Version    	cosmosver.MajorVersion
-	Name       	string
-	Path       	string
-	ImportPath 	string
-	HomePath   	string
+	ChainID     string
+	Version     cosmosver.MajorVersion
+	Name        string
+	Path        string
+	ImportPath  string
+	HomePath    string
 	CLIHomePath string
 }
 
@@ -58,4 +58,3 @@ func (a App) Home() string {
 func (a App) CLIHome() string {
 	return a.CLIHomePath
 }
-
