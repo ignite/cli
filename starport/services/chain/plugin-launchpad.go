@@ -25,7 +25,7 @@ func newLaunchpadPlugin(app App) *launchpadPlugin {
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
-		chaincmd.WithKeyrinBackend("test"),
+		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
 		chaincmd.WithLaunchpadCLI(app.CLI()),
 	)
 

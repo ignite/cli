@@ -30,11 +30,21 @@ const (
 	constJSON       = "json"
 )
 
+type KeyringBackend string
+
+const (
+	KeyringBackendOS      KeyringBackend = "os"
+	KeyringBackendFile    KeyringBackend = "file"
+	KeyringBackendPass    KeyringBackend = "pass"
+	KeyringBackendTest    KeyringBackend = "test"
+	KeyringBackendKwallet KeyringBackend = "kwallet"
+)
+
 type ChainCmd struct {
 	appCmd         string
 	chainID        string
 	homeDir        string
-	keyringBackend string
+	keyringBackend KeyringBackend
 	cliCmd         string
 }
 
@@ -69,7 +79,7 @@ func WithChainID(chainID string) Option {
 }
 
 // WithKeyrinBackend provides a specific keyring backend for the commands that accept this option
-func WithKeyrinBackend(keyringBackend string) Option {
+func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
 	}
@@ -228,7 +238,7 @@ func (c ChainCmd) attachChainID(command []string) []string {
 // attachKeyringBackend appends the keyring backend flag to the provided command
 func (c ChainCmd) attachKeyringBackend(command []string) []string {
 	if c.keyringBackend != "" {
-		command = append(command, []string{optionKeyringBackend, c.keyringBackend}...)
+		command = append(command, []string{optionKeyringBackend, string(c.keyringBackend)}...)
 	}
 	return command
 }
