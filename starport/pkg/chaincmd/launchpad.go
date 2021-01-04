@@ -76,12 +76,7 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 func (c ChainCmd) LaunchpadGentxCommand(
 	validatorName string,
 	selfDelegation string,
-	moniker string,
-	commissionRate string,
-	commissionMaxRate string,
-	commissionMaxChangeRate string,
-	minSelfDelegation string,
-	gasPrices string,
+	options ...GentxOption,
 ) step.Option {
 	command := []string{
 		commandGentx,
@@ -91,25 +86,11 @@ func (c ChainCmd) LaunchpadGentxCommand(
 		selfDelegation,
 	}
 
-	// Append optional validator information
-	if moniker != "" {
-		command = append(command, optionValidatorMoniker, moniker)
+	// Apply the options provided by the user
+	for _, applyOption := range options {
+		command = applyOption(command)
 	}
-	if commissionRate != "" {
-		command = append(command, optionValidatorCommissionRate, commissionRate)
-	}
-	if commissionMaxRate != "" {
-		command = append(command, optionValidatorCommissionMaxRate, commissionMaxRate)
-	}
-	if commissionMaxChangeRate != "" {
-		command = append(command, optionValidatorCommissionMaxChangeRate, commissionMaxChangeRate)
-	}
-	if minSelfDelegation != "" {
-		command = append(command, optionValidatorMinSelfDelegation, minSelfDelegation)
-	}
-	if gasPrices != "" {
-		command = append(command, optionValidatorGasPrices, gasPrices)
-	}
+
 	command = c.attachKeyringBackend(command)
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }

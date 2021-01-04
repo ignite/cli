@@ -157,16 +157,80 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
+// Options for the GentxCommand
+type GentxOption func([]string) []string
+
+// GentxWithMoniker provides moniker option for the gentx command
+func GentxWithMoniker(moniker string) GentxOption {
+	return func(command []string) []string {
+		if len(moniker) > 0 {
+			return append(command, optionValidatorMoniker, moniker)
+		} else {
+			return command
+		}
+	}
+}
+
+// GentxWithCommissionRate provides commission rate option for the gentx command
+func GentxWithCommissionRate(commissionRate string) GentxOption {
+	return func(command []string) []string {
+		if len(commissionRate) > 0 {
+			return append(command, optionValidatorCommissionRate, commissionRate)
+		} else {
+			return command
+		}
+	}
+}
+
+// GentxWithCommissionMaxRate provides commission max rate option for the gentx command
+func GentxWithCommissionMaxRate(commissionMaxRate string) GentxOption {
+	return func(command []string) []string {
+		if len(commissionMaxRate) > 0 {
+			return append(command, optionValidatorCommissionMaxRate, commissionMaxRate)
+		} else {
+			return command
+		}
+	}
+}
+
+// GentxWithCommissionMaxChangeRate provides commission max change rate option for the gentx command
+func GentxWithCommissionMaxChangeRate(commissionMaxChangeRate string) GentxOption {
+	return func(command []string) []string {
+		if len(commissionMaxChangeRate) > 0 {
+			return append(command, optionValidatorCommissionMaxChangeRate, commissionMaxChangeRate)
+		} else {
+			return command
+		}
+	}
+}
+
+// GentxWithMinSelfDelegation provides minimum self delegation option for the gentx command
+func GentxWithMinSelfDelegation(minSelfDelegation string) GentxOption {
+	return func(command []string) []string {
+		if len(minSelfDelegation) > 0 {
+			return append(command, optionValidatorMinSelfDelegation, minSelfDelegation)
+		} else {
+			return command
+		}
+	}
+}
+
+// GentxWithGasPrices provides gas price option for the gentx command
+func GentxWithGasPrices(gasPrices string) GentxOption {
+	return func(command []string) []string {
+		if len(gasPrices) > 0 {
+			return append(command, optionValidatorGasPrices, gasPrices)
+		} else {
+			return command
+		}
+	}
+}
+
 // GentxCommand returns the command to generate a gentx for the chain
 func (c ChainCmd) GentxCommand(
 	validatorName string,
 	selfDelegation string,
-	moniker string,
-	commissionRate string,
-	commissionMaxRate string,
-	commissionMaxChangeRate string,
-	minSelfDelegation string,
-	gasPrices string,
+	options ...GentxOption,
 ) step.Option {
 	command := []string{
 		commandGentx,
@@ -175,24 +239,9 @@ func (c ChainCmd) GentxCommand(
 		selfDelegation,
 	}
 
-	// Append optional validator information
-	if moniker != "" {
-		command = append(command, optionValidatorMoniker, moniker)
-	}
-	if commissionRate != "" {
-		command = append(command, optionValidatorCommissionRate, commissionRate)
-	}
-	if commissionMaxRate != "" {
-		command = append(command, optionValidatorCommissionMaxRate, commissionMaxRate)
-	}
-	if commissionMaxChangeRate != "" {
-		command = append(command, optionValidatorCommissionMaxChangeRate, commissionMaxChangeRate)
-	}
-	if minSelfDelegation != "" {
-		command = append(command, optionValidatorMinSelfDelegation, minSelfDelegation)
-	}
-	if gasPrices != "" {
-		command = append(command, optionValidatorGasPrices, gasPrices)
+	// Apply the options provided by the user
+	for _, applyOption := range options {
+		command = applyOption(command)
 	}
 
 	// Add necessary flags

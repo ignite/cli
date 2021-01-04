@@ -95,12 +95,12 @@ func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
 	return p.cmd.LaunchpadGentxCommand(
 		v.Name,
 		v.StakingAmount,
-		v.Moniker,
-		v.CommissionRate,
-		v.CommissionMaxRate,
-		v.CommissionMaxChangeRate,
-		v.MinSelfDelegation,
-		v.GasPrices,
+		chaincmd.GentxWithMoniker(v.Moniker),
+		chaincmd.GentxWithCommissionRate(v.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(v.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(v.GasPrices),
 	)
 }
 
