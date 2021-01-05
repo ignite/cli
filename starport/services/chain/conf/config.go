@@ -77,10 +77,10 @@ type Init struct {
 	Config map[string]interface{} `yaml:"config"`
 
 	// Home overwrites default home directory used for the app
-	Home string `yaml:"home`
+	Home string `yaml:"home"`
 
 	// CLIHome overwrites default CLI home directory used for launchpad app
-	CLIHome string `yaml:"clihome`
+	CLIHome string `yaml:"clihome"`
 }
 
 // Servers keeps configuration related to started servers.

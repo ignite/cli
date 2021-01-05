@@ -64,14 +64,28 @@ func (c *Chain) Init(ctx context.Context) error {
 				conf.Genesis["chain_id"] = chainID
 			}
 
+			// get necessary paths
+			genesisPath, err := c.GenesisPath()
+			if err != nil {
+				return err
+			}
+			appTOMLPath, err := c.AppTOMLPath()
+			if err != nil {
+				return err
+			}
+			configTOMLPath, err := c.ConfigTOMLPath()
+			if err != nil {
+				return err
+			}
+
 			appconfigs := []struct {
 				ec      confile.EncodingCreator
 				path    string
 				changes map[string]interface{}
 			}{
-				{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
-				{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
-				{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
+				{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
+				{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+				{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 			}
 
 			for _, ac := range appconfigs {
@@ -125,7 +139,7 @@ func (c *Chain) setupSteps() (steps step.Steps, err error) {
 		return nil, err
 	}
 
-	for _, execOption := range c.plugin.ConfigCommands(chainID) {
+	for _, execOption := range c.plugin.ConfigCommands(c.cmd, chainID) {
 		execOption := execOption
 		steps.Add(step.New(step.NewOptions().
 			Add(execOption).
@@ -152,7 +166,7 @@ func (c *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 	if mnemonic != "" {
 		steps.Add(
 			step.New(step.NewOptions().
-				Add(c.plugin.ImportUserCommand(name, mnemonic)...).
+				Add(c.plugin.ImportUserCommand(c.cmd, name, mnemonic)...).
 				Add(step.Stderr(errb))...,
 			),
 		)
@@ -160,7 +174,7 @@ func (c *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 		generatedMnemonic := &bytes.Buffer{}
 		steps.Add(
 			step.New(step.NewOptions().
-				Add(c.plugin.AddUserCommand(name)...).
+				Add(c.plugin.AddUserCommand(c.cmd, name)...).
 				Add(
 					step.PostExec(func(exitErr error) error {
 						if exitErr != nil {
@@ -184,7 +198,7 @@ func (c *Chain) CreateAccount(ctx context.Context, name, mnemonic string, isSile
 
 	steps.Add(
 		step.New(
-			c.plugin.ShowAccountCommand(name),
+			c.plugin.ShowAccountCommand(c.cmd, name),
 			step.PostExec(func(err error) error {
 				if err != nil {
 					return err
@@ -224,7 +238,7 @@ func (c *Chain) Gentx(ctx context.Context, v Validator) (gentxPath string, err e
 	if err := cmdrunner.
 		New(c.cmdOptions()...).
 		Run(ctx, step.New(
-			c.plugin.GentxCommand(v),
+			c.plugin.GentxCommand(c.cmd, v),
 			step.Stderr(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).err, errb)),
 			step.Stdout(io.MultiWriter(gentxPathMessage, c.stdLog(logAppd).out)),
 		)); err != nil {

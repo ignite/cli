@@ -63,9 +63,14 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+
 	if mustNotInitializedBefore {
-		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
-			return &DataDirExistsError{chainID, c.Home()}
+		if _, err := os.Stat(home); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, home}
 		}
 	}
 
@@ -85,11 +90,15 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
-	genesis, err := ioutil.ReadFile(c.GenesisPath())
+	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(initialGenesisPath(c.Home()), genesis, 0644); err != nil {
+	genesis, err := ioutil.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(initialGenesisPath(home), genesis, 0644); err != nil {
 		return err
 	}
 
@@ -115,7 +124,11 @@ type BlockchainInfo struct {
 
 // Info returns information about the blockchain.
 func (b *Blockchain) Info() (BlockchainInfo, error) {
-	genesis, err := ioutil.ReadFile(b.chain.GenesisPath())
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return BlockchainInfo{}, err
+	}
+	genesis, err := ioutil.ReadFile(genesisPath)
 	if err != nil {
 		return BlockchainInfo{}, err
 	}

@@ -241,7 +241,7 @@ func (c *Chain) serve(ctx context.Context) error {
 
 func (c *Chain) serverSteps(_ context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
 	var wg sync.WaitGroup
-	wg.Add(len(c.plugin.StartCommands(conf)))
+	wg.Add(len(c.plugin.StartCommands(c.cmd, conf)))
 	go func() {
 		wg.Wait()
 		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
@@ -250,7 +250,7 @@ func (c *Chain) serverSteps(_ context.Context, wr *sync.WaitGroup, conf conf.Con
 		wr.Done()
 	}()
 
-	for _, exec := range c.plugin.StartCommands(conf) {
+	for _, exec := range c.plugin.StartCommands(c.cmd, conf) {
 		steps.Add(
 			step.New(
 				step.NewOptions().

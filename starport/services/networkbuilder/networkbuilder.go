@@ -338,7 +338,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(chainHandler.Home(), "config/config.toml")
+	home, err := chainHandler.Home()
+	if err != nil {
+		return err
+	}
+	configTomlPath := filepath.Join(home, "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -399,18 +403,23 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
-	// overwrite genesis with initial genesis.
-	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(chainHandler.Home()))
+	home, err := chainHandler.Home()
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(chainHandler.Home()), initialGenesis, 0755)
+
+	// overwrite genesis with initial genesis.
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(home))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(genesisPath(home), initialGenesis, 0755)
 	if err != nil {
 		return err
 	}
 
 	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
-	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(chainHandler.Home()))
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(home))
 	var genesis map[string]interface{}
 	if err := cf.Load(&genesis); err != nil {
 		return err
@@ -433,15 +442,15 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	}
 
 	// reset gentx directory
-	os.Mkdir(filepath.Join(chainHandler.Home(), "config/gentx"), os.ModePerm)
-	dir, err := ioutil.ReadDir(filepath.Join(chainHandler.Home(), "config/gentx"))
+	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
+	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
 	if err != nil {
 		return err
 	}
 
 	// remove all the current gentxs
 	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(chainHandler.Home(), "config/gentx", d.Name())); err != nil {
+		if err := os.RemoveAll(filepath.Join(home, "config/gentx", d.Name())); err != nil {
 			return err
 		}
 	}
@@ -449,7 +458,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	// add and collect the gentxs
 	for i, gentx := range launchInfo.GenTxs {
 		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(chainHandler.Home(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		gentxPath := filepath.Join(home, fmt.Sprintf("config/gentx/gentx%v.json", i))
 		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}

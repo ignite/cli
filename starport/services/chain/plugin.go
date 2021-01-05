@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"

@@ -204,18 +204,30 @@ func (c *Chain) DefaultHome() string {
 }
 
 // GenesisPath returns genesis.json path of the app.
-func (c *Chain) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", c.Home())
+func (c *Chain) GenesisPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/genesis.json", home), nil
 }
 
 // AppTOMLPath returns app.toml path of the app.
-func (c *Chain) AppTOMLPath() string {
-	return fmt.Sprintf("%s/config/app.toml", c.Home())
+func (c *Chain) AppTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/app.toml", home), nil
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
-func (c *Chain) ConfigTOMLPath() string {
-	return fmt.Sprintf("%s/config/config.toml", c.Home())
+func (c *Chain) ConfigTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/config.toml", home), nil
 }
 
 // Commands returns the chaincmd object to perform command with the chain binary
