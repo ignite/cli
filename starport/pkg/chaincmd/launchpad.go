@@ -12,41 +12,11 @@ const (
 	optionName       = "--name"
 )
 
-// launchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
-func (c ChainCmd) launchpadAddKeyCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"add",
-		accountName,
-		optionOutput,
-		constJSON,
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
+	return func(c *ChainCmd) {
+		c.cliHome = cliHome
 	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
-}
-
-// launchpadImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic with Launchpad chains
-func (c ChainCmd) launchpadImportKeyCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"add",
-		accountName,
-		optionRecover,
-	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
-}
-
-// launchpadShowKeyAddressCommand returns the command to print the address of a key in the chain keyring with Launchpad chains
-func (c ChainCmd) launchpadShowKeyAddressCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"show",
-		accountName,
-		optionAddress,
-	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
 
 // launchpadGentxCommand returns the command to generate a gentx for the chain
@@ -93,4 +63,12 @@ func (c ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddress strin
 		rpcAddress,
 	}
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
+}
+
+// attachCLIHome appends the home flag to the provided CLI command
+func (c ChainCmd) attachCLIHome(command []string) []string {
+	if c.cliHome != "" {
+		command = append(command, []string{optionHome, c.cliHome}...)
+	}
+	return command
 }

@@ -46,6 +46,7 @@ type ChainCmd struct {
 	homeDir        string
 	keyringBackend KeyringBackend
 	cliCmd         string
+	cliHome        string
 }
 
 // New creates a new ChainCmd to launch command with the chain app
@@ -113,29 +114,53 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
 func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
+	command := []string{
+		commandKeys,
+		"add",
+		accountName,
+		optionRecover,
+	}
+	command = c.attachKeyringBackend(command)
+
 	// Check version
 	if c.isStargate() {
-		return c.stargateAddKeyCommand(accountName)
+		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
-	return c.launchpadAddKeyCommand(accountName)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
 func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
+	command := []string{
+		commandKeys,
+		"add",
+		accountName,
+		optionRecover,
+	}
+	command = c.attachKeyringBackend(command)
+
 	// Check version
 	if c.isStargate() {
-		return c.stargateImportKeyCommand(accountName)
+		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
-	return c.launchpadImportKeyCommand(accountName)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
 func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
+	command := []string{
+		commandKeys,
+		"show",
+		accountName,
+		optionAddress,
+	}
+	command = c.attachKeyringBackend(command)
+
 	// Check version
 	if c.isStargate() {
-		return c.stargateShowKeyAddressCommand(accountName)
+		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
-	return c.launchpadShowKeyAddressCommand(accountName)
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
