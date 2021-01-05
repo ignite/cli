@@ -263,7 +263,7 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
-// SetConfigCommand returns the command to set config value
+// LaunchpadSetConfigCommand returns the command to set config value
 func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
 	// Check version
 	if c.isStargate() {
@@ -272,7 +272,7 @@ func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Opti
 	return c.launchpadSetConfigCommand(name, value)
 }
 
-// RestServerCommand returns the command to start the CLI REST server
+// LaunchpadRestServerCommand returns the command to start the CLI REST server
 func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
 	// Check version
 	if c.isStargate() {
