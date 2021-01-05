@@ -12,6 +12,25 @@ const (
 	optionName       = "--name"
 )
 
+// WithLaunchpadCLI provides the name of the CLI application to call Launchpad CLI commands
+func WithLaunchpadCLI(cliCmd string) Option {
+	return func(c *ChainCmd) {
+		c.cliCmd = cliCmd
+	}
+}
+
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
+	return func(c *ChainCmd) {
+		c.cliHome = cliHome
+	}
+}
+
+// SetHome sets a new home for the commands
+func (c *ChainCmd) SetLaunchpadCLIHome(cliHome string) {
+	c.cliHome = cliHome
+}
+
 // LaunchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
 func (c ChainCmd) LaunchpadAddKeyCommand(accountName string) step.Option {
 	command := []string{

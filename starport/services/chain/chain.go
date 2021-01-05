@@ -94,10 +94,14 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
+	home, err := c.Home()
+	if err != nil {
+		return nil, err
+	}
 	c.cmd = chaincmd.New(
 		app.D(),
 		chaincmd.WithChainID(id),
-		chaincmd.WithHome(c.Home()),
+		chaincmd.WithHome(home),
 	)
 
 	return c, nil
@@ -174,12 +178,24 @@ func (c *Chain) ID() (string, error) {
 }
 
 // Home returns the blockchain node's home dir.
-func (c *Chain) Home() string {
+func (c *Chain) Home() (string, error) {
+	// check if home is explicitly defined for the app
 	appHome := c.app.Home()
-	if appHome == "" {
-		return c.DefaultHome()
+	if appHome != "" {
+		return appHome, nil
 	}
-	return appHome
+
+	// check if home is defined in config
+	config, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+	if config.Init.Home != "" {
+		return config.Init.Home, nil
+	}
+
+	// Return default home otherwise
+	return c.DefaultHome(), nil
 }
 
 // DefaultHome returns the blockchain node's default home dir when not specified.

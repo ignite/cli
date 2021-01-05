@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -21,25 +22,25 @@ type Plugin interface {
 	Binaries() []string
 
 	// AddUserCommand returns step.Exec configuration to add users.
-	AddUserCommand(name string) step.Options
+	AddUserCommand(cmd chaincmd.ChainCmd, name string) step.Options
 
 	// ImportUserCommand returns step.Exec configuration to import users.
-	ImportUserCommand(namem, mnemonic string) step.Options
+	ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options
 
 	// ShowAccountCommand returns step.Exec configuration to run show account.
-	ShowAccountCommand(accountName string) step.Option
+	ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option
 
 	// ConfigCommands returns step.Exec configuration for config commands.
-	ConfigCommands(chainID string) []step.Option
+	ConfigCommands(cmd chaincmd.ChainCmd, chainID string) []step.Option
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(v Validator) step.Option
+	GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option
+
+	// StartCommands returns step.Exec configuration to start servers.
+	StartCommands(cmd chaincmd.ChainCmd, config starportconf.Config) [][]step.Option
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
-
-	// StartCommands returns step.Exec configuration to start servers.
-	StartCommands(starportconf.Config) [][]step.Option
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
@@ -67,7 +68,7 @@ func (c *Chain) pickPlugin() (Plugin, error) {
 	case cosmosver.Launchpad:
 		return newLaunchpadPlugin(c.app), nil
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c)
+		return newStargatePlugin(c.app, c), nil
 	}
 	panic("unknown cosmos version")
 }

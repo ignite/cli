@@ -18,34 +18,13 @@ import (
 type stargatePlugin struct {
 	app   App
 	chain *Chain
-	cmd   chaincmd.ChainCmd
 }
 
-func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
-	// Define home
-	home := app.Home()
-	if home == "" {
-		home = stargateHome(app)
-	}
-
-	id, err := chain.ID()
-	if err != nil {
-		return nil, err
-	}
-
-	// initialize the chain command with keyring backend test
-	cmd := chaincmd.New(
-		app.D(),
-		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithChainID(id),
-		chaincmd.WithHome(home),
-	)
-
+func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
-		cmd:   cmd,
-	}, nil
+	}
 }
 
 func (p *stargatePlugin) Name() string {
@@ -62,28 +41,28 @@ func (p *stargatePlugin) Binaries() []string {
 	}
 }
 
-func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
+func (p *stargatePlugin) AddUserCommand(cmd chaincmd.ChainCmd, accountName string) step.Options {
+	return step.NewOptions().Add(cmd.AddKeyCommand(accountName))
 }
 
-func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
+func (p *stargatePlugin) ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			p.cmd.ImportKeyCommand(name),
+			cmd.ImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
-func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.ShowKeyAddressCommand(accountName)
+func (p *stargatePlugin) ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option {
+	return cmd.ShowKeyAddressCommand(accountName)
 }
 
-func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
+func (p *stargatePlugin) ConfigCommands(_ chaincmd.ChainCmd, _ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.GentxCommand(
+func (p *stargatePlugin) GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option {
+	return cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -93,6 +72,23 @@ func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
 		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
 		chaincmd.GentxWithGasPrices(v.GasPrices),
 	)
+}
+
+func (p *stargatePlugin) StartCommands(cmd chaincmd.ChainCmd, conf starportconf.Config) [][]step.Option {
+	return [][]step.Option{
+		step.NewOptions().
+			Add(
+				cmd.StartCommand(
+					"--pruning",
+					"nothing",
+					"--grpc.address",
+					conf.Servers.GRPCAddr,
+				),
+				step.PostExec(func(exitErr error) error {
+					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
+				}),
+			),
+	}
 }
 
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
@@ -143,23 +139,6 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	defer file.Close()
 	_, err = config.WriteTo(file)
 	return err
-}
-
-func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				p.cmd.StartCommand(
-					"--pruning",
-					"nothing",
-					"--grpc.address",
-					conf.Servers.GRPCAddr,
-				),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-	}
 }
 
 func (p *stargatePlugin) StoragePaths() []string {

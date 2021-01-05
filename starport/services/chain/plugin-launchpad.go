@@ -18,32 +18,11 @@ import (
 
 type launchpadPlugin struct {
 	app App
-	cmd chaincmd.ChainCmd
 }
 
 func newLaunchpadPlugin(app App) *launchpadPlugin {
-	// Define homes
-	home := app.Home()
-	if home == "" {
-		home = launchpadHome(app)
-	}
-	cliHome := app.CLIHome()
-	if cliHome == "" {
-		cliHome = launchpadCLIHome(app)
-	}
-
-	// initialize the chain command with keyring backend test
-	cmd := chaincmd.New(
-		app.D(),
-		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithLaunchpadCLI(app.CLI()),
-		chaincmd.WithHome(home),
-		chaincmd.WithLaunchpadCLIHome(cliHome),
-	)
-
 	return &launchpadPlugin{
 		app: app,
-		cmd: cmd,
 	}
 }
 
@@ -77,34 +56,34 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.LaunchpadAddKeyCommand(accountName))
+func (p *launchpadPlugin) AddUserCommand(cmd chaincmd.ChainCmd, accountName string) step.Options {
+	return step.NewOptions().Add(cmd.LaunchpadAddKeyCommand(accountName))
 }
 
-func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
+func (p *launchpadPlugin) ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			p.cmd.LaunchpadImportKeyCommand(name),
+			cmd.LaunchpadImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
-func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.LaunchpadShowKeyAddressCommand(accountName)
+func (p *launchpadPlugin) ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option {
+	return cmd.LaunchpadShowKeyAddressCommand(accountName)
 }
 
-func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
+func (p *launchpadPlugin) ConfigCommands(cmd chaincmd.ChainCmd, chainID string) []step.Option {
 	return []step.Option{
-		p.cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
-		p.cmd.LaunchpadSetConfigCommand("chain-id", chainID),
-		p.cmd.LaunchpadSetConfigCommand("output", "json"),
-		p.cmd.LaunchpadSetConfigCommand("indent", "true"),
-		p.cmd.LaunchpadSetConfigCommand("trust-node", "true"),
+		cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
+		cmd.LaunchpadSetConfigCommand("chain-id", chainID),
+		cmd.LaunchpadSetConfigCommand("output", "json"),
+		cmd.LaunchpadSetConfigCommand("indent", "true"),
+		cmd.LaunchpadSetConfigCommand("trust-node", "true"),
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.LaunchpadGentxCommand(
+func (p *launchpadPlugin) GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option {
+	return cmd.LaunchpadGentxCommand(
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -114,6 +93,25 @@ func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
 		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
 		chaincmd.GentxWithGasPrices(v.GasPrices),
 	)
+}
+
+func (p *launchpadPlugin) StartCommands(cmd chaincmd.ChainCmd, conf starportconf.Config) [][]step.Option {
+	return [][]step.Option{
+		step.NewOptions().
+			Add(
+				cmd.StartCommand(),
+				step.PostExec(func(exitErr error) error {
+					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
+				}),
+			),
+		step.NewOptions().
+			Add(
+				cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
+				step.PostExec(func(exitErr error) error {
+					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
+				}),
+			),
+	}
 }
 
 func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
@@ -142,25 +140,6 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	defer file.Close()
 	_, err = config.WriteTo(file)
 	return err
-}
-
-func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				p.cmd.StartCommand(),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-		step.NewOptions().
-			Add(
-				p.cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
-				}),
-			),
-	}
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {

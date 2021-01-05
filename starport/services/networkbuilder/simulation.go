@@ -73,7 +73,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 
 	// copy the config to the temporary directory
-	if err := copy.Copy(chainHandler.DefaultHome(), chainHandler.Home()); err != nil {
+	home, err := chainHandler.Home()
+	if err != nil {
+		return false, err
+	}
+	if err := copy.Copy(chainHandler.DefaultHome(), home); err != nil {
 		return false, err
 	}
 
