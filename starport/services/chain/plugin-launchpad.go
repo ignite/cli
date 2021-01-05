@@ -26,7 +26,7 @@ func newLaunchpadPlugin(app App) *launchpadPlugin {
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithLaunchpadCLI(app.CLI()),
+		chaincmd.WithLaunchpad(app.CLI()),
 	)
 
 	return &launchpadPlugin{
@@ -66,19 +66,19 @@ func (p *launchpadPlugin) Binaries() []string {
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.LaunchpadAddKeyCommand(accountName))
+	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
 }
 
 func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			p.cmd.LaunchpadImportKeyCommand(name),
+			p.cmd.ImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.LaunchpadShowKeyAddressCommand(accountName)
+	return p.cmd.ShowKeyAddressCommand(accountName)
 }
 
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
@@ -92,7 +92,7 @@ func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 }
 
 func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.LaunchpadGentxCommand(
+	return p.cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
