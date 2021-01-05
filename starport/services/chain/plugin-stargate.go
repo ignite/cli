@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -16,13 +18,27 @@ import (
 type stargatePlugin struct {
 	app   App
 	chain *Chain
+	cmd   chaincmd.ChainCmd
 }
 
-func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
+func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
+	id, err := chain.ID()
+	if err != nil {
+		return nil, err
+	}
+
+	// initialize the chain command with keyring backend test
+	cmd := chaincmd.New(
+		app.D(),
+		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
+		chaincmd.WithChainID(id),
+	)
+
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
-	}
+		cmd:   cmd,
+	}, nil
 }
 
 func (p *stargatePlugin) Name() string {
@@ -40,75 +56,36 @@ func (p *stargatePlugin) Binaries() []string {
 }
 
 func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().
-		Add(
-			step.Exec(
-				p.app.D(),
-				"keys",
-				"add",
-				accountName,
-				"--output", "json",
-				"--keyring-backend", "test",
-			),
-		)
+	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
 }
 
 func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			step.Exec(
-				p.app.D(),
-				"keys",
-				"add",
-				name,
-				"--recover",
-				"--keyring-backend", "test",
-			),
+			p.cmd.ImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
 func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
-	return step.Exec(
-		p.app.D(),
-		"keys",
-		"show",
-		accountName,
-		"-a",
-		"--keyring-backend", "test",
-	)
+	return p.cmd.ShowKeyAddressCommand(accountName)
 }
 
 func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(chainID string, v Validator) step.Option {
-	args := []string{
-		"gentx", v.Name,
-		"--chain-id", chainID,
-		"--keyring-backend", "test",
-		"--amount", v.StakingAmount,
-	}
-	if v.Moniker != "" {
-		args = append(args, "--moniker", v.Moniker)
-	}
-	if v.CommissionRate != "" {
-		args = append(args, "--commission-rate", v.CommissionRate)
-	}
-	if v.CommissionMaxRate != "" {
-		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
-	}
-	if v.CommissionMaxChangeRate != "" {
-		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
-	}
-	if v.MinSelfDelegation != "" {
-		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
-	}
-	if v.GasPrices != "" {
-		args = append(args, "--gas-prices", v.GasPrices)
-	}
-	return step.Exec(p.app.D(), args...)
+func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
+	return p.cmd.GentxCommand(
+		v.Name,
+		v.StakingAmount,
+		chaincmd.GentxWithMoniker(v.Moniker),
+		chaincmd.GentxWithCommissionRate(v.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(v.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(v.GasPrices),
+	)
 }
 
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
@@ -165,11 +142,11 @@ func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
-				step.Exec(
-					p.app.D(),
-					"start",
-					"--pruning", "nothing",
-					"--grpc.address", conf.Servers.GRPCAddr,
+				p.cmd.StartCommand(
+					"--pruning",
+					"nothing",
+					"--grpc.address",
+					conf.Servers.GRPCAddr,
 				),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)

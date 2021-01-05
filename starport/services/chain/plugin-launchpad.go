@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -16,11 +18,20 @@ import (
 
 type launchpadPlugin struct {
 	app App
+	cmd chaincmd.ChainCmd
 }
 
 func newLaunchpadPlugin(app App) *launchpadPlugin {
+	// initialize the chain command with keyring backend test
+	cmd := chaincmd.New(
+		app.D(),
+		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
+		chaincmd.WithLaunchpadCLI(app.CLI()),
+	)
+
 	return &launchpadPlugin{
 		app: app,
+		cmd: cmd,
 	}
 }
 
@@ -55,106 +66,42 @@ func (p *launchpadPlugin) Binaries() []string {
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().
-		Add(
-			step.Exec(
-				p.app.CLI(),
-				"keys",
-				"add",
-				accountName,
-				"--output", "json",
-				"--keyring-backend", "test",
-			),
-		)
+	return step.NewOptions().Add(p.cmd.LaunchpadAddKeyCommand(accountName))
 }
 
 func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			step.Exec(
-				p.app.CLI(),
-				"keys",
-				"add",
-				name,
-				"--recover",
-				"--keyring-backend", "test",
-			),
+			p.cmd.LaunchpadImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return step.Exec(
-		p.app.CLI(),
-		"keys",
-		"show",
-		accountName,
-		"-a",
-		"--keyring-backend", "test",
-	)
+	return p.cmd.LaunchpadShowKeyAddressCommand(accountName)
 }
 
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"keyring-backend",
-			"test",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"chain-id",
-			chainID,
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"output",
-			"json",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"indent",
-			"true",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"trust-node",
-			"true",
-		),
+		p.cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
+		p.cmd.LaunchpadSetConfigCommand("chain-id", chainID),
+		p.cmd.LaunchpadSetConfigCommand("output", "json"),
+		p.cmd.LaunchpadSetConfigCommand("indent", "true"),
+		p.cmd.LaunchpadSetConfigCommand("trust-node", "true"),
 	}
 }
 
-func (p *launchpadPlugin) GentxCommand(_ string, v Validator) step.Option {
-	args := []string{
-		"gentx",
-		"--name", v.Name,
-		"--keyring-backend", "test",
-		"--amount", v.StakingAmount,
-	}
-	if v.Moniker != "" {
-		args = append(args, "--moniker", v.Moniker)
-	}
-	if v.CommissionRate != "" {
-		args = append(args, "--commission-rate", v.CommissionRate)
-	}
-	if v.CommissionMaxRate != "" {
-		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
-	}
-	if v.CommissionMaxChangeRate != "" {
-		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
-	}
-	if v.MinSelfDelegation != "" {
-		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
-	}
-	if v.GasPrices != "" {
-		args = append(args, "--gas-prices", v.GasPrices)
-	}
-	return step.Exec(p.app.D(), args...)
+func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
+	return p.cmd.LaunchpadGentxCommand(
+		v.Name,
+		v.StakingAmount,
+		chaincmd.GentxWithMoniker(v.Moniker),
+		chaincmd.GentxWithCommissionRate(v.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(v.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(v.GasPrices),
+	)
 }
 
 func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
@@ -189,23 +136,14 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 	return [][]step.Option{
 		step.NewOptions().
 			Add(
-				step.Exec(
-					p.app.D(),
-					"start",
-				),
+				p.cmd.StartCommand(),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
 				}),
 			),
 		step.NewOptions().
 			Add(
-				step.Exec(
-					p.app.CLI(),
-					"rest-server",
-					"--unsafe-cors",
-					"--laddr", xurl.TCP(conf.Servers.APIAddr),
-					"--node", xurl.TCP(conf.Servers.RPCAddr),
-				),
+				p.cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
 				}),
