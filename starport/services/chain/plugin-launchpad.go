@@ -26,7 +26,7 @@ func newLaunchpadPlugin(app App) *launchpadPlugin {
 	cmd := chaincmd.New(
 		app.D(),
 		chaincmd.WithKeyrinBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithLaunchpadCLI(app.CLI()),
+		chaincmd.WithLaunchpad(app.CLI()),
 	)
 
 	return &launchpadPlugin{
@@ -66,33 +66,33 @@ func (p *launchpadPlugin) Binaries() []string {
 }
 
 func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.LaunchpadAddKeyCommand(accountName))
+	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
 }
 
 func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			p.cmd.LaunchpadImportKeyCommand(name),
+			p.cmd.ImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.LaunchpadShowKeyAddressCommand(accountName)
+	return p.cmd.ShowKeyAddressCommand(accountName)
 }
 
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
-		p.cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
-		p.cmd.LaunchpadSetConfigCommand("chain-id", chainID),
-		p.cmd.LaunchpadSetConfigCommand("output", "json"),
-		p.cmd.LaunchpadSetConfigCommand("indent", "true"),
-		p.cmd.LaunchpadSetConfigCommand("trust-node", "true"),
+		p.cmd.SetConfigCommand("keyring-backend", "test"),
+		p.cmd.SetConfigCommand("chain-id", chainID),
+		p.cmd.SetConfigCommand("output", "json"),
+		p.cmd.SetConfigCommand("indent", "true"),
+		p.cmd.SetConfigCommand("trust-node", "true"),
 	}
 }
 
 func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.LaunchpadGentxCommand(
+	return p.cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -143,7 +143,7 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 			),
 		step.NewOptions().
 			Add(
-				p.cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
+				p.cmd.RestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
 				}),
