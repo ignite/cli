@@ -85,8 +85,9 @@ func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
 	}
 }
 
-// WithLaunchpadCLI provides the name of the CLI application to call Launchpad CLI commands
-func WithLaunchpadCLI(cliCmd string) Option {
+// WithLaunchpad defines the command as Launchpad application commands
+// and provides the name of the CLI application to call Launchpad CLI commands
+func WithLaunchpad(cliCmd string) Option {
 	return func(c *ChainCmd) {
 		c.cliCmd = cliCmd
 	}
@@ -112,39 +113,32 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
 func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"add",
-		accountName,
-		optionOutput,
-		constJSON,
+	// Check version
+	if c.isStargate() {
+		return c.stargateAddKeyCommand(accountName)
+	} else {
+		return c.launchpadAddKeyCommand(accountName)
 	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
 func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"add",
-		accountName,
-		optionRecover,
+	// Check version
+	if c.isStargate() {
+		return c.stargateImportKeyCommand(accountName)
+	} else {
+		return c.launchpadImportKeyCommand(accountName)
 	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
 func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
-	command := []string{
-		commandKeys,
-		"show",
-		accountName,
-		optionAddress,
+	// Check version
+	if c.isStargate() {
+		return c.stargateShowKeyAddressCommand(accountName)
+	} else {
+		return c.launchpadShowKeyAddressCommand(accountName)
 	}
-	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
@@ -226,23 +220,12 @@ func (c ChainCmd) GentxCommand(
 	selfDelegation string,
 	options ...GentxOption,
 ) step.Option {
-	command := []string{
-		commandGentx,
-		validatorName,
-		optionAmount,
-		selfDelegation,
+	// Check version
+	if c.isStargate() {
+		return c.stargateGentxCommand(validatorName, selfDelegation, options...)
+	} else {
+		return c.launchpadGentxCommand(validatorName, selfDelegation, options...)
 	}
-
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
-	}
-
-	// Add necessary flags
-	command = c.attachChainID(command)
-	command = c.attachKeyringBackend(command)
-
-	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
@@ -270,6 +253,26 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	return step.Exec(c.appCmd, c.attachHome(command)...)
 }
 
+// SetConfigCommand returns the command to set config value
+func (c ChainCmd) SetConfigCommand(name string, value string) step.Option {
+	// Check version
+	if c.isStargate() {
+		return nil	// not defined for Stargate
+	} else {
+		return c.launchpadSetConfigCommand(name, value)
+	}
+}
+
+// RestServerCommand returns the command to start the CLI REST server
+func (c ChainCmd) RestServerCommand(apiAddress string, rpcAddress string) step.Option {
+	// Check version
+	if c.isStargate() {
+		return nil	// not defined for Stargate
+	} else {
+		return c.launchpadRestServerCommand(apiAddress, rpcAddress)
+	}
+}
+
 // attachChainID appends the chain ID flag to the provided command
 func (c ChainCmd) attachChainID(command []string) []string {
 	if c.chainID != "" {
@@ -292,4 +295,9 @@ func (c ChainCmd) attachHome(command []string) []string {
 		command = append(command, []string{optionHome, c.homeDir}...)
 	}
 	return command
+}
+
+// isStargate checks if the version for commands is Stargate
+func (c ChainCmd) isStargate() bool {
+	return c.cliCmd == ""
 }

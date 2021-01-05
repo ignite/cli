@@ -12,8 +12,8 @@ const (
 	optionName       = "--name"
 )
 
-// LaunchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
-func (c ChainCmd) LaunchpadAddKeyCommand(accountName string) step.Option {
+// launchpadAddKeyCommand returns the command to add a new key in the chain keyring with Launchpad chains
+func (c ChainCmd) launchpadAddKeyCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -25,8 +25,8 @@ func (c ChainCmd) LaunchpadAddKeyCommand(accountName string) step.Option {
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
 
-// LaunchpadImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic with Launchpad chains
-func (c ChainCmd) LaunchpadImportKeyCommand(accountName string) step.Option {
+// launchpadImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic with Launchpad chains
+func (c ChainCmd) launchpadImportKeyCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -37,8 +37,8 @@ func (c ChainCmd) LaunchpadImportKeyCommand(accountName string) step.Option {
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
 
-// LaunchpadShowKeyAddressCommand returns the command to print the address of a key in the chain keyring with Launchpad chains
-func (c ChainCmd) LaunchpadShowKeyAddressCommand(accountName string) step.Option {
+// launchpadShowKeyAddressCommand returns the command to print the address of a key in the chain keyring with Launchpad chains
+func (c ChainCmd) launchpadShowKeyAddressCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"show",
@@ -49,31 +49,8 @@ func (c ChainCmd) LaunchpadShowKeyAddressCommand(accountName string) step.Option
 	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
 
-// LaunchpadSetConfigCommand
-func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
-	command := []string{
-		commandConfig,
-		name,
-		value,
-	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
-}
-
-// LaunchpadRestServerCommand
-func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
-	command := []string{
-		commandRestServer,
-		optionUnsafeCors,
-		optionAPIAddress,
-		apiAddress,
-		optionRPCAddress,
-		rpcAddress,
-	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
-}
-
-// LaunchpadGentxCommand returns the command to generate a gentx for the chain
-func (c ChainCmd) LaunchpadGentxCommand(
+// launchpadGentxCommand returns the command to generate a gentx for the chain
+func (c ChainCmd) launchpadGentxCommand(
 	validatorName string,
 	selfDelegation string,
 	options ...GentxOption,
@@ -93,4 +70,27 @@ func (c ChainCmd) LaunchpadGentxCommand(
 
 	command = c.attachKeyringBackend(command)
 	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
+// launchpadSetConfigCommand
+func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Option {
+	command := []string{
+		commandConfig,
+		name,
+		value,
+	}
+	return step.Exec(c.cliCmd, c.attachHome(command)...)
+}
+
+// launchpadRestServerCommand
+func (c ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
+	command := []string{
+		commandRestServer,
+		optionUnsafeCors,
+		optionAPIAddress,
+		apiAddress,
+		optionRPCAddress,
+		rpcAddress,
+	}
+	return step.Exec(c.cliCmd, c.attachHome(command)...)
 }
