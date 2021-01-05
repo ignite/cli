@@ -83,11 +83,11 @@ func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
 
 func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
 	return []step.Option{
-		p.cmd.SetConfigCommand("keyring-backend", "test"),
-		p.cmd.SetConfigCommand("chain-id", chainID),
-		p.cmd.SetConfigCommand("output", "json"),
-		p.cmd.SetConfigCommand("indent", "true"),
-		p.cmd.SetConfigCommand("trust-node", "true"),
+		p.cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
+		p.cmd.LaunchpadSetConfigCommand("chain-id", chainID),
+		p.cmd.LaunchpadSetConfigCommand("output", "json"),
+		p.cmd.LaunchpadSetConfigCommand("indent", "true"),
+		p.cmd.LaunchpadSetConfigCommand("trust-node", "true"),
 	}
 }
 
@@ -143,7 +143,7 @@ func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Optio
 			),
 		step.NewOptions().
 			Add(
-				p.cmd.RestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
+				p.cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
 				step.PostExec(func(exitErr error) error {
 					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
 				}),

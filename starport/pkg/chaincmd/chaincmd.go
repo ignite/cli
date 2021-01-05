@@ -276,19 +276,19 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 }
 
 // SetConfigCommand returns the command to set config value
-func (c ChainCmd) SetConfigCommand(name string, value string) step.Option {
+func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
 	// Check version
 	if c.isStargate() {
-		return nil // not defined for Stargate
+		panic("config command doesn't exist for Stargate")
 	}
 	return c.launchpadSetConfigCommand(name, value)
 }
 
 // RestServerCommand returns the command to start the CLI REST server
-func (c ChainCmd) RestServerCommand(apiAddress string, rpcAddress string) step.Option {
+func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
 	// Check version
 	if c.isStargate() {
-		return nil // not defined for Stargate
+		panic("rest-server command doesn't exist for Stargate")
 	}
 	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
