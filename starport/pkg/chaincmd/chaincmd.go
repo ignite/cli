@@ -79,8 +79,8 @@ func WithChainID(chainID string) Option {
 	}
 }
 
-// WithKeyrinBackend provides a specific keyring backend for the commands that accept this option
-func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
+// WithKeyringBackend provides a specific keyring backend for the commands that accept this option
+func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
 	}

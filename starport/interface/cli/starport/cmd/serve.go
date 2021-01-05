@@ -32,9 +32,9 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		ImportPath: path.RawPath,
 	}
 
-	s, err := chain.New(app, false, logLevel(cmd))
+	c, err := chain.New(app, false, logLevel(cmd))
 	if err != nil {
 		return err
 	}
-	return s.Serve(cmd.Context())
+	return c.Serve(cmd.Context())
 }
