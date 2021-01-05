@@ -118,7 +118,8 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 		commandKeys,
 		"add",
 		accountName,
-		optionRecover,
+		optionOutput,
+		constJSON,
 	}
 	command = c.attachKeyringBackend(command)
 
