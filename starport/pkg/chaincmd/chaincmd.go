@@ -86,9 +86,12 @@ func WithKeyrinBackend(keyringBackend KeyringBackend) Option {
 	}
 }
 
-// SetHome sets a new home for the commands
-func (c *ChainCmd) SetHome(home string) {
-	c.homeDir = home
+// WithLaunchpad defines the command as Launchpad application commands
+// and provides the name of the CLI application to call Launchpad CLI commands
+func WithLaunchpad(cliCmd string) Option {
+	return func(c *ChainCmd) {
+		c.cliCmd = cliCmd
+	}
 }
 
 // StartCommand returns the command to start the daemon of the chain
@@ -96,7 +99,7 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
 	}, options...)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // InitCommand returns the command to initialize the chain
@@ -106,7 +109,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 		moniker,
 	}
 	command = c.attachChainID(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
@@ -119,7 +122,8 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 		constJSON,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+
+	return c.cliCommand(command)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
@@ -131,7 +135,8 @@ func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
 		optionRecover,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+
+	return c.cliCommand(command)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
@@ -143,7 +148,8 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 		optionAddress,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+
+	return c.cliCommand(command)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
@@ -153,7 +159,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 		address,
 		coins,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // Options for the GentxCommand
@@ -225,23 +231,11 @@ func (c ChainCmd) GentxCommand(
 	selfDelegation string,
 	options ...GentxOption,
 ) step.Option {
-	command := []string{
-		commandGentx,
-		validatorName,
-		optionAmount,
-		selfDelegation,
+	// Check version
+	if c.isStargate() {
+		return c.stargateGentxCommand(validatorName, selfDelegation, options...)
 	}
-
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
-	}
-
-	// Add necessary flags
-	command = c.attachChainID(command)
-	command = c.attachKeyringBackend(command)
-
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.launchpadGentxCommand(validatorName, selfDelegation, options...)
 }
 
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
@@ -249,7 +243,7 @@ func (c ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
 		commandCollectGentxs,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // ValidateGenesisCommand returns the command to check the validity of the chain genesis
@@ -257,7 +251,7 @@ func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
 		commandValidateGenesis,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // ShowNodeIDCommand returns the command to print the node ID of the node for the chain
@@ -266,7 +260,25 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 		constTendermint,
 		commandShowNodeID,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
+}
+
+// LaunchpadSetConfigCommand returns the command to set config value
+func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
+	// Check version
+	if c.isStargate() {
+		panic("config command doesn't exist for Stargate")
+	}
+	return c.launchpadSetConfigCommand(name, value)
+}
+
+// LaunchpadRestServerCommand returns the command to start the CLI REST server
+func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
+	// Check version
+	if c.isStargate() {
+		panic("rest-server command doesn't exist for Stargate")
+	}
+	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
 
 // attachChainID appends the chain ID flag to the provided command
@@ -291,4 +303,24 @@ func (c ChainCmd) attachHome(command []string) []string {
 		command = append(command, []string{optionHome, c.homeDir}...)
 	}
 	return command
+}
+
+// isStargate checks if the version for commands is Stargate
+func (c ChainCmd) isStargate() bool {
+	return c.cliCmd == ""
+}
+
+// daemonCommand returns the daemon command from the provided command
+func (c ChainCmd) daemonCommand(command []string) step.Option {
+	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
+// cliCommand returns the cli command from the provided command
+// cli is the daemon for Stargate
+func (c ChainCmd) cliCommand(command []string) step.Option {
+	// Check version
+	if c.isStargate() {
+		return step.Exec(c.appCmd, c.attachHome(command)...)
+	}
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }

@@ -57,19 +57,19 @@ func (p *launchpadPlugin) Binaries() []string {
 }
 
 func (p *launchpadPlugin) AddUserCommand(cmd chaincmd.ChainCmd, accountName string) step.Options {
-	return step.NewOptions().Add(cmd.LaunchpadAddKeyCommand(accountName))
+	return step.NewOptions().Add(cmd.AddKeyCommand(accountName))
 }
 
 func (p *launchpadPlugin) ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options {
 	return step.NewOptions().
 		Add(
-			cmd.LaunchpadImportKeyCommand(name),
+			cmd.ImportKeyCommand(name),
 			step.Write([]byte(mnemonic+"\n")),
 		)
 }
 
 func (p *launchpadPlugin) ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option {
-	return cmd.LaunchpadShowKeyAddressCommand(accountName)
+	return cmd.ShowKeyAddressCommand(accountName)
 }
 
 func (p *launchpadPlugin) ConfigCommands(cmd chaincmd.ChainCmd, chainID string) []step.Option {
@@ -83,7 +83,7 @@ func (p *launchpadPlugin) ConfigCommands(cmd chaincmd.ChainCmd, chainID string) 
 }
 
 func (p *launchpadPlugin) GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option {
-	return cmd.LaunchpadGentxCommand(
+	return cmd.GentxCommand(
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
