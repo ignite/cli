@@ -2,7 +2,6 @@ package chaincmd
 
 import "github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 
-
 // stargateAddKeyCommand returns the command to add a new key in the chain keyring
 func (c ChainCmd) stargateAddKeyCommand(accountName string) step.Option {
 	command := []string{

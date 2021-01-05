@@ -116,9 +116,8 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 	// Check version
 	if c.isStargate() {
 		return c.stargateAddKeyCommand(accountName)
-	} else {
-		return c.launchpadAddKeyCommand(accountName)
 	}
+	return c.launchpadAddKeyCommand(accountName)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
@@ -126,9 +125,8 @@ func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
 	// Check version
 	if c.isStargate() {
 		return c.stargateImportKeyCommand(accountName)
-	} else {
-		return c.launchpadImportKeyCommand(accountName)
 	}
+	return c.launchpadImportKeyCommand(accountName)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
@@ -136,9 +134,8 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	// Check version
 	if c.isStargate() {
 		return c.stargateShowKeyAddressCommand(accountName)
-	} else {
-		return c.launchpadShowKeyAddressCommand(accountName)
 	}
+	return c.launchpadShowKeyAddressCommand(accountName)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
@@ -223,9 +220,8 @@ func (c ChainCmd) GentxCommand(
 	// Check version
 	if c.isStargate() {
 		return c.stargateGentxCommand(validatorName, selfDelegation, options...)
-	} else {
-		return c.launchpadGentxCommand(validatorName, selfDelegation, options...)
 	}
+	return c.launchpadGentxCommand(validatorName, selfDelegation, options...)
 }
 
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
@@ -257,20 +253,18 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 func (c ChainCmd) SetConfigCommand(name string, value string) step.Option {
 	// Check version
 	if c.isStargate() {
-		return nil	// not defined for Stargate
-	} else {
-		return c.launchpadSetConfigCommand(name, value)
+		return nil // not defined for Stargate
 	}
+	return c.launchpadSetConfigCommand(name, value)
 }
 
 // RestServerCommand returns the command to start the CLI REST server
 func (c ChainCmd) RestServerCommand(apiAddress string, rpcAddress string) step.Option {
 	// Check version
 	if c.isStargate() {
-		return nil	// not defined for Stargate
-	} else {
-		return c.launchpadRestServerCommand(apiAddress, rpcAddress)
+		return nil // not defined for Stargate
 	}
+	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
 
 // attachChainID appends the chain ID flag to the provided command
