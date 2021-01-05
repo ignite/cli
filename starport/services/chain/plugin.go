@@ -49,6 +49,9 @@ type Plugin interface {
 	// Home returns the blockchain node's home dir.
 	Home() string
 
+	// CLIHome returns the cli blockchain node's home dir.
+	CLIHome() string
+
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion
 
@@ -57,13 +60,9 @@ type Plugin interface {
 }
 
 func (c *Chain) pickPlugin() (Plugin, error) {
-	version := c.app.Version
-	if version == "" {
-		var err error
-		version, err = cosmosver.Detect(c.app.Path)
-		if err != nil {
-			return nil, err
-		}
+	version, err := c.CosmosVersion()
+	if err != nil {
+		return nil, err
 	}
 	switch version {
 	case cosmosver.Launchpad:

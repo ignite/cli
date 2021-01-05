@@ -151,6 +151,10 @@ func (p *stargatePlugin) Home() string {
 	return stargateHome(p.app)
 }
 
+func (p *stargatePlugin) CLIHome() string {
+	return stargateHome(p.app)
+}
+
 func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, "."+app.N())

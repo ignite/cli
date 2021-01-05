@@ -98,10 +98,24 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
+	options := append([]chaincmd.Option{}, chaincmd.WithChainID(id), chaincmd.WithHome(home))
+
+	// append Launchpad CLI if Launchpad version is used
+	version, err := c.CosmosVersion()
+	if err != nil {
+		return nil, err
+	}
+	if version == cosmosver.Launchpad {
+		cliHome, err := c.Home()
+		if err != nil {
+			return nil, err
+		}
+		options = append(options, chaincmd.WithLaunchpad(c.app.CLI()), chaincmd.WithLaunchpadCLIHome(cliHome))
+	}
+
 	c.cmd = chaincmd.New(
 		app.D(),
-		chaincmd.WithChainID(id),
-		chaincmd.WithHome(home),
+		options...,
 	)
 
 	return c, nil
@@ -203,6 +217,28 @@ func (c *Chain) DefaultHome() string {
 	return c.plugin.Home()
 }
 
+// CLIHome returns the blockchain node's home dir.
+// This directory is the same as home for Stargate, it is a separate directory for Launchpad
+func (c *Chain) CLIHome() (string, error) {
+	// check if cli home is explicitly defined for the app
+	cliHome := c.app.CLIHome()
+	if cliHome != "" {
+		return cliHome, nil
+	}
+
+	// check if cli home is defined in config
+	config, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+	if config.Init.CLIHome != "" {
+		return config.Init.CLIHome, nil
+	}
+
+	// Return default home otherwise
+	return c.plugin.CLIHome(), nil
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
 	home, err := c.Home()
@@ -233,4 +269,17 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 // Commands returns the chaincmd object to perform command with the chain binary
 func (c *Chain) Commands() chaincmd.ChainCmd {
 	return c.cmd
+}
+
+func (c* Chain) CosmosVersion() (cosmosver.MajorVersion, error) {
+	version := c.app.Version
+	if version == "" {
+		var err error
+		version, err = cosmosver.Detect(c.app.Path)
+		if err != nil {
+			return cosmosver.Stargate, err
+		}
+	}
+
+	return version, nil
 }

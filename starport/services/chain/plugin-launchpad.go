@@ -153,6 +153,11 @@ func (p *launchpadPlugin) Home() string {
 	return launchpadHome(p.app)
 }
 
+func (p *launchpadPlugin) CLIHome() string {
+	return launchpadCLIHome(p.app)
+}
+
+
 func launchpadHome(app App) string {
 	home, _ := os.UserHomeDir()
 	return filepath.Join(home, "."+app.ND())
