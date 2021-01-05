@@ -24,5 +24,5 @@ func (c ChainCmd) stargateGentxCommand(
 	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
 
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }

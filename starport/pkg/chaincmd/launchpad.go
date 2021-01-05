@@ -39,7 +39,7 @@ func (c ChainCmd) launchpadGentxCommand(
 	}
 
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // launchpadSetConfigCommand
@@ -49,7 +49,7 @@ func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Opti
 		name,
 		value,
 	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return c.cliCommand(command)
 }
 
 // launchpadRestServerCommand
@@ -62,7 +62,7 @@ func (c ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddress strin
 		optionRPCAddress,
 		rpcAddress,
 	}
-	return step.Exec(c.cliCmd, c.attachHome(command)...)
+	return c.cliCommand(command)
 }
 
 // attachCLIHome appends the home flag to the provided CLI command

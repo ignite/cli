@@ -99,7 +99,7 @@ func (c ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
 	}, options...)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // InitCommand returns the command to initialize the chain
@@ -109,7 +109,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 		moniker,
 	}
 	command = c.attachChainID(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
@@ -123,11 +123,7 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 	}
 	command = c.attachKeyringBackend(command)
 
-	// Check version
-	if c.isStargate() {
-		return step.Exec(c.appCmd, c.attachHome(command)...)
-	}
-	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+	return c.cliCommand(command)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
@@ -140,11 +136,7 @@ func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
 	}
 	command = c.attachKeyringBackend(command)
 
-	// Check version
-	if c.isStargate() {
-		return step.Exec(c.appCmd, c.attachHome(command)...)
-	}
-	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+	return c.cliCommand(command)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
@@ -157,11 +149,7 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	}
 	command = c.attachKeyringBackend(command)
 
-	// Check version
-	if c.isStargate() {
-		return step.Exec(c.appCmd, c.attachHome(command)...)
-	}
-	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+	return c.cliCommand(command)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
@@ -171,7 +159,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 		address,
 		coins,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // Options for the GentxCommand
@@ -255,7 +243,7 @@ func (c ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
 		commandCollectGentxs,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // ValidateGenesisCommand returns the command to check the validity of the chain genesis
@@ -263,7 +251,7 @@ func (c ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
 		commandValidateGenesis,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // ShowNodeIDCommand returns the command to print the node ID of the node for the chain
@@ -272,7 +260,7 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 		constTendermint,
 		commandShowNodeID,
 	}
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+	return c.daemonCommand(command)
 }
 
 // SetConfigCommand returns the command to set config value
@@ -320,4 +308,19 @@ func (c ChainCmd) attachHome(command []string) []string {
 // isStargate checks if the version for commands is Stargate
 func (c ChainCmd) isStargate() bool {
 	return c.cliCmd == ""
+}
+
+// daemonCommand returns the daemon command from the provided command
+func (c ChainCmd) daemonCommand(command []string) step.Option {
+	return step.Exec(c.appCmd, c.attachHome(command)...)
+}
+
+// cliCommand returns the cli command from the provided command
+// cli is the daemon for Stargate
+func (c ChainCmd) cliCommand(command []string) step.Option {
+	// Check version
+	if c.isStargate() {
+		return step.Exec(c.appCmd, c.attachHome(command)...)
+	}
+	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
 }
