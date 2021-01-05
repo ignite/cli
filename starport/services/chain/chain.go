@@ -271,7 +271,7 @@ func (c *Chain) Commands() chaincmd.ChainCmd {
 	return c.cmd
 }
 
-func (c* Chain) CosmosVersion() (cosmosver.MajorVersion, error) {
+func (c *Chain) CosmosVersion() (cosmosver.MajorVersion, error) {
 	version := c.app.Version
 	if version == "" {
 		var err error
