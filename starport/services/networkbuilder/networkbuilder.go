@@ -39,7 +39,7 @@ const (
 )
 
 var (
-	sourcePath        = filepath.Join(starportConfDir, "spn-chains")
+	sourcePath = filepath.Join(starportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
