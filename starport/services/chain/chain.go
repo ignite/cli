@@ -122,7 +122,7 @@ func New(app App, noCheck bool, logLevel LogLevel, chainOptions ...Option) (*Cha
 		return nil, err
 	}
 	if version == cosmosver.Launchpad {
-		cliHome, err := c.Home()
+		cliHome, err := c.CLIHome()
 		if err != nil {
 			return nil, err
 		}
