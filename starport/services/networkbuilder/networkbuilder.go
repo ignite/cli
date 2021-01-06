@@ -189,20 +189,21 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
-		// use a tempdir to clone the source code inside.
-		path = filepath.Join(sourcePath, chainID)
-		if err := os.Mkdir(path, 0700); err != nil {
-			if os.IsExist(err) {
-				// if the directory already exists, we overwrite it to ensure we have the last version
-				if err := os.RemoveAll(path); err != nil {
-					return nil, err
-				}
-				if err := os.Mkdir(path, 0700); err != nil {
-					return nil, err
-				}
-			} else {
+		// ensure the path for chain source exists
+		if err := os.MkdirAll(sourcePath, 0700); err != nil {
+			if !os.IsExist(err) {
 				return nil, err
 			}
+		}
+
+		path = filepath.Join(sourcePath, chainID)
+		if _, err := os.Stat(path); err == nil {
+			// if the directory already exists, we overwrite it to ensure we have the last version
+			if err := os.RemoveAll(path); err != nil {
+				return nil, err
+			}
+		} else if !os.IsNotExist(err) {
+			return nil, err
 		}
 
 		// prepare clone options.
