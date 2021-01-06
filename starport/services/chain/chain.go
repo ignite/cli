@@ -58,10 +58,10 @@ type Chain struct {
 	keyringBackend chaincmd.KeyringBackend
 }
 
-type ChainOption func(*Chain)
+type Option func(*Chain)
 
 // ChainWithKeyringBackend specify the keyring backend to use for the chain command
-func ChainWithKeyringBackend(keyringBackend chaincmd.KeyringBackend) ChainOption {
+func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.keyringBackend = keyringBackend
 	}
@@ -69,14 +69,14 @@ func ChainWithKeyringBackend(keyringBackend chaincmd.KeyringBackend) ChainOption
 
 // TODO document noCheck (basically it stands to enable Chain initialization without
 // need of source code)
-func New(app App, noCheck bool, logLevel LogLevel, chainOptions ...ChainOption) (*Chain, error) {
+func New(app App, noCheck bool, logLevel LogLevel, chainOptions ...Option) (*Chain, error) {
 	c := &Chain{
 		app:            app,
 		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
-		keyringBackend:	chaincmd.KeyringBackendUnspecified,
+		keyringBackend: chaincmd.KeyringBackendUnspecified,
 	}
 
 	// Apply the options

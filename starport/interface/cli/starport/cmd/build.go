@@ -31,7 +31,7 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 		ImportPath: path.RawPath,
 	}
 
-	s, err := chain.New(app, false, logLevel(cmd), chain.ChainWithKeyringBackend(chaincmd.KeyringBackendTest))
+	s, err := chain.New(app, false, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
 	}
