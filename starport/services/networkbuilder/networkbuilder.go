@@ -187,7 +187,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	default:
 		// use a tempdir to clone the source code inside.
 		tmpDir := os.TempDir()
-		path = filepath.Join(tmpDir, "spn-" + chainID)
+		path = filepath.Join(tmpDir, "spn-"+chainID)
 		if err := os.Mkdir(path, 0700); err != nil {
 			if os.IsExist(err) {
 				// if the directory already exists, we overwrite it to ensure we have the last version
