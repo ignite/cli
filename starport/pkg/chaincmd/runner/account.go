@@ -47,12 +47,14 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 			return Account{}, err
 		}
 	} else {
-		if err := r.run(ctx, runOptions{stdout: b}, r.cc.AddKeyCommand(name)); err != nil {
+		// note that, launchpad prints account output from stderr.
+		if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.AddKeyCommand(name)); err != nil {
 			return Account{}, err
 		}
 		if err := json.NewDecoder(b).Decode(&account); err != nil {
 			return Account{}, err
 		}
+
 		b.Reset()
 	}
 

@@ -3,14 +3,20 @@ package chaincmdrunner
 import (
 	"bytes"
 	"context"
+	"regexp"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 )
 
 // Start starts the blockchain.
-func (r Runner) Start(ctx context.Context, args []string) error {
+func (r Runner) Start(ctx context.Context, args ...string) error {
 	return r.run(ctx, runOptions{longRunning: true}, r.cc.StartCommand(args...))
+}
+
+// LaunchpadStartRestServer start launchpad rest server.
+func (r Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
+	return r.run(ctx, runOptions{longRunning: true}, r.cc.LaunchpadRestServerCommand(apiAddress, rpcAddress))
 }
 
 // Init inits the blockchain.
@@ -18,9 +24,39 @@ func (r Runner) Init(ctx context.Context, moniker string) error {
 	return r.run(ctx, runOptions{}, r.cc.InitCommand(moniker))
 }
 
+// KeyValue holds a key, value pair.
+type KeyValue struct {
+	key   string
+	value string
+}
+
+// KV returns a new key, value pair.
+func KV(key, value string) KeyValue {
+	return KeyValue{key, value}
+}
+
+// LaunchpadSetConfigs updates configurations for a launchpad app.
+func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KeyValue) error {
+	for _, kv := range kvs {
+		if err := r.run(ctx, runOptions{}, r.cc.LaunchpadSetConfigCommand(kv.key, kv.value)); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
+
 // Gentx generates a genesis tx carrying a self delegation.
-func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string, options ...chaincmd.GentxOption) error {
-	return r.run(ctx, runOptions{}, r.cc.GentxCommand(validatorName, selfDelegation, options...))
+func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string, options ...chaincmd.GentxOption) (gentxPath string, err error) {
+	b := &bytes.Buffer{}
+
+	// note: launchpad outputs from stderr.
+	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
+		return "", err
+	}
+
+	return gentxRe.FindStringSubmatch(b.String())[1], nil
 }
 
 // CollectGentxs collects gentxs.
@@ -37,5 +73,6 @@ func (r Runner) ValidateGenesis(ctx context.Context) error {
 func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
 	b := &bytes.Buffer{}
 	err = r.run(ctx, runOptions{stdout: b}, r.cc.ShowNodeIDCommand())
-	return strings.TrimSpace(b.String()), err
+	nodeID = strings.TrimSpace(b.String())
+	return
 }

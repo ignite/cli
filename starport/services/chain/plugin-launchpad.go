@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -17,11 +19,12 @@ import (
 )
 
 type launchpadPlugin struct {
-	app App
-	cmd chaincmd.ChainCmd
+	app   App
+	chain *Chain
+	cmd   chaincmd.ChainCmd
 }
 
-func newLaunchpadPlugin(app App) *launchpadPlugin {
+func newLaunchpadPlugin(app App, chain *Chain) *launchpadPlugin {
 	// initialize the chain command with keyring backend test
 	cmd := chaincmd.New(
 		app.D(),
@@ -30,8 +33,9 @@ func newLaunchpadPlugin(app App) *launchpadPlugin {
 	)
 
 	return &launchpadPlugin{
-		app: app,
-		cmd: cmd,
+		app:   app,
+		chain: chain,
+		cmd:   cmd,
 	}
 }
 
@@ -65,34 +69,19 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
+func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
+	return p.chain.Commands().LaunchpadSetConfigs(ctx,
+		chaincmdrunner.KV("keyring-backend", "test"),
+		chaincmdrunner.KV("chain-id", chainID),
+		chaincmdrunner.KV("output", "json"),
+		chaincmdrunner.KV("indent", "true"),
+		chaincmdrunner.KV("trust-node", "true"),
+	)
 }
 
-func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
-	return step.NewOptions().
-		Add(
-			p.cmd.ImportKeyCommand(name),
-			step.Write([]byte(mnemonic+"\n")),
-		)
-}
-
-func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.ShowKeyAddressCommand(accountName)
-}
-
-func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
-	return []step.Option{
-		p.cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
-		p.cmd.LaunchpadSetConfigCommand("chain-id", chainID),
-		p.cmd.LaunchpadSetConfigCommand("output", "json"),
-		p.cmd.LaunchpadSetConfigCommand("indent", "true"),
-		p.cmd.LaunchpadSetConfigCommand("trust-node", "true"),
-	}
-}
-
-func (p *launchpadPlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.GentxCommand(
+func (p *launchpadPlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
+	return p.chain.Commands().Gentx(
+		ctx,
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -132,23 +121,20 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				p.cmd.StartCommand(),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-		step.NewOptions().
-			Add(
-				p.cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
-				}),
-			),
-	}
+func (p *launchpadPlugin) Start(ctx context.Context, conf starportconf.Config) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		err := p.chain.Commands().Start(ctx)
+		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+	})
+
+	g.Go(func() error {
+		err := p.chain.Commands().LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
+	})
+
+	return g.Wait()
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {

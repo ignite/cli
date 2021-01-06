@@ -17,8 +17,8 @@ var prefixes = map[logType]struct {
 }{
 	logStarport: {"starport", 202},
 	logBuild:    {"build", 203},
-	logAppd:     {"%sd", 204},
-	logAppcli:   {"%scli", 205},
+	logAppd:     {"%s daemon", 204},
+	logAppcli:   {"%s cli", 205},
 	logRelayer:  {"relayer", 206},
 }
 
@@ -74,4 +74,12 @@ func (c *Chain) stdLog(logType logType) std {
 		out: stdout,
 		err: stderr,
 	}
+}
+
+func (c *Chain) genPrefix(logType logType) string {
+	prefix := prefixes[logType]
+
+	return prefixgen.
+		New(prefix.Name, prefixgen.Common(prefixgen.Color(prefix.Color))...).
+		Gen(c.app.Name)
 }

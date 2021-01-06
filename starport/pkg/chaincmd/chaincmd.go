@@ -161,7 +161,8 @@ func (c ChainCmd) ListKeysCommand() step.Option {
 		constJSON,
 	}
 	command = c.attachKeyringBackend(command)
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+
+	return c.cliCommand(command)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain

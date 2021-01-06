@@ -11,13 +11,14 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/lineprefixer"
 )
 
 // Runner provides a high level access to a blockchain's commands.
 type Runner struct {
-	cc             chaincmd.ChainCmd
-	stdout, stderr io.Writer
-	workdir        string
+	cc                            chaincmd.ChainCmd
+	stdout, stderr                io.Writer
+	daemonLogPrefix, cliLogPrefix string
 }
 
 // Option configures Runner.
@@ -30,17 +31,24 @@ func Stdout(w io.Writer) Option {
 	}
 }
 
+// DaemonLogPrefix is a prefix added to app's daemon logs.
+func DaemonLogPrefix(prefix string) Option {
+	return func(r *Runner) {
+		r.daemonLogPrefix = prefix
+	}
+}
+
+// CLILogPrefix is a prefix added to app's cli logs.
+func CLILogPrefix(prefix string) Option {
+	return func(r *Runner) {
+		r.cliLogPrefix = prefix
+	}
+}
+
 // Stderr sets stderr for executed commands.
 func Stderr(w io.Writer) Option {
 	return func(r *Runner) {
 		r.stderr = w
-	}
-}
-
-// Workdir sets current working directory.
-func Workdir(path string) Option {
-	return func(r *Runner) {
-		r.workdir = path
 	}
 }
 
@@ -52,10 +60,20 @@ func New(cc chaincmd.ChainCmd, options ...Option) Runner {
 		stderr: ioutil.Discard,
 	}
 
-	// apply options.
+	applyOptions(&r, options)
+
+	return r
+}
+
+func applyOptions(r *Runner, options []Option) {
 	for _, apply := range options {
-		apply(&r)
+		apply(r)
 	}
+}
+
+// Copy makes a copy of runner by overwriting its options with given options.
+func (r Runner) Copy(options ...Option) Runner {
+	applyOptions(&r, options)
 
 	return r
 }
@@ -70,9 +88,13 @@ type runOptions struct {
 
 // run executes a command.
 func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.Option) error {
-	errb := &bytes.Buffer{}
-	stdout := r.stdout
-	stderr := r.stderr
+	var (
+		errb = &bytes.Buffer{}
+
+		// add optional prefixes to output streams.
+		stdout io.Writer = lineprefixer.NewWriter(r.stdout, func() string { return r.daemonLogPrefix })
+		stderr io.Writer = lineprefixer.NewWriter(r.stderr, func() string { return r.cliLogPrefix })
+	)
 
 	if roptions.stdout != nil {
 		stdout = io.MultiWriter(stdout, roptions.stdout)
@@ -82,7 +104,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 	}
 
 	if !roptions.longRunning {
-		stderr = io.MultiWriter(r.stderr, errb)
+		stderr = io.MultiWriter(stderr, errb)
 	}
 
 	rnoptions := []cmdrunner.Option{

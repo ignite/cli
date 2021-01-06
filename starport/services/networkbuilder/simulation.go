@@ -1,7 +1,6 @@
 package networkbuilder
 
 import (
-	"bytes"
 	"context"
 	"errors"
 	"fmt"
@@ -18,8 +17,7 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
 	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -91,14 +89,15 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		return false, err
 	}
 
+	runner := chainHandler.Commands().
+		Copy(
+			chaincmdrunner.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
+			chaincmdrunner.Stdout(commandOut),
+		)
+
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
-	err = cmdrunner.New().Run(ctx, step.New(
-		chainHandler.Commands().ValidateGenesisCommand(),
-		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
-		step.Stdout(commandOut),
-	))
-	if err != nil {
+	if runner.ValidateGenesis(ctx); err != nil {
 		return false, nil
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis correctly formatted"))
@@ -116,23 +115,13 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	// Go routine to start the app
 	b.ev.Send(events.New(events.StatusOngoing, "starting chain"))
 	go func() {
-		errBytes := &bytes.Buffer{}
-		err := cmdrunner.New().Run(ctx, step.New(
-			chainHandler.Commands().StartCommand(),
-			step.PostExec(func(exitErr error) error {
-				// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
-				// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
-				// after the execution of gentxs
-				if strings.Contains(errBytes.String(), ValidatorSetNilErrorMessage) {
-					return nil
-				}
-
-				// We interpret any other error as if the genesis is broken
-				return exitErr
-			}),
-			step.Stderr(io.MultiWriter(commandOut, errBytes)),
-			step.Stdout(commandOut),
-		))
+		err := runner.Start(ctx)
+		// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
+		// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
+		// after the execution of gentxs
+		if strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
+			err = nil
+		}
 		exit <- err
 	}()
 

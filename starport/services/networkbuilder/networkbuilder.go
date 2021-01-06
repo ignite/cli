@@ -21,8 +21,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
@@ -358,11 +357,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return cmdrunner.New().Run(ctx, step.New(
-			chainHandler.Commands().StartCommand(flags...),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
-		))
+		return chainHandler.Commands().
+			Copy(
+				chaincmdrunner.Stdout(os.Stdout),
+				chaincmdrunner.Stderr(os.Stderr)).
+			Start(ctx, flags...)
 	})
 
 	// log connected peers info.
@@ -427,7 +426,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 			Coins:   account.Coins.String(),
 		}
 
-		if err := chainHandler.AddGenesisAccount(ctx, genesisAccount); err != nil {
+		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
 			return err
 		}
 	}
@@ -455,7 +454,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		}
 	}
 	if len(launchInfo.GenTxs) > 0 {
-		if err = chainHandler.CollectGentx(ctx); err != nil {
+		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
 			return err
 		}
 	}

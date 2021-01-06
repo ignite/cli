@@ -9,7 +9,6 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
@@ -55,28 +54,13 @@ func (p *stargatePlugin) Binaries() []string {
 	}
 }
 
-func (p *stargatePlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().Add(p.cmd.AddKeyCommand(accountName))
-}
-
-func (p *stargatePlugin) ImportUserCommand(name, mnemonic string) step.Options {
-	return step.NewOptions().
-		Add(
-			p.cmd.ImportKeyCommand(name),
-			step.Write([]byte(mnemonic+"\n")),
-		)
-}
-
-func (p *stargatePlugin) ShowAccountCommand(accountName string) step.Option {
-	return p.cmd.ShowKeyAddressCommand(accountName)
-}
-
-func (p *stargatePlugin) ConfigCommands(_ string) []step.Option {
+func (p *stargatePlugin) Configure(_ context.Context, _ string) error {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(v Validator) step.Option {
-	return p.cmd.GentxCommand(
+func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
+	return p.chain.Commands().Gentx(
+		ctx,
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -138,21 +122,14 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) StartCommands(conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				p.cmd.StartCommand(
-					"--pruning",
-					"nothing",
-					"--grpc.address",
-					conf.Servers.GRPCAddr,
-				),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-	}
+func (p *stargatePlugin) Start(ctx context.Context, conf starportconf.Config) error {
+	err := p.chain.Commands().Start(ctx,
+		"--pruning",
+		"nothing",
+		"--grpc.address",
+		conf.Servers.GRPCAddr,
+	)
+	return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
 }
 
 func (p *stargatePlugin) StoragePaths() []string {
