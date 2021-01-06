@@ -28,6 +28,12 @@ func TestParse(t *testing.T) {
 			"github.com/a/b/c@", Path{}, fmt.Errorf("app name is an invalid go module name: %w",
 				errors.New(`malformed module path "github.com/a/b/c@": invalid char '@'`)),
 		},
+		{"name starting with the letter v",
+			"github.com/a/vote", Path{"github.com/a/vote", "vote", "vote"}, nil,
+		},
+		{"with version",
+			"github.com/a/b/v2", Path{"github.com/a/b/v2", "b", "b"}, nil,
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {

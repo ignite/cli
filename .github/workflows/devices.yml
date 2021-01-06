@@ -31,7 +31,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64 --file .docker/Dockerfile.amd64 --platform linux/amd64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --push --progress tty .
+        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport --file .docker/Dockerfile.amd64 --platform linux/amd64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:amd64cache --push --progress tty .
 
   arm64:
     name: arm64 docker
@@ -56,7 +56,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport:arm64 --file .docker/Dockerfile.arm64 --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:arm64cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:arm64cache --push --progress tty .
+        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport --file .docker/Dockerfile.arm64 --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --push --progress tty .
 
   pi:
     name: Starport Pi

@@ -67,19 +67,19 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		Version:  cosmosver.Stargate,
 		HomePath: tmpHome,
 	}
-	chainCmd, err := chain.New(app, true, chain.LogSilent)
+	chainHandler, err := chain.New(app, true, chain.LogSilent)
 	if err != nil {
 		return false, err
 	}
 
 	// copy the config to the temporary directory
-	if err := copy.Copy(chainCmd.DefaultHome(), chainCmd.Home()); err != nil {
+	if err := copy.Copy(chainHandler.DefaultHome(), chainHandler.Home()); err != nil {
 		return false, err
 	}
 
 	// generate the genesis to test
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
-	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainCmd); err != nil {
+	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainHandler); err != nil {
 		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
 		return false, nil
 	}
@@ -94,12 +94,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
 	err = cmdrunner.New().Run(ctx, step.New(
-		step.Exec(
-			app.D(),
-			"validate-genesis",
-			"--home",
-			tmpHome,
-		),
+		chainHandler.Commands().ValidateGenesisCommand(),
 		step.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 		step.Stdout(commandOut),
 	))
@@ -123,12 +118,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	go func() {
 		errBytes := &bytes.Buffer{}
 		err := cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				"start",
-				"--home",
-				tmpHome,
-			),
+			chainHandler.Commands().StartCommand(),
 			step.PostExec(func(exitErr error) error {
 				// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 				// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
