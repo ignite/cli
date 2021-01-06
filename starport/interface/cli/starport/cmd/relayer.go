@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -51,7 +52,7 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 		Path: appPath,
 	}
 
-	c, err := chain.New(app, false, logLevel(cmd))
+	c, err := chain.New(app, false, logLevel(cmd), chain.ChainWithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
 	}
@@ -73,7 +74,7 @@ func relayerAddHandler(cmd *cobra.Command, args []string) error {
 		Path: appPath,
 	}
 
-	c, err := chain.New(app, false, logLevel(cmd))
+	c, err := chain.New(app, false, logLevel(cmd), chain.ChainWithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
 	}

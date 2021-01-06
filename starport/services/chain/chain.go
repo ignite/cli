@@ -51,21 +51,37 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
-	cmd            chaincmd.ChainCmd
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
+	cmd            chaincmd.ChainCmd
+	keyringBackend chaincmd.KeyringBackend
+}
+
+type ChainOption func(*Chain)
+
+// ChainWithKeyringBackend specify the keyring backend to use for the chain command
+func ChainWithKeyringBackend(keyringBackend chaincmd.KeyringBackend) ChainOption {
+	return func(c *Chain) {
+		c.keyringBackend = keyringBackend
+	}
 }
 
 // TODO document noCheck (basically it stands to enable Chain initialization without
 // need of source code)
-func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
+func New(app App, noCheck bool, logLevel LogLevel, chainOptions ...ChainOption) (*Chain, error) {
 	c := &Chain{
 		app:            app,
 		logLevel:       logLevel,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
+		keyringBackend:	chaincmd.KeyringBackendUnspecified,
+	}
+
+	// Apply the options
+	for _, applyOption := range chainOptions {
+		applyOption(c)
 	}
 
 	if logLevel == LogVerbose {
@@ -111,6 +127,11 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 			return nil, err
 		}
 		options = append(options, chaincmd.WithLaunchpad(c.app.CLI()), chaincmd.WithLaunchpadCLIHome(cliHome))
+	}
+
+	// append keyring backend if specified
+	if c.keyringBackend != chaincmd.KeyringBackendUnspecified {
+		options = append(options, chaincmd.WithKeyringBackend(c.keyringBackend))
 	}
 
 	c.cmd = chaincmd.New(

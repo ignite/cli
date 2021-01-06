@@ -33,11 +33,12 @@ const (
 type KeyringBackend string
 
 const (
-	KeyringBackendOS      KeyringBackend = "os"
-	KeyringBackendFile    KeyringBackend = "file"
-	KeyringBackendPass    KeyringBackend = "pass"
-	KeyringBackendTest    KeyringBackend = "test"
-	KeyringBackendKwallet KeyringBackend = "kwallet"
+	KeyringBackendUnspecified KeyringBackend = ""
+	KeyringBackendOS          KeyringBackend = "os"
+	KeyringBackendFile        KeyringBackend = "file"
+	KeyringBackendPass        KeyringBackend = "pass"
+	KeyringBackendTest        KeyringBackend = "test"
+	KeyringBackendKwallet     KeyringBackend = "kwallet"
 )
 
 type ChainCmd struct {
