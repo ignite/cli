@@ -19,14 +19,12 @@ import (
 )
 
 type launchpadPlugin struct {
-	app   App
-	chain *Chain
+	app App
 }
 
-func newLaunchpadPlugin(app App, chain *Chain) *launchpadPlugin {
+func newLaunchpadPlugin(app App) *launchpadPlugin {
 	return &launchpadPlugin{
-		app:   app,
-		chain: chain,
+		app: app,
 	}
 }
 
@@ -60,8 +58,8 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
-	return p.chain.Commands().LaunchpadSetConfigs(ctx,
+func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
+	return runner.LaunchpadSetConfigs(ctx,
 		chaincmdrunner.NewKV("keyring-backend", "test"),
 		chaincmdrunner.NewKV("chain-id", chainID),
 		chaincmdrunner.NewKV("output", "json"),
@@ -70,8 +68,8 @@ func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
 	)
 }
 
-func (p *launchpadPlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
-	return p.chain.Commands().Gentx(
+func (p *launchpadPlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+	return runner.Gentx(
 		ctx,
 		v.Name,
 		v.StakingAmount,
@@ -131,16 +129,16 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *launchpadPlugin) Start(ctx context.Context, conf starportconf.Config) error {
+func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		err := p.chain.Commands().Start(ctx)
+		err := runner.Start(ctx)
 		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
 	})
 
 	g.Go(func() error {
-		err := p.chain.Commands().LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
 		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
 	})
 

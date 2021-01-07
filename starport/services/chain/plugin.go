@@ -3,6 +3,8 @@ package chain
 import (
 	"context"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
@@ -20,16 +22,16 @@ type Plugin interface {
 	Binaries() []string
 
 	// ConfigCommands returns step.Exec configuration for config commands.
-	Configure(ctx context.Context, chainID string) error
+	Configure(context.Context, chaincmdrunner.Runner, string) error
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	Gentx(context.Context, Validator) (path string, err error)
+	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// PostInit hook.
 	PostInit(starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	Start(context.Context, starportconf.Config) error
+	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
@@ -54,9 +56,9 @@ func (c *Chain) pickPlugin() (Plugin, error) {
 	}
 	switch version {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(c.app, c), nil
+		return newLaunchpadPlugin(c.app), nil
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c), nil
+		return newStargatePlugin(c.app), nil
 	}
 	panic("unknown cosmos version")
 }

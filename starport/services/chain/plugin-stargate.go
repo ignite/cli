@@ -5,6 +5,8 @@ import (
 	"os"
 	"path/filepath"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/pelletier/go-toml"
@@ -15,14 +17,12 @@ import (
 )
 
 type stargatePlugin struct {
-	app   App
-	chain *Chain
+	app App
 }
 
-func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
+func newStargatePlugin(app App) *stargatePlugin {
 	return &stargatePlugin{
-		app:   app,
-		chain: chain,
+		app: app,
 	}
 }
 
@@ -40,12 +40,12 @@ func (p *stargatePlugin) Binaries() []string {
 	}
 }
 
-func (p *stargatePlugin) Configure(_ context.Context, _ string) error {
+func (p *stargatePlugin) Configure(_ context.Context, _ chaincmdrunner.Runner, _ string) error {
 	return nil
 }
 
-func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
-	return p.chain.Commands().Gentx(
+func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+	return runner.Gentx(
 		ctx,
 		v.Name,
 		v.StakingAmount,
@@ -108,8 +108,8 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, conf starportconf.Config) error {
-	err := p.chain.Commands().Start(ctx,
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
+	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
 		"--grpc.address",

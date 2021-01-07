@@ -108,7 +108,7 @@ func (c *Chain) configure(ctx context.Context) error {
 		return err
 	}
 
-	return c.plugin.Configure(ctx, chainID)
+	return c.plugin.Configure(ctx, c.Commands(), chainID)
 }
 
 type Validator struct {
