@@ -57,7 +57,7 @@ func (c *Chain) pickPlugin() (Plugin, error) {
 	case cosmosver.Launchpad:
 		return newLaunchpadPlugin(c.app, c), nil
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c)
+		return newStargatePlugin(c.app, c), nil
 	}
 	panic("unknown cosmos version")
 }

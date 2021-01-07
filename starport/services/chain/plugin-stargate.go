@@ -19,11 +19,11 @@ type stargatePlugin struct {
 	chain *Chain
 }
 
-func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
+func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
-	}, nil
+	}
 }
 
 func (p *stargatePlugin) Name() string {
