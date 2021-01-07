@@ -30,7 +30,7 @@ By default, this chain includes a github action that builds for amd64 and arm64 
 
 ### Docker Images And Pi Images
 
-In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as [secrets](https://github.com/(<%= OrgName %>/<%= AppName %>/settings/secrets/actions)
+In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as [secrets](https://github.com/(<%= OwnerName %>/<%= AppName %>/settings/secrets/actions)
 
 Add these:
 
