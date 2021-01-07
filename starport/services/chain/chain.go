@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
@@ -51,10 +52,10 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
+	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
-	cmd            chaincmd.ChainCmd
 	keyringBackend chaincmd.KeyringBackend
 }
 
@@ -110,34 +111,43 @@ func New(app App, noCheck bool, logLevel LogLevel, chainOptions ...Option) (*Cha
 	if err != nil {
 		return nil, err
 	}
+
 	home, err := c.Home()
 	if err != nil {
 		return nil, err
 	}
-	options := append([]chaincmd.Option{}, chaincmd.WithChainID(id), chaincmd.WithHome(home))
-
-	// append Launchpad CLI if Launchpad version is used
-	version, err := c.CosmosVersion()
-	if err != nil {
-		return nil, err
+	ccoptions := []chaincmd.Option{
+		chaincmd.WithChainID(id),
+		chaincmd.WithHome(home),
 	}
-	if version == cosmosver.Launchpad {
+	if c.plugin.Version() == cosmosver.Launchpad {
 		cliHome, err := c.CLIHome()
 		if err != nil {
 			return nil, err
 		}
-		options = append(options, chaincmd.WithLaunchpad(c.app.CLI()), chaincmd.WithLaunchpadCLIHome(cliHome))
+		ccoptions = append(ccoptions,
+			chaincmd.WithLaunchpad(app.CLI()),
+			chaincmd.WithLaunchpadCLIHome(cliHome),
+		)
 	}
 
 	// append keyring backend if specified
 	if c.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		options = append(options, chaincmd.WithKeyringBackend(c.keyringBackend))
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.keyringBackend))
 	}
 
-	c.cmd = chaincmd.New(
-		app.D(),
-		options...,
-	)
+	cc := chaincmd.New(app.D(), ccoptions...)
+
+	ccroptions := []chaincmdrunner.Option{}
+	if c.logLevel == LogVerbose {
+		ccroptions = append(ccroptions,
+			chaincmdrunner.Stdout(os.Stdout),
+			chaincmdrunner.Stderr(os.Stderr),
+			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
+		)
+	}
+	c.cmd = chaincmdrunner.New(cc, ccroptions...)
 
 	return c, nil
 }
@@ -287,8 +297,8 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 	return fmt.Sprintf("%s/config/config.toml", home), nil
 }
 
-// Commands returns the chaincmd object to perform command with the chain binary
-func (c *Chain) Commands() chaincmd.ChainCmd {
+// Commands returns the runner execute commands on the chain's binary
+func (c *Chain) Commands() chaincmdrunner.Runner {
 	return c.cmd
 }
 

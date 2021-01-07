@@ -21,8 +21,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
@@ -36,6 +35,10 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
+)
+
+var (
+	sourcePath = filepath.Join(starportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
@@ -185,8 +188,20 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
-		// use a tempdir to clone the source code inside.
-		if path, err = ioutil.TempDir("", ""); err != nil {
+		// ensure the path for chain source exists
+		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
+			if !os.IsExist(err) {
+				return nil, err
+			}
+		}
+
+		path = filepath.Join(sourcePath, chainID)
+		if _, err := os.Stat(path); err == nil {
+			// if the directory already exists, we overwrite it to ensure we have the last version
+			if err := os.RemoveAll(path); err != nil {
+				return nil, err
+			}
+		} else if !os.IsNotExist(err) {
 			return nil, err
 		}
 
@@ -362,11 +377,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return cmdrunner.New().Run(ctx, step.New(
-			chainHandler.Commands().StartCommand(flags...),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
-		))
+		return chainHandler.Commands().
+			Copy(
+				chaincmdrunner.Stdout(os.Stdout),
+				chaincmdrunner.Stderr(os.Stderr)).
+			Start(ctx, flags...)
 	})
 
 	// log connected peers info.
@@ -436,7 +451,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 			Coins:   account.Coins.String(),
 		}
 
-		if err := chainHandler.AddGenesisAccount(ctx, genesisAccount); err != nil {
+		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
 			return err
 		}
 	}
@@ -464,7 +479,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		}
 	}
 	if len(launchInfo.GenTxs) > 0 {
-		if err = chainHandler.CollectGentx(ctx); err != nil {
+		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
 			return err
 		}
 	}

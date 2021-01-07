@@ -6,9 +6,11 @@ import (
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -17,12 +19,14 @@ import (
 )
 
 type launchpadPlugin struct {
-	app App
+	app   App
+	chain *Chain
 }
 
-func newLaunchpadPlugin(app App) *launchpadPlugin {
+func newLaunchpadPlugin(app App, chain *Chain) *launchpadPlugin {
 	return &launchpadPlugin{
-		app: app,
+		app:   app,
+		chain: chain,
 	}
 }
 
@@ -56,34 +60,19 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) AddUserCommand(cmd chaincmd.ChainCmd, accountName string) step.Options {
-	return step.NewOptions().Add(cmd.AddKeyCommand(accountName))
+func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
+	return p.chain.Commands().LaunchpadSetConfigs(ctx,
+		chaincmdrunner.NewKV("keyring-backend", "test"),
+		chaincmdrunner.NewKV("chain-id", chainID),
+		chaincmdrunner.NewKV("output", "json"),
+		chaincmdrunner.NewKV("indent", "true"),
+		chaincmdrunner.NewKV("trust-node", "true"),
+	)
 }
 
-func (p *launchpadPlugin) ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options {
-	return step.NewOptions().
-		Add(
-			cmd.ImportKeyCommand(name),
-			step.Write([]byte(mnemonic+"\n")),
-		)
-}
-
-func (p *launchpadPlugin) ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option {
-	return cmd.ShowKeyAddressCommand(accountName)
-}
-
-func (p *launchpadPlugin) ConfigCommands(cmd chaincmd.ChainCmd, chainID string) []step.Option {
-	return []step.Option{
-		cmd.LaunchpadSetConfigCommand("keyring-backend", "test"),
-		cmd.LaunchpadSetConfigCommand("chain-id", chainID),
-		cmd.LaunchpadSetConfigCommand("output", "json"),
-		cmd.LaunchpadSetConfigCommand("indent", "true"),
-		cmd.LaunchpadSetConfigCommand("trust-node", "true"),
-	}
-}
-
-func (p *launchpadPlugin) GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option {
-	return cmd.GentxCommand(
+func (p *launchpadPlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
+	return p.chain.Commands().Gentx(
+		ctx,
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -140,6 +129,22 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	defer file.Close()
 	_, err = config.WriteTo(file)
 	return err
+}
+
+func (p *launchpadPlugin) Start(ctx context.Context, conf starportconf.Config) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		err := p.chain.Commands().Start(ctx)
+		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+	})
+
+	g.Go(func() error {
+		err := p.chain.Commands().LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
+	})
+
+	return g.Wait()
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {

@@ -153,6 +153,19 @@ func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	return c.cliCommand(command)
 }
 
+// ListKeysCommand returns the command to print the list of a keys in the chain keyring
+func (c ChainCmd) ListKeysCommand() step.Option {
+	command := []string{
+		commandKeys,
+		"list",
+		optionOutput,
+		constJSON,
+	}
+	command = c.attachKeyringBackend(command)
+
+	return c.cliCommand(command)
+}
+
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
 func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Option {
 	command := []string{
@@ -163,7 +176,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 	return c.daemonCommand(command)
 }
 
-// Options for the GentxCommand
+// GentxOption for the GentxCommand
 type GentxOption func([]string) []string
 
 // GentxWithMoniker provides moniker option for the gentx command

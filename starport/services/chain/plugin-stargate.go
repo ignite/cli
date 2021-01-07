@@ -9,7 +9,6 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
@@ -41,28 +40,13 @@ func (p *stargatePlugin) Binaries() []string {
 	}
 }
 
-func (p *stargatePlugin) AddUserCommand(cmd chaincmd.ChainCmd, accountName string) step.Options {
-	return step.NewOptions().Add(cmd.AddKeyCommand(accountName))
-}
-
-func (p *stargatePlugin) ImportUserCommand(cmd chaincmd.ChainCmd, name, mnemonic string) step.Options {
-	return step.NewOptions().
-		Add(
-			cmd.ImportKeyCommand(name),
-			step.Write([]byte(mnemonic+"\n")),
-		)
-}
-
-func (p *stargatePlugin) ShowAccountCommand(cmd chaincmd.ChainCmd, accountName string) step.Option {
-	return cmd.ShowKeyAddressCommand(accountName)
-}
-
-func (p *stargatePlugin) ConfigCommands(_ chaincmd.ChainCmd, _ string) []step.Option {
+func (p *stargatePlugin) Configure(_ context.Context, _ string) error {
 	return nil
 }
 
-func (p *stargatePlugin) GentxCommand(cmd chaincmd.ChainCmd, v Validator) step.Option {
-	return cmd.GentxCommand(
+func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
+	return p.chain.Commands().Gentx(
+		ctx,
 		v.Name,
 		v.StakingAmount,
 		chaincmd.GentxWithMoniker(v.Moniker),
@@ -139,6 +123,16 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	defer file.Close()
 	_, err = config.WriteTo(file)
 	return err
+}
+
+func (p *stargatePlugin) Start(ctx context.Context, conf starportconf.Config) error {
+	err := p.chain.Commands().Start(ctx,
+		"--pruning",
+		"nothing",
+		"--grpc.address",
+		conf.Servers.GRPCAddr,
+	)
+	return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
 }
 
 func (p *stargatePlugin) StoragePaths() []string {
