@@ -38,6 +38,10 @@ const (
 	tendermintrpcAddr = "http://localhost:26657"
 )
 
+var (
+	sourcePath = filepath.Join(starportConfDir, "spn-chains")
+)
+
 // Builder is network builder.
 type Builder struct {
 	ev        events.Bus
@@ -185,8 +189,20 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
-		// use a tempdir to clone the source code inside.
-		if path, err = ioutil.TempDir("", ""); err != nil {
+		// ensure the path for chain source exists
+		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
+			if !os.IsExist(err) {
+				return nil, err
+			}
+		}
+
+		path = filepath.Join(sourcePath, chainID)
+		if _, err := os.Stat(path); err == nil {
+			// if the directory already exists, we overwrite it to ensure we have the last version
+			if err := os.RemoveAll(path); err != nil {
+				return nil, err
+			}
+		} else if !os.IsNotExist(err) {
 			return nil, err
 		}
 
