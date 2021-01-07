@@ -32,7 +32,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build Image in Docker
-        run: docker buildx build --tag blurt --file .pi/Dockerfile --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:picache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:picache --load --progress tty .
+        run: docker buildx build --tag <%= AppName %> --file .pi/Dockerfile --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:picache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:picache --load --progress tty .
 
       - name: Build Image
         run: bash .pi/build.sh
