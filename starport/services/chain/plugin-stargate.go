@@ -58,23 +58,6 @@ func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, e
 	)
 }
 
-func (p *stargatePlugin) StartCommands(cmd chaincmd.ChainCmd, conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				cmd.StartCommand(
-					"--pruning",
-					"nothing",
-					"--grpc.address",
-					conf.Servers.GRPCAddr,
-				),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-	}
-}
-
 func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
 	if err := p.apptoml(conf); err != nil {
 		return err

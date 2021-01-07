@@ -46,14 +46,28 @@ func (c *Chain) Init(ctx context.Context) error {
 		conf.Genesis["chain_id"] = chainID
 	}
 
+	// Initilize app config
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+	appTOMLPath, err := c.AppTOMLPath()
+	if err != nil {
+		return err
+	}
+	configTOMLPath, err := c.ConfigTOMLPath()
+	if err != nil {
+		return err
+	}
+
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
-		{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
+		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 	}
 
 	for _, ac := range appconfigs {
