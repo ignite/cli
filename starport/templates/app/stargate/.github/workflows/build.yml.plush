@@ -31,15 +31,6 @@ jobs:
           go mod download
           cd cmd/<%= AppName %>d
           go build .
-          cd ..
-          cd <%= AppName %>cli
-          go build .
-
-
- 	  - uses: actions/upload-artifact@v2
-        with:
-          name: <%= AppName %>cli ${{ matrix.targetos }} ${{ matrix.arch }}
-          path: cmd/<%= AppName %>cli/<%= AppName %>cli
 
       - uses: actions/upload-artifact@v2
         with:
