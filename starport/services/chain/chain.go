@@ -230,6 +230,12 @@ func (c *Chain) Home() (string, error) {
 		return appHome, nil
 	}
 
+	// Return default home otherwise
+	return c.DefaultHome()
+}
+
+// DefaultHome returns the blockchain node's default home dir when not specified in the app
+func (c *Chain) DefaultHome() (string, error) {
 	// check if home is defined in config
 	config, err := c.Config()
 	if err != nil {
@@ -239,13 +245,7 @@ func (c *Chain) Home() (string, error) {
 		return config.Init.Home, nil
 	}
 
-	// Return default home otherwise
-	return c.DefaultHome(), nil
-}
-
-// DefaultHome returns the blockchain node's default home dir when not specified.
-func (c *Chain) DefaultHome() string {
-	return c.plugin.Home()
+	return c.plugin.Home(), nil
 }
 
 // CLIHome returns the blockchain node's home dir.

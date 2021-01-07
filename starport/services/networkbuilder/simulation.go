@@ -75,7 +75,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	if err != nil {
 		return false, err
 	}
-	if err := copy.Copy(chainHandler.DefaultHome(), home); err != nil {
+	defaultHome, err := chainHandler.DefaultHome()
+	if err != nil {
+		return false, err
+	}
+	if err := copy.Copy(defaultHome, home); err != nil {
 		return false, err
 	}
 
