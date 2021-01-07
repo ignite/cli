@@ -17,26 +17,12 @@ import (
 type stargatePlugin struct {
 	app   App
 	chain *Chain
-	cmd   chaincmd.ChainCmd
 }
 
 func newStargatePlugin(app App, chain *Chain) (*stargatePlugin, error) {
-	id, err := chain.ID()
-	if err != nil {
-		return nil, err
-	}
-
-	// initialize the chain command with keyring backend test
-	cmd := chaincmd.New(
-		app.D(),
-		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithChainID(id),
-	)
-
 	return &stargatePlugin{
 		app:   app,
 		chain: chain,
-		cmd:   cmd,
 	}, nil
 }
 

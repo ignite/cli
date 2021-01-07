@@ -71,11 +71,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// run post init handler
-	if err := c.plugin.PostInit(conf); err != nil {
-		return err
-	}
-
-	return nil
+	return c.plugin.PostInit(conf)
 }
 
 func (c *Chain) configure(ctx context.Context) error {

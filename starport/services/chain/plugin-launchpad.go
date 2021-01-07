@@ -21,21 +21,12 @@ import (
 type launchpadPlugin struct {
 	app   App
 	chain *Chain
-	cmd   chaincmd.ChainCmd
 }
 
 func newLaunchpadPlugin(app App, chain *Chain) *launchpadPlugin {
-	// initialize the chain command with keyring backend test
-	cmd := chaincmd.New(
-		app.D(),
-		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithLaunchpad(app.CLI()),
-	)
-
 	return &launchpadPlugin{
 		app:   app,
 		chain: chain,
-		cmd:   cmd,
 	}
 }
 
