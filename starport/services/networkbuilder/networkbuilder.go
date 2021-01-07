@@ -190,7 +190,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// as well as validators.
 	default:
 		// ensure the path for chain source exists
-		if err := os.MkdirAll(sourcePath, 0700); err != nil {
+		if err := os.MkdirAll(sourcePath, 0700); err != nil &&  !os.IsExist(err) {
 			if !os.IsExist(err) {
 				return nil, err
 			}
