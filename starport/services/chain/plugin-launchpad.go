@@ -62,11 +62,11 @@ func (p *launchpadPlugin) Binaries() []string {
 
 func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
 	return p.chain.Commands().LaunchpadSetConfigs(ctx,
-		chaincmdrunner.KV("keyring-backend", "test"),
-		chaincmdrunner.KV("chain-id", chainID),
-		chaincmdrunner.KV("output", "json"),
-		chaincmdrunner.KV("indent", "true"),
-		chaincmdrunner.KV("trust-node", "true"),
+		chaincmdrunner.NewKV("keyring-backend", "test"),
+		chaincmdrunner.NewKV("chain-id", chainID),
+		chaincmdrunner.NewKV("output", "json"),
+		chaincmdrunner.NewKV("indent", "true"),
+		chaincmdrunner.NewKV("trust-node", "true"),
 	)
 }
 

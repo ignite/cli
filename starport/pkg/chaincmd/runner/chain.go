@@ -24,19 +24,19 @@ func (r Runner) Init(ctx context.Context, moniker string) error {
 	return r.run(ctx, runOptions{}, r.cc.InitCommand(moniker))
 }
 
-// KeyValue holds a key, value pair.
-type KeyValue struct {
+// KV holds a key, value pair.
+type KV struct {
 	key   string
 	value string
 }
 
-// KV returns a new key, value pair.
-func KV(key, value string) KeyValue {
-	return KeyValue{key, value}
+// NewKV returns a new key, value pair.
+func NewKV(key, value string) KV {
+	return KV{key, value}
 }
 
 // LaunchpadSetConfigs updates configurations for a launchpad app.
-func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KeyValue) error {
+func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
 	for _, kv := range kvs {
 		if err := r.run(ctx, runOptions{}, r.cc.LaunchpadSetConfigCommand(kv.key, kv.value)); err != nil {
 			return err
