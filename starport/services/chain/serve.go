@@ -12,7 +12,6 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"sync"
 	"time"
 
 	"github.com/pkg/errors"
@@ -183,90 +182,65 @@ func (c *Chain) serve(ctx context.Context) error {
 	}
 
 	for _, account := range conf.Accounts {
-		acc, err := c.CreateAccount(ctx, account.Name, "", false)
+		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
 		if err != nil {
 			return err
 		}
 
-		acc.Coins = strings.Join(account.Coins, ",")
-		if err := c.AddGenesisAccount(ctx, acc); err != nil {
+		coins := strings.Join(account.Coins, ",")
+		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
+
+		fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
 	}
+
 	for _, account := range sconf.Accounts {
-		acc, err := c.CreateAccount(ctx, account.Name, account.Mnemonic, false)
+		acc, err := c.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
 		if err != nil {
 			return err
 		}
 
-		acc.Coins = strings.Join(account.Coins, ",")
-		if err := c.AddGenesisAccount(ctx, acc); err != nil {
+		coins := strings.Join(account.Coins, ",")
+		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 	}
 
-	setupSteps, err := c.setupSteps()
-	if err != nil {
+	if err := c.configure(ctx); err != nil {
 		return err
 	}
-	if err := cmdrunner.
-		New(c.cmdOptions()...).
-		Run(ctx, setupSteps...); err != nil {
-		return err
-	}
-	if _, err := c.Gentx(ctx, Validator{
+
+	if _, err := c.plugin.Gentx(ctx, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
 		return err
 	}
-	if err := c.CollectGentx(ctx); err != nil {
+
+	if err := c.Commands().CollectGentxs(ctx); err != nil {
 		return err
 	}
 
-	wr := sync.WaitGroup{}
-	wr.Add(1)
+	return c.start(ctx, conf)
+}
+
+func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error { return c.plugin.Start(ctx, conf) })
+
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 
 	go func() {
-		wr.Wait()
 		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
 			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
 
-	return cmdrunner.
-		New(append(c.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, c.serverSteps(ctx, &wr, conf)...)
-}
-
-func (c *Chain) serverSteps(_ context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
-	var wg sync.WaitGroup
-	wg.Add(len(c.plugin.StartCommands(conf)))
-	go func() {
-		wg.Wait()
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
-		fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
-		wr.Done()
-	}()
-
-	for _, exec := range c.plugin.StartCommands(conf) {
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(exec...).
-					Add(
-						step.InExec(func() error {
-							wg.Done()
-							return nil
-						}),
-					).
-					Add(c.stdSteps(logAppd)...)...,
-			),
-		)
-	}
-
-	return
+	return g.Wait()
 }
 
 func (c *Chain) watchAppFrontend(ctx context.Context) error {

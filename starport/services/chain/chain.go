@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
@@ -51,7 +52,7 @@ type Chain struct {
 	plugin         Plugin
 	version        version
 	logLevel       LogLevel
-	cmd            chaincmd.ChainCmd
+	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
@@ -94,11 +95,31 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 	if err != nil {
 		return nil, err
 	}
-	c.cmd = chaincmd.New(
-		app.D(),
+
+	ccoptions := []chaincmd.Option{
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(c.Home()),
-	)
+		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	}
+	if c.plugin.Version() == cosmosver.Launchpad {
+		ccoptions = append(ccoptions,
+			chaincmd.WithLaunchpad(app.CLI()),
+			//chaincmd.WithLaunchpadCLIHome(),
+		)
+	}
+
+	cc := chaincmd.New(app.D(), ccoptions...)
+
+	ccroptions := []chaincmdrunner.Option{}
+	if c.logLevel == LogVerbose {
+		ccroptions = append(ccroptions,
+			chaincmdrunner.Stdout(os.Stdout),
+			chaincmdrunner.Stderr(os.Stderr),
+			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
+		)
+	}
+	c.cmd = chaincmdrunner.New(cc, ccroptions...)
 
 	return c, nil
 }
@@ -202,7 +223,7 @@ func (c *Chain) ConfigTOMLPath() string {
 	return fmt.Sprintf("%s/config/config.toml", c.Home())
 }
 
-// Commands returns the chaincmd object to perform command with the chain binary
-func (c *Chain) Commands() chaincmd.ChainCmd {
+// Commands returns the runner execute commands on the chain's binary
+func (c *Chain) Commands() chaincmdrunner.Runner {
 	return c.cmd
 }
