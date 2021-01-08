@@ -34,5 +34,4 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
       - name: Build and push
-        only: master
         run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport --platform linux/arm64,linux/amd64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --push --progress tty .
