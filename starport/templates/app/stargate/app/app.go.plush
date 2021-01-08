@@ -3,11 +3,9 @@ package app
 import (
 	"io"
 	"os"
-    "path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/codec/types"
-    "github.com/pelletier/go-toml"
 	"github.com/spf13/cast"
 
 	abci "github.com/tendermint/tendermint/abci/types"
@@ -80,7 +78,6 @@ import (
 	upgradetypes "github.com/cosmos/cosmos-sdk/x/upgrade/types"
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	appparams "<%= ModulePath %>/app/params"
 	"<%= ModulePath + "/x/" + AppName %>"
 	<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"
