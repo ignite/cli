@@ -44,7 +44,7 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
 	c, err := chain.New(b.appPath,
-		chain.ChainID(chainID),
+		chain.ID(chainID),
 		chain.LogLevel(chain.LogSilent),
 	)
 	if err != nil {

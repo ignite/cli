@@ -81,8 +81,8 @@ func LogLevel(level LogLvl) Option {
 	}
 }
 
-// ChainID replaces chain's id with given id.
-func ChainID(id string) Option {
+// ID replaces chain's id with given id.
+func ID(id string) Option {
 	return func(c *Chain) {
 		c.options.chainID = id
 	}
