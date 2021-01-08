@@ -262,7 +262,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		githash = ref.Hash()
 	}
 
-	return newBlockchain(ctx, b, chainID, path, url, githash.String(), o.mustNotInitializedBefore)
+	return newBlockchain(ctx, b, chainID, path, url, githash.String(), o.homePath, o.cliHomePath, o.mustNotInitializedBefore)
 }
 
 // ensureRemoteSynced ensures that current worktree in the repository has no unstaged
@@ -303,7 +303,13 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // has not finalized yet.
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
-func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
+func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
+	// set options
+	o := &initOptions{}
+	for _, option := range options {
+		option(o)
+	}
+
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return err
