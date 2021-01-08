@@ -62,12 +62,13 @@ func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) err
 	if err := p.apptoml(homePath, conf); err != nil {
 		return err
 	}
-	return p.configtoml(conf)
+	return p.configtoml(homePath, conf)
 }
 
 func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	config, err := toml.LoadFile(homePath)
+	path := filepath.Join(homePath, "config/app.toml")
+	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
 	}
@@ -85,9 +86,9 @@ func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) erro
 	return err
 }
 
-func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
+func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(p.Home(), "config/config.toml")
+	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err

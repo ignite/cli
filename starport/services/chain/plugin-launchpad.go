@@ -107,7 +107,8 @@ func (p *launchpadPlugin) PostInit(homePath string, conf starportconf.Config) er
 
 func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	config, err := toml.LoadFile(homePath)
+	path := filepath.Join(homePath, "config/config.toml")
+	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
 	}
