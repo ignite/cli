@@ -27,10 +27,19 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// cleanup persistent data from previous `serve`.
-	for _, path := range c.plugin.StoragePaths() {
-		if err := os.RemoveAll(path); err != nil {
-			return err
-		}
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(home); err != nil {
+		return err
+	}
+	cliHome, err := c.CLIHome()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(cliHome); err != nil {
+		return err
 	}
 
 	// init node.
@@ -85,10 +94,6 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// run post init handler
-	home, err := c.Home()
-	if err != nil {
-		return err
-	}
 	return c.plugin.PostInit(home, conf)
 }
 
