@@ -101,18 +101,13 @@ func (p *launchpadPlugin) StartCommands(cmd chaincmd.ChainCmd, conf starportconf
 	}
 }
 
-func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
-	return p.configtoml(conf)
+func (p *launchpadPlugin) PostInit(homePath string, conf starportconf.Config) error {
+	return p.configtoml(homePath, conf)
 }
 
-func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
+func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, "."+p.app.ND(), "config/config.toml")
-	config, err := toml.LoadFile(path)
+	config, err := toml.LoadFile(homePath)
 	if err != nil {
 		return err
 	}
@@ -120,7 +115,7 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
 	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
 	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(homePath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}

@@ -28,7 +28,7 @@ type Plugin interface {
 	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// PostInit hook.
-	PostInit(starportconf.Config) error
+	PostInit(string, starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
 	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error

@@ -1,6 +1,8 @@
 package chaincmd
 
-import "github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+import (
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+)
 
 const (
 	commandStart             = "start"

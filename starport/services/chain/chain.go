@@ -6,6 +6,7 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -225,13 +226,21 @@ func (c *Chain) ID() (string, error) {
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
-	appHome := c.app.Home()
-	if appHome != "" {
-		return appHome, nil
+	home := c.app.Home()
+	if home == "" {
+		// return default home otherwise
+		var err error
+		home, err = c.DefaultHome()
+		if err != nil {
+			return "", err
+		}
+
 	}
 
-	// Return default home otherwise
-	return c.DefaultHome()
+	// expand environment variables in home
+	home = filepath.Join(os.ExpandEnv(home))
+
+	return home, nil
 }
 
 // DefaultHome returns the blockchain node's default home dir when not specified in the app
@@ -252,22 +261,26 @@ func (c *Chain) DefaultHome() (string, error) {
 // This directory is the same as home for Stargate, it is a separate directory for Launchpad
 func (c *Chain) CLIHome() (string, error) {
 	// check if cli home is explicitly defined for the app
-	cliHome := c.app.CLIHome()
-	if cliHome != "" {
-		return cliHome, nil
+	home := c.app.CLIHome()
+	if home == "" {
+		// check if cli home is defined in config
+		config, err := c.Config()
+		if err != nil {
+			return "", err
+		}
+		if config.Init.CLIHome != "" {
+			home = config.Init.CLIHome
+		} else {
+			// Use default for cli home otherwise
+			home = c.plugin.CLIHome()
+		}
 	}
 
-	// check if cli home is defined in config
-	config, err := c.Config()
-	if err != nil {
-		return "", err
-	}
-	if config.Init.CLIHome != "" {
-		return config.Init.CLIHome, nil
-	}
+	// expand environment variables in home
+	home = filepath.Join(os.ExpandEnv(home))
 
 	// Return default home otherwise
-	return c.plugin.CLIHome(), nil
+	return home, nil
 }
 
 // GenesisPath returns genesis.json path of the app.

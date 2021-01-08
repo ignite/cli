@@ -58,17 +58,16 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 	)
 }
 
-func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
-	if err := p.apptoml(conf); err != nil {
+func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) error {
+	if err := p.apptoml(homePath, conf); err != nil {
 		return err
 	}
 	return p.configtoml(conf)
 }
 
-func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
+func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(p.Home(), "config/app.toml")
-	config, err := toml.LoadFile(path)
+	config, err := toml.LoadFile(homePath)
 	if err != nil {
 		return err
 	}
@@ -77,7 +76,7 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(conf.Servers.APIAddr))
 	config.Set("grpc.address", conf.Servers.GRPCAddr)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	file, err := os.OpenFile(homePath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
