@@ -34,7 +34,7 @@ func New() *cobra.Command {
 	return c
 }
 
-func logLevel(cmd *cobra.Command) chain.LogLevel {
+func logLevel(cmd *cobra.Command) chain.LogLvl {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	if verbose {
 		return chain.LogVerbose

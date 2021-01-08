@@ -17,7 +17,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -47,18 +46,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	defer os.RemoveAll(tmpHome)
 
 	appPath := filepath.Join(sourcePath, chainID)
-	path, err := gomodulepath.ParseAt(appPath)
-	if err != nil {
-		return false, err
-	}
-	app := chain.App{
-		Name:       path.Root,
-		Path:       appPath,
-		ImportPath: path.RawPath,
-		HomePath:   tmpHome,
-	}
 
-	chainHandler, err := chain.New(app, chain.LogSilent)
+	chainHandler, err := chain.New(appPath,
+		chain.HomePath(tmpHome),
+		chain.LogLevel(chain.LogSilent),
+	)
 	if err != nil {
 		return false, err
 	}
