@@ -299,7 +299,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	path, err := gomodulepath.ParseFile(appPath)
+	path, err := gomodulepath.ParseAt(appPath)
 	if err != nil {
 		return err
 	}

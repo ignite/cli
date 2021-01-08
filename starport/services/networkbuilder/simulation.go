@@ -47,7 +47,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	defer os.RemoveAll(tmpHome)
 
 	appPath := filepath.Join(sourcePath, chainID)
-	path, err := gomodulepath.ParseFile(appPath)
+	path, err := gomodulepath.ParseAt(appPath)
 	if err != nil {
 		return false, err
 	}
