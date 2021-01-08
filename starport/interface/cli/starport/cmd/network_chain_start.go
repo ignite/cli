@@ -18,6 +18,13 @@ func NewNetworkChainStart() *cobra.Command {
 }
 
 func networkChainStartHandler(cmd *cobra.Command, args []string) error {
+	// Check if custom home is provided
+	_, _, err := getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	// TODO: fill the command
+
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err

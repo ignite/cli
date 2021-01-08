@@ -31,6 +31,13 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 		ImportPath: path.RawPath,
 	}
 
+	// Check if custom home is provided
+	_, _, err = getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	// TODO: fill the command
+
 	c, err := chain.New(app, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err

@@ -53,6 +53,13 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 		Path: appPath,
 	}
 
+	// Check if custom home is provided
+	_, _, err = getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	// TODO: fill the command
+
 	c, err := chain.New(app, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
@@ -74,6 +81,13 @@ func relayerAddHandler(cmd *cobra.Command, args []string) error {
 		Name: path.Root,
 		Path: appPath,
 	}
+
+	// Check if custom home is provided
+	_, _, err = getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	// TODO: fill the command
 
 	c, err := chain.New(app, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {

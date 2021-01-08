@@ -14,6 +14,11 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+const (
+	flagHome    = "home"
+	flagCLIHome = "cli-home"
+)
+
 var (
 	infoColor = color.New(color.FgYellow).SprintFunc()
 )
@@ -35,6 +40,8 @@ func New() *cobra.Command {
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	c.Flags().String(flagHome, "", "Home directory used for blockchains")
+	c.Flags().String(flagCLIHome, "", "CLI home directory used for launchpad blockchains")
 	return c
 }
 
@@ -66,4 +73,13 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
 		}
 	}
+}
+
+func getHomeFlags(cmd *cobra.Command) (home string, cliHome string, err error) {
+	home, err = cmd.Flags().GetString(flagHome)
+	if err != nil {
+		return home, cliHome, err
+	}
+	cliHome, err = cmd.Flags().GetString(flagCLIHome)
+	return home, cliHome, err
 }

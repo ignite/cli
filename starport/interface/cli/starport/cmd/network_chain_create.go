@@ -69,6 +69,13 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	// Check if custom home is provided
+	_, _, err := getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	// TODO: fill the command
+
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
