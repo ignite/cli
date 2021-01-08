@@ -29,20 +29,35 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string,
-	mustNotInitializedBefore bool) (*Blockchain, error) {
+func newBlockchain(
+	ctx context.Context,
+	builder *Builder,
+	chainID,
+	appPath,
+	url,
+	hash,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, cliHome, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
+func (b *Blockchain) init(
+	ctx context.Context,
+	chainID,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
 	path, err := gomodulepath.ParseFile(b.appPath)
@@ -64,14 +79,14 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
-	home, err := c.Home()
+	chainHome, err := c.Home()
 	if err != nil {
 		return err
 	}
 
 	if mustNotInitializedBefore {
-		if _, err := os.Stat(home); !os.IsNotExist(err) {
-			return &DataDirExistsError{chainID, home}
+		if _, err := os.Stat(chainHome); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, chainHome}
 		}
 	}
 
@@ -99,7 +114,7 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(initialGenesisPath(home), genesis, 0644); err != nil {
+	if err := ioutil.WriteFile(initialGenesisPath(chainHome), genesis, 0644); err != nil {
 		return err
 	}
 

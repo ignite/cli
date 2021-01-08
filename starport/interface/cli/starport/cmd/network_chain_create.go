@@ -69,13 +69,6 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
-	// Check if custom home is provided
-	_, _, err := getHomeFlags(cmd)
-	if err != nil {
-		return err
-	}
-	// TODO: fill the command
-
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
@@ -86,6 +79,21 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		s.Stop()
 
 		return fmt.Errorf("chain with id %q already exists", chainID)
+	}
+
+	// initialize the blockchain
+	initOptions := []networkbuilder.InitOption{networkbuilder.MustNotInitializedBefore()}
+
+	// Check if custom home is provided
+	home, cliHome, err := getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+	if home != "" {
+		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
+	}
+	if cliHome != "" {
+		initOptions = append(initOptions, networkbuilder.InitializationCLIHomePath(cliHome))
 	}
 
 	initChain := func() (*networkbuilder.Blockchain, error) {
@@ -100,7 +108,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 				sourceOption = networkbuilder.SourceRemote(source)
 			}
 		}
-		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
+		return nb.Init(cmd.Context(), chainID, sourceOption, initOptions...)
 	}
 
 	// init the chain.

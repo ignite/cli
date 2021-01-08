@@ -47,14 +47,20 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check if custom home is provided
-	_, _, err = getHomeFlags(cmd)
+	var initOptions []networkbuilder.InitOption
+	home, cliHome, err := getHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
-	// TODO: fill the command
+	if home != "" {
+		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
+	}
+	if cliHome != "" {
+		initOptions = append(initOptions, networkbuilder.InitializationCLIHomePath(cliHome))
+	}
 
 	// init the blockchain.
-	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID())
+	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID(), initOptions...)
 
 	if err == context.Canceled {
 		s.Stop()

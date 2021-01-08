@@ -72,6 +72,8 @@ type initOptions struct {
 	hash                     string
 	path                     string
 	mustNotInitializedBefore bool
+	homePath                 string
+	cliHomePath              string
 }
 
 // SourceOption sets the source for blockchain.
@@ -130,6 +132,20 @@ func SourceLocal(path string) SourceOption {
 func MustNotInitializedBefore() InitOption {
 	return func(o *initOptions) {
 		o.mustNotInitializedBefore = true
+	}
+}
+
+// InitializationHomePath provides a specific home path for the blockchain for the initialization
+func InitializationHomePath(homePath string) InitOption {
+	return func(o *initOptions) {
+		o.homePath = homePath
+	}
+}
+
+// InitializationCLIHomePath provides a specific cli home path for the blockchain for the initialization
+func InitializationCLIHomePath(cliHomePath string) InitOption {
+	return func(o *initOptions) {
+		o.cliHomePath = cliHomePath
 	}
 }
 
