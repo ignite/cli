@@ -55,6 +55,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 		Name:       path.Root,
 		Path:       appPath,
 		ImportPath: path.RawPath,
+		HomePath:   tmpHome,
 	}
 
 	chainHandler, err := chain.New(app, chain.LogSilent)
