@@ -42,7 +42,7 @@ func NewRelayerAdd() *cobra.Command {
 }
 
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
+	path, err := gomodulepath.ParseAt(appPath)
 	if err != nil {
 		return err
 	}
@@ -64,7 +64,7 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 }
 
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
+	path, err := gomodulepath.ParseAt(appPath)
 	if err != nil {
 		return err
 	}

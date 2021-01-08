@@ -22,7 +22,7 @@ func NewServe() *cobra.Command {
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
+	path, err := gomodulepath.ParseAt(appPath)
 	if err != nil {
 		return err
 	}

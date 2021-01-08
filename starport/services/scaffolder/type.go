@@ -28,7 +28,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if err != nil {
 		return err
 	}
-	path, err := gomodulepath.ParseFile(s.path)
+	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}

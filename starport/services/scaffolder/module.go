@@ -39,7 +39,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	if ok {
 		return fmt.Errorf("the module %v already exists", moduleName)
 	}
-	path, err := gomodulepath.ParseFile(s.path)
+	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
@@ -96,7 +96,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return err
 	}
 
-	path, err := gomodulepath.ParseFile(s.path)
+	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
