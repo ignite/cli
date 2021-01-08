@@ -542,7 +542,7 @@ func (app *App) RegisterAPIRoutes(apiSvr *api.Server, apiConfig config.APIConfig
 func (app *App) RegisterTxService(clientCtx client.Context) {
 	// TODO remove this workaround after https://github.com/cosmos/cosmos-sdk/pull/7840 has merged.
 	// -- right now, clientCtx does not have a Client set. this workaround fixes that.
-	config, err := toml.LoadFile(filepath.Join(DefaultNodeHome(""), "config/config.toml"))
+	config, err := toml.LoadFile(filepath.Join(clientCtx.HomeDir, "config/config.toml"))
 	if err != nil {
 		panic(err)
 	}
