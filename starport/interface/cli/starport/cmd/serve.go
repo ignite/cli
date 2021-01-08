@@ -33,7 +33,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		ImportPath: path.RawPath,
 	}
 
-	c, err := chain.New(app, false, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
+	c, err := chain.New(app, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
 	}
