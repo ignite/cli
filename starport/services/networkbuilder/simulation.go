@@ -46,7 +46,6 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	defer os.RemoveAll(tmpHome)
 
 	appPath := filepath.Join(sourcePath, chainID)
-
 	chainHandler, err := chain.New(appPath,
 		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
