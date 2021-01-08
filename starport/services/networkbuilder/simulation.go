@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"io"
 	"io/ioutil"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -18,7 +16,6 @@ import (
 	"github.com/pelletier/go-toml"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
@@ -49,23 +46,19 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	}
 	defer os.RemoveAll(tmpHome)
 
-	// find out the app's name form url
-	u, err := url.Parse(chainInfo.URL)
-	if err != nil {
-		return false, err
-	}
-	importPath := path.Join(u.Host, u.Path)
-	path, err := gomodulepath.Parse(importPath)
+	appPath := filepath.Join(sourcePath, chainID)
+	path, err := gomodulepath.ParseFile(appPath)
 	if err != nil {
 		return false, err
 	}
 	app := chain.App{
-		ChainID:  chainID,
-		Name:     path.Root,
-		Version:  cosmosver.Stargate,
-		HomePath: tmpHome,
+		Name:       path.Root,
+		Path:       appPath,
+		ImportPath: path.RawPath,
+		HomePath:   tmpHome,
 	}
-	chainHandler, err := chain.New(app, true, chain.LogSilent)
+
+	chainHandler, err := chain.New(app, chain.LogSilent)
 	if err != nil {
 		return false, err
 	}

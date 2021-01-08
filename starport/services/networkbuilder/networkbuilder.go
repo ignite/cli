@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -23,7 +21,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -301,23 +298,17 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// find out the app's name form url.
-	u, err := url.Parse(chainInfo.URL)
+	appPath := filepath.Join(sourcePath, chainID)
+	path, err := gomodulepath.ParseFile(appPath)
 	if err != nil {
 		return err
 	}
-	importPath := path.Join(u.Host, u.Path)
-	path, err := gomodulepath.Parse(importPath)
-	if err != nil {
-		return err
-	}
-
 	app := chain.App{
-		ChainID: chainID,
-		Name:    path.Root,
-		Version: cosmosver.Stargate,
+		Name:       path.Root,
+		Path:       appPath,
+		ImportPath: path.RawPath,
 	}
-	chainHandler, err := chain.New(app, true, chain.LogSilent)
+	chainHandler, err := chain.New(app, chain.LogSilent)
 	if err != nil {
 		return err
 	}

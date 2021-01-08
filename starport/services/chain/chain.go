@@ -58,9 +58,7 @@ type Chain struct {
 	stdout, stderr io.Writer
 }
 
-// TODO document noCheck (basically it stands to enable Chain initialization without
-// need of source code)
-func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
+func New(app App, logLevel LogLevel) (*Chain, error) {
 	c := &Chain{
 		app:            app,
 		logLevel:       logLevel,
@@ -76,12 +74,9 @@ func New(app App, noCheck bool, logLevel LogLevel) (*Chain, error) {
 
 	var err error
 
-	// Check
-	if !noCheck {
-		c.version, err = c.appVersion()
-		if err != nil && err != git.ErrRepositoryNotExists {
-			return nil, err
-		}
+	c.version, err = c.appVersion()
+	if err != nil && err != git.ErrRepositoryNotExists {
+		return nil, err
 	}
 
 	// initialize the plugin depending on the version of the chain
