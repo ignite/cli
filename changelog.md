@@ -1,10 +1,12 @@
 # Changelog
 
 ### Features:
-- Distroless multiplatform docker containers that can be used for `starport serve`
-- Login to rpi with 
+- Distroless multiplatform docker containers for starport that can be used for `starport serve`
+- UI containers for chains scaffolded with Starport
+- Use SOS-lite and Docker instead of systemD
 
 ### Fixes:
+- use docker buildx as a single command with multiple platforms to make multi-manifest work properly
 
 ## `v0.13.0`
 
