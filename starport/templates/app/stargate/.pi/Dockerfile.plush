@@ -2,5 +2,7 @@ FROM faddat/sos-lite
 
 # Add seeds and such after doing gaia.
 # I will prototype the rest of this on gaia.
-RUN echo blurt > /etc/hostname && \
-		echo "docker run <%= OwnerName %>/<%= AppName %>" >> /usr/local/bin/firstboot.sh
+RUN echo <%= AppName %> > /etc/hostname && \
+		pacman -Syyu docker-compose
+#		echo "docker run <%= OwnerName %>/<%= AppName %>" >> /usr/local/bin/firstboot.sh
+# TODO: docker-compose
