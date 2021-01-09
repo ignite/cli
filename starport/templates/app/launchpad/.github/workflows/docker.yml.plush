@@ -26,3 +26,6 @@ jobs:
 
       - name: Build and push
         run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %> --file Dockerfile --platform linux/amd64,linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>:cache --push --progress tty .
+
+      - name: Build and push UI
+        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>-ui --file vue/Dockerfile --platform linux/amd64,linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>-ui:cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/<%= AppName %>-ui:cache --push --progress tty .
