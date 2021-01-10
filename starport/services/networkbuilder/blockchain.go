@@ -11,7 +11,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -25,7 +24,6 @@ type Blockchain struct {
 	url     string
 	hash    string
 	chain   *chain.Chain
-	app     chain.App
 	builder *Builder
 }
 
@@ -45,17 +43,10 @@ func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url,
 func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	path, err := gomodulepath.ParseAt(b.appPath)
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		ChainID: chainID,
-		Name:    path.Root,
-		Path:    b.appPath,
-	}
-
-	c, err := chain.New(app, chain.LogSilent)
+	c, err := chain.New(b.appPath,
+		chain.ID(chainID),
+		chain.LogLevel(chain.LogSilent),
+	)
 	if err != nil {
 		return err
 	}
@@ -95,7 +86,6 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	}
 
 	b.chain = c
-	b.app = app
 	return nil
 }
 
