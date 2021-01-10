@@ -28,6 +28,7 @@ func NewRelayerInfo() *cobra.Command {
 		Short: "Retrieves self chain information to share with other chains",
 		RunE:  relayerInfoHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
@@ -39,6 +40,7 @@ func NewRelayerAdd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  relayerAddHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 

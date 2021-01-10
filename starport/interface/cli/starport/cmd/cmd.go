@@ -3,6 +3,8 @@ package starportcmd
 import (
 	"fmt"
 
+	flag "github.com/spf13/pflag"
+
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -36,8 +38,6 @@ func New() *cobra.Command {
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	c.Flags().String(flagHome, "", "Home directory used for blockchains")
-	c.Flags().String(flagCLIHome, "", "CLI home directory used for launchpad blockchains")
 	return c
 }
 
@@ -59,6 +59,13 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
 		}
 	}
+}
+
+func flagSetHomes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagHome, "", "Home directory used for blockchains")
+	fs.String(flagCLIHome, "", "CLI home directory used for launchpad blockchains")
+	return fs
 }
 
 func getHomeFlags(cmd *cobra.Command) (home string, cliHome string, err error) {

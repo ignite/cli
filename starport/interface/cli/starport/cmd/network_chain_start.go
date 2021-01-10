@@ -15,6 +15,7 @@ func NewNetworkChainStart() *cobra.Command {
 		RunE:  networkChainStartHandler,
 		Args:  cobra.MinimumNArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 

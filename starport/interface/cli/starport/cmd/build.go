@@ -14,6 +14,7 @@ func NewBuild() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  buildHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c

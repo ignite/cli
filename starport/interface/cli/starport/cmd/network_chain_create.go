@@ -28,6 +28,7 @@ func NewNetworkChainCreate() *cobra.Command {
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().String(flagBranch, "", "Git branch to use")
 	c.Flags().String(flagTag, "", "Git tag to use")
 	return c

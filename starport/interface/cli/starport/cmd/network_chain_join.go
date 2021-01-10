@@ -27,6 +27,7 @@ func NewNetworkChainJoin() *cobra.Command {
 		RunE:  networkChainJoinHandler,
 		Args:  cobra.ExactArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
