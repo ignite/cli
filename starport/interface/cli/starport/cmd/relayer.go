@@ -43,14 +43,24 @@ func NewRelayerAdd() *cobra.Command {
 }
 
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
 	// Check if custom home is provided
-	_, _, err := getHomeFlags(cmd)
+	home, cliHome, err := getHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
-	// TODO: fill the command
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	if cliHome != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
 
-	c, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)), chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	c, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -63,14 +73,24 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 }
 
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
 	// Check if custom home is provided
-	_, _, err := getHomeFlags(cmd)
+	home, cliHome, err := getHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
-	// TODO: fill the command
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	if cliHome != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
 
-	c, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)), chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	c, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
