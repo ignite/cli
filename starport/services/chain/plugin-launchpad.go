@@ -82,25 +82,6 @@ func (p *launchpadPlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runne
 	)
 }
 
-func (p *launchpadPlugin) StartCommands(cmd chaincmd.ChainCmd, conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				cmd.StartCommand(),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-		step.NewOptions().
-			Add(
-				cmd.LaunchpadRestServerCommand(xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr)),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
-				}),
-			),
-	}
-}
-
 func (p *launchpadPlugin) PostInit(homePath string, conf starportconf.Config) error {
 	return p.configtoml(homePath, conf)
 }
