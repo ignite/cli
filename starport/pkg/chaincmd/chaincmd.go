@@ -14,6 +14,9 @@ const (
 	commandCollectGentxs     = "collect-gentxs"
 	commandValidateGenesis   = "validate-genesis"
 	commandShowNodeID        = "show-node-id"
+	commandStatus            = "status"
+	commandTx                = "tx"
+	commandQuery             = "query"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"
@@ -28,6 +31,7 @@ const (
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
+	optionYes                              = "--yes"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -44,33 +48,47 @@ const (
 )
 
 type ChainCmd struct {
-	appCmd         string
-	chainID        string
-	homeDir        string
-	keyringBackend KeyringBackend
-	cliCmd         string
-	cliHome        string
+	appCmd          string
+	chainID         string
+	homeDir         string
+	keyringBackend  KeyringBackend
+	keyringPassword string
+	cliCmd          string
+	cliHome         string
+	nodeAddress     string
+
+	isAutoChainIDDetectionEnabled bool
 
 	sdkVersion cosmosver.Version
 }
 
 // New creates a new ChainCmd to launch command with the chain app
 func New(appCmd string, options ...Option) ChainCmd {
-	chainCmd := ChainCmd{
+	c := ChainCmd{
 		appCmd:     appCmd,
 		sdkVersion: cosmosver.Versions.Latest(),
 	}
 
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		applyOption(&chainCmd)
-	}
+	applyOptions(&c, options)
 
-	return chainCmd
+	return c
+}
+
+// Copy makes a copy of ChainCmd by overwriting its options with given options.
+func (c ChainCmd) Copy(options ...Option) ChainCmd {
+	applyOptions(&c, options)
+
+	return c
 }
 
 // Option configures ChainCmd.
 type Option func(*ChainCmd)
+
+func applyOptions(c *ChainCmd, options []Option) {
+	for _, applyOption := range options {
+		applyOption(c)
+	}
+}
 
 // WithVersion sets the version of the blockchain.
 // when this is not provided, latest version of SDK is assumed.
@@ -94,10 +112,32 @@ func WithChainID(chainID string) Option {
 	}
 }
 
+// WithAutoChainIDDetection finds out the chain id by communicating with the node running.
+func WithAutoChainIDDetection() Option {
+	return func(c *ChainCmd) {
+		c.isAutoChainIDDetectionEnabled = true
+	}
+}
+
 // WithKeyringBackend provides a specific keyring backend for the commands that accept this option
 func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
+	}
+}
+
+// WithKeyringPassword provides a password to unlock keyring
+func WithKeyringPassword(password string) Option {
+	return func(c *ChainCmd) {
+		c.keyringPassword = password
+	}
+}
+
+// WitNodeAddress sets the node address for the commands that needs to make an
+// API request to the node that has a different node address other than the default one.
+func WitNodeAddress(addr string) Option {
+	return func(c *ChainCmd) {
+		c.nodeAddress = addr
 	}
 }
 
@@ -261,6 +301,14 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	}
 }
 
+func (c ChainCmd) IsAutoChainIDDetectionEnabled() bool {
+	return c.isAutoChainIDDetectionEnabled
+}
+
+func (c ChainCmd) SDKVersion() cosmosver.Version {
+	return c.sdkVersion
+}
+
 // GentxCommand returns the command to generate a gentx for the chain
 func (c ChainCmd) GentxCommand(
 	validatorName string,
@@ -335,6 +383,51 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
+// BankSendCommand returns the command for transferring tokens.
+func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Option {
+	command := []string{
+		commandTx,
+	}
+
+	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
+		command = append(command,
+			"bank",
+		)
+	}
+
+	command = append(command,
+		"send",
+		fromAddress,
+		toAddress,
+		amount,
+		"--yes",
+	)
+
+	command = c.attachChainID(command)
+	command = c.attachKeyringBackend(command)
+
+	return c.cliCommand(command)
+}
+
+func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
+	command := []string{
+		commandQuery,
+		"txs",
+		"--events",
+		query,
+		"--page", "1",
+		"--limit", "1000",
+	}
+
+	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+		command = append(command,
+			"--trust-node",
+		)
+	}
+
+	return c.cliCommand(command)
+}
+
 // LaunchpadSetConfigCommand returns the command to set config value
 func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
 	// Check version
@@ -351,6 +444,14 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 		panic("rest-server command doesn't exist for Stargate")
 	}
 	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
+}
+
+func (c ChainCmd) StatusCommand() step.Option {
+	command := []string{
+		commandStatus,
+	}
+
+	return c.cliCommand(command)
 }
 
 // attachChainID appends the chain ID flag to the provided command

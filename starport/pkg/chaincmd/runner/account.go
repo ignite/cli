@@ -10,6 +10,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
+var (
+	// ErrAccountAlreadyExists returned when an already exists account attempted to be imported.
+	ErrAccountAlreadyExists = errors.New("account already exists")
+)
+
 // AddAccount creates a new account or imports an account when mnemonic is provided.
 // returns with an error if the operation went unsuccessful or an account with the provided name
 // already exists.
@@ -26,7 +31,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	}
 	for _, account := range accounts {
 		if account.Name == name {
-			return Account{}, errors.New("account already exists")
+			return Account{}, ErrAccountAlreadyExists
 		}
 	}
 	b.Reset()
