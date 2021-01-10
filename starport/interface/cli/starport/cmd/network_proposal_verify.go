@@ -62,7 +62,13 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		out = os.Stdout
 	}
 
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)
+	// Check if custom home is provided
+	home, _, err := getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
 	if err != nil {
 		return err
 	}

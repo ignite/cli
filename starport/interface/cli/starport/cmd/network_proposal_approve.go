@@ -64,7 +64,14 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		// This operation generate the genesis in a temporary directory and verify this genesis is valid
 		s.SetText("Verifying proposals...")
 		s.Start()
-		verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, ioutil.Discard)
+
+		// Check if custom home is provided
+		home, _, err := getHomeFlags(cmd)
+		if err != nil {
+			return err
+		}
+
+		verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, ioutil.Discard)
 		if err != nil {
 			return err
 		}
