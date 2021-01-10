@@ -58,10 +58,20 @@ func (b *Blockchain) init(
 ) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	c, err := chain.New(b.appPath,
-		chain.ID(chainID),
+	chainOption := []chain.Option{
 		chain.LogLevel(chain.LogSilent),
-	)
+		chain.ID(chainID),
+	}
+
+	// Custom home directories
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	if cliHome != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
+
+	c, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}

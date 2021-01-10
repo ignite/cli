@@ -39,7 +39,6 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
 	}
 
-
 	c, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err

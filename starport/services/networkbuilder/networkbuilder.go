@@ -261,7 +261,17 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		githash = ref.Hash()
 	}
 
-	return newBlockchain(ctx, b, chainID, path, url, githash.String(), o.homePath, o.cliHomePath, o.mustNotInitializedBefore)
+	return newBlockchain(
+		ctx,
+		b,
+		chainID,
+		path,
+		url,
+		githash.String(),
+		o.homePath,
+		o.cliHomePath,
+		o.mustNotInitializedBefore,
+	)
 }
 
 // ensureRemoteSynced ensures that current worktree in the repository has no unstaged
@@ -319,8 +329,20 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	chainOption := []chain.Option{
+		chain.LogLevel(chain.LogSilent),
+	}
+
+	// Custom home paths
+	if o.homePath != "" {
+		chainOption = append(chainOption, chain.HomePath(o.homePath))
+	}
+	if o.cliHomePath != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
+	}
+
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(appPath, chain.LogLevel(chain.LogSilent))
+	chainHandler, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
