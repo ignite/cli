@@ -269,7 +269,6 @@ func (c *Chain) ID() (string, error) {
 }
 
 // Home returns the blockchain node's home dir.
-<<<<<<< HEAD
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
 	home := c.options.homePath
@@ -359,17 +358,4 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 // Commands returns the runner execute commands on the chain's binary
 func (c *Chain) Commands() chaincmdrunner.Runner {
 	return c.cmd
-}
-
-func (c *Chain) CosmosVersion() (cosmosver.MajorVersion, error) {
-	version := c.app.Version
-	if version == "" {
-		var err error
-		version, err = cosmosver.Detect(c.app.Path)
-		if err != nil {
-			return cosmosver.Stargate, err
-		}
-	}
-
-	return version, nil
 }

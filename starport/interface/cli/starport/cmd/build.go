@@ -2,8 +2,8 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/services/chain"
 )
 
 // NewBuild returns a new build command to build a blockchain app.

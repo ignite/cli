@@ -9,11 +9,10 @@ import (
 
 // App keeps info about chain.
 type App struct {
-	ChainID     string
-	Version     cosmosver.MajorVersion
-	Name        string
-	Path        string
-	ImportPath  string
+	ChainID    string
+	Name       string
+	Path       string
+	ImportPath string
 }
 
 // NewAppAt creates an App from the blockchain source code located at path.
