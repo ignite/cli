@@ -50,7 +50,7 @@ type Plugin interface {
 }
 
 func (c *Chain) pickPlugin() (Plugin, error) {
-	version, err := c.CosmosVersion()
+	version, err := cosmosver.Detect(c.app.Path)
 	if err != nil {
 		return nil, err
 	}

@@ -23,7 +23,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -321,16 +320,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	path, err := gomodulepath.ParseFile(appPath)
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name:       path.Root,
-		Path:       appPath,
-		ImportPath: path.RawPath,
-	}
-	chainHandler, err := chain.New(app, chain.LogSilent)
+	chainHandler, err := chain.New(appPath, chain.LogLevel(chain.LogSilent))
 	if err != nil {
 		return err
 	}

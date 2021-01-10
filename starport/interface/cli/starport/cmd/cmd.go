@@ -2,10 +2,6 @@ package starportcmd
 
 import (
 	"fmt"
-	"io/ioutil"
-	"log"
-	"path/filepath"
-	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -45,17 +41,7 @@ func New() *cobra.Command {
 	return c
 }
 
-func getModule(path string) string {
-	goModFile, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
-	if err != nil {
-		log.Fatal(err)
-	}
-	moduleString := strings.Split(string(goModFile), "\n")[0]
-	modulePath := strings.ReplaceAll(moduleString, "module ", "")
-	return modulePath
-}
-
-func logLevel(cmd *cobra.Command) chain.LogLevel {
+func logLevel(cmd *cobra.Command) chain.LogLvl {
 	verbose, _ := cmd.Flags().GetBool("verbose")
 	if verbose {
 		return chain.LogVerbose

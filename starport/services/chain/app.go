@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
 // App keeps info about chain.
@@ -14,8 +14,19 @@ type App struct {
 	Name        string
 	Path        string
 	ImportPath  string
-	HomePath    string
-	CLIHomePath string
+}
+
+// NewAppAt creates an App from the blockchain source code located at path.
+func NewAppAt(path string) (App, error) {
+	p, err := gomodulepath.ParseAt(path)
+	if err != nil {
+		return App{}, err
+	}
+	return App{
+		Path:       path,
+		Name:       p.Root,
+		ImportPath: p.RawPath,
+	}, nil
 }
 
 // N returns app name without dashes.
@@ -47,14 +58,4 @@ func (a App) NCLI() string {
 func (a App) Root() string {
 	path, _ := filepath.Abs(a.Path)
 	return path
-}
-
-// Home returns the node's home dir.
-func (a App) Home() string {
-	return a.HomePath
-}
-
-// Home returns the node's CLI home dir (only used with Launchpad).
-func (a App) CLIHome() string {
-	return a.CLIHomePath
 }

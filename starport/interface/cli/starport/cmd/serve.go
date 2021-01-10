@@ -3,7 +3,6 @@ package starportcmd
 import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -23,24 +22,14 @@ func NewServe() *cobra.Command {
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name:       path.Root,
-		Path:       appPath,
-		ImportPath: path.RawPath,
-	}
-
 	// Check if custom home is provided
-	_, _, err = getHomeFlags(cmd)
+	_, _, err := getHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
 	// TODO: fill the command
 
-	c, err := chain.New(app, logLevel(cmd), chain.WithKeyringBackend(chaincmd.KeyringBackendTest))
+	c, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)), chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	if err != nil {
 		return err
 	}

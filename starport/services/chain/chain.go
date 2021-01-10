@@ -9,11 +9,10 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/services/chain/conf"
 	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
@@ -40,56 +39,107 @@ type version struct {
 	hash string
 }
 
-type LogLevel int
+type LogLvl int
 
 const (
-	LogSilent LogLevel = iota
+	LogSilent LogLvl = iota
 	LogRegular
 	LogVerbose
 )
 
+// Chain provides programatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
-	app            App
+	// app holds info about blockchain app.
+	app App
+
+	options chainOptions
+
 	plugin         Plugin
 	version        version
-	logLevel       LogLevel
+	logLevel       LogLvl
 	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	stdout, stderr io.Writer
+}
+
+// chainOptions holds user given options that overwrites chain's defaults.
+type chainOptions struct {
+	// chainID is the chain's id.
+	chainID string
+
+	// homePath of the chain's config dir.
+	homePath string
+
+	// cliHomePath of the chain's config dir.
+	cliHomePath string
+
+	// keyring backend used by commands
 	keyringBackend chaincmd.KeyringBackend
 }
 
+// Option configures Chain.
 type Option func(*Chain)
 
-// ChainWithKeyringBackend specify the keyring backend to use for the chain command
-func WithKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
+// LogLevel sets logging level.
+func LogLevel(level LogLvl) Option {
 	return func(c *Chain) {
-		c.keyringBackend = keyringBackend
+		c.logLevel = level
 	}
 }
 
-func New(app App, logLevel LogLevel, chainOptions ...Option) (*Chain, error) {
+// ID replaces chain's id with given id.
+func ID(id string) Option {
+	return func(c *Chain) {
+		c.options.chainID = id
+	}
+}
+
+// HomePath replaces chain's configuration home path with given path.
+func HomePath(path string) Option {
+	return func(c *Chain) {
+		c.options.homePath = path
+	}
+}
+
+// CLIHomePath replaces chain's cli configuration home path with given path.
+func CLIHomePath(path string) Option {
+	return func(c *Chain) {
+		c.options.homePath = path
+	}
+}
+
+// KeyringBackend specify the keyring backend to use for the chain command
+func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
+	return func(c *Chain) {
+		c.options.keyringBackend = keyringBackend
+	}
+}
+
+// New initializes a new Chain with options that its source lives at path.
+func New(path string, options ...Option) (*Chain, error) {
+	app, err := NewAppAt(path)
+	if err != nil {
+		return nil, err
+	}
+
 	c := &Chain{
 		app:            app,
-		logLevel:       logLevel,
+		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
-		keyringBackend: chaincmd.KeyringBackendUnspecified,
 	}
 
 	// Apply the options
-	for _, applyOption := range chainOptions {
-		applyOption(c)
+	for _, apply := range options {
+		apply(c)
 	}
 
-	if logLevel == LogVerbose {
+	if c.logLevel == LogVerbose {
 		c.stdout = os.Stdout
 		c.stderr = os.Stderr
 	}
-
-	var err error
 
 	c.version, err = c.appVersion()
 	if err != nil && err != git.ErrRepositoryNotExists {
@@ -122,17 +172,17 @@ func New(app App, logLevel LogLevel, chainOptions ...Option) (*Chain, error) {
 			return nil, err
 		}
 		ccoptions = append(ccoptions,
-			chaincmd.WithLaunchpad(app.CLI()),
+			chaincmd.WithLaunchpad(c.app.CLI()),
 			chaincmd.WithLaunchpadCLIHome(cliHome),
 		)
 	}
 
 	// append keyring backend if specified
-	if c.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.keyringBackend))
+	if c.options.keyringBackend != "" {
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
 	}
 
-	cc := chaincmd.New(app.D(), ccoptions...)
+	cc := chaincmd.New(c.app.D(), ccoptions...)
 
 	ccroptions := []chaincmdrunner.Option{}
 	if c.logLevel == LogVerbose {
@@ -200,8 +250,8 @@ func (c *Chain) Config() (conf.Config, error) {
 // ID returns the chain's id.
 func (c *Chain) ID() (string, error) {
 	// chainID in App has the most priority.
-	if c.app.ChainID != "" {
-		return c.app.ChainID, nil
+	if c.options.chainID != "" {
+		return c.options.chainID, nil
 	}
 
 	// otherwise uses defined in config.yml
@@ -219,9 +269,10 @@ func (c *Chain) ID() (string, error) {
 }
 
 // Home returns the blockchain node's home dir.
+<<<<<<< HEAD
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
-	home := c.app.Home()
+	home := c.options.homePath
 	if home == "" {
 		// return default home otherwise
 		var err error
@@ -256,7 +307,7 @@ func (c *Chain) DefaultHome() (string, error) {
 // This directory is the same as home for Stargate, it is a separate directory for Launchpad
 func (c *Chain) CLIHome() (string, error) {
 	// check if cli home is explicitly defined for the app
-	home := c.app.CLIHome()
+	home := c.options.cliHomePath
 	if home == "" {
 		// check if cli home is defined in config
 		config, err := c.Config()

@@ -48,8 +48,8 @@ func Parse(rawpath string) (Path, error) {
 	return p, nil
 }
 
-// ParseFile parses Go module path of an app resides at path.
-func ParseFile(path string) (Path, error) {
+// ParseAt parses Go module path of an app resides at path.
+func ParseAt(path string) (Path, error) {
 	parsed, err := gomodule.ParseAt(path)
 	if err != nil {
 		return Path{}, err
