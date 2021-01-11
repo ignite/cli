@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 const (
@@ -27,6 +28,7 @@ const (
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
+	optionHomeClient                       = "--home-client"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -50,12 +52,15 @@ type ChainCmd struct {
 	keyringBackend KeyringBackend
 	cliCmd         string
 	cliHome        string
+
+	sdkVersion cosmosver.Version
 }
 
 // New creates a new ChainCmd to launch command with the chain app
 func New(appCmd string, options ...Option) ChainCmd {
 	chainCmd := ChainCmd{
-		appCmd: appCmd,
+		appCmd:     appCmd,
+		sdkVersion: cosmosver.Versions.Latest(),
 	}
 
 	// Apply the options provided by the user
@@ -66,7 +71,16 @@ func New(appCmd string, options ...Option) ChainCmd {
 	return chainCmd
 }
 
+// Option configures ChainCmd.
 type Option func(*ChainCmd)
+
+// WithVersion sets the version of the blockchain.
+// when this is not provided, latest version of SDK is assumed.
+func WithVersion(v cosmosver.Version) Option {
+	return func(c *ChainCmd) {
+		c.sdkVersion = v
+	}
+}
 
 // WithHome replaces the default home used by the chain
 func WithHome(home string) Option {
@@ -86,14 +100,6 @@ func WithChainID(chainID string) Option {
 func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
 		c.keyringBackend = keyringBackend
-	}
-}
-
-// WithLaunchpad defines the command as Launchpad application commands
-// and provides the name of the CLI application to call Launchpad CLI commands
-func WithLaunchpad(cliCmd string) Option {
-	return func(c *ChainCmd) {
-		c.cliCmd = cliCmd
 	}
 }
 
@@ -247,11 +253,52 @@ func (c ChainCmd) GentxCommand(
 	selfDelegation string,
 	options ...GentxOption,
 ) step.Option {
-	// Check version
-	if c.isStargate() {
-		return c.stargateGentxCommand(validatorName, selfDelegation, options...)
+	command := []string{
+		commandGentx,
 	}
-	return c.launchpadGentxCommand(validatorName, selfDelegation, options...)
+
+	if c.sdkVersion.Is(cosmosver.StargateZeroFourtyAndAbove) {
+		command = append(command,
+			validatorName,
+			selfDelegation,
+		)
+	}
+
+	if c.sdkVersion.Is(cosmosver.StargateBelowZeroFourty) {
+		command = append(command,
+			validatorName,
+			optionAmount,
+			selfDelegation,
+		)
+	}
+
+	if c.sdkVersion.Is(cosmosver.LaunchpadAny) {
+		command = append(command,
+			optionName,
+			validatorName,
+			optionAmount,
+			selfDelegation,
+		)
+
+		// Attach home client option
+		if c.cliHome != "" {
+			command = append(command, []string{optionHomeClient, c.cliHome}...)
+		}
+	}
+
+	// Apply the options provided by the user
+	for _, applyOption := range options {
+		command = applyOption(command)
+	}
+
+	// Add necessary flags
+	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
+		command = c.attachChainID(command)
+	}
+
+	command = c.attachKeyringBackend(command)
+
+	return c.daemonCommand(command)
 }
 
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
@@ -323,7 +370,7 @@ func (c ChainCmd) attachHome(command []string) []string {
 
 // isStargate checks if the version for commands is Stargate
 func (c ChainCmd) isStargate() bool {
-	return c.cliCmd == ""
+	return c.sdkVersion.Major() == cosmosver.Stargate
 }
 
 // daemonCommand returns the daemon command from the provided command

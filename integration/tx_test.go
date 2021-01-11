@@ -6,11 +6,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -117,10 +117,10 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						return err
 					}
 
-					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/tx/%s", xurl.HTTP(servers.APIAddr), tx.Hash)
+					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(servers.APIAddr), tx.Hash)
 					req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
 					if err != nil {
-						return err
+						return errors.Wrap(err, "call to get tx via gRPC gateway")
 					}
 					resp, err := http.DefaultClient.Do(req)
 					if err != nil {

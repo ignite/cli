@@ -10,42 +10,22 @@ const (
 	optionAPIAddress = "--laddr"
 	optionRPCAddress = "--node"
 	optionName       = "--name"
-	optionHomeClient = "--home-client"
 )
+
+// WithLaunchpadCLI provides the CLI application name for the blockchain
+// this is necessary for Launchpad applications since it has two different binaries but
+// not needed by Stargate applications
+func WithLaunchpadCLI(cliCmd string) Option {
+	return func(c *ChainCmd) {
+		c.cliCmd = cliCmd
+	}
+}
 
 // WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
 func WithLaunchpadCLIHome(cliHome string) Option {
 	return func(c *ChainCmd) {
 		c.cliHome = cliHome
 	}
-}
-
-// launchpadGentxCommand returns the command to generate a gentx for the chain
-func (c ChainCmd) launchpadGentxCommand(
-	validatorName string,
-	selfDelegation string,
-	options ...GentxOption,
-) step.Option {
-	command := []string{
-		commandGentx,
-		optionName,
-		validatorName,
-		optionAmount,
-		selfDelegation,
-	}
-
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
-	}
-
-	// Attach home client option
-	if c.cliHome != "" {
-		command = append(command, []string{optionHomeClient, c.cliHome}...)
-	}
-
-	command = c.attachKeyringBackend(command)
-	return c.daemonCommand(command)
 }
 
 // launchpadSetConfigCommand
