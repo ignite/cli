@@ -3,6 +3,6 @@ FROM faddat/sos-lite
 # Add seeds and such after doing gaia.
 # I will prototype the rest of this on gaia.
 RUN echo <%= AppName %> > /etc/hostname && \
-		pacman -Syyu docker-compose zerotier-one
+		pacman -Syyu --noconfirm docker-compose zerotier-one
 #		echo "docker run <%= OwnerName %>/<%= AppName %>" >> /usr/local/bin/firstboot.sh
 # TODO: docker-compose
