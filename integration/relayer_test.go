@@ -71,6 +71,8 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 		sg.Go(func() error {
 			ok := env.Serve(fmt.Sprintf("should serve app %q", chain.name),
 				chain.path,
+				"",
+				"",
 				ExecCtx(ctx),
 				ExecStdout(chain.logsWriter),
 			)
@@ -221,7 +223,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 				ExecRetry(),
 			)
 	}()
-	env.Must(env.Serve("should serve", apath, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", apath, "", "", ExecCtx(ctx)))
 
 	if !canCheckBalanceWithRelayer {
 		t.FailNow()
