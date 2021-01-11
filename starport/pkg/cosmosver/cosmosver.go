@@ -62,13 +62,13 @@ func (v Version) Major() MajorVersion {
 func (v Version) String() string {
 	switch v {
 	case StargateZeroFourtyAndAbove:
-		return "Cosmos SDK Stargate v0.40.0 (or above)"
+		return "Stargate v0.40.0 (or above)"
 
 	case StargateBelowZeroFourty:
-		return "Cosmos SDK Stargate v0.40.0 (pre-release)"
+		return "Stargate v0.40.0 (pre-release)"
 
 	default:
-		return "launchpad"
+		return "Launchpad"
 	}
 }
 

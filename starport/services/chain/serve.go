@@ -103,7 +103,7 @@ func (c *Chain) Serve(ctx context.Context) error {
 }
 
 func (c *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos' version is: %s\n\n", infoColor(c.Version))
+	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
 	if err := c.checkSystem(); err != nil {
 		return err
