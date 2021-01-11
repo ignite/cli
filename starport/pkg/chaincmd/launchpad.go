@@ -12,36 +12,6 @@ const (
 	optionName       = "--name"
 )
 
-// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
-func WithLaunchpadCLIHome(cliHome string) Option {
-	return func(c *ChainCmd) {
-		c.cliHome = cliHome
-	}
-}
-
-// launchpadGentxCommand returns the command to generate a gentx for the chain
-func (c ChainCmd) launchpadGentxCommand(
-	validatorName string,
-	selfDelegation string,
-	options ...GentxOption,
-) step.Option {
-	command := []string{
-		commandGentx,
-		optionName,
-		validatorName,
-		optionAmount,
-		selfDelegation,
-	}
-
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		command = applyOption(command)
-	}
-
-	command = c.attachKeyringBackend(command)
-	return c.daemonCommand(command)
-}
-
 // launchpadSetConfigCommand
 func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Option {
 	command := []string{

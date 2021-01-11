@@ -53,8 +53,10 @@ type Chain struct {
 
 	options chainOptions
 
+	Version cosmosver.Version
+
 	plugin         Plugin
-	version        version
+	sourceVersion  version
 	logLevel       LogLvl
 	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
@@ -119,16 +121,18 @@ func New(path string, options ...Option) (*Chain, error) {
 		c.stderr = os.Stderr
 	}
 
-	c.version, err = c.appVersion()
+	c.sourceVersion, err = c.appVersion()
 	if err != nil && err != git.ErrRepositoryNotExists {
 		return nil, err
 	}
 
-	// initialize the plugin depending on the version of the chain
-	c.plugin, err = c.pickPlugin()
+	c.Version, err = cosmosver.Detect(c.app.Path)
 	if err != nil {
 		return nil, err
 	}
+
+	// initialize the plugin depending on the version of the chain
+	c.plugin = c.pickPlugin()
 
 	// initialize the chain commands
 	id, err := c.ID()
@@ -140,11 +144,12 @@ func New(path string, options ...Option) (*Chain, error) {
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(c.Home()),
 		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
+		chaincmd.WithVersion(c.Version),
 	}
 	if c.plugin.Version() == cosmosver.Launchpad {
 		ccoptions = append(ccoptions,
-			chaincmd.WithLaunchpad(c.app.CLI()),
-			//chaincmd.WithLaunchpadCLIHome(),
+			chaincmd.WithSecondaryCLI(c.app.CLI()),
+			//chaincmd.WithSecondaryCLIHome(),
 		)
 	}
 

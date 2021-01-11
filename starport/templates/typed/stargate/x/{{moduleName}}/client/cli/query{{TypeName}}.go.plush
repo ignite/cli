@@ -15,10 +15,6 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
 		Short: "list all <%= TypeName %>",
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
-            clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
-            if err != nil {
-                return err
-            }
 
             pageReq, err := client.ReadPageRequest(cmd.Flags())
             if err != nil {
@@ -36,7 +32,7 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
                 return err
             }
 
-            return clientCtx.PrintOutput(res)
+            return clientCtx.PrintProto(res)
 		},
 	}
 
@@ -52,10 +48,6 @@ func CmdShow<%= title(TypeName) %>() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
-            clientCtx, err := client.ReadQueryCommandFlags(clientCtx, cmd.Flags())
-            if err != nil {
-                return err
-            }
 
             queryClient := types.NewQueryClient(clientCtx)
 
@@ -68,7 +60,7 @@ func CmdShow<%= title(TypeName) %>() *cobra.Command {
                 return err
             }
 
-            return clientCtx.PrintOutput(res)
+            return clientCtx.PrintProto(res)
 		},
 	}
 
