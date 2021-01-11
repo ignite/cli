@@ -45,11 +45,7 @@ type Plugin interface {
 }
 
 func (c *Chain) pickPlugin() (Plugin, error) {
-	version, err := cosmosver.Detect(c.app.Path)
-	if err != nil {
-		return nil, err
-	}
-	switch version {
+	switch c.Version.Major() {
 	case cosmosver.Launchpad:
 		return newLaunchpadPlugin(c.app, c), nil
 	case cosmosver.Stargate:
