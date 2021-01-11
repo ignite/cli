@@ -105,7 +105,7 @@ func HomePath(path string) Option {
 // CLIHomePath replaces chain's cli configuration home path with given path.
 func CLIHomePath(path string) Option {
 	return func(c *Chain) {
-		c.options.homePath = path
+		c.options.cliHomePath = path
 	}
 }
 
