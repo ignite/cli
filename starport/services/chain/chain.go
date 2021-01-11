@@ -132,10 +132,7 @@ func New(path string, options ...Option) (*Chain, error) {
 	}
 
 	// initialize the plugin depending on the version of the chain
-	c.plugin, err = c.pickPlugin()
-	if err != nil {
-		return nil, err
-	}
+	c.plugin = c.pickPlugin()
 
 	// initialize the chain commands
 	id, err := c.ID()

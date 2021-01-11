@@ -44,12 +44,12 @@ type Plugin interface {
 	SupportsIBC() bool
 }
 
-func (c *Chain) pickPlugin() (Plugin, error) {
+func (c *Chain) pickPlugin() Plugin {
 	switch c.Version.Major() {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(c.app, c), nil
+		return newLaunchpadPlugin(c.app, c)
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c), nil
+		return newStargatePlugin(c.app, c)
 	}
 	panic("unknown cosmos version")
 }
