@@ -1,6 +1,6 @@
 package rly
 
-// types are copy pasted from https://github.com/ovrclk/relayer because this package
+// types are copy pasted from https://github.com/cosmos/relayer because this package
 // is not go get-able for now. once that's fixed, this pkg will be removed.
 import (
 	"github.com/google/uuid"
