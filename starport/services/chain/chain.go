@@ -235,8 +235,22 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (c *Chain) StoragePaths() []string {
-	return c.plugin.StoragePaths()
+func (c *Chain) StoragePaths() (paths []string, err error) {
+	home, err := c.Home()
+	if err != nil {
+		return paths, err
+	}
+	paths = append(paths, home)
+
+	cliHome, err := c.CLIHome()
+	if err != nil {
+		return paths, err
+	}
+	if cliHome != home {
+		paths = append(paths, cliHome)
+	}
+
+	return paths, nil
 }
 
 func (c *Chain) Config() (conf.Config, error) {

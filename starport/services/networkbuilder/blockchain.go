@@ -92,7 +92,11 @@ func (b *Blockchain) init(
 	}
 
 	// cleanup home dir of app if exists.
-	for _, path := range c.StoragePaths() {
+	paths, err := c.StoragePaths()
+	if err != nil {
+		return err
+	}
+	for _, path := range paths {
 		if err := xos.RemoveAllUnderHome(path); err != nil {
 			return err
 		}
