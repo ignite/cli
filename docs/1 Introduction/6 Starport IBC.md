@@ -50,7 +50,7 @@ The two chains are now connected via IBC and you have successfully created a rel
 
 ## Sending tokens from `foo` to `bar`
 
-Once the chains are connected, you can use a [relayer](https://github.com/ovrclk/relayer) CLI `rly` to create an IBC token send transaction:
+Once the chains are connected, you can use a [relayer](https://github.com/cosmos/relayer) CLI `rly` to create an IBC token send transaction:
 
 ```
 rly tx transfer foo bar 5token $(rly chains address bar)
