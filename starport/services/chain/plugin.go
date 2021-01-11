@@ -45,13 +45,9 @@ type Plugin interface {
 }
 
 func (c *Chain) pickPlugin() (Plugin, error) {
-	version := c.app.Version
-	if version == "" {
-		var err error
-		version, err = cosmosver.Detect(c.app.Path)
-		if err != nil {
-			return nil, err
-		}
+	version, err := cosmosver.Detect(c.app.Path)
+	if err != nil {
+		return nil, err
 	}
 	switch version {
 	case cosmosver.Launchpad:
