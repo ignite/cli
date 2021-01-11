@@ -4,11 +4,13 @@ import (
 	"os"
 
 	"<%= ModulePath %>/cmd/<%= BinaryNamePrefix %>d/cmd"
+    svrcmd "github.com/cosmos/cosmos-sdk/server/cmd"
+	"<%= ModulePath %>/app"
 )
 
 func main() {
 	rootCmd, _ := cmd.NewRootCmd()
-	if err := cmd.Execute(rootCmd); err != nil {
+    if err := svrcmd.Execute(rootCmd, app.DefaultNodeHome); err != nil {
 		os.Exit(1)
 	}
 }

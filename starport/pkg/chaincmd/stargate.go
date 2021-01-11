@@ -11,7 +11,6 @@ func (c ChainCmd) stargateGentxCommand(
 	command := []string{
 		commandGentx,
 		validatorName,
-		optionAmount,
 		selfDelegation,
 	}
 
