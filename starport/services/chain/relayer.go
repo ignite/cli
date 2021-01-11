@@ -173,6 +173,8 @@ func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
 					account.Name,
 					"testkey",
 					account.Mnemonic,
+					"--coin-type",
+					"118",
 				),
 				// check if RPC is available before adding key for this account.
 				step.PreExec(func() error {
