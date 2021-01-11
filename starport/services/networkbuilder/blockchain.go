@@ -8,9 +8,9 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -24,7 +24,6 @@ type Blockchain struct {
 	url     string
 	hash    string
 	chain   *chain.Chain
-	app     chain.App
 	builder *Builder
 }
 
@@ -44,17 +43,10 @@ func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url,
 func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	path, err := gomodulepath.ParseFile(b.appPath)
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		ChainID: chainID,
-		Name:    path.Root,
-		Path:    b.appPath,
-	}
-
-	c, err := chain.New(app, false, chain.LogSilent)
+	c, err := chain.New(b.appPath,
+		chain.ID(chainID),
+		chain.LogLevel(chain.LogSilent),
+	)
 	if err != nil {
 		return err
 	}
@@ -94,7 +86,6 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	}
 
 	b.chain = c
-	b.app = app
 	return nil
 }
 
@@ -166,16 +157,34 @@ type Account struct {
 }
 
 func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (chain.Account, error) {
-	return b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, false)
+	acc, err := b.chain.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
+	if err != nil {
+		return chain.Account{}, err
+	}
+	return chain.Account{
+		Name:     acc.Name,
+		Address:  acc.Address,
+		Mnemonic: acc.Mnemonic,
+	}, nil
 }
 
 // IssueGentx creates a Genesis transaction for account with proposal.
 func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
 	proposal.Validator.Name = account.Name
-	if err := b.chain.AddGenesisAccount(ctx, account); err != nil {
+	if err := b.chain.Commands().AddGenesisAccount(ctx, account.Address, account.Coins); err != nil {
 		return nil, err
 	}
-	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
+	gentxPath, err := b.chain.Commands().Gentx(
+		ctx,
+		account.Name,
+		proposal.Validator.StakingAmount,
+		chaincmd.GentxWithMoniker(proposal.Validator.Moniker),
+		chaincmd.GentxWithCommissionRate(proposal.Validator.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(proposal.Validator.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(proposal.Validator.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(proposal.Validator.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(proposal.Validator.GasPrices),
+	)
 	if err != nil {
 		return nil, err
 	}
@@ -187,7 +196,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
 func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
-	key, err := b.chain.ShowNodeID(ctx)
+	key, err := b.chain.Commands().ShowNodeID(ctx)
 	if err != nil {
 		return err
 	}

@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -20,17 +19,7 @@ func NewBuild() *cobra.Command {
 }
 
 func buildHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name:       path.Root,
-		Path:       appPath,
-		ImportPath: path.RawPath,
-	}
-
-	s, err := chain.New(app, false, logLevel(cmd))
+	s, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)))
 	if err != nil {
 		return err
 	}

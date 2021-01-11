@@ -6,9 +6,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"math"
-	"net/url"
 	"os"
-	"path"
 	"path/filepath"
 	"strings"
 	"time"
@@ -21,13 +19,10 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -36,6 +31,10 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
+)
+
+var (
+	sourcePath = filepath.Join(starportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
@@ -185,8 +184,20 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
-		// use a tempdir to clone the source code inside.
-		if path, err = ioutil.TempDir("", ""); err != nil {
+		// ensure the path for chain source exists
+		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
+			if !os.IsExist(err) {
+				return nil, err
+			}
+		}
+
+		path = filepath.Join(sourcePath, chainID)
+		if _, err := os.Stat(path); err == nil {
+			// if the directory already exists, we overwrite it to ensure we have the last version
+			if err := os.RemoveAll(path); err != nil {
+				return nil, err
+			}
+		} else if !os.IsNotExist(err) {
 			return nil, err
 		}
 
@@ -286,23 +297,8 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
-	// find out the app's name form url.
-	u, err := url.Parse(chainInfo.URL)
-	if err != nil {
-		return err
-	}
-	importPath := path.Join(u.Host, u.Path)
-	path, err := gomodulepath.Parse(importPath)
-	if err != nil {
-		return err
-	}
-
-	app := chain.App{
-		ChainID: chainID,
-		Name:    path.Root,
-		Version: cosmosver.Stargate,
-	}
-	chainCmd, err := chain.New(app, true, chain.LogSilent)
+	appPath := filepath.Join(sourcePath, chainID)
+	chainHandler, err := chain.New(appPath, chain.LogLevel(chain.LogSilent))
 	if err != nil {
 		return err
 	}
@@ -312,7 +308,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// generate the genesis file for the chain to start
-	if err := generateGenesis(ctx, chainInfo, launchInfo, chainCmd); err != nil {
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
 		return err
 	}
 
@@ -338,7 +334,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(chainCmd.Home(), "config/config.toml")
+	configTomlPath := filepath.Join(chainHandler.Home(), "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -358,14 +354,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				append([]string{"start"}, flags...)...,
-			),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
-		))
+		return chainHandler.Commands().
+			Copy(
+				chaincmdrunner.Stdout(os.Stdout),
+				chaincmdrunner.Stderr(os.Stderr)).
+			Start(ctx, flags...)
 	})
 
 	// log connected peers info.
@@ -401,19 +394,19 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 }
 
 // generateGenesis generate the genesis from the launch information in the specified app home
-func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainCmd *chain.Chain) error {
+func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
 	// overwrite genesis with initial genesis.
-	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(chainCmd.Home()))
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(chainHandler.Home()))
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(chainCmd.Home()), initialGenesis, 0755)
+	err = ioutil.WriteFile(genesisPath(chainHandler.Home()), initialGenesis, 0755)
 	if err != nil {
 		return err
 	}
 
 	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
-	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(chainCmd.Home()))
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(chainHandler.Home()))
 	var genesis map[string]interface{}
 	if err := cf.Load(&genesis); err != nil {
 		return err
@@ -430,21 +423,21 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 			Coins:   account.Coins.String(),
 		}
 
-		if err := chainCmd.AddGenesisAccount(ctx, genesisAccount); err != nil {
+		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
 			return err
 		}
 	}
 
 	// reset gentx directory
-	os.Mkdir(filepath.Join(chainCmd.Home(), "config/gentx"), os.ModePerm)
-	dir, err := ioutil.ReadDir(filepath.Join(chainCmd.Home(), "config/gentx"))
+	os.Mkdir(filepath.Join(chainHandler.Home(), "config/gentx"), os.ModePerm)
+	dir, err := ioutil.ReadDir(filepath.Join(chainHandler.Home(), "config/gentx"))
 	if err != nil {
 		return err
 	}
 
 	// remove all the current gentxs
 	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(chainCmd.Home(), "config/gentx", d.Name())); err != nil {
+		if err := os.RemoveAll(filepath.Join(chainHandler.Home(), "config/gentx", d.Name())); err != nil {
 			return err
 		}
 	}
@@ -452,13 +445,13 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	// add and collect the gentxs
 	for i, gentx := range launchInfo.GenTxs {
 		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(chainCmd.Home(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		gentxPath := filepath.Join(chainHandler.Home(), fmt.Sprintf("config/gentx/gentx%v.json", i))
 		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}
 	}
 	if len(launchInfo.GenTxs) > 0 {
-		if err = chainCmd.CollectGentx(ctx); err != nil {
+		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
 			return err
 		}
 	}

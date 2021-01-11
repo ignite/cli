@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	relayerVersion = "3080dab10e37e6db9e691c343b1c0cdb6d845753"
+	relayerVersion = "1daec66da1700c9fcd8900dbf06c70f2fd838cdf"
 )
 
 // relayerInfo holds relayer info that is shared between chains to make a connection.
@@ -173,6 +173,8 @@ func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
 					account.Name,
 					"testkey",
 					account.Mnemonic,
+					"--coin-type",
+					"118",
 				),
 				// check if RPC is available before adding key for this account.
 				step.PreExec(func() error {

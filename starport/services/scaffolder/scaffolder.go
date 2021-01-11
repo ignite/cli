@@ -26,7 +26,11 @@ func New(path string, options ...Option) *Scaffolder {
 }
 
 func (s *Scaffolder) version() (cosmosver.MajorVersion, error) {
-	return cosmosver.Detect(s.path)
+	v, err := cosmosver.Detect(s.path)
+	if err != nil {
+		return "", err
+	}
+	return v.Major(), nil
 }
 
 func owner(modulePath string) string {
