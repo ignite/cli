@@ -9,7 +9,6 @@ import (
 
 // App keeps info about chain.
 type App struct {
-	ChainID    string
 	Name       string
 	Path       string
 	ImportPath string
