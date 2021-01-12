@@ -83,18 +83,9 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// initialize the blockchain
-	initOptions := []networkbuilder.InitOption{networkbuilder.MustNotInitializedBefore()}
-
-	// Check if custom home is provided
-	home, cliHome, err := getHomeFlags(cmd)
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{networkbuilder.MustNotInitializedBefore()})
 	if err != nil {
 		return err
-	}
-	if home != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
-	}
-	if cliHome != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationCLIHomePath(cliHome))
 	}
 
 	initChain := func() (*networkbuilder.Blockchain, error) {

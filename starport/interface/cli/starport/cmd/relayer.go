@@ -50,19 +50,7 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	// Check if custom home is provided
-	home, cliHome, err := getHomeFlags(cmd)
-	if err != nil {
-		return err
-	}
-	if home != "" {
-		chainOption = append(chainOption, chain.HomePath(home))
-	}
-	if cliHome != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
-	}
-
-	c, err := chain.New(appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -80,19 +68,7 @@ func relayerAddHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	// Check if custom home is provided
-	home, cliHome, err := getHomeFlags(cmd)
-	if err != nil {
-		return err
-	}
-	if home != "" {
-		chainOption = append(chainOption, chain.HomePath(home))
-	}
-	if cliHome != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
-	}
-
-	c, err := chain.New(appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}

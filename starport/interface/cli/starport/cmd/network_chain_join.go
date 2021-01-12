@@ -48,16 +48,9 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check if custom home is provided
-	var initOptions []networkbuilder.InitOption
-	home, cliHome, err := getHomeFlags(cmd)
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{})
 	if err != nil {
 		return err
-	}
-	if home != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
-	}
-	if cliHome != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationCLIHomePath(cliHome))
 	}
 
 	// init the blockchain.
