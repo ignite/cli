@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/dariubs/percent"
 	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
@@ -340,6 +342,9 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if o.cliHomePath != "" {
 		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
 	}
+
+	// Use OS keyring backend by default
+	chainOption = append(chainOption, chain.DefaultKeyringBackend(chaincmd.KeyringBackendOS))
 
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(appPath, chainOption...)

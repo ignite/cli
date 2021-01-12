@@ -47,7 +47,7 @@ func NewRelayerAdd() *cobra.Command {
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
-		chain.DefaultKeyringBackend(chaincmd.KeyringBackendTest),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
@@ -65,7 +65,7 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
-		chain.DefaultKeyringBackend(chaincmd.KeyringBackendTest),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)

@@ -25,7 +25,7 @@ func NewServe() *cobra.Command {
 func serveHandler(cmd *cobra.Command, args []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
-		chain.DefaultKeyringBackend(chaincmd.KeyringBackendTest),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
