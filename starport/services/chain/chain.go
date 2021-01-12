@@ -76,8 +76,8 @@ type chainOptions struct {
 	// cliHomePath of the chain's config dir.
 	cliHomePath string
 
-	// keyring backend used by commands
-	keyringBackend chaincmd.KeyringBackend
+	// default keyring backend used by commands if not specified in configuration
+	defaulKeyringBackend chaincmd.KeyringBackend
 }
 
 // Option configures Chain.
@@ -112,9 +112,9 @@ func CLIHomePath(path string) Option {
 }
 
 // KeyringBackend specify the keyring backend to use for the chain command
-func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
+func DefaultKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
-		c.options.keyringBackend = keyringBackend
+		c.options.defaulKeyringBackend = keyringBackend
 	}
 }
 
@@ -182,9 +182,20 @@ func New(path string, options ...Option) (*Chain, error) {
 		)
 	}
 
-	// append keyring backend if specified
-	if c.options.keyringBackend != "" {
-		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+	// check if keyring backend is specified in config
+	config, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+	if config.Init.KeyringBackend != "" {
+		configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+		if err != nil {
+			return nil, err
+		}
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+	} else if c.options.defaulKeyringBackend != "" {
+		// otherwise use keyring backend specified in options if any
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.defaulKeyringBackend))
 	}
 
 	cc := chaincmd.New(c.app.D(), ccoptions...)
