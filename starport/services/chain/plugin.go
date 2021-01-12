@@ -3,6 +3,8 @@ package chain
 import (
 	"context"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
@@ -20,22 +22,25 @@ type Plugin interface {
 	Binaries() []string
 
 	// ConfigCommands returns step.Exec configuration for config commands.
-	Configure(ctx context.Context, chainID string) error
+	Configure(context.Context, chaincmdrunner.Runner, string) error
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	Gentx(context.Context, Validator) (path string, err error)
+	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// PostInit hook.
-	PostInit(starportconf.Config) error
+	PostInit(string, starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	Start(context.Context, starportconf.Config) error
+	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
 	// Home returns the blockchain node's home dir.
 	Home() string
+
+	// CLIHome returns the cli blockchain node's home dir.
+	CLIHome() string
 
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion
@@ -47,9 +52,9 @@ type Plugin interface {
 func (c *Chain) pickPlugin() Plugin {
 	switch c.Version.Major() {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(c.app, c)
+		return newLaunchpadPlugin(c.app)
 	case cosmosver.Stargate:
-		return newStargatePlugin(c.app, c)
+		return newStargatePlugin(c.app)
 	}
 	panic("unknown cosmos version")
 }

@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 // NewNetworkChainStart creates a network chain start command.
@@ -14,10 +15,17 @@ func NewNetworkChainStart() *cobra.Command {
 		RunE:  networkChainStartHandler,
 		Args:  cobra.MinimumNArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
 func networkChainStartHandler(cmd *cobra.Command, args []string) error {
+	// Check if custom home is provided
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{})
+	if err != nil {
+		return err
+	}
+
 	nb, err := newNetworkBuilder()
 	if err != nil {
 		return err
@@ -29,5 +37,5 @@ func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 		startFlags = args[1:]
 	}
 
-	return nb.StartChain(cmd.Context(), chainID, startFlags)
+	return nb.StartChain(cmd.Context(), chainID, startFlags, initOptions...)
 }

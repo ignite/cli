@@ -257,13 +257,17 @@ func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
 
 // relayerHome initializes and returns the path to a home folder for relayer.
 func (c *Chain) initRelayerHome() (path string, err error) {
-	home, err := os.UserHomeDir()
+	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	relayerHome := filepath.Join(c.Home(), "relayer")
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	relayerHome := filepath.Join(home, "relayer")
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
-		relayerHome = filepath.Join(home, ".relayer")
+		relayerHome = filepath.Join(userHomeDir, ".relayer")
 	}
 	if err := os.MkdirAll(filepath.Join(relayerHome, "config"), os.ModePerm); err != nil {
 		return "", err
