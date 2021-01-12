@@ -1,6 +1,6 @@
 image: gitpod/workspace-full
 checkoutLocation: "starport/docs"
-workspaceLocation: "./starport/docs"
+workspaceLocation: "."
 tasks:
   - name: Install Starport
     init: |
