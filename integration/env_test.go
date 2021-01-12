@@ -182,7 +182,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg string, path string, home string, clihome string, options ...execOption) (ok bool) {
+func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok bool) {
 	serveCommand := []string{
 		"serve",
 		"-v",
