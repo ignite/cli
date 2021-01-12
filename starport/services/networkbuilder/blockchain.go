@@ -71,6 +71,9 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
 	}
 
+	// Use OS keyring backend by default
+	chainOption = append(chainOption, chain.DefaultKeyringBackend(chaincmd.KeyringBackendOS))
+
 	c, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err
