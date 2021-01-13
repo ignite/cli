@@ -43,32 +43,32 @@ func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 		"%[3]v/x/%[2]v"
 		%[2]vkeeper "%[3]v/x/%[2]v/keeper"
 		%[2]vtypes "%[3]v/x/%[2]v/types"`
-		replacement := fmt.Sprintf(template, module.placeholder, opts.ModuleName, opts.ModulePath)
-		content := strings.Replace(f.String(), module.placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, module.Placeholder, opts.ModuleName, opts.ModulePath)
+		content := strings.Replace(f.String(), module.Placeholder, replacement, 1)
 
 		// ModuleBasic
 		template = `%[1]v
 		%[2]v.AppModuleBasic{},`
-		replacement = fmt.Sprintf(template, module.placeholder2, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder2, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder2, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder2, replacement, 1)
 
 		// Keeper declaration
 		template = `%[1]v
 		%[2]vKeeper %[2]vkeeper.Keeper`
-		replacement = fmt.Sprintf(template, module.placeholder3, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder3, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder3, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder3, replacement, 1)
 
 		// Store key
 		template = `%[1]v
 		%[2]vtypes.StoreKey,`
-		replacement = fmt.Sprintf(template, module.placeholder5, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder5, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder5, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder5, replacement, 1)
 
 		// Param subspace
 		template = `%[1]v
 		app.subspaces[%[2]vtypes.ModuleName] = app.paramsKeeper.Subspace(%[2]vtypes.DefaultParamspace)`
-		replacement = fmt.Sprintf(template, module.placeholder5_1, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder5_1, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder5_1, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder5_1, replacement, 1)
 
 		// Keeper definition
 		template = `%[1]v
@@ -77,20 +77,20 @@ func appModifyLaunchpad(opts *CreateOptions) genny.RunFn {
 			keys[%[2]vtypes.StoreKey],
 			app.subspaces[%[2]vtypes.ModuleName],
 		)`
-		replacement = fmt.Sprintf(template, module.placeholder5_2, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder5_2, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder5_2, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder5_2, replacement, 1)
 
 		// Module manager
 		template = `%[1]v
 		%[2]v.NewAppModule(app.%[2]vKeeper),`
-		replacement = fmt.Sprintf(template, module.placeholder6, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder6, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder6, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder6, replacement, 1)
 
 		// Genesis
 		template = `%[1]v
 		%[2]vtypes.ModuleName,`
-		replacement = fmt.Sprintf(template, module.placeholder7, opts.ModuleName)
-		content = strings.Replace(content, module.placeholder7, replacement, 1)
+		replacement = fmt.Sprintf(template, module.Placeholder7, opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder7, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
