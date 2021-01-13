@@ -78,9 +78,6 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
-
-	// default keyring backend used by commands if not specified in configuration
-	defaulKeyringBackend chaincmd.KeyringBackend
 }
 
 // Option configures Chain.
@@ -118,13 +115,6 @@ func CLIHomePath(path string) Option {
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
-	}
-}
-
-// DefaultKeyringBackend specify the keyring backend to use for the chain command by default (if no config is specified)
-func DefaultKeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
-	return func(c *Chain) {
-		c.options.defaulKeyringBackend = keyringBackend
 	}
 }
 
@@ -207,9 +197,9 @@ func New(path string, options ...Option) (*Chain, error) {
 				return nil, err
 			}
 			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
-		} else if c.options.defaulKeyringBackend != chaincmd.KeyringBackendUnspecified {
-			// otherwise use default keyring backend if any
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.defaulKeyringBackend))
+		} else {
+			// default keyring backend used is OS
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
 		}
 	}
 

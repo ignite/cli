@@ -347,9 +347,6 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// password. This happens because Gitpod uses containers.
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
-	} else {
-		// use OS keyring backend by default otherwise
-		chainOption = append(chainOption, chain.DefaultKeyringBackend(chaincmd.KeyringBackendOS))
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
