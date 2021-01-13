@@ -71,6 +71,12 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
 	}
 
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
 	c, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err

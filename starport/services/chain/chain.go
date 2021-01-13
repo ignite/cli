@@ -76,7 +76,7 @@ type chainOptions struct {
 	// cliHomePath of the chain's config dir.
 	cliHomePath string
 
-	// keyring backend used by commands
+	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
 }
 
@@ -182,9 +182,25 @@ func New(path string, options ...Option) (*Chain, error) {
 		)
 	}
 
-	// append keyring backend if specified
-	if c.options.keyringBackend != "" {
+	// use keyring backend if specified
+	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
 		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+	} else {
+		// check if keyring backend is specified in config
+		config, err := c.Config()
+		if err != nil {
+			return nil, err
+		}
+		if config.Init.KeyringBackend != "" {
+			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+			if err != nil {
+				return nil, err
+			}
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+		} else {
+			// default keyring backend used is OS
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
+		}
 	}
 
 	cc := chaincmd.New(c.app.D(), ccoptions...)

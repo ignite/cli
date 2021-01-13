@@ -1,6 +1,8 @@
 package chaincmd
 
 import (
+	"fmt"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -386,4 +388,21 @@ func (c ChainCmd) cliCommand(command []string) step.Option {
 		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
 	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+}
+
+// KeyringBackendFromString returns the keyring backend from its string
+func KeyringBackendFromString(kb string) (KeyringBackend, error) {
+	existingKeyringBackend := map[KeyringBackend]bool{
+		KeyringBackendUnspecified: true,
+		KeyringBackendOS:          true,
+		KeyringBackendFile:        true,
+		KeyringBackendPass:        true,
+		KeyringBackendTest:        true,
+		KeyringBackendKwallet:     true,
+	}
+
+	if _, ok := existingKeyringBackend[KeyringBackend(kb)]; ok {
+		return KeyringBackend(kb), nil
+	}
+	return KeyringBackendUnspecified, fmt.Errorf("unrecognized keyring backend: %s", kb)
 }

@@ -80,7 +80,10 @@ type Init struct {
 	Home string `yaml:"home"`
 
 	// CLIHome overwrites default CLI home directory used for launchpad app
-	CLIHome string `yaml:"clihome"`
+	CLIHome string `yaml:"cli-home"`
+
+	// KeyringBackend is the default keyring backend to use for blockchain initialization
+	KeyringBackend string `yaml:"keyring-backend"`
 }
 
 // Servers keeps configuration related to started servers.

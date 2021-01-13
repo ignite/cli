@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/cenkalti/backoff"
 	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
@@ -49,6 +51,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	chainHandler, err := chain.New(appPath,
 		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
 	if err != nil {
 		return false, err
