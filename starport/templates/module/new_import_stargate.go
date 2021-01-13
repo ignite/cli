@@ -11,11 +11,11 @@ import (
 )
 
 // New ...
-func NewImport(opts *ImportOptions) (*genny.Generator, error) {
+func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(appModify(opts))
-	g.RunFn(exportModify(opts))
-	g.RunFn(cmdMainModify(opts))
+	g.RunFn(importAppModifyStargate(opts))
+	//g.RunFn(exportModify(opts))
+	//g.RunFn(cmdMainModify(opts))
 	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
 		return g, err
 	}
@@ -27,185 +27,116 @@ func NewImport(opts *ImportOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-func appModify(opts *ImportOptions) genny.RunFn {
+// app.go modification on Stargate when importing wasm
+func importAppModifyStargate(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	"path/filepath"
-	"github.com/CosmWasm/wasmd/x/wasm"
-	"github.com/tendermint/tendermint/libs/cli"
-	"github.com/spf13/viper"
-	distr "github.com/cosmos/cosmos-sdk/x/distribution"`
-		replacement := fmt.Sprintf(template, placeholder)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
 
-		template2 := `%[1]v
-		distr.AppModuleBasic{},
-		wasm.AppModuleBasic{},`
-		replacement2 := fmt.Sprintf(template2, placeholder2)
-		content = strings.Replace(content, placeholder2, replacement2, 1)
+		templateImport := `%[1]v
+		"github.com/CosmWasm/wasmd/x/wasm"
+		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
+		replacementImport := fmt.Sprintf(templateImport, placeholderSgAppModuleImport)
+		content := strings.Replace(f.String(), placeholderSgAppModuleImport, replacementImport, 1)
 
-		template2_1 := `%[1]v
-		distr.ModuleName: nil,`
-		replacement2_1 := fmt.Sprintf(template2_1, placeholder2_1)
-		content = strings.Replace(content, placeholder2_1, replacement2_1, 1)
-
-		template3 := `%[1]v
-		distrKeeper    distr.Keeper
-		wasmKeeper    wasm.Keeper`
-		replacement3 := fmt.Sprintf(template3, placeholder3)
-		content = strings.Replace(content, placeholder3, replacement3, 1)
-
-		template5 := `%[1]v
-		distr.StoreKey,
-		wasm.StoreKey,`
-		replacement5 := fmt.Sprintf(template5, placeholder5)
-		content = strings.Replace(content, placeholder5, replacement5, 1)
-
-		template5_1 := `%[1]v
-		app.subspaces[distr.ModuleName] = app.paramsKeeper.Subspace(distr.DefaultParamspace)`
-		replacement5_1 := fmt.Sprintf(template5_1, placeholder5_1)
-		content = strings.Replace(content, placeholder5_1, replacement5_1, 1)
-
-		template5_2 := `%[1]v
-		app.distrKeeper = distr.NewKeeper(
-			app.cdc, keys[distr.StoreKey], app.subspaces[distr.ModuleName], &stakingKeeper,
-			app.supplyKeeper, auth.FeeCollectorName, app.ModuleAccountAddrs(),
-		)`
-		replacement5_2 := fmt.Sprintf(template5_2, placeholder5_2)
-		content = strings.Replace(content, placeholder5_2, replacement5_2, 1)
-
-		template5_3 := `%[1]v
-		app.distrKeeper.Hooks(),`
-		replacement5_3 := fmt.Sprintf(template5_3, placeholder5_3)
-		content = strings.Replace(content, placeholder5_3, replacement5_3, 1)
-
-		template4 := placeholder4 + "\n" +
-			"type WasmWrapper struct { Wasm wasm.Config `mapstructure:\"wasm\"`}" + `
-		var wasmRouter = bApp.Router()
-		homeDir := viper.GetString(cli.HomeFlag)
-		wasmDir := filepath.Join(homeDir, "wasm")
-
-		wasmWrap := WasmWrapper{Wasm: wasm.DefaultWasmConfig()}
-		err := viper.Unmarshal(&wasmWrap)
-		if err != nil {
-			panic("error while reading wasm config: " + err.Error())
-		}
-		wasmConfig := wasmWrap.Wasm
-		supportedFeatures := "staking"
-		app.subspaces[wasm.ModuleName] = app.paramsKeeper.Subspace(wasm.DefaultParamspace)
-		app.wasmKeeper = wasm.NewKeeper(app.cdc, keys[wasm.StoreKey], app.subspaces[wasm.ModuleName], app.accountKeeper, app.bankKeeper, app.stakingKeeper, app.distrKeeper, wasmRouter, wasmDir, wasmConfig, supportedFeatures, nil, nil)`
-		content = strings.Replace(content, placeholder4, template4, 1)
-
-		template6 := `%[1]v
-		distr.NewAppModule(app.distrKeeper, app.accountKeeper, app.supplyKeeper, app.stakingKeeper),
-		wasm.NewAppModule(app.wasmKeeper),`
-		replacement6 := fmt.Sprintf(template6, placeholder6)
-		content = strings.Replace(content, placeholder6, replacement6, 1)
-
-		template6_1 := `%[1]v
-		distr.ModuleName,`
-		replacement6_1 := fmt.Sprintf(template6_1, placeholder6_1)
-		content = strings.Replace(content, placeholder6_1, replacement6_1, 1)
-
-		template6_2 := `%[1]v
-		distr.ModuleName,`
-		replacement6_2 := fmt.Sprintf(template6_2, placeholder6_2)
-		content = strings.Replace(content, placeholder6_2, replacement6_2, 1)
-
-		template7 := `%[1]v
-		wasm.ModuleName,`
-		replacement7 := fmt.Sprintf(template7, placeholder7)
-		content = strings.Replace(content, placeholder7, replacement7, 1)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-// Append Distr modules in export.go
-func exportModify(opts *ImportOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := "app/export.go"
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		template := `%[1]v
-		/* Handle fee distribution state. */
-
-		// withdraw all validator commission
-		app.stakingKeeper.IterateValidators(ctx, func(_ int64, val staking.ValidatorI) (stop bool) {
-			_, err := app.distrKeeper.WithdrawValidatorCommission(ctx, val.GetOperator())
-			if err != nil {
-				log.Fatal(err)
+		templateEnabledProposals := `var (
+			// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
+			// If EnabledSpecificProposals is "", and this is not "true", then disable all x/wasm proposals.
+			ProposalsEnabled = "false"
+			// If set to non-empty string it must be comma-separated list of values that are all a subset
+			// of "EnableAllProposals" (takes precedence over ProposalsEnabled)
+			// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
+			EnableSpecificProposals = ""
+		)
+		
+		// GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
+		// produce a list of enabled proposals to pass into wasmd app.
+		func GetEnabledProposals() []wasm.ProposalType {
+			if EnableSpecificProposals == "" {
+				if ProposalsEnabled == "true" {
+					return wasm.EnableAllProposals
+				}
+				return wasm.DisableAllProposals
 			}
-			return false
-		})
-
-		// withdraw all delegator rewards
-		dels := app.stakingKeeper.GetAllDelegations(ctx)
-		for _, delegation := range dels {
-			_, err := app.distrKeeper.WithdrawDelegationRewards(ctx, delegation.DelegatorAddress, delegation.ValidatorAddress)
+			chunks := strings.Split(EnableSpecificProposals, ",")
+			proposals, err := wasm.ConvertToProposals(chunks)
 			if err != nil {
-				log.Fatal(err)
+				panic(err)
 			}
-		}
-
-		// clear validator slash events
-		app.distrKeeper.DeleteAllValidatorSlashEvents(ctx)
-
-		// clear validator historical rewards
-		app.distrKeeper.DeleteAllValidatorHistoricalRewards(ctx)`
-		replacement := fmt.Sprintf(template, placeholder)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
-
-		template2 := `%[1]v
-		// donate any unwithdrawn outstanding reward fraction tokens to the community pool
-		scraps := app.distrKeeper.GetValidatorOutstandingRewards(ctx, val.GetOperator())
-		feePool := app.distrKeeper.GetFeePool(ctx)
-		feePool.CommunityPool = feePool.CommunityPool.Add(scraps...)
-		app.distrKeeper.SetFeePool(ctx, feePool)
-
-		app.distrKeeper.Hooks().AfterValidatorCreated(ctx, val.GetOperator())`
-		replacement2 := fmt.Sprintf(template2, placeholder2)
-		content = strings.Replace(content, placeholder2, replacement2, 1)
-
-		template3 := `%[1]v
-		// reinitialize all delegations
-		for _, del := range dels {
-			app.distrKeeper.Hooks().BeforeDelegationCreated(ctx, del.DelegatorAddress, del.ValidatorAddress)
-			app.distrKeeper.Hooks().AfterDelegationModified(ctx, del.DelegatorAddress, del.ValidatorAddress)
+			return proposals
 		}`
-		replacement3 := fmt.Sprintf(template3, placeholder3)
-		content = strings.Replace(content, placeholder3, replacement3, 1)
+		content = strings.Replace(f.String(), placeholderSgWasmAppEnabledProposals, templateEnabledProposals, 1)
 
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
+		templateGovProposalHandler := `%[1]v
+		wasmclient.ProposalHandlers,`
+		replacementProposalHandler := fmt.Sprintf(templateGovProposalHandler, placeholderSgAppGovProposalHandler)
+		content = strings.Replace(f.String(), placeholderSgAppGovProposalHandler, replacementProposalHandler, 1)
 
-func cmdMainModify(opts *ImportOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("cmd/%[1]vcli/main.go", opts.AppName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := `%[1]v
-	wasmrest "github.com/CosmWasm/wasmd/x/wasm/client/rest"`
-		replacement := fmt.Sprintf(template, placeholder)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		templateModuleBasic := `%[1]v
+		wasm.AppModuleBasic{},`
+		replacementModuleBasic := fmt.Sprintf(templateModuleBasic, placeholderSgAppModuleBasic)
+		content = strings.Replace(f.String(), placeholderSgAppModuleBasic, replacementModuleBasic, 1)
 
-		template2 := `%[1]v
-	wasmrest.RegisterRoutes(rs.CliCtx, rs.Mux)`
-		replacement2 := fmt.Sprintf(template2, placeholder2)
-		content = strings.Replace(content, placeholder2, replacement2, 1)
+		templateKeeperDeclaration := `%[1]v
+		wasmKeeper wasm.Keeper`
+		replacementKeeperDeclaration := fmt.Sprintf(templateKeeperDeclaration, placeholderSgAppKeeperDeclaration)
+		content = strings.Replace(f.String(), placeholderSgAppKeeperDeclaration, replacementKeeperDeclaration, 1)
+
+		templateEnabledProposalsArgument := `%[1]v
+		enabledProposals []wasm.ProposalType,`
+		replacementEnabledProposalsArgument := fmt.Sprintf(templateEnabledProposalsArgument, placeholderSgAppNewArgument)
+		content = strings.Replace(f.String(), placeholderSgAppNewArgument, replacementEnabledProposalsArgument, 1)
+
+		templateStoreKey := `%[1]v
+		wasm.StoreKey,`
+		replacementStoreKey := fmt.Sprintf(templateStoreKey, placeholderSgAppStoreKey)
+		content = strings.Replace(f.String(), placeholderSgAppStoreKey, replacementStoreKey, 1)
+
+		templateKeeperDefinition := `%[1]v
+		// The last arguments can contain custom message handlers, and custom query handlers,
+		// if we want to allow any custom callbacks
+		supportedFeatures := "staking"
+		app.wasmKeeper = wasm.NewKeeper(
+			appCodec,
+			keys[wasm.StoreKey],
+			app.getSubspace(wasm.ModuleName),
+			app.accountKeeper,
+			app.bankKeeper,
+			app.stakingKeeper,
+			app.distrKeeper,
+			wasmRouter,
+			wasmDir,
+			wasmConfig,
+			supportedFeatures,
+			nil,
+			nil,
+		)
+	
+		// The gov proposal types can be individually enabled
+		if len(enabledProposals) != 0 {
+			govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
+		}`
+		replacementKeeperDefinition := fmt.Sprintf(templateKeeperDefinition, placeholderSgAppKeeperDefinition)
+		content = strings.Replace(f.String(), placeholderSgAppKeeperDefinition, replacementKeeperDefinition, 1)
+
+		templateAppModule := `%[1]v
+		wasm.NewAppModule(&app.wasmKeeper, app.stakingKeeper),`
+		replacementAppModule := fmt.Sprintf(templateAppModule, placeholderSgAppAppModule)
+		content = strings.Replace(f.String(), placeholderSgAppAppModule, replacementAppModule, 1)
+
+		templateInitGenesis := `%[1]v
+		wasm.ModuleName,`
+		replacementInitGenesis := fmt.Sprintf(templateInitGenesis, placeholderSgAppInitGenesis)
+		content = strings.Replace(f.String(), placeholderSgAppInitGenesis, replacementInitGenesis, 1)
+
+		templateParamSubspace := `%[1]v
+		paramsKeeper.Subspace(wasm.ModuleName)`
+		replacementParamSubspace := fmt.Sprintf(templateParamSubspace, placeholderSgAppParamSubspace)
+		content = strings.Replace(f.String(), placeholderSgAppParamSubspace, replacementParamSubspace, 1)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
