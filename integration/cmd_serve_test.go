@@ -10,7 +10,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestServeLaunchpadAppWithCosmWasm(t *testing.T) {
+func TestServeLaunchpadAppWithWasm(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -19,7 +19,7 @@ func TestServeLaunchpadAppWithCosmWasm(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 	)
 
-	env.Must(env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(apath),
@@ -86,7 +86,7 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func TestServeStargate(t *testing.T) {
+func TestServeStargateWithWasm(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -94,6 +94,13 @@ func TestServeStargate(t *testing.T) {
 		apath   = env.Scaffold("sgblog", Stargate)
 		servers = env.RandomizeServerPorts(apath)
 	)
+
+	env.Must(env.Exec("add Wasm module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "import", "wasm"),
+			step.Workdir(apath),
+		)),
+	))
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
