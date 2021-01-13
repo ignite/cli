@@ -5,18 +5,10 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
-
-// these needs to be created in the compiler time, otherwise packr2 won't be
-// able to find boxes.
-var templates = map[cosmosver.MajorVersion]*packr.Box{
-	cosmosver.Launchpad: packr.New("module/templates/launchpad", "./launchpad"),
-	cosmosver.Stargate:  packr.New("module/templates/stargate", "./stargate"),
-}
 
 // New ...
 func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {

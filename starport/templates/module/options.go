@@ -17,6 +17,7 @@ func (opts *CreateOptions) Validate() error {
 type ImportOptions struct {
 	AppName string
 	Feature string
+	BinaryNamePrefix string
 }
 
 // Validate that options are usable

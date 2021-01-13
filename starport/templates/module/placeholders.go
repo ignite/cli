@@ -29,4 +29,9 @@ const (
 
 	// Placeholders in Stargate app.go for wasm
 	placeholderSgWasmAppEnabledProposals      = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
+
+	// Placeholders in Stargate root.go
+	placeholderSgRootImport      = "// this line is used by starport scaffolding # stargate/root/import"
+	placeholderSgRootCommands = "// this line is used by starport scaffolding # stargate/root/commands"
+	placeholderSgRootInitFlags = "// this line is used by starport scaffolding # stargate/root/initFlags"
 )

@@ -113,6 +113,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 		g, err = module.NewImportStargate(&module.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
+			BinaryNamePrefix: path.Root,
 		})
 	}
 

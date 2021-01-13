@@ -141,3 +141,32 @@ func importAppModifyStargate(opts *ImportOptions) genny.RunFn {
 		return r.File(newFile)
 	}
 }
+
+// app.go modification on Stargate when importing wasm
+func importRootModifyStargate(opts *ImportOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := "cmd/" + opts.BinaryNamePrefix + "d/cmd/root.go"
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateImport := `%[1]v
+		"github.com/CosmWasm/wasmd/x/wasm"`
+		replacementImport := fmt.Sprintf(templateImport, placeholderSgRootImport)
+		content := strings.Replace(f.String(), placeholderSgRootImport, replacementImport, 1)
+
+		templateCommand := `%[1]v
+		"AddGenesisWasmMsgCmd(app.DefaultNodeHome),`
+		replacementCommand := fmt.Sprintf(templateCommand, placeholderSgRootCommands)
+		content = strings.Replace(f.String(), placeholderSgRootCommands, replacementCommand, 1)
+
+		templateInitFlags := `%[1]v
+		"wasm.AddModuleInitFlags(startCmd)`
+		replacementInitFlags := fmt.Sprintf(templateInitFlags, placeholderSgRootInitFlags)
+		content = strings.Replace(f.String(), placeholderSgRootInitFlags, replacementInitFlags, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
