@@ -22,7 +22,8 @@ const (
 	wasmImport        = "github.com/CosmWasm/wasmd"
 	apppkg            = "app"
 	moduleDir         = "x"
-	wasmVersionCommit = "b30902fe1fbe5237763775950f729b90bf34d53f"
+	wasmVersionCommitLaunchpad = "b30902fe1fbe5237763775950f729b90bf34d53f"
+	wasmVersionCommitStargate = "5828347c67a16754a43608d00746df55e416a5ec"
 )
 
 // CreateModule creates a new empty module in the scaffolded app
@@ -90,8 +91,8 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return errors.New("CosmWasm is already imported")
 	}
 
-	// Import a specific version of ComsWasm
-	err = installWasm()
+	// import a specific version of ComsWasm
+	err = installWasm(version)
 	if err != nil {
 		return err
 	}
@@ -100,10 +101,21 @@ func (s *Scaffolder) ImportModule(name string) error {
 	if err != nil {
 		return err
 	}
-	g, err := module.NewImport(&module.ImportOptions{
-		Feature: name,
-		AppName: path.Package,
-	})
+
+	// run generator
+	var g    *genny.Generator
+	if version == cosmosver.Launchpad {
+		g, err = module.NewImportLaunchpad(&module.ImportOptions{
+			Feature: name,
+			AppName: path.Package,
+		})
+	} else {
+		g, err = module.NewImportStargate(&module.ImportOptions{
+			Feature: name,
+			AppName: path.Package,
+		})
+	}
+
 	if err != nil {
 		return err
 	}
@@ -152,18 +164,37 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func installWasm() error {
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-		).
-		Run(context.Background(),
-			step.New(
-				step.Exec(
-					"go",
-					"get",
-					wasmImport+"@"+wasmVersionCommit,
+func installWasm(version cosmosver.MajorVersion) error {
+	switch version {
+	case cosmosver.Launchpad:
+		return cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(os.Stderr),
+			).
+			Run(context.Background(),
+				step.New(
+					step.Exec(
+						"go",
+						"get",
+						wasmImport+"@"+wasmVersionCommitLaunchpad,
+					),
 				),
-			),
-		)
+			)
+	case cosmosver.Stargate:
+		return cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(os.Stderr),
+			).
+			Run(context.Background(),
+				step.New(
+					step.Exec(
+						"go",
+						"get",
+						wasmImport+"@"+wasmVersionCommitStargate,
+					),
+				),
+			)
+	default:
+		return errors.New("version not supported")
+	}
 }
