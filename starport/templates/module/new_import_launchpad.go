@@ -11,11 +11,11 @@ import (
 )
 
 // New ...
-func NewImport(opts *ImportOptions) (*genny.Generator, error) {
+func NewImportLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(appModify(opts))
-	g.RunFn(exportModify(opts))
-	g.RunFn(cmdMainModify(opts))
+	g.RunFn(importAppModifyLaunchpad(opts))
+	g.RunFn(importExportModifyLaunchpad(opts))
+	g.RunFn(importCmdMainModifyLaunchpad(opts))
 	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
 		return g, err
 	}
@@ -27,13 +27,15 @@ func NewImport(opts *ImportOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-func appModify(opts *ImportOptions) genny.RunFn {
+// app.go modification on Launchpad when importing wasm
+func importAppModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
+
 		template := `%[1]v
 	"path/filepath"
 	"github.com/CosmWasm/wasmd/x/wasm"
@@ -127,8 +129,9 @@ func appModify(opts *ImportOptions) genny.RunFn {
 	}
 }
 
-// Append Distr modules in export.go
-func exportModify(opts *ImportOptions) genny.RunFn {
+// export.go modification on Launchpad when importing wasm
+// append Distr modules in export.go
+func importExportModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "app/export.go"
 		f, err := r.Disk.Find(path)
@@ -190,7 +193,8 @@ func exportModify(opts *ImportOptions) genny.RunFn {
 	}
 }
 
-func cmdMainModify(opts *ImportOptions) genny.RunFn {
+// cmd/main.go modification on Launchpad when importing wasm
+func importCmdMainModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("cmd/%[1]vcli/main.go", opts.AppName)
 		f, err := r.Disk.Find(path)
