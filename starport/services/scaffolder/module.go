@@ -4,6 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/tendermint/starport/starport/templates/module/import"
 	"go/parser"
 	"go/token"
 	"os"
@@ -55,9 +57,9 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		}
 	)
 	if version == cosmosver.Launchpad {
-		g, err = module.NewCreateLaunchpad(opts)
+		g, err = module_create.NewCreateLaunchpad(opts)
 	} else {
-		g, err = module.NewCreateStargate(opts)
+		g, err = module_create.NewCreateStargate(opts)
 	}
 	if err != nil {
 		return err
@@ -105,12 +107,12 @@ func (s *Scaffolder) ImportModule(name string) error {
 	// run generator
 	var g    *genny.Generator
 	if version == cosmosver.Launchpad {
-		g, err = module.NewImportLaunchpad(&module.ImportOptions{
+		g, err = module_import.NewImportLaunchpad(&module_import.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
 		})
 	} else {
-		g, err = module.NewImportStargate(&module.ImportOptions{
+		g, err = module_import.NewImportStargate(&module_import.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
 			BinaryNamePrefix: path.Root,

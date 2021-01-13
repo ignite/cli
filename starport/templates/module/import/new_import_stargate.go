@@ -1,7 +1,8 @@
-package module
+package module_import
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -13,8 +14,8 @@ import (
 // New ...
 func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(importAppModifyStargate(opts))
-	//g.RunFn(exportModify(opts))
+	g.RunFn(appModifyStargate(opts))
+	g.RunFn(rootModifyStargate(opts))
 	//g.RunFn(cmdMainModify(opts))
 	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
 		return g, err
@@ -28,9 +29,9 @@ func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
 }
 
 // app.go modification on Stargate when importing wasm
-func importAppModifyStargate(opts *ImportOptions) genny.RunFn {
+func appModifyStargate(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := PathAppGo
+		path := module.PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -143,7 +144,7 @@ func importAppModifyStargate(opts *ImportOptions) genny.RunFn {
 }
 
 // app.go modification on Stargate when importing wasm
-func importRootModifyStargate(opts *ImportOptions) genny.RunFn {
+func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "cmd/" + opts.BinaryNamePrefix + "d/cmd/root.go"
 		f, err := r.Disk.Find(path)

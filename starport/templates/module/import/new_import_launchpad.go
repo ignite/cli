@@ -1,7 +1,8 @@
-package module
+package module_import
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -13,9 +14,9 @@ import (
 // New ...
 func NewImportLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(importAppModifyLaunchpad(opts))
-	g.RunFn(importExportModifyLaunchpad(opts))
-	g.RunFn(importCmdMainModifyLaunchpad(opts))
+	g.RunFn(appModifyLaunchpad(opts))
+	g.RunFn(exportModifyLaunchpad(opts))
+	g.RunFn(cmdMainModifyLaunchpad(opts))
 	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
 		return g, err
 	}
@@ -28,9 +29,9 @@ func NewImportLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
 }
 
 // app.go modification on Launchpad when importing wasm
-func importAppModifyLaunchpad(opts *ImportOptions) genny.RunFn {
+func appModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := PathAppGo
+		path := module.PathAppGo
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -131,7 +132,7 @@ func importAppModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 
 // export.go modification on Launchpad when importing wasm
 // append Distr modules in export.go
-func importExportModifyLaunchpad(opts *ImportOptions) genny.RunFn {
+func exportModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "app/export.go"
 		f, err := r.Disk.Find(path)
@@ -194,7 +195,7 @@ func importExportModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 }
 
 // cmd/main.go modification on Launchpad when importing wasm
-func importCmdMainModifyLaunchpad(opts *ImportOptions) genny.RunFn {
+func cmdMainModifyLaunchpad(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("cmd/%[1]vcli/main.go", opts.AppName)
 		f, err := r.Disk.Find(path)
