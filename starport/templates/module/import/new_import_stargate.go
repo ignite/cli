@@ -71,10 +71,10 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		}`
 		content = strings.Replace(content, module.PlaceholderSgWasmAppEnabledProposals, templateEnabledProposals, 1)
 
-		templateGovProposalHandler := `%[1]v
-		wasmclient.ProposalHandlers,`
-		replacementProposalHandler := fmt.Sprintf(templateGovProposalHandler, module.PlaceholderSgAppGovProposalHandler)
-		content = strings.Replace(content, module.PlaceholderSgAppGovProposalHandler, replacementProposalHandler, 1)
+		templateGovProposalHandlers := `%[1]v
+		govProposalHandlers = wasmclient.ProposalHandlers`
+		replacementProposalHandlers := fmt.Sprintf(templateGovProposalHandlers, module.PlaceholderSgAppGovProposalHandlers)
+		content = strings.Replace(content, module.PlaceholderSgAppGovProposalHandlers, replacementProposalHandlers, 1)
 
 		templateModuleBasic := `%[1]v
 		wasm.AppModuleBasic{},`
@@ -97,17 +97,25 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppStoreKey, replacementStoreKey, 1)
 
 		templateKeeperDefinition := `%[1]v
+		var wasmRouter = bApp.Router()
+		wasmDir := filepath.Join(homePath, "wasm")
+	
+		wasmConfig, err := wasm.ReadWasmConfig(appOpts)
+		if err != nil {
+			panic("error while reading wasm config: " + err.Error())
+		}
+
 		// The last arguments can contain custom message handlers, and custom query handlers,
 		// if we want to allow any custom callbacks
 		supportedFeatures := "staking"
 		app.wasmKeeper = wasm.NewKeeper(
 			appCodec,
 			keys[wasm.StoreKey],
-			app.getSubspace(wasm.ModuleName),
-			app.accountKeeper,
-			app.bankKeeper,
-			app.stakingKeeper,
-			app.distrKeeper,
+			app.GetSubspace(wasm.ModuleName),
+			app.AccountKeeper,
+			app.BankKeeper,
+			app.StakingKeeper,
+			app.DistrKeeper,
 			wasmRouter,
 			wasmDir,
 			wasmConfig,
@@ -124,7 +132,7 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacementKeeperDefinition, 1)
 
 		templateAppModule := `%[1]v
-		wasm.NewAppModule(&app.wasmKeeper, app.stakingKeeper),`
+		wasm.NewAppModule(&app.wasmKeeper, app.StakingKeeper),`
 		replacementAppModule := fmt.Sprintf(templateAppModule, module.PlaceholderSgAppAppModule)
 		content = strings.Replace(content, module.PlaceholderSgAppAppModule, replacementAppModule, 1)
 
@@ -158,14 +166,25 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 		content := strings.Replace(f.String(), module.PlaceholderSgRootImport, replacementImport, 1)
 
 		templateCommand := `%[1]v
-		"AddGenesisWasmMsgCmd(app.DefaultNodeHome),`
+		AddGenesisWasmMsgCmd(app.DefaultNodeHome),`
 		replacementCommand := fmt.Sprintf(templateCommand, module.PlaceholderSgRootCommands)
 		content = strings.Replace(content, module.PlaceholderSgRootCommands, replacementCommand, 1)
 
 		templateInitFlags := `%[1]v
-		"wasm.AddModuleInitFlags(startCmd)`
+		wasm.AddModuleInitFlags(startCmd)`
 		replacementInitFlags := fmt.Sprintf(templateInitFlags, module.PlaceholderSgRootInitFlags)
 		content = strings.Replace(content, module.PlaceholderSgRootInitFlags, replacementInitFlags, 1)
+
+		templateenabledProposals := `%[1]v
+		app.GetEnabledProposals(),`
+		replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootAppArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootAppArgument, replacementAppArgument, 1)
+
+		replacementExportArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootExportArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootExportArgument, replacementExportArgument, 1)
+
+		replacementNoHeightExportArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootNoHeightExportArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootNoHeightExportArgument, replacementNoHeightExportArgument, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

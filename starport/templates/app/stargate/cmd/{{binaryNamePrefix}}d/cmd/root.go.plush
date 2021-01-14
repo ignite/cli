@@ -195,6 +195,7 @@ func (a appCreator) newApp(logger log.Logger, db dbm.DB, traceStore io.Writer, a
 		cast.ToString(appOpts.Get(flags.FlagHome)),
 		cast.ToUint(appOpts.Get(server.FlagInvCheckPeriod)),
         a.encCfg,
+        // this line is used by starport scaffolding # stargate/root/appArgument
 		appOpts,
 		baseapp.SetPruning(pruningOpts),
 		baseapp.SetMinGasPrices(cast.ToString(appOpts.Get(server.FlagMinGasPrices))),
@@ -223,13 +224,35 @@ func (a appCreator) appExport (
     }
 
 	if height != -1 {
-	    anApp = app.New(logger, db, traceStore, false, map[int64]bool{}, homePath, uint(1), a.encCfg, appOpts)	
+	    anApp = app.New(
+	        logger,
+	        db,
+	        traceStore,
+	        false,
+	        map[int64]bool{},
+	        homePath,
+	        uint(1),
+	        a.encCfg,
+	        // this line is used by starport scaffolding # stargate/root/exportArgument
+	        appOpts,
+	    )
 
 		if err := anApp.LoadHeight(height); err != nil {
 			return servertypes.ExportedApp{}, err
 		}
 	} else {
-		anApp = app.New(logger, db, traceStore, true, map[int64]bool{}, homePath, uint(1), a.encCfg, appOpts) 
+		anApp = app.New(
+		    logger,
+		    db,
+		    traceStore,
+		    true,
+		    map[int64]bool{},
+		    homePath,
+		    uint(1),
+		    a.encCfg,
+		    // this line is used by starport scaffolding # stargate/root/noHeightExportArgument
+		    appOpts,
+		)
 	}
 
 	return anApp.ExportAppStateAndValidators(forZeroHeight, jailAllowedAddrs)

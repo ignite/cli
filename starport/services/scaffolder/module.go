@@ -26,7 +26,7 @@ const (
 	apppkg                     = "app"
 	moduleDir                  = "x"
 	wasmVersionCommitLaunchpad = "b30902fe1fbe5237763775950f729b90bf34d53f"
-	wasmVersionCommitStargate  = "5828347c67a16754a43608d00746df55e416a5ec"
+	wasmVersionCommitStargate  = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
 )
 
 // CreateModule creates a new empty module in the scaffolded app
@@ -88,7 +88,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return err
 	}
 	if ok {
-		return errors.New("Wasm is already imported")
+		return errors.New("wasm is already imported")
 	}
 
 	// import a specific version of ComsWasm
