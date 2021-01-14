@@ -38,6 +38,7 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		}
 
 		templateImport := `%[1]v
+		"strings"
 		"github.com/CosmWasm/wasmd/x/wasm"
 		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgAppModuleImport)
