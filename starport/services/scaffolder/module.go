@@ -35,6 +35,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	if err != nil {
 		return err
 	}
+	majorVersion := version.Major()
 	// Check if the module already exist
 	ok, err := ModuleExists(s.path, moduleName)
 	if err != nil {
@@ -57,11 +58,12 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 			OwnerName:  owner(path.RawPath),
 		}
 	)
-	if version == cosmosver.Launchpad {
+	if majorVersion == cosmosver.Launchpad {
 		g, err = module_create.NewCreateLaunchpad(opts)
 	} else {
 		g, err = module_create.NewCreateStargate(opts)
 	}
+
 	if err != nil {
 		return err
 	}
@@ -74,7 +76,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	if err != nil {
 		return err
 	}
-	return s.protoc(pwd, version)
+	return s.protoc(pwd, majorVersion)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -83,6 +85,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	if err != nil {
 		return err
 	}
+	majorVersion := version.Major()
 	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
@@ -104,7 +107,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 
 	// run generator
 	var g *genny.Generator
-	if version == cosmosver.Launchpad {
+	if majorVersion == cosmosver.Launchpad {
 		g, err = module_import.NewImportLaunchpad(&module_import.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
@@ -165,9 +168,9 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func installWasm(version cosmosver.MajorVersion) error {
+func installWasm(version cosmosver.Version) error {
 	switch version {
-	case cosmosver.Launchpad:
+	case cosmosver.LaunchpadAny:
 		return cmdrunner.
 			New(
 				cmdrunner.DefaultStderr(os.Stderr),
@@ -181,7 +184,7 @@ func installWasm(version cosmosver.MajorVersion) error {
 					),
 				),
 			)
-	case cosmosver.Stargate:
+	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
 			New(
 				cmdrunner.DefaultStderr(os.Stderr),
