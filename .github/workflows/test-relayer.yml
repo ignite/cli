@@ -26,7 +26,7 @@ jobs:
         run: go get -u github.com/gobuffalo/packr/v2/packr2
 
       - name: Set up relayer
-        run: git clone https://github.com/cosmos/relayer && cd relayer && git checkout edd0afc93d7f13d30c81449ff3ecb10a20dca8b1 && make install
+        run: git clone https://github.com/cosmos/relayer && cd relayer && git checkout 978a9934ffe0e4df3722e5750167f3e700b8a7f9 && make install
 
       - name: Checkout
         uses: actions/checkout@v2
