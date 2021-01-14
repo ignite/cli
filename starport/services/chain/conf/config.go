@@ -91,6 +91,15 @@ type Init struct {
 
 	// Config overwrites appd's config/config.toml configs.
 	Config map[string]interface{} `yaml:"config"`
+
+	// Home overwrites default home directory used for the app
+	Home string `yaml:"home"`
+
+	// CLIHome overwrites default CLI home directory used for launchpad app
+	CLIHome string `yaml:"cli-home"`
+
+	// KeyringBackend is the default keyring backend to use for blockchain initialization
+	KeyringBackend string `yaml:"keyring-backend"`
 }
 
 // Servers keeps configuration related to started servers.

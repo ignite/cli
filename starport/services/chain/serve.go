@@ -212,7 +212,7 @@ func (c *Chain) serve(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := c.plugin.Gentx(ctx, Validator{
+	if _, err := c.plugin.Gentx(ctx, c.Commands(), Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
@@ -229,7 +229,7 @@ func (c *Chain) serve(ctx context.Context) error {
 func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
-	g.Go(func() error { return c.plugin.Start(ctx, conf) })
+	g.Go(func() error { return c.plugin.Start(ctx, c.Commands(), conf) })
 
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))

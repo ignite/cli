@@ -3,6 +3,8 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/chain"
 )
@@ -26,6 +28,7 @@ func NewRelayerInfo() *cobra.Command {
 		Short: "Retrieves self chain information to share with other chains",
 		RunE:  relayerInfoHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
@@ -37,15 +40,21 @@ func NewRelayerAdd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  relayerAddHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(cmd.Context(), appPath, chain.LogLevel(logLevel(cmd)))
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	info, err := s.RelayerInfo()
+	info, err := c.RelayerInfo()
 	if err != nil {
 		return err
 	}
@@ -54,11 +63,16 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 }
 
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(cmd.Context(), appPath, chain.LogLevel(logLevel(cmd)))
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	if err := s.RelayerAdd(args[0]); err != nil {
+	if err := c.RelayerAdd(args[0]); err != nil {
 		return err
 	}
 	return nil

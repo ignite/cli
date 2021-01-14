@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/cenkalti/backoff"
 	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
@@ -26,7 +28,7 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return false, err
@@ -49,13 +51,21 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 	chainHandler, err := chain.New(ctx, appPath,
 		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
 	if err != nil {
 		return false, err
 	}
 
 	// copy the config to the temporary directory
-	if err := copy.Copy(chainHandler.DefaultHome(), chainHandler.Home()); err != nil {
+	originHome := homeDir
+	if originHome == "" {
+		originHome, err = chainHandler.DefaultHome()
+		if err != nil {
+			return false, err
+		}
+	}
+	if err := copy.Copy(originHome, tmpHome); err != nil {
 		return false, err
 	}
 

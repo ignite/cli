@@ -1,6 +1,8 @@
 package chaincmd
 
 import (
+	"fmt"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -32,6 +34,7 @@ const (
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
 	optionYes                              = "--yes"
+	optionHomeClient                       = "--home-client"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -40,11 +43,12 @@ const (
 type KeyringBackend string
 
 const (
-	KeyringBackendOS      KeyringBackend = "os"
-	KeyringBackendFile    KeyringBackend = "file"
-	KeyringBackendPass    KeyringBackend = "pass"
-	KeyringBackendTest    KeyringBackend = "test"
-	KeyringBackendKwallet KeyringBackend = "kwallet"
+	KeyringBackendUnspecified KeyringBackend = ""
+	KeyringBackendOS          KeyringBackend = "os"
+	KeyringBackendFile        KeyringBackend = "file"
+	KeyringBackendPass        KeyringBackend = "pass"
+	KeyringBackendTest        KeyringBackend = "test"
+	KeyringBackendKwallet     KeyringBackend = "kwallet"
 )
 
 type ChainCmd struct {
@@ -141,17 +145,17 @@ func WitNodeAddress(addr string) Option {
 	}
 }
 
-// WithSecondaryCLI provides the secondary CLI name for the blockchain.
-// this is useful for Launchpad applications since it has two different binaries but
-// not needed by Stargate applications.
-func WithSecondaryCLI(cliCmd string) Option {
+// WithLaunchpadCLI provides the CLI application name for the blockchain
+// this is necessary for Launchpad applications since it has two different binaries but
+// not needed by Stargate applications
+func WithLaunchpadCLI(cliCmd string) Option {
 	return func(c *ChainCmd) {
 		c.cliCmd = cliCmd
 	}
 }
 
-// WithSecondaryCLIHome replaces the default home used by the Launchpad chain CLI
-func WithSecondaryCLIHome(cliHome string) Option {
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
 	return func(c *ChainCmd) {
 		c.cliHome = cliHome
 	}
@@ -341,6 +345,11 @@ func (c ChainCmd) GentxCommand(
 			optionAmount,
 			selfDelegation,
 		)
+
+		// Attach home client option
+		if c.cliHome != "" {
+			command = append(command, []string{optionHomeClient, c.cliHome}...)
+		}
 	}
 
 	// Apply the options provided by the user
@@ -496,4 +505,21 @@ func (c ChainCmd) cliCommand(command []string) step.Option {
 		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
 	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+}
+
+// KeyringBackendFromString returns the keyring backend from its string
+func KeyringBackendFromString(kb string) (KeyringBackend, error) {
+	existingKeyringBackend := map[KeyringBackend]bool{
+		KeyringBackendUnspecified: true,
+		KeyringBackendOS:          true,
+		KeyringBackendFile:        true,
+		KeyringBackendPass:        true,
+		KeyringBackendTest:        true,
+		KeyringBackendKwallet:     true,
+	}
+
+	if _, ok := existingKeyringBackend[KeyringBackend(kb)]; ok {
+		return KeyringBackend(kb), nil
+	}
+	return KeyringBackendUnspecified, fmt.Errorf("unrecognized keyring backend: %s", kb)
 }
