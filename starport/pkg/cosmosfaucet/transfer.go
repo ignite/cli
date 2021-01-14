@@ -10,7 +10,7 @@ import (
 )
 
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
-func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress string) (amount uint64, err error) {
+func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (amount uint64, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return 0, err
@@ -27,7 +27,11 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress str
 		if event.Type == "transfer" {
 			for _, attr := range event.Attributes {
 				if attr.Key == "amount" {
-					amountStr := strings.TrimRight(attr.Value, f.denom)
+					if !strings.HasSuffix(attr.Value, denom) {
+						continue
+					}
+
+					amountStr := strings.TrimRight(attr.Value, denom)
 					if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
 						amount += a
 					}
@@ -40,14 +44,17 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress str
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f Faucet) Transfer(ctx context.Context, toAccountAddress, amount string) error {
-	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress)
+func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount uint64, denom string) error {
+	coin := f.coinByDenom(denom)
+	amountStr := fmt.Sprintf("%d%s", amount, denom)
+
+	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, denom)
 	if err != nil {
 		return err
 	}
 
-	if totalSent >= f.maxCredit {
-		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.maxCredit)
+	if coin.maxAmount != 0 && totalSent >= coin.maxAmount {
+		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", coin.maxAmount)
 	}
 
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
@@ -55,5 +62,5 @@ func (f Faucet) Transfer(ctx context.Context, toAccountAddress, amount string) e
 		return err
 	}
 
-	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, amount)
+	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, amountStr)
 }

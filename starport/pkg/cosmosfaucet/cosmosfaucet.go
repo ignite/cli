@@ -14,13 +14,13 @@ const (
 	// DefaultDenom is the default denomination to distribute.
 	DefaultDenom = "uatom"
 
-	// DefaultCreditAmount specifies the default amount to transfer to an account
+	// DefaultAmount specifies the default amount to transfer to an account
 	// on each request.
-	DefaultCreditAmount = 10000000
+	DefaultAmount = 10000000
 
-	// DefaultMaxCredit specifies the maximum amount that can be tranffered to an
+	// DefaultMaxAmount specifies the maximum amount that can be tranffered to an
 	// account in all times.
-	DefaultMaxCredit = 100000000
+	DefaultMaxAmount = 100000000
 )
 
 type Faucet struct {
@@ -33,14 +33,19 @@ type Faucet struct {
 	// accountMnemonic is the mnemonic of the account.
 	accountMnemonic string
 
+	// coins keeps a list of coins that can be distributed by the faucet.
+	coins []coin
+}
+
+type coin struct {
+	//amount is the amount of the coin can be distributed per request.
+	amount uint64
+
+	// maxAmount is the maximum amount of the coin that can be sent to a single account.
+	maxAmount uint64
+
 	// denom is denomination of the coin to be distributed by the faucet.
 	denom string
-
-	// creditAmount is the amount to credit in each request.
-	creditAmount uint64
-
-	// maxCredit is the maximum credit per account.
-	maxCredit uint64
 }
 
 // Option configures the faucetOptions.
@@ -55,39 +60,31 @@ func Account(name, mnemonic string) Option {
 	}
 }
 
-// Denom set the denomination of the coin to be distributed by the faucet.
-func Denom(denom string) Option {
+// Coin adds a new coin to coins list to distribute by the faucet.
+// the first coin added to the list considered as the default coin during transfer requests.
+//
+// amount is the amount of the coin can be distributed per request.
+// maxAmount is the maximum amount of the coin that can be sent to a single account.
+// denom is denomination of the coin to be distributed by the faucet.
+func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
-		f.denom = denom
-	}
-}
-
-// CreditAmount sets the amount to credit in each request.
-func CreditAmount(credit uint64) Option {
-	return func(f *Faucet) {
-		f.creditAmount = credit
-	}
-}
-
-// MaxCredit sets the maximum credit per account.
-func MaxCredit(credit uint64) Option {
-	return func(f *Faucet) {
-		f.maxCredit = credit
+		f.coins = append(f.coins, coin{amount, maxAmount, denom})
 	}
 }
 
 // New creates a new faucet with ccr (to access and use blockchain's CLI) and given options.
 func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Faucet, error) {
 	f := Faucet{
-		runner:       ccr,
-		accountName:  DefaultAccountName,
-		denom:        DefaultDenom,
-		creditAmount: DefaultCreditAmount,
-		maxCredit:    DefaultMaxCredit,
+		runner:      ccr,
+		accountName: DefaultAccountName,
 	}
 
 	for _, apply := range options {
 		apply(&f)
+	}
+
+	if len(f.coins) == 0 {
+		f.coins = append(f.coins, coin{DefaultAmount, DefaultMaxAmount, DefaultDenom})
 	}
 
 	// import the account if mnemonic is provided.

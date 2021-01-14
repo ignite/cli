@@ -30,10 +30,9 @@ var (
 			DevUIAddr:    "localhost:12345",
 		},
 		Faucet: Faucet{
-			Port:      4500,
-			Denom:     "token",
-			Credit:    10,
-			MaxCredit: 100,
+			Port:     4500,
+			Coins:    []string{"10token"},
+			CoinsMax: []string{"100token"},
 		},
 	}
 )
@@ -83,9 +82,12 @@ type Faucet struct {
 	// Name is faucet account's name.
 	Name *string `yaml:"name"`
 
-	Denom     string `yaml:"denom"`
-	Credit    uint64 `yaml:"credit"`
-	MaxCredit uint64 `yaml:"max_credit"`
+	// Coins holds type of coin denoms and amounts to distribute.
+	Coins []string `yaml:"coins"`
+
+	// CoinsMax holds of chain denoms and their max amounts that can be transferred
+	// to single user.
+	CoinsMax []string `yaml:"coins_max"`
 }
 
 // Init overwrites sdk configurations with given values.

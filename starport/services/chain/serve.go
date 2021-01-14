@@ -17,6 +17,7 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
@@ -356,12 +357,34 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 		return err
 	}
 
-	faucet, err := cosmosfaucet.New(ctx, c.cmd,
+	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*config.Faucet.Name, ""),
-		cosmosfaucet.Denom(config.Faucet.Denom),
-		cosmosfaucet.CreditAmount(config.Faucet.Credit),
-		cosmosfaucet.MaxCredit(config.Faucet.MaxCredit),
-	)
+	}
+
+	// parse coins to pass to the faucet as coins.
+	for _, coin := range config.Faucet.Coins {
+		amount, denom, err := cosmoscoin.Parse(coin)
+		if err != nil {
+			return fmt.Errorf("%s: %s", err, coin)
+		}
+
+		// find out the max amount for this coin.
+		for _, coinMax := range config.Faucet.CoinsMax {
+			amountMax, denomMax, err := cosmoscoin.Parse(coinMax)
+			if err != nil {
+				return fmt.Errorf("%s: %s", err, coin)
+			}
+
+			if denomMax != denom {
+				continue
+			}
+
+			faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
+			break
+		}
+	}
+
+	faucet, err := cosmosfaucet.New(ctx, c.cmd, faucetOptions...)
 	if err != nil {
 		return err
 	}
