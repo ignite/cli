@@ -96,8 +96,8 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 
 	var chainID string
 
+	//nolint:gocritic // this is a false positive, json tags are actually different.
 	if r.cc.SDKVersion().Major().Is(cosmosver.Stargate) {
-		// nolint:gocritic
 		out := struct {
 			NodeInfo struct {
 				Network string `json:"network"`
