@@ -11,20 +11,21 @@ import (
 	"github.com/gobuffalo/plushgen"
 )
 
+
 // New ...
 func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(opts))
 	g.RunFn(rootModifyStargate(opts))
 	//g.RunFn(cmdMainModify(opts))
-	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
+	if err := g.Box(packr.New("module/import/templates/stargate", "./stargate")); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)
 	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
+	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 	return g, nil
 }
 
