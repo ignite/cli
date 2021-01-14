@@ -112,9 +112,7 @@ func (w *watcher) listen() {
 
 func (w *watcher) addPaths(paths ...string) error {
 	for _, path := range paths {
-		if err := w.wt.AddRecursive(filepath.Join(w.workdir, path)); err != nil {
-			return err
-		}
+		w.wt.AddRecursive(filepath.Join(w.workdir, path))
 	}
 	return nil
 }

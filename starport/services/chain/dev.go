@@ -67,7 +67,7 @@ type Config struct {
 }
 
 // newDevHandler creates a new development server handler for app by given conf.
-func newDevHandler(app App, conf Config, faucetHandler, grpcwebHandler http.Handler) (http.Handler, error) {
+func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
 	uifs, err := fs.New()
 	if err != nil {
 		return nil, err
@@ -83,11 +83,6 @@ func newDevHandler(app App, conf Config, faucetHandler, grpcwebHandler http.Hand
 	router := mux.NewRouter()
 	router.Handle("/status", cors(dev.statusHandler())).Methods(http.MethodGet)
 	router.PathPrefix("/grpc").Handler(http.StripPrefix("/grpc", grpcwebHandler))
-
-	if faucetHandler != nil {
-		router.Handle("/faucet", faucetHandler)
-	}
-
 	router.PathPrefix("/").Handler(cors(dev.devAssetsHandler())).Methods(http.MethodGet)
 
 	return router, nil

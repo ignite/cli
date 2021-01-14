@@ -30,6 +30,7 @@ var (
 			DevUIAddr:    "localhost:12345",
 		},
 		Faucet: Faucet{
+			Port:      4500,
 			Denom:     "token",
 			Credit:    10,
 			MaxCredit: 100,
@@ -76,6 +77,9 @@ type Validator struct {
 
 // Faucet configuration.
 type Faucet struct {
+	// Port number for faucet server to listen at.
+	Port int `yaml:"port"`
+
 	// Name is faucet account's name.
 	Name *string `yaml:"name"`
 

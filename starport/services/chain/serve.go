@@ -12,14 +12,15 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
-	"time"
 
 	"github.com/pkg/errors"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/chain/conf"
@@ -60,6 +61,7 @@ func (c *Chain) Serve(ctx context.Context) error {
 	g.Go(func() error {
 		return c.runDevServer(ctx)
 	})
+
 	g.Go(func() error {
 		c.refreshServe()
 		for {
@@ -229,17 +231,46 @@ func (c *Chain) serve(ctx context.Context) error {
 func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
+	// start the blockchain.
 	g.Go(func() error { return c.plugin.Start(ctx, c.Commands(), conf) })
 
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
-
+	// run relayer.
 	go func() {
 		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
 			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
+
+	// start the faucet if enabled.
+	var isFaucedEnabled bool
+
+	if conf.Faucet.Name != nil {
+		if _, err := c.cmd.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
+			if err == chaincmdrunner.ErrAccountDoesNotExist {
+				return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
+			}
+			return err
+		}
+
+		isFaucedEnabled = true
+
+		g.Go(func() (err error) {
+			if err := c.runFaucetServer(ctx); err != nil {
+				return &CannotBuildAppError{err}
+			}
+			return nil
+		})
+	}
+
+	// print the server addresses.
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+
+	if isFaucedEnabled {
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://localhost:%d\n", conf.Faucet.Port)
+	}
+
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
 
 	return g.Wait()
 }
@@ -296,24 +327,6 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		return err
 	}
 
-	var faucet http.Handler
-
-	if config.Faucet.Name != nil {
-		if _, err := c.cmd.ShowAccount(ctx, *config.Faucet.Name); err != nil {
-			return errors.Wrap(err, "faucet account doesn't exist")
-		}
-
-		faucet, err = cosmosfaucet.New(ctx, c.cmd,
-			cosmosfaucet.Account(*config.Faucet.Name, ""),
-			cosmosfaucet.Denom(config.Faucet.Denom),
-			cosmosfaucet.CreditAmount(config.Faucet.Credit),
-			cosmosfaucet.MaxCredit(config.Faucet.MaxCredit),
-		)
-		if err != nil {
-			return err
-		}
-	}
-
 	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
 	if err != nil {
 		return err
@@ -326,27 +339,37 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
 		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(c.app, conf, faucet, grpcHandler)
+	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
-	sv := &http.Server{
+
+	return xhttp.Serve(ctx, &http.Server{
 		Addr:    config.Servers.DevUIAddr,
 		Handler: handler,
+	})
+}
+
+func (c *Chain) runFaucetServer(ctx context.Context) error {
+	config, err := c.Config()
+	if err != nil {
+		return err
 	}
 
-	go func() {
-		<-ctx.Done()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-		defer cancel()
-		sv.Shutdown(shutdownCtx)
-	}()
-
-	err = sv.ListenAndServe()
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
+	faucet, err := cosmosfaucet.New(ctx, c.cmd,
+		cosmosfaucet.Account(*config.Faucet.Name, ""),
+		cosmosfaucet.Denom(config.Faucet.Denom),
+		cosmosfaucet.CreditAmount(config.Faucet.Credit),
+		cosmosfaucet.MaxCredit(config.Faucet.MaxCredit),
+	)
+	if err != nil {
+		return err
 	}
-	return err
+
+	return xhttp.Serve(ctx, &http.Server{
+		Addr:    fmt.Sprintf(":%d", config.Faucet.Port),
+		Handler: faucet,
+	})
 }
 
 type CannotBuildAppError struct {

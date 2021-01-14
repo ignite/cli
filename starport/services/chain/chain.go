@@ -182,15 +182,16 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		)
 	}
 
+	config, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	// use keyring backend if specified
 	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
 		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
 	} else {
 		// check if keyring backend is specified in config
-		config, err := c.Config()
-		if err != nil {
-			return nil, err
-		}
 		if config.Init.KeyringBackend != "" {
 			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
 			if err != nil {
