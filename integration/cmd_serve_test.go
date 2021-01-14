@@ -34,7 +34,7 @@ func TestServeLaunchpadAppWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -56,7 +56,7 @@ func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "./home", "./clihome", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "./home", "./clihome", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -81,7 +81,7 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

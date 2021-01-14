@@ -83,15 +83,12 @@ func (s *Scaffolder) ImportModule(name string) error {
 	if err != nil {
 		return err
 	}
-	if version == cosmosver.Stargate {
-		return errors.New("importing modules currently is not supported on Stargate")
-	}
 	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return errors.New("CosmWasm is already imported")
+		return errors.New("Wasm is already imported")
 	}
 
 	// import a specific version of ComsWasm
