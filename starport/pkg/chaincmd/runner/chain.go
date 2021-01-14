@@ -140,7 +140,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	out := struct {
-		Code  int    `json:"code"` // TODO LP with code 19.
+		Code  int    `json:"code"`
 		Error string `json:"raw_log"`
 	}{}
 
@@ -149,7 +149,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	if out.Code > 0 {
-		return errors.New(out.Error)
+		return fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
 	}
 
 	return nil
