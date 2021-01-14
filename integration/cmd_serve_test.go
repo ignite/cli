@@ -95,12 +95,12 @@ func TestServeStargateWithWasm(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 	)
 
-	//env.Must(env.Exec("add Wasm module",
-	//	step.NewSteps(step.New(
-	//		step.Exec("starport", "module", "import", "wasm"),
-	//		step.Workdir(apath),
-	//	)),
-	//))
+	env.Must(env.Exec("add Wasm module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "import", "wasm"),
+			step.Workdir(apath),
+		)),
+	))
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
