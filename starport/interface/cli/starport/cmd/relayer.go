@@ -41,7 +41,7 @@ func NewRelayerAdd() *cobra.Command {
 }
 
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)))
+	s, err := chain.New(cmd.Context(), appPath, chain.LogLevel(logLevel(cmd)))
 	if err != nil {
 		return err
 	}
@@ -54,7 +54,7 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 }
 
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)))
+	s, err := chain.New(cmd.Context(), appPath, chain.LogLevel(logLevel(cmd)))
 	if err != nil {
 		return err
 	}

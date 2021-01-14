@@ -29,6 +29,11 @@ var (
 			FrontendAddr: "localhost:8080",
 			DevUIAddr:    "localhost:12345",
 		},
+		Faucet: Faucet{
+			Denom:     "token",
+			Credit:    10,
+			MaxCredit: 100,
+		},
 	}
 )
 
@@ -37,6 +42,7 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
+	Faucet    Faucet                 `yaml:"faucet"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
@@ -66,6 +72,16 @@ type Account struct {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
+}
+
+// Faucet configuration.
+type Faucet struct {
+	// Name is faucet account's name.
+	Name *string `yaml:"name"`
+
+	Denom     string `yaml:"denom"`
+	Credit    uint64 `yaml:"credit"`
+	MaxCredit uint64 `yaml:"max_credit"`
 }
 
 // Init overwrites sdk configurations with given values.

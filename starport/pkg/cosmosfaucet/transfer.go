@@ -10,8 +10,13 @@ import (
 )
 
 func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress string) (amount uint64, err error) {
+	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
+	if err != nil {
+		return 0, err
+	}
+
 	events, err := f.runner.QueryTxEvents(ctx,
-		chaincmdrunner.NewEventSelector("message", "sender", f.accountAddress),
+		chaincmdrunner.NewEventSelector("message", "sender", fromAccount.Address),
 		chaincmdrunner.NewEventSelector("transfer", "recipient", toAccountAddress))
 	if err != nil {
 		return 0, err
@@ -43,5 +48,10 @@ func (f Faucet) Transfer(ctx context.Context, toAccountAddress, amount string) e
 		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.maxCredit)
 	}
 
-	return f.runner.BankSend(ctx, f.accountAddress, toAccountAddress, amount)
+	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
+	if err != nil {
+		return err
+	}
+
+	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, amount)
 }

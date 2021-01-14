@@ -43,7 +43,7 @@ func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url,
 func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	c, err := chain.New(b.appPath,
+	c, err := chain.New(ctx, b.appPath,
 		chain.ID(chainID),
 		chain.LogLevel(chain.LogSilent),
 	)

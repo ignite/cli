@@ -98,7 +98,7 @@ func HomePath(path string) Option {
 }
 
 // New initializes a new Chain with options that its source lives at path.
-func New(path string, options ...Option) (*Chain, error) {
+func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -164,7 +164,10 @@ func New(path string, options ...Option) (*Chain, error) {
 			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
 		)
 	}
-	c.cmd = chaincmdrunner.New(cc, ccroptions...)
+	c.cmd, err = chaincmdrunner.New(ctx, cc, ccroptions...)
+	if err != nil {
+		return nil, err
+	}
 
 	return c, nil
 }

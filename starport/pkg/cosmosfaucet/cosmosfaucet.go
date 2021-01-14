@@ -30,9 +30,6 @@ type Faucet struct {
 	// accountName to transfer tokens from.
 	accountName string
 
-	// accountAddress to transfer tokens from.
-	accountAddress string
-
 	// accountMnemonic is the mnemonic of the account.
 	accountMnemonic string
 
@@ -93,17 +90,12 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 		apply(&f)
 	}
 
-	account, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic)
-	if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
-		return Faucet{}, err
+	if f.accountMnemonic != "" {
+		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic)
+		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
+			return Faucet{}, err
+		}
 	}
-
-	account, err = f.runner.ShowAccount(ctx, f.accountName)
-	if err != nil {
-		return Faucet{}, err
-	}
-
-	f.accountAddress = account.Address
 
 	return f, nil
 }

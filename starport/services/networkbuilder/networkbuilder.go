@@ -298,7 +298,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(appPath, chain.LogLevel(chain.LogSilent))
+	chainHandler, err := chain.New(ctx, appPath, chain.LogLevel(chain.LogSilent))
 	if err != nil {
 		return err
 	}

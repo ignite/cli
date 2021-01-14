@@ -21,7 +21,7 @@ func NewServe() *cobra.Command {
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)))
+	s, err := chain.New(cmd.Context(), appPath, chain.LogLevel(logLevel(cmd)))
 	if err != nil {
 		return err
 	}

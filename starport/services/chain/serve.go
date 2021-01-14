@@ -17,6 +17,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xos"
@@ -295,6 +296,24 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		return err
 	}
 
+	var faucet http.Handler
+
+	if config.Faucet.Name != nil {
+		if _, err := c.cmd.ShowAccount(ctx, *config.Faucet.Name); err != nil {
+			return errors.Wrap(err, "faucet account doesn't exist")
+		}
+
+		faucet, err = cosmosfaucet.New(ctx, c.cmd,
+			cosmosfaucet.Account(*config.Faucet.Name, ""),
+			cosmosfaucet.Denom(config.Faucet.Denom),
+			cosmosfaucet.CreditAmount(config.Faucet.Credit),
+			cosmosfaucet.MaxCredit(config.Faucet.MaxCredit),
+		)
+		if err != nil {
+			return err
+		}
+	}
+
 	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
 	if err != nil {
 		return err
@@ -307,7 +326,7 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
 		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(c.app, conf, grpcHandler)
+	handler, err := newDevHandler(c.app, conf, faucet, grpcHandler)
 	if err != nil {
 		return err
 	}
