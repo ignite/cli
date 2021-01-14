@@ -368,20 +368,21 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 			return fmt.Errorf("%s: %s", err, coin)
 		}
 
+		var amountMax uint64
+
 		// find out the max amount for this coin.
 		for _, coinMax := range config.Faucet.CoinsMax {
-			amountMax, denomMax, err := cosmoscoin.Parse(coinMax)
+			var denomMax string
+			amountMax, denomMax, err = cosmoscoin.Parse(coinMax)
 			if err != nil {
 				return fmt.Errorf("%s: %s", err, coin)
 			}
-
-			if denomMax != denom {
-				continue
+			if denomMax == denom {
+				break
 			}
-
-			faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
-			break
 		}
+
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
 	}
 
 	faucet, err := cosmosfaucet.New(ctx, c.cmd, faucetOptions...)
