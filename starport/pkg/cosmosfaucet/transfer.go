@@ -9,6 +9,7 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
 
+// TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
 func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress string) (amount uint64, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
@@ -38,6 +39,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress str
 	return amount, nil
 }
 
+// Transfer transfer amount of tokens from the faucet account to toAccountAddress.
 func (f Faucet) Transfer(ctx context.Context, toAccountAddress, amount string) error {
 	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress)
 	if err != nil {

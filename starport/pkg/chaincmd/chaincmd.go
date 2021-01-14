@@ -409,7 +409,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		fromAddress,
 		toAddress,
 		amount,
-		"--yes",
+		optionYes,
 	)
 
 	command = c.attachChainID(command)
@@ -418,6 +418,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	return c.cliCommand(command)
 }
 
+// QueryTxEventsCommand returns the command to query events.
 func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{
 		commandQuery,
@@ -455,6 +456,7 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
 
+// StatusCommand returns the command that fetches node's status.
 func (c ChainCmd) StatusCommand() step.Option {
 	command := []string{
 		commandStatus,

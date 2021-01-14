@@ -52,6 +52,7 @@ func (f Faucet) handler(w http.ResponseWriter, r *http.Request) {
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.
 // request/response payloads are compatible with the previous implementation at allinbits/cosmos-faucet.
 func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	// check method.
 	if r.Method != http.MethodPost {
 		xhttp.ResponseJSON(w, http.StatusMethodNotAllowed, transferResponse{
 			Status: statusError,
@@ -60,5 +61,6 @@ func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// add CORS.
 	cors.Default().Handler(http.HandlerFunc(f.handler)).ServeHTTP(w, r)
 }

@@ -90,6 +90,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 		apply(&f)
 	}
 
+	// import the account if mnemonic is provided.
 	if f.accountMnemonic != "" {
 		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic)
 		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {

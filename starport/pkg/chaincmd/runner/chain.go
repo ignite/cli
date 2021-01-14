@@ -81,10 +81,12 @@ func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
 	return
 }
 
+// NodeStatus keeps info about node's status.
 type NodeStatus struct {
 	ChainID string
 }
 
+// Status returns the node's status.
 func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 	b := &bytes.Buffer{}
 
@@ -155,31 +157,36 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	return nil
 }
 
+// EventSelector is used to query events.
 type EventSelector struct {
 	typ   string
 	attr  string
 	value string
 }
 
+// NewEventSelector creates a new event selector.
 func NewEventSelector(typ, addr, value string) EventSelector {
 	return EventSelector{typ, addr, value}
 }
 
+// Event represents a TX event.
 type Event struct {
 	Type       string
 	Attributes []EventAttribute
 }
 
+// EventAttribute holds event's attributes.
 type EventAttribute struct {
 	Key   string
 	Value string
 }
 
-func (r Runner) QueryTxEvents(ctx context.Context, event EventSelector, moreEvents ...EventSelector) ([]Event, error) {
+// QueryTxEvents queries tx events by event selectors.
+func (r Runner) QueryTxEvents(ctx context.Context, selector EventSelector, moreSelectors ...EventSelector) ([]Event, error) {
 	// prepare the slector.
 	var list []string
 
-	eventsSelectors := append([]EventSelector{event}, moreEvents...)
+	eventsSelectors := append([]EventSelector{selector}, moreSelectors...)
 
 	for _, event := range eventsSelectors {
 		list = append(list, fmt.Sprintf("%s.%s=%s", event.typ, event.attr, event.value))
