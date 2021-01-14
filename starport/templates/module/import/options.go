@@ -1,9 +1,9 @@
-package module_import
+package moduleimport
 
 // ImportOptions ...
 type ImportOptions struct {
-	AppName string
-	Feature string
+	AppName          string
+	Feature          string
 	BinaryNamePrefix string
 }
 

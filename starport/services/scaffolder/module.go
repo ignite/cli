@@ -4,8 +4,10 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module/create"
-	"github.com/tendermint/starport/starport/templates/module/import"
+
+	module_create "github.com/tendermint/starport/starport/templates/module/create"
+	module_import "github.com/tendermint/starport/starport/templates/module/import"
+
 	"go/parser"
 	"go/token"
 	"os"
@@ -17,15 +19,14 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
-	wasmImport        = "github.com/CosmWasm/wasmd"
-	apppkg            = "app"
-	moduleDir         = "x"
+	wasmImport                 = "github.com/CosmWasm/wasmd"
+	apppkg                     = "app"
+	moduleDir                  = "x"
 	wasmVersionCommitLaunchpad = "b30902fe1fbe5237763775950f729b90bf34d53f"
-	wasmVersionCommitStargate = "5828347c67a16754a43608d00746df55e416a5ec"
+	wasmVersionCommitStargate  = "5828347c67a16754a43608d00746df55e416a5ec"
 )
 
 // CreateModule creates a new empty module in the scaffolded app
@@ -49,7 +50,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 
 	var (
 		g    *genny.Generator
-		opts = &module.CreateOptions{
+		opts = &module_create.CreateOptions{
 			ModuleName: moduleName,
 			ModulePath: path.RawPath,
 			AppName:    path.Package,
@@ -105,7 +106,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 
 	// run generator
-	var g    *genny.Generator
+	var g *genny.Generator
 	if version == cosmosver.Launchpad {
 		g, err = module_import.NewImportLaunchpad(&module_import.ImportOptions{
 			Feature: name,
@@ -113,8 +114,8 @@ func (s *Scaffolder) ImportModule(name string) error {
 		})
 	} else {
 		g, err = module_import.NewImportStargate(&module_import.ImportOptions{
-			Feature: name,
-			AppName: path.Package,
+			Feature:          name,
+			AppName:          path.Package,
 			BinaryNamePrefix: path.Root,
 		})
 	}

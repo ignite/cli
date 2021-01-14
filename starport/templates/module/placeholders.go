@@ -16,22 +16,22 @@ const (
 	Placeholder7   = "// this line is used by starport scaffolding # 7"
 
 	// Placeholders in Stargate app.go
-	PlaceholderSgAppModuleImport      = "// this line is used by starport scaffolding # stargate/app/moduleImport"
-	PlaceholderSgAppModuleBasic       = "// this line is used by starport scaffolding # stargate/app/moduleBasic"
-	PlaceholderSgAppKeeperDeclaration = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
-	PlaceholderSgAppStoreKey          = "// this line is used by starport scaffolding # stargate/app/storeKey"
-	PlaceholderSgAppKeeperDefinition  = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
-	PlaceholderSgAppAppModule         = "// this line is used by starport scaffolding # stargate/app/appModule"
-	PlaceholderSgAppInitGenesis       = "// this line is used by starport scaffolding # stargate/app/initGenesis"
-	PlaceholderSgAppParamSubspace     = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
+	PlaceholderSgAppModuleImport       = "// this line is used by starport scaffolding # stargate/app/moduleImport"
+	PlaceholderSgAppModuleBasic        = "// this line is used by starport scaffolding # stargate/app/moduleBasic"
+	PlaceholderSgAppKeeperDeclaration  = "// this line is used by starport scaffolding # stargate/app/keeperDeclaration"
+	PlaceholderSgAppStoreKey           = "// this line is used by starport scaffolding # stargate/app/storeKey"
+	PlaceholderSgAppKeeperDefinition   = "// this line is used by starport scaffolding # stargate/app/keeperDefinition"
+	PlaceholderSgAppAppModule          = "// this line is used by starport scaffolding # stargate/app/appModule"
+	PlaceholderSgAppInitGenesis        = "// this line is used by starport scaffolding # stargate/app/initGenesis"
+	PlaceholderSgAppParamSubspace      = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
 	PlaceholderSgAppGovProposalHandler = "// this line is used by starport scaffolding # stargate/app/govProposalHandler"
-	PlaceholderSgAppNewArgument = "// this line is used by starport scaffolding # stargate/app/newArgument"
+	PlaceholderSgAppNewArgument        = "// this line is used by starport scaffolding # stargate/app/newArgument"
 
 	// Placeholders in Stargate app.go for wasm
-	PlaceholderSgWasmAppEnabledProposals      = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
+	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
 
 	// Placeholders in Stargate root.go
-	PlaceholderSgRootImport      = "// this line is used by starport scaffolding # stargate/root/import"
-	PlaceholderSgRootCommands = "// this line is used by starport scaffolding # stargate/root/commands"
+	PlaceholderSgRootImport    = "// this line is used by starport scaffolding # stargate/root/import"
+	PlaceholderSgRootCommands  = "// this line is used by starport scaffolding # stargate/root/commands"
 	PlaceholderSgRootInitFlags = "// this line is used by starport scaffolding # stargate/root/initFlags"
 )

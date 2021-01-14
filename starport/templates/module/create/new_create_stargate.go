@@ -1,9 +1,10 @@
-package module_create
+package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"

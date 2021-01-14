@@ -1,4 +1,4 @@
-package module_create
+package modulecreate
 
 // CreateOptions ...
 type CreateOptions struct {

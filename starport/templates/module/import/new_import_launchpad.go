@@ -1,9 +1,10 @@
-package module_import
+package moduleimport
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packr/v2"

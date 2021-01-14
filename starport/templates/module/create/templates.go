@@ -1,4 +1,4 @@
-package module_create
+package modulecreate
 
 import (
 	"github.com/gobuffalo/packr/v2"
