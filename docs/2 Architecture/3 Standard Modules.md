@@ -115,7 +115,7 @@ Those modules are typically installed on default when using starport. There are 
 
 ## Governance
 
-The module enables Cosmos-SDK based blockchain to support an on-chain governance system. In this system, holders of the native staking token of the chain can vote on proposals on a 1 token 1 vote basis. Next is a list of features the module currently supports:
+The module enables Cosmos-SDK based blockchains to support an on-chain governance system. In this system, holders of the native staking token of the chain can vote on proposals on a 1 token 1 vote basis (from there it can be parameterized). Next is a list of features the module currently supports:
 
 - Proposal submission: Users can submit proposals with a deposit. Once the minimum deposit is reached, proposal enters voting period
 - Vote: Participants can vote on proposals that reached MinDeposit
@@ -147,7 +147,9 @@ _Read the [specification](https://github.com/cosmos/cosmos-sdk/blob/master/x/sla
 
 ## IBC
 
-The `IBC` module, as Inter-blockchain Communication, enables sending native tokens between blockchains. It is divided by a subset of specifications.
+IBC allows to relay packets between chains and could be used with any compatible modules between two chains.
+The `IBC` module, as Inter-blockchain Communication, enables for example sending native tokens between blockchains. 
+It is divided by a subset of specifications.
 
 _Read the [specifications](https://github.com/cosmos/cosmos-sdk/blob/master/x/ibc/spec/README.md)_
 
