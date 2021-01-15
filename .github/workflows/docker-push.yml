@@ -4,12 +4,15 @@
 # The "base" is built by: https://github.com/faddat/sos
 # The base image is located at: https://hub.docker.com/r/faddat/spos
 
-name: Rpi
-on: [push, pull_request]
+name: Docker 
+on:
+  push:
+    branches:
+      - develop
 
 jobs:
-  pi:
-    name: Starport Pi
+  docker:
+    name: Starport Docker Image
     runs-on: ubuntu-latest
     steps:
       - name: checkout
@@ -30,17 +33,5 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-      - name: Build Image in Docker
-        run: docker buildx build --tag starport --file .pi/Dockerfile --platform linux/arm64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:picache --load --progress tty .
-
-      - name: Build Image
-        run: bash .pi/build.sh
-
-      - name: Compress
-        run: xz -T $(nproc) images/starport.img
-
-      - name: Upload image
-        uses: actions/upload-artifact@v2
-        with:
-          name: Starport Pi
-          path: images/starport.img.xz
+      - name: Build and push
+        run: docker buildx build --tag ${{ secrets.DOCKERHUB_USERNAME }}/starport --platform linux/arm64,linux/amd64 --cache-from ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --cache-to ${{ secrets.DOCKERHUB_USERNAME }}/starport:cache --push --progress tty .
