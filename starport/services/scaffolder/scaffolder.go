@@ -4,10 +4,11 @@ package scaffolder
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"os"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
