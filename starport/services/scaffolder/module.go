@@ -70,7 +70,10 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 	if err != nil {
 		return err
 	}
-	return s.protoc(pwd, version)
+	if err := s.protoc(pwd, version); err != nil {
+		return err
+	}
+	return fmtProject(pwd)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -109,7 +112,14 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 	run := genny.WetRunner(context.Background())
 	run.With(g)
-	return run.Run()
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	return fmtProject(pwd)
 }
 
 func ModuleExists(appPath string, moduleName string) (bool, error) {
