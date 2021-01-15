@@ -14,9 +14,10 @@ To create a blockchain application we use the command `app`
 starport app github.com/username/myapp
 ```
 
-| Flag               | Default  | Description                |
-| ------------------ | -------- | -------------------------- |
-| `--address-prefix` | `cosmos` | Prefix, used for addresses |
+| Flag               | Default    | Description                                      |
+| ------------------ | ---------- | ------------------------------------------------ |
+| `--address-prefix` | `cosmos`   | Prefix, used for addresses                       |
+| `--sdk-version`    | `stargate` | Version of Cosmos SDK: `launchpad` or `stargate` |
 
 This will create the folder `myapp` and is a usable blockchain blueprint. If you want to dive directly into looking at the details of your blockchain you can run it with entering your `myapp` folder and use the command `serve` to initialise your blockchain and start it.
 
