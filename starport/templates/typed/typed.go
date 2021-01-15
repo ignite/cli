@@ -44,6 +44,9 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 		}
 		return strconv
 	})
+	ctx.Set("nodash", func(s string) string {
+		return strings.ReplaceAll(s, "-", "")
+	})
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
