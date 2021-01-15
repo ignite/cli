@@ -110,13 +110,10 @@ func (w *watcher) listen() {
 	}
 }
 
-func (w *watcher) addPaths(paths ...string) error {
+func (w *watcher) addPaths(paths ...string) {
 	for _, path := range paths {
-		if err := w.wt.AddRecursive(filepath.Join(w.workdir, path)); err != nil {
-			return err
-		}
+		w.wt.AddRecursive(filepath.Join(w.workdir, path))
 	}
-	return nil
 }
 
 func (w *watcher) isFileIgnored(path string) bool {

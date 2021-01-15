@@ -23,11 +23,14 @@ var (
 		Servers: Servers{
 			RPCAddr:      "0.0.0.0:26657",
 			P2PAddr:      "0.0.0.0:26656",
-			ProfAddr:     "localhost:6060",
+			ProfAddr:     "0.0.0.0:6060",
 			GRPCAddr:     "0.0.0.0:9090",
 			APIAddr:      "0.0.0.0:1317",
-			FrontendAddr: "localhost:8080",
-			DevUIAddr:    "localhost:12345",
+			FrontendAddr: "0.0.0.0:8080",
+			DevUIAddr:    "0.0.0.0:12345",
+		},
+		Faucet: Faucet{
+			Port: 4500,
 		},
 	}
 )
@@ -37,6 +40,7 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
+	Faucet    Faucet                 `yaml:"faucet"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
@@ -66,6 +70,22 @@ type Account struct {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
+}
+
+// Faucet configuration.
+type Faucet struct {
+	// Port number for faucet server to listen at.
+	Port int `yaml:"port"`
+
+	// Name is faucet account's name.
+	Name *string `yaml:"name"`
+
+	// Coins holds type of coin denoms and amounts to distribute.
+	Coins []string `yaml:"coins"`
+
+	// CoinsMax holds of chain denoms and their max amounts that can be transferred
+	// to single user.
+	CoinsMax []string `yaml:"coins_max"`
 }
 
 // Init overwrites sdk configurations with given values.

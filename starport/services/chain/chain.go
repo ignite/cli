@@ -119,7 +119,7 @@ func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 }
 
 // New initializes a new Chain with options that its source lives at path.
-func New(path string, options ...Option) (*Chain, error) {
+func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -182,15 +182,16 @@ func New(path string, options ...Option) (*Chain, error) {
 		)
 	}
 
+	config, err := c.Config()
+	if err != nil {
+		return nil, err
+	}
+
 	// use keyring backend if specified
 	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
 		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
 	} else {
 		// check if keyring backend is specified in config
-		config, err := c.Config()
-		if err != nil {
-			return nil, err
-		}
 		if config.Init.KeyringBackend != "" {
 			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
 			if err != nil {
@@ -214,7 +215,10 @@ func New(path string, options ...Option) (*Chain, error) {
 			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
 		)
 	}
-	c.cmd = chaincmdrunner.New(cc, ccroptions...)
+	c.cmd, err = chaincmdrunner.New(ctx, cc, ccroptions...)
+	if err != nil {
+		return nil, err
+	}
 
 	return c, nil
 }
