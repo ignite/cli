@@ -24,7 +24,7 @@ git clone https://github.com/tendermint/starport && cd starport && make
 
 This will build and install `starport` binary into `$GOBIN`.
 
-Note: When building from source, it is important to have your `$GOPATH` set correctly.  When in doubt, the folllowing should do:
+Note: When building from source, it is important to have your `$GOPATH` set correctly.  When in doubt, the following should do:
 
 ```
 mkdir ~/go

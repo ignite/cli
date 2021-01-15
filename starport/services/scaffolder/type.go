@@ -128,7 +128,10 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if err != nil {
 		return err
 	}
-	return s.protoc(pwd, majorVersion)
+	if err := s.protoc(pwd, majorVersion); err != nil {
+		return err
+	}
+	return fmtProject(pwd)
 }
 
 func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {

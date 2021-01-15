@@ -1,19 +1,21 @@
 # Quickstart
 
-With `starport` installed on your machine, you can now build your very first blockchain application!
+With `starport` installed on your machine, you can now build your very first blockchain!
 
-```bash
+```
 starport app github.com/username/myapp && cd myapp
 ```
 
-Serve the blockchain application
+This command will create a directory `myapp` and scaffold a Cosmos SDK blockchain.
 
-```bash
+```
 starport serve
 ```
 
-Add a new transaction type to your application
+`serve` will install dependencies, build, initialise and run your blokchain.
 
-```bash
+```
 starport type post title body
 ```
+
+`type` scaffolds functionality to create, read, update and delete for a custom type.
