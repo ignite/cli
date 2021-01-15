@@ -45,7 +45,6 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
 func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount uint64, denom string) error {
-	coin := f.coinByDenom(denom)
 	amountStr := fmt.Sprintf("%d%s", amount, denom)
 
 	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, denom)
@@ -53,8 +52,8 @@ func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount ui
 		return err
 	}
 
-	if coin.maxAmount != 0 && totalSent >= coin.maxAmount {
-		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", coin.maxAmount)
+	if f.coinsMax[denom] != 0 && totalSent >= f.coinsMax[denom] {
+		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
 	}
 
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)

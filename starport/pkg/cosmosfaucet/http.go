@@ -2,9 +2,11 @@ package cosmosfaucet
 
 import (
 	"encoding/json"
+	"errors"
 	"net/http"
 
 	"github.com/rs/cors"
+	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 )
 
@@ -14,11 +16,21 @@ const (
 )
 
 type transferRequest struct {
+	// AccountAddress to request for coins.
 	AccountAddress string `json:"address"`
-	Denom          string `json:"denom"`
+
+	// Coins that are requested.
+	// default ones used when this one isn't provided.
+	Coins []string `yaml:"coins"`
 }
 
 type transferResponse struct {
+	Error     string     `json:"error,omitempty"`
+	Transfers []transfer `json:"transfers,omitempty"`
+}
+
+type transfer struct {
+	Coin   string `json:"coin"`
 	Status string `json:"status"`
 	Error  string `json:"error,omitempty"`
 }
@@ -28,10 +40,7 @@ type transferResponse struct {
 func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// check method.
 	if r.Method != http.MethodPost {
-		xhttp.ResponseJSON(w, http.StatusMethodNotAllowed, transferResponse{
-			Status: statusError,
-			Error:  "method not allowed",
-		})
+		responseError(w, http.StatusMethodNotAllowed, errors.New(http.StatusText(http.StatusMethodNotAllowed)))
 		return
 	}
 
@@ -44,36 +53,64 @@ func (f Faucet) handler(w http.ResponseWriter, r *http.Request) {
 
 	// decode request into req.
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		xhttp.ResponseJSON(w, http.StatusBadRequest, transferResponse{
-			Status: statusError,
-			Error:  err.Error(),
-		})
+		responseError(w, http.StatusBadRequest, err)
 		return
 	}
 
-	// determine the coin amount and denom to transfer.
-	coin := f.coinByDenom(req.Denom)
-
-	if err := f.Transfer(r.Context(), req.AccountAddress, coin.amount, coin.denom); err != nil {
-		xhttp.ResponseJSON(w, http.StatusInternalServerError, transferResponse{
-			Status: statusError,
-			Error:  err.Error(),
-		})
+	// determine coins to transfer.
+	coins, err := f.coinsToTransfer(req)
+	if err != nil {
+		responseError(w, http.StatusBadRequest, err)
 		return
 	}
 
+	// send coins and create a transfers response.
+	var transfers []transfer
+
+	for _, coin := range coins {
+		t := transfer{
+			Coin:   coin.String(),
+			Status: statusOK,
+		}
+
+		if err := f.Transfer(r.Context(), req.AccountAddress, coin.amount, coin.denom); err != nil {
+			t.Status = statusError
+			t.Error = err.Error()
+		}
+
+		transfers = append(transfers, t)
+	}
+
+	// send the response.
+	responseSuccess(w, transfers)
+}
+
+// coinsToTransfer determines tokens to transfer from transfer request.
+func (f Faucet) coinsToTransfer(req transferRequest) ([]coin, error) {
+	if len(req.Coins) == 0 {
+		return f.coins, nil
+	}
+
+	var coins []coin
+	for _, c := range req.Coins {
+		amount, denom, err := cosmoscoin.Parse(c)
+		if err != nil {
+			return nil, err
+		}
+		coins = append(coins, coin{amount, denom})
+	}
+
+	return coins, nil
+}
+
+func responseSuccess(w http.ResponseWriter, transfers []transfer) {
 	xhttp.ResponseJSON(w, http.StatusOK, transferResponse{
-		Status: statusOK,
+		Transfers: transfers,
 	})
 }
 
-func (f Faucet) coinByDenom(denom string) coin {
-	for _, coin := range f.coins {
-		if coin.denom == denom {
-			return coin
-		}
-	}
-
-	// otherwise use the default one.
-	return f.coins[0]
+func responseError(w http.ResponseWriter, code int, err error) {
+	xhttp.ResponseJSON(w, code, transferResponse{
+		Error: err.Error(),
+	})
 }

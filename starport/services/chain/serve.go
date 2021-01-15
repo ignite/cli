@@ -391,7 +391,7 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    fmt.Sprintf(":%d", config.Faucet.Port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", config.Faucet.Port),
 		Handler: faucet,
 	})
 }

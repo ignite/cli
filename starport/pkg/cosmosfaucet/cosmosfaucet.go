@@ -3,6 +3,7 @@ package cosmosfaucet
 
 import (
 	"context"
+	"fmt"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -35,17 +36,22 @@ type Faucet struct {
 
 	// coins keeps a list of coins that can be distributed by the faucet.
 	coins []coin
+
+	// coinsMax is a denom-max pair.
+	// it holds the maximum amounts of coins that can be sent to a single account.
+	coinsMax map[string]uint64
 }
 
 type coin struct {
 	//amount is the amount of the coin can be distributed per request.
 	amount uint64
 
-	// maxAmount is the maximum amount of the coin that can be sent to a single account.
-	maxAmount uint64
-
 	// denom is denomination of the coin to be distributed by the faucet.
 	denom string
+}
+
+func (c coin) String() string {
+	return fmt.Sprintf("%d%s", c.amount, c.denom)
 }
 
 // Option configures the faucetOptions.
@@ -68,7 +74,8 @@ func Account(name, mnemonic string) Option {
 // denom is denomination of the coin to be distributed by the faucet.
 func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
-		f.coins = append(f.coins, coin{amount, maxAmount, denom})
+		f.coins = append(f.coins, coin{amount, denom})
+		f.coinsMax[denom] = maxAmount
 	}
 }
 
@@ -77,6 +84,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	f := Faucet{
 		runner:      ccr,
 		accountName: DefaultAccountName,
+		coinsMax:    make(map[string]uint64),
 	}
 
 	for _, apply := range options {
@@ -84,7 +92,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	}
 
 	if len(f.coins) == 0 {
-		f.coins = append(f.coins, coin{DefaultAmount, DefaultMaxAmount, DefaultDenom})
+		Coin(DefaultAmount, DefaultMaxAmount, DefaultDenom)(&f)
 	}
 
 	// import the account if mnemonic is provided.
