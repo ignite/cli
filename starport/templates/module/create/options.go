@@ -1,4 +1,4 @@
-package module
+package modulecreate
 
 // CreateOptions ...
 type CreateOptions struct {
@@ -10,16 +10,5 @@ type CreateOptions struct {
 
 // Validate that options are usable
 func (opts *CreateOptions) Validate() error {
-	return nil
-}
-
-// ImportOptions ...
-type ImportOptions struct {
-	AppName string
-	Feature string
-}
-
-// Validate that options are usable
-func (opts *ImportOptions) Validate() error {
 	return nil
 }

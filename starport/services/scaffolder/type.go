@@ -28,6 +28,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if err != nil {
 		return err
 	}
+	majorVersion := version.Major()
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -110,7 +111,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			Fields:     tfields,
 		}
 	)
-	if version == cosmosver.Launchpad {
+	if majorVersion == cosmosver.Launchpad {
 		g, err = typed.NewLaunchpad(opts)
 	} else {
 		g, err = typed.NewStargate(opts)
@@ -127,7 +128,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, version); err != nil {
+	if err := s.protoc(pwd, majorVersion); err != nil {
 		return err
 	}
 	return fmtProject(pwd)
