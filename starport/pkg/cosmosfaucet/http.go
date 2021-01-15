@@ -1,6 +1,7 @@
 package cosmosfaucet
 
 import (
+	"context"
 	"encoding/json"
 	"errors"
 	"net/http"
@@ -74,6 +75,10 @@ func (f Faucet) handler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if err := f.Transfer(r.Context(), req.AccountAddress, coin.amount, coin.denom); err != nil {
+			if err == context.Canceled {
+				return
+			}
+
 			t.Status = statusError
 			t.Error = err.Error()
 		}
