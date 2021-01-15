@@ -6,9 +6,9 @@ Let us dive into Starport, what we can achieve with it, and which other technolo
 
 Starport is a tool that makes it easier to create blockchains.
 
-Starport uses the Tendermint Consensus engine and the Cosmos SDK to create a blockchain application in the Go programming language. This blockchain has a Proof-of-Stake system with validators (https://en.longhash.com/news/how-cosmos-governance-works-and-how-you-can-become-a-validator) that can be defined in the genesis block.
+Starport uses the Tendermint Consensus engine and the Cosmos SDK to create a blockchain application in the Go programming language. This blockchain has a Proof-of-Stake system with validators that can be defined in the genesis block.
 
-With just a few command lines, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
+With just a few commands, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
 
 Bootstrapping blockchains was initially the job of the `scaffold` program, which was used to create a blockchain application. Starport takes it to the next level and also creates a user interface with Vue.js, which provides a good starting point for developers creating a browser-based client-side application for your blockchain.
 
@@ -40,6 +40,6 @@ Many of the live blockchains use multiple Cosmos modules. The foundational modul
 ## Summary
 
 - Starport lets you create, develop, and build a blockchain.
-- Starport and Cosmos are written in Go.
+- Starport and Cosmos SDK are written in Go.
 - Today, Cosmos SDK has a unique position worldwide as one of the most successful blockchains.
 - Developers can use different Cosmos SDK modules to customize their blockchain.
