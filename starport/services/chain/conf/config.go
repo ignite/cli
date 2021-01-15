@@ -30,9 +30,7 @@ var (
 			DevUIAddr:    "0.0.0.0:12345",
 		},
 		Faucet: Faucet{
-			Port:     4500,
-			Coins:    []string{"10token"},
-			CoinsMax: []string{"100token"},
+			Port: 4500,
 		},
 	}
 )

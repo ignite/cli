@@ -372,12 +372,12 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 
 		// find out the max amount for this coin.
 		for _, coinMax := range config.Faucet.CoinsMax {
-			var denomMax string
-			amountMax, denomMax, err = cosmoscoin.Parse(coinMax)
+			amount, denomMax, err := cosmoscoin.Parse(coinMax)
 			if err != nil {
 				return fmt.Errorf("%s: %s", err, coin)
 			}
 			if denomMax == denom {
+				amountMax = amount
 				break
 			}
 		}
