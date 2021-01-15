@@ -9,7 +9,7 @@ In order to communicate between chains, bootstrapping two blockchains with starp
 To start using IBC with Starport open up a [web-based development environment](https://gitpod.io/#https://github.com/tendermint/starport/), then scaffold and launch a Stargate chain:
 
 ```
-starport app github.com/foo/foo --sdk-version stargate
+starport app github.com/foo/foo
 
 cd foo
 
