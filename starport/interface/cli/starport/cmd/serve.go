@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -15,15 +16,21 @@ func NewServe() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  serveHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	s, err := chain.New(appPath, chain.LogLevel(logLevel(cmd)))
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	return s.Serve(cmd.Context())
+	return c.Serve(cmd.Context())
 }

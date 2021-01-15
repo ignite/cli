@@ -19,14 +19,12 @@ import (
 )
 
 type launchpadPlugin struct {
-	app   App
-	chain *Chain
+	app App
 }
 
-func newLaunchpadPlugin(app App, chain *Chain) *launchpadPlugin {
+func newLaunchpadPlugin(app App) *launchpadPlugin {
 	return &launchpadPlugin{
-		app:   app,
-		chain: chain,
+		app: app,
 	}
 }
 
@@ -60,8 +58,8 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
-	return p.chain.Commands().LaunchpadSetConfigs(ctx,
+func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
+	return runner.LaunchpadSetConfigs(ctx,
 		chaincmdrunner.NewKV("keyring-backend", "test"),
 		chaincmdrunner.NewKV("chain-id", chainID),
 		chaincmdrunner.NewKV("output", "json"),
@@ -70,8 +68,8 @@ func (p *launchpadPlugin) Configure(ctx context.Context, chainID string) error {
 	)
 }
 
-func (p *launchpadPlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
-	return p.chain.Commands().Gentx(
+func (p *launchpadPlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+	return runner.Gentx(
 		ctx,
 		v.Name,
 		v.StakingAmount,
@@ -84,17 +82,13 @@ func (p *launchpadPlugin) Gentx(ctx context.Context, v Validator) (path string, 
 	)
 }
 
-func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
-	return p.configtoml(conf)
+func (p *launchpadPlugin) PostInit(homePath string, conf starportconf.Config) error {
+	return p.configtoml(homePath, conf)
 }
 
-func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
+func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, "."+p.app.ND(), "config/config.toml")
+	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -112,16 +106,16 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *launchpadPlugin) Start(ctx context.Context, conf starportconf.Config) error {
+func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	g.Go(func() error {
-		err := p.chain.Commands().Start(ctx)
+		err := runner.Start(ctx)
 		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
 	})
 
 	g.Go(func() error {
-		err := p.chain.Commands().LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
 		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
 	})
 
@@ -129,16 +123,28 @@ func (p *launchpadPlugin) Start(ctx context.Context, conf starportconf.Config) e
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {
-	home, _ := os.UserHomeDir()
 	return []string{
-		filepath.Join(home, "."+p.app.ND()),
-		filepath.Join(home, "."+p.app.NCLI()),
+		launchpadHome(p.app),
+		launchpadCLIHome(p.app),
 	}
 }
 
 func (p *launchpadPlugin) Home() string {
+	return launchpadHome(p.app)
+}
+
+func (p *launchpadPlugin) CLIHome() string {
+	return launchpadCLIHome(p.app)
+}
+
+func launchpadHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+p.app.ND())
+	return filepath.Join(home, "."+app.ND())
+}
+
+func launchpadCLIHome(app App) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+app.NCLI())
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

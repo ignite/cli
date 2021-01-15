@@ -27,10 +27,19 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// cleanup persistent data from previous `serve`.
-	for _, path := range c.plugin.StoragePaths() {
-		if err := os.RemoveAll(path); err != nil {
-			return err
-		}
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(home); err != nil {
+		return err
+	}
+	cliHome, err := c.CLIHome()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(cliHome); err != nil {
+		return err
 	}
 
 	// init node.
@@ -46,14 +55,28 @@ func (c *Chain) Init(ctx context.Context) error {
 		conf.Genesis["chain_id"] = chainID
 	}
 
+	// Initilize app config
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+	appTOMLPath, err := c.AppTOMLPath()
+	if err != nil {
+		return err
+	}
+	configTOMLPath, err := c.ConfigTOMLPath()
+	if err != nil {
+		return err
+	}
+
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
-		{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
+		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 	}
 
 	for _, ac := range appconfigs {
@@ -71,7 +94,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// run post init handler
-	return c.plugin.PostInit(conf)
+	return c.plugin.PostInit(home, conf)
 }
 
 func (c *Chain) configure(ctx context.Context) error {
@@ -94,7 +117,7 @@ func (c *Chain) configure(ctx context.Context) error {
 		return err
 	}
 
-	return c.plugin.Configure(ctx, chainID)
+	return c.plugin.Configure(ctx, c.Commands(), chainID)
 }
 
 type Validator struct {

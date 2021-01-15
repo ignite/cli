@@ -27,26 +27,57 @@ type Blockchain struct {
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, chainID, appPath, url, hash string,
-	mustNotInitializedBefore bool) (*Blockchain, error) {
+func newBlockchain(
+	ctx context.Context,
+	builder *Builder,
+	chainID,
+	appPath,
+	url,
+	hash,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, cliHome, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitializedBefore bool) error {
+func (b *Blockchain) init(
+	ctx context.Context,
+	chainID,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 
-	c, err := chain.New(b.appPath,
-		chain.ID(chainID),
+	chainOption := []chain.Option{
 		chain.LogLevel(chain.LogSilent),
-	)
+		chain.ID(chainID),
+	}
+
+	// Custom home directories
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	if cliHome != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
+
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
+	c, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -55,14 +86,23 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
+	chainHome, err := c.Home()
+	if err != nil {
+		return err
+	}
+
 	if mustNotInitializedBefore {
-		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
-			return &DataDirExistsError{chainID, c.Home()}
+		if _, err := os.Stat(chainHome); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, chainHome}
 		}
 	}
 
 	// cleanup home dir of app if exists.
-	for _, path := range c.StoragePaths() {
+	paths, err := c.StoragePaths()
+	if err != nil {
+		return err
+	}
+	for _, path := range paths {
 		if err := xos.RemoveAllUnderHome(path); err != nil {
 			return err
 		}
@@ -77,11 +117,15 @@ func (b *Blockchain) init(ctx context.Context, chainID string, mustNotInitialize
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
-	genesis, err := ioutil.ReadFile(c.GenesisPath())
+	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(initialGenesisPath(c.Home()), genesis, 0644); err != nil {
+	genesis, err := ioutil.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(initialGenesisPath(chainHome), genesis, 0644); err != nil {
 		return err
 	}
 
@@ -106,7 +150,11 @@ type BlockchainInfo struct {
 
 // Info returns information about the blockchain.
 func (b *Blockchain) Info() (BlockchainInfo, error) {
-	genesis, err := ioutil.ReadFile(b.chain.GenesisPath())
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return BlockchainInfo{}, err
+	}
+	genesis, err := ioutil.ReadFile(genesisPath)
 	if err != nil {
 		return BlockchainInfo{}, err
 	}

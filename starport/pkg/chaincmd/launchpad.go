@@ -12,6 +12,22 @@ const (
 	optionName       = "--name"
 )
 
+// WithLaunchpadCLI provides the CLI application name for the blockchain
+// this is necessary for Launchpad applications since it has two different binaries but
+// not needed by Stargate applications
+func WithLaunchpadCLI(cliCmd string) Option {
+	return func(c *ChainCmd) {
+		c.cliCmd = cliCmd
+	}
+}
+
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
+	return func(c *ChainCmd) {
+		c.cliHome = cliHome
+	}
+}
+
 // launchpadSetConfigCommand
 func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Option {
 	command := []string{
@@ -19,6 +35,7 @@ func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Opti
 		name,
 		value,
 	}
+
 	return c.cliCommand(command)
 }
 
