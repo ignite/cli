@@ -39,12 +39,23 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 		return "", err
 	}
 	absRoot := filepath.Join(pwd, pathInfo.Root)
+
+	// create the project
 	if err := s.generate(pathInfo, absRoot); err != nil {
 		return "", err
 	}
+
+	// generate protobuf types
 	if err := s.protoc(absRoot, s.options.sdkVersion); err != nil {
 		return "", err
 	}
+
+	// format the source
+	if err := fmtProject(absRoot); err != nil {
+		return "", err
+	}
+
+	// initialize git repository and perform the first commit
 	if err := initGit(pathInfo.Root); err != nil {
 		return "", err
 	}
