@@ -35,7 +35,7 @@ The following projects are using the technology:
 
 Cosmos modules are the foundational building blocks for building a blockchain. Modules can be created and shared with anyone. Each module plugs into the Cosmos SDK. Some of the modules are core building blocks for creating blockchains, while other modules enable new features.
 
-Many of the live blockchains use multiple Cosmos modules. The foundational modules for starport are: `auth`, `bank`, `staking`, `params` and `supply`. We also recommend adding the `wasm` or the `evm` module, this allows you to deploy Web Assembly smart contracts to your blockchain. The `evm` module enables the Ethereum EVM to be used in your blockchain. Each module comes with clear documentation and codebase. If you wanted to make changes to a specific module, you can fork the module and change what suits your use case better.
+Many of the live blockchains use multiple Cosmos modules. The foundational modules for starport are: `auth`, `bank`, `staking`, `params`, `capability`, `mint`, `governance`, `crisis`, `slashing`, `ibc`, `upgrade`, `evidence` and `supply`. We also recommend adding the `wasm` or the `evm` module, this allows you to deploy - Web Assembly for wasm, Solidity for evm - smart contracts to your blockchain. The `evm` module enables the Ethereum EVM to be used in your blockchain. Each module comes with clear documentation and codebase. If you want to make changes to a specific module, you can fork the module and change what suits your use case better.
 
 ## Summary
 
