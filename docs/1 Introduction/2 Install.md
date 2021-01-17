@@ -5,10 +5,10 @@
 To install Starport:
 
 ```
-curl https://i.jpillora.com/tendermint/starport! | bash
+curl https://get.starport.network/starport! | bash
 ```
 
-This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/jpillora/installer).
+This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/allinbits/starport-installer).
 
 ## macOS with Homebrew
 
