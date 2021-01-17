@@ -11,4 +11,4 @@ RUN for bin in cmd/*; do CGO_ENABLED=0 go build -o=/usr/local/bin/$(basename $bi
 FROM gcr.io/distroless/base
 COPY --from=builder /usr/local/bin /usr/local/bin
 USER nonroot:nonroot
-CMD ["<%= AppName %> start"]
+CMD ["<%= AppName %>d start"]
