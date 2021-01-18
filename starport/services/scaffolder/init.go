@@ -46,7 +46,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	}
 
 	// generate protobuf types
-	if err := s.protoc(absRoot, s.options.sdkVersion); err != nil {
+	if err := s.protoc(absRoot, pathInfo.RawPath, s.options.sdkVersion); err != nil {
 		return "", err
 	}
 
@@ -79,19 +79,19 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	return run.Run()
 }
 
-func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) error {
+func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
 	if version != cosmosver.Stargate {
 		return nil
 	}
 
-	if err := cosmosprotoc.InstallDependencies(context.Background(), absRoot); err != nil {
+	if err := cosmosprotoc.InstallDependencies(context.Background(), projectPath); err != nil {
 		if err == cosmosprotoc.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
 	}
 
-	confpath, err := conf.Locate(absRoot)
+	confpath, err := conf.Locate(projectPath)
 	if err != nil {
 		return err
 	}
@@ -100,9 +100,12 @@ func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) erro
 		return err
 	}
 
-	return cosmosprotoc.Generate(context.Background(),
-		filepath.Join(absRoot, conf.Build.Proto.Path),
-		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, absRoot)...,
+	return cosmosprotoc.Generate(
+		context.Background(),
+		projectPath,
+		gomodPath,
+		filepath.Join(projectPath, conf.Build.Proto.Path),
+		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath),
 	)
 }
 

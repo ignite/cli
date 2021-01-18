@@ -3,8 +3,12 @@ package cosmosprotoc
 import (
 	"bytes"
 	"context"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 
 	"github.com/mattn/go-zglob"
+	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -59,13 +63,19 @@ var (
 )
 
 // Generate generates source code from proto files residing under dirs.
-func Generate(ctx context.Context, path string, importPaths ...string) error {
+func Generate(
+	ctx context.Context,
+	projectPath,
+	gomodPath,
+	protoPath string,
+	protoThirdPartyPaths []string,
+) error {
 	// define protoc command with proto paths(-I).
 	command := []string{
 		"protoc",
 	}
 
-	for _, importPath := range append([]string{path}, importPaths...) {
+	for _, importPath := range append([]string{protoPath}, protoThirdPartyPaths...) {
 		command = append(command, "-I", importPath)
 	}
 
@@ -74,10 +84,16 @@ func Generate(ctx context.Context, path string, importPaths ...string) error {
 	}
 
 	// get a list of proto dirs under path and run protoc for each individually to all protocOuts.
-	dirs, err := xos.DirList(pattern(path))
+	dirs, err := xos.DirList(pattern(protoPath))
 	if err != nil {
 		return err
 	}
+
+	tmp, err := ioutil.TempDir("", "")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmp)
 
 	for _, dir := range dirs {
 		files, err := zglob.Glob(pattern(dir))
@@ -94,6 +110,7 @@ func Generate(ctx context.Context, path string, importPaths ...string) error {
 			err := cmdrunner.
 				New(
 					cmdrunner.DefaultStderr(errb),
+					cmdrunner.DefaultWorkdir(tmp),
 				).
 				Run(ctx,
 					step.New(
@@ -106,6 +123,12 @@ func Generate(ctx context.Context, path string, importPaths ...string) error {
 			}
 		}
 
+	}
+
+	// move generated files to the proper places.
+	generatedPath := filepath.Join(tmp, gomodPath)
+	if err := copy.Copy(generatedPath, projectPath); err != nil {
+		return errors.Wrap(err, "cannot copy path")
 	}
 
 	return nil
