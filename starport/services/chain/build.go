@@ -145,6 +145,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return err
 	}
 
+	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
+
 	err = cosmosprotoc.Generate(
 		ctx,
 		c.app.Path,
