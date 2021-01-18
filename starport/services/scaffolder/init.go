@@ -9,10 +9,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -81,15 +83,26 @@ func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) erro
 	if version != cosmosver.Stargate {
 		return nil
 	}
+
 	if err := cosmosprotoc.InstallDependencies(context.Background(), absRoot); err != nil {
 		if err == cosmosprotoc.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
 	}
+
+	confpath, err := conf.Locate(absRoot)
+	if err != nil {
+		return err
+	}
+	conf, err := conf.ParseFile(confpath)
+	if err != nil {
+		return err
+	}
+
 	return cosmosprotoc.Generate(context.Background(),
-		filepath.Join(absRoot, "proto"),
-		filepath.Join(absRoot, "third_party/proto"),
+		filepath.Join(absRoot, conf.Build.Proto.Path),
+		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, absRoot)...,
 	)
 }
 
