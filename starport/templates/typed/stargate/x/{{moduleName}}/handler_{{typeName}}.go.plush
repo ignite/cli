@@ -23,7 +23,7 @@ func handleMsgUpdate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg
 
     // Checks that the element exists
     if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("key %s doesn't exist", msg.Id))
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %s doesn't exist", msg.Id))
     }
 
     // Checks if the the msg sender is the same as the current owner
@@ -38,8 +38,8 @@ func handleMsgUpdate<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg
 
 func handleMsgDelete<%= title(TypeName) %>(ctx sdk.Context, k keeper.Keeper, msg *types.MsgDelete<%= title(TypeName) %>) (*sdk.Result, error) {
     if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {                                                                                                                                                                    
-        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("key %s doesn't exist", msg.Id))
-    }                                                                                                                                                                                                  
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %s doesn't exist", msg.Id))
+    }
     if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     } 
