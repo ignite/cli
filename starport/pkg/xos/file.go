@@ -1,6 +1,11 @@
 package xos
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+
+	"github.com/mattn/go-zglob"
+)
 
 // OpenFirst finds and opens the first found file within names.
 func OpenFirst(names ...string) (file *os.File, err error) {
@@ -11,4 +16,27 @@ func OpenFirst(names ...string) (file *os.File, err error) {
 		}
 	}
 	return file, err
+}
+
+// DirList returns a list of dirs of matching pattern.
+func DirList(pattern string) ([]string, error) {
+	files, err := zglob.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+
+	// get a list of dirs wihout duplicates
+	dirsNoDup := make(map[string]bool)
+
+	for _, file := range files {
+		dirsNoDup[filepath.Dir(file)] = true
+	}
+
+	var dirs []string
+
+	for dir := range dirsNoDup {
+		dirs = append(dirs, dir)
+	}
+
+	return dirs, nil
 }

@@ -19,6 +19,7 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
+	github.com/gogo/protobuf v1.3.1
 	github.com/golang/protobuf v1.4.3
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/google/uuid v1.1.2
@@ -30,6 +31,7 @@ require (
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/jpillora/chisel v1.7.3
 	github.com/manifoldco/promptui v0.8.0
+	github.com/mattn/go-zglob v0.0.3
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/otiai10/copy v1.2.0
@@ -51,7 +53,7 @@ require (
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
 	golang.org/x/sys v0.0.0-20210113181707-4bcb84eeeb78 // indirect
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
-	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154 // indirect
+	google.golang.org/genproto v0.0.0-20201019141844-1ed22bb0c154
 	google.golang.org/grpc v1.33.0
 	gopkg.in/yaml.v2 v2.3.0
 )

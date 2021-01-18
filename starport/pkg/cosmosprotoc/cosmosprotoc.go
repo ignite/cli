@@ -4,10 +4,12 @@ import (
 	"bytes"
 	"context"
 
+	"github.com/mattn/go-zglob"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // ErrProtocNotInstalled is returned when protoc isn't installed on the system.
@@ -47,4 +49,64 @@ func InstallDependencies(ctx context.Context, appPath string) error {
 			),
 		)
 	return errors.Wrap(err, errb.String())
+}
+
+var (
+	protocOuts = []string{
+		"--gocosmos_out=plugins=interfacetype+grpc,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
+		"--grpc-gateway_out=logtostderr=true:.",
+	}
+)
+
+// Generate generates source code from proto files residing under dirs.
+func Generate(ctx context.Context, path string, importPaths ...string) error {
+	// define protoc command with proto paths(-I).
+	command := []string{
+		"protoc",
+	}
+
+	for _, importPath := range append([]string{path}, importPaths...) {
+		command = append(command, "-I", importPath)
+	}
+
+	pattern := func(path string) string {
+		return path + "/**/*.proto"
+	}
+
+	// get a list of proto dirs under path and run protoc for each individually to all protocOuts.
+	dirs, err := xos.DirList(pattern(path))
+	if err != nil {
+		return err
+	}
+
+	for _, dir := range dirs {
+		files, err := zglob.Glob(pattern(dir))
+		if err != nil {
+			return err
+		}
+
+		for _, out := range protocOuts {
+			command := append(command, out)
+			command = append(command, files...)
+
+			errb := &bytes.Buffer{}
+
+			err := cmdrunner.
+				New(
+					cmdrunner.DefaultStderr(errb),
+				).
+				Run(ctx,
+					step.New(
+						step.Exec(command[0], command[1:]...),
+					),
+				)
+
+			if err != nil {
+				return errors.Wrap(err, errb.String())
+			}
+		}
+
+	}
+
+	return nil
 }

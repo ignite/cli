@@ -10,8 +10,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -83,30 +81,16 @@ func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) erro
 	if version != cosmosver.Stargate {
 		return nil
 	}
-	scriptPath := filepath.Join(absRoot, "scripts/protocgen")
-	if err := os.Chmod(scriptPath, 0700); err != nil {
-		return err
-	}
 	if err := cosmosprotoc.InstallDependencies(context.Background(), absRoot); err != nil {
 		if err == cosmosprotoc.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
 	}
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-			cmdrunner.DefaultWorkdir(absRoot),
-		).
-		Run(context.Background(),
-			// generate pb files.
-			step.New(
-				step.Exec(
-					"/bin/bash",
-					scriptPath,
-				),
-			),
-		)
+	return cosmosprotoc.Generate(context.Background(),
+		filepath.Join(absRoot, "proto"),
+		filepath.Join(absRoot, "third_party/proto"),
+	)
 }
 
 func initGit(path string) error {
