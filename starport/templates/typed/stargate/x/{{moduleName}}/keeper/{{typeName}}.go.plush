@@ -36,6 +36,7 @@ func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count int64)  {
 	store.Set(byteKey, bz)
 }
 
+// Create<%= title(TypeName) %> creates a <%= TypeName %> with a new id and update the count
 func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreate<%= title(TypeName) %>) {
 	// Create the <%= TypeName %>
     count := k.Get<%= title(TypeName) %>Count(ctx)
@@ -54,12 +55,14 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreat
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
 }
 
+// Update<%= title(TypeName) %> updates data of a specific <%= TypeName %>
 func (k Keeper) Update<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
 	store.Set(types.KeyPrefix(types.<%= title(TypeName) %>Key + <%= TypeName %>.Id), b)
 }
 
+// Get<%= title(TypeName) %> returns a <%= TypeName %> from its id
 func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, key string) types.<%= title(TypeName) %> {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	var <%= TypeName %> types.<%= title(TypeName) %>
@@ -67,11 +70,13 @@ func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, key string) types.<%=
 	return <%= TypeName %>
 }
 
+// Has<%= title(TypeName) %> checks if the <%= TypeName %> exists
 func (k Keeper) Has<%= title(TypeName) %>(ctx sdk.Context, id string) bool {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	return store.Has(types.KeyPrefix(types.<%= title(TypeName) %>Key + id))
 }
 
+// Get<%= title(TypeName) %>Owner returns the creator of the <%= TypeName %>
 func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) string {
     return k.Get<%= title(TypeName) %>(ctx, key).Creator
 }
@@ -82,6 +87,7 @@ func (k Keeper) Delete<%= title(TypeName) %>(ctx sdk.Context, key string) {
 	store.Delete(types.KeyPrefix(types.<%= title(TypeName) %>Key + key))
 }
 
+// GetAll<%= title(TypeName) %> returns all <%= TypeName %>
 func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (msgs []types.<%= title(TypeName) %>) {
     store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
