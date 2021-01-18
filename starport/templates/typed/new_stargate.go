@@ -31,6 +31,7 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
+	t.genesisModify(opts, g)
 	return g, box(cosmosver.Stargate, opts, g)
 }
 
