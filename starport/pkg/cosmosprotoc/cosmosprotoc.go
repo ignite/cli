@@ -78,6 +78,10 @@ func Generate(
 	}
 
 	for _, importPath := range append([]string{protoPath}, protoThirdPartyPaths...) {
+		// skip if the given third party proto source actually doesn't exist on the filesystem.
+		if _, err := os.Stat(importPath); os.IsNotExist(err) {
+			continue
+		}
 		command = append(command, "-I", importPath)
 	}
 
