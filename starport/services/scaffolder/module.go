@@ -77,7 +77,7 @@ func (s *Scaffolder) CreateModule(moduleName string) error {
 		return err
 	}
 
-	if err := s.protoc(pwd, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
 		return err
 	}
 	return fmtProject(pwd)

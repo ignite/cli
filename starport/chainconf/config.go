@@ -29,6 +29,12 @@ var (
 			FrontendAddr: "0.0.0.0:8080",
 			DevUIAddr:    "0.0.0.0:12345",
 		},
+		Build: Build{
+			Proto: Proto{
+				Path:            "proto",
+				ThirdPartyPaths: []string{"third_party/proto"},
+			},
+		},
 		Faucet: Faucet{
 			Port: 4500,
 		},
@@ -40,6 +46,7 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
+	Build     Build                  `yaml:"build"`
 	Faucet    Faucet                 `yaml:"faucet"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
@@ -70,6 +77,21 @@ type Account struct {
 type Validator struct {
 	Name   string `yaml:"name"`
 	Staked string `yaml:"staked"`
+}
+
+// Build holds build configs.
+type Build struct {
+	Proto Proto `yaml:"proto"`
+}
+
+// Proto holds proto build configs.
+type Proto struct {
+	// Path is the relative path of where app's proto files are located at.
+	Path string `yaml:"path"`
+
+	// ThirdPartyPath is the relative path of where the third party proto files are
+	// located that used by the app.
+	ThirdPartyPaths []string `yaml:"third_party_paths"`
 }
 
 // Faucet configuration.
