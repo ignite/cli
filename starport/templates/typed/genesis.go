@@ -68,7 +68,7 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 
 for _, elem := range gs.%[3]vList {
 	if _, ok := %[2]vIdMap[elem.Id]; ok {
-		return fmt.Errorf("duplicated id for %[2]v: %s", elem.Id)
+		return fmt.Errorf("duplicated id for %[2]v")
 	}
 	%[2]vIdMap[elem.Id] = true
 }`
@@ -114,6 +114,7 @@ k.Set%[3]vCount(ctx, int64(len(genState.%[3]vList)))
 // Get all %[2]v
 %[2]vList := k.GetAll%[3]v(ctx)
 for _, elem := range %[2]vList {
+	elem := elem
 	genesis.%[3]vList = append(genesis.%[3]vList, &elem)
 }
 `

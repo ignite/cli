@@ -403,6 +403,7 @@ func New(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
+		<%= AppName %>types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
