@@ -32,7 +32,7 @@ var (
 		Build: Build{
 			Proto: Proto{
 				Path:            "proto",
-				ThirdPartyPaths: []string{"third_party/proto"},
+				ThirdPartyPaths: []string{"proto/third_party"},
 			},
 		},
 		Faucet: Faucet{

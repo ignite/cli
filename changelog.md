@@ -4,6 +4,8 @@
 - Distroless multiplatform docker containers for starport that can be used for `starport serve`
 - UI containers for chains scaffolded with Starport
 - Use SOS-lite and Docker instead of systemD
+- Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
+- Moved Stargate app's `third_party/proto` into `proto/third_party` to avoid extra noise in the folder structure. Add `build.proto.third_party_paths: ["third_party/proto"]` to migrate to this change or move your files manually.
 
 ### Fixes:
 - use docker buildx as a single command with multiple platforms to make multi-manifest work properly

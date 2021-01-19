@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/mattn/go-zglob"
 	"github.com/otiai10/copy"
@@ -63,6 +64,7 @@ var (
 )
 
 // Generate generates source code from proto files residing under dirs.
+// make sure that all paths are absolute.
 func Generate(
 	ctx context.Context,
 	projectPath,
@@ -89,6 +91,8 @@ func Generate(
 		return err
 	}
 
+	// put generated files under the tmp dir and move from here to the source code.
+	// this prevents having leftover generated files in the app's source code or its parent dir in case of an interrupt.
 	tmp, err := ioutil.TempDir("", "")
 	if err != nil {
 		return err
@@ -96,6 +100,19 @@ func Generate(
 	defer os.RemoveAll(tmp)
 
 	for _, dir := range dirs {
+		// check if the third party proto files are located under the same dir of
+		// app's proto files, if so skip them since they should only be included with `-I`.
+		var includesThirdParty bool
+		for _, protoThirdPartyPath := range protoThirdPartyPaths {
+			if strings.HasPrefix(dir, protoThirdPartyPath) {
+				includesThirdParty = true
+			}
+		}
+		if includesThirdParty {
+			continue
+		}
+
+		// find out the list of proto files under the dir and code generate for them.
 		files, err := zglob.Glob(pattern(dir))
 		if err != nil {
 			return err
@@ -108,15 +125,10 @@ func Generate(
 			errb := &bytes.Buffer{}
 
 			err := cmdrunner.
-				New(
-					cmdrunner.DefaultStderr(errb),
-					cmdrunner.DefaultWorkdir(tmp),
-				).
-				Run(ctx,
-					step.New(
-						step.Exec(command[0], command[1:]...),
-					),
-				)
+				New(cmdrunner.DefaultStderr(errb),
+					cmdrunner.DefaultWorkdir(tmp)).
+				Run(ctx, step.New(
+					step.Exec(command[0], command[1:]...)))
 
 			if err != nil {
 				return errors.Wrap(err, errb.String())

@@ -126,10 +126,13 @@ func (c *Chain) buildSteps() (
 }
 
 func (c *Chain) buildProto(ctx context.Context) error {
-	// If proto dir exists, compile the proto files.
-	protoPath := "proto"
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
 
-	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+	// If proto dir exists, compile the proto files.
+	if _, err := os.Stat(conf.Build.Proto.Path); os.IsNotExist(err) {
 		return nil
 	}
 
@@ -137,11 +140,6 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		if err == cosmosprotoc.ErrProtocNotInstalled {
 			return starporterrors.ErrStarportRequiresProtoc
 		}
-		return err
-	}
-
-	conf, err := c.Config()
-	if err != nil {
 		return err
 	}
 
