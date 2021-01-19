@@ -106,6 +106,7 @@ func Generate(
 		for _, protoThirdPartyPath := range protoThirdPartyPaths {
 			if strings.HasPrefix(dir, protoThirdPartyPath) {
 				includesThirdParty = true
+				break
 			}
 		}
 		if includesThirdParty {
