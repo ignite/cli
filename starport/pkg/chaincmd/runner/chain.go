@@ -128,7 +128,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 	}, nil
 }
 
-//BankSend sends amount from fromAccount to toAccount.
+// BankSend sends amount from fromAccount to toAccount.
 func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
 	b := &bytes.Buffer{}
 

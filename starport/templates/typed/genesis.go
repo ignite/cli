@@ -2,8 +2,9 @@ package typed
 
 import (
 	"fmt"
-	"github.com/gobuffalo/genny"
 	"strings"
+
+	"github.com/gobuffalo/genny"
 )
 
 func (t *typedStargate) genesisModify(opts *Options, g *genny.Generator) {
@@ -37,7 +38,7 @@ repeated "%[2]v %[3]vList = %[4]v; // %[5]v`
 			opts.TypeName,
 			fieldNumber,
 			placeholderGenesisProtoStateField,
-			)
+		)
 		content = strings.Replace(content, placeholderGenesisProtoState, replacementProtoState, 1)
 
 		newFile := genny.NewFileS(path, content)
@@ -76,7 +77,7 @@ for _, elem := range gs.%[3]vList {
 			placeholderGenesisTypesValidate,
 			opts.TypeName,
 			strings.Title(opts.TypeName),
-			)
+		)
 		content = strings.Replace(content, placeholderGenesisTypesValidate, replacementTypesValidate, 1)
 
 		newFile := genny.NewFileS(path, content)
