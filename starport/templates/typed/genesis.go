@@ -30,11 +30,11 @@ import "%[2]v/%[3]v.proto";`
 		fieldNumber := strings.Count(content, placeholderGenesisProtoStateField) + 1
 
 		templateProtoState := `%[1]v
-repeated "%[2]v %[3]vList = %[4]v; // %[5]v`
+		repeated %[2]v %[3]vList = %[4]v; %[5]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			placeholderGenesisProtoState,
-			opts.ModuleName,
+			strings.Title(opts.TypeName),
 			opts.TypeName,
 			fieldNumber,
 			placeholderGenesisProtoStateField,
@@ -60,7 +60,7 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, placeholderGenesisTypesDefault, strings.Title(opts.TypeName))
-		content = strings.Replace(content, placeholderGenesisProtoImport, replacementTypesDefault, 1)
+		content = strings.Replace(content, placeholderGenesisTypesDefault, replacementTypesDefault, 1)
 
 		templateTypesValidate := `%[1]v
 // Check for duplicated ID in %[2]v

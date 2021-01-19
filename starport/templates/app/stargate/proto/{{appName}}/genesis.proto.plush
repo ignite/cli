@@ -5,8 +5,6 @@ package <%= nodash(OwnerName) %>.<%= AppName %>.<%= AppName %>;
 
 option go_package = "<%= ModulePath %>/x/<%= AppName %>/types";
 
-// this line is used by starport scaffolding # genesis/proto/stateField
-
 // GenesisState defines the capability module's genesis state.
 message GenesisState {
     // this line is used by starport scaffolding # genesis/proto/state
