@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"regexp"
 	"strings"
 
@@ -153,6 +154,21 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 
 	if out.Code > 0 {
 		return fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
+	}
+
+	return nil
+}
+
+// Export exports the state of the chain into the specified file
+func (r Runner) Export(ctx context.Context, exportedFile string) error {
+	exportedState := &bytes.Buffer{}
+	if err := r.run(ctx, runOptions{stdout: exportedState}, r.cc.ExportCommand()); err != nil {
+		return err
+	}
+
+	// Save the new state
+	if err := ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644); err != nil {
+		return err
 	}
 
 	return nil

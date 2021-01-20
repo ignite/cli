@@ -19,6 +19,7 @@ const (
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
+	commandExport			= "export"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"
@@ -388,6 +389,14 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	command := []string{
 		constTendermint,
 		commandShowNodeID,
+	}
+	return c.daemonCommand(command)
+}
+
+// ExportCommand returns the command to export the state of the blockchain into a genesis file
+func (c ChainCmd) ExportCommand() step.Option {
+	command := []string{
+		commandExport,
 	}
 	return c.daemonCommand(command)
 }
