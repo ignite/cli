@@ -26,7 +26,7 @@ import (
 )
 
 const (
-	relayerVersion = "1daec66da1700c9fcd8900dbf06c70f2fd838cdf"
+	relayerVersion = "ba17c4db185229d9354187a8b9723097ab527261"
 )
 
 // relayerInfo holds relayer info that is shared between chains to make a connection.
