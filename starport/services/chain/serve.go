@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/services"
 	"go/build"
 	"net"
 	"net/http"
@@ -13,6 +12,8 @@ import (
 	"path"
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/services"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
@@ -106,13 +107,13 @@ func (c *Chain) Serve(ctx context.Context) error {
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO()); err != nil {
-							fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
 
 						genesisPath, err := c.exportedGenesisPath()
 						if err != nil {
-							fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
 						fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
@@ -445,6 +446,7 @@ func (c *Chain) saveChainState(ctx context.Context) error {
 }
 
 // importChainState imports the saved genesis in chain config to use it as the genesis
+// nolint:unused
 func (c *Chain) importChainState() error {
 	exportGenesisPath, err := c.exportedGenesisPath()
 	if err != nil {
