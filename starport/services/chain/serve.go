@@ -4,17 +4,15 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/services"
 	"go/build"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path"
 	"path/filepath"
 	"strings"
-
-	"github.com/tendermint/starport/starport/services"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
@@ -100,6 +98,25 @@ func (c *Chain) Serve(ctx context.Context) error {
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
+					// If the app has been served, we save the genesis state
+					if c.served {
+						c.served = false
+
+						fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
+
+						// If serve has been stopped, save the genesis state
+						if err := c.saveChainState(context.TODO()); err != nil {
+							fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+							return err
+						}
+
+						genesisPath, err := c.exportedGenesisPath()
+						if err != nil {
+							fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+							return err
+						}
+						fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
+					}
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
 
@@ -119,29 +136,6 @@ func (c *Chain) Serve(ctx context.Context) error {
 	// routine to watch back-end
 	g.Go(func() error {
 		return c.watchAppBackend(ctx)
-	})
-
-	// routine to save state on termination
-	g.Go(func() error {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt)
-		<-interrupt
-		fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
-
-		if err := c.saveChainState(context.TODO()); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
-			os.Exit(1)
-		}
-
-		genesisPath, err := c.exportedGenesisPath()
-		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
-			os.Exit(1)
-		}
-		fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
-
-		os.Exit(0)
-		return nil
 	})
 
 	return g.Wait()
@@ -303,6 +297,9 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 			return nil
 		})
 	}
+
+	// set the app as being served
+	c.served = true
 
 	// print the server addresses.
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
