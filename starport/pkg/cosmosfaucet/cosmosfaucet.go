@@ -43,7 +43,7 @@ type Faucet struct {
 }
 
 type coin struct {
-	//amount is the amount of the coin can be distributed per request.
+	// amount is the amount of the coin can be distributed per request.
 	amount uint64
 
 	// denom is denomination of the coin to be distributed by the faucet.
