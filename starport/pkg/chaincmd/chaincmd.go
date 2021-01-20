@@ -19,7 +19,7 @@ const (
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
-	commandExport			= "export"
+	commandExport            = "export"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"

@@ -41,7 +41,7 @@ func DirList(pattern string) ([]string, error) {
 	return dirs, nil
 }
 
-//PrefixPathToList adds prefix to the each path in paths and returns the
+// PrefixPathToList adds prefix to the each path in paths and returns the
 // newly created path slice.
 func PrefixPathToList(paths []string, prefix string) []string {
 	var p []string

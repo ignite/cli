@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/services"
 	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/tendermint/starport/starport/services"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 

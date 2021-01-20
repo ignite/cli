@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/services"
 	"go/build"
 	"net"
 	"net/http"
@@ -15,6 +14,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tendermint/starport/starport/services"
+
+	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
@@ -29,7 +31,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
-	"github.com/otiai10/copy"
 )
 
 var (
@@ -125,8 +126,8 @@ func (c *Chain) Serve(ctx context.Context) error {
 		interrupt := make(chan os.Signal)
 		signal.Notify(interrupt, os.Interrupt)
 		select {
-		case sig := <-interrupt:
-			fmt.Printf("\nSaving genesis state...\n", sig)
+		case _ = <-interrupt:
+			fmt.Printf("\nSaving genesis state...\n")
 			os.Exit(0)
 		}
 		return nil
@@ -456,7 +457,7 @@ func (c *Chain) exportedGenesisPath() (string, error) {
 		return "", err
 	}
 
-	savePath :=  filepath.Join(chainSavePath, chainID, exportedGenesis)
+	savePath := filepath.Join(chainSavePath, chainID, exportedGenesis)
 
 	// ensure the path exists
 	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {

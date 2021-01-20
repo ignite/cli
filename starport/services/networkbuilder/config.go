@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	confPath        = filepath.Join(services.StarportConfDir, "networkbuilder")
+	confPath = filepath.Join(services.StarportConfDir, "networkbuilder")
 )
 
 func init() {
