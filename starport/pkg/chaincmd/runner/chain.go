@@ -167,7 +167,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	}
 
 	// Save the new state
-	if err := ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644); err != nil {
+	return ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644)
 		return err
 	}
 
