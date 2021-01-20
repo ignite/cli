@@ -168,10 +168,6 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 
 	// Save the new state
 	return ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644)
-		return err
-	}
-
-	return nil
 }
 
 // EventSelector is used to query events.

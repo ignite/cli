@@ -20,7 +20,6 @@ require (
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
 	github.com/google/go-cmp v0.5.2 // indirect
-	github.com/google/uuid v1.1.2
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
