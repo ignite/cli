@@ -4,11 +4,13 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/services"
 	"go/build"
 	"net"
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path"
 	"path/filepath"
 	"strings"
@@ -27,11 +29,18 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
+	"github.com/otiai10/copy"
 )
 
 var (
 	// ignoredExts holds a list of ignored files from watching.
 	ignoredExts = []string{"pb.go", "pb.gw.go"}
+
+	// chainSavePath is the place where chain exported genesis are saved
+	chainSavePath = filepath.Join(services.StarportConfDir, "local-chains")
+
+	// exportedGenesis is the name of the exported genesis file for a chain
+	exportedGenesis = "exported_genesis.json"
 )
 
 // Serve serves an app.
@@ -56,13 +65,18 @@ func (c *Chain) Serve(ctx context.Context) error {
 
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
+
+	// routine to watch front-end
 	g.Go(func() error {
 		return c.watchAppFrontend(ctx)
 	})
+
+	// development server routine
 	g.Go(func() error {
 		return c.runDevServer(ctx)
 	})
 
+	// blockchain node routine
 	g.Go(func() error {
 		c.refreshServe()
 		for {
@@ -100,9 +114,24 @@ func (c *Chain) Serve(ctx context.Context) error {
 			}
 		}
 	})
+
+	// routine to watch back-end
 	g.Go(func() error {
 		return c.watchAppBackend(ctx)
 	})
+
+	// routine to save state on termination
+	g.Go(func() error {
+		interrupt := make(chan os.Signal)
+		signal.Notify(interrupt, os.Interrupt)
+		select {
+		case sig := <-interrupt:
+			fmt.Printf("\nSaving genesis state...\n", sig)
+			os.Exit(0)
+		}
+		return nil
+	})
+
 	return g.Wait()
 }
 
@@ -394,6 +423,47 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 		Addr:    fmt.Sprintf("0.0.0.0:%d", config.Faucet.Port),
 		Handler: faucet,
 	})
+}
+
+// saveChainState runs the export command of the chain and store the exported genesis in the chain saved config
+func (c *Chain) saveChainState(ctx context.Context) error {
+	genesisPath, err := c.exportedGenesisPath()
+	if err != nil {
+		return err
+	}
+
+	return c.cmd.Export(ctx, genesisPath)
+}
+
+// importChainState imports the saved genesis in chain config to use it as the genesis
+func (c *Chain) importChainState() error {
+	exportGenesisPath, err := c.exportedGenesisPath()
+	if err != nil {
+		return err
+	}
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+
+	return copy.Copy(exportGenesisPath, genesisPath)
+}
+
+// exportedGenesisPath gets the path of the exported genesis file
+func (c *Chain) exportedGenesisPath() (string, error) {
+	chainID, err := c.ID()
+	if err != nil {
+		return "", err
+	}
+
+	savePath :=  filepath.Join(chainSavePath, chainID, exportedGenesis)
+
+	// ensure the path exists
+	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+		return "", err
+	}
+
+	return filepath.Join(savePath, exportedGenesis), nil
 }
 
 type CannotBuildAppError struct {
