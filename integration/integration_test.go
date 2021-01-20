@@ -17,7 +17,7 @@ import (
 )
 
 const (
-	relayerVersion = "978a9934ffe0e4df3722e5750167f3e700b8a7f9"
+	relayerVersion = "89365877bac22c1aec1359df59baf0c3ca588b0a"
 )
 
 func TestMain(m *testing.M) {
