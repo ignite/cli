@@ -123,20 +123,22 @@ func Generate(
 			return err
 		}
 
-		for _, out := range protocOuts {
-			command := append(command, out)
-			command = append(command, files...)
+		for _, file := range files {
+			for _, out := range protocOuts {
+				command := append(command, out)
+				command = append(command, file)
 
-			errb := &bytes.Buffer{}
+				errb := &bytes.Buffer{}
 
-			err := cmdrunner.
-				New(cmdrunner.DefaultStderr(errb),
-					cmdrunner.DefaultWorkdir(tmp)).
-				Run(ctx, step.New(
-					step.Exec(command[0], command[1:]...)))
+				err := cmdrunner.
+					New(cmdrunner.DefaultStderr(errb),
+						cmdrunner.DefaultWorkdir(tmp)).
+					Run(ctx, step.New(
+						step.Exec(command[0], command[1:]...)))
 
-			if err != nil {
-				return errors.Wrap(err, errb.String())
+				if err != nil {
+					return errors.Wrap(err, errb.String())
+				}
 			}
 		}
 
