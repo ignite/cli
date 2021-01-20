@@ -10,7 +10,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestServeLaunchpadAppWithCosmWasm(t *testing.T) {
+func TestServeLaunchpadAppWithWasm(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -19,7 +19,7 @@ func TestServeLaunchpadAppWithCosmWasm(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 	)
 
-	env.Must(env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(apath),
@@ -34,7 +34,7 @@ func TestServeLaunchpadAppWithCosmWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -56,7 +56,7 @@ func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "./home", "./clihome", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "./home", "./clihome", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -81,12 +81,12 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with CosmWasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
-func TestServeStargate(t *testing.T) {
+func TestServeStargateWithWasm(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -94,6 +94,13 @@ func TestServeStargate(t *testing.T) {
 		apath   = env.Scaffold("sgblog", Stargate)
 		servers = env.RandomizeServerPorts(apath)
 	)
+
+	env.Must(env.Exec("add Wasm module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "import", "wasm"),
+			step.Workdir(apath),
+		)),
+	))
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)

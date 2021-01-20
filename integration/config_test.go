@@ -8,9 +8,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/randstr"
-	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {

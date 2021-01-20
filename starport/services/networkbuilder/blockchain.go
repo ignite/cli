@@ -8,6 +8,7 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -16,7 +17,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type Blockchain struct {
@@ -77,7 +77,7 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	}
 
-	c, err := chain.New(b.appPath, chainOption...)
+	c, err := chain.New(ctx, b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}

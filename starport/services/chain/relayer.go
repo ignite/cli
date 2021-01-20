@@ -14,13 +14,13 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/chain/conf"
-	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"github.com/tendermint/starport/starport/services/chain/rly"
 	"gopkg.in/yaml.v2"
 )

@@ -31,6 +31,10 @@ func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, er
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("title", strings.Title)
 
+	ctx.Set("nodash", func(s string) string {
+		return strings.ReplaceAll(s, "-", "")
+	})
+
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))

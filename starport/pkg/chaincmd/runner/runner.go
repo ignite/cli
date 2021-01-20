@@ -53,7 +53,7 @@ func Stderr(w io.Writer) Option {
 }
 
 // New creates a new Runner with cc and options.
-func New(cc chaincmd.ChainCmd, options ...Option) Runner {
+func New(ctx context.Context, cc chaincmd.ChainCmd, options ...Option) (Runner, error) {
 	r := Runner{
 		cc:     cc,
 		stdout: ioutil.Discard,
@@ -62,7 +62,18 @@ func New(cc chaincmd.ChainCmd, options ...Option) Runner {
 
 	applyOptions(&r, options)
 
-	return r
+	// auto detect the chain id and get it applied to chaincmd if auto
+	// detection is enabled.
+	if cc.IsAutoChainIDDetectionEnabled() {
+		status, err := r.Status(ctx)
+		if err != nil {
+			return Runner{}, err
+		}
+
+		r.cc = r.cc.Copy(chaincmd.WithChainID(status.ChainID))
+	}
+
+	return r, nil
 }
 
 func applyOptions(r *Runner, options []Option) {

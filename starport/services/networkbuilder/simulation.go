@@ -48,7 +48,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	defer os.RemoveAll(tmpHome)
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(appPath,
+	chainHandler, err := chain.New(ctx, appPath,
 		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

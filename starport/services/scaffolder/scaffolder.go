@@ -3,7 +3,12 @@
 package scaffolder
 
 import (
+	"context"
+	"os"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -25,14 +30,31 @@ func New(path string, options ...Option) *Scaffolder {
 	}
 }
 
-func (s *Scaffolder) version() (cosmosver.MajorVersion, error) {
+func (s *Scaffolder) version() (cosmosver.Version, error) {
 	v, err := cosmosver.Detect(s.path)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
-	return v.Major(), nil
+	return v, nil
 }
 
 func owner(modulePath string) string {
 	return strings.Split(modulePath, "/")[1]
+}
+
+func fmtProject(path string) error {
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+			cmdrunner.DefaultWorkdir(path),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					"go",
+					"fmt",
+					"./...",
+				),
+			),
+		)
 }

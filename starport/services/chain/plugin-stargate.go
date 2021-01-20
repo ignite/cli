@@ -11,9 +11,9 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type stargatePlugin struct {

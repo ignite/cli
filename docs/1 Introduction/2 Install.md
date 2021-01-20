@@ -5,10 +5,10 @@
 To install Starport:
 
 ```
-curl https://i.jpillora.com/tendermint/starport! | bash
+curl https://get.starport.network/starport! | bash
 ```
 
-This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/jpillora/installer).
+This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/allinbits/starport-installer).
 
 ## macOS with Homebrew
 
@@ -24,7 +24,7 @@ git clone https://github.com/tendermint/starport && cd starport && make
 
 This will build and install `starport` binary into `$GOBIN`.
 
-Note: When building from source, it is important to have your `$GOPATH` set correctly.  When in doubt, the folllowing should do:
+Note: When building from source, it is important to have your `$GOPATH` set correctly.  When in doubt, the following should do:
 
 ```
 mkdir ~/go

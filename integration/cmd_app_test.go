@@ -25,7 +25,7 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestGenerateAnAppWithCosmWasmAndVerify(t *testing.T) {
+func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	t.Parallel()
 
 	var (
@@ -33,14 +33,14 @@ func TestGenerateAnAppWithCosmWasmAndVerify(t *testing.T) {
 		path = env.Scaffold("blog", Launchpad)
 	)
 
-	env.Must(env.Exec("add CosmWasm module",
+	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(path),
 		)),
 	))
 
-	env.Must(env.Exec("should not add CosmWasm module second time",
+	env.Must(env.Exec("should not add Wasm module second time",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(path),
