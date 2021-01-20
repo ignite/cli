@@ -130,7 +130,6 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		served:         false,
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}
