@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 
@@ -90,6 +91,11 @@ func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...ch
 	}
 	if cliHome != "" {
 		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
+
+	appPath, err = filepath.Abs(appPath)
+	if err != nil {
+		return nil, err
 	}
 
 	return chain.New(cmd.Context(), appPath, chainOption...)

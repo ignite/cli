@@ -9,12 +9,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -46,7 +46,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	}
 
 	// generate protobuf types
-	if err := s.protoc(absRoot, s.options.sdkVersion); err != nil {
+	if err := s.protoc(absRoot, pathInfo.RawPath, s.options.sdkVersion); err != nil {
 		return "", err
 	}
 
@@ -79,34 +79,34 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	return run.Run()
 }
 
-func (s *Scaffolder) protoc(absRoot string, version cosmosver.MajorVersion) error {
+func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
 	if version != cosmosver.Stargate {
 		return nil
 	}
-	scriptPath := filepath.Join(absRoot, "scripts/protocgen")
-	if err := os.Chmod(scriptPath, 0700); err != nil {
-		return err
-	}
-	if err := cosmosprotoc.InstallDependencies(context.Background(), absRoot); err != nil {
+
+	if err := cosmosprotoc.InstallDependencies(context.Background(), projectPath); err != nil {
 		if err == cosmosprotoc.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
 	}
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-			cmdrunner.DefaultWorkdir(absRoot),
-		).
-		Run(context.Background(),
-			// generate pb files.
-			step.New(
-				step.Exec(
-					"/bin/bash",
-					scriptPath,
-				),
-			),
-		)
+
+	confpath, err := conf.Locate(projectPath)
+	if err != nil {
+		return err
+	}
+	conf, err := conf.ParseFile(confpath)
+	if err != nil {
+		return err
+	}
+
+	return cosmosprotoc.Generate(
+		context.Background(),
+		projectPath,
+		gomodPath,
+		filepath.Join(projectPath, conf.Build.Proto.Path),
+		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath),
+	)
 }
 
 func initGit(path string) error {

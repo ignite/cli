@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"golang.org/x/sync/errgroup"
 
@@ -15,7 +16,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type launchpadPlugin struct {

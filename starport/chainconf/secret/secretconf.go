@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/cosmos/go-bip39"
-	"github.com/tendermint/starport/starport/services/chain/conf"
+	conf "github.com/tendermint/starport/starport/chainconf"
 	"gopkg.in/yaml.v2"
 )
 

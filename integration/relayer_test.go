@@ -15,9 +15,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/randstr"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 	"golang.org/x/sync/errgroup"
 )
 

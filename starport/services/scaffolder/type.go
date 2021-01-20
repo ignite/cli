@@ -128,7 +128,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
 		return err
 	}
 	return fmtProject(pwd)

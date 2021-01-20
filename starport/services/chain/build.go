@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // Build builds an app.
@@ -125,10 +126,13 @@ func (c *Chain) buildSteps() (
 }
 
 func (c *Chain) buildProto(ctx context.Context) error {
-	// If protocgen exists, compile the proto file
-	protoScriptPath := "scripts/protocgen"
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
 
-	if _, err := os.Stat(protoScriptPath); os.IsNotExist(err) {
+	// If proto dir exists, compile the proto files.
+	if _, err := os.Stat(conf.Build.Proto.Path); os.IsNotExist(err) {
 		return nil
 	}
 
@@ -139,23 +143,17 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return err
 	}
 
-	var errb bytes.Buffer
+	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
 
-	err := cmdrunner.
-		New(c.cmdOptions()...).
-		Run(ctx, step.New(
-			step.Exec(
-				"/bin/bash",
-				protoScriptPath,
-			),
-			step.PreExec(func() error {
-				fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
-				return nil
-			}),
-			step.Stderr(&errb),
-		))
+	err = cosmosprotoc.Generate(
+		ctx,
+		c.app.Path,
+		c.app.ImportPath,
+		filepath.Join(c.app.Path, conf.Build.Proto.Path),
+		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path),
+	)
 
-	if err := errors.Wrap(err, errb.String()); err != nil {
+	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 

@@ -12,7 +12,7 @@ It contains messages for full CRUD (Create, Read, Update, Delete) operations for
 
 ## Module
 
-Once you have created your starport blockchain application, you will have your own module resident of `yourapp/x/yourmodule`, it comes predefined with a couple of files and folders which deifne types, functions and messages of your module.
+Once you have created your starport blockchain application, you will have your own module resident of `yourapp/x/yourmodule`, it comes predefined with a couple of files and folders which define types, functions and messages of your module.
 
 ## Types
 
