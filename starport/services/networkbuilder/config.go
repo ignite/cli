@@ -2,17 +2,17 @@ package networkbuilder
 
 import (
 	"encoding/json"
+	"github.com/tendermint/starport/starport/services"
 	"os"
 	"path/filepath"
 )
 
 var (
-	starportConfDir = os.ExpandEnv("$HOME/.starport")
-	confPath        = filepath.Join(starportConfDir, "networkbuilder")
+	confPath        = filepath.Join(services.StarportConfDir, "networkbuilder")
 )
 
 func init() {
-	if err := os.MkdirAll(starportConfDir, 0755); err != nil {
+	if err := os.MkdirAll(services.StarportConfDir, 0755); err != nil {
 		panic(err)
 	}
 }

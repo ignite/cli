@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/services"
 	"io/ioutil"
 	"math"
 	"os"
@@ -36,7 +37,7 @@ const (
 )
 
 var (
-	sourcePath = filepath.Join(starportConfDir, "spn-chains")
+	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
