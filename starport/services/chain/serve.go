@@ -123,13 +123,24 @@ func (c *Chain) Serve(ctx context.Context) error {
 
 	// routine to save state on termination
 	g.Go(func() error {
-		interrupt := make(chan os.Signal)
+		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt)
-		select {
-		case _ = <-interrupt:
-			fmt.Printf("\nSaving genesis state...\n")
-			os.Exit(0)
+		<-interrupt
+		fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
+
+		if err := c.saveChainState(context.TODO()); err != nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+			os.Exit(1)
 		}
+
+		genesisPath, err := c.exportedGenesisPath()
+		if err != nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, err.Error())
+			os.Exit(1)
+		}
+		fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
+
+		os.Exit(0)
 		return nil
 	})
 
@@ -457,7 +468,7 @@ func (c *Chain) exportedGenesisPath() (string, error) {
 		return "", err
 	}
 
-	savePath := filepath.Join(chainSavePath, chainID, exportedGenesis)
+	savePath := filepath.Join(chainSavePath, chainID)
 
 	// ensure the path exists
 	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
