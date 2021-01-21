@@ -1,12 +1,13 @@
 # Maintainer: jacobgadikian@gmail.com
 
-pkgname=("starport-git")
-pkgdesc=("The fastest way to build a blockchain")
+pkgname="starport-git"
+pkgdesc="The fastest way to build a blockchain"
+pkgver="0.13.2"
 pkgrel=1
 arch=("any")
 provides=("starport")
 conflicts=("starport")
-url=("https://github.com/tendermint/starport")
+url="https://github.com/tendermint/starport"
 md5sums=('SKIP')
 
 depends=("npm"
@@ -26,6 +27,7 @@ pkgver() {
   #git describe | sed 's/^v//;s/-/./g'
   echo 0.0.0.g$(git rev-parse --short HEAD)
 }
+
 
 build() {
     cd "$pkgname"
