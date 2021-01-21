@@ -8,23 +8,62 @@ import (
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
+const (
+	flagBranch = "branch"
+	flagTag    = "tag"
+)
+
+// NewNetworkChainCreate creates a new chain create command to create
+// a new network.
 func NewNetworkChainCreate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [repo]",
+		Use:   "create [chain] [source]",
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
-		Args:  cobra.ExactArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().String(flagBranch, "", "Git branch to use")
+	c.Flags().String(flagTag, "", "Git tag to use")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
+	// collect required values.
+	var (
+		chainID   string
+		source    string
+		branch, _ = cmd.Flags().GetString(flagBranch)
+		tag, _    = cmd.Flags().GetString(flagTag)
+	)
+
+	if len(args) >= 1 {
+		chainID = args[0]
+	}
+
+	if len(args) >= 2 {
+		source = args[1]
+	}
+
+	var questions []cliquiz.Question
+	if chainID == "" {
+		questions = append(questions, cliquiz.NewQuestion("Chain ID", &chainID, cliquiz.Required()))
+	}
+	if source == "" {
+		questions = append(questions, cliquiz.NewQuestion("Git repository of the chain's source code (local or remote)", &source, cliquiz.Required()))
+	}
+	if len(questions) > 0 {
+		if err := cliquiz.Ask(questions...); err != nil {
+			return err
+		}
+	}
+
 	s := clispinner.New()
 	defer s.Stop()
 
@@ -36,18 +75,38 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	address := args[0]
+	// check if chain already exists on SPN.
+	if _, err := nb.ShowChain(cmd.Context(), chainID); err == nil {
+		s.Stop()
 
-	initChain := func() (*networkbuilder.Blockchain, error) {
-		if xurl.IsLocalPath(address) {
-			return nb.InitBlockchainFromPath(cmd.Context(), address, true)
-		}
-		return nb.InitBlockchainFromURL(cmd.Context(), address, "", true)
+		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
+	// initialize the blockchain
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{networkbuilder.MustNotInitializedBefore()})
+	if err != nil {
+		return err
+	}
+
+	initChain := func() (*networkbuilder.Blockchain, error) {
+		sourceOption := networkbuilder.SourceLocal(source)
+		if !xurl.IsLocalPath(source) {
+			switch {
+			case branch != "":
+				sourceOption = networkbuilder.SourceRemoteBranch(source, branch)
+			case tag != "":
+				sourceOption = networkbuilder.SourceRemoteTag(source, tag)
+			default:
+				sourceOption = networkbuilder.SourceRemote(source)
+			}
+		}
+		return nb.Init(cmd.Context(), chainID, sourceOption, initOptions...)
+	}
+
+	// init the chain.
 	blockchain, err := initChain()
 
-	// handle if data dir for the chain already exists.
+	// ask to delete data dir for the chain if already exists on the fs.
 	var e *networkbuilder.DataDirExistsError
 	if errors.As(err, &e) {
 		s.Stop()
@@ -68,8 +127,12 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
+		s.Start()
+
 		blockchain, err = initChain()
 	}
+
+	s.Stop()
 
 	if err == context.Canceled {
 		fmt.Println("aborted")
@@ -85,9 +148,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	s.Stop()
-
-	// ask to confirm genesis.
+	// ask to confirm Genesis.
 	prettyGenesis, err := info.Genesis.Pretty()
 	if err != nil {
 		return err
@@ -104,11 +165,15 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
+	s.SetText("Submitting...")
+	s.Start()
+
 	// create blockchain.
 	if err := blockchain.Create(cmd.Context()); err != nil {
 		return err
 	}
+	s.Stop()
 
-	fmt.Println("\n🌐 Network submited")
+	fmt.Println("\n🌐  Network submitted")
 	return nil
 }

@@ -17,8 +17,8 @@ var prefixes = map[logType]struct {
 }{
 	logStarport: {"starport", 202},
 	logBuild:    {"build", 203},
-	logAppd:     {"%sd", 204},
-	logAppcli:   {"%scli", 205},
+	logAppd:     {"%s daemon", 204},
+	logAppcli:   {"%s cli", 205},
 	logRelayer:  {"relayer", 206},
 }
 
@@ -34,8 +34,8 @@ const (
 )
 
 // std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.
-func (s *Chain) stdSteps(logType logType) []step.Option {
-	std := s.stdLog(logType)
+func (c *Chain) stdSteps(logType logType) []step.Option {
+	std := c.stdLog(logType)
 	return []step.Option{
 		step.Stdout(std.out),
 		step.Stderr(std.err),
@@ -47,7 +47,7 @@ type std struct {
 }
 
 // std returns the stdout and stderr to output logs by logType.
-func (s *Chain) stdLog(logType logType) std {
+func (c *Chain) stdLog(logType logType) std {
 	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		var (
 			prefix    = prefixes[logType]
@@ -56,17 +56,17 @@ func (s *Chain) stdLog(logType logType) std {
 			gen       = prefixgen.New(prefix.Name, options...)
 		)
 		if strings.Count(prefix.Name, "%s") > 0 {
-			prefixStr = gen.Gen(s.app.Name)
+			prefixStr = gen.Gen(c.app.Name)
 		} else {
 			prefixStr = gen.Gen()
 		}
-		return lineprefixer.NewWriter(w, prefixStr)
+		return lineprefixer.NewWriter(w, func() string { return prefixStr })
 	}
 	var (
-		stdout io.Writer = prefixed(s.stdout)
-		stderr io.Writer = prefixed(s.stderr)
+		stdout io.Writer = prefixed(c.stdout)
+		stderr io.Writer = prefixed(c.stderr)
 	)
-	if logType == logStarport && s.logLevel == LogRegular {
+	if logType == logStarport && c.logLevel == LogRegular {
 		stdout = os.Stdout
 		stderr = os.Stderr
 	}
@@ -74,4 +74,12 @@ func (s *Chain) stdLog(logType logType) std {
 		out: stdout,
 		err: stderr,
 	}
+}
+
+func (c *Chain) genPrefix(logType logType) string {
+	prefix := prefixes[logType]
+
+	return prefixgen.
+		New(prefix.Name, prefixgen.Common(prefixgen.Color(prefix.Color))...).
+		Gen(c.app.Name)
 }

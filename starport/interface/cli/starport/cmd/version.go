@@ -7,6 +7,7 @@ import (
 	"github.com/tendermint/starport/starport/internal/version"
 )
 
+// NewVersion creates a new version command to show starport's version.
 func NewVersion() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "version",

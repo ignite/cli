@@ -1,0 +1,11 @@
+syntax = "proto3";
+package <%= nodash(ownerName) %>.<%= appName %>.<%= moduleName %>;
+
+// this line is used by starport scaffolding # genesis/proto/import
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+// GenesisState defines the <%= moduleName %> module's genesis state.
+message GenesisState {
+    // this line is used by starport scaffolding # genesis/proto/state
+}

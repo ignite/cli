@@ -5,24 +5,40 @@ import (
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/services"
+
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
+	"github.com/dariubs/percent"
+	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/availableport"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+const (
+	tendermintrpcAddr = "http://localhost:26657"
+)
+
+var (
+	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
@@ -51,209 +67,316 @@ func New(spnclient *spn.Client, options ...Option) (*Builder, error) {
 	return b, nil
 }
 
-// InitBlockchainFromChainID initializes blockchain from chain id.
-func (b *Builder) InitBlockchainFromChainID(ctx context.Context, chainID string, mustNotInitializedBefore bool) (*Blockchain, error) {
+// initOptions holds blockchain initialization options.
+type initOptions struct {
+	isChainIDSource          bool
+	url                      string
+	ref                      plumbing.ReferenceName
+	hash                     string
+	path                     string
+	mustNotInitializedBefore bool
+	homePath                 string
+	cliHomePath              string
+}
+
+// SourceOption sets the source for blockchain.
+type SourceOption func(*initOptions)
+
+// InitOption sets other initialization options.
+type InitOption func(*initOptions)
+
+// SourceChainID makes source determined by the chain's id.
+func SourceChainID() SourceOption {
+	return func(o *initOptions) {
+		o.isChainIDSource = true
+	}
+}
+
+// SourceRemote sets the default branch on a remote as source for the blockchain.
+func SourceRemote(url string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+	}
+}
+
+// SourceRemoteBranch sets the branch on a remote as source for the blockchain.
+func SourceRemoteBranch(url, branch string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewBranchReferenceName(branch)
+	}
+}
+
+// SourceRemoteTag sets the tag on a remote as source for the blockchain.
+func SourceRemoteTag(url, tag string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.ref = plumbing.NewTagReferenceName(tag)
+	}
+}
+
+// SourceRemoteHash uses a remote hash as source for the blockchain.
+func SourceRemoteHash(url, hash string) SourceOption {
+	return func(o *initOptions) {
+		o.url = url
+		o.hash = hash
+	}
+}
+
+// SourceLocal uses a local git repo as source for the blockchain.
+func SourceLocal(path string) SourceOption {
+	return func(o *initOptions) {
+		o.path = path
+	}
+}
+
+// MustNotInitializedBefore makes the initialization process fail if data dir for
+// the blockchain already exists.
+func MustNotInitializedBefore() InitOption {
+	return func(o *initOptions) {
+		o.mustNotInitializedBefore = true
+	}
+}
+
+// InitializationHomePath provides a specific home path for the blockchain for the initialization
+func InitializationHomePath(homePath string) InitOption {
+	return func(o *initOptions) {
+		o.homePath = homePath
+	}
+}
+
+// InitializationCLIHomePath provides a specific cli home path for the blockchain for the initialization
+func InitializationCLIHomePath(cliHomePath string) InitOption {
+	return func(o *initOptions) {
+		o.cliHomePath = cliHomePath
+	}
+}
+
+// Init initializes blockchain from by source option and init options.
+func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption, options ...InitOption) (*Blockchain, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
 	}
-	chain, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
-	if err != nil {
-		return nil, err
-	}
-	return b.InitBlockchainFromURL(ctx, chain.URL, chain.Hash, mustNotInitializedBefore)
-}
 
-// InitBlockchainFromURL initializes blockchain from a remote git repo.
-func (b *Builder) InitBlockchainFromURL(ctx context.Context, url, rev string, mustNotInitializedBefore bool) (*Blockchain, error) {
-	appPath, err := ioutil.TempDir("", "")
-	if err != nil {
-		return nil, err
+	// set options.
+	o := &initOptions{}
+	source(o)
+	for _, option := range options {
+		option(o)
 	}
 
-	b.ev.Send(events.New(events.StatusOngoing, "Pulling the blockchain"))
+	// determine final source configuration.
+	var (
+		url  = o.url
+		hash = o.hash
+		path = o.path
+		ref  = o.ref
+	)
 
-	// clone the repo.
-	repo, err := git.PlainCloneContext(ctx, appPath, false, &git.CloneOptions{
-		URL: url,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	var hash plumbing.Hash
-
-	// checkout to the revision if provided, otherwise default branch is used.
-	if rev != "" {
-		wt, err := repo.Worktree()
+	if o.isChainIDSource {
+		chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
 		if err != nil {
 			return nil, err
 		}
-		h, err := repo.ResolveRevision(plumbing.Revision(rev))
-		if err != nil {
+		url = chain.URL
+		hash = chain.Hash
+	}
+
+	// pull the chain.
+	b.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
+
+	var (
+		repo    *git.Repository
+		githash plumbing.Hash
+	)
+
+	switch {
+	// clone git repo from local filesystem. this option only used by chain coordinators.
+	case path != "":
+		if repo, err = git.PlainOpen(path); err != nil {
 			return nil, err
 		}
-		hash = *h
-		wt.Checkout(&git.CheckoutOptions{
-			Hash: hash,
-		})
-	} else {
+		if url, err = b.ensureRemoteSynced(repo); err != nil {
+			return nil, err
+		}
+
+	// otherwise clone from the remote. this option can be used by chain coordinators
+	// as well as validators.
+	default:
+		// ensure the path for chain source exists
+		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
+			if !os.IsExist(err) {
+				return nil, err
+			}
+		}
+
+		path = filepath.Join(sourcePath, chainID)
+		if _, err := os.Stat(path); err == nil {
+			// if the directory already exists, we overwrite it to ensure we have the last version
+			if err := os.RemoveAll(path); err != nil {
+				return nil, err
+			}
+		} else if !os.IsNotExist(err) {
+			return nil, err
+		}
+
+		// prepare clone options.
+		gitoptions := &git.CloneOptions{
+			URL: url,
+		}
+
+		// clone the ref when specificied. this is used by chain coordinators on create.
+		if ref != "" {
+			gitoptions.ReferenceName = ref
+			gitoptions.SingleBranch = true
+		}
+		if repo, err = git.PlainCloneContext(ctx, path, false, gitoptions); err != nil {
+			return nil, err
+		}
+
+		if hash != "" {
+			// checkout to a certain hash when specified. this is used by validators to make sure to use
+			// the locked version of the blockchain.
+			wt, err := repo.Worktree()
+			if err != nil {
+				return nil, err
+			}
+			h, err := repo.ResolveRevision(plumbing.Revision(hash))
+			if err != nil {
+				return nil, err
+			}
+			githash = *h
+			if err := wt.Checkout(&git.CheckoutOptions{
+				Hash: githash,
+			}); err != nil {
+				return nil, err
+			}
+		}
+	}
+
+	b.ev.Send(events.New(events.StatusDone, "Source code fetched"))
+
+	if hash == "" {
 		ref, err := repo.Head()
 		if err != nil {
 			return nil, err
 		}
-		hash = ref.Hash()
+		githash = ref.Hash()
 	}
 
-	b.ev.Send(events.New(events.StatusDone, "Pulled the blockchain"))
-
-	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
+	return newBlockchain(
+		ctx,
+		b,
+		chainID,
+		path,
+		url,
+		githash.String(),
+		o.homePath,
+		o.cliHomePath,
+		o.mustNotInitializedBefore,
+	)
 }
 
-// InitBlockchainFromPath initializes blockchain from a local git repo.
-//
-// It uses the HEAD(latest commit in currently checked out branch) as the source code of blockchain.
-//
-// TODO: It requires that there will be no unstaged changes in the code and HEAD is synced with the upstream
-// branch (if there is one).
-func (b *Builder) InitBlockchainFromPath(ctx context.Context, appPath string, mustNotInitializedBefore bool) (*Blockchain, error) {
-	repo, err := git.PlainOpen(appPath)
-	if err != nil {
-		return nil, err
-	}
-
+// ensureRemoteSynced ensures that current worktree in the repository has no unstaged
+// changes and synced up with the remote.
+// it returns the url of repo or an error related to unstaged changes.
+func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err error) {
 	// check if there are un-committed changes.
 	wt, err := repo.Worktree()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	status, err := wt.Status()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if !status.IsClean() {
-		return nil, errors.New("please either revert or commit your changes")
+		return "", errors.New("please either revert or commit your changes")
 	}
 
 	// find out remote's url.
 	// TODO use the associated upstream branch's remote.
 	remotes, err := repo.Remotes()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	if len(remotes) == 0 {
-		return nil, errors.New("please push your blockchain first")
+		return "", errors.New("please push your blockchain first")
 	}
 	remote := remotes[0]
 	rc := remote.Config()
 	if len(rc.URLs) == 0 {
-		return nil, errors.New("cannot find remote's url")
+		return "", errors.New("cannot find remote's url")
 	}
-	url := rc.URLs[0]
-
-	// find the hash pointing to HEAD.
-	ref, err := repo.Head()
-	if err != nil {
-		return nil, err
-	}
-	hash := ref.Hash()
-	if err != nil {
-		return nil, err
-	}
-
-	return newBlockchain(ctx, b, appPath, url, hash.String(), mustNotInitializedBefore)
+	return rc.URLs[0], nil
 }
 
 // StartChain downloads the final version version of Genesis on the first start or fails if Genesis
 // has not finalized yet.
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
-func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
-	app := chain.App{
-		Name: chainID,
+func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
+	// set options
+	o := &initOptions{}
+	for _, option := range options {
+		option(o)
 	}
-	c, err := chain.New(app, true, chain.LogSilent)
+
+	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
-	account, err := b.AccountInUse()
-	if err != nil {
-		return err
-	}
-	launchInformation, err := b.spnclient.ChainGet(ctx, account.Name, chainID)
+	launchInfo, err := b.LaunchInformation(ctx, chainID)
 	if err != nil {
 		return err
 	}
 
-	if len(launchInformation.GenTxs) == 0 {
-		return errors.New("There are no approved validators yet")
+	chainOption := []chain.Option{
+		chain.LogLevel(chain.LogSilent),
 	}
 
-	homedir, err := os.UserHomeDir()
+	// Custom home paths
+	if o.homePath != "" {
+		chainOption = append(chainOption, chain.HomePath(o.homePath))
+	}
+	if o.cliHomePath != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
+	}
+
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
+	appPath := filepath.Join(sourcePath, chainID)
+	chainHandler, err := chain.New(ctx, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
 
-	// overwrite genesis with initial genesis.
-	appHome := filepath.Join(homedir, app.ND())
-	os.Rename(initialGenesisPath(appHome), genesisPath(appHome))
-
-	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
-	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(appHome))
-	var genesis map[string]interface{}
-	if err := cf.Load(&genesis); err != nil {
-		return err
-	}
-	genesis["genesis_time"] = launchInformation.CreatedAt.UTC().Format(time.RFC3339)
-	if err := cf.Save(genesis); err != nil {
-		return err
+	if len(launchInfo.GenTxs) == 0 {
+		return errors.New("there are no approved validators yet")
 	}
 
-	// add the genesis accounts
-	for _, account := range launchInformation.GenesisAccounts {
-		if err = c.AddGenesisAccount(ctx, chain.Account{
-			Address: account.Address.String(),
-			Coins:   account.Coins.String(),
-		}); err != nil {
-			return err
-		}
-	}
-
-	// reset gentx directory
-	dir, err := ioutil.ReadDir(filepath.Join(homedir, app.ND(), "config/gentx"))
-	if err != nil {
-		return err
-	}
-	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(homedir, app.ND(), "config/gentx", d.Name())); err != nil {
-			return err
-		}
-	}
-
-	// add and collect the gentxs
-	for i, gentx := range launchInformation.GenTxs {
-		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(homedir, app.ND(), fmt.Sprintf("config/gentx/gentx%v.json", i))
-		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
-			return err
-		}
-	}
-	if err = c.CollectGentx(ctx); err != nil {
+	// generate the genesis file for the chain to start
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
 		return err
 	}
 
 	// prep peer configs.
-	p2pAddresses := launchInformation.Peers
+	p2pAddresses := launchInfo.Peers
 	chiselAddreses := make(map[string]int) // server addr-local p2p port pair.
-	ports, err := availableport.Find(len(launchInformation.Peers))
+	ports, err := availableport.Find(len(launchInfo.Peers))
 	if err != nil {
 		return err
 	}
 	time.Sleep(time.Second * 2) // make sure that ports are released by the OS before being used.
 
 	if xchisel.IsEnabled() {
-		for i, peer := range launchInformation.Peers {
+		for i, peer := range launchInfo.Peers {
 			localPort := ports[i]
 			sp := strings.Split(peer, "@")
 			nodeID := sp[0]
@@ -265,14 +388,18 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(homedir, app.ND(), "config/config.toml")
+	home, err := chainHandler.Home()
+	if err != nil {
+		return err
+	}
+	configTomlPath := filepath.Join(home, "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
 	}
 	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
 	configToml.Set("p2p.allow_duplicate_ip", true)
-	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 644)
+	configTomlFile, err := os.OpenFile(configTomlPath, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -285,14 +412,25 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return cmdrunner.New().Run(ctx, step.New(
-			step.Exec(
-				app.D(),
-				append([]string{"start"}, flags...)...,
-			),
-			step.Stdout(os.Stdout),
-			step.Stderr(os.Stderr),
-		))
+		return chainHandler.Commands().
+			Copy(
+				chaincmdrunner.Stdout(os.Stdout),
+				chaincmdrunner.Stderr(os.Stderr)).
+			Start(ctx, flags...)
+	})
+
+	// log connected peers info.
+	g.Go(func() error {
+		tc := tendermintrpc.New(tendermintrpcAddr)
+
+		return ctxticker.DoNow(ctx, time.Second*5, func() error {
+			netInfo, err := tc.GetNetInfo(ctx)
+			if err == nil {
+				count := netInfo.ConnectedPeers + 1 // +1 is itself.
+				color.New(color.FgYellow).Printf("%d (%v%%) PEERS ONLINE\n", count, math.Trunc(percent.PercentOf(count, len(p2pAddresses))))
+			}
+			return nil
+		})
 	})
 
 	if xchisel.IsEnabled() {
@@ -311,4 +449,75 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	return g.Wait()
+}
+
+// generateGenesis generate the genesis from the launch information in the specified app home
+func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
+	home, err := chainHandler.Home()
+	if err != nil {
+		return err
+	}
+
+	// overwrite genesis with initial genesis.
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(home))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(genesisPath(home), initialGenesis, 0755)
+	if err != nil {
+		return err
+	}
+
+	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(home))
+	var genesis map[string]interface{}
+	if err := cf.Load(&genesis); err != nil {
+		return err
+	}
+	genesis["genesis_time"] = chainInfo.CreatedAt.UTC().Format(time.RFC3339)
+	if err := cf.Save(genesis); err != nil {
+		return err
+	}
+
+	// add the genesis accounts
+	for _, account := range launchInfo.GenesisAccounts {
+		genesisAccount := chain.Account{
+			Address: account.Address.String(),
+			Coins:   account.Coins.String(),
+		}
+
+		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
+			return err
+		}
+	}
+
+	// reset gentx directory
+	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
+	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
+	if err != nil {
+		return err
+	}
+
+	// remove all the current gentxs
+	for _, d := range dir {
+		if err := os.RemoveAll(filepath.Join(home, "config/gentx", d.Name())); err != nil {
+			return err
+		}
+	}
+
+	// add and collect the gentxs
+	for i, gentx := range launchInfo.GenTxs {
+		// Save the gentx in the gentx directory
+		gentxPath := filepath.Join(home, fmt.Sprintf("config/gentx/gentx%v.json", i))
+		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
+			return err
+		}
+	}
+	if len(launchInfo.GenTxs) > 0 {
+		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

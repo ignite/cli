@@ -3,9 +3,9 @@ package chain
 import (
 	"context"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 // TODO omit -cli log messages for Stargate.
@@ -20,32 +20,26 @@ type Plugin interface {
 	// Binaries returns a list of binaries that will be compiled for the app.
 	Binaries() []string
 
-	// AddUserCommand returns step.Exec configuration to add users.
-	AddUserCommand(name string) step.Options
-
-	// ImportUserCommand returns step.Exec configuration to import users.
-	ImportUserCommand(namem, mnemonic string) step.Options
-
-	// ShowAccountCommand returns step.Exec configuration to run show account.
-	ShowAccountCommand(accountName string) step.Option
-
 	// ConfigCommands returns step.Exec configuration for config commands.
-	ConfigCommands(chainID string) []step.Option
+	Configure(context.Context, chaincmdrunner.Runner, string) error
 
 	// GentxCommand returns step.Exec configuration for gentx command.
-	GentxCommand(chainID string, v Validator) step.Option
+	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// PostInit hook.
-	PostInit(starportconf.Config) error
+	PostInit(string, starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	StartCommands(starportconf.Config) [][]step.Option
+	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
 
 	// StoragePaths returns a list of where persistent data kept.
 	StoragePaths() []string
 
 	// Home returns the blockchain node's home dir.
-	Home() (string, error)
+	Home() string
+
+	// CLIHome returns the cli blockchain node's home dir.
+	CLIHome() string
 
 	// Version of the plugin.
 	Version() cosmosver.MajorVersion
@@ -54,16 +48,12 @@ type Plugin interface {
 	SupportsIBC() bool
 }
 
-func (s *Chain) pickPlugin() (Plugin, error) {
-	version, err := cosmosver.Detect(s.app.Path)
-	if err != nil {
-		return nil, err
-	}
-	switch version {
+func (c *Chain) pickPlugin() Plugin {
+	switch c.Version.Major() {
 	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(s.app), nil
+		return newLaunchpadPlugin(c.app)
 	case cosmosver.Stargate:
-		return newStargatePlugin(s.app, s), nil
+		return newStargatePlugin(c.app)
 	}
 	panic("unknown cosmos version")
 }

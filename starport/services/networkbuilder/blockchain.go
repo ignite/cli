@@ -2,20 +2,21 @@ package networkbuilder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
-	"strings"
 
 	"github.com/cosmos/cosmos-sdk/types"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type Blockchain struct {
@@ -23,76 +24,112 @@ type Blockchain struct {
 	url     string
 	hash    string
 	chain   *chain.Chain
-	app     chain.App
 	builder *Builder
 }
 
-func newBlockchain(ctx context.Context, builder *Builder, appPath, url, hash string,
-	mustNotInitializedBefore bool) (*Blockchain, error) {
+func newBlockchain(
+	ctx context.Context,
+	builder *Builder,
+	chainID,
+	appPath,
+	url,
+	hash,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) (*Blockchain, error) {
 	bc := &Blockchain{
 		appPath: appPath,
 		url:     url,
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, cliHome, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
 // applies some post init configuration.
-func (b *Blockchain) init(ctx context.Context, mustNotInitializedBefore bool) error {
-	path, err := gomodulepath.ParseFile(b.appPath)
+func (b *Blockchain) init(
+	ctx context.Context,
+	chainID,
+	home,
+	cliHome string,
+	mustNotInitializedBefore bool,
+) error {
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+
+	chainOption := []chain.Option{
+		chain.LogLevel(chain.LogSilent),
+		chain.ID(chainID),
+	}
+
+	// Custom home directories
+	if home != "" {
+		chainOption = append(chainOption, chain.HomePath(home))
+	}
+	if cliHome != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
+	}
+
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
+	c, err := chain.New(ctx, b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	app := chain.App{
-		Name: path.Root,
-		Path: b.appPath,
+
+	if v := c.SDKVersion(); v != cosmosver.Stargate {
+		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
-	c, err := chain.New(app, false, chain.LogSilent)
-	if err != nil {
-		return err
-	}
-
-	chainID, err := c.ID()
+	chainHome, err := c.Home()
 	if err != nil {
 		return err
 	}
 
 	if mustNotInitializedBefore {
-		if _, err := os.Stat(c.Home()); !os.IsNotExist(err) {
-			return &DataDirExistsError{chainID, c.Home()}
+		if _, err := os.Stat(chainHome); !os.IsNotExist(err) {
+			return &DataDirExistsError{chainID, chainHome}
 		}
 	}
 
 	// cleanup home dir of app if exists.
-	for _, path := range c.StoragePaths() {
+	paths, err := c.StoragePaths()
+	if err != nil {
+		return err
+	}
+	for _, path := range paths {
 		if err := xos.RemoveAllUnderHome(path); err != nil {
 			return err
 		}
 	}
 
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 	if err := c.Build(ctx); err != nil {
 		return err
 	}
-	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 	if err := c.Init(ctx); err != nil {
 		return err
 	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
-	genesis, err := ioutil.ReadFile(c.GenesisPath())
+	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(initialGenesisPath(c.Home()), genesis, 0644); err != nil {
+	genesis, err := ioutil.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+	if err := ioutil.WriteFile(initialGenesisPath(chainHome), genesis, 0644); err != nil {
 		return err
 	}
 
 	b.chain = c
-	b.app = app
 	return nil
 }
 
@@ -106,8 +143,6 @@ func initialGenesisPath(appHome string) string {
 
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
-	ID               string
-	Home             string
 	Genesis          jsondoc.Doc
 	Config           conf.Config
 	RPCPublicAddress string
@@ -115,7 +150,11 @@ type BlockchainInfo struct {
 
 // Info returns information about the blockchain.
 func (b *Blockchain) Info() (BlockchainInfo, error) {
-	genesis, err := ioutil.ReadFile(b.chain.GenesisPath())
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return BlockchainInfo{}, err
+	}
+	genesis, err := ioutil.ReadFile(genesisPath)
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
@@ -127,13 +166,7 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
-	chainID, err := b.chain.ID()
-	if err != nil {
-		return BlockchainInfo{}, err
-	}
 	return BlockchainInfo{
-		ID:               chainID,
-		Home:             b.chain.Home(),
 		Genesis:          genesis,
 		Config:           config,
 		RPCPublicAddress: paddr,
@@ -171,22 +204,39 @@ type Account struct {
 	Coins    string
 }
 
+func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (chain.Account, error) {
+	acc, err := b.chain.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
+	if err != nil {
+		return chain.Account{}, err
+	}
+	return chain.Account{
+		Name:     acc.Name,
+		Address:  acc.Address,
+		Mnemonic: acc.Mnemonic,
+	}, nil
+}
+
 // IssueGentx creates a Genesis transaction for account with proposal.
-func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal Proposal) (gentx jsondoc.Doc, acc chain.Account, err error) {
+func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
 	proposal.Validator.Name = account.Name
-	acc, err = b.chain.CreateAccount(ctx, account.Name, account.Mnemonic, strings.Split(account.Coins, ","), false)
+	if err := b.chain.Commands().AddGenesisAccount(ctx, account.Address, account.Coins); err != nil {
+		return nil, err
+	}
+	gentxPath, err := b.chain.Commands().Gentx(
+		ctx,
+		account.Name,
+		proposal.Validator.StakingAmount,
+		chaincmd.GentxWithMoniker(proposal.Validator.Moniker),
+		chaincmd.GentxWithCommissionRate(proposal.Validator.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(proposal.Validator.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(proposal.Validator.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(proposal.Validator.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(proposal.Validator.GasPrices),
+	)
 	if err != nil {
-		return nil, chain.Account{}, err
+		return nil, err
 	}
-	if err := b.chain.AddGenesisAccount(ctx, acc); err != nil {
-		return nil, chain.Account{}, err
-	}
-	gentxPath, err := b.chain.Gentx(ctx, proposal.Validator)
-	if err != nil {
-		return nil, chain.Account{}, err
-	}
-	gentx, err = ioutil.ReadFile(gentxPath)
-	return gentx, acc, err
+	return ioutil.ReadFile(gentxPath)
 }
 
 // Join proposes a validator to a network.
@@ -194,7 +244,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account Account, proposal P
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
 func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
-	key, err := b.chain.ShowNodeID(ctx)
+	key, err := b.chain.Commands().ShowNodeID(ctx)
 	if err != nil {
 		return err
 	}
@@ -218,10 +268,9 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 	)
 }
 
-// Cleanup closes the event bus and cleanups everyting related to installed blockchain.
+// Cleanup closes the event bus and cleanups everything related to installed blockchain.
 func (b *Blockchain) Cleanup() error {
 	b.builder.ev.Shutdown()
-	//return os.RemoveAll(b.appPath)
 	return nil
 }
 

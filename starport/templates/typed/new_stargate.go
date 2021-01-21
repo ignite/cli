@@ -30,6 +30,8 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQueryModify(opts))
 	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
+	g.RunFn(t.frontendSrcStoreAppModify(opts))
+	t.genesisModify(opts, g)
 	return g, box(cosmosver.Stargate, opts, g)
 }
 
@@ -84,20 +86,19 @@ func (t *typedStargate) protoRPCModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		owner := strings.Join(strings.Split(opts.ModulePath, "/")[1:], "/")
-
 		template := `%[1]v
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v/{id}";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
 	}
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
 `
 		replacement := fmt.Sprintf(template, placeholder2,
 			strings.Title(opts.TypeName),
-			pluralize.NewClient().Plural(opts.TypeName),
-			owner,
+			opts.TypeName,
+			opts.OwnerName,
+			opts.AppName,
 			opts.ModuleName,
 		)
 		content := strings.Replace(f.String(), placeholder2, replacement, 1)
@@ -347,6 +348,32 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 		replacement = fmt.Sprintf(template, placeholder44, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
 		content = strings.Replace(content, placeholder44, replacement, 1)
 
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := "vue/src/views/Index.vue"
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		fields := []string{` ['creator', 1, 'string'] `}
+		for id, field := range opts.Fields {
+			fields = append(fields, fmt.Sprintf(` ['%s', %d, '%s'] `, field.Name, id+2, field.Datatype))
+		}
+		replacement := fmt.Sprintf(`%[1]v
+		<sp-type-form path="%[2]v.%[3]v.%[4]v" type="%[5]v" :fields="[%[6]v]" />`,
+			placeholder4,
+			opts.OwnerName,
+			opts.AppName,
+			opts.ModuleName,
+			opts.TypeName,
+			strings.Join(fields, ","),
+		)
+		content := strings.Replace(f.String(), placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

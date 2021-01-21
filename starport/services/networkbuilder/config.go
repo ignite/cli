@@ -4,15 +4,16 @@ import (
 	"encoding/json"
 	"os"
 	"path/filepath"
+
+	"github.com/tendermint/starport/starport/services"
 )
 
 var (
-	starportConfDir = os.ExpandEnv("$HOME/.starport")
-	confPath        = filepath.Join(starportConfDir, "networkbuilder")
+	confPath = filepath.Join(services.StarportConfDir, "networkbuilder")
 )
 
 func init() {
-	if err := os.MkdirAll(starportConfDir, 0755); err != nil {
+	if err := os.MkdirAll(services.StarportConfDir, 0755); err != nil {
 		panic(err)
 	}
 }
@@ -22,7 +23,7 @@ type Config struct {
 	// SPNAccount is the default spn account in use.
 	SPNAccount string
 
-	// FinalizedChains can be started without any further preperation.
+	// FinalizedChains can be started without any further preparation.
 	FinalizedChains []string
 }
 

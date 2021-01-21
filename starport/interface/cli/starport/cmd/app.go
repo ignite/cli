@@ -61,7 +61,7 @@ func sdkVersion(c *cobra.Command) (cosmosver.MajorVersion, error) {
 	v, _ := c.Flags().GetString(sdkVersionFlag)
 	parsed, err := cosmosver.MajorVersions.Parse(v)
 	if err != nil {
-		return "", fmt.Errorf("%q is an unkown sdk version", v)
+		return "", fmt.Errorf("%q is an unknown sdk version", v)
 	}
 	return parsed, nil
 }

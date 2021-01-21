@@ -54,6 +54,10 @@ func (c *Client) Send(metric Metric) error {
 		v.Set("an", metric.Version)
 		v.Set("av", metric.Version)
 	}
-	_, err := http.PostForm(endpoint, v)
-	return err
+	resp, err := http.PostForm(endpoint, v)
+	if err != nil {
+		return err
+	}
+	defer resp.Body.Close()
+	return nil
 }

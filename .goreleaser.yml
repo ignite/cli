@@ -16,18 +16,17 @@ brews:
     install: |
       bin.install "starport"
 
-# snapcrafts:
-#   - name: starport
-#     replacements:
-#       darwin: macOS
-#     summary: The easiest way to build a blockchain.
-#     description: Starport is the easiest way to build blockchains. It is a developer-friendly interface to the Cosmos SDK, the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
-#     grade: stable
-#     confinement: strict
-#     base: core18
-#     license: Apache-2.0
-#     publish: true
-#     apps:
-#       starport:
-#         plugs: ["home", "personal-files"]
-#         command: starport
+#snapcrafts:
+#  - name: starport
+#    replacements:
+#      darwin: macOS
+#    summary: The easiest way to build a blockchain.
+#    description: Starport is the easiest way to build blockchains. It is a developer-friendly interface to the Cosmos SDK, the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
+#    grade: stable
+#    confinement: classic
+#    base: core18
+#    license: Apache-2.0
+#    publish: true
+#    apps:
+#      starport:
+#        command: starport

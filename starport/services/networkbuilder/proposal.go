@@ -7,12 +7,12 @@ import (
 )
 
 // ProposalList lists proposals on a chain by status.
-func (b *Builder) ProposalList(ctx context.Context, chainID string, status spn.ProposalStatus) ([]spn.Proposal, error) {
+func (b *Builder) ProposalList(ctx context.Context, chainID string, options ...spn.ProposalListOption) ([]spn.Proposal, error) {
 	account, err := b.AccountInUse()
 	if err != nil {
 		return nil, err
 	}
-	return b.spnclient.ProposalList(ctx, account.Name, chainID, status)
+	return b.spnclient.ProposalList(ctx, account.Name, chainID, options...)
 }
 
 // ProposalGet retrieves a proposal on a chain by id.
@@ -34,10 +34,10 @@ func (b *Builder) Propose(ctx context.Context, chainID string, proposals ...spn.
 }
 
 // SubmitReviewals submits reviewals for proposals in batch for chainID by using SPN accountName.
-func (b *Builder) SubmitReviewals(ctx context.Context, chainID string, reviewals ...spn.Reviewal) error {
+func (b *Builder) SubmitReviewals(ctx context.Context, chainID string, reviewals ...spn.Reviewal) (gas uint64, broadcast func() error, err error) {
 	acc, err := b.AccountInUse()
 	if err != nil {
-		return err
+		return 0, nil, err
 	}
 	return b.spnclient.SubmitReviewals(ctx, acc.Name, chainID, reviewals...)
 }

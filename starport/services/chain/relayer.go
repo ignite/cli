@@ -14,19 +14,19 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/chain/conf"
-	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"github.com/tendermint/starport/starport/services/chain/rly"
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	relayerVersion = "3080dab10e37e6db9e691c343b1c0cdb6d845753"
+	relayerVersion = "ba17c4db185229d9354187a8b9723097ab527261"
 )
 
 // relayerInfo holds relayer info that is shared between chains to make a connection.
@@ -38,30 +38,30 @@ type relayerInfo struct {
 
 // RelayerInfo initializes or updates relayer setup for the chain itself and returns
 // a meta info to share with other chains so they can connect.
-func (s *Chain) RelayerInfo() (base64Info string, err error) {
-	if err := s.checkIBCRelayerSupport(); err != nil {
+func (c *Chain) RelayerInfo() (base64Info string, err error) {
+	if err := c.checkIBCRelayerSupport(); err != nil {
 		return "", err
 	}
-	sconf, err := secretconf.Open(s.app.Path)
+	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return "", err
 	}
-	relayerAcc, found := sconf.SelfRelayerAccount(s.app.N())
+	relayerAcc, found := sconf.SelfRelayerAccount(c.app.N())
 	if !found {
-		if err := sconf.SetSelfRelayerAccount(s.app.N()); err != nil {
+		if err := sconf.SetSelfRelayerAccount(c.app.N()); err != nil {
 			return "", err
 		}
-		relayerAcc, _ = sconf.SelfRelayerAccount(s.app.N())
-		if err := secretconf.Save(s.app.Path, sconf); err != nil {
+		relayerAcc, _ = sconf.SelfRelayerAccount(c.app.N())
+		if err := secretconf.Save(c.app.Path, sconf); err != nil {
 			return "", err
 		}
 	}
-	rpcAddress, err := s.RPCPublicAddress()
+	rpcAddress, err := c.RPCPublicAddress()
 	if err != nil {
 		return "", err
 	}
 	info := relayerInfo{
-		ChainID:    s.app.N(),
+		ChainID:    c.app.N(),
 		Mnemonic:   relayerAcc.Mnemonic,
 		RPCAddress: rpcAddress,
 	}
@@ -74,8 +74,8 @@ func (s *Chain) RelayerInfo() (base64Info string, err error) {
 
 // RelayerAdd adds another chain by its relayer info to establish a connnection
 // in between.
-func (s *Chain) RelayerAdd(base64Info string) error {
-	if err := s.checkIBCRelayerSupport(); err != nil {
+func (c *Chain) RelayerAdd(base64Info string) error {
+	if err := c.checkIBCRelayerSupport(); err != nil {
 		return err
 	}
 	data, err := base64.RawStdEncoding.DecodeString(base64Info)
@@ -86,7 +86,7 @@ func (s *Chain) RelayerAdd(base64Info string) error {
 	if err := json.Unmarshal(data, &info); err != nil {
 		return err
 	}
-	sconf, err := secretconf.Open(s.app.Path)
+	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return err
 	}
@@ -95,42 +95,42 @@ func (s *Chain) RelayerAdd(base64Info string) error {
 		Mnemonic:   info.Mnemonic,
 		RPCAddress: info.RPCAddress,
 	})
-	if err := secretconf.Save(s.app.Path, sconf); err != nil {
+	if err := secretconf.Save(c.app.Path, sconf); err != nil {
 		return err
 	}
-	fmt.Fprint(s.stdLog(logStarport).out, "\n💫  Chain added\n")
+	fmt.Fprint(c.stdLog(logStarport).out, "\n💫  Chain added\n")
 	return nil
 }
 
-func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
-	sconf, err := secretconf.Open(s.app.Path)
+func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
+	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return err
 	}
-	if err := s.checkIBCRelayerSupport(); err != nil {
+	if err := c.checkIBCRelayerSupport(); err != nil {
 		return nil
 	}
 	if len(sconf.Relayer.Accounts) > 0 {
-		fmt.Fprintf(s.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
+		fmt.Fprintf(c.stdLog(logStarport).out, "⌛ detected chains, linking them...\n")
 	}
 
 	// init path for the relayer.
-	relayerHome, err := s.initRelayerHome()
+	relayerHome, err := c.initRelayerHome()
 	if err != nil {
 		return err
 	}
 	configPath := filepath.Join(relayerHome, "config/config.yaml")
 
-	rpcAddress, err := s.RPCPublicAddress()
+	rpcAddress, err := c.RPCPublicAddress()
 	if err != nil {
 		return err
 	}
 
-	selfacc, _ := sconf.SelfRelayerAccount(s.app.N())
+	selfacc, _ := sconf.SelfRelayerAccount(c.app.N())
 	selfacc.RPCAddress = rpcAddress
 
 	// prep and save relayer config.
-	if _, err := s.initRelayerConfig(configPath, selfacc, sconf.Relayer.Accounts); err != nil {
+	if _, err := c.initRelayerConfig(configPath, selfacc, sconf.Relayer.Accounts); err != nil {
 		return err
 	}
 
@@ -173,13 +173,15 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 					account.Name,
 					"testkey",
 					account.Mnemonic,
+					"--coin-type",
+					"118",
 				),
 				// check if RPC is available before adding key for this account.
 				step.PreExec(func() error {
 					for {
 						available, err := httpstatuschecker.Check(ctx, xurl.HTTP(account.RPCAddress))
 						if err == context.Canceled {
-							return fmt.Errorf("Tendermint RPC not online for %q", account.Name)
+							return fmt.Errorf("tendermint RPC not online for %q", account.Name)
 						}
 						if err != nil || !available {
 							time.Sleep(time.Millisecond * 300)
@@ -188,7 +190,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 						return nil
 					}
 				}),
-				step.Stderr(s.stdLog(logRelayer).err),
+				step.Stderr(c.stdLog(logRelayer).err),
 			)); err != nil {
 			return err
 		}
@@ -207,7 +209,7 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 					name,
 					"-f",
 				),
-				step.Stderr(s.stdLog(logRelayer).err),
+				step.Stderr(c.stdLog(logRelayer).err),
 			))
 	}
 
@@ -238,13 +240,13 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 							"-o",
 							"3s",
 						),
-						step.Stderr(s.stdLog(logRelayer).err),
+						step.Stderr(c.stdLog(logRelayer).err),
 					))
 			}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 			if err != nil {
-				fmt.Fprintf(s.stdLog(logStarport).err, "❌ couldn't link %s <-/-> %s\n", selfacc.Name, account.Name)
+				fmt.Fprintf(c.stdLog(logStarport).err, "❌ couldn't link %s <-/-> %s\n", selfacc.Name, account.Name)
 			} else {
-				fmt.Fprintf(s.stdLog(logStarport).out, "⛓️  linked %s <--> %s\n", selfacc.Name, account.Name)
+				fmt.Fprintf(c.stdLog(logStarport).out, "⛓️  linked %s <--> %s\n", selfacc.Name, account.Name)
 			}
 		}(account)
 	}
@@ -254,14 +256,18 @@ func (s *Chain) initRelayer(ctx context.Context, c conf.Config) error {
 }
 
 // relayerHome initializes and returns the path to a home folder for relayer.
-func (s *Chain) initRelayerHome() (path string, err error) {
-	home, err := os.UserHomeDir()
+func (c *Chain) initRelayerHome() (path string, err error) {
+	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	relayerHome := filepath.Join(home, s.app.ND(), "relayer")
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	relayerHome := filepath.Join(home, "relayer")
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
-		relayerHome = filepath.Join(home, ".relayer")
+		relayerHome = filepath.Join(userHomeDir, ".relayer")
 	}
 	if err := os.MkdirAll(filepath.Join(relayerHome, "config"), os.ModePerm); err != nil {
 		return "", err
@@ -270,8 +276,8 @@ func (s *Chain) initRelayerHome() (path string, err error) {
 }
 
 // initRelayerConfig initializes the config file of relayer and returns it.
-func (s *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []conf.Account) (rly.Config, error) {
-	c := rly.Config{
+func (c *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []conf.Account) (rly.Config, error) {
+	config := rly.Config{
 		Global: rly.GlobalConfig{
 			Timeout:       "10s",
 			LiteCacheSize: 20,
@@ -280,11 +286,11 @@ func (s *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []
 	}
 
 	for _, account := range append([]conf.Account{selfacc}, accounts...) {
-		c.Chains = append(c.Chains, rly.NewChain(account.Name, xurl.HTTP(account.RPCAddress)))
+		config.Chains = append(config.Chains, rly.NewChain(account.Name, xurl.HTTP(account.RPCAddress)))
 	}
 
 	for _, acc := range accounts {
-		c.Paths[fmt.Sprintf("%s-%s", selfacc.Name, acc.Name)] = rly.NewPath(
+		config.Paths[fmt.Sprintf("%s-%s", selfacc.Name, acc.Name)] = rly.NewPath(
 			rly.NewPathEnd(selfacc.Name, acc.Name),
 			rly.NewPathEnd(acc.Name, selfacc.Name),
 		)
@@ -296,16 +302,16 @@ func (s *Chain) initRelayerConfig(path string, selfacc conf.Account, accounts []
 	}
 	defer file.Close()
 
-	err = yaml.NewEncoder(file).Encode(c)
-	return c, err
+	err = yaml.NewEncoder(file).Encode(config)
+	return config, err
 }
 
-func (s *Chain) checkIBCRelayerSupport() error {
-	if !s.plugin.SupportsIBC() {
-		return errors.New("IBC is not available for your app.")
+func (c *Chain) checkIBCRelayerSupport() error {
+	if !c.plugin.SupportsIBC() {
+		return errors.New("IBC is not available for your app")
 	}
 	if !xexec.IsCommandAvailable("rly") {
-		return errors.New("Relayer is not available.")
+		return errors.New("relayer is not available")
 	}
 	version := &bytes.Buffer{}
 	return cmdrunner.

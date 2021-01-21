@@ -26,9 +26,14 @@ func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, er
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
+	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("title", strings.Title)
+
+	ctx.Set("nodash", func(s string) string {
+		return strings.ReplaceAll(s, "-", "")
+	})
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))

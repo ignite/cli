@@ -1,10 +1,7 @@
 package rly
 
-// types are copy pasted from https://github.com/ovrclk/relayer because this package
+// types are copy pasted from https://github.com/cosmos/relayer because this package
 // is not go get-able for now. once that's fixed, this pkg will be removed.
-import (
-	"github.com/google/uuid"
-)
 
 type GlobalConfig struct {
 	Timeout       string `yaml:"timeout" json:"timeout"`
@@ -39,13 +36,10 @@ type StrategyCfg struct {
 }
 
 type PathEnd struct {
-	ChainID      string `yaml:"chain-id,omitempty" json:"chain-id,omitempty"`
-	ClientID     string `yaml:"client-id,omitempty" json:"client-id,omitempty"`
-	ConnectionID string `yaml:"connection-id,omitempty" json:"connection-id,omitempty"`
-	ChannelID    string `yaml:"channel-id,omitempty" json:"channel-id,omitempty"`
-	PortID       string `yaml:"port-id,omitempty" json:"port-id,omitempty"`
-	Order        string `yaml:"order,omitempty" json:"order,omitempty"`
-	Version      string `yaml:"version,omitempty" json:"version,omitempty"`
+	ChainID string `yaml:"chain-id,omitempty" json:"chain-id,omitempty"`
+	PortID  string `yaml:"port-id,omitempty" json:"port-id,omitempty"`
+	Order   string `yaml:"order,omitempty" json:"order,omitempty"`
+	Version string `yaml:"version,omitempty" json:"version,omitempty"`
 }
 
 type Config struct {
@@ -75,12 +69,9 @@ func NewPath(src, dst *PathEnd) *Path {
 
 func NewPathEnd(sid, did string) *PathEnd {
 	return &PathEnd{
-		ChainID:      sid,
-		ClientID:     uuid.New().String(),
-		ConnectionID: uuid.New().String(),
-		ChannelID:    uuid.New().String(),
-		PortID:       "transfer",
-		Order:        "unordered",
-		Version:      "ics20-1",
+		ChainID: sid,
+		PortID:  "transfer",
+		Order:   "unordered",
+		Version: "ics20-1",
 	}
 }

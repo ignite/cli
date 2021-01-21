@@ -11,45 +11,74 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"sync"
-	"time"
+	"strings"
 
+	"github.com/tendermint/starport/starport/services"
+
+	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
+	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/chain/conf"
-	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"golang.org/x/sync/errgroup"
 )
 
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+
+	// chainSavePath is the place where chain exported genesis are saved
+	chainSavePath = filepath.Join(services.StarportConfDir, "local-chains")
+
+	// exportedGenesis is the name of the exported genesis file for a chain
+	exportedGenesis = "exported_genesis.json"
+)
+
 // Serve serves an app.
-func (s *Chain) Serve(ctx context.Context) error {
+func (c *Chain) Serve(ctx context.Context) error {
 	// initial checks and setup.
-	if err := s.setup(ctx); err != nil {
+	if err := c.setup(ctx); err != nil {
 		return err
 	}
+
+	// make sure that config.yml exists.
+	if _, err := conf.Locate(c.app.Path); err != nil {
+		return err
+	}
+
 	// initialize the relayer if application supports it so, secret.yml
 	// can be generated and watched for changes.
-	if err := s.checkIBCRelayerSupport(); err == nil {
-		if _, err := s.RelayerInfo(); err != nil {
+	if err := c.checkIBCRelayerSupport(); err == nil {
+		if _, err := c.RelayerInfo(); err != nil {
 			return err
 		}
 	}
 
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
+
+	// routine to watch front-end
 	g.Go(func() error {
-		return s.watchAppFrontend(ctx)
+		return c.watchAppFrontend(ctx)
 	})
+
+	// development server routine
 	g.Go(func() error {
-		return s.runDevServer(ctx)
+		return c.runDevServer(ctx)
 	})
+
+	// blockchain node routine
 	g.Go(func() error {
-		s.refreshServe()
+		c.refreshServe()
 		for {
 			if ctx.Err() != nil {
 				return ctx.Err()
@@ -58,44 +87,68 @@ func (s *Chain) Serve(ctx context.Context) error {
 			case <-ctx.Done():
 				return ctx.Err()
 
-			case <-s.serveRefresher:
+			case <-c.serveRefresher:
 				var (
 					serveCtx context.Context
 					buildErr *CannotBuildAppError
 				)
-				serveCtx, s.serveCancel = context.WithCancel(ctx)
-				err := s.serve(serveCtx)
+				serveCtx, c.serveCancel = context.WithCancel(ctx)
+
+				// serve the app.
+				err := c.serve(serveCtx)
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
+					// If the app has been served, we save the genesis state
+					if c.served {
+						c.served = false
+
+						fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
+
+						// If serve has been stopped, save the genesis state
+						if err := c.saveChainState(context.TODO()); err != nil {
+							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
+							return err
+						}
+
+						genesisPath, err := c.exportedGenesisPath()
+						if err != nil {
+							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
+							return err
+						}
+						fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
+					}
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(s.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
 
 					var validationErr *conf.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(s.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+						fmt.Fprintln(c.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
 					}
 
-					fmt.Fprintf(s.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
 				default:
 					return err
 				}
 			}
 		}
 	})
+
+	// routine to watch back-end
 	g.Go(func() error {
-		return s.watchAppBackend(ctx)
+		return c.watchAppBackend(ctx)
 	})
+
 	return g.Wait()
 }
 
-func (s *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(s.stdLog(logStarport).out, "Cosmos' version is: %s\n", infoColor(s.plugin.Name()))
+func (c *Chain) setup(ctx context.Context) error {
+	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
-	if err := s.checkSystem(); err != nil {
+	if err := c.checkSystem(); err != nil {
 		return err
 	}
-	if err := s.plugin.Setup(ctx); err != nil {
+	if err := c.plugin.Setup(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -103,7 +156,7 @@ func (s *Chain) setup(ctx context.Context) error {
 
 // checkSystem checks if developer's work environment comply must to have
 // dependencies and pre-conditions.
-func (s *Chain) checkSystem() error {
+func (c *Chain) checkSystem() error {
 	// check if Go has installed.
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
@@ -116,142 +169,158 @@ func (s *Chain) checkSystem() error {
 	return nil
 }
 
-func (s *Chain) refreshServe() {
-	if s.serveCancel != nil {
-		s.serveCancel()
+func (c *Chain) refreshServe() {
+	if c.serveCancel != nil {
+		c.serveCancel()
 	}
-	s.serveRefresher <- struct{}{}
+	c.serveRefresher <- struct{}{}
 }
 
-func (s *Chain) watchAppBackend(ctx context.Context) error {
+func (c *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
 		appBackendWatchPaths,
-		fswatcher.Workdir(s.app.Path),
-		fswatcher.OnChange(s.refreshServe),
+		fswatcher.Workdir(c.app.Path),
+		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
+		fswatcher.IgnoreExt(ignoredExts...),
 	)
 }
 
-func (s *Chain) cmdOptions() []cmdrunner.Option {
+func (c *Chain) cmdOptions() []cmdrunner.Option {
 	return []cmdrunner.Option{
-		cmdrunner.DefaultWorkdir(s.app.Path),
+		cmdrunner.DefaultWorkdir(c.app.Path),
 	}
 }
 
-func (s *Chain) serve(ctx context.Context) error {
-	conf, err := s.Config()
+func (c *Chain) serve(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
-	sconf, err := secretconf.Open(s.app.Path)
+	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
 		return err
 	}
 
-	buildSteps, err := s.buildSteps(ctx, conf)
+	if err := c.buildProto(ctx); err != nil {
+		return err
+	}
+
+	buildSteps, err := c.buildSteps()
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, buildSteps...); err != nil {
 		return err
 	}
 
-	if err := s.Init(ctx); err != nil {
+	if err := c.Init(ctx); err != nil {
 		return err
 	}
 
 	for _, account := range conf.Accounts {
-		acc, err := s.CreateAccount(ctx, account.Name, "", account.Coins, false)
+		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
 		if err != nil {
 			return err
 		}
-		if err := s.AddGenesisAccount(ctx, acc); err != nil {
+
+		coins := strings.Join(account.Coins, ",")
+		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
+
+		fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
 	}
+
 	for _, account := range sconf.Accounts {
-		acc, err := s.CreateAccount(ctx, account.Name, account.Mnemonic, account.Coins, false)
+		acc, err := c.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
 		if err != nil {
 			return err
 		}
-		if err := s.AddGenesisAccount(ctx, acc); err != nil {
+
+		coins := strings.Join(account.Coins, ",")
+		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 	}
 
-	setupSteps, err := s.setupSteps(ctx, conf)
-	if err != nil {
+	if err := c.configure(ctx); err != nil {
 		return err
 	}
-	if err := cmdrunner.
-		New(s.cmdOptions()...).
-		Run(ctx, setupSteps...); err != nil {
-		return err
-	}
-	if _, err := s.Gentx(ctx, Validator{
+
+	if _, err := c.plugin.Gentx(ctx, c.Commands(), Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
 		return err
 	}
-	if err := s.CollectGentx(ctx); err != nil {
+
+	if err := c.Commands().CollectGentxs(ctx); err != nil {
 		return err
 	}
 
-	wr := sync.WaitGroup{}
-	wr.Add(1)
+	return c.start(ctx, conf)
+}
 
+func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	// start the blockchain.
+	g.Go(func() error { return c.plugin.Start(ctx, c.Commands(), conf) })
+
+	// run relayer.
 	go func() {
-		wr.Wait()
-		if err := s.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
-			fmt.Fprintf(s.stdLog(logStarport).err, "could not init relayer: %s", err)
+		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
 		}
 	}()
 
-	return cmdrunner.
-		New(append(s.cmdOptions(), cmdrunner.RunParallel())...).
-		Run(ctx, s.serverSteps(ctx, &wr, conf)...)
-}
+	// start the faucet if enabled.
+	var isFaucedEnabled bool
 
-func (s *Chain) serverSteps(ctx context.Context, wr *sync.WaitGroup, conf conf.Config) (steps step.Steps) {
-	var wg sync.WaitGroup
-	wg.Add(len(s.plugin.StartCommands(conf)))
-	go func() {
-		wg.Wait()
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", s.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
-		fmt.Fprintf(s.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
-		wr.Done()
-	}()
+	if conf.Faucet.Name != nil {
+		if _, err := c.cmd.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
+			if err == chaincmdrunner.ErrAccountDoesNotExist {
+				return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
+			}
+			return err
+		}
 
-	for _, exec := range s.plugin.StartCommands(conf) {
-		steps.Add(
-			step.New(
-				step.NewOptions().
-					Add(exec...).
-					Add(
-						step.InExec(func() error {
-							wg.Done()
-							return nil
-						}),
-					).
-					Add(s.stdSteps(logAppd)...)...,
-			),
-		)
+		isFaucedEnabled = true
+
+		g.Go(func() (err error) {
+			if err := c.runFaucetServer(ctx); err != nil {
+				return &CannotBuildAppError{err}
+			}
+			return nil
+		})
 	}
 
-	return
+	// set the app as being served
+	c.served = true
+
+	// print the server addresses.
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+
+	if isFaucedEnabled {
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://localhost:%d\n", conf.Faucet.Port)
+	}
+
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+
+	return g.Wait()
 }
 
-func (s *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := s.Config()
+func (c *Chain) watchAppFrontend(ctx context.Context) error {
+	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
-	vueFullPath := filepath.Join(s.app.Path, vuePath)
+	vueFullPath := filepath.Join(c.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
 	}
@@ -259,7 +328,7 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 	postExec := func(err error) error {
 		var exitErr *exec.ExitError
 		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
-			fmt.Fprintf(s.stdLog(logStarport).err, "%s\n%s",
+			fmt.Fprintf(c.stdLog(logStarport).err, "%s\n%s",
 				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
 		}
 		return nil // ignore errors.
@@ -292,45 +361,120 @@ func (s *Chain) watchAppFrontend(ctx context.Context) error {
 		)
 }
 
-func (s *Chain) runDevServer(ctx context.Context) error {
-	c, err := s.Config()
+func (c *Chain) runDevServer(ctx context.Context) error {
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(c.Servers.GRPCAddr)
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
 	if err != nil {
 		return err
 	}
 	defer grpcconn.Close()
 
 	conf := Config{
-		SdkVersion:      s.plugin.Name(),
-		EngineAddr:      xurl.HTTP(c.Servers.RPCAddr),
-		AppBackendAddr:  xurl.HTTP(c.Servers.APIAddr),
-		AppFrontendAddr: xurl.HTTP(c.Servers.FrontendAddr),
+		SdkVersion:      c.plugin.Name(),
+		EngineAddr:      xurl.HTTP(config.Servers.RPCAddr),
+		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
+		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
 	} // TODO get vals from const
-	handler, err := newDevHandler(s.app, conf, grpcHandler)
+	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
 		return err
 	}
-	sv := &http.Server{
-		Addr:    c.Servers.DevUIAddr,
+
+	return xhttp.Serve(ctx, &http.Server{
+		Addr:    config.Servers.DevUIAddr,
 		Handler: handler,
+	})
+}
+
+func (c *Chain) runFaucetServer(ctx context.Context) error {
+	config, err := c.Config()
+	if err != nil {
+		return err
 	}
 
-	go func() {
-		<-ctx.Done()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), time.Second*5)
-		defer cancel()
-		sv.Shutdown(shutdownCtx)
-	}()
-
-	err = sv.ListenAndServe()
-	if errors.Is(err, http.ErrServerClosed) {
-		return nil
+	faucetOptions := []cosmosfaucet.Option{
+		cosmosfaucet.Account(*config.Faucet.Name, ""),
 	}
-	return err
+
+	// parse coins to pass to the faucet as coins.
+	for _, coin := range config.Faucet.Coins {
+		amount, denom, err := cosmoscoin.Parse(coin)
+		if err != nil {
+			return fmt.Errorf("%s: %s", err, coin)
+		}
+
+		var amountMax uint64
+
+		// find out the max amount for this coin.
+		for _, coinMax := range config.Faucet.CoinsMax {
+			amount, denomMax, err := cosmoscoin.Parse(coinMax)
+			if err != nil {
+				return fmt.Errorf("%s: %s", err, coin)
+			}
+			if denomMax == denom {
+				amountMax = amount
+				break
+			}
+		}
+
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
+	}
+
+	faucet, err := cosmosfaucet.New(ctx, c.cmd, faucetOptions...)
+	if err != nil {
+		return err
+	}
+
+	return xhttp.Serve(ctx, &http.Server{
+		Addr:    fmt.Sprintf("0.0.0.0:%d", config.Faucet.Port),
+		Handler: faucet,
+	})
+}
+
+// saveChainState runs the export command of the chain and store the exported genesis in the chain saved config
+func (c *Chain) saveChainState(ctx context.Context) error {
+	genesisPath, err := c.exportedGenesisPath()
+	if err != nil {
+		return err
+	}
+
+	return c.cmd.Export(ctx, genesisPath)
+}
+
+// importChainState imports the saved genesis in chain config to use it as the genesis
+// nolint:unused
+func (c *Chain) importChainState() error {
+	exportGenesisPath, err := c.exportedGenesisPath()
+	if err != nil {
+		return err
+	}
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+
+	return copy.Copy(exportGenesisPath, genesisPath)
+}
+
+// exportedGenesisPath gets the path of the exported genesis file
+func (c *Chain) exportedGenesisPath() (string, error) {
+	chainID, err := c.ID()
+	if err != nil {
+		return "", err
+	}
+
+	savePath := filepath.Join(chainSavePath, chainID)
+
+	// ensure the path exists
+	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+		return "", err
+	}
+
+	return filepath.Join(savePath, exportedGenesis), nil
 }
 
 type CannotBuildAppError struct {

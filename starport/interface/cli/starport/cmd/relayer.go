@@ -3,11 +3,14 @@ package starportcmd
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+// NewRelayer creates a new command called chain that holds IBC Relayer related
+// sub commands.
 func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain",
@@ -18,15 +21,18 @@ func NewRelayer() *cobra.Command {
 	return c
 }
 
+// NewRelayerInfo creates a command that shows self chain information.
 func NewRelayerInfo() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "me",
 		Short: "Retrieves self chain information to share with other chains",
 		RunE:  relayerInfoHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
+// NewRelayerAdd creates a command to connect added chain with relayer.
 func NewRelayerAdd() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "add [another]",
@@ -34,24 +40,21 @@ func NewRelayerAdd() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  relayerAddHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
 func relayerInfoHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name: path.Root,
-		Path: appPath,
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	s, err := chain.New(app, false, logLevel(cmd))
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	info, err := s.RelayerInfo()
+	info, err := c.RelayerInfo()
 	if err != nil {
 		return err
 	}
@@ -60,20 +63,16 @@ func relayerInfoHandler(cmd *cobra.Command, args []string) error {
 }
 
 func relayerAddHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name: path.Root,
-		Path: appPath,
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	s, err := chain.New(app, false, logLevel(cmd))
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	if err := s.RelayerAdd(args[0]); err != nil {
+	if err := c.RelayerAdd(args[0]); err != nil {
 		return err
 	}
 	return nil

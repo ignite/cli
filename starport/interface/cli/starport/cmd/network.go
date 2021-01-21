@@ -7,6 +7,7 @@ import (
 	"os"
 
 	"github.com/AlecAivazis/survey/v2"
+	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -20,6 +21,8 @@ var (
 	spnFaucetAddress string
 )
 
+// NewNetwork creates a new network command that holds some other sub commands
+// related to creating a new network collaboratively.
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "network",
@@ -68,13 +71,25 @@ func ensureSPNAccount(b *networkbuilder.Builder) error {
 		return nil
 	}
 
-	fmt.Println(`To use Starport Network you need an account.
-Please, select an account or create a new one.
-	`)
+	title := "Starport Network"
 
-	accounts, err := accountNames(b)
+	printSection(fmt.Sprintf("Account on %s", title))
+	fmt.Printf("To use %s you need an account.\nPlease, select an account or create a new one:\n\n", title)
+
+	account, err := createSPNAccount(b, title)
 	if err != nil {
 		return err
+	}
+
+	return b.AccountUse(account.Name)
+}
+
+// createAccount interactively creates a Cosmos account in OS keyring or fs keyring depending
+// on the system.
+func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Account, err error) {
+	accounts, err := accountNames(b)
+	if err != nil {
+		return account, err
 	}
 	var (
 		createAccount = "Create a new account"
@@ -95,66 +110,57 @@ Please, select an account or create a new one.
 			Account string `survey:"account"`
 		}{}
 	)
-	err = survey.Ask(qs, &answers)
-	if err != nil {
-		return err
+	if err = survey.Ask(qs, &answers); err != nil {
+		if err == terminal.InterruptErr {
+			return account, context.Canceled
+		}
+		return account, err
 	}
-
-	var chosenAccountName string
 
 	switch answers.Account {
 	case createAccount:
 		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name)); err != nil {
-			return err
+		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.Required())); err != nil {
+			return account, err
 		}
 
-		acc, err := b.AccountCreate(name, "")
-		if err != nil {
-			return err
+		if account, err = b.AccountCreate(name, ""); err != nil {
+			return account, err
 		}
-		fmt.Printf(`Starport Network account has been created successfully!
-Account address: %s 
-Mnemonic: %s 
 
-`, acc.Address, acc.Mnemonic)
-		chosenAccountName = name
+		fmt.Printf("\n%s account has been created successfully!\nAccount address: %s \nMnemonic: %s\n\n",
+			title,
+			account.Address,
+			account.Mnemonic,
+		)
 
 	case importAccount:
 		var name string
 		var mnemonic string
 		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic),
+			cliquiz.NewQuestion("Account name", &name, cliquiz.Required()),
+			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.Required()),
 		); err != nil {
-			return err
+			return account, err
 		}
 
-		acc, err := b.AccountCreate(name, mnemonic)
-		if err != nil {
-			return err
+		if account, err = b.AccountCreate(name, mnemonic); err != nil {
+			return account, err
 		}
-		fmt.Printf(`Starport Network account has been imported successfully!
-Account address: %s 
-
-`, acc.Address)
-		chosenAccountName = name
+		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, account.Address)
 
 	default:
-		acc, err := b.AccountGet(answers.Account)
-		if err != nil {
-			return err
+		if account, err = b.AccountGet(answers.Account); err != nil {
+			return account, err
 		}
-		fmt.Printf(`Starport Network account has been selected.
-Account address: %s
-
-
-`, acc.Address)
-		chosenAccountName = answers.Account
-
+		fmt.Printf("\n%s account has been selected.\nAccount address: %s\n\n", title, account.Address)
 	}
 
-	return b.AccountUse(chosenAccountName)
+	return account, nil
+}
+
+func printSection(title string) {
+	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
 }
 
 // accountNames retrieves a name list of accounts in the OS keyring.

@@ -17,6 +17,8 @@ import (
 func newGRPCWebProxyHandler(grpcServerAddress string) (*grpc.ClientConn, http.Handler, error) {
 	grpcopts := []grpc.DialOption{
 		grpc.WithInsecure(),
+		// TODO: https://github.com/tendermint/starport/issues/562
+		// nolint:staticcheck
 		grpc.WithCodec(proxy.Codec()),
 	}
 
@@ -27,19 +29,20 @@ func newGRPCWebProxyHandler(grpcServerAddress string) (*grpc.ClientConn, http.Ha
 
 	director := func(ctx context.Context, fullMethodName string) (context.Context, *grpc.ClientConn, error) {
 		md, _ := metadata.FromIncomingContext(ctx)
-		outCtx, _ := context.WithCancel(ctx)
 		mdCopy := md.Copy()
 		delete(mdCopy, "user-agent")
 		// If this header is present in the request from the web client,
 		// the actual connection to the backend will not be established.
 		// https://github.com/improbable-eng/grpc-web/issues/568
 		delete(mdCopy, "connection")
-		outCtx = metadata.NewOutgoingContext(outCtx, mdCopy)
-		return outCtx, grpconn, nil
+		ctx = metadata.NewOutgoingContext(ctx, mdCopy)
+		return ctx, grpconn, nil
 	}
 
 	// Server with logging and monitoring enabled.
 	grpcserver := grpc.NewServer(
+		// TODO: https://github.com/tendermint/starport/issues/562
+		// nolint:staticcheck
 		grpc.CustomCodec(proxy.Codec()), // needed for proxy to function.
 		grpc.UnknownServiceHandler(proxy.TransparentHandler(director)),
 		grpc_middleware.WithUnaryServerChain(),

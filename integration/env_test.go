@@ -17,12 +17,12 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 const (
@@ -152,7 +152,7 @@ const (
 // Scaffold scaffolds an app to a unique appPath and returns it.
 func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 	root := e.TmpDir()
-	e.Exec("scaffold a launchpad app",
+	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
@@ -164,20 +164,40 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 			step.Workdir(root),
 		)),
 	)
+
+	// Cleanup the home directory of the app
+	e.t.Cleanup(func() {
+		switch sdkVersion {
+		case Stargate:
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
+		case Launchpad:
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%sd", appName)))
+			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%scli", appName)))
+		}
+	})
+
 	return filepath.Join(root, appName)
 }
 
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg string, path string, options ...execOption) (ok bool) {
+func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok bool) {
+	serveCommand := []string{
+		"serve",
+		"-v",
+	}
+
+	if home != "" {
+		serveCommand = append(serveCommand, "--home", home)
+	}
+	if clihome != "" {
+		serveCommand = append(serveCommand, "--cli-home", clihome)
+	}
+
 	return e.Exec(msg,
 		step.NewSteps(step.New(
-			step.Exec(
-				"starport",
-				"serve",
-				"-v",
-			),
+			step.Exec("starport", serveCommand...),
 			step.Workdir(path),
 		)),
 		options...,
@@ -238,7 +258,7 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
@@ -252,6 +272,24 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 
 	return servers
+}
+
+// SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
+func (e env) SetRandomHomeConfig(path string) {
+	// update config.yml with the generated temporary directories
+	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+	defer configyml.Close()
+
+	var conf starportconf.Config
+	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
+
+	conf.Init.Home = e.TmpDir()
+	conf.Init.CLIHome = e.TmpDir()
+	require.NoError(e.t, configyml.Truncate(0))
+	_, err = configyml.Seek(0, 0)
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 }
 
 // Must fails the immediately if not ok.
@@ -273,7 +311,7 @@ func (e env) Home() string {
 func (e env) AppdHome(name, sdkVersion string) string {
 	switch sdkVersion {
 	case Stargate:
-		return filepath.Join(e.Home(), fmt.Sprintf("%sd", name))
+		return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
 	case Launchpad:
 		return filepath.Join(e.Home(), fmt.Sprintf(".%sd", name))
 	}

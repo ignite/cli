@@ -15,9 +15,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/randstr"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -71,6 +71,8 @@ func relayerWithMultipleChains(t *testing.T, chainCount int) {
 		sg.Go(func() error {
 			ok := env.Serve(fmt.Sprintf("should serve app %q", chain.name),
 				chain.path,
+				"",
+				"",
 				ExecCtx(ctx),
 				ExecStdout(chain.logsWriter),
 			)
@@ -185,7 +187,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 		servers = env.RandomizeServerPorts(apath)
 
 		ctx, cancel                = context.WithCancel(env.Ctx())
-		relayerHome                = filepath.Join(env.Home(), "blogd/relayer")
+		relayerHome                = filepath.Join(env.Home(), ".blog/relayer")
 		balance                    = &bytes.Buffer{}
 		canCheckBalanceWithRelayer bool
 	)
@@ -202,6 +204,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 						"q",
 						"balance",
 						"blog",
+						"--debug",
 					),
 					step.PreExec(func() error {
 						return env.IsAppServed(ctx, servers)
@@ -220,7 +223,7 @@ func TestRelayerWithOnlySelfAccount(t *testing.T) {
 				ExecRetry(),
 			)
 	}()
-	env.Must(env.Serve("should serve", apath, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", apath, "", "", ExecCtx(ctx)))
 
 	if !canCheckBalanceWithRelayer {
 		t.FailNow()

@@ -2,17 +2,20 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 
+	starportconf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"golang.org/x/sync/errgroup"
+
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type launchpadPlugin struct {
@@ -55,120 +58,37 @@ func (p *launchpadPlugin) Binaries() []string {
 	}
 }
 
-func (p *launchpadPlugin) AddUserCommand(accountName string) step.Options {
-	return step.NewOptions().
-		Add(
-			step.Exec(
-				p.app.CLI(),
-				"keys",
-				"add",
-				accountName,
-				"--output", "json",
-				"--keyring-backend", "test",
-			),
-		)
-}
-
-func (p *launchpadPlugin) ImportUserCommand(name, mnemonic string) step.Options {
-	return step.NewOptions().
-		Add(
-			step.Exec(
-				p.app.CLI(),
-				"keys",
-				"add",
-				name,
-				"--recover",
-				"--keyring-backend", "test",
-			),
-			step.Write([]byte(mnemonic+"\n")),
-		)
-}
-
-func (p *launchpadPlugin) ShowAccountCommand(accountName string) step.Option {
-	return step.Exec(
-		p.app.CLI(),
-		"keys",
-		"show",
-		accountName,
-		"-a",
-		"--keyring-backend", "test",
+func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
+	return runner.LaunchpadSetConfigs(ctx,
+		chaincmdrunner.NewKV("keyring-backend", "test"),
+		chaincmdrunner.NewKV("chain-id", chainID),
+		chaincmdrunner.NewKV("output", "json"),
+		chaincmdrunner.NewKV("indent", "true"),
+		chaincmdrunner.NewKV("trust-node", "true"),
 	)
 }
 
-func (p *launchpadPlugin) ConfigCommands(chainID string) []step.Option {
-	return []step.Option{
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"keyring-backend",
-			"test",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"chain-id",
-			chainID,
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"output",
-			"json",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"indent",
-			"true",
-		),
-		step.Exec(
-			p.app.CLI(),
-			"config",
-			"trust-node",
-			"true",
-		),
-	}
+func (p *launchpadPlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+	return runner.Gentx(
+		ctx,
+		v.Name,
+		v.StakingAmount,
+		chaincmd.GentxWithMoniker(v.Moniker),
+		chaincmd.GentxWithCommissionRate(v.CommissionRate),
+		chaincmd.GentxWithCommissionMaxRate(v.CommissionMaxRate),
+		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
+		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
+		chaincmd.GentxWithGasPrices(v.GasPrices),
+	)
 }
 
-func (p *launchpadPlugin) GentxCommand(_ string, v Validator) step.Option {
-	args := []string{
-		"gentx",
-		"--name", v.Name,
-		"--keyring-backend", "test",
-		"--amount", v.StakingAmount,
-	}
-	if v.Moniker != "" {
-		args = append(args, "--moniker", v.Moniker)
-	}
-	if v.CommissionRate != "" {
-		args = append(args, "--commission-rate", v.CommissionRate)
-	}
-	if v.CommissionMaxRate != "" {
-		args = append(args, "--commission-max-rate", v.CommissionMaxRate)
-	}
-	if v.CommissionMaxChangeRate != "" {
-		args = append(args, "--commission-max-change-rate", v.CommissionMaxChangeRate)
-	}
-	if v.MinSelfDelegation != "" {
-		args = append(args, "--min-self-delegation", v.MinSelfDelegation)
-	}
-	if v.GasPrices != "" {
-		args = append(args, "--gas-prices", v.GasPrices)
-	}
-	return step.Exec(p.app.D(), args...)
+func (p *launchpadPlugin) PostInit(homePath string, conf starportconf.Config) error {
+	return p.configtoml(homePath, conf)
 }
 
-func (p *launchpadPlugin) PostInit(conf starportconf.Config) error {
-	return p.configtoml(conf)
-}
-
-func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
+func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return err
-	}
-	path := filepath.Join(home, "."+p.app.ND(), "config/config.toml")
+	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -177,7 +97,7 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
 	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
 	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
-	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 644)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
 	}
@@ -186,47 +106,45 @@ func (p *launchpadPlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *launchpadPlugin) StartCommands(conf starportconf.Config) [][]step.Option {
-	return [][]step.Option{
-		step.NewOptions().
-			Add(
-				step.Exec(
-					p.app.D(),
-					"start",
-				),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vd start", p.app.Name)
-				}),
-			),
-		step.NewOptions().
-			Add(
-				step.Exec(
-					p.app.CLI(),
-					"rest-server",
-					"--unsafe-cors",
-					"--laddr", xurl.TCP(conf.Servers.APIAddr),
-					"--node", xurl.TCP(conf.Servers.RPCAddr),
-				),
-				step.PostExec(func(exitErr error) error {
-					return errors.Wrapf(exitErr, "cannot run %[1]vcli rest-server", p.app.Name)
-				}),
-			),
-	}
+func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
+	g, ctx := errgroup.WithContext(ctx)
+
+	g.Go(func() error {
+		err := runner.Start(ctx)
+		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+	})
+
+	g.Go(func() error {
+		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
+	})
+
+	return g.Wait()
 }
 
 func (p *launchpadPlugin) StoragePaths() []string {
 	return []string{
-		fmt.Sprintf(".%s", p.app.ND()),
-		fmt.Sprintf(".%s", p.app.NCLI()),
+		launchpadHome(p.app),
+		launchpadCLIHome(p.app),
 	}
 }
 
-func (p *launchpadPlugin) Home() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "."+p.app.ND()), nil
+func (p *launchpadPlugin) Home() string {
+	return launchpadHome(p.app)
+}
+
+func (p *launchpadPlugin) CLIHome() string {
+	return launchpadCLIHome(p.app)
+}
+
+func launchpadHome(app App) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+app.ND())
+}
+
+func launchpadCLIHome(app App) string {
+	home, _ := os.UserHomeDir()
+	return filepath.Join(home, "."+app.NCLI())
 }
 
 func (p *launchpadPlugin) Version() cosmosver.MajorVersion { return cosmosver.Launchpad }

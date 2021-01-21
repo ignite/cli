@@ -3,13 +3,28 @@ package chain
 import (
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
-// App keeps info about scaffold.
+// App keeps info about chain.
 type App struct {
 	Name       string
 	Path       string
 	ImportPath string
+}
+
+// NewAppAt creates an App from the blockchain source code located at path.
+func NewAppAt(path string) (App, error) {
+	p, err := gomodulepath.ParseAt(path)
+	if err != nil {
+		return App{}, err
+	}
+	return App{
+		Path:       path,
+		Name:       p.Root,
+		ImportPath: p.RawPath,
+	}, nil
 }
 
 // N returns app name without dashes.

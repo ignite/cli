@@ -15,6 +15,8 @@ const (
 	accountPlaceholder = "[account in use]"
 )
 
+// NewNetworkAccountExport creates a new account export command to export
+// an SPN account.
 func NewNetworkAccountExport() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "export",

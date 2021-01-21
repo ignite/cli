@@ -3,7 +3,6 @@ package xchisel
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"time"
 
@@ -27,7 +26,7 @@ func StartServer(ctx context.Context, port string) error {
 		return err
 	}
 	if err := s.StartContext(ctx, "127.0.0.1", port); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if err = s.Wait(); err == context.Canceled {
 		return nil
@@ -45,8 +44,10 @@ func StartClient(ctx context.Context, serverAddr, localPort, remotePort string) 
 	if err != nil {
 		return err
 	}
+	c.Logger.Info = false
+	c.Logger.Debug = false
 	if err := c.Start(ctx); err != nil {
-		log.Fatal(err)
+		return err
 	}
 	if err = c.Wait(); err == context.Canceled {
 		return nil

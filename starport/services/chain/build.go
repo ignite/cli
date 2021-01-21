@@ -4,43 +4,42 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
 
 	"github.com/pkg/errors"
+	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
+	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // Build builds an app.
-func (s *Chain) Build(ctx context.Context) error {
-	if err := s.setup(ctx); err != nil {
+func (c *Chain) Build(ctx context.Context) error {
+	if err := c.setup(ctx); err != nil {
 		return err
 	}
-	conf, err := s.Config()
-	if err != nil {
-		return &CannotBuildAppError{err}
-	}
 
-	steps, err := s.buildSteps(ctx, conf)
+	steps, err := c.buildSteps()
 	if err != nil {
 		return err
 	}
 	if err := cmdrunner.
-		New(s.cmdOptions()...).
+		New(c.cmdOptions()...).
 		Run(ctx, steps...); err != nil {
 		return err
 	}
 
-	fmt.Fprintf(s.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(s.plugin.Binaries(), ", ")))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(c.plugin.Binaries(), ", ")))
 	return nil
 }
 
-func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
+func (c *Chain) buildSteps() (
 	steps step.Steps, err error) {
-	chainID, err := s.ID()
+	chainID, err := c.ID()
 	if err != nil {
 		return nil, err
 	}
@@ -51,12 +50,12 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 -X github.com/cosmos/cosmos-sdk/version.Version=%s
 -X github.com/cosmos/cosmos-sdk/version.Commit=%s
 -X %s/cmd/%s/cmd.ChainID=%s`,
-		s.app.Name,
-		s.app.Name,
-		s.version.tag,
-		s.version.hash,
-		s.app.ImportPath,
-		s.app.D(),
+		c.app.Name,
+		c.app.Name,
+		c.sourceVersion.tag,
+		c.sourceVersion.hash,
+		c.app.ImportPath,
+		c.app.D(),
 		chainID,
 	)
 	var (
@@ -69,6 +68,7 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 		}
 		return err
 	}
+
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
@@ -77,14 +77,15 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				"tidy",
 			),
 			step.PreExec(func() error {
-				fmt.Fprintln(s.stdLog(logStarport).out, "\n📦 Installing dependencies...")
+				fmt.Fprintln(c.stdLog(logStarport).out, "📦 Installing dependencies...")
 				return nil
 			}),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.stdSteps(logStarport)...).
+		Add(c.stdSteps(logStarport)...).
 		Add(step.Stderr(buildErr))...,
 	))
+
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
@@ -94,19 +95,19 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 			),
 			step.PostExec(captureBuildErr),
 		).
-		Add(s.stdSteps(logBuild)...).
+		Add(c.stdSteps(logBuild)...).
 		Add(step.Stderr(buildErr))...,
 	))
 
 	// install the app.
 	steps.Add(step.New(
 		step.PreExec(func() error {
-			fmt.Fprintln(s.stdLog(logStarport).out, "🛠️  Building the app...")
+			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the app...")
 			return nil
 		}),
 	))
 
-	for _, binary := range s.plugin.Binaries() {
+	for _, binary := range c.plugin.Binaries() {
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				// ldflags somehow won't work if directly execute go binary.
@@ -114,12 +115,47 @@ func (s *Chain) buildSteps(ctx context.Context, conf starportconf.Config) (
 				step.Exec(
 					"bash", "-c", fmt.Sprintf("go install -mod readonly -ldflags '%s'", ldflags),
 				),
-				step.Workdir(filepath.Join(s.app.Path, "cmd", binary)),
+				step.Workdir(filepath.Join(c.app.Path, "cmd", binary)),
 				step.PostExec(captureBuildErr),
 			).
-			Add(s.stdSteps(logStarport)...).
+			Add(c.stdSteps(logStarport)...).
 			Add(step.Stderr(buildErr))...,
 		))
 	}
 	return steps, nil
+}
+
+func (c *Chain) buildProto(ctx context.Context) error {
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
+
+	// If proto dir exists, compile the proto files.
+	if _, err := os.Stat(conf.Build.Proto.Path); os.IsNotExist(err) {
+		return nil
+	}
+
+	if err := cosmosprotoc.InstallDependencies(context.Background(), c.app.Path); err != nil {
+		if err == cosmosprotoc.ErrProtocNotInstalled {
+			return starporterrors.ErrStarportRequiresProtoc
+		}
+		return err
+	}
+
+	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
+
+	err = cosmosprotoc.Generate(
+		ctx,
+		c.app.Path,
+		c.app.ImportPath,
+		filepath.Join(c.app.Path, conf.Build.Proto.Path),
+		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path),
+	)
+
+	if err != nil {
+		return &CannotBuildAppError{err}
+	}
+
+	return nil
 }

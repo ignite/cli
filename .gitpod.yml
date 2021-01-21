@@ -14,12 +14,13 @@ tasks:
       brew install gh
 
       # install rly
-      (cd /tmp && git clone https://github.com/ovrclk/relayer && cd relayer && git checkout 3080dab10e37e6db9e691c343b1c0cdb6d845753 && make -C /tmp/relayer install)
+      (cd /tmp && git clone https://github.com/cosmos/relayer && cd relayer && git checkout ba17c4db185229d9354187a8b9723097ab527261 && make -C /tmp/relayer install)
 
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
       export RPC_ADDRESS=$(gp url 26657):443
+      cd ./docs
 
       clear && printf '\e[3J'
       echo -e "
@@ -37,3 +38,4 @@ ports:
   - port: 26657
   - port: 8080
   - port: 7575 
+  - port: 4500 

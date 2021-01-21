@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-// ParseList parses comma separeted numbers to ints.
+// ParseList parses comma separated numbers to []int.
 func ParseList(list string) ([]int, error) {
 	ints := []int{}
 	for _, number := range strings.Split(list, ",") {
@@ -23,7 +23,7 @@ func ParseList(list string) ([]int, error) {
 	return ints, nil
 }
 
-// List creates a comma separeted int list with optional prefix for each int.
+// List creates a comma separated int list with optional prefix for each int.
 func List(numbers []int, prefix string) string {
 	var s []string
 	for _, n := range numbers {

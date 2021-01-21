@@ -6,11 +6,11 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"testing"
 
+	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -117,16 +117,21 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						return err
 					}
 
-					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/tx/%s", xurl.HTTP(servers.APIAddr), tx.Hash)
+					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(servers.APIAddr), tx.Hash)
 					req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
 					if err != nil {
-						return err
+						return errors.Wrap(err, "call to get tx via gRPC gateway")
 					}
 					resp, err := http.DefaultClient.Do(req)
 					if err != nil {
 						return err
 					}
 					defer resp.Body.Close()
+
+					// Send error if the request failed
+					if resp.StatusCode != http.StatusOK {
+						return errors.New(resp.Status)
+					}
 
 					if err := json.NewDecoder(resp.Body).Decode(&txBody); err != nil {
 						return err
@@ -145,7 +150,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

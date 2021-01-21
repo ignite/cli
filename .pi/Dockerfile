@@ -1,4 +1,12 @@
 FROM faddat/sos-full
 
+# Make SPN user, spn hostname so we get spn.local via mdns
+RUN useradd --create-home starport && \
+        echo "starport" > /etc/hostname && \
+        echo "starport:starport" | chpasswd && \
+        usermod --append --groups wheel starport && \
+        passwd -e root
+
+
 # later, update to tendermint/starport
-COPY --from=faddat/starport /starport/build/starport /usr/bin/starport
+COPY --from=tendermintdevelopment/starport /starport/build/starport /usr/bin/starport

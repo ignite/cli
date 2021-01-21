@@ -2,10 +2,11 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+// NewBuild returns a new build command to build a blockchain app.
 func NewBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
@@ -13,25 +14,21 @@ func NewBuild() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  buildHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
 func buildHandler(cmd *cobra.Command, args []string) error {
-	path, err := gomodulepath.Parse(getModule(appPath))
-	if err != nil {
-		return err
-	}
-	app := chain.App{
-		Name:       path.Root,
-		Path:       appPath,
-		ImportPath: path.RawPath,
+	chainOption := []chain.Option{
+		chain.LogLevel(logLevel(cmd)),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	s, err := chain.New(app, false, logLevel(cmd))
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	return s.Build(cmd.Context())
+	return c.Build(cmd.Context())
 }

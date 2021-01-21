@@ -11,6 +11,7 @@ const (
 	moduleFlag string = "module"
 )
 
+// NewType command creates a new type command to scaffold types.
 func NewType() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "type [typeName] [field1] [field2] ...",
