@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"regexp"
 	"strings"
 
@@ -161,6 +162,17 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	return nil
+}
+
+// Export exports the state of the chain into the specified file
+func (r Runner) Export(ctx context.Context, exportedFile string) error {
+	exportedState := &bytes.Buffer{}
+	if err := r.run(ctx, runOptions{stdout: exportedState}, r.cc.ExportCommand()); err != nil {
+		return err
+	}
+
+	// Save the new state
+	return ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644)
 }
 
 // EventSelector is used to query events.

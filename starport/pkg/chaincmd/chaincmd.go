@@ -20,6 +20,7 @@ const (
 	commandTx                = "tx"
 	commandQuery             = "query"
 	commandUnsafeReset       = "unsafe-reset-all"
+	commandExport            = "export"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"
@@ -397,6 +398,14 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 func (c ChainCmd) UnsafeResetCommand() step.Option {
 	command := []string{
 		commandUnsafeReset,
+	}
+	return c.daemonCommand(command)
+}
+
+// ExportCommand returns the command to export the state of the blockchain into a genesis file
+func (c ChainCmd) ExportCommand() step.Option {
+	command := []string{
+		commandExport,
 	}
 	return c.daemonCommand(command)
 }
