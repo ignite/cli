@@ -13,11 +13,7 @@ jobs:
       uses: edlanglois/pkgbuild-action@v1
       with: 
         pkgdir: scripts
-    - name: Print Package Files
-      run: |
-        echo "Successfully created the following package archive"
-        echo "Package: ${{ steps.makepkg.outputs.pkgfile0 }}"
     - name: Upload Package Archive
       uses: actions/upload-artifact@v2
       with:
-         path: ${{ steps.makepkg.outputs.pkgfile0 }}
+         path: scrripts/*.zst
