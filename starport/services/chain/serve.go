@@ -185,14 +185,19 @@ func (c *Chain) serve(ctx context.Context) error {
 		return err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	for _, account := range conf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
+		acc, err := commands.AddAccount(ctx, account.Name, "")
 		if err != nil {
 			return err
 		}
 
 		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 
@@ -200,13 +205,13 @@ func (c *Chain) serve(ctx context.Context) error {
 	}
 
 	for _, account := range sconf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
+		acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
 		if err != nil {
 			return err
 		}
 
 		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 	}
@@ -215,14 +220,14 @@ func (c *Chain) serve(ctx context.Context) error {
 		return err
 	}
 
-	if _, err := c.plugin.Gentx(ctx, c.Commands(), Validator{
+	if _, err := c.plugin.Gentx(ctx, commands, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
 		return err
 	}
 
-	if err := c.Commands().CollectGentxs(ctx); err != nil {
+	if err := commands.CollectGentxs(ctx); err != nil {
 		return err
 	}
 
@@ -230,10 +235,15 @@ func (c *Chain) serve(ctx context.Context) error {
 }
 
 func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, c.Commands(), conf) })
+	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
 
 	// run relayer.
 	go func() {
@@ -246,7 +256,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	var isFaucedEnabled bool
 
 	if conf.Faucet.Name != nil {
-		if _, err := c.cmd.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
+		if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
 			if err == chaincmdrunner.ErrAccountDoesNotExist {
 				return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
 			}
@@ -357,6 +367,11 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 		return err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*config.Faucet.Name, ""),
 	}
@@ -385,7 +400,7 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
 	}
 
-	faucet, err := cosmosfaucet.New(ctx, c.cmd, faucetOptions...)
+	faucet, err := cosmosfaucet.New(ctx, commands, faucetOptions...)
 	if err != nil {
 		return err
 	}

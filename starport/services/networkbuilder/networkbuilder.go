@@ -355,6 +355,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	commands, err := chainHandler.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	if len(launchInfo.GenTxs) == 0 {
 		return errors.New("there are no approved validators yet")
 	}
@@ -410,7 +415,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return chainHandler.Commands().
+		return commands.
 			Copy(
 				chaincmdrunner.Stdout(os.Stdout),
 				chaincmdrunner.Stderr(os.Stderr)).
@@ -451,6 +456,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
+	commands, err := chainHandler.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	home, err := chainHandler.Home()
 	if err != nil {
 		return err
@@ -484,7 +494,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 			Coins:   account.Coins.String(),
 		}
 
-		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
 			return err
 		}
 	}
@@ -512,7 +522,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		}
 	}
 	if len(launchInfo.GenTxs) > 0 {
-		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
+		if err = commands.CollectGentxs(ctx); err != nil {
 			return err
 		}
 	}

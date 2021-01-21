@@ -14,6 +14,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
@@ -33,13 +35,22 @@ func (c *Chain) Build(ctx context.Context) error {
 		return err
 	}
 
-	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(c.plugin.Binaries(), ", ")))
+	binaries, err := c.Binaries()
+	if err != nil {
+		return err
+	}
+
+	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
 	return nil
 }
 
-func (c *Chain) buildSteps() (
-	steps step.Steps, err error) {
+func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	chainID, err := c.ID()
+	if err != nil {
+		return nil, err
+	}
+
+	binary, err := c.Binary()
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +66,7 @@ func (c *Chain) buildSteps() (
 		c.sourceVersion.tag,
 		c.sourceVersion.hash,
 		c.app.ImportPath,
-		c.app.D(),
+		binary,
 		chainID,
 	)
 	var (
@@ -107,21 +118,32 @@ func (c *Chain) buildSteps() (
 		}),
 	))
 
-	for _, binary := range c.plugin.Binaries() {
+	addInstallStep := func(binaryName, mainPath string) {
+		installPath := filepath.Join(goenv.GetGOBIN(), binaryName)
+
 		steps.Add(step.New(step.NewOptions().
 			Add(
 				// ldflags somehow won't work if directly execute go binary.
 				// bash stays as a workaround for now.
 				step.Exec(
-					"bash", "-c", fmt.Sprintf("go install -mod readonly -ldflags '%s'", ldflags),
+					"bash", "-c", fmt.Sprintf("go build -mod readonly -o %s -ldflags '%s'", installPath, ldflags),
 				),
-				step.Workdir(filepath.Join(c.app.Path, "cmd", binary)),
+				step.Workdir(mainPath),
 				step.PostExec(captureBuildErr),
 			).
 			Add(c.stdSteps(logStarport)...).
 			Add(step.Stderr(buildErr))...,
 		))
 	}
+
+	cmdPath := filepath.Join(c.app.Path, "cmd")
+
+	addInstallStep(binary, filepath.Join(cmdPath, c.app.D()))
+
+	if c.Version.Major().Is(cosmosver.Launchpad) {
+		addInstallStep(c.BinaryCLI(), filepath.Join(cmdPath, c.app.CLI()))
+	}
+
 	return steps, nil
 }
 

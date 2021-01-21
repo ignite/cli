@@ -34,12 +34,6 @@ func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) Binaries() []string {
-	return []string{
-		p.app.D(),
-	}
-}
-
 func (p *stargatePlugin) Configure(_ context.Context, _ chaincmdrunner.Runner, _ string) error {
 	return nil
 }

@@ -42,8 +42,13 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	// init node.
-	if err := c.cmd.Init(ctx, moniker); err != nil {
+	if err := commands.Init(ctx, moniker); err != nil {
 		return err
 	}
 
@@ -117,7 +122,12 @@ func (c *Chain) configure(ctx context.Context) error {
 		return err
 	}
 
-	return c.plugin.Configure(ctx, c.Commands(), chainID)
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.plugin.Configure(ctx, commands, chainID)
 }
 
 type Validator struct {

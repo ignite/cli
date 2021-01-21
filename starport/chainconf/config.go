@@ -49,8 +49,9 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
-	Build     Build                  `yaml:"build"`
 	Faucet    Faucet                 `yaml:"faucet"`
+	Binary    string                 `yaml:"binary"`
+	Build     Build                  `yaml:"build"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
