@@ -4,18 +4,8 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"go/build"
-	"net"
-	"net/http"
-	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
-	"strings"
-
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
-	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -26,7 +16,14 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
+	"go/build"
 	"golang.org/x/sync/errgroup"
+	"net"
+	"net/http"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
 )
 
 var (
@@ -162,15 +159,13 @@ func (c *Chain) serve(ctx context.Context) error {
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
-	sconf, err := secretconf.Open(c.app.Path)
-	if err != nil {
-		return err
-	}
 
+	// build proto
 	if err := c.buildProto(ctx); err != nil {
 		return err
 	}
 
+	// build the blockchain app
 	buildSteps, err := c.buildSteps()
 	if err != nil {
 		return err
@@ -181,51 +176,17 @@ func (c *Chain) serve(ctx context.Context) error {
 		return err
 	}
 
+	// initialize the blockchain
 	if err := c.Init(ctx); err != nil {
 		return err
 	}
 
-	for _, account := range conf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
-		if err != nil {
-			return err
-		}
-
-		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
-			return err
-		}
-
-		fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
-	}
-
-	for _, account := range sconf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
-		if err != nil {
-			return err
-		}
-
-		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
-			return err
-		}
-	}
-
-	if err := c.configure(ctx); err != nil {
+	// initialize the blockchain accounts
+	if err := c.Init(ctx); err != nil {
 		return err
 	}
 
-	if _, err := c.plugin.Gentx(ctx, c.Commands(), Validator{
-		Name:          conf.Validator.Name,
-		StakingAmount: conf.Validator.Staked,
-	}); err != nil {
-		return err
-	}
-
-	if err := c.Commands().CollectGentxs(ctx); err != nil {
-		return err
-	}
-
+	// start the blockchain
 	return c.start(ctx, conf)
 }
 
