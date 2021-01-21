@@ -1,7 +1,7 @@
 # Maintainer: jacobgadikian@gmail.com
 
 pkgname=starport-git
-pkgdesc="The fastest way to build a blockchainn"
+pkgdesc="The fastest way to build a blockchain"
 pkgver=0.0.0.ga59748e
 pkgrel=1
 arch=("any")
@@ -10,7 +10,7 @@ conflicts=("starport")
 url="https://github.com/tendermint/starport"
 md5sums=('SKIP')
 
-depends=("nodejs"
+depends=("npm"
          "protobuf"
          "go")
 
