@@ -12,14 +12,12 @@ md5sums=('SKIP')
 
 depends=("npm"
          "protobuf"
+         "git"
          "go")
 
-makedepends=("npm"
-             "nodejs"
-             "git"
+makedepends=(
              "node-gyp"
-             "make"
-             "go")
+             "make")
 
 source=("${pkgname}::git+https://github.com/tendermint/starport.git")
 
