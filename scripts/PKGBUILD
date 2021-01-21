@@ -1,13 +1,12 @@
 # Maintainer: jacobgadikian@gmail.com
 
-pkgname=starport-git
-pkgdesc="The fastest way to build a blockchain"
-pkgver=0.0.0.ga59748e
+pkgname=("starport-git")
+pkgdesc=("The fastest way to build a blockchain")
 pkgrel=1
 arch=("any")
 provides=("starport")
 conflicts=("starport")
-url="https://github.com/tendermint/starport"
+url=("https://github.com/tendermint/starport")
 md5sums=('SKIP')
 
 depends=("npm"
@@ -17,6 +16,7 @@ depends=("npm"
 
 makedepends=(
              "node-gyp"
+             "git"
              "make")
 
 source=("${pkgname}::git+https://github.com/tendermint/starport.git")
