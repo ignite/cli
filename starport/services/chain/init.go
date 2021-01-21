@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	conf "github.com/tendermint/starport/starport/chainconf"
@@ -101,7 +102,7 @@ func (c *Chain) Init(ctx context.Context) error {
 	return c.plugin.PostInit(home, conf)
 }
 
-// Init initializes the chain accounts and creates validator gentxs
+// InitAccounts initializes the chain accounts and creates validator gentxs
 func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 	sconf, err := secretconf.Open(c.app.Path)
 	if err != nil {
@@ -155,6 +156,26 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 	}
 
 	return nil
+}
+
+// IsInitialized checks if the chain is initialized
+// the check is performed by checking if the gentx dir exist in the config
+func (c *Chain) IsInitialized() (bool, error) {
+	home, err := c.Home()
+	if err != nil {
+		return false, err
+	}
+	gentxDir := filepath.Join(home, "config", "gentx")
+
+	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		// Return error on other error
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (c *Chain) configure(ctx context.Context) error {

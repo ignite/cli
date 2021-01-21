@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/dirchange"
 	"go/build"
 	"net"
 	"net/http"
@@ -191,36 +192,84 @@ func (c *Chain) cmdOptions() []cmdrunner.Option {
 	}
 }
 
+// serve performs the operations to serve the blockchain: build, init and start
+// if the chain is already initialized and the file didn't changed, the app is directly started
+// if the files changed, the state is imported
 func (c *Chain) serve(ctx context.Context) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 
-	// build proto
-	if err := c.buildProto(ctx); err != nil {
-		return err
-	}
-
-	// build the blockchain app
-	buildSteps, err := c.buildSteps()
+	// check if the app is initialized
+	isInit, err := c.IsInitialized()
 	if err != nil {
 		return err
 	}
-	if err := cmdrunner.
-		New(c.cmdOptions()...).
-		Run(ctx, buildSteps...); err != nil {
+
+	// check if source has been modified since last serve
+	saveDir, err := c.chainSavePath()
+	if err != nil {
+		return err
+	}
+	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendWatchPaths, saveDir)
+	if err != nil {
 		return err
 	}
 
-	// initialize the blockchain
-	if err := c.Init(ctx); err != nil {
+	// check if exported genesis exists
+	exportGenesisExists := true
+	exportedGenesisPath, err := c.exportedGenesisPath()
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(exportedGenesisPath); os.IsNotExist(err) {
+		exportGenesisExists = false
+	} else if err != nil {
 		return err
 	}
 
-	// initialize the blockchain accounts
-	if err := c.InitAccounts(ctx, conf); err != nil {
-		return err
+	// build phase
+	if !isInit || sourceModified {
+		// build proto
+		if err := c.buildProto(ctx); err != nil {
+			return err
+		}
+
+		// build the blockchain app
+		buildSteps, err := c.buildSteps()
+		if err != nil {
+			return err
+		}
+		if err := cmdrunner.
+			New(c.cmdOptions()...).
+			Run(ctx, buildSteps...); err != nil {
+			return err
+		}
+	}
+
+	// init phase
+	if !isInit || (sourceModified && !exportGenesisExists) {
+		// initialize the blockchain
+		if err := c.Init(ctx); err != nil {
+			return err
+		}
+
+		// initialize the blockchain accounts
+		if err := c.InitAccounts(ctx, conf); err != nil {
+			return err
+		}
+	} else if sourceModified {
+		// if the chain is already initialized but the source has been modified
+		// we reset the chain database and import the genesis state
+
+		if err := c.cmd.UnsafeReset(ctx); err != nil {
+			return err
+		}
+
+		if err := c.importChainState(); err != nil {
+			return err
+		}
 	}
 
 	// start the blockchain
@@ -422,17 +471,27 @@ func (c *Chain) importChainState() error {
 	return copy.Copy(exportGenesisPath, genesisPath)
 }
 
-// exportedGenesisPath gets the path of the exported genesis file
-func (c *Chain) exportedGenesisPath() (string, error) {
+// chainSavePath returns the path where the chain state is saved
+// create the path if it doesn't exist
+func (c *Chain) chainSavePath() (string, error) {
 	chainID, err := c.ID()
 	if err != nil {
 		return "", err
 	}
-
 	savePath := filepath.Join(chainSavePath, chainID)
 
 	// ensure the path exists
 	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
+		return "", err
+	}
+
+	return savePath, nil
+}
+
+// exportedGenesisPath returns the path of the exported genesis file
+func (c *Chain) exportedGenesisPath() (string, error) {
+	savePath, err := c.chainSavePath()
+	if err != nil {
 		return "", err
 	}
 
