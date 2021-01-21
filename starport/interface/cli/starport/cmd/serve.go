@@ -6,7 +6,7 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-const flagForceReset "force-reset"
+const flagForceReset = "force-reset"
 
 var appPath string
 
