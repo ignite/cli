@@ -43,8 +43,35 @@ var (
 	exportedGenesis = "exported_genesis.json"
 )
 
+type serveOptions struct {
+	forceReset bool
+}
+
+func newServeOption() serveOptions {
+	return serveOptions{
+		forceReset: false,
+	}
+}
+
+// ServeOption provides options for the serve command
+type ServeOption func(*serveOptions)
+
+// ServeForceReset allows to force reset of the state when the chain is served
+func ServeForceReset() ServeOption {
+	return func(c *serveOptions) {
+		c.forceReset = true
+	}
+}
+
 // Serve serves an app.
-func (c *Chain) Serve(ctx context.Context) error {
+func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
+	serveOptions := newServeOption()
+
+	// apply the options
+	for _, apply := range options {
+		apply(&serveOptions)
+	}
+
 	// initial checks and setup.
 	if err := c.setup(ctx); err != nil {
 		return err
@@ -95,7 +122,7 @@ func (c *Chain) Serve(ctx context.Context) error {
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
 				// serve the app.
-				err := c.serve(serveCtx)
+				err := c.serve(serveCtx, serveOptions.forceReset)
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
@@ -196,16 +223,22 @@ func (c *Chain) cmdOptions() []cmdrunner.Option {
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
-func (c *Chain) serve(ctx context.Context) error {
+func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
 	}
 
-	// check if the app is initialized
-	isInit, err := c.IsInitialized()
-	if err != nil {
-		return err
+	// if forceReset is set, we consider the app as being not initialized
+	var isInit bool
+	if forceReset {
+		isInit = false
+	} else {
+		// check if the app is initialized
+		isInit, err = c.IsInitialized()
+		if err != nil {
+			return err
+		}
 	}
 
 	// check if source has been modified since last serve

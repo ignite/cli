@@ -6,6 +6,8 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+const flagForceReset "force-reset"
+
 var appPath string
 
 // NewServe creates a new serve command to serve a blockchain.
@@ -17,20 +19,32 @@ func NewServe() *cobra.Command {
 		RunE:  serveHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+	c.Flags().BoolP(flagForceReset, "r", false, "Force reset of the app state")
 	return c
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
+	// create the chain
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
-
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}
-	return c.Serve(cmd.Context())
+
+	// serve the chain
+	var serveOptions []chain.ServeOption
+	forceUpdate, err := cmd.Flags().GetBool(flagForceReset)
+	if err != nil {
+		return err
+	}
+	if forceUpdate {
+		serveOptions = append(serveOptions, chain.ServeForceReset())
+	}
+
+	return c.Serve(cmd.Context(), serveOptions...)
 }
