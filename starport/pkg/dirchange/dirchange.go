@@ -14,8 +14,9 @@ const (
 
 // SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the specified directory
 // If checksumSavePath directory doesn't exist, it is created
-func SaveDirChecksum(paths []string, checksumSavePath string) error {
-	checksum, err := checksumFromPaths(paths)
+// paths are relative to workdir, if workdir is empty string paths are absolute
+func SaveDirChecksum(workdir string, paths []string, checksumSavePath string) error {
+	checksum, err := checksumFromPaths(workdir, paths)
 	if err != nil {
 		return err
 	}
@@ -34,8 +35,9 @@ func SaveDirChecksum(paths []string, checksumSavePath string) error {
 // and compare it with the current saved checksum
 // If the checksum is different, the new checksum is saved
 // Return true if the checksum file doesn't exist yet and if checksumSavePath directory doesn't exist, it is created
-func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error) {
-	checksum, err := checksumFromPaths(paths)
+// paths are relative to workdir, if workdir is empty string paths are absolute
+func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath string) (bool, error) {
+	checksum, err := checksumFromPaths(workdir, paths)
 	if err != nil {
 		return false, err
 	}
@@ -64,11 +66,16 @@ func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error
 }
 
 // checksumFromPaths computes the md5 checksum from the provided paths
-func checksumFromPaths(paths []string) ([]byte, error) {
+// paths are relative to workdir, if workdir is empty string paths are absolute
+func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	hash := md5.New()
 
 	// read files
 	for _, path := range paths {
+		if workdir != "" {
+			path = filepath.Join(workdir, path)
+		}
+
 		err := filepath.Walk(path, func(subPath string, info os.FileInfo, err error) error {
 			if err != nil {
 				return err

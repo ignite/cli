@@ -20,14 +20,18 @@ func randomBytes(n int) []byte {
 func TestHasDirChecksumChanged(t *testing.T) {
 	tempDir := os.TempDir()
 
+
 	// Create directory tree
-	dir1, err := ioutil.TempDir(tempDir, TmpPattern)
+	dir1 := filepath.Join(tempDir, "foo1")
+	err := os.MkdirAll(dir1, 0700)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir1)
-	dir2, err := ioutil.TempDir(tempDir, TmpPattern)
+	dir2 := filepath.Join(tempDir, "foo2")
+	err = os.MkdirAll(dir2, 0700)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir2)
-	dir3, err := ioutil.TempDir(tempDir, TmpPattern)
+	dir3 := filepath.Join(tempDir, "foo3")
+	err = os.MkdirAll(dir3, 0700)
 	require.NoError(t, err)
 	defer os.RemoveAll(dir3)
 
@@ -54,7 +58,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 
 	// Check checksum
 	paths := []string{dir1, dir2, dir3}
-	checksum, err := checksumFromPaths(paths)
+	checksum, err := checksumFromPaths("", paths)
 	require.NoError(t, err)
 	// md5 checksum is 16 bytes
 	require.Len(t, checksum, 16)
@@ -64,19 +68,25 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
-	tmpChecksum, err := checksumFromPaths(paths)
+	tmpChecksum, err := checksumFromPaths("", paths)
+	require.NoError(t, err)
+	require.Equal(t, checksum, tmpChecksum)
+
+	// Can compute the checksum from a specific workdir
+	pathNames := []string{"foo1", "foo2", "foo3"}
+	tmpChecksum, err = checksumFromPaths(tempDir, pathNames)
 	require.NoError(t, err)
 	require.Equal(t, checksum, tmpChecksum)
 
 	// Checksum from a subdir is different
-	tmpChecksum, err = checksumFromPaths([]string{dir1, dir2})
+	tmpChecksum, err = checksumFromPaths("", []string{dir1, dir2})
 	require.NoError(t, err)
 	require.NotEqual(t, checksum, tmpChecksum)
 
 	// Checksum changes if a file is modified
 	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
-	newChecksum, err := checksumFromPaths(paths)
+	newChecksum, err := checksumFromPaths("", paths)
 	require.NoError(t, err)
 	require.NotEqual(t, checksum, newChecksum)
 
@@ -84,7 +94,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	saveDir, err := ioutil.TempDir(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(saveDir)
-	err = SaveDirChecksum(paths, saveDir)
+	err = SaveDirChecksum("", paths, saveDir)
 	require.NoError(t, err)
 	require.FileExists(t, filepath.Join(saveDir, checksumFile))
 	fileContent, err := ioutil.ReadFile(filepath.Join(saveDir, checksumFile))
@@ -92,7 +102,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.Equal(t, newChecksum, fileContent)
 
 	// HasDirChecksumChanged returns false if the directory has not changed
-	changed, err := HasDirChecksumChanged(paths, saveDir)
+	changed, err := HasDirChecksumChanged("", paths, saveDir)
 	require.NoError(t, err)
 	require.False(t, changed)
 
@@ -100,7 +110,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	newSaveDir, err := ioutil.TempDir(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(newSaveDir)
-	changed, err = HasDirChecksumChanged(paths, newSaveDir)
+	changed, err = HasDirChecksumChanged("", paths, newSaveDir)
 	require.NoError(t, err)
 	require.True(t, changed)
 	require.FileExists(t, filepath.Join(newSaveDir, checksumFile))
@@ -111,12 +121,12 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	// Return true and rewrite the checksum if it has been changed
 	err = ioutil.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	changed, err = HasDirChecksumChanged(paths, saveDir)
+	changed, err = HasDirChecksumChanged("", paths, saveDir)
 	require.NoError(t, err)
 	require.True(t, changed)
 	fileContent, err = ioutil.ReadFile(filepath.Join(saveDir, checksumFile))
 	require.NoError(t, err)
-	newChecksum, err = checksumFromPaths(paths)
+	newChecksum, err = checksumFromPaths("", paths)
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, fileContent)
 }
