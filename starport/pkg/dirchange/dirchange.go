@@ -33,7 +33,7 @@ func SaveDirChecksum(paths []string, checksumSavePath string) error {
 // HasDirChecksumChanged computes the md5 checksum of the provided paths (directories or files)
 // and compare it with the current saved checksum
 // If the checksum is different, the new checksum is saved
-// Return false if the checksum file doesn't exist yet and ff checksumSavePath directory doesn't exist, it is created
+// Return true if the checksum file doesn't exist yet and if checksumSavePath directory doesn't exist, it is created
 func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error) {
 	checksum, err := checksumFromPaths(paths)
 	if err != nil {
@@ -47,7 +47,7 @@ func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error
 
 	checksumFilePath := filepath.Join(checksumSavePath, checksumFile)
 	if _, err := os.Stat(checksumFilePath); os.IsNotExist(err) {
-		return false, ioutil.WriteFile(checksumFilePath, checksum, 0644)
+		return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
 	}
 
 	// Compare checksums
@@ -56,9 +56,9 @@ func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error
 		return false, err
 	}
 	if bytes.Equal(checksum, savedChecksum) {
-		return true, nil
+		return false, nil
 	} else {
-		return false, ioutil.WriteFile(checksumFilePath, checksum, 0644)
+		return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
 	}
 }
 
