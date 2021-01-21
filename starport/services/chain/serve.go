@@ -4,6 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"go/build"
+	"net"
+	"net/http"
+	"os"
+	"os/exec"
+	"path"
+	"path/filepath"
+
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -16,14 +24,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"go/build"
 	"golang.org/x/sync/errgroup"
-	"net"
-	"net/http"
-	"os"
-	"os/exec"
-	"path"
-	"path/filepath"
 )
 
 var (

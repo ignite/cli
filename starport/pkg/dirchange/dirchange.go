@@ -57,9 +57,10 @@ func HasDirChecksumChanged(paths []string, checksumSavePath string) (bool, error
 	}
 	if bytes.Equal(checksum, savedChecksum) {
 		return false, nil
-	} else {
-		return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
 	}
+
+	// The checksum has changed
+	return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
 }
 
 // checksumFromPaths computes the md5 checksum from the provided paths

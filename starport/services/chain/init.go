@@ -3,10 +3,11 @@ package chain
 import (
 	"context"
 	"fmt"
-	conf "github.com/tendermint/starport/starport/chainconf"
-	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"os"
 	"strings"
+
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/confile"
@@ -155,7 +156,6 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 	return nil
 }
-
 
 func (c *Chain) configure(ctx context.Context) error {
 	// setup IBC Relayer.

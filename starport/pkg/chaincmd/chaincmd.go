@@ -19,7 +19,7 @@ const (
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
-	commandUnsafeReset		= "unsafe-reset-all"
+	commandUnsafeReset       = "unsafe-reset-all"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"

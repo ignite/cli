@@ -39,17 +39,17 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 
 	// Create files
-	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"),0644)
+	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir11, "foo"), randomBytes(15),0644)
+	err = ioutil.WriteFile(filepath.Join(dir11, "foo"), randomBytes(15), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir12, "foo"), randomBytes(20),0644)
+	err = ioutil.WriteFile(filepath.Join(dir12, "foo"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir21, "foo"), randomBytes(20),0644)
+	err = ioutil.WriteFile(filepath.Join(dir21, "foo"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10),0644)
+	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(10),0644)
+	err = ioutil.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(10), 0644)
 	require.NoError(t, err)
 
 	// Check checksum
@@ -62,7 +62,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	// Checksum remains the same if a file is deleted and recreated with the same content
 	err = os.Remove(filepath.Join(dir1, "foo"))
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"),0644)
+	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
 	tmpChecksum, err := checksumFromPaths(paths)
 	require.NoError(t, err)
@@ -74,7 +74,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NotEqual(t, checksum, tmpChecksum)
 
 	// Checksum changes if a file is modified
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10),0644)
+	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
 	newChecksum, err := checksumFromPaths(paths)
 	require.NoError(t, err)
@@ -109,7 +109,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.Equal(t, newChecksum, fileContent)
 
 	// Return true and rewrite the checksum if it has been changed
-	err = ioutil.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20),0644)
+	err = ioutil.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
 	require.NoError(t, err)
 	changed, err = HasDirChecksumChanged(paths, saveDir)
 	require.NoError(t, err)
