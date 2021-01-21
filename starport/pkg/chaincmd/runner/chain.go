@@ -73,6 +73,11 @@ func (r Runner) ValidateGenesis(ctx context.Context) error {
 	return r.run(ctx, runOptions{}, r.cc.ValidateGenesisCommand())
 }
 
+// UnsafeReset resets the blockchain database.
+func (r Runner) UnsafeReset(ctx context.Context) error {
+	return r.run(ctx, runOptions{}, r.cc.UnsafeResetCommand())
+}
+
 // ShowNodeID shows node id.
 func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
 	b := &bytes.Buffer{}

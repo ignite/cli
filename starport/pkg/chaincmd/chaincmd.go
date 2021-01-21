@@ -19,6 +19,7 @@ const (
 	commandStatus            = "status"
 	commandTx                = "tx"
 	commandQuery             = "query"
+	commandUnsafeReset		= "unsafe-reset-all"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"
@@ -388,6 +389,14 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	command := []string{
 		constTendermint,
 		commandShowNodeID,
+	}
+	return c.daemonCommand(command)
+}
+
+// UnsafeResetCommand returns the command to reset the blockchain database
+func (c ChainCmd) UnsafeResetCommand() step.Option {
+	command := []string{
+		commandUnsafeReset,
 	}
 	return c.daemonCommand(command)
 }
