@@ -183,7 +183,7 @@ func (c *Chain) serve(ctx context.Context) error {
 	}
 
 	// initialize the blockchain accounts
-	if err := c.Init(ctx); err != nil {
+	if err := c.InitAccounts(ctx, conf); err != nil {
 		return err
 	}
 
