@@ -141,7 +141,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 						genesisPath, err := c.exportedGenesisPath()
 						if err != nil {
-							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
+							fmt.Fprintln(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
 						fmt.Fprintf(c.stdLog(logStarport).out, "💿 Genesis state saved in %s\n", genesisPath)
@@ -251,7 +251,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	var isInit bool
 	if forceReset {
 		// if forceReset is set, we consider the app as being not initialized
-		fmt.Fprint(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
+		fmt.Fprintln(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
 		isInit = false
 	} else {
 		// check if the app is initialized
@@ -305,7 +305,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// init phase
 	// nolint:gocritic
 	if !isInit || (sourceModified && !exportGenesisExists) {
-		fmt.Fprint(c.stdLog(logStarport).out, "💿 Initializing the app...")
+		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Initializing the app...")
 
 		// initialize the blockchain
 		if err := c.Init(ctx); err != nil {
@@ -319,7 +319,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	} else if sourceModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		fmt.Fprint(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
+		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
 
 		if err := c.cmd.UnsafeReset(ctx); err != nil {
 			return err
@@ -329,7 +329,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 			return err
 		}
 	} else {
-		fmt.Fprint(c.stdLog(logStarport).out, "▶️ Restarting existing app...")
+		fmt.Fprintln(c.stdLog(logStarport).out, "▶️ Restarting existing app...")
 	}
 
 	// start the blockchain
