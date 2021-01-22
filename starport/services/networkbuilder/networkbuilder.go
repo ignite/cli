@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/services"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/dariubs/percent"
@@ -36,7 +38,7 @@ const (
 )
 
 var (
-	sourcePath = filepath.Join(starportConfDir, "spn-chains")
+	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
 )
 
 // Builder is network builder.

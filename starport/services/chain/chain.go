@@ -61,6 +61,7 @@ type Chain struct {
 	logLevel       LogLvl
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
+	served         bool
 	stdout, stderr io.Writer
 }
 
