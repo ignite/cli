@@ -457,7 +457,12 @@ func (c *Chain) saveChainState(ctx context.Context) error {
 		return err
 	}
 
-	return c.cmd.Export(ctx, genesisPath)
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	return commands.Export(ctx, genesisPath)
 }
 
 // importChainState imports the saved genesis in chain config to use it as the genesis
