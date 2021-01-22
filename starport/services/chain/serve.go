@@ -1,6 +1,7 @@
 package chain
 
 import (
+	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -107,6 +108,8 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	// blockchain node routine
 	g.Go(func() error {
 		c.refreshServe()
+		resetState := false
+
 		for {
 			if ctx.Err() != nil {
 				return ctx.Err()
@@ -116,14 +119,23 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				return ctx.Err()
 
 			case <-c.serveRefresher:
+				// If the program is still listening for reset input, cancel the goroutine
+
 				var (
 					serveCtx context.Context
 					buildErr *CannotBuildAppError
+					startErr *CannotStartAppError
 				)
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
+				// we always reset the state if force reset option is set
+				if serveOptions.forceReset {
+					resetState = true
+				}
 				// serve the app.
-				err := c.serve(serveCtx, serveOptions.forceReset)
+				err := c.serve(serveCtx, resetState)
+				resetState = false
+
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
@@ -154,7 +166,31 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 						fmt.Fprintln(c.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
 					}
 
-					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("waiting for a fix before retrying..."))
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
+				case errors.As(err, &startErr):
+					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor(`Blockchain failed to start. Please, fix the errors above.
+If the new code is no longer compatible with the saved state, enter "reset" to reset the database or enter "exit" to exit the program.`))
+					c.served = false
+
+					resetListener, _ := errgroup.WithContext(serveCtx)
+					resetListener.Go(func() error {
+						for {
+							// Scan for "reset"
+							scanner := bufio.NewScanner(os.Stdin)
+							for scanner.Scan() {
+								input := scanner.Text()
+								if input == "reset" {
+									// The user asked to restart the chain and reset the state
+									resetState = true
+									c.refreshServe()
+								}
+								if input == "exit" {
+									os.Exit(0)
+								}
+							}
+						}
+					})
 				default:
 					return err
 				}
@@ -565,5 +601,18 @@ func (e *CannotBuildAppError) Error() string {
 }
 
 func (e *CannotBuildAppError) Unwrap() error {
+	return e.Err
+}
+
+type CannotStartAppError struct {
+	AppName string
+	Err     error
+}
+
+func (e *CannotStartAppError) Error() string {
+	return fmt.Sprintf("cannot run %sd start:\n\n\t%s", e.AppName, e.Err)
+}
+
+func (e *CannotStartAppError) Unwrap() error {
 	return e.Err
 }
