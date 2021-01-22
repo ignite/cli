@@ -284,6 +284,8 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// init phase
 	if !isInit || (sourceModified && !exportGenesisExists) {
+		fmt.Fprint(c.stdLog(logStarport).out, "💿 Initializing the app...")
+
 		// initialize the blockchain
 		if err := c.Init(ctx); err != nil {
 			return err
@@ -296,6 +298,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	} else if sourceModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
+		fmt.Fprint(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
 
 		if err := c.cmd.UnsafeReset(ctx); err != nil {
 			return err
