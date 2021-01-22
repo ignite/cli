@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
+	"os/signal"
 	"path"
 	"path/filepath"
 
@@ -165,6 +166,27 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	g.Go(func() error {
 		return c.watchAppBackend(ctx)
 	})
+
+	// Save the source checksum on exit
+	go func() {
+		interrupt := make(chan os.Signal, 1)
+		signal.Notify(interrupt, os.Interrupt)
+		<-interrupt
+
+		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
+		saveDir, err := c.chainSavePath()
+		if err != nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "Error saving source checksum: %s\n", err.Error())
+			os.Exit(1)
+		}
+		err = dirchange.SaveDirChecksum(c.app.Path, appBackendWatchPaths, saveDir)
+		if err != nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "Error saving source checksum: %s\n", err.Error())
+			os.Exit(1)
+		}
+
+		os.Exit(0)
+	}()
 
 	return g.Wait()
 }
