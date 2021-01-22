@@ -88,6 +88,11 @@ func (c *Chain) Serve(ctx context.Context) error {
 				return ctx.Err()
 
 			case <-c.serveRefresher:
+				commands, err := c.Commands(ctx)
+				if err != nil {
+					return err
+				}
+
 				var (
 					serveCtx context.Context
 					buildErr *CannotBuildAppError
@@ -95,7 +100,8 @@ func (c *Chain) Serve(ctx context.Context) error {
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
 				// serve the app.
-				err := c.serve(serveCtx)
+				err = c.serve(serveCtx)
+
 				switch {
 				case err == nil:
 				case errors.Is(err, context.Canceled):
@@ -106,7 +112,7 @@ func (c *Chain) Serve(ctx context.Context) error {
 						fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
 
 						// If serve has been stopped, save the genesis state
-						if err := c.saveChainState(context.TODO()); err != nil {
+						if err := c.saveChainState(context.TODO(), commands); err != nil {
 							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
@@ -451,13 +457,8 @@ func (c *Chain) runFaucetServer(ctx context.Context) error {
 }
 
 // saveChainState runs the export command of the chain and store the exported genesis in the chain saved config
-func (c *Chain) saveChainState(ctx context.Context) error {
+func (c *Chain) saveChainState(ctx context.Context, commands chaincmdrunner.Runner) error {
 	genesisPath, err := c.exportedGenesisPath()
-	if err != nil {
-		return err
-	}
-
-	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
 	}
