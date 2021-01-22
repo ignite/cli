@@ -229,9 +229,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return &CannotBuildAppError{err}
 	}
 
-	// if forceReset is set, we consider the app as being not initialized
 	var isInit bool
 	if forceReset {
+		// if forceReset is set, we consider the app as being not initialized
+		fmt.Fprint(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
 		isInit = false
 	} else {
 		// check if the app is initialized
