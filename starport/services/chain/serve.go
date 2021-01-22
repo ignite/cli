@@ -167,8 +167,9 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		return c.watchAppBackend(ctx)
 	})
 
-	// Save the source checksum on exit
-	g.Go(func() error {
+	// save the source checksum on exit
+	// this goroutine is not in the waiting group to not block the program in case the blockchain start fails
+	go func() {
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt)
 		<-interrupt
@@ -176,14 +177,12 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
 		saveDir, err := c.chainSavePath()
 		if err != nil {
-			return err
+			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
 		}
 		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendWatchPaths, saveDir); err != nil {
-			return err
+			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
 		}
-
-		return nil
-	})
+	}()
 
 	return g.Wait()
 }
