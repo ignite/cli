@@ -6,6 +6,7 @@
 - Use SOS-lite and Docker instead of systemD
 - Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
 - Moved Stargate app's `third_party/proto` into `proto/third_party` to avoid extra noise in the folder structure. 
+- Arch PKGBUILD in `scripts`
 
 ### Fixes:
 - use docker buildx as a single command with multiple platforms to make multi-manifest work properly
