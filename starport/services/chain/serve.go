@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"bufio"
 	"bytes"
 	"context"
 	"fmt"
@@ -108,7 +107,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	// blockchain node routine
 	g.Go(func() error {
 		c.refreshServe()
-		resetState := false
 
 		for {
 			if ctx.Err() != nil {
@@ -128,13 +126,8 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				)
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
-				// we always reset the state if force reset option is set
-				if serveOptions.forceReset {
-					resetState = true
-				}
 				// serve the app.
-				err := c.serve(serveCtx, resetState)
-				resetState = false
+				err := c.serve(serveCtx, serveOptions.forceReset)
 
 				switch {
 				case err == nil:
@@ -168,29 +161,10 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
 				case errors.As(err, &startErr):
-					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
-					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor(`Blockchain failed to start. Please, fix the errors above.
-If the new code is no longer compatible with the saved state, enter "reset" to reset the database or enter "exit" to exit the program.`))
-					c.served = false
+					fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --force-reset")
 
-					resetListener, _ := errgroup.WithContext(serveCtx)
-					resetListener.Go(func() error {
-						for {
-							// Scan for "reset"
-							scanner := bufio.NewScanner(os.Stdin)
-							for scanner.Scan() {
-								input := scanner.Text()
-								if input == "reset" {
-									// The user asked to restart the chain and reset the state
-									resetState = true
-									c.refreshServe()
-								}
-								if input == "exit" {
-									os.Exit(0)
-								}
-							}
-						}
-					})
+					return err
 				default:
 					return err
 				}
