@@ -262,7 +262,7 @@ func (c *Chain) BinaryCLI() string {
 	return c.app.CLI()
 }
 
-// Binaries returns the list of binaries avaiable for the chain.
+// Binaries returns the list of binaries available for the chain.
 func (c *Chain) Binaries() ([]string, error) {
 	binary, err := c.Binary()
 	if err != nil {
