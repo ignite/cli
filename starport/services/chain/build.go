@@ -23,6 +23,10 @@ func (c *Chain) Build(ctx context.Context) error {
 		return err
 	}
 
+	if err := c.buildProto(ctx); err != nil {
+		return err
+	}
+
 	steps, err := c.buildSteps()
 	if err != nil {
 		return err
