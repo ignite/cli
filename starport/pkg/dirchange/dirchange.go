@@ -3,6 +3,7 @@ package dirchange
 import (
 	"bytes"
 	"crypto/md5"
+	"errors"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -70,10 +71,20 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	hash := md5.New()
 
+	// Can't compute hash if no file present
+	noFile := true
+
 	// read files
 	for _, path := range paths {
 		if workdir != "" {
 			path = filepath.Join(workdir, path)
+		}
+
+		// non-existent paths are ignored
+		if _, err := os.Stat(path); os.IsNotExist(err) {
+			continue
+		} else if err != nil {
+			return []byte{}, err
 		}
 
 		err := filepath.Walk(path, func(subPath string, info os.FileInfo, err error) error {
@@ -85,6 +96,8 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 			if info.IsDir() {
 				return nil
 			}
+
+			noFile = false
 
 			// write file content
 			content, err := ioutil.ReadFile(subPath)
@@ -102,6 +115,10 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 		if err != nil {
 			return []byte{}, err
 		}
+	}
+
+	if noFile {
+		return []byte{}, errors.New("no file in specified paths")
 	}
 
 	// compute checksum

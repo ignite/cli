@@ -20,7 +20,6 @@ func randomBytes(n int) []byte {
 func TestHasDirChecksumChanged(t *testing.T) {
 	tempDir := os.TempDir()
 
-
 	// Create directory tree
 	dir1 := filepath.Join(tempDir, "foo1")
 	err := os.MkdirAll(dir1, 0700)
@@ -78,6 +77,12 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, checksum, tmpChecksum)
 
+	// Ignore non existent dir
+	pathNames = append(pathNames, "nonexistent")
+	tmpChecksum, err = checksumFromPaths(tempDir, pathNames)
+	require.NoError(t, err)
+	require.Equal(t, checksum, tmpChecksum)
+
 	// Checksum from a subdir is different
 	tmpChecksum, err = checksumFromPaths("", []string{dir1, dir2})
 	require.NoError(t, err)
@@ -89,6 +94,18 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	newChecksum, err := checksumFromPaths("", paths)
 	require.NoError(t, err)
 	require.NotEqual(t, checksum, newChecksum)
+
+	// Error if no files in the specified dirs
+	empty1 := filepath.Join(tempDir, "empty1")
+	err = os.MkdirAll(empty1, 0700)
+	require.NoError(t, err)
+	defer os.RemoveAll(empty1)
+	empty2 := filepath.Join(tempDir, "empty2")
+	err = os.MkdirAll(empty2, 0700)
+	require.NoError(t, err)
+	defer os.RemoveAll(empty2)
+	_, err = checksumFromPaths("", []string{empty1, empty2})
+	require.Error(t, err)
 
 	// SaveDirChecksum saves the checksum in the specified dir
 	saveDir, err := ioutil.TempDir(tempDir, TmpPattern)
