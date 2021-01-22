@@ -131,7 +131,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					if c.served {
 						c.served = false
 
-						fmt.Fprintf(c.stdLog(logStarport).out, "\nSaving genesis state...\n")
+						fmt.Fprintln(c.stdLog(logStarport).out, "💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO()); err != nil {
@@ -144,7 +144,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
-						fmt.Fprintf(c.stdLog(logStarport).out, "\nGenesis state saved in %s\n", genesisPath)
+						fmt.Fprintf(c.stdLog(logStarport).out, "💿 Genesis state saved in %s\n", genesisPath)
 					}
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
@@ -168,7 +168,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	})
 
 	// Save the source checksum on exit
-	go func() {
+	g.Go(func() error {
 		interrupt := make(chan os.Signal, 1)
 		signal.Notify(interrupt, os.Interrupt)
 		<-interrupt
@@ -176,17 +176,14 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
 		saveDir, err := c.chainSavePath()
 		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Error saving source checksum: %s\n", err.Error())
-			os.Exit(1)
+			return err
 		}
-		err = dirchange.SaveDirChecksum(c.app.Path, appBackendWatchPaths, saveDir)
-		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Error saving source checksum: %s\n", err.Error())
-			os.Exit(1)
+		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendWatchPaths, saveDir); err != nil {
+			return err
 		}
 
-		os.Exit(0)
-	}()
+		return nil
+	})
 
 	return g.Wait()
 }
@@ -306,6 +303,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// init phase
+	// nolint:gocritic
 	if !isInit || (sourceModified && !exportGenesisExists) {
 		fmt.Fprint(c.stdLog(logStarport).out, "💿 Initializing the app...")
 
@@ -330,6 +328,8 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		if err := c.importChainState(); err != nil {
 			return err
 		}
+	} else {
+		fmt.Fprint(c.stdLog(logStarport).out, "▶️ Restarting existing app...")
 	}
 
 	// start the blockchain
@@ -517,7 +517,6 @@ func (c *Chain) saveChainState(ctx context.Context) error {
 }
 
 // importChainState imports the saved genesis in chain config to use it as the genesis
-// nolint:unused
 func (c *Chain) importChainState() error {
 	exportGenesisPath, err := c.exportedGenesisPath()
 	if err != nil {
