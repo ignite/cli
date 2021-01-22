@@ -328,7 +328,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 			return err
 		}
 	} else {
-		fmt.Fprintln(c.stdLog(logStarport).out, "▶️ Restarting existing app...")
+		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
 	}
 
 	// start the blockchain
