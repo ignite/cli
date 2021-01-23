@@ -1,12 +1,16 @@
 swagger: "2.0"
+
 info:
-  description: "Faucet API doc and explorer."
+  description: "Faucet API doc and explorer.\n\nSend coins from the faucet account configured in `config.yml` to the receiver account."
   version: "1.0.0"
-  title: "Faucet"
+  title: "Faucet for {{ .ChainID }}"
+
 servers:
-  - url: https://localhost:4500
+  - url: / 
+
 schemes:
 - "http"
+
 paths:
   /:
     post:
@@ -18,7 +22,7 @@ paths:
       parameters:
       - in: "body"
         name: "body"
-        description: "Send coins request object\n\nAfter making a sample execution by the Execute button below, visit following link to see sample account's balance: http://localhost:1317/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+        description: "Send coins request object\n\nAfter making a sample execution by the 'Try it out' button in the right corner, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
         required: true
         schema:
           $ref: "#/definitions/SendRequest"
@@ -26,9 +30,10 @@ paths:
         "500":
           description: "Internal error"
         "200":
-          description: "All, some or non coins are sent\n\nVisit following link to see sample account's balance: http://localhost:1317/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+          description: "All, some or non coins are sent\n\nAfter making a sample execution, visit the following link to see the difference in sample account's balance: {{ .APIAddress }}/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
           schema:
             $ref: "#/definitions/SendResponse"
+
 definitions:
   SendRequest:
     type: "object"

@@ -13,6 +13,7 @@ require (
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/fatih/color v1.9.0
 	github.com/gertd/go-pluralize v0.1.7
+	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/packr/v2 v2.8.1
@@ -38,7 +39,6 @@ require (
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rogpeppe/go-internal v1.7.0 // indirect
 	github.com/rs/cors v1.7.0
-	github.com/shurcooL/vfsgen v0.0.0-20200824052919-0d455de96546
 	github.com/spf13/cobra v1.1.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.6.1
