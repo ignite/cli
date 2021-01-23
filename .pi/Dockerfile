@@ -9,4 +9,4 @@ RUN useradd --create-home starport && \
 
 
 # later, update to tendermint/starport
-COPY --from=tendermintdevelopment/starport /starport/build/starport /usr/bin/starport
+COPY --from=tendermintdevelopment/starport /go/bin/starport /usr/bin/starport
