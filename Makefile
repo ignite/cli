@@ -20,6 +20,7 @@ build: mod pre-build
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@cd ./starport/interface/cli/starport && packr2
 	@mkdir -p build/
+	@go generate ./...
 	@go build $(BUILD_FLAGS) -o build/ ./starport/interface/cli/...
 	@packr2 clean
 	@go mod tidy
@@ -45,4 +46,3 @@ lint:
 .PHONY: lint
 
 .PHONY: all mod pre-build build ui install
-

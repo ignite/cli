@@ -306,7 +306,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://localhost:%d\n", conf.Faucet.Port)
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://0.0.0.0:%d\n", conf.Faucet.Port)
 	}
 
 	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))

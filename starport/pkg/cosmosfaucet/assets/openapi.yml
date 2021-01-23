@@ -1,0 +1,73 @@
+swagger: "2.0"
+info:
+  description: "Faucet API doc and explorer."
+  version: "1.0.0"
+  title: "Faucet"
+servers:
+  - url: https://localhost:4500
+schemes:
+- "http"
+paths:
+  /:
+    post:
+      summary: "Send tokens to receiver account"
+      consumes:
+      - "application/json"
+      produces:
+      - "application/json"
+      parameters:
+      - in: "body"
+        name: "body"
+        description: "Send coins request object\n\nAfter making a sample execution by the Execute button below, visit following link to see sample account's balance: http://localhost:1317/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+        required: true
+        schema:
+          $ref: "#/definitions/SendRequest"
+      responses:
+        "500":
+          description: "Internal error"
+        "200":
+          description: "All, some or non coins are sent\n\nVisit following link to see sample account's balance: http://localhost:1317/bank/balances/cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+          schema:
+            $ref: "#/definitions/SendResponse"
+definitions:
+  SendRequest:
+    type: "object"
+    required:
+      - address
+    properties:
+      address:
+        type: "string"
+        default: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz"
+      coins:
+        type: "array"
+        default:
+          - 10token
+        items:
+          type: "string"
+  
+  SendResponse:
+    type: "object"
+    properties:
+      error:
+        type: "string"
+      transfers:
+        type: "array"
+        items:
+          $ref: "#/definitions/Transfer"
+  
+  Transfer:
+    type: "object"
+    required:
+      - coin
+      - status
+    properties:
+      coin:
+        type: "string"
+      status:
+        type: "string"
+      error:
+        type: "string"
+
+externalDocs:
+  description: "Find out more about Starport"
+  url: "https://github.com/tendermint/starport/tree/develop/docs"

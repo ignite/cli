@@ -1,11 +1,13 @@
 package cosmosfaucet
 
+//go:generate vfsgendev -source="github.com/tendermint/starport/starport/pkg/cosmosfaucet".Assets
+
 import (
 	"context"
 	"encoding/json"
-	"errors"
 	"net/http"
 
+	"github.com/gorilla/mux"
 	"github.com/rs/cors"
 	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
@@ -22,7 +24,7 @@ type transferRequest struct {
 
 	// Coins that are requested.
 	// default ones used when this one isn't provided.
-	Coins []string `yaml:"coins"`
+	Coins []string `json:"coins"`
 }
 
 type transferResponse struct {
@@ -39,14 +41,14 @@ type transfer struct {
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.
 // request/response payloads are compatible with the previous implementation at allinbits/cosmos-faucet.
 func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	// check method.
-	if r.Method != http.MethodPost {
-		responseError(w, http.StatusMethodNotAllowed, errors.New(http.StatusText(http.StatusMethodNotAllowed)))
-		return
-	}
+	router := mux.NewRouter()
 
-	// add CORS.
-	cors.Default().Handler(http.HandlerFunc(f.handler)).ServeHTTP(w, r)
+	router.Handle("/", cors.Default().Handler(http.HandlerFunc(f.handler))).
+		Methods(http.MethodPost)
+	router.PathPrefix("/").Handler(http.FileServer(Assets)).
+		Methods(http.MethodGet)
+
+	router.ServeHTTP(w, r)
 }
 
 func (f Faucet) handler(w http.ResponseWriter, r *http.Request) {
