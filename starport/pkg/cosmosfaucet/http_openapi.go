@@ -14,7 +14,7 @@ const (
 
 var (
 	fileOpenAPIIndex = bytes.NewReader(MustAsset(fileNameOpenAPIIndex))
-	tmplOpenApiSpec  = template.Must(template.
+	tmplOpenAPISpec  = template.Must(template.
 				New(fileNameOpenAPISpec).
 				Parse(string(MustAsset(fileNameOpenAPISpec))))
 )
@@ -29,5 +29,5 @@ type openAPIData struct {
 }
 
 func (f Faucet) openAPISpecHandler(w http.ResponseWriter, r *http.Request) {
-	tmplOpenApiSpec.Execute(w, f.openAPIData)
+	tmplOpenAPISpec.Execute(w, f.openAPIData)
 }
