@@ -87,7 +87,8 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 	b := &bytes.Buffer{}
 
 	if err := r.run(ctx, runOptions{stdout: b}, r.cc.ShowKeyAddressCommand(name)); err != nil {
-		if strings.Contains(err.Error(), "item could not be found") {
+		if strings.Contains(err.Error(), "item could not be found") ||
+			strings.Contains(err.Error(), "not a valid name or address") {
 			return Account{}, ErrAccountDoesNotExist
 		}
 		return Account{}, err
