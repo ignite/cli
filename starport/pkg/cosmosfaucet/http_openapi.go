@@ -8,12 +8,19 @@ import (
 )
 
 const (
-	fileOpenAPIIndex = "openapi/index.html"
-	fileOpenAPISpec  = "openapi/openapi.yml.tmpl"
+	fileNameOpenAPIIndex = "openapi/index.html"
+	fileNameOpenAPISpec  = "openapi/openapi.yml.tmpl"
+)
+
+var (
+	fileOpenAPIIndex = bytes.NewReader(MustAsset(fileNameOpenAPIIndex))
+	tmplOpenApiSpec  = template.Must(template.
+				New(fileNameOpenAPISpec).
+				Parse(string(MustAsset(fileNameOpenAPISpec))))
 )
 
 func (f Faucet) openAPIIndexHandler(w http.ResponseWriter, r *http.Request) {
-	http.ServeContent(w, r, fileOpenAPIIndex, time.Now(), bytes.NewReader(MustAsset(fileOpenAPIIndex)))
+	http.ServeContent(w, r, fileNameOpenAPIIndex, time.Now(), fileOpenAPIIndex)
 }
 
 type openAPIData struct {
@@ -22,10 +29,5 @@ type openAPIData struct {
 }
 
 func (f Faucet) openAPISpecHandler(w http.ResponseWriter, r *http.Request) {
-	t := template.
-		Must(template.
-			New(fileOpenAPISpec).
-			Parse(string(MustAsset(fileOpenAPISpec))))
-
-	t.Execute(w, f.openAPIData)
+	tmplOpenApiSpec.Execute(w, f.openAPIData)
 }
