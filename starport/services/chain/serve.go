@@ -22,7 +22,6 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/fswatcher"
 	"github.com/tendermint/starport/starport/pkg/xexec"
@@ -295,20 +294,19 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	}()
 
 	// start the faucet if enabled.
-	var isFaucedEnabled bool
+	faucet, err := c.Faucet(ctx)
+	isFaucetEnabled := err != ErrFaucetIsNotEnabled
 
-	if conf.Faucet.Name != nil {
-		if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
-			if err == chaincmdrunner.ErrAccountDoesNotExist {
-				return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
-			}
+	if isFaucetEnabled {
+		if err == ErrFaucetAccountDoesNotExist {
+			return &CannotBuildAppError{errors.Wrap(err, "faucet account doesn't exist")}
+		}
+		if err != nil {
 			return err
 		}
 
-		isFaucedEnabled = true
-
 		g.Go(func() (err error) {
-			if err := c.runFaucetServer(ctx); err != nil {
+			if err := c.runFaucetServer(ctx, faucet); err != nil {
 				return &CannotBuildAppError{err}
 			}
 			return nil
@@ -322,7 +320,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
 
-	if isFaucedEnabled {
+	if isFaucetEnabled {
 		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://localhost:%d\n", conf.Faucet.Port)
 	}
 
@@ -406,52 +404,14 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 	})
 }
 
-func (c *Chain) runFaucetServer(ctx context.Context) error {
-	config, err := c.Config()
-	if err != nil {
-		return err
-	}
-
-	commands, err := c.Commands(ctx)
-	if err != nil {
-		return err
-	}
-
-	faucetOptions := []cosmosfaucet.Option{
-		cosmosfaucet.Account(*config.Faucet.Name, ""),
-	}
-
-	// parse coins to pass to the faucet as coins.
-	for _, coin := range config.Faucet.Coins {
-		amount, denom, err := cosmoscoin.Parse(coin)
-		if err != nil {
-			return fmt.Errorf("%s: %s", err, coin)
-		}
-
-		var amountMax uint64
-
-		// find out the max amount for this coin.
-		for _, coinMax := range config.Faucet.CoinsMax {
-			amount, denomMax, err := cosmoscoin.Parse(coinMax)
-			if err != nil {
-				return fmt.Errorf("%s: %s", err, coin)
-			}
-			if denomMax == denom {
-				amountMax = amount
-				break
-			}
-		}
-
-		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
-	}
-
-	faucet, err := cosmosfaucet.New(ctx, commands, faucetOptions...)
+func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
+	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", config.Faucet.Port),
+		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port),
 		Handler: faucet,
 	})
 }
