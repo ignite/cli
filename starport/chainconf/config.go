@@ -33,8 +33,8 @@ var (
 			Proto: Proto{
 				Path: "proto",
 				ThirdPartyPaths: []string{
-					"proto/third_party",
 					"third_party/proto",
+					"proto_vendor",
 				},
 			},
 		},
