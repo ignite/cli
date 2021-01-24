@@ -16,11 +16,14 @@ pre-build:
 	@echo "Fetching latest tags"
 	@git fetch --tags
 
+build-static:
+	@go get github.com/go-bindata/go-bindata/...
+	@go-bindata -pkg cosmosfaucet -prefix starport/pkg/cosmosfaucet -o starport/pkg/cosmosfaucet/openapi_generated.go starport/pkg/cosmosfaucet/openapi/...
+
 build: mod pre-build
 	@go get -u github.com/gobuffalo/packr/v2/packr2
 	@cd ./starport/interface/cli/starport && packr2
 	@mkdir -p build/
-	@go-bindata -pkg cosmosfaucet -prefix starport/pkg/cosmosfaucet -o starport/pkg/cosmosfaucet/openapi_generated.go starport/pkg/cosmosfaucet/openapi/...
 	@go build $(BUILD_FLAGS) -o build/ ./starport/interface/cli/...
 	@packr2 clean
 	@go mod tidy
