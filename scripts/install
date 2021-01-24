@@ -11,8 +11,8 @@ protoc_zip="protoc-$protoc_version-${os,,}-${arch,,}.zip"
 if [[ -z `which protoc` && ! -z $BIN_PATH ]]; then
 	echo "installing protoc..."
 	curl -LOs $protoc_rel/download/v$protoc_version/$protoc_zip
-	unzip $protoc_zip bin/protoc
-	mv bin/protoc $BIN_PATH
+	unzip $protoc_zip -d $HOME/.local
+	mv $HOME/.local/bin/protoc $BIN_PATH/protoc
 	rm $protoc_zip
 	protoc --version
 fi

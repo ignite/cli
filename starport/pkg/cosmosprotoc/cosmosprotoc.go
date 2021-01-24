@@ -98,8 +98,16 @@ func Generate(
 		return err
 	}
 
-	// add SDK's proto paths to third parties list.
+	// add Google's and SDK's proto paths to third parties list.
 	protoThirdPartyPaths = append(protoThirdPartyPaths,
+		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
+		os.ExpandEnv("$HOME/local/include"),
+
+		// this one is the suggested installation path for placing default proto by
+		// https://grpc.io/docs/protoc-installation/.
+		os.ExpandEnv("$HOME/.local/include"),
+
+		// sdk.
 		filepath.Join(sdkSrcPath, "proto"),
 		filepath.Join(sdkSrcPath, "third_party/proto"))
 
