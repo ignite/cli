@@ -78,8 +78,8 @@ func Generate(
 	//
 	// blockchain apps may use different versions of the SDK. following code first makes sure that
 	// app's dependencies are download by 'go mod' and cached under the local filesystem.
-	// and then it determines which version of the SDK is used by the app what is the absolute path
-	// points to its source code.
+	// and then, it determines which version of the SDK is used by the app and what is the absolute path
+	// of its source code.
 	if err := cmdrunner.
 		New(cmdrunner.DefaultWorkdir(projectPath)).
 		Run(ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
@@ -98,14 +98,14 @@ func Generate(
 		return err
 	}
 
-	// define SDK's proto path to third parties list.
+	// add SDK's proto paths to third parties list.
 	protoThirdPartyPaths = append(protoThirdPartyPaths,
 		filepath.Join(sdkSrcPath, "proto"),
 		filepath.Join(sdkSrcPath, "third_party/proto"))
 
-	// created a temporary dir to locate generated code under which later will be moved to the
-	// app's source code. this prevents having leftover files in the app's source code or its parent
-	// dir in case of an interrupt. also, it may not be needed to have all the generated.
+	// created a temporary dir to locate generated code under which later only some of them will be moved to the
+	// app's source code. this also prevents having leftover files in the app's source code or its parent dir -when
+	// command executed directly there- in case of an interrupt.
 	tmp, err := ioutil.TempDir("", "")
 	if err != nil {
 		return err
@@ -167,7 +167,7 @@ func Generate(
 		}
 	}
 
-	// move generated code for the app under the relative locations of its source code.
+	// move generated code for the app under the relative locations in its source code.
 	generatedPath := filepath.Join(tmp, gomodPath)
 	if err := copy.Copy(generatedPath, projectPath); err != nil {
 		return errors.Wrap(err, "cannot copy path")
