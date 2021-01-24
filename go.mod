@@ -23,7 +23,6 @@ require (
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
-	github.com/goware/modvendor v0.3.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
