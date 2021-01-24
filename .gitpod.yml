@@ -1,12 +1,13 @@
 image: gitpod/workspace-full
 checkoutLocation: "starport"
 workspaceLocation: "./starport/docs"
+
+image:
+  file: .gitpod.Dockerfile
+
 tasks:
   - name: Install Starport
     init: |
-      # Install Github CLI
-      brew install gh protobuf
-
       # Install Starport
       export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
