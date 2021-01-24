@@ -1,9 +1,9 @@
-image: gitpod/workspace-full
-checkoutLocation: "starport"
-workspaceLocation: "./starport/docs"
-
 image:
   file: .gitpod.Dockerfile
+
+checkoutLocation: "starport"
+
+workspaceLocation: "./starport/docs"
 
 tasks:
   - name: Install Starport
