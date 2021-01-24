@@ -40,6 +40,9 @@ type Faucet struct {
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
 	coinsMax map[string]uint64
+
+	// openAPIData holds template data customizations for serving OpenAPI page & spec.
+	openAPIData openAPIData
 }
 
 type coin struct {
@@ -79,12 +82,21 @@ func Coin(amount, maxAmount uint64, denom string) Option {
 	}
 }
 
+// OpenAPI configures how to serve Open API page and and spec.
+func OpenAPI(chainID, apiAddress string) Option {
+	return func(f *Faucet) {
+		f.openAPIData.ChainID = chainID
+		f.openAPIData.APIAddress = apiAddress
+	}
+}
+
 // New creates a new faucet with ccr (to access and use blockchain's CLI) and given options.
 func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Faucet, error) {
 	f := Faucet{
 		runner:      ccr,
 		accountName: DefaultAccountName,
 		coinsMax:    make(map[string]uint64),
+		openAPIData: openAPIData{"Blockchain", "http://localhost:1317"},
 	}
 
 	for _, apply := range options {

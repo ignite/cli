@@ -3,11 +3,13 @@ package chain
 import (
 	"context"
 	"fmt"
+	"os"
 
 	"github.com/pkg/errors"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 var (
@@ -18,9 +20,18 @@ var (
 	ErrFaucetAccountDoesNotExist = errors.New("specified account (faucet.name) does not exist")
 )
 
+var (
+	envAPIAddress = os.Getenv("API_ADDRESS")
+)
+
 // Faucet returns the faucet for the chain or an error if the faucet
 // configuration is wrong or not configured (not enabled) at all.
 func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
+	id, err := c.ID()
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
 	conf, err := c.Config()
 	if err != nil {
 		return cosmosfaucet.Faucet{}, err
@@ -39,8 +50,14 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	// construct faucet options.
+	apiAddress := conf.Servers.APIAddr
+	if envAPIAddress != "" {
+		apiAddress = envAPIAddress
+	}
+
 	faucetOptions := []cosmosfaucet.Option{
 		cosmosfaucet.Account(*conf.Faucet.Name, ""),
+		cosmosfaucet.OpenAPI(id, xurl.HTTP(apiAddress)),
 	}
 
 	// parse coins to pass to the faucet as coins.
