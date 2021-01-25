@@ -9,7 +9,10 @@ import (
 	"testing"
 )
 
-const TmpPattern = "starport-dirchange"
+const (
+	TmpPattern = "starport-dirchange"
+	ChecksumFile = "checksum.txt"
+)
 
 func randomBytes(n int) []byte {
 	bytes := make([]byte, n)
@@ -111,15 +114,15 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	saveDir, err := ioutil.TempDir(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(saveDir)
-	err = SaveDirChecksum("", paths, saveDir)
+	err = SaveDirChecksum("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)
-	require.FileExists(t, filepath.Join(saveDir, checksumFile))
-	fileContent, err := ioutil.ReadFile(filepath.Join(saveDir, checksumFile))
+	require.FileExists(t, filepath.Join(saveDir, ChecksumFile))
+	fileContent, err := ioutil.ReadFile(filepath.Join(saveDir, ChecksumFile))
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, fileContent)
 
 	// HasDirChecksumChanged returns false if the directory has not changed
-	changed, err := HasDirChecksumChanged("", paths, saveDir)
+	changed, err := HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.False(t, changed)
 
@@ -127,21 +130,21 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	newSaveDir, err := ioutil.TempDir(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(newSaveDir)
-	changed, err = HasDirChecksumChanged("", paths, newSaveDir)
+	changed, err = HasDirChecksumChanged("", paths, newSaveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.True(t, changed)
-	require.FileExists(t, filepath.Join(newSaveDir, checksumFile))
-	fileContent, err = ioutil.ReadFile(filepath.Join(newSaveDir, checksumFile))
+	require.FileExists(t, filepath.Join(newSaveDir, ChecksumFile))
+	fileContent, err = ioutil.ReadFile(filepath.Join(newSaveDir, ChecksumFile))
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, fileContent)
 
 	// Return true and rewrite the checksum if it has been changed
 	err = ioutil.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	changed, err = HasDirChecksumChanged("", paths, saveDir)
+	changed, err = HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.True(t, changed)
-	fileContent, err = ioutil.ReadFile(filepath.Join(saveDir, checksumFile))
+	fileContent, err = ioutil.ReadFile(filepath.Join(saveDir, ChecksumFile))
 	require.NoError(t, err)
 	newChecksum, err = checksumFromPaths("", paths)
 	require.NoError(t, err)

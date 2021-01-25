@@ -9,14 +9,10 @@ import (
 	"path/filepath"
 )
 
-const (
-	checksumFile = "source_checksum.txt"
-)
-
 // SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the specified directory
 // If checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func SaveDirChecksum(workdir string, paths []string, checksumSavePath string) error {
+func SaveDirChecksum(workdir string, paths []string, checksumSavePath string, checksumName string) error {
 	checksum, err := checksumFromPaths(workdir, paths)
 	if err != nil {
 		return err
@@ -28,7 +24,7 @@ func SaveDirChecksum(workdir string, paths []string, checksumSavePath string) er
 	}
 
 	// save checksum
-	checksumFilePath := filepath.Join(checksumSavePath, checksumFile)
+	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
 	return ioutil.WriteFile(checksumFilePath, checksum, 0644)
 }
 
@@ -37,7 +33,7 @@ func SaveDirChecksum(workdir string, paths []string, checksumSavePath string) er
 // If the checksum is different, the new checksum is saved
 // Return true if the checksum file doesn't exist yet and if checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
-func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath string) (bool, error) {
+func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath string, checksumName string) (bool, error) {
 	checksum, err := checksumFromPaths(workdir, paths)
 	if err != nil {
 		return false, err
@@ -48,7 +44,7 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 		return false, err
 	}
 
-	checksumFilePath := filepath.Join(checksumSavePath, checksumFile)
+	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
 	if _, err := os.Stat(checksumFilePath); os.IsNotExist(err) {
 		return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
 	}
