@@ -104,7 +104,7 @@ func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runne
 
 	g.Go(func() error {
 		err := runner.Start(ctx)
-		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+		return &CannotStartAppError{p.app.Name, err}
 	})
 
 	g.Go(func() error {

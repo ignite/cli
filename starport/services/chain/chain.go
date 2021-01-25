@@ -19,12 +19,15 @@ import (
 )
 
 var (
-	appBackendWatchPaths = append([]string{
+	appBackendSourceWatchPaths = []string{
 		"app",
 		"cmd",
 		"x",
 		"proto",
 		"third_party",
+	}
+
+	appBackendConfigWatchPaths = append([]string{
 		secretconf.SecretFile,
 	}, conf.FileNames...)
 
