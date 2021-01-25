@@ -50,21 +50,30 @@ var (
 
 type serveOptions struct {
 	forceReset bool
+	resetOnce  bool
 }
 
 func newServeOption() serveOptions {
 	return serveOptions{
 		forceReset: false,
+		resetOnce:  false,
 	}
 }
 
 // ServeOption provides options for the serve command
 type ServeOption func(*serveOptions)
 
-// ServeForceReset allows to force reset of the state when the chain is served
+// ServeForceReset allows to force reset of the state when the chain is served and on every source change
 func ServeForceReset() ServeOption {
 	return func(c *serveOptions) {
 		c.forceReset = true
+	}
+}
+
+// ServeResetOnce allows to reset of the state when the chain is served once
+func ServeResetOnce() ServeOption {
+	return func(c *serveOptions) {
+		c.resetOnce = true
 	}
 }
 
@@ -129,8 +138,12 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				)
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
+				// determine if the chain should reset the state
+				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
+
 				// serve the app.
-				err := c.serve(serveCtx, serveOptions.forceReset)
+				err := c.serve(serveCtx, shouldReset)
+				serveOptions.resetOnce = false
 
 				switch {
 				case err == nil:

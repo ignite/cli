@@ -7,6 +7,7 @@ import (
 )
 
 const flagForceReset = "force-reset"
+const flagResetOnce = "reset-once"
 
 var appPath string
 
@@ -21,7 +22,9 @@ func NewServe() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
-	c.Flags().BoolP(flagForceReset, "r", false, "Force reset of the app state")
+	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
+	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+
 	return c
 }
 
@@ -44,6 +47,13 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 	}
 	if forceUpdate {
 		serveOptions = append(serveOptions, chain.ServeForceReset())
+	}
+	resetOnce, err := cmd.Flags().GetBool(flagResetOnce)
+	if err != nil {
+		return err
+	}
+	if resetOnce {
+		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
 
 	return c.Serve(cmd.Context(), serveOptions...)
