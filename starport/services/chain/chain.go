@@ -50,10 +50,6 @@ const (
 	LogVerbose
 )
 
-type RefreshSignal struct {
-	Reset bool
-}
-
 // Chain provides programatic access and tools for a Cosmos SDK blockchain.
 type Chain struct {
 	// app holds info about blockchain app.
@@ -68,7 +64,7 @@ type Chain struct {
 	logLevel       LogLvl
 	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
-	serveRefresher chan RefreshSignal
+	serveRefresher chan struct{}
 	served         bool
 	stdout, stderr io.Writer
 }
@@ -136,7 +132,7 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	c := &Chain{
 		app:            app,
 		logLevel:       LogSilent,
-		serveRefresher: make(chan RefreshSignal, 1),
+		serveRefresher: make(chan struct{}, 1),
 		stdout:         ioutil.Discard,
 		stderr:         ioutil.Discard,
 	}

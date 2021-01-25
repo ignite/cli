@@ -120,7 +120,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 			case <-ctx.Done():
 				return ctx.Err()
 
-			case refreshSignal := <-c.serveRefresher:
+			case <-c.serveRefresher:
 
 				var (
 					serveCtx context.Context
@@ -129,14 +129,8 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				)
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
-				// determine if the state should be reset
-				shouldReset := serveOptions.forceReset
-				if !shouldReset {
-					shouldReset = refreshSignal.Reset
-				}
-
 				// serve the app.
-				err := c.serve(serveCtx, shouldReset)
+				err := c.serve(serveCtx, serveOptions.forceReset)
 
 				switch {
 				case err == nil:
@@ -240,34 +234,15 @@ func (c *Chain) refreshServe() {
 	if c.serveCancel != nil {
 		c.serveCancel()
 	}
-	c.serveRefresher <- RefreshSignal{Reset: false}
-}
-
-func (c *Chain) resetServe() {
-	if c.serveCancel != nil {
-		c.serveCancel()
-	}
-	c.serveRefresher <- RefreshSignal{Reset: true}
+	c.serveRefresher <- struct{}{}
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	if err := fswatcher.Watch(
-		ctx,
-		appBackendSourceWatchPaths,
-		fswatcher.Workdir(c.app.Path),
-		fswatcher.OnChange(c.refreshServe),
-		fswatcher.IgnoreHidden(),
-		fswatcher.IgnoreExt(ignoredExts...),
-	); err != nil {
-		return err
-	}
-
-	// if the config has been modified we reset the whole state to init back the chain on serve
 	return fswatcher.Watch(
 		ctx,
-		appBackendConfigWatchPaths,
+		append(appBackendSourceWatchPaths, appBackendConfigWatchPaths...),
 		fswatcher.Workdir(c.app.Path),
-		fswatcher.OnChange(c.resetServe),
+		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
 		fswatcher.IgnoreExt(ignoredExts...),
 	)
