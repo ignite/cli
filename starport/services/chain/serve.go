@@ -42,6 +42,12 @@ var (
 
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
+
+	// sourceChecksum is the file containing the checksum to detect source modification
+	sourceChecksum = "source_checksum.txt"
+
+	// configChecksum is the file containing the checksum to detect config modification
+	configChecksum = "config_checksum.txt"
 )
 
 type serveOptions struct {
@@ -116,8 +122,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 			case <-ctx.Done():
 				return ctx.Err()
 
-			case <-c.serveRefresher:
-				// If the program is still listening for reset input, cancel the goroutine
+			case refreshSignal := <-c.serveRefresher:
 
 				var (
 					serveCtx context.Context
@@ -126,8 +131,14 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				)
 				serveCtx, c.serveCancel = context.WithCancel(ctx)
 
+				// determine if the state should be reset
+				shouldReset := serveOptions.forceReset
+				if !shouldReset {
+					shouldReset = refreshSignal.Reset
+				}
+
 				// serve the app.
-				err := c.serve(serveCtx, serveOptions.forceReset)
+				err := c.serve(serveCtx, shouldReset)
 
 				switch {
 				case err == nil:
@@ -189,8 +200,11 @@ If the new code is no longer compatible with the saved state, you can reset the 
 		if err != nil {
 			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
 		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendWatchPaths, saveDir); err != nil {
+		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
 			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
+		}
+		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
+			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save config checksum:%s \n", err.Error())
 		}
 	}()
 
@@ -228,15 +242,34 @@ func (c *Chain) refreshServe() {
 	if c.serveCancel != nil {
 		c.serveCancel()
 	}
-	c.serveRefresher <- struct{}{}
+	c.serveRefresher <- RefreshSignal{Reset: false}
+}
+
+func (c *Chain) resetServe() {
+	if c.serveCancel != nil {
+		c.serveCancel()
+	}
+	c.serveRefresher <- RefreshSignal{Reset: true}
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
-	return fswatcher.Watch(
+	if err := fswatcher.Watch(
 		ctx,
-		appBackendWatchPaths,
+		appBackendSourceWatchPaths,
 		fswatcher.Workdir(c.app.Path),
 		fswatcher.OnChange(c.refreshServe),
+		fswatcher.IgnoreHidden(),
+		fswatcher.IgnoreExt(ignoredExts...),
+	); err != nil {
+		return err
+	}
+
+	// if the config has been modified we reset the whole state to init back the chain on serve
+	return fswatcher.Watch(
+		ctx,
+		appBackendConfigWatchPaths,
+		fswatcher.Workdir(c.app.Path),
+		fswatcher.OnChange(c.resetServe),
 		fswatcher.IgnoreHidden(),
 		fswatcher.IgnoreExt(ignoredExts...),
 	)
@@ -257,25 +290,36 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return &CannotBuildAppError{err}
 	}
 
-	var isInit bool
-	if forceReset {
-		// if forceReset is set, we consider the app as being not initialized
-		fmt.Fprintln(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
-		isInit = false
-	} else {
-		// check if the app is initialized
-		isInit, err = c.IsInitialized()
-		if err != nil {
-			return err
-		}
-	}
-
-	// check if source has been modified since last serve
 	saveDir, err := c.chainSavePath()
 	if err != nil {
 		return err
 	}
-	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendWatchPaths, saveDir)
+
+	// isInit determine
+	var isInit bool
+
+	// determine if the app must reset the state
+	// if the state must be reset, then we consider the chain as being not initialized
+	isInit, err = c.IsInitialized()
+	if err != nil {
+		return err
+	}
+	if isInit {
+		configModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum)
+		if err != nil {
+			return err
+		}
+
+		if forceReset || configModified {
+			// if forceReset is set, we consider the app as being not initialized
+			fmt.Fprintln(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
+			isInit = false
+		}
+	}
+
+	// check if source has been modified since last serve
+	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
+	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum)
 	if err != nil {
 		return err
 	}

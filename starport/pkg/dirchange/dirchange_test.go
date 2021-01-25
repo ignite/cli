@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	TmpPattern = "starport-dirchange"
+	TmpPattern   = "starport-dirchange"
 	ChecksumFile = "checksum.txt"
 )
 
