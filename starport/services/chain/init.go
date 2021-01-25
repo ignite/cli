@@ -7,6 +7,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
 	conf "github.com/tendermint/starport/starport/chainconf"
 	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 
@@ -111,17 +113,28 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
-		if err != nil {
-			return err
+		var generatedAccount chaincmdrunner.Account
+		accountAddress := account.Address
+
+		// If the account doesn't provide an address, we create one
+		if accountAddress == "" {
+			generatedAccount, err = c.Commands().AddAccount(ctx, account.Name, "")
+			if err != nil {
+				return err
+			}
+			accountAddress = generatedAccount.Address
 		}
 
 		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+		if err := c.Commands().AddGenesisAccount(ctx, accountAddress, coins); err != nil {
 			return err
 		}
 
-		fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", acc.Mnemonic)
+		if account.Address == "" {
+			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", generatedAccount.Mnemonic)
+		} else {
+			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Account imported: %[1]v\n", account.Address)
+		}
 	}
 
 	// add accounts from secret config into genesis
