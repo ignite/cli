@@ -23,13 +23,25 @@ A list of user accounts created during genesis of your application.
 | name  | Y        | String          | Local name of the key pair                        |
 | coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
 
+### UI on Github Pages
+
+Click the link below, and scroll down until you see it get her pages. Then, select the branch gh-pages.
+
+[Github Pages Setings](https://github.com/(<%= OwnerName %>/<%= AppName %>/settings/)
+
+After you do that you can visit your chain's UI at:
+
+https://<%= OwnerName %>.github.io/<%= AppName %>
+
+This is especially useful when you would like to rapidly iterate on a live user interface. Remember, each community member can have their own github pages instance, allowing your community to mix-and-match front ends.
+
 ### CI
 
 By default, this chain includes a github action that builds for amd64 and arm64 on Windows, Mac, and Linux.
 
 ### Docker Images And Pi Images
 
-In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as [secrets](https://github.com/(<%= OwnerName %>/<%= AppName %>/settings/secrets/actions)
+In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as [secrets](https://github.com/<%= OwnerName %>/<%= AppName %>/settings/secrets/actions)
 
 Add these:
 
