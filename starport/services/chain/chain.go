@@ -250,8 +250,8 @@ func (c *Chain) Binary() (string, error) {
 		return "", err
 	}
 
-	if conf.Binary != "" {
-		return conf.Binary, nil
+	if conf.Build.Binary != "" {
+		return conf.Build.Binary, nil
 	}
 
 	return c.app.D(), nil
