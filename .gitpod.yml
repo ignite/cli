@@ -20,6 +20,7 @@ tasks:
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
       export RPC_ADDRESS=$(gp url 26657):443
+      export API_ADDRESS=$(gp url 1317)
       cd ./docs
 
       clear && printf '\e[3J'
