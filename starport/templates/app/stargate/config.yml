@@ -1,9 +1,15 @@
-version: 1
 accounts:
-  - name: user1
+  - name: alice
     coins: ["1000token", "100000000stake"]
-  - name: user2
+  - name: bob
     coins: ["500token"]
 validator:
-  name: user1
+  name: alice
   staked: "100000000stake"
+  
+  
+init.config:
+  timeout_commit: 5s
+  addr_book_strict: false
+  
+  
