@@ -93,7 +93,7 @@ func openapiIndexHtml() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "openapi/index.html", size: 841, mode: os.FileMode(436), modTime: time.Unix(1611427875, 0)}
+	info := bindataFileInfo{name: "openapi/index.html", size: 841, mode: os.FileMode(436), modTime: time.Unix(1611478616, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -113,7 +113,7 @@ func openapiOpenapiYmlTmpl() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "openapi/openapi.yml.tmpl", size: 2041, mode: os.FileMode(436), modTime: time.Unix(1611431517, 0)}
+	info := bindataFileInfo{name: "openapi/openapi.yml.tmpl", size: 2041, mode: os.FileMode(436), modTime: time.Unix(1611478616, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
