@@ -17,9 +17,6 @@ type Plugin interface {
 	// Setup performs the initial setup for plugin.
 	Setup(context.Context) error
 
-	// Binaries returns a list of binaries that will be compiled for the app.
-	Binaries() []string
-
 	// ConfigCommands returns step.Exec configuration for config commands.
 	Configure(context.Context, chaincmdrunner.Runner, string) error
 

@@ -49,8 +49,8 @@ var (
 type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
-	Build     Build                  `yaml:"build"`
 	Faucet    Faucet                 `yaml:"faucet"`
+	Build     Build                  `yaml:"build"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
@@ -84,7 +84,8 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
-	Proto Proto `yaml:"proto"`
+	Binary string `yaml:"binary"`
+	Proto  Proto  `yaml:"proto"`
 }
 
 // Proto holds proto build configs.
