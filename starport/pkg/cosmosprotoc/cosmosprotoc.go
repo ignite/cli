@@ -13,8 +13,8 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // ErrProtocNotInstalled is returned when protoc isn't installed on the system.
@@ -63,7 +63,7 @@ var (
 	}
 )
 
-// Generate generates source code from proto files residing under dirs.
+// Generate generates code from proto app's proto files.
 // make sure that all paths are absolute.
 func Generate(
 	ctx context.Context,
@@ -72,43 +72,81 @@ func Generate(
 	protoPath string,
 	protoThirdPartyPaths []string,
 ) error {
-	// define protoc command with proto paths(-I).
+	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
+	// blockchain apps. Generate should be aware of these and make them available to the blockchain
+	// app that wants to generate code for its own proto.
+	//
+	// blockchain apps may use different versions of the SDK. following code first makes sure that
+	// app's dependencies are download by 'go mod' and cached under the local filesystem.
+	// and then, it determines which version of the SDK is used by the app and what is the absolute path
+	// of its source code.
+	if err := cmdrunner.
+		New(cmdrunner.DefaultWorkdir(projectPath)).
+		Run(ctx, step.New(step.Exec("go", "mod", "download"))); err != nil {
+		return err
+	}
+
+	modfile, err := gomodule.ParseAt(projectPath)
+	if err != nil {
+		return err
+	}
+
+	required := gomodule.FilterRequire(modfile.Require, "github.com/cosmos/cosmos-sdk")
+
+	sdkSrcPath, err := gomodule.LocatePath(required[0].Mod)
+	if err != nil {
+		return err
+	}
+
+	// add Google's and SDK's proto paths to third parties list.
+	protoThirdPartyPaths = append(protoThirdPartyPaths,
+		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
+		os.ExpandEnv("$HOME/local/include"),
+
+		// this one is the suggested installation path for placing default proto by
+		// https://grpc.io/docs/protoc-installation/.
+		os.ExpandEnv("$HOME/.local/include"),
+
+		// sdk.
+		filepath.Join(sdkSrcPath, "proto"),
+		filepath.Join(sdkSrcPath, "third_party/proto"))
+
+	// created a temporary dir to locate generated code under which later only some of them will be moved to the
+	// app's source code. this also prevents having leftover files in the app's source code or its parent dir -when
+	// command executed directly there- in case of an interrupt.
+	tmp, err := ioutil.TempDir("", "")
+	if err != nil {
+		return err
+	}
+
+	defer os.RemoveAll(tmp)
+
+	// start preparing the protoc command for execution.
 	command := []string{
 		"protoc",
 	}
 
+	// append third party proto locations to the command.
 	for _, importPath := range append([]string{protoPath}, protoThirdPartyPaths...) {
-		// skip if the given third party proto source actually doesn't exist on the filesystem.
+		// skip if a third party proto source actually doesn't exist on the filesystem.
 		if _, err := os.Stat(importPath); os.IsNotExist(err) {
 			continue
 		}
 		command = append(command, "-I", importPath)
 	}
 
-	pattern := func(path string) string {
-		return path + "/**/*.proto"
-	}
-
-	// get a list of proto dirs under path and run protoc for each individually to all protocOuts.
-	dirs, err := xos.DirList(pattern(protoPath))
+	// find out the list of proto files under the app and generate code for them.
+	files, err := zglob.Glob(globProto(protoPath))
 	if err != nil {
 		return err
 	}
 
-	// put generated files under the tmp dir and move from here to the source code.
-	// this prevents having leftover generated files in the app's source code or its parent dir in case of an interrupt.
-	tmp, err := ioutil.TempDir("", "")
-	if err != nil {
-		return err
-	}
-	defer os.RemoveAll(tmp)
-
-	for _, dir := range dirs {
-		// check if the third party proto files are located under the same dir of
-		// app's proto files, if so skip them since they should only be included with `-I`.
+	for _, file := range files {
+		// check if the file belongs to a third party proto. if so, skip it since it should
+		// only be included via `-I`.
 		var includesThirdParty bool
 		for _, protoThirdPartyPath := range protoThirdPartyPaths {
-			if strings.HasPrefix(dir, protoThirdPartyPath) {
+			if strings.HasPrefix(file, protoThirdPartyPath) {
 				includesThirdParty = true
 				break
 			}
@@ -117,32 +155,27 @@ func Generate(
 			continue
 		}
 
-		// find out the list of proto files under the dir and code generate for them.
-		files, err := zglob.Glob(pattern(dir))
-		if err != nil {
-			return err
-		}
-
+		// run command for each protocOuts.
 		for _, out := range protocOuts {
 			command := append(command, out)
-			command = append(command, files...)
+			command = append(command, file)
 
 			errb := &bytes.Buffer{}
 
 			err := cmdrunner.
-				New(cmdrunner.DefaultStderr(errb),
+				New(
+					cmdrunner.DefaultStderr(errb),
 					cmdrunner.DefaultWorkdir(tmp)).
-				Run(ctx, step.New(
-					step.Exec(command[0], command[1:]...)))
+				Run(ctx,
+					step.New(step.Exec(command[0], command[1:]...)))
 
 			if err != nil {
 				return errors.Wrap(err, errb.String())
 			}
 		}
-
 	}
 
-	// move generated files to the proper places.
+	// move generated code for the app under the relative locations in its source code.
 	generatedPath := filepath.Join(tmp, gomodPath)
 	if err := copy.Copy(generatedPath, projectPath); err != nil {
 		return errors.Wrap(err, "cannot copy path")
@@ -150,3 +183,5 @@ func Generate(
 
 	return nil
 }
+
+func globProto(path string) string { return path + "/**/*.proto" }
