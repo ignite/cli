@@ -205,10 +205,16 @@ type Account struct {
 }
 
 func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (chain.Account, error) {
-	acc, err := b.chain.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
+	commands, err := b.chain.Commands(ctx)
 	if err != nil {
 		return chain.Account{}, err
 	}
+
+	acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
+	if err != nil {
+		return chain.Account{}, err
+	}
+
 	return chain.Account{
 		Name:     acc.Name,
 		Address:  acc.Address,
@@ -219,10 +225,16 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 // IssueGentx creates a Genesis transaction for account with proposal.
 func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
 	proposal.Validator.Name = account.Name
-	if err := b.chain.Commands().AddGenesisAccount(ctx, account.Address, account.Coins); err != nil {
+	commands, err := b.chain.Commands(ctx)
+	if err != nil {
 		return nil, err
 	}
-	gentxPath, err := b.chain.Commands().Gentx(
+
+	if err := commands.AddGenesisAccount(ctx, account.Address, account.Coins); err != nil {
+		return nil, err
+	}
+
+	gentxPath, err := commands.Gentx(
 		ctx,
 		account.Name,
 		proposal.Validator.StakingAmount,
@@ -236,6 +248,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 	if err != nil {
 		return nil, err
 	}
+
 	return ioutil.ReadFile(gentxPath)
 }
 
@@ -244,7 +257,12 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
 func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
-	key, err := b.chain.Commands().ShowNodeID(ctx)
+	commands, err := b.chain.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	key, err := commands.ShowNodeID(ctx)
 	if err != nil {
 		return err
 	}

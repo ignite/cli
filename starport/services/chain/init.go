@@ -47,8 +47,13 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	// init node.
-	if err := c.cmd.Init(ctx, moniker); err != nil {
+	if err := commands.Init(ctx, moniker); err != nil {
 		return err
 	}
 
@@ -109,15 +114,20 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 		return err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	// add accounts from config into genesis
 	for _, account := range conf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, "")
+		acc, err := commands.AddAccount(ctx, account.Name, "")
 		if err != nil {
 			return err
 		}
 
 		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 
@@ -126,13 +136,13 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 	// add accounts from secret config into genesis
 	for _, account := range sconf.Accounts {
-		acc, err := c.Commands().AddAccount(ctx, account.Name, account.Mnemonic)
+		acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
 		if err != nil {
 			return err
 		}
 
 		coins := strings.Join(account.Coins, ",")
-		if err := c.Commands().AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
 			return err
 		}
 	}
@@ -143,7 +153,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 	}
 
 	// create the gentx from the validator from the config
-	if _, err := c.plugin.Gentx(ctx, c.Commands(), Validator{
+	if _, err := c.plugin.Gentx(ctx, commands, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
 	}); err != nil {
@@ -151,7 +161,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 	}
 
 	// import the gentx into the genesis
-	if err := c.Commands().CollectGentxs(ctx); err != nil {
+	if err := commands.CollectGentxs(ctx); err != nil {
 		return err
 	}
 
@@ -198,7 +208,12 @@ func (c *Chain) configure(ctx context.Context) error {
 		return err
 	}
 
-	return c.plugin.Configure(ctx, c.Commands(), chainID)
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.plugin.Configure(ctx, commands, chainID)
 }
 
 type Validator struct {

@@ -20,6 +20,7 @@ import (
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
@@ -130,6 +131,10 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				return ctx.Err()
 
 			case <-c.serveRefresher:
+				commands, err := c.Commands(ctx)
+				if err != nil {
+					return err
+				}
 
 				var (
 					serveCtx context.Context
@@ -142,7 +147,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				shouldReset := serveOptions.forceReset || serveOptions.resetOnce
 
 				// serve the app.
-				err := c.serve(serveCtx, shouldReset)
+				err = c.serve(serveCtx, shouldReset)
 				serveOptions.resetOnce = false
 
 				switch {
@@ -155,7 +160,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 						fmt.Fprintln(c.stdLog(logStarport).out, "💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
-						if err := c.saveChainState(context.TODO()); err != nil {
+						if err := c.saveChainState(context.TODO(), commands); err != nil {
 							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
 							return err
 						}
@@ -276,6 +281,11 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return &CannotBuildAppError{err}
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	saveDir, err := c.chainSavePath()
 	if err != nil {
 		return err
@@ -360,7 +370,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		// we reset the chain database and import the genesis state
 		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
 
-		if err := c.cmd.UnsafeReset(ctx); err != nil {
+		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
 		}
 
@@ -376,10 +386,15 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 }
 
 func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, c.Commands(), conf) })
+	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
 
 	// run relayer.
 	go func() {
@@ -389,10 +404,8 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	}()
 
 	// start the faucet if enabled.
-	var (
-		faucet, err     = c.Faucet(ctx)
-		isFaucetEnabled = err != ErrFaucetIsNotEnabled
-	)
+	faucet, err := c.Faucet(ctx)
+	isFaucetEnabled := err != ErrFaucetIsNotEnabled
 
 	if isFaucetEnabled {
 		if err == ErrFaucetAccountDoesNotExist {
@@ -514,13 +527,13 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 }
 
 // saveChainState runs the export command of the chain and store the exported genesis in the chain saved config
-func (c *Chain) saveChainState(ctx context.Context) error {
+func (c *Chain) saveChainState(ctx context.Context, commands chaincmdrunner.Runner) error {
 	genesisPath, err := c.exportedGenesisPath()
 	if err != nil {
 		return err
 	}
 
-	return c.cmd.Export(ctx, genesisPath)
+	return commands.Export(ctx, genesisPath)
 }
 
 // importChainState imports the saved genesis in chain config to use it as the genesis

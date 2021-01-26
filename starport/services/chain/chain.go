@@ -62,7 +62,6 @@ type Chain struct {
 	plugin         Plugin
 	sourceVersion  version
 	logLevel       LogLvl
-	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
@@ -160,70 +159,6 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	// initialize the plugin depending on the version of the chain
 	c.plugin = c.pickPlugin()
 
-	// initialize the chain commands
-	id, err := c.ID()
-	if err != nil {
-		return nil, err
-	}
-
-	home, err := c.Home()
-	if err != nil {
-		return nil, err
-	}
-	ccoptions := []chaincmd.Option{
-		chaincmd.WithChainID(id),
-		chaincmd.WithHome(home),
-		chaincmd.WithVersion(c.Version),
-	}
-	if c.plugin.Version() == cosmosver.Launchpad {
-		cliHome, err := c.CLIHome()
-		if err != nil {
-			return nil, err
-		}
-		ccoptions = append(ccoptions,
-			chaincmd.WithLaunchpadCLI(c.app.CLI()),
-			chaincmd.WithLaunchpadCLIHome(cliHome),
-		)
-	}
-
-	config, err := c.Config()
-	if err != nil {
-		return nil, err
-	}
-
-	// use keyring backend if specified
-	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
-	} else {
-		// check if keyring backend is specified in config
-		if config.Init.KeyringBackend != "" {
-			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
-			if err != nil {
-				return nil, err
-			}
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
-		} else {
-			// default keyring backend used is OS
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
-		}
-	}
-
-	cc := chaincmd.New(c.app.D(), ccoptions...)
-
-	ccroptions := []chaincmdrunner.Option{}
-	if c.logLevel == LogVerbose {
-		ccroptions = append(ccroptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
-			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
-			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
-		)
-	}
-	c.cmd, err = chaincmdrunner.New(ctx, cc, ccroptions...)
-	if err != nil {
-		return nil, err
-	}
-
 	return c, nil
 }
 
@@ -309,6 +244,43 @@ func (c *Chain) ID() (string, error) {
 
 	// use app name by default.
 	return c.app.N(), nil
+}
+
+// Binary returns the name of app's default (appd) binary.
+func (c *Chain) Binary() (string, error) {
+	conf, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+
+	if conf.Build.Binary != "" {
+		return conf.Build.Binary, nil
+	}
+
+	return c.app.D(), nil
+}
+
+// BinaryCLI returns the name of app's secondary (appcli) binary.
+func (c *Chain) BinaryCLI() string {
+	return c.app.CLI()
+}
+
+// Binaries returns the list of binaries available for the chain.
+func (c *Chain) Binaries() ([]string, error) {
+	binary, err := c.Binary()
+	if err != nil {
+		return nil, err
+	}
+
+	binaries := []string{
+		binary,
+	}
+
+	if c.Version.Major().Is(cosmosver.Launchpad) {
+		binaries = append(binaries, c.app.CLI())
+	}
+
+	return binaries, nil
 }
 
 // Home returns the blockchain node's home dir.
@@ -399,6 +371,73 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 }
 
 // Commands returns the runner execute commands on the chain's binary
-func (c *Chain) Commands() chaincmdrunner.Runner {
-	return c.cmd
+func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
+	id, err := c.ID()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	home, err := c.Home()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	binary, err := c.Binary()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	config, err := c.Config()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	ccoptions := []chaincmd.Option{
+		chaincmd.WithChainID(id),
+		chaincmd.WithHome(home),
+		chaincmd.WithVersion(c.Version),
+	}
+
+	if c.plugin.Version() == cosmosver.Launchpad {
+		cliHome, err := c.CLIHome()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
+
+		ccoptions = append(ccoptions,
+			chaincmd.WithLaunchpadCLI(c.BinaryCLI()),
+			chaincmd.WithLaunchpadCLIHome(cliHome),
+		)
+	}
+
+	// use keyring backend if specified
+	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+	} else {
+		// check if keyring backend is specified in config
+		if config.Init.KeyringBackend != "" {
+			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+			if err != nil {
+				return chaincmdrunner.Runner{}, err
+			}
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+		} else {
+			// default keyring backend used is OS
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
+		}
+	}
+
+	cc := chaincmd.New(binary, ccoptions...)
+
+	ccroptions := []chaincmdrunner.Option{}
+	if c.logLevel == LogVerbose {
+		ccroptions = append(ccroptions,
+			chaincmdrunner.Stdout(os.Stdout),
+			chaincmdrunner.Stderr(os.Stderr),
+			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
+		)
+	}
+
+	return chaincmdrunner.New(ctx, cc, ccroptions...)
 }
