@@ -37,12 +37,17 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		return cosmosfaucet.Faucet{}, err
 	}
 
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return cosmosfaucet.Faucet{}, err
+	}
+
 	// validate if the faucet initialization in the config.yml is correct.
 	if conf.Faucet.Name == nil {
 		return cosmosfaucet.Faucet{}, ErrFaucetIsNotEnabled
 	}
 
-	if _, err := c.cmd.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
+	if _, err := commands.ShowAccount(ctx, *conf.Faucet.Name); err != nil {
 		if err == chaincmdrunner.ErrAccountDoesNotExist {
 			return cosmosfaucet.Faucet{}, ErrFaucetAccountDoesNotExist
 		}
@@ -85,5 +90,5 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 	}
 
 	// init the faucet with options and return.
-	return cosmosfaucet.New(ctx, c.cmd, faucetOptions...)
+	return cosmosfaucet.New(ctx, commands, faucetOptions...)
 }
