@@ -6,7 +6,3 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
-  
-  
-init.config:
-  addr_book_strict: false

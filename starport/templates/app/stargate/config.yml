@@ -10,6 +10,6 @@ validator:
   
 init.config:
   timeout_commit: 5s
-  addr_book_strict: false
+
   
   
