@@ -6,10 +6,7 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
-  
-  
-init.config:
-  timeout_commit: 5s
+
 
   
   
