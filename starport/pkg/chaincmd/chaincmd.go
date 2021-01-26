@@ -5,6 +5,7 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (
@@ -23,6 +24,7 @@ const (
 	commandExport            = "export"
 
 	optionHome                             = "--home"
+	optionNode                             = "--node"
 	optionKeyringBackend                   = "--keyring-backend"
 	optionChainID                          = "--chain-id"
 	optionOutput                           = "--output"
@@ -58,7 +60,7 @@ type ChainCmd struct {
 	chainID         string
 	homeDir         string
 	keyringBackend  KeyringBackend
-	keyringPassword string
+	KeyringPassword string
 	cliCmd          string
 	cliHome         string
 	nodeAddress     string
@@ -135,15 +137,15 @@ func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 // WithKeyringPassword provides a password to unlock keyring
 func WithKeyringPassword(password string) Option {
 	return func(c *ChainCmd) {
-		c.keyringPassword = password
+		c.KeyringPassword = password
 	}
 }
 
-// WitNodeAddress sets the node address for the commands that needs to make an
+// WithNodeAddress sets the node address for the commands that needs to make an
 // API request to the node that has a different node address other than the default one.
-func WitNodeAddress(addr string) Option {
+func WithNodeAddress(addr string) Option {
 	return func(c *ChainCmd) {
-		c.nodeAddress = addr
+		c.nodeAddress = xurl.TCP(addr)
 	}
 }
 
@@ -433,6 +435,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 
 	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
+	command = c.attachNode(command)
 
 	return c.cliCommand(command)
 }
@@ -504,6 +507,14 @@ func (c ChainCmd) attachKeyringBackend(command []string) []string {
 func (c ChainCmd) attachHome(command []string) []string {
 	if c.homeDir != "" {
 		command = append(command, []string{optionHome, c.homeDir}...)
+	}
+	return command
+}
+
+// attacNode appends the node flag to the provided command
+func (c ChainCmd) attachNode(command []string) []string {
+	if c.nodeAddress != "" {
+		command = append(command, []string{optionNode, c.nodeAddress}...)
 	}
 	return command
 }

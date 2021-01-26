@@ -396,6 +396,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
+		chaincmd.WithNodeAddress(config.Servers.RPCAddr),
 	}
 
 	if c.plugin.Version() == cosmosver.Launchpad {

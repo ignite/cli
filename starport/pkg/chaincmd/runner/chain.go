@@ -11,6 +11,7 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
@@ -103,7 +104,8 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 	var chainID string
 
 	//nolint:gocritic // this is a false positive, json tags are actually different.
-	if r.cc.SDKVersion().Major().Is(cosmosver.Stargate) {
+	switch r.cc.SDKVersion() {
+	case cosmosver.StargateZeroFourtyAndAbove:
 		out := struct {
 			NodeInfo struct {
 				Network string `json:"network"`
@@ -115,7 +117,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 		}
 
 		chainID = out.NodeInfo.Network
-	} else {
+	default:
 		out := struct {
 			NodeInfo struct {
 				Network string `json:"network"`
@@ -137,8 +139,19 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 // BankSend sends amount from fromAccount to toAccount.
 func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
 	b := &bytes.Buffer{}
+	opt := []step.Option{
+		r.cc.BankSendCommand(fromAccount, toAccount, amount),
+	}
 
-	if err := r.run(ctx, runOptions{stdout: b}, r.cc.BankSendCommand(fromAccount, toAccount, amount)); err != nil {
+	if r.cc.KeyringPassword != "" {
+		input := &bytes.Buffer{}
+		fmt.Fprintln(input, r.cc.KeyringPassword)
+		fmt.Fprintln(input, r.cc.KeyringPassword)
+		fmt.Fprintln(input, r.cc.KeyringPassword)
+		opt = append(opt, step.Write(input.Bytes()))
+	}
+
+	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
 		if strings.Contains(err.Error(), "key not found") || // stargate
 			strings.Contains(err.Error(), "unknown address") || // launchpad
 			strings.Contains(b.String(), "item could not be found") { // launchpad
