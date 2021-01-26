@@ -183,7 +183,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
 				case errors.As(err, &startErr):
 					fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --force-reset")
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
 
 					return err
 				default:
