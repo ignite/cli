@@ -46,14 +46,14 @@ contain valid denominations. Accounts may optionally be supplied with vesting pa
 
 			config.SetRoot(clientCtx.HomeDir)
 
+            coins, err := sdk.ParseCoinsNormalized(args[1])
+            if err != nil {
+                return fmt.Errorf("failed to parse coins: %w", err)
+            }
+
 			addr, err := sdk.AccAddressFromBech32(args[0])
 			if err != nil {
 				return fmt.Errorf("failed to decode bech32 address: %w", err)
-			}
-
-			coins, err := sdk.ParseCoinsNormalized(args[1])
-			if err != nil {
-				return fmt.Errorf("failed to parse coins: %w", err)
 			}
 
 			vestingStart, err := cmd.Flags().GetInt64(flagVestingStart)
