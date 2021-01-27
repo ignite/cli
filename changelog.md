@@ -1,14 +1,26 @@
 # Changelog
 
+## Unreleased
+
 ### Features:
+- Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
+- Integrated third-party proto-files into Starport CLI
+- Added ability to customize binary name with `build.binary` in `config.yml`
+- Added ability to change path to home directory with `init.home` in `config.yml`
+- Added ability to add accounts by `address` with in `config.yml`
+- Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
+- Added `starport faucet [address] [coins]` command
+- Updated scaffold to Cosmos SDK v0.41.0
 - Distroless multiplatform docker containers for starport that can be used for `starport serve`
 - UI containers for chains scaffolded with Starport
 - Use SOS-lite and Docker instead of systemD
-- Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
-- Moved Stargate app's `third_party/proto` into `proto/third_party` to avoid extra noise in the folder structure. 
 - Arch PKGBUILD in `scripts`
 
 ### Fixes:
+
+- Support for CosmWasm on Stargate
+- Bug with dashes in Github username breaking proto package name
+- Bug with custom address prefix
 - use docker buildx as a single command with multiple platforms to make multi-manifest work properly
 
 ## `v0.13.0`
