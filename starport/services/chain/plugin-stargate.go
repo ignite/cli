@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
 	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
@@ -32,12 +31,6 @@ func (p *stargatePlugin) Name() string {
 
 func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
-}
-
-func (p *stargatePlugin) Binaries() []string {
-	return []string{
-		p.app.D(),
-	}
 }
 
 func (p *stargatePlugin) Configure(_ context.Context, _ chaincmdrunner.Runner, _ string) error {
@@ -115,7 +108,7 @@ func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner
 		"--grpc.address",
 		conf.Servers.GRPCAddr,
 	)
-	return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+	return &CannotStartAppError{p.app.Name, err}
 }
 
 func (p *stargatePlugin) StoragePaths() []string {

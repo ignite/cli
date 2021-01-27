@@ -51,13 +51,6 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		)
 }
 
-func (p *launchpadPlugin) Binaries() []string {
-	return []string{
-		p.app.D(),
-		p.app.CLI(),
-	}
-}
-
 func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
 	return runner.LaunchpadSetConfigs(ctx,
 		chaincmdrunner.NewKV("keyring-backend", "test"),
@@ -111,7 +104,7 @@ func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runne
 
 	g.Go(func() error {
 		err := runner.Start(ctx)
-		return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+		return &CannotStartAppError{p.app.Name, err}
 	})
 
 	g.Go(func() error {

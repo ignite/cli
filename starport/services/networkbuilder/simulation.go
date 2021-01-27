@@ -57,6 +57,11 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		return false, err
 	}
 
+	commands, err := chainHandler.Commands(ctx)
+	if err != nil {
+		return false, err
+	}
+
 	// copy the config to the temporary directory
 	originHome := homeDir
 	if originHome == "" {
@@ -83,7 +88,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		return false, err
 	}
 
-	runner := chainHandler.Commands().
+	runner := commands.
 		Copy(
 			chaincmdrunner.Stderr(commandOut), // This is the error of the verifying command, therefore this is the same as stdout
 			chaincmdrunner.Stdout(commandOut),
