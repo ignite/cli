@@ -366,8 +366,6 @@ func (c ChainCmd) GentxCommand(
 		command = c.attachChainID(command)
 	}
 
-	command = c.attachKeyringBackend(command)
-
 	return c.daemonCommand(command)
 }
 
