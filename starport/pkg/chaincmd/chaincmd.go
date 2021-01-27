@@ -241,7 +241,6 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 		address,
 		coins,
 	}
-	command = c.attachKeyringBackend(command)
 
 	return c.daemonCommand(command)
 }
@@ -365,6 +364,8 @@ func (c ChainCmd) GentxCommand(
 	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
 		command = c.attachChainID(command)
 	}
+
+	command = c.attachKeyringBackend(command)
 
 	return c.daemonCommand(command)
 }
