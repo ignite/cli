@@ -4,7 +4,7 @@
 
 ### Features:
 
-- State persistence between chain restarts in development
+- App state persistence between `starport serve` launches
 - Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files into Starport CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
