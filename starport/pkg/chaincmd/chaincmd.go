@@ -241,7 +241,6 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 		address,
 		coins,
 	}
-	command = c.attachKeyringBackend(command)
 
 	return c.daemonCommand(command)
 }
