@@ -1,4 +1,3 @@
-# In this section, you can configure accounts.
 accounts:
   - name: alice
     coins: ["1000token", "100000000stake"]
@@ -7,33 +6,3 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
-
- 
-# You can use this section to configure a faucet so that your users can get some free coins to try your application!
-# faucet:
-#  port: 4500
-#  name: faucet
-#  coins: ["10000000token"]
-#  coins_max: ["69token"]
-  
-# Init.config allows you to override values in config.toml
-# init.config:
-# this allows the use of a VPN for edge network nodes
-#  addr_book_strict: false
-  
-# You can configure build options here.
-# build:
-#   proto:
-#    path:
-#    thirdpartypaths: ["third_party/proto","proto_vendor"]
-  
-  
-# You can configure where starport serves different pieces of the application here. 
-# servers:
-#  rpc-address: 0.0.0.0:26657
-#  p2p-address: 0.0.0.0:26656
-#  prof-address: 0.0.0.0:6060
-#  grpc-address: 0.0.0.0:9090
-#  api-address: 0.0.0.0:1317
-#  frontend-address: 0.0.0.0:8080
-#  dev-ui-address: 0.0.0.0:12345
