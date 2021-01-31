@@ -125,7 +125,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Printf("⛓   Connected chains: %s\n\n", color.Green.Sprint(connectionID))
+	fmt.Printf("⛓  Connected chains: %s\n\n", color.Green.Sprint(connectionID))
 
 	return nil
 }

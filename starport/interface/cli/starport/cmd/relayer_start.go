@@ -63,7 +63,7 @@ func relayerStartHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if len(alreadyLinkedPaths) != 0 {
-		fmt.Printf("⛓   %d chains already linked.\n", len(alreadyLinkedPaths)*2)
+		fmt.Printf("⛓  %d chains already linked.\n", len(alreadyLinkedPaths)*2)
 	}
 
 	if len(linkedPaths) != 0 {

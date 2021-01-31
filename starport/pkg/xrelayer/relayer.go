@@ -86,7 +86,7 @@ func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPath
 
 	err = g.Wait()
 
-	return
+	return linkedPaths, alreadyLinkedPaths, err
 }
 
 // Path represents a path between two chains.

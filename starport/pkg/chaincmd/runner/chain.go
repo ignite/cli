@@ -103,7 +103,6 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 
 	var chainID string
 
-	//nolint:gocritic // this is a false positive, json tags are actually different.
 	switch r.cc.SDKVersion() {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		out := struct {

@@ -34,7 +34,7 @@ var (
 
 // config returns the representation of config.yml.
 // it deals with creating and adding default configs if there wasn't a config.yml before.
-func config(ctx context.Context) (relayercmd.Config, error) {
+func config(_ context.Context) (relayercmd.Config, error) {
 	// ensure that config.yaml exists.
 	if _, err := os.Stat(confYamlPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(filepath.Dir(confYamlPath), os.ModePerm); err != nil {
