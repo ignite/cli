@@ -38,7 +38,6 @@ func New() *cobra.Command {
 	c.AddCommand(NewFaucet())
 	c.AddCommand(NewBuild())
 	c.AddCommand(NewModule())
-	c.AddCommand(NewChain())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())

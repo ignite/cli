@@ -16,10 +16,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
 
-const (
-	relayerVersion = "ba17c4db185229d9354187a8b9723097ab527261"
-)
-
 func TestMain(m *testing.M) {
 	flag.Parse()
 	if err := checkSystemRequirements(); err != nil {

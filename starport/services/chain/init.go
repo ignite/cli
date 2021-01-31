@@ -14,7 +14,6 @@ import (
 
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 const (
@@ -202,19 +201,6 @@ func (c *Chain) IsInitialized() (bool, error) {
 }
 
 func (c *Chain) configure(ctx context.Context) error {
-	// setup IBC Relayer.
-	if err := c.checkIBCRelayerSupport(); err == nil {
-		if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
-			return err
-		}
-		info, err := c.RelayerInfo()
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(c.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
-		return nil
-	}
-
 	// configure blockchain.
 	chainID, err := c.ID()
 	if err != nil {
