@@ -90,8 +90,8 @@ func (r Runner) Copy(options ...Option) Runner {
 }
 
 type runOptions struct {
-	// longRunning indicates that command expected to run for a long period of time.
-	longRunning bool
+	// wrapStdErr wraps the error logs of the app into the returned error
+	wrapStdErr bool
 
 	// stdout and stderr used to collect a copy of command's outputs.
 	stdout, stderr io.Writer
@@ -114,7 +114,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		stderr = io.MultiWriter(stderr, roptions.stderr)
 	}
 
-	if !roptions.longRunning {
+	if !roptions.wrapStdErr {
 		stderr = io.MultiWriter(stderr, errb)
 	}
 
