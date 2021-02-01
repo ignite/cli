@@ -313,7 +313,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 	}
 
-	// check if the app ahs been built
+	// check if the app has been built
 	isBuilt, err := c.isBuilt()
 	if err != nil {
 		return err
