@@ -30,7 +30,7 @@ const (
 )
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(moduleName string) error {
+func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 	version, err := s.version()
 	if err != nil {
 		return err
