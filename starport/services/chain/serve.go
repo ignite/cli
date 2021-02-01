@@ -291,7 +291,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
-	// isInit determine
+	// isInit determines if the app is initialized
 	var isInit bool
 
 	// determine if the app must reset the state
@@ -311,6 +311,12 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 			fmt.Fprintln(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
 			isInit = false
 		}
+	}
+
+	// check if the app ahs been built
+	isBuilt, err := c.isBuilt()
+	if err != nil {
+		return err
 	}
 
 	// check if source has been modified since last serve
@@ -333,7 +339,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// build phase
-	if !isInit || sourceModified {
+	if !isBuilt || !isInit || sourceModified {
 		// build proto
 		if err := c.buildProto(ctx); err != nil {
 			return err

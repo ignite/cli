@@ -185,3 +185,20 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	return nil
 }
+
+func (c *Chain) isBuilt() (bool, error) {
+	binary, err := c.Binary()
+	if err != nil {
+		return false, err
+	}
+
+	binaryPath := filepath.Join(goenv.GetGOBIN(), binary)
+
+	if _, err := os.Stat(binaryPath); os.IsNotExist(err) {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+
+	return true, nil
+}
