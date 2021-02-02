@@ -11,6 +11,7 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 
@@ -303,14 +304,25 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// we also consider the binary in the checksum to ensure the binary has not been changed by a third party
+	binaryModified := false
 	binaryName, err := c.Binary()
 	if err != nil {
 		return err
 	}
-	binaryModified, err := dirchange.HasDirChecksumChanged("", []string{installPath(binaryName)}, saveDir, binaryChecksum)
+	binaryPath, err := exec.LookPath(binaryName)
 	if err != nil {
-		return err
+		if strings.Contains(err.Error(), "file not found") {
+			binaryModified = true
+		} else {
+			return err
+		}
+	} else {
+		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
+		if err != nil {
+			return err
+		}
 	}
+
 	appModified := sourceModified || binaryModified
 
 	// check if exported genesis exists
@@ -381,7 +393,11 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
 		return err
 	}
-	if err := dirchange.SaveDirChecksum("", []string{installPath(binaryName)}, saveDir, binaryChecksum); err != nil {
+	binaryPath, err = exec.LookPath(binaryName)
+	if err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
 		return err
 	}
 

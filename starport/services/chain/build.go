@@ -123,7 +123,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	))
 
 	addInstallStep := func(binaryName, mainPath string) {
-		installPath := installPath(binaryName)
+		installPath := filepath.Join(goenv.GetGOBIN(), binaryName)
 
 		steps.Add(step.New(step.NewOptions().
 			Add(
@@ -184,9 +184,4 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	}
 
 	return nil
-}
-
-func installPath(binaryName string) string {
-	fmt.Println(filepath.Join(goenv.GetGOBIN(), binaryName))
-	return filepath.Join(goenv.GetGOBIN(), binaryName)
 }
