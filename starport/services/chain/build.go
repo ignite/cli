@@ -187,5 +187,6 @@ func (c *Chain) buildProto(ctx context.Context) error {
 }
 
 func installPath(binaryName string) string {
+	fmt.Println(filepath.Join(goenv.GetGOBIN(), binaryName))
 	return filepath.Join(goenv.GetGOBIN(), binaryName)
 }
