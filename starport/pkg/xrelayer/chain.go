@@ -228,12 +228,13 @@ func (c *Chain) guessFaucetURLs() ([]*url.URL, error) {
 	var guessedURLs []*url.URL
 
 	possibilities := []struct {
-		port    string
-		subname string
+		port         string
+		subname      string
+		nameSperator string
 	}{
-		{"4500", ""},
-		{"", "faucet"},
-		{"", "4500"}, // Gitpod uses port number as sub domain name.
+		{"4500", "", "."},
+		{"", "faucet", "."},
+		{"", "4500", "-"}, // Gitpod uses port number as sub domain name.
 	}
 
 	// creating guesses addresses by basing RPC address.
@@ -260,13 +261,13 @@ func (c *Chain) guessFaucetURLs() ([]*url.URL, error) {
 
 				// try with replacing the subname for 1 level.
 				// e.g.: faucet.domain.
-				sp := strings.SplitN(u.Hostname(), ".", 2)
+				sp := strings.SplitN(u.Hostname(), poss.nameSperator, 2)
 				if len(sp) == 2 {
 					bases = append(bases, sp[1])
 				}
 				for _, basename := range bases {
 					guess, _ := url.Parse(guess.String()) // copy guess.
-					guess.Host = fmt.Sprintf("%s.%s", poss.subname, basename)
+					guess.Host = fmt.Sprintf("%s%s%s", poss.subname, poss.nameSperator, basename)
 					guessedURLs = append(guessedURLs, guess)
 				}
 			}
