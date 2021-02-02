@@ -233,6 +233,7 @@ func (c *Chain) guessFaucetURLs() ([]*url.URL, error) {
 	}{
 		{"4500", ""},
 		{"", "faucet"},
+		{"", "4500"}, // Gitpod uses port number as sub domain name.
 	}
 
 	// creating guesses addresses by basing RPC address.
