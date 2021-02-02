@@ -6,3 +6,9 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
+faucet:
+  name: alice
+  coins:
+    - "5token"
+  coins_max:
+    - "50token"
