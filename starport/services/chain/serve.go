@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path"
 	"path/filepath"
 	"regexp"
@@ -46,6 +45,9 @@ var (
 
 	// sourceChecksum is the file containing the checksum to detect source modification
 	sourceChecksum = "source_checksum.txt"
+
+	// binaryChecksum is the file containing the checksum to detect binary modification
+	binaryChecksum = "binary_checksum.txt"
 
 	// configChecksum is the file containing the checksum to detect config modification
 	configChecksum = "config_checksum.txt"
@@ -214,26 +216,6 @@ If the new code is no longer compatible with the saved state, you can reset the 
 		return c.watchAppBackend(ctx)
 	})
 
-	// save the source checksum on exit
-	// this goroutine is not in the waiting group to not block the program in case the blockchain start fails
-	go func() {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt)
-		<-interrupt
-
-		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
-		saveDir, err := c.chainSavePath()
-		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save config checksum:%s \n", err.Error())
-		}
-	}()
-
 	return g.Wait()
 }
 
@@ -307,7 +289,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
-	// isInit determine
+	// isInit determines if the app is initialized
 	var isInit bool
 
 	// determine if the app must reset the state
@@ -336,6 +318,27 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
+	// we also consider the binary in the checksum to ensure the binary has not been changed by a third party
+	var binaryModified bool
+	binaryName, err := c.Binary()
+	if err != nil {
+		return err
+	}
+	binaryPath, err := exec.LookPath(binaryName)
+	if err != nil {
+		if !errors.Is(err, exec.ErrNotFound) {
+			return err
+		}
+		binaryModified = true
+	} else {
+		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
+		if err != nil {
+			return err
+		}
+	}
+
+	appModified := sourceModified || binaryModified
+
 	// check if exported genesis exists
 	exportGenesisExists := true
 	exportedGenesisPath, err := c.exportedGenesisPath()
@@ -349,7 +352,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// build phase
-	if !isInit || sourceModified {
+	if !isInit || appModified {
 		// build proto
 		if err := c.buildProto(ctx); err != nil {
 			return err
@@ -369,7 +372,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// init phase
 	// nolint:gocritic
-	if !isInit || (sourceModified && !exportGenesisExists) {
+	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Initializing the app...")
 
 		// initialize the blockchain
@@ -381,7 +384,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		if err := c.InitAccounts(ctx, conf); err != nil {
 			return err
 		}
-	} else if sourceModified {
+	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
 		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
@@ -395,6 +398,21 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 	} else {
 		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
+	}
+
+	// save checksums
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+		return err
+	}
+	binaryPath, err = exec.LookPath(binaryName)
+	if err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
+		return err
 	}
 
 	// start the blockchain

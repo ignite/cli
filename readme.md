@@ -19,7 +19,7 @@ starport serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/1%20Introduction/2%20Install.md).
+To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To learn more about how to customize your blockchain see `config.yml` [reference](/docs/2%20Architecture/5%20Configuration.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/1%20Introduction/2%20Install.md).
 
 ## Questions
 
