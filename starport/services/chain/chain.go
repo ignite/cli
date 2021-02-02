@@ -12,7 +12,6 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
 	conf "github.com/tendermint/starport/starport/chainconf"
-	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -27,9 +26,7 @@ var (
 		"third_party",
 	}
 
-	appBackendConfigWatchPaths = append([]string{
-		secretconf.SecretFile,
-	}, conf.FileNames...)
+	appBackendConfigWatchPaths = conf.FileNames
 
 	vuePath = "vue"
 
