@@ -395,7 +395,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 	binaryPath, err = exec.LookPath(binaryName)
 	if err != nil {
-		return errors.Wrap(err, "cannot save binary checksum")
+		return err
 	}
 	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
 		return err
