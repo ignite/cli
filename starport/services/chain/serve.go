@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path"
 	"path/filepath"
 
@@ -198,26 +197,6 @@ If the new code is no longer compatible with the saved state, you can reset the 
 		return c.watchAppBackend(ctx)
 	})
 
-	// save the source checksum on exit
-	// this goroutine is not in the waiting group to not block the program in case the blockchain start fails
-	go func() {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt)
-		<-interrupt
-
-		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
-		saveDir, err := c.chainSavePath()
-		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save config checksum:%s \n", err.Error())
-		}
-	}()
-
 	return g.Wait()
 }
 
@@ -379,6 +358,14 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 	} else {
 		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
+	}
+
+	// save source and config checksum
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+		return err
 	}
 
 	// start the blockchain
