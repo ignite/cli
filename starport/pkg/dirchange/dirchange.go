@@ -46,7 +46,11 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 
 	// Compute checksum
 	checksum, err := checksumFromPaths(workdir, paths)
-	if err != nil {
+	if errors.Is(err, &ErrNoFile{}) {
+		// Checksum cannot be saved with no file
+		// Therefore if no file are found, this means these have been delete, then the directory has been changed
+		return true, nil
+	} else if err != nil {
 		return false, err
 	}
 
@@ -115,9 +119,15 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	}
 
 	if noFile {
-		return []byte{}, errors.New("no file in specified paths")
+		return []byte{}, &ErrNoFile{}
 	}
 
 	// compute checksum
 	return hash.Sum(nil), nil
+}
+
+type ErrNoFile struct{}
+
+func (m *ErrNoFile) Error() string {
+	return "no file in specified paths"
 }
