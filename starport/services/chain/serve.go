@@ -41,8 +41,11 @@ var (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
-	// appChecksum is the file containing the checksum to detect source and binary modification
-	appChecksum = "app_checksum.txt"
+	// sourceChecksum is the file containing the checksum to detect source modification
+	sourceChecksum = "source_checksum.txt"
+
+	// binaryChecksum is the file containing the checksum to detect binary modification
+	binaryChecksum = "binary_checksum.txt"
 
 	// configChecksum is the file containing the checksum to detect config modification
 	configChecksum = "config_checksum.txt"
@@ -294,16 +297,21 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// check if source has been modified since last serve
 	// if the state must not be reset but the source has changed, we rebuild the chain and import the exported state
+	sourceModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum)
+	if err != nil {
+		return err
+	}
+
 	// we also consider the binary in the checksum to ensure the binary has not been changed by a third party
 	binaryName, err := c.Binary()
 	if err != nil {
 		return err
 	}
-	checksumPath := append(appBackendSourceWatchPaths, installPath(binaryName))
-	appModified, err := dirchange.HasDirChecksumChanged(c.app.Path, checksumPath, saveDir, appChecksum)
+	binaryModified, err := dirchange.HasDirChecksumChanged("", []string{installPath(binaryName)}, saveDir, binaryChecksum)
 	if err != nil {
 		return err
 	}
+	appModified := sourceModified || binaryModified
 
 	// check if exported genesis exists
 	exportGenesisExists := true
@@ -366,11 +374,14 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
 	}
 
-	// save source and config checksum
+	// save checksums
 	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
 		return err
 	}
-	if err := dirchange.SaveDirChecksum(c.app.Path, checksumPath, saveDir, appChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum("", []string{installPath(binaryName)}, saveDir, binaryChecksum); err != nil {
 		return err
 	}
 
