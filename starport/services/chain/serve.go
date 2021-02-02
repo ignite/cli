@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/dirchange"
 	"go/build"
 	"net"
 	"net/http"
@@ -12,6 +11,8 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+
+	"github.com/tendermint/starport/starport/pkg/dirchange"
 
 	"github.com/tendermint/starport/starport/services"
 
@@ -302,7 +303,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// we also consider the binary in the checksum to ensure the binary has not been changed by a third party
-	var binaryModified  bool
+	var binaryModified bool
 	binaryName, err := c.Binary()
 	if err != nil {
 		return err

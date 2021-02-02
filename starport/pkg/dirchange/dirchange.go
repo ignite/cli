@@ -127,4 +127,3 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	// compute checksum
 	return hash.Sum(nil), nil
 }
-
