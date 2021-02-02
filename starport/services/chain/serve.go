@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/dirchange"
 	"go/build"
 	"net"
 	"net/http"
@@ -11,9 +12,6 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
-	"strings"
-
-	"github.com/tendermint/starport/starport/pkg/dirchange"
 
 	"github.com/tendermint/starport/starport/services"
 
@@ -311,11 +309,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 	binaryPath, err := exec.LookPath(binaryName)
 	if err != nil {
-		if strings.Contains(err.Error(), "file not found") {
-			binaryModified = true
-		} else {
+		if !errors.Is(err, exec.ErrNotFound) {
 			return err
 		}
+		binaryModified = true
 	} else {
 		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
 		if err != nil {
