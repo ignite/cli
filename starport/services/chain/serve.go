@@ -321,7 +321,6 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		if err != nil {
 			return err
 		}
-		return errors.New(binaryPath)
 	}
 
 	appModified := sourceModified || binaryModified
