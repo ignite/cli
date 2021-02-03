@@ -198,7 +198,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 						fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
 If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
 
-						return fmt.Errorf("cannot run %s", err.AppName)
+						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
 
 					// return the clear parsed error
