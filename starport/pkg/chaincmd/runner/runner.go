@@ -2,7 +2,6 @@
 package chaincmdrunner
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"io/ioutil"
@@ -12,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/lineprefixer"
+	"github.com/tendermint/starport/starport/pkg/truncatedbuffer"
 )
 
 // Runner provides a high level access to a blockchain's commands.
@@ -107,10 +107,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		// we use a truncated buffer to prevent memory leak
 		// this is because Stargate app currently send logs to StdErr
 		// therefore if the app successfully starts, the written logs can become extensive
-		errb = &truncatedBuffer{
-			buf: &bytes.Buffer{},
-			cap: roptions.wrappedStdErrMaxLen,
-		}
+		errb = truncatedbuffer.NewTruncatedBuffer(roptions.wrappedStdErrMaxLen)
 
 		// add optional prefixes to output streams.
 		stdout io.Writer = lineprefixer.NewWriter(r.stdout, func() string { return r.daemonLogPrefix })
@@ -138,24 +135,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		Run(ctx, step.New(soptions...))
 
 	if roptions.wrapStdErr {
-		return errors.Wrap(err, errb.buf.String())
+		return errors.Wrap(err, errb.GetBuffer().String())
 	}
 	return err
-}
-
-type truncatedBuffer struct {
-	buf *bytes.Buffer
-	cap int
-}
-
-func (b *truncatedBuffer) Write(p []byte) (n int, err error) {
-	n, err = b.buf.Write(p)
-	if err != nil {
-		return n, err
-	}
-	if b.cap > 0 && b.buf.Len() > b.cap {
-		b.buf.Truncate(b.cap)
-	}
-
-	return n, nil
 }
