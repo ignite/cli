@@ -43,7 +43,7 @@ func (b *TruncatedBuffer) Write(p []byte) (n int, err error) {
 
 	if b.cap > 0 && surplus > 0 {
 		b.buf.Truncate(b.cap)
-		n = n - (surplus)
+		n -= surplus
 	}
 
 	return n, nil
