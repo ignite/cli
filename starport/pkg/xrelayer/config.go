@@ -9,6 +9,7 @@ import (
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"
 	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/tendermint/starport/starport/pkg/tendermintlogger"
 )
 
 var (
@@ -59,7 +60,7 @@ func config(_ context.Context) (relayercmd.Config, error) {
 	}
 
 	for _, i := range rconf.Chains {
-		if err := i.Init(confHome, globalTimeout, false); err != nil {
+		if err := i.Init(confHome, globalTimeout, tendermintlogger.DiscardLogger{}, false); err != nil {
 			return relayercmd.Config{}, newRelayerError("cannot init")
 		}
 	}

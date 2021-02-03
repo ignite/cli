@@ -21,7 +21,6 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
-	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/gookit/color v1.3.6
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
@@ -33,7 +32,7 @@ require (
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/otiai10/copy v1.4.2
-	github.com/pelletier/go-toml v1.8.0
+	github.com/pelletier/go-toml v1.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rakyll/statik v0.1.7
@@ -48,10 +47,10 @@ require (
 	golang.org/x/mod v0.4.1
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sync v0.0.0-20201207232520-09787c993a3a
-	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf // indirect
 	google.golang.org/grpc v1.35.0
-	gopkg.in/yaml.v2 v2.4.0
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
+
+replace github.com/cosmos/relayer => github.com/ilgooz/relayer-1 v0.0.1
