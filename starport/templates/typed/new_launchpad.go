@@ -2,6 +2,7 @@ package typed
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -190,6 +191,10 @@ func (t *typedLaunchpad) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "vue/src/views/Index.vue"
 		f, err := r.Disk.Find(path)
+		if os.IsNotExist(err) {
+			// Skip modification if the app doesn't contain front-end
+			return nil
+		}
 		if err != nil {
 			return err
 		}
