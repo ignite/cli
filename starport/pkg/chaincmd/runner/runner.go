@@ -93,6 +93,10 @@ type runOptions struct {
 	// wrapStdErr wraps the error logs of the app into the returned error
 	wrapStdErr bool
 
+	// wrappedStdErrMaxLen determines the maximum length of the wrapped error logs
+	// 0 can be used for no maximum length
+	wrappedStdErrMaxLen int
+
 	// stdout and stderr used to collect a copy of command's outputs.
 	stdout, stderr io.Writer
 }
@@ -100,7 +104,13 @@ type runOptions struct {
 // run executes a command.
 func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.Option) error {
 	var (
-		errb = &bytes.Buffer{}
+		// we use a truncated buffer to prevent memory leak
+		// this is because Stargate app currently send logs to StdErr
+		// therefore if the app successfully starts, the written logs can become extensive
+		errb = &truncatedBuffer{
+			buf: &bytes.Buffer{},
+			cap: roptions.wrappedStdErrMaxLen,
+		}
 
 		// add optional prefixes to output streams.
 		stdout io.Writer = lineprefixer.NewWriter(r.stdout, func() string { return r.daemonLogPrefix })
@@ -114,7 +124,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		stderr = io.MultiWriter(stderr, roptions.stderr)
 	}
 
-	if !roptions.wrapStdErr {
+	if roptions.wrapStdErr {
 		stderr = io.MultiWriter(stderr, errb)
 	}
 
@@ -127,5 +137,25 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		New(rnoptions...).
 		Run(ctx, step.New(soptions...))
 
-	return errors.Wrap(err, errb.String())
+	if roptions.wrapStdErr {
+		return errors.Wrap(err, errb.buf.String())
+	}
+	return err
+}
+
+type truncatedBuffer struct {
+	buf *bytes.Buffer
+	cap int
+}
+
+func (b *truncatedBuffer) Write(p []byte) (n int, err error) {
+	n, err = b.buf.Write(p)
+	if err != nil {
+		return n, err
+	}
+	if b.cap > 0 && b.buf.Len() > b.cap {
+		b.buf.Truncate(b.cap)
+	}
+
+	return n, nil
 }
