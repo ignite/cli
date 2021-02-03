@@ -45,16 +45,93 @@ func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 case *types.MsgCreate%[2]v:
-	return handleMsgCreate%[2]v(ctx, k, msg)
+			res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 case *types.MsgUpdate%[2]v:
-	return handleMsgUpdate%[2]v(ctx, k, msg)
+			res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 
 case *types.MsgDelete%[2]v:
-	return handleMsgDelete%[2]v(ctx, k, msg)
+			res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
 `
 		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
 		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxImportModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%s
+import "%s/%s.proto";`
+		replacement := fmt.Sprintf(template, placeholderProtoTxImport,
+			opts.ModuleName,
+			opts.TypeName,
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxImport, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxRPCModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
+rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+		replacement := fmt.Sprintf(template, placeholderProtoTxRPC,
+			opts.ModuleName,
+			opts.TypeName,
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxRPC, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxMessageModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		template := `%[1]v
+message MsgCreate<%= title(TypeName) %> {
+  string creator = 1;<%= for (i, field) in Fields { %>
+  <%= field.Datatype %> <%= field.Name %> = <%= i+2 %>; <% } %>
+}
+
+message MsgUpdate<%= title(TypeName) %> {
+  string creator = 1;
+  string id = 2;<%= for (i, field) in Fields { %>
+  <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
+}
+
+message MsgDelete<%= title(TypeName) %> {
+  string creator = 1;
+  string id = 2;
+}`
+		replacement := fmt.Sprintf(template, placeholderProtoTxRPC,
+			opts.ModuleName,
+			opts.TypeName,
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxRPC, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
