@@ -29,3 +29,15 @@ func SliceContains(ss []string, s string) bool {
 
 	return false
 }
+
+// List returns a slice of strings captured after the value returned by do which is
+// called n times.
+func List(n int, do func(i int) string) []string {
+	var list []string
+
+	for i := 0; i < n; i++ {
+		list = append(list, do(i))
+	}
+
+	return list
+}

@@ -81,7 +81,12 @@ func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPath
 		// link non linked paths.
 		id := id
 
-		g.Go(func() (err error) { return link(id) })
+		g.Go(func() (err error) {
+			if err = link(id); err != nil {
+				return &CouldNotLinkPathError{id, err}
+			}
+			return nil
+		})
 	}
 
 	err = g.Wait()
@@ -177,4 +182,16 @@ func newRelayerError(message string) *relayerErr {
 
 func (e *relayerErr) Error() string {
 	return fmt.Sprintf("relayer error: %s", e.message)
+}
+
+type CouldNotLinkPathError struct {
+	PathID string
+
+	err error
+}
+
+func (e *CouldNotLinkPathError) Unwrap() error { return e.err }
+
+func (e *CouldNotLinkPathError) Error() string {
+	return fmt.Sprintf("couldn not link chains for %q path: %s\n", e.PathID, e.err.Error())
 }

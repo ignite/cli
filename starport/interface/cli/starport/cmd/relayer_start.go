@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/xrelayer"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
@@ -19,55 +20,42 @@ func NewRelayerStart() *cobra.Command {
 }
 
 func relayerStartHandler(cmd *cobra.Command, args []string) error {
-	givenPaths := args
+	s := clispinner.New()
+	defer s.Stop()
 
-	paths, err := xrelayer.ListPaths(cmd.Context())
+	allPaths, err := xrelayer.ListPaths(cmd.Context())
 	if err != nil {
 		return err
 	}
 
-	var allPaths []string
-	for _, path := range paths {
-		allPaths = append(allPaths, path.ID)
-	}
+	var (
+		givenPathIDs = args
+		allPathIDs   = xstrings.List(len(allPaths), func(i int) string { return allPaths[i].ID })
+		pathsToUse   = xstrings.AllOrSomeFilter(allPathIDs, givenPathIDs)
+	)
 
-	pathsToLink := xstrings.AllOrSomeFilter(allPaths, givenPaths)
+	if len(pathsToUse) == 0 {
+		s.Stop()
 
-	if len(pathsToLink) == 0 {
 		fmt.Println("No chains found for linking.")
+		return nil
 	}
 
-	var linkedPaths, alreadyLinkedPaths []string
+	s.SetText("Starting...")
 
-	for _, path := range paths {
-		if !xstrings.SliceContains(pathsToLink, path.ID) {
-			continue
-		}
-
-		if path.IsLinked {
-			alreadyLinkedPaths = append(alreadyLinkedPaths, path.ID)
-			continue
-		}
-
-		fmt.Println()
-		printSection(fmt.Sprintf("Starting %s", path.ID))
-
-		linked, _, err := xrelayer.Start(cmd.Context(), path.ID)
-		if err != nil {
-			fmt.Printf("❌  Couldn't link chains for %q path: %s\n", path.ID, err.Error())
-
-			continue
-		}
-
-		linkedPaths = append(linkedPaths, linked...)
+	linkedPaths, alreadyLinkedPaths, err := xrelayer.Start(cmd.Context(), pathsToUse...)
+	if err != nil {
+		return err
 	}
+
+	s.Stop()
 
 	if len(alreadyLinkedPaths) != 0 {
 		fmt.Printf("⛓  %d chains already linked.\n", len(alreadyLinkedPaths)*2)
 	}
 
 	if len(linkedPaths) != 0 {
-		fmt.Printf("\n🔌  Linked %d chains.\n", len(linkedPaths)*2)
+		fmt.Printf("🔌  Linked %d chains.\n", len(linkedPaths)*2)
 	}
 
 	return nil
