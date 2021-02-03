@@ -90,10 +90,8 @@ func (r Runner) Copy(options ...Option) Runner {
 }
 
 type runOptions struct {
-	// wrapStdErr wraps the error logs of the app into the returned error
-	wrapStdErr bool
-
 	// wrappedStdErrMaxLen determines the maximum length of the wrapped error logs
+	// this option is used for long running command to prevent the buffer containing stderr getting too big
 	// 0 can be used for no maximum length
 	wrappedStdErrMaxLen int
 
@@ -121,9 +119,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		stderr = io.MultiWriter(stderr, roptions.stderr)
 	}
 
-	if roptions.wrapStdErr {
-		stderr = io.MultiWriter(stderr, errb)
-	}
+	stderr = io.MultiWriter(stderr, errb)
 
 	rnoptions := []cmdrunner.Option{
 		cmdrunner.DefaultStdout(stdout),
@@ -134,8 +130,5 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		New(rnoptions...).
 		Run(ctx, step.New(soptions...))
 
-	if roptions.wrapStdErr {
-		return errors.Wrap(err, errb.GetBuffer().String())
-	}
-	return err
+	return errors.Wrap(err, errb.GetBuffer().String())
 }
