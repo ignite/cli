@@ -25,7 +25,7 @@ func TestWriter(t *testing.T) {
 
 	n, err = b.Write(ranBytes1000)
 	require.NoError(t, err)
-	require.Equal(t, 90, n)
+	require.Equal(t, 1000, n)
 	require.Equal(t, append(ranBytes10, ranBytes1000[:90]...), b.GetBuffer().Bytes())
 
 	// TruncatedBuffer has no max capacity
