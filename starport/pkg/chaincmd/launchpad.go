@@ -19,6 +19,7 @@ func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Opti
 		name,
 		value,
 	}
+
 	return c.cliCommand(command)
 }
 

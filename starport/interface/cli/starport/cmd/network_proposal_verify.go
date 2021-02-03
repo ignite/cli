@@ -23,6 +23,7 @@ func NewNetworkProposalVerify() *cobra.Command {
 		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().Bool(flagDebug, false, "show output of verification command in the console")
 	return c
 }
@@ -62,7 +63,13 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		out = os.Stdout
 	}
 
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, ids, out)
+	// Check if custom home is provided
+	home, _, err := getHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
+
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
 	if err != nil {
 		return err
 	}

@@ -11,6 +11,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/services"
+
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/dariubs/percent"
 	"github.com/fatih/color"
 	"github.com/pelletier/go-toml"
@@ -34,7 +38,7 @@ const (
 )
 
 var (
-	sourcePath = filepath.Join(starportConfDir, "spn-chains")
+	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
 )
 
 // Builder is network builder.
@@ -71,6 +75,8 @@ type initOptions struct {
 	hash                     string
 	path                     string
 	mustNotInitializedBefore bool
+	homePath                 string
+	cliHomePath              string
 }
 
 // SourceOption sets the source for blockchain.
@@ -129,6 +135,20 @@ func SourceLocal(path string) SourceOption {
 func MustNotInitializedBefore() InitOption {
 	return func(o *initOptions) {
 		o.mustNotInitializedBefore = true
+	}
+}
+
+// InitializationHomePath provides a specific home path for the blockchain for the initialization
+func InitializationHomePath(homePath string) InitOption {
+	return func(o *initOptions) {
+		o.homePath = homePath
+	}
+}
+
+// InitializationCLIHomePath provides a specific cli home path for the blockchain for the initialization
+func InitializationCLIHomePath(cliHomePath string) InitOption {
+	return func(o *initOptions) {
+		o.cliHomePath = cliHomePath
 	}
 }
 
@@ -245,7 +265,17 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		githash = ref.Hash()
 	}
 
-	return newBlockchain(ctx, b, chainID, path, url, githash.String(), o.mustNotInitializedBefore)
+	return newBlockchain(
+		ctx,
+		b,
+		chainID,
+		path,
+		url,
+		githash.String(),
+		o.homePath,
+		o.cliHomePath,
+		o.mustNotInitializedBefore,
+	)
 }
 
 // ensureRemoteSynced ensures that current worktree in the repository has no unstaged
@@ -286,7 +316,13 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // has not finalized yet.
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
-func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string) error {
+func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
+	// set options
+	o := &initOptions{}
+	for _, option := range options {
+		option(o)
+	}
+
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return err
@@ -297,8 +333,31 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		return err
 	}
 
+	chainOption := []chain.Option{
+		chain.LogLevel(chain.LogSilent),
+	}
+
+	// Custom home paths
+	if o.homePath != "" {
+		chainOption = append(chainOption, chain.HomePath(o.homePath))
+	}
+	if o.cliHomePath != "" {
+		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
+	}
+
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(appPath, chain.LogLevel(chain.LogSilent))
+	chainHandler, err := chain.New(ctx, appPath, chainOption...)
+	if err != nil {
+		return err
+	}
+
+	commands, err := chainHandler.Commands(ctx)
 	if err != nil {
 		return err
 	}
@@ -334,7 +393,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	// save the finalized version of config.toml with peers.
-	configTomlPath := filepath.Join(chainHandler.Home(), "config/config.toml")
+	home, err := chainHandler.Home()
+	if err != nil {
+		return err
+	}
+	configTomlPath := filepath.Join(home, "config/config.toml")
 	configToml, err := toml.LoadFile(configTomlPath)
 	if err != nil {
 		return err
@@ -354,7 +417,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// run the start command of the chain.
 	g.Go(func() error {
-		return chainHandler.Commands().
+		return commands.
 			Copy(
 				chaincmdrunner.Stdout(os.Stdout),
 				chaincmdrunner.Stderr(os.Stderr)).
@@ -395,18 +458,28 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
-	// overwrite genesis with initial genesis.
-	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(chainHandler.Home()))
+	commands, err := chainHandler.Commands(ctx)
 	if err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(chainHandler.Home()), initialGenesis, 0755)
+
+	home, err := chainHandler.Home()
+	if err != nil {
+		return err
+	}
+
+	// overwrite genesis with initial genesis.
+	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(home))
+	if err != nil {
+		return err
+	}
+	err = ioutil.WriteFile(genesisPath(home), initialGenesis, 0755)
 	if err != nil {
 		return err
 	}
 
 	// make sure that Genesis' genesis_time is set to chain's creation time on SPN.
-	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(chainHandler.Home()))
+	cf := confile.New(confile.DefaultJSONEncodingCreator, genesisPath(home))
 	var genesis map[string]interface{}
 	if err := cf.Load(&genesis); err != nil {
 		return err
@@ -423,21 +496,21 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 			Coins:   account.Coins.String(),
 		}
 
-		if err := chainHandler.Commands().AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
+		if err := commands.AddGenesisAccount(ctx, genesisAccount.Address, genesisAccount.Coins); err != nil {
 			return err
 		}
 	}
 
 	// reset gentx directory
-	os.Mkdir(filepath.Join(chainHandler.Home(), "config/gentx"), os.ModePerm)
-	dir, err := ioutil.ReadDir(filepath.Join(chainHandler.Home(), "config/gentx"))
+	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
+	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
 	if err != nil {
 		return err
 	}
 
 	// remove all the current gentxs
 	for _, d := range dir {
-		if err := os.RemoveAll(filepath.Join(chainHandler.Home(), "config/gentx", d.Name())); err != nil {
+		if err := os.RemoveAll(filepath.Join(home, "config/gentx", d.Name())); err != nil {
 			return err
 		}
 	}
@@ -445,13 +518,13 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	// add and collect the gentxs
 	for i, gentx := range launchInfo.GenTxs {
 		// Save the gentx in the gentx directory
-		gentxPath := filepath.Join(chainHandler.Home(), fmt.Sprintf("config/gentx/gentx%v.json", i))
+		gentxPath := filepath.Join(home, fmt.Sprintf("config/gentx/gentx%v.json", i))
 		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}
 	}
 	if len(launchInfo.GenTxs) > 0 {
-		if err = chainHandler.Commands().CollectGentxs(ctx); err != nil {
+		if err = commands.CollectGentxs(ctx); err != nil {
 			return err
 		}
 	}

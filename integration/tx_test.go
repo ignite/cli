@@ -68,7 +68,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 
 			addresses := []string{}
 
-			// collect addresses of user1 and user2.
+			// collect addresses of alice and bob.
 			accounts := []struct {
 				Name    string `json:"name"`
 				Address string `json:"address"`
@@ -77,15 +77,15 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				return err
 			}
 			for _, account := range accounts {
-				if account.Name == "user1" || account.Name == "user2" {
+				if account.Name == "alice" || account.Name == "bob" {
 					addresses = append(addresses, account.Address)
 				}
 			}
 			if len(addresses) != 2 {
-				return errors.New("expected user1 and user2 accounts to be created")
+				return errors.New("expected alice and bob accounts to be created")
 			}
 
-			// send some tokens from user1 to user2 and confirm the corresponding tx via gRPC gateway
+			// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
 			// endpoint by asserting denom and amount.
 			return cmdrunner.New().Run(ctx, step.New(
 				step.Exec(
@@ -150,7 +150,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

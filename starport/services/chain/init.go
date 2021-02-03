@@ -4,6 +4,13 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
+
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/confile"
@@ -27,14 +34,28 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// cleanup persistent data from previous `serve`.
-	for _, path := range c.plugin.StoragePaths() {
-		if err := os.RemoveAll(path); err != nil {
-			return err
-		}
+	home, err := c.Home()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(home); err != nil {
+		return err
+	}
+	cliHome, err := c.CLIHome()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(cliHome); err != nil {
+		return err
+	}
+
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
 	}
 
 	// init node.
-	if err := c.cmd.Init(ctx, moniker); err != nil {
+	if err := commands.Init(ctx, moniker); err != nil {
 		return err
 	}
 
@@ -46,14 +67,28 @@ func (c *Chain) Init(ctx context.Context) error {
 		conf.Genesis["chain_id"] = chainID
 	}
 
+	// Initilize app config
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return err
+	}
+	appTOMLPath, err := c.AppTOMLPath()
+	if err != nil {
+		return err
+	}
+	configTOMLPath, err := c.ConfigTOMLPath()
+	if err != nil {
+		return err
+	}
+
 	appconfigs := []struct {
 		ec      confile.EncodingCreator
 		path    string
 		changes map[string]interface{}
 	}{
-		{confile.DefaultJSONEncodingCreator, c.GenesisPath(), conf.Genesis},
-		{confile.DefaultTOMLEncodingCreator, c.AppTOMLPath(), conf.Init.App},
-		{confile.DefaultTOMLEncodingCreator, c.ConfigTOMLPath(), conf.Init.Config},
+		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
+		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 	}
 
 	for _, ac := range appconfigs {
@@ -71,7 +106,99 @@ func (c *Chain) Init(ctx context.Context) error {
 	}
 
 	// run post init handler
-	return c.plugin.PostInit(conf)
+	return c.plugin.PostInit(home, conf)
+}
+
+// InitAccounts initializes the chain accounts and creates validator gentxs
+func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
+	sconf, err := secretconf.Open(c.app.Path)
+	if err != nil {
+		return err
+	}
+
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	// add accounts from config into genesis
+	for _, account := range conf.Accounts {
+		var generatedAccount chaincmdrunner.Account
+		accountAddress := account.Address
+
+		// If the account doesn't provide an address, we create one
+		if accountAddress == "" {
+			generatedAccount, err = commands.AddAccount(ctx, account.Name, "")
+			if err != nil {
+				return err
+			}
+			accountAddress = generatedAccount.Address
+		}
+
+		coins := strings.Join(account.Coins, ",")
+		if err := commands.AddGenesisAccount(ctx, accountAddress, coins); err != nil {
+			return err
+		}
+
+		if account.Address == "" {
+			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", generatedAccount.Mnemonic)
+		} else {
+			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Imported an account. Address: %[1]v\n", account.Address)
+		}
+	}
+
+	// add accounts from secret config into genesis
+	for _, account := range sconf.Accounts {
+		acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
+		if err != nil {
+			return err
+		}
+
+		coins := strings.Join(account.Coins, ",")
+		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
+			return err
+		}
+	}
+
+	// perform configuration in the chain config
+	if err := c.configure(ctx); err != nil {
+		return err
+	}
+
+	// create the gentx from the validator from the config
+	if _, err := c.plugin.Gentx(ctx, commands, Validator{
+		Name:          conf.Validator.Name,
+		StakingAmount: conf.Validator.Staked,
+	}); err != nil {
+		return err
+	}
+
+	// import the gentx into the genesis
+	if err := commands.CollectGentxs(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// IsInitialized checks if the chain is initialized
+// the check is performed by checking if the gentx dir exist in the config
+func (c *Chain) IsInitialized() (bool, error) {
+	home, err := c.Home()
+	if err != nil {
+		return false, err
+	}
+	gentxDir := filepath.Join(home, "config", "gentx")
+
+	if _, err := os.Stat(gentxDir); os.IsNotExist(err) {
+		return false, nil
+	}
+	if err != nil {
+		// Return error on other error
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (c *Chain) configure(ctx context.Context) error {
@@ -94,7 +221,12 @@ func (c *Chain) configure(ctx context.Context) error {
 		return err
 	}
 
-	return c.plugin.Configure(ctx, chainID)
+	commands, err := c.Commands(ctx)
+	if err != nil {
+		return err
+	}
+
+	return c.plugin.Configure(ctx, commands, chainID)
 }
 
 type Validator struct {

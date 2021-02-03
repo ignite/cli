@@ -28,6 +28,7 @@ func NewNetworkChainCreate() *cobra.Command {
 		Short: "Create a new network",
 		RunE:  networkChainCreateHandler,
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().String(flagBranch, "", "Git branch to use")
 	c.Flags().String(flagTag, "", "Git tag to use")
 	return c
@@ -81,6 +82,12 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("chain with id %q already exists", chainID)
 	}
 
+	// initialize the blockchain
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{networkbuilder.MustNotInitializedBefore()})
+	if err != nil {
+		return err
+	}
+
 	initChain := func() (*networkbuilder.Blockchain, error) {
 		sourceOption := networkbuilder.SourceLocal(source)
 		if !xurl.IsLocalPath(source) {
@@ -93,7 +100,7 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 				sourceOption = networkbuilder.SourceRemote(source)
 			}
 		}
-		return nb.Init(cmd.Context(), chainID, sourceOption, networkbuilder.MustNotInitializedBefore())
+		return nb.Init(cmd.Context(), chainID, sourceOption, initOptions...)
 	}
 
 	// init the chain.

@@ -8,73 +8,41 @@ on: [push, pull_request]
 
 # This workflow makes x86_64 binaries for mac, windows, and linux.
 
-
 jobs:
-  mac-windows:
+  build:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        targetos: [windows, darwin]
-    name: <%= AppName %> for ${{ matrix.targetos }}
+        arch: [amd64, arm64]
+        targetos: [windows, darwin, linux]
+    name: <%= AppName %> ${{ matrix.arch }} for ${{ matrix.targetos }}
     steps:
       - uses: actions/checkout@v2
-
       - name: Setup go
         uses: actions/setup-go@v1
         with:
           go-version: 1.15
         env:
           GOOS: ${{ matrix.targetos }}
-
-      - name: Compile
-        run: |
-          cd cmd/<%= AppName %>d
-          go build .
-          cd ..
-          cd <%= AppName %>cli
-          go build .
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: <%= AppName %>cli ${{ matrix.targetos }}
-          path: cmd/<%= AppName %>cli/<%= AppName %>cli
-
-      - uses: actions/upload-artifact@v2
-        with:
-          name: <%= AppName %>d ${{ matrix.targetos }}
-          path: cmd/<%= AppName %>d/<%= AppName %>d
-
-  linux:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        arch: [arm64, riscv64, amd64]
-
-    name: <%= AppName %> for ${{ matrix.arch }}
-    steps:
-      - uses: actions/checkout@v2
-
-      - name: Setup go
-        uses: actions/setup-go@v1
-        with:
-          go-version: 1.15
-        env:
           GOARCH: ${{ matrix.arch }}
 
       - name: Compile
         run: |
+          go mod download
           cd cmd/<%= AppName %>d
           go build .
           cd ..
           cd <%= AppName %>cli
           go build .
 
-      - uses: actions/upload-artifact@v2
+
+ 	  - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %>cli ${{ matrix.arch }}
+          name: <%= AppName %>cli ${{ matrix.targetos }} ${{ matrix.arch }}
           path: cmd/<%= AppName %>cli/<%= AppName %>cli
 
       - uses: actions/upload-artifact@v2
         with:
-          name: <%= AppName %>d ${{ matrix.arch }}
+          name: <%= AppName %>d ${{ matrix.targetos }} ${{ matrix.arch }}
           path: cmd/<%= AppName %>d/<%= AppName %>d
+

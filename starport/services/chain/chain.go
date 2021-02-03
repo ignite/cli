@@ -6,24 +6,28 @@ import (
 	"io"
 	"io/ioutil"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/services/chain/conf"
-	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 )
 
 var (
-	appBackendWatchPaths = append([]string{
+	appBackendSourceWatchPaths = []string{
 		"app",
 		"cmd",
 		"x",
 		"proto",
 		"third_party",
+	}
+
+	appBackendConfigWatchPaths = append([]string{
 		secretconf.SecretFile,
 	}, conf.FileNames...)
 
@@ -58,9 +62,9 @@ type Chain struct {
 	plugin         Plugin
 	sourceVersion  version
 	logLevel       LogLvl
-	cmd            chaincmdrunner.Runner
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
+	served         bool
 	stdout, stderr io.Writer
 }
 
@@ -71,6 +75,12 @@ type chainOptions struct {
 
 	// homePath of the chain's config dir.
 	homePath string
+
+	// cliHomePath of the chain's config dir.
+	cliHomePath string
+
+	// keyring backend used by commands if not specified in configuration
+	keyringBackend chaincmd.KeyringBackend
 }
 
 // Option configures Chain.
@@ -97,8 +107,22 @@ func HomePath(path string) Option {
 	}
 }
 
+// CLIHomePath replaces chain's cli configuration home path with given path.
+func CLIHomePath(path string) Option {
+	return func(c *Chain) {
+		c.options.cliHomePath = path
+	}
+}
+
+// KeyringBackend specify the keyring backend to use for the chain command
+func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
+	return func(c *Chain) {
+		c.options.keyringBackend = keyringBackend
+	}
+}
+
 // New initializes a new Chain with options that its source lives at path.
-func New(path string, options ...Option) (*Chain, error) {
+func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -112,6 +136,7 @@ func New(path string, options ...Option) (*Chain, error) {
 		stderr:         ioutil.Discard,
 	}
 
+	// Apply the options
 	for _, apply := range options {
 		apply(c)
 	}
@@ -133,38 +158,6 @@ func New(path string, options ...Option) (*Chain, error) {
 
 	// initialize the plugin depending on the version of the chain
 	c.plugin = c.pickPlugin()
-
-	// initialize the chain commands
-	id, err := c.ID()
-	if err != nil {
-		return nil, err
-	}
-
-	ccoptions := []chaincmd.Option{
-		chaincmd.WithChainID(id),
-		chaincmd.WithHome(c.Home()),
-		chaincmd.WithKeyringBackend(chaincmd.KeyringBackendTest),
-		chaincmd.WithVersion(c.Version),
-	}
-	if c.plugin.Version() == cosmosver.Launchpad {
-		ccoptions = append(ccoptions,
-			chaincmd.WithSecondaryCLI(c.app.CLI()),
-			//chaincmd.WithSecondaryCLIHome(),
-		)
-	}
-
-	cc := chaincmd.New(c.app.D(), ccoptions...)
-
-	ccroptions := []chaincmdrunner.Option{}
-	if c.logLevel == LogVerbose {
-		ccroptions = append(ccroptions,
-			chaincmdrunner.Stdout(os.Stdout),
-			chaincmdrunner.Stderr(os.Stderr),
-			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
-			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
-		)
-	}
-	c.cmd = chaincmdrunner.New(cc, ccroptions...)
 
 	return c, nil
 }
@@ -206,8 +199,22 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
-func (c *Chain) StoragePaths() []string {
-	return c.plugin.StoragePaths()
+func (c *Chain) StoragePaths() (paths []string, err error) {
+	home, err := c.Home()
+	if err != nil {
+		return paths, err
+	}
+	paths = append(paths, home)
+
+	cliHome, err := c.CLIHome()
+	if err != nil {
+		return paths, err
+	}
+	if cliHome != home {
+		paths = append(paths, cliHome)
+	}
+
+	return paths, nil
 }
 
 func (c *Chain) Config() (conf.Config, error) {
@@ -239,35 +246,198 @@ func (c *Chain) ID() (string, error) {
 	return c.app.N(), nil
 }
 
-// Home returns the blockchain node's home dir.
-func (c *Chain) Home() string {
-	if c.options.homePath != "" {
-		return c.options.homePath
+// Binary returns the name of app's default (appd) binary.
+func (c *Chain) Binary() (string, error) {
+	conf, err := c.Config()
+	if err != nil {
+		return "", err
 	}
-	return c.DefaultHome()
+
+	if conf.Build.Binary != "" {
+		return conf.Build.Binary, nil
+	}
+
+	return c.app.D(), nil
 }
 
-// DefaultHome returns the blockchain node's default home dir when not specified.
-func (c *Chain) DefaultHome() string {
-	return c.plugin.Home()
+// BinaryCLI returns the name of app's secondary (appcli) binary.
+func (c *Chain) BinaryCLI() string {
+	return c.app.CLI()
+}
+
+// Binaries returns the list of binaries available for the chain.
+func (c *Chain) Binaries() ([]string, error) {
+	binary, err := c.Binary()
+	if err != nil {
+		return nil, err
+	}
+
+	binaries := []string{
+		binary,
+	}
+
+	if c.Version.Major().Is(cosmosver.Launchpad) {
+		binaries = append(binaries, c.app.CLI())
+	}
+
+	return binaries, nil
+}
+
+// Home returns the blockchain node's home dir.
+func (c *Chain) Home() (string, error) {
+	// check if home is explicitly defined for the app
+	home := c.options.homePath
+	if home == "" {
+		// return default home otherwise
+		var err error
+		home, err = c.DefaultHome()
+		if err != nil {
+			return "", err
+		}
+
+	}
+
+	// expand environment variables in home
+	home = filepath.Join(os.ExpandEnv(home))
+
+	return home, nil
+}
+
+// DefaultHome returns the blockchain node's default home dir when not specified in the app
+func (c *Chain) DefaultHome() (string, error) {
+	// check if home is defined in config
+	config, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+	if config.Init.Home != "" {
+		return config.Init.Home, nil
+	}
+
+	return c.plugin.Home(), nil
+}
+
+// CLIHome returns the blockchain node's home dir.
+// This directory is the same as home for Stargate, it is a separate directory for Launchpad
+func (c *Chain) CLIHome() (string, error) {
+	// check if cli home is explicitly defined for the app
+	home := c.options.cliHomePath
+	if home == "" {
+		// check if cli home is defined in config
+		config, err := c.Config()
+		if err != nil {
+			return "", err
+		}
+		if config.Init.CLIHome != "" {
+			home = config.Init.CLIHome
+		} else {
+			// Use default for cli home otherwise
+			home = c.plugin.CLIHome()
+		}
+	}
+
+	// expand environment variables in home
+	home = filepath.Join(os.ExpandEnv(home))
+
+	// Return default home otherwise
+	return home, nil
 }
 
 // GenesisPath returns genesis.json path of the app.
-func (c *Chain) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", c.Home())
+func (c *Chain) GenesisPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/genesis.json", home), nil
 }
 
 // AppTOMLPath returns app.toml path of the app.
-func (c *Chain) AppTOMLPath() string {
-	return fmt.Sprintf("%s/config/app.toml", c.Home())
+func (c *Chain) AppTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/app.toml", home), nil
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
-func (c *Chain) ConfigTOMLPath() string {
-	return fmt.Sprintf("%s/config/config.toml", c.Home())
+func (c *Chain) ConfigTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/config.toml", home), nil
 }
 
 // Commands returns the runner execute commands on the chain's binary
-func (c *Chain) Commands() chaincmdrunner.Runner {
-	return c.cmd
+func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
+	id, err := c.ID()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	home, err := c.Home()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	binary, err := c.Binary()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	config, err := c.Config()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
+	ccoptions := []chaincmd.Option{
+		chaincmd.WithChainID(id),
+		chaincmd.WithHome(home),
+		chaincmd.WithVersion(c.Version),
+	}
+
+	if c.plugin.Version() == cosmosver.Launchpad {
+		cliHome, err := c.CLIHome()
+		if err != nil {
+			return chaincmdrunner.Runner{}, err
+		}
+
+		ccoptions = append(ccoptions,
+			chaincmd.WithLaunchpadCLI(c.BinaryCLI()),
+			chaincmd.WithLaunchpadCLIHome(cliHome),
+		)
+	}
+
+	// use keyring backend if specified
+	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
+		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+	} else {
+		// check if keyring backend is specified in config
+		if config.Init.KeyringBackend != "" {
+			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+			if err != nil {
+				return chaincmdrunner.Runner{}, err
+			}
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+		} else {
+			// default keyring backend used is OS
+			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
+		}
+	}
+
+	cc := chaincmd.New(binary, ccoptions...)
+
+	ccroptions := []chaincmdrunner.Option{}
+	if c.logLevel == LogVerbose {
+		ccroptions = append(ccroptions,
+			chaincmdrunner.Stdout(os.Stdout),
+			chaincmdrunner.Stderr(os.Stderr),
+			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
+			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
+		)
+	}
+
+	return chaincmdrunner.New(ctx, cc, ccroptions...)
 }

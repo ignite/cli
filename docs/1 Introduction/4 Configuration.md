@@ -1,6 +1,6 @@
 # Configuration
 
-When creating a new app with starport, you will see a `config.yml` file in your blockchain application folder. This file defines the genesis file, the network you will be using and the first validators of your blockchain.
+When creating a new app with starport, you will see a `config.yml` file in your blockchain folder. This file defines the genesis file, the network you will be using and the first validators of your blockchain.
 
 Let us examine the parts of the configuration of this file.
 

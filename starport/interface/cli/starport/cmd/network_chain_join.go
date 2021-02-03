@@ -27,6 +27,7 @@ func NewNetworkChainJoin() *cobra.Command {
 		RunE:  networkChainJoinHandler,
 		Args:  cobra.ExactArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
 	return c
 }
 
@@ -46,8 +47,14 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// Check if custom home is provided
+	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{})
+	if err != nil {
+		return err
+	}
+
 	// init the blockchain.
-	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID())
+	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID(), initOptions...)
 
 	if err == context.Canceled {
 		s.Stop()

@@ -14,19 +14,19 @@ import (
 
 	"github.com/cenkalti/backoff"
 	"github.com/pkg/errors"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services/chain/conf"
-	secretconf "github.com/tendermint/starport/starport/services/chain/conf/secret"
 	"github.com/tendermint/starport/starport/services/chain/rly"
 	"gopkg.in/yaml.v2"
 )
 
 const (
-	relayerVersion = "1daec66da1700c9fcd8900dbf06c70f2fd838cdf"
+	relayerVersion = "ba17c4db185229d9354187a8b9723097ab527261"
 )
 
 // relayerInfo holds relayer info that is shared between chains to make a connection.
@@ -257,13 +257,17 @@ func (c *Chain) initRelayer(ctx context.Context, _ conf.Config) error {
 
 // relayerHome initializes and returns the path to a home folder for relayer.
 func (c *Chain) initRelayerHome() (path string, err error) {
-	home, err := os.UserHomeDir()
+	userHomeDir, err := os.UserHomeDir()
 	if err != nil {
 		return "", err
 	}
-	relayerHome := filepath.Join(c.Home(), "relayer")
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	relayerHome := filepath.Join(home, "relayer")
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
-		relayerHome = filepath.Join(home, ".relayer")
+		relayerHome = filepath.Join(userHomeDir, ".relayer")
 	}
 	if err := os.MkdirAll(filepath.Join(relayerHome, "config"), os.ModePerm); err != nil {
 		return "", err

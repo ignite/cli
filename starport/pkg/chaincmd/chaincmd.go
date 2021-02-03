@@ -1,6 +1,8 @@
 package chaincmd
 
 import (
+	"fmt"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -14,6 +16,11 @@ const (
 	commandCollectGentxs     = "collect-gentxs"
 	commandValidateGenesis   = "validate-genesis"
 	commandShowNodeID        = "show-node-id"
+	commandStatus            = "status"
+	commandTx                = "tx"
+	commandQuery             = "query"
+	commandUnsafeReset       = "unsafe-reset-all"
+	commandExport            = "export"
 
 	optionHome                             = "--home"
 	optionKeyringBackend                   = "--keyring-backend"
@@ -28,6 +35,8 @@ const (
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
+	optionYes                              = "--yes"
+	optionHomeClient                       = "--home-client"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -36,41 +45,56 @@ const (
 type KeyringBackend string
 
 const (
-	KeyringBackendOS      KeyringBackend = "os"
-	KeyringBackendFile    KeyringBackend = "file"
-	KeyringBackendPass    KeyringBackend = "pass"
-	KeyringBackendTest    KeyringBackend = "test"
-	KeyringBackendKwallet KeyringBackend = "kwallet"
+	KeyringBackendUnspecified KeyringBackend = ""
+	KeyringBackendOS          KeyringBackend = "os"
+	KeyringBackendFile        KeyringBackend = "file"
+	KeyringBackendPass        KeyringBackend = "pass"
+	KeyringBackendTest        KeyringBackend = "test"
+	KeyringBackendKwallet     KeyringBackend = "kwallet"
 )
 
 type ChainCmd struct {
-	appCmd         string
-	chainID        string
-	homeDir        string
-	keyringBackend KeyringBackend
-	cliCmd         string
-	cliHome        string
+	appCmd          string
+	chainID         string
+	homeDir         string
+	keyringBackend  KeyringBackend
+	keyringPassword string
+	cliCmd          string
+	cliHome         string
+	nodeAddress     string
+
+	isAutoChainIDDetectionEnabled bool
 
 	sdkVersion cosmosver.Version
 }
 
 // New creates a new ChainCmd to launch command with the chain app
 func New(appCmd string, options ...Option) ChainCmd {
-	chainCmd := ChainCmd{
+	c := ChainCmd{
 		appCmd:     appCmd,
 		sdkVersion: cosmosver.Versions.Latest(),
 	}
 
-	// Apply the options provided by the user
-	for _, applyOption := range options {
-		applyOption(&chainCmd)
-	}
+	applyOptions(&c, options)
 
-	return chainCmd
+	return c
+}
+
+// Copy makes a copy of ChainCmd by overwriting its options with given options.
+func (c ChainCmd) Copy(options ...Option) ChainCmd {
+	applyOptions(&c, options)
+
+	return c
 }
 
 // Option configures ChainCmd.
 type Option func(*ChainCmd)
+
+func applyOptions(c *ChainCmd, options []Option) {
+	for _, applyOption := range options {
+		applyOption(c)
+	}
+}
 
 // WithVersion sets the version of the blockchain.
 // when this is not provided, latest version of SDK is assumed.
@@ -94,6 +118,13 @@ func WithChainID(chainID string) Option {
 	}
 }
 
+// WithAutoChainIDDetection finds out the chain id by communicating with the node running.
+func WithAutoChainIDDetection() Option {
+	return func(c *ChainCmd) {
+		c.isAutoChainIDDetectionEnabled = true
+	}
+}
+
 // WithKeyringBackend provides a specific keyring backend for the commands that accept this option
 func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	return func(c *ChainCmd) {
@@ -101,17 +132,32 @@ func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 	}
 }
 
-// WithSecondaryCLI provides the secondary CLI name for the blockchain.
-// this is useful for Launchpad applications since it has two different binaries but
-// not needed by Stargate applications.
-func WithSecondaryCLI(cliCmd string) Option {
+// WithKeyringPassword provides a password to unlock keyring
+func WithKeyringPassword(password string) Option {
+	return func(c *ChainCmd) {
+		c.keyringPassword = password
+	}
+}
+
+// WitNodeAddress sets the node address for the commands that needs to make an
+// API request to the node that has a different node address other than the default one.
+func WitNodeAddress(addr string) Option {
+	return func(c *ChainCmd) {
+		c.nodeAddress = addr
+	}
+}
+
+// WithLaunchpadCLI provides the CLI application name for the blockchain
+// this is necessary for Launchpad applications since it has two different binaries but
+// not needed by Stargate applications
+func WithLaunchpadCLI(cliCmd string) Option {
 	return func(c *ChainCmd) {
 		c.cliCmd = cliCmd
 	}
 }
 
-// WithSecondaryCLIHome replaces the default home used by the Launchpad chain CLI
-func WithSecondaryCLIHome(cliHome string) Option {
+// WithLaunchpadCLIHome replaces the default home used by the Launchpad chain CLI
+func WithLaunchpadCLIHome(cliHome string) Option {
 	return func(c *ChainCmd) {
 		c.cliHome = cliHome
 	}
@@ -195,6 +241,7 @@ func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Op
 		address,
 		coins,
 	}
+
 	return c.daemonCommand(command)
 }
 
@@ -261,6 +308,14 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	}
 }
 
+func (c ChainCmd) IsAutoChainIDDetectionEnabled() bool {
+	return c.isAutoChainIDDetectionEnabled
+}
+
+func (c ChainCmd) SDKVersion() cosmosver.Version {
+	return c.sdkVersion
+}
+
 // GentxCommand returns the command to generate a gentx for the chain
 func (c ChainCmd) GentxCommand(
 	validatorName string,
@@ -293,6 +348,11 @@ func (c ChainCmd) GentxCommand(
 			optionAmount,
 			selfDelegation,
 		)
+
+		// Attach home client option
+		if c.cliHome != "" {
+			command = append(command, []string{optionHomeClient, c.cliHome}...)
+		}
 	}
 
 	// Apply the options provided by the user
@@ -335,6 +395,68 @@ func (c ChainCmd) ShowNodeIDCommand() step.Option {
 	return c.daemonCommand(command)
 }
 
+// UnsafeResetCommand returns the command to reset the blockchain database
+func (c ChainCmd) UnsafeResetCommand() step.Option {
+	command := []string{
+		commandUnsafeReset,
+	}
+	return c.daemonCommand(command)
+}
+
+// ExportCommand returns the command to export the state of the blockchain into a genesis file
+func (c ChainCmd) ExportCommand() step.Option {
+	command := []string{
+		commandExport,
+	}
+	return c.daemonCommand(command)
+}
+
+// BankSendCommand returns the command for transferring tokens.
+func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Option {
+	command := []string{
+		commandTx,
+	}
+
+	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
+		command = append(command,
+			"bank",
+		)
+	}
+
+	command = append(command,
+		"send",
+		fromAddress,
+		toAddress,
+		amount,
+		optionYes,
+	)
+
+	command = c.attachChainID(command)
+	command = c.attachKeyringBackend(command)
+
+	return c.cliCommand(command)
+}
+
+// QueryTxEventsCommand returns the command to query events.
+func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
+	command := []string{
+		commandQuery,
+		"txs",
+		"--events",
+		query,
+		"--page", "1",
+		"--limit", "1000",
+	}
+
+	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+		command = append(command,
+			"--trust-node",
+		)
+	}
+
+	return c.cliCommand(command)
+}
+
 // LaunchpadSetConfigCommand returns the command to set config value
 func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
 	// Check version
@@ -351,6 +473,15 @@ func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress strin
 		panic("rest-server command doesn't exist for Stargate")
 	}
 	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
+}
+
+// StatusCommand returns the command that fetches node's status.
+func (c ChainCmd) StatusCommand() step.Option {
+	command := []string{
+		commandStatus,
+	}
+
+	return c.cliCommand(command)
 }
 
 // attachChainID appends the chain ID flag to the provided command
@@ -395,4 +526,21 @@ func (c ChainCmd) cliCommand(command []string) step.Option {
 		return step.Exec(c.appCmd, c.attachHome(command)...)
 	}
 	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+}
+
+// KeyringBackendFromString returns the keyring backend from its string
+func KeyringBackendFromString(kb string) (KeyringBackend, error) {
+	existingKeyringBackend := map[KeyringBackend]bool{
+		KeyringBackendUnspecified: true,
+		KeyringBackendOS:          true,
+		KeyringBackendFile:        true,
+		KeyringBackendPass:        true,
+		KeyringBackendTest:        true,
+		KeyringBackendKwallet:     true,
+	}
+
+	if _, ok := existingKeyringBackend[KeyringBackend(kb)]; ok {
+		return KeyringBackend(kb), nil
+	}
+	return KeyringBackendUnspecified, fmt.Errorf("unrecognized keyring backend: %s", kb)
 }

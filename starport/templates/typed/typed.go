@@ -10,12 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
-const placeholder = "// this line is used by starport scaffolding # 1"
-const placeholder2 = "// this line is used by starport scaffolding # 2"
-const placeholder3 = "// this line is used by starport scaffolding # 3"
-const placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
-const placeholder44 = "// this line is used by starport scaffolding # 4"
-
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
 var templates = map[cosmosver.MajorVersion]*packr.Box{
@@ -43,6 +37,9 @@ func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) e
 			}
 		}
 		return strconv
+	})
+	ctx.Set("nodash", func(s string) string {
+		return strings.ReplaceAll(s, "-", "")
 	})
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

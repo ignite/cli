@@ -2,6 +2,7 @@ package typed
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gertd/go-pluralize"
@@ -31,6 +32,7 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
+	t.genesisModify(opts, g)
 	return g, box(cosmosver.Stargate, opts, g)
 }
 
@@ -356,6 +358,10 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "vue/src/views/Index.vue"
 		f, err := r.Disk.Find(path)
+		if os.IsNotExist(err) {
+			// Skip modification if the app doesn't contain front-end
+			return nil
+		}
 		if err != nil {
 			return err
 		}

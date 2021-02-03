@@ -1,6 +1,6 @@
 # <%= AppName %>
 
-**<%= AppName %>** is a blockchain application built using Cosmos SDK and Tendermint and generated with [Starport](https://github.com/tendermint/starport).
+**<%= AppName %>** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
 
 ## Get started
 
@@ -8,24 +8,19 @@
 starport serve
 ```
 
-`serve` command installs dependencies, initializes and runs the application.
+`serve` command installs dependencies, builds, initializes and starts your blockchain in development.
 
 ## Configure
 
-Initialization parameters of your app are stored in `config.yml`.
+Your blockchain in development can be configured with `config.yml`. To learn more see the [reference](https://github.com/tendermint/starport#documentation).
 
-### `accounts`
+## Launch
 
-A list of user accounts created during genesis of your application.
-
-| Key   | Required | Type            | Description                                       |
-| ----- | -------- | --------------- | ------------------------------------------------- |
-| name  | Y        | String          | Local name of the key pair                        |
-| coins | Y        | List of Strings | Initial coins with denominations (e.g. "100coin") |
+To launch your blockchain live on mutliple nodes use `starport network` commands. Learn more about [Starport Network](https://github.com/tendermint/spn).
 
 ## Learn more
 
 - [Starport](https://github.com/tendermint/starport)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
-- [Cosmos Tutorials](https://tutorials.cosmos.network)
-- [Channel on Discord](https://discord.gg/W8trcGV)
+- [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
+- [Discord](https://discord.gg/W8trcGV)

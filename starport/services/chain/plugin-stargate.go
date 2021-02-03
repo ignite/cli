@@ -5,24 +5,23 @@ import (
 	"os"
 	"path/filepath"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/pelletier/go-toml"
-	"github.com/pkg/errors"
+	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	starportconf "github.com/tendermint/starport/starport/services/chain/conf"
 )
 
 type stargatePlugin struct {
-	app   App
-	chain *Chain
+	app App
 }
 
-func newStargatePlugin(app App, chain *Chain) *stargatePlugin {
+func newStargatePlugin(app App) *stargatePlugin {
 	return &stargatePlugin{
-		app:   app,
-		chain: chain,
+		app: app,
 	}
 }
 
@@ -34,18 +33,12 @@ func (p *stargatePlugin) Setup(ctx context.Context) error {
 	return nil
 }
 
-func (p *stargatePlugin) Binaries() []string {
-	return []string{
-		p.app.D(),
-	}
-}
-
-func (p *stargatePlugin) Configure(_ context.Context, _ string) error {
+func (p *stargatePlugin) Configure(_ context.Context, _ chaincmdrunner.Runner, _ string) error {
 	return nil
 }
 
-func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, err error) {
-	return p.chain.Commands().Gentx(
+func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
+	return runner.Gentx(
 		ctx,
 		v.Name,
 		v.StakingAmount,
@@ -58,16 +51,16 @@ func (p *stargatePlugin) Gentx(ctx context.Context, v Validator) (path string, e
 	)
 }
 
-func (p *stargatePlugin) PostInit(conf starportconf.Config) error {
-	if err := p.apptoml(conf); err != nil {
+func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) error {
+	if err := p.apptoml(homePath, conf); err != nil {
 		return err
 	}
-	return p.configtoml(conf)
+	return p.configtoml(homePath, conf)
 }
 
-func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
+func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(p.Home(), "config/app.toml")
+	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -86,9 +79,9 @@ func (p *stargatePlugin) apptoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
+func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
-	path := filepath.Join(p.Home(), "config/config.toml")
+	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
 	if err != nil {
 		return err
@@ -108,14 +101,14 @@ func (p *stargatePlugin) configtoml(conf starportconf.Config) error {
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, conf starportconf.Config) error {
-	err := p.chain.Commands().Start(ctx,
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
+	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
 		"--grpc.address",
 		conf.Servers.GRPCAddr,
 	)
-	return errors.Wrapf(err, "cannot run %[1]vd start", p.app.Name)
+	return &CannotStartAppError{p.app.Name, err}
 }
 
 func (p *stargatePlugin) StoragePaths() []string {
@@ -125,8 +118,16 @@ func (p *stargatePlugin) StoragePaths() []string {
 }
 
 func (p *stargatePlugin) Home() string {
+	return stargateHome(p.app)
+}
+
+func (p *stargatePlugin) CLIHome() string {
+	return stargateHome(p.app)
+}
+
+func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+p.app.N())
+	return filepath.Join(home, "."+app.N())
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }

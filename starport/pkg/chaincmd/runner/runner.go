@@ -2,7 +2,6 @@
 package chaincmdrunner
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"io/ioutil"
@@ -12,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/lineprefixer"
+	"github.com/tendermint/starport/starport/pkg/truncatedbuffer"
 )
 
 // Runner provides a high level access to a blockchain's commands.
@@ -53,7 +53,7 @@ func Stderr(w io.Writer) Option {
 }
 
 // New creates a new Runner with cc and options.
-func New(cc chaincmd.ChainCmd, options ...Option) Runner {
+func New(ctx context.Context, cc chaincmd.ChainCmd, options ...Option) (Runner, error) {
 	r := Runner{
 		cc:     cc,
 		stdout: ioutil.Discard,
@@ -62,7 +62,18 @@ func New(cc chaincmd.ChainCmd, options ...Option) Runner {
 
 	applyOptions(&r, options)
 
-	return r
+	// auto detect the chain id and get it applied to chaincmd if auto
+	// detection is enabled.
+	if cc.IsAutoChainIDDetectionEnabled() {
+		status, err := r.Status(ctx)
+		if err != nil {
+			return Runner{}, err
+		}
+
+		r.cc = r.cc.Copy(chaincmd.WithChainID(status.ChainID))
+	}
+
+	return r, nil
 }
 
 func applyOptions(r *Runner, options []Option) {
@@ -79,8 +90,10 @@ func (r Runner) Copy(options ...Option) Runner {
 }
 
 type runOptions struct {
-	// longRunning indicates that command expected to run for a long period of time.
-	longRunning bool
+	// wrappedStdErrMaxLen determines the maximum length of the wrapped error logs
+	// this option is used for long running command to prevent the buffer containing stderr getting too big
+	// 0 can be used for no maximum length
+	wrappedStdErrMaxLen int
 
 	// stdout and stderr used to collect a copy of command's outputs.
 	stdout, stderr io.Writer
@@ -89,7 +102,10 @@ type runOptions struct {
 // run executes a command.
 func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.Option) error {
 	var (
-		errb = &bytes.Buffer{}
+		// we use a truncated buffer to prevent memory leak
+		// this is because Stargate app currently send logs to StdErr
+		// therefore if the app successfully starts, the written logs can become extensive
+		errb = truncatedbuffer.NewTruncatedBuffer(roptions.wrappedStdErrMaxLen)
 
 		// add optional prefixes to output streams.
 		stdout io.Writer = lineprefixer.NewWriter(r.stdout, func() string { return r.daemonLogPrefix })
@@ -103,9 +119,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		stderr = io.MultiWriter(stderr, roptions.stderr)
 	}
 
-	if !roptions.longRunning {
-		stderr = io.MultiWriter(stderr, errb)
-	}
+	stderr = io.MultiWriter(stderr, errb)
 
 	rnoptions := []cmdrunner.Option{
 		cmdrunner.DefaultStdout(stdout),
@@ -116,5 +130,5 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		New(rnoptions...).
 		Run(ctx, step.New(soptions...))
 
-	return errors.Wrap(err, errb.String())
+	return errors.Wrap(err, errb.GetBuffer().String())
 }
