@@ -10,8 +10,6 @@ const (
 	placeholderProtoTxImport = "// this line is used by starport scaffolding # tx/proto/import"
 	placeholderProtoTxRPC = "// this line is used by starport scaffolding # proto/tx/rpc"
 	placeholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
-	placeholderKeeperMsgServerImportOnce = "// this line is used by starport scaffolding # keeper/msgserver/importonce"
-	placeholderKeeperMsgServerMethod = "// this line is used by starport scaffolding # keeper/msgserver/method"
 
 	// Genesis
 	placeholderGenesisProtoImport     = "// this line is used by starport scaffolding # genesis/proto/import"

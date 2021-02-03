@@ -2,8 +2,7 @@ package keeper
 
 import (
 	"context"
-
-	// this line is used by starport scaffolding # keeper/msgserver/importonce
+	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
 type msgServer struct {
@@ -17,5 +16,3 @@ func NewMsgServerImpl(keeper Keeper) types.MsgServer {
 }
 
 var _ types.MsgServer = msgServer{}
-
-// this line is used by starport scaffolding # keeper/msgserver/method

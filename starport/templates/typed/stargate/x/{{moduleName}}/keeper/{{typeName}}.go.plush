@@ -36,8 +36,8 @@ func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count int64)  {
 	store.Set(byteKey, bz)
 }
 
-// Create<%= title(TypeName) %> creates a <%= TypeName %> with a new id and update the count
-func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreate<%= title(TypeName) %>) {
+// Append<%= title(TypeName) %> appends a <%= TypeName %> in the store with a new id and update the count
+func (k Keeper) Append<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreate<%= title(TypeName) %>) {
 	// Create the <%= TypeName %>
     count := k.Get<%= title(TypeName) %>Count(ctx)
     var <%= TypeName %> = types.<%= title(TypeName) %>{
