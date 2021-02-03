@@ -7,6 +7,6 @@ validator:
   name: alice
   staked: "100000000stake"
 faucet:
-  name: alice
+  name: bob 
   coins:
     - "5token"
