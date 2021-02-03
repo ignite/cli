@@ -89,7 +89,17 @@ func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPath
 		})
 	}
 
-	err = g.Wait()
+	// cosmos/relayer does not support cancelation so we emulate it here.
+	doneC := make(chan error)
+
+	go func() { doneC <- g.Wait() }()
+
+	select {
+	case <-ctx.Done():
+		err = ctx.Err()
+
+	case err = <-doneC:
+	}
 
 	return linkedPaths, alreadyLinkedPaths, err
 }

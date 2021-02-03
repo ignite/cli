@@ -37,7 +37,7 @@ func relayerStartHandler(cmd *cobra.Command, args []string) error {
 	if len(pathsToUse) == 0 {
 		s.Stop()
 
-		fmt.Println("No chains found for linking.")
+		fmt.Println("No chains found to link.")
 		return nil
 	}
 
