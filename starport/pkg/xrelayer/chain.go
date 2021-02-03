@@ -218,7 +218,7 @@ func (c *Chain) findFaucetURL(ctx context.Context) (*url.URL, error) {
 	return nil, errors.New("no faucet available, please send coins to the address")
 }
 
-// guess tries guesses all possible faucet addresses.
+// guess tries to guess all possible faucet addresses.
 func (c *Chain) guessFaucetURLs() ([]*url.URL, error) {
 	u, err := url.Parse(c.rpcAddress)
 	if err != nil {
