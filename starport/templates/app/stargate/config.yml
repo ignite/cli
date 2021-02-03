@@ -10,5 +10,3 @@ faucet:
   name: alice
   coins:
     - "5token"
-  coins_max:
-    - "50token"
