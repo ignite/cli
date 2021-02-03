@@ -189,7 +189,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				case errors.As(err, &startErr):
 
 					// Parse returned error logs
-					parsedErr := err.ParseStartError()
+					parsedErr := startErr.ParseStartError()
 
 					// If empty, we cannot recognized the error
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
