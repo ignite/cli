@@ -14,7 +14,7 @@ import (
 var (
 	launchpadTemplate      = packr.New("typed/templates/launchpad", "./launchpad")
 	stargateTemplate       = packr.New("typed/templates/stargate", "./stargate")
-	stargateLegacyTemplate = packr.New("typed/templates/stargate", "./stargate_legacy")
+	stargateLegacyTemplate = packr.New("typed/templates/stargate_legacy", "./stargate_legacy")
 )
 
 func box(box *packr.Box, opts *Options, g *genny.Generator) error {

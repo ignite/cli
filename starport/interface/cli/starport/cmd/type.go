@@ -24,7 +24,7 @@ func NewType() *cobra.Command {
 	addSdkVersionFlag(c)
 
 	c.Flags().String(moduleFlag, "", "Module to add the type into. Default: app's main module")
-	c.Flags().Bool(legacyFlag, false, "Scaffold the type without generation MsgServer service")
+	c.Flags().Bool(legacyFlag, false, "Scaffold the type without generating MsgServer service")
 
 	return c
 }
