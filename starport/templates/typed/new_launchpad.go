@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 type typedLaunchpad struct {
@@ -25,7 +24,7 @@ func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
-	return g, box(cosmosver.Launchpad, opts, g)
+	return g, box(launchpadTemplate, opts, g)
 }
 
 func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {

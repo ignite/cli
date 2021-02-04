@@ -7,7 +7,6 @@ import (
 
 	"github.com/gertd/go-pluralize"
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 type typedStargate struct {
@@ -17,14 +16,20 @@ type typedStargate struct {
 func NewStargate(opts *Options) (*genny.Generator, error) {
 	t := typedStargate{}
 	g := genny.New()
-	g.RunFn(t.handlerModify(opts))
+
+	if opts.Legacy {
+		g.RunFn(t.handlerModifyLegacy(opts))
+	} else {
+		g.RunFn(t.handlerModify(opts))
+		g.RunFn(t.protoTxImportModify(opts))
+		g.RunFn(t.protoTxRPCModify(opts))
+		g.RunFn(t.protoTxMessageModify(opts))
+	}
+
 	g.RunFn(t.typesKeyModify(opts))
 	g.RunFn(t.typesCodecModify(opts))
 	g.RunFn(t.typesCodecImportModify(opts))
 	g.RunFn(t.typesCodecInterfaceModify(opts))
-	g.RunFn(t.protoTxImportModify(opts))
-	g.RunFn(t.protoTxRPCModify(opts))
-	g.RunFn(t.protoTxMessageModify(opts))
 	g.RunFn(t.protoRPCImportModify(opts))
 	g.RunFn(t.protoRPCModify(opts))
 	g.RunFn(t.protoRPCMessageModify(opts))
@@ -36,7 +41,11 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
 	t.genesisModify(opts, g)
-	return g, box(cosmosver.Stargate, opts, g)
+
+	if opts.Legacy {
+		return g, box(stargateLegacyTemplate, opts, g)
+	}
+	return g, box(stargateTemplate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
@@ -133,16 +142,14 @@ func (t *typedStargate) protoTxMessageModify(opts *Options) genny.RunFn {
 		template := `%[1]v
 message MsgCreate%[2]v {
   string creator = 1;
-%[3]v
-}
+%[3]v}
 
 message MsgCreate%[2]vResponse { }
 
 message MsgUpdate%[2]v {
   string creator = 1;
   string id = 2;
-%[4]v
-}
+%[4]v}
 
 message MsgUpdate%[2]vResponse { }
 
@@ -483,6 +490,30 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			strings.Join(fields, ","),
 		)
 		content := strings.Replace(f.String(), placeholder4, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+// --- Legacy Stargate Types
+
+func (t *typedStargate) handlerModifyLegacy(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+case *types.MsgCreate%[2]v:
+	return handleMsgCreate%[2]v(ctx, k, msg)
+case *types.MsgUpdate%[2]v:
+	return handleMsgUpdate%[2]v(ctx, k, msg)
+case *types.MsgDelete%[2]v:
+	return handleMsgDelete%[2]v(ctx, k, msg)
+`
+		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

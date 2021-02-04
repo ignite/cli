@@ -7,18 +7,18 @@ import (
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
-var templates = map[cosmosver.MajorVersion]*packr.Box{
-	cosmosver.Launchpad: packr.New("typed/templates/launchpad", "./launchpad"),
-	cosmosver.Stargate:  packr.New("typed/templates/stargate", "./stargate"),
-}
+var (
+	launchpadTemplate      = packr.New("typed/templates/launchpad", "./launchpad")
+	stargateTemplate       = packr.New("typed/templates/stargate", "./stargate")
+	stargateLegacyTemplate = packr.New("typed/templates/stargate", "./stargate_legacy")
+)
 
-func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) error {
-	if err := g.Box(templates[sdkVersion]); err != nil {
+func box(box *packr.Box, opts *Options, g *genny.Generator) error {
+	if err := g.Box(box); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()
