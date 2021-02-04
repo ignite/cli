@@ -144,7 +144,9 @@ message MsgCreate%[2]v {
   string creator = 1;
 %[3]v}
 
-message MsgCreate%[2]vResponse { }
+message MsgCreate%[2]vResponse {
+  string id = 1;
+}
 
 message MsgUpdate%[2]v {
   string creator = 1;

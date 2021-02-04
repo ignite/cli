@@ -13,9 +13,11 @@ import (
 func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgCreate<%= title(TypeName) %>) (*types.MsgCreate<%= title(TypeName) %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    k.Append<%= title(TypeName) %>(ctx, *msg)
+    id := k.Append<%= title(TypeName) %>(ctx, *msg)
 
-	return &types.MsgCreate<%= title(TypeName) %>Response{}, nil
+	return &types.MsgCreate<%= title(TypeName) %>Response{
+	    Id: id
+	}, nil
 }
 
 func (k msgServer) Update<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgUpdate<%= title(TypeName) %>) (*types.MsgUpdate<%= title(TypeName) %>Response, error) {
