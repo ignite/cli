@@ -151,7 +151,8 @@ message MsgDelete%[2]v {
   string id = 2;
 }
 
-message MsgDelete%[2]vResponse { }`
+message MsgDelete%[2]vResponse { }
+`
 		replacement := fmt.Sprintf(template, placeholderProtoTxMessage,
 			strings.Title(opts.TypeName),
 			createFields,
