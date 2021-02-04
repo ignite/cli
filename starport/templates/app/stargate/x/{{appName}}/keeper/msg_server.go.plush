@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"context"
     "<%= ModulePath %>/x/<%= AppName %>/types"
 )
 

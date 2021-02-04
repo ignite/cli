@@ -4,9 +4,9 @@ import (
     "fmt"
 	"context"
 
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/cosmos/cosmos-sdk/x/bank/types"
 )
 
 
@@ -52,7 +52,7 @@ func (k msgServer) Delete<%= title(TypeName) %>(goCtx context.Context,  msg *typ
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Delete<%= title(TypeName) %>(ctx, msg.Id)
+	k.Remove<%= title(TypeName) %>(ctx, msg.Id)
 
 	return &types.MsgDelete<%= title(TypeName) %>Response{}, nil
 }

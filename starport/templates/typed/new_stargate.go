@@ -46,21 +46,29 @@ func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-case *types.MsgCreate%[2]v:
-			res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
 
-case *types.MsgUpdate%[2]v:
-			res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
+		// Set once the MsgServer definition if it is not defined yet
+		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
+		content := strings.Replace(f.String(), placeholderHandlerMsgServer, replacementMsgServer, 1)
 
-case *types.MsgDelete%[2]v:
-			res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
+		templateHandlers := `%[1]v
+		case *types.MsgCreate%[2]v:
+					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgUpdate%[2]v:
+					res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgDelete%[2]v:
+					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
 `
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacementHandlers := fmt.Sprintf(templateHandlers,
+			placeholder,
+			strings.Title(opts.TypeName),
+		)
+		content = strings.Replace(content, placeholder, replacementHandlers, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -93,12 +101,11 @@ func (t *typedStargate) protoTxRPCModify(opts *Options) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
-rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
-rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+  rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
+  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
 		replacement := fmt.Sprintf(template, placeholderProtoTxRPC,
-			opts.ModuleName,
-			opts.TypeName,
+			strings.Title(opts.TypeName),
 		)
 		content := strings.Replace(f.String(), placeholderProtoTxRPC, replacement, 1)
 		newFile := genny.NewFileS(path, content)
@@ -116,32 +123,37 @@ func (t *typedStargate) protoTxMessageModify(opts *Options) genny.RunFn {
 
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("%s %s = %d;\n", field.Datatype, field.Name, i+1)
+			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+2)
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("%s %s = %d;\n", field.Datatype, field.Name, i+2)
+			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
 		}
 
 		template := `%[1]v
 message MsgCreate%[2]v {
   string creator = 1;
-  %[3]v
+%[3]v
 }
+
+message MsgCreate%[2]vResponse { }
 
 message MsgUpdate%[2]v {
   string creator = 1;
   string id = 2;
-  %[4]v
+%[4]v
 }
+
+message MsgUpdate%[2]vResponse { }
 
 message MsgDelete%[2]v {
   string creator = 1;
   string id = 2;
-}`
+}
+
+message MsgDelete%[2]vResponse { }`
 		replacement := fmt.Sprintf(template, placeholderProtoTxMessage,
-			opts.ModuleName,
-			opts.TypeName,
+			strings.Title(opts.TypeName),
 			createFields,
 			updateFields,
 		)

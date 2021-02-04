@@ -70,7 +70,7 @@ func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, key string) types.<%=
 	return <%= TypeName %>
 }
 
-// Has<%= title(TypeName) %> checks if the <%= TypeName %> exists
+// Has<%= title(TypeName) %> checks if the <%= TypeName %> exists in the store
 func (k Keeper) Has<%= title(TypeName) %>(ctx sdk.Context, id string) bool {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	return store.Has(types.KeyPrefix(types.<%= title(TypeName) %>Key + id))
@@ -81,8 +81,8 @@ func (k Keeper) Get<%= title(TypeName) %>Owner(ctx sdk.Context, key string) stri
     return k.Get<%= title(TypeName) %>(ctx, key).Creator
 }
 
-// Delete<%= title(TypeName) %> deletes a <%= TypeName %>
-func (k Keeper) Delete<%= title(TypeName) %>(ctx sdk.Context, key string) {
+// Delete<%= title(TypeName) %> removes a <%= TypeName %> from the store
+func (k Keeper) Remove<%= title(TypeName) %>(ctx sdk.Context, key string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	store.Delete(types.KeyPrefix(types.<%= title(TypeName) %>Key + key))
 }

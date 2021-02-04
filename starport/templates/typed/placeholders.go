@@ -11,6 +11,8 @@ const (
 	placeholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
 	placeholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
+	placeholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
+
 	// Genesis
 	placeholderGenesisProtoImport     = "// this line is used by starport scaffolding # genesis/proto/import"
 	placeholderGenesisProtoState      = "// this line is used by starport scaffolding # genesis/proto/state"
