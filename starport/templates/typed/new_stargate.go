@@ -111,27 +111,38 @@ func (t *typedStargate) protoTxMessageModify(opts *Options) genny.RunFn {
 			return err
 		}
 
+		var createFields string
+		for i, field := range opts.Fields {
+			createFields += fmt.Sprintf("%s %s = %d;\n", field.Datatype, field.Name, i+1)
+		}
+		var updateFields string
+		for i, field := range opts.Fields {
+			updateFields += fmt.Sprintf("%s %s = %d;\n", field.Datatype, field.Name, i+2)
+		}
+
 		template := `%[1]v
-message MsgCreate<%= title(TypeName) %> {
-  string creator = 1;<%= for (i, field) in Fields { %>
-  <%= field.Datatype %> <%= field.Name %> = <%= i+2 %>; <% } %>
-}
-
-message MsgUpdate<%= title(TypeName) %> {
+message MsgCreate%[2]v {
   string creator = 1;
-  string id = 2;<%= for (i, field) in Fields { %>
-  <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
+  %[3]v
 }
 
-message MsgDelete<%= title(TypeName) %> {
+message MsgUpdate%[2]v {
+  string creator = 1;
+  string id = 2;
+  %[4]v
+}
+
+message MsgDelete%[2]v {
   string creator = 1;
   string id = 2;
 }`
-		replacement := fmt.Sprintf(template, placeholderProtoTxRPC,
+		replacement := fmt.Sprintf(template, placeholderProtoTxMessage,
 			opts.ModuleName,
 			opts.TypeName,
+			createFields,
+			updateFields,
 		)
-		content := strings.Replace(f.String(), placeholderProtoTxRPC, replacement, 1)
+		content := strings.Replace(f.String(), placeholderProtoTxMessage, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
