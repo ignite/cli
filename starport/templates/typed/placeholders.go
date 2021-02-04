@@ -7,8 +7,8 @@ const (
 	placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
 	placeholder44 = "// this line is used by starport scaffolding # 4"
 
-	placeholderProtoTxImport = "// this line is used by starport scaffolding # tx/proto/import"
-	placeholderProtoTxRPC = "// this line is used by starport scaffolding # proto/tx/rpc"
+	placeholderProtoTxImport  = "// this line is used by starport scaffolding # tx/proto/import"
+	placeholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
 	placeholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
 	// Genesis
