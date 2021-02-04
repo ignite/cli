@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 
@@ -183,11 +185,24 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					}
 
 					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
+
 				case errors.As(err, &startErr):
-					fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
+
+					// Parse returned error logs
+					parsedErr := startErr.ParseStartError()
+
+					// If empty, we cannot recognized the error
+					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
+					// We suggest the user to eventually reset the app state
+					if parsedErr == "" {
+						fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
 If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
 
-					return err
+						return fmt.Errorf("cannot run %s", startErr.AppName)
+					}
+
+					// return the clear parsed error
+					return errors.New(parsedErr)
 				default:
 					return err
 				}
@@ -613,9 +628,25 @@ type CannotStartAppError struct {
 }
 
 func (e *CannotStartAppError) Error() string {
-	return fmt.Sprintf("cannot run %sd start:\n\n\t%s", e.AppName, e.Err)
+	return fmt.Sprintf("cannot run %sd start:\n%s", e.AppName, errors.Unwrap(e.Err))
 }
 
 func (e *CannotStartAppError) Unwrap() error {
 	return e.Err
+}
+
+// ParseStartError parses the error into a clear error string
+// The error logs from Cosmos SDK application are too extensive to be directly printed
+// If the error is not recognized, returns an empty string
+func (e *CannotStartAppError) ParseStartError() string {
+	errorLogs := errors.Unwrap(e.Err).Error()
+	switch {
+	case strings.Contains(errorLogs, "bind: address already in use"):
+		r := regexp.MustCompile(`listen .* bind: address already in use`)
+		return r.FindString(errorLogs)
+	case strings.Contains(errorLogs, "validator set is nil in genesis"):
+		return "Error: error during handshake: error on replay: validator set is nil in genesis and still empty after InitChain"
+	default:
+		return ""
+	}
 }
