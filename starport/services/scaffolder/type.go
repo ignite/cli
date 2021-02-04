@@ -23,7 +23,7 @@ const (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -109,6 +109,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
 			Fields:     tfields,
+			Legacy:     legacy,
 		}
 	)
 	// generate depending on the version
