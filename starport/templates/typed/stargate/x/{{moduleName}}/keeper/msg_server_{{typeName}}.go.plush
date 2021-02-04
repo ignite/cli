@@ -16,7 +16,7 @@ func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *typ
     id := k.Append<%= title(TypeName) %>(ctx, *msg)
 
 	return &types.MsgCreate<%= title(TypeName) %>Response{
-	    Id: id
+	    Id: id,
 	}, nil
 }
 
