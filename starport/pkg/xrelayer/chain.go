@@ -325,10 +325,7 @@ func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
 		return err
 	}
 
-	addr, err := xurl.HTTPEnsurePort(c.rpcAddress)
-	if err != nil {
-		return err
-	}
+	addr := xurl.CleanPath(xurl.HTTPEnsurePort(c.rpcAddress))
 
 	if _, err := conf.Chains.Get(c.ID); err != nil { // not configured err
 		rchain := &relayer.Chain{

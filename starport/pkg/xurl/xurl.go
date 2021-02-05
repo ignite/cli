@@ -31,14 +31,10 @@ func WS(s string) string {
 }
 
 // HTTPEnsurePort ensures that url has a port number suits with the connection type.
-func HTTPEnsurePort(s string) (string, error) {
+func HTTPEnsurePort(s string) string {
 	u, err := url.Parse(s)
-	if err != nil {
-		return "", err
-	}
-
-	if u.Port() != "" {
-		return s, nil
+	if err != nil || u.Port() != "" {
+		return s
 	}
 
 	port := "80"
@@ -49,7 +45,19 @@ func HTTPEnsurePort(s string) (string, error) {
 
 	u.Host = fmt.Sprintf("%s:%s", u.Hostname(), port)
 
-	return u.String(), nil
+	return u.String()
+}
+
+// CleanPath cleans path from the url.
+func CleanPath(s string) string {
+	u, err := url.Parse(s)
+	if err != nil {
+		return ""
+	}
+
+	u.Path = ""
+
+	return u.String()
 }
 
 // Address unsures that address contains localhost as host if non specified.

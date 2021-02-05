@@ -1,12 +1,14 @@
 package xurl
 
 import (
+	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/require"
 )
 
 func TestHTTPEnsurePort(t *testing.T) {
+	fmt.Println(HTTPEnsurePort("https://26657-crimson-pheasant-2x3fbpak.ws-eu03.gitpod.io/"))
 	cases := []struct {
 		addr    string
 		ensured string
@@ -17,8 +19,7 @@ func TestHTTPEnsurePort(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.addr, func(t *testing.T) {
-			addr, err := HTTPEnsurePort(tt.addr)
-			require.NoError(t, err)
+			addr := HTTPEnsurePort(tt.addr)
 			require.Equal(t, tt.ensured, addr)
 		})
 	}
