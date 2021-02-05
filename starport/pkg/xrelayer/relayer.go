@@ -23,13 +23,13 @@ const (
 
 // Start relays tx packeR for paths indefinitely until ctx is canceled.
 func Start(ctx context.Context, paths ...string) error {
-	conf, err := config(ctx, true)
-	if err != nil {
-		return err
-	}
-
 	// start relays all packets for path waiting in the queue.
 	start := func(id string) error {
+		conf, err := config(ctx, true)
+		if err != nil {
+			return err
+		}
+
 		rpath, err := conf.Paths.Get(id)
 		if err != nil {
 			return err
