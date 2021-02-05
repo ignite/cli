@@ -1,0 +1,38 @@
+package keeper
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+)
+
+// OnRecvPacket processes packet reception
+func (k Keeper) OnRecvPacket(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(moduleName) %>PacketData) error {
+	// validate packet data upon receiving
+	if err := data.ValidateBasic(); err != nil {
+		return err
+	}
+
+	// Packet reception logic here
+
+	return nil
+}
+
+// OnAcknowledgementPacket responds to the the success or failure of a packet
+// acknowledgement written on the receiving chain.
+func (k Keeper) OnAcknowledgementPacket(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(moduleName) %>PacketData, ack channeltypes.Acknowledgement) error {
+	switch ack.Response.(type) {
+	case *channeltypes.Acknowledgement_Error:
+		// logic if the acknowledgement failed on the receiving chain
+		return nil
+	default:
+		// logic if the acknowledgement succeeded on the receiving chain
+		return nil
+	}
+}
+
+// OnTimeoutPacket responds to the case where a packet has not been transmitted because of a timeout
+func (k Keeper) OnTimeoutPacket(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(moduleName) %>PacketData) error {
+	// logic if packet timeout occurs
+	return nil
+}

@@ -3,13 +3,16 @@ package modulecreate
 import (
 	_ "fmt"
 	_ "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gobuffalo/plush"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"strings"
 	_ "strings"
 
 	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
 	_ "github.com/gobuffalo/plush"
-	_ "github.com/gobuffalo/plushgen"
+	"github.com/gobuffalo/plushgen"
 	_ "github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
@@ -23,22 +26,22 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g.RunFn(appModifyGenesisType(opts))
 	g.RunFn(appModifyGenesisProto(opts))
 
-	//if err := g.Box(templates[cosmosver.Stargate]); err != nil {
-	//	return g, err
-	//}
-	//ctx := plush.NewContext()
-	//ctx.Set("moduleName", opts.ModuleName)
-	//ctx.Set("modulePath", opts.ModulePath)
-	//ctx.Set("appName", opts.AppName)
-	//ctx.Set("ownerName", opts.OwnerName)
-	//ctx.Set("title", strings.Title)
-	//
-	//ctx.Set("nodash", func(s string) string {
-	//	return strings.ReplaceAll(s, "-", "")
-	//})
-	//
-	//g.Transformer(plushgen.Transformer(ctx))
-	//g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
+		return g, err
+	}
+	ctx := plush.NewContext()
+	ctx.Set("moduleName", opts.ModuleName)
+	ctx.Set("modulePath", opts.ModulePath)
+	ctx.Set("appName", opts.AppName)
+	ctx.Set("ownerName", opts.OwnerName)
+	ctx.Set("title", strings.Title)
+
+	ctx.Set("nodash", func(s string) string {
+		return strings.ReplaceAll(s, "-", "")
+	})
+
+	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
 }
 
