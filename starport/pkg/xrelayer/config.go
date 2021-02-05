@@ -8,6 +8,7 @@ import (
 
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/tendermintlogger"
 	tmlog "github.com/tendermint/tendermint/libs/log"
@@ -57,7 +58,7 @@ func config(_ context.Context, enableLogs bool) (relayercmd.Config, error) {
 	// init loaded configs.
 	globalTimeout, err := time.ParseDuration(rconf.Global.Timeout)
 	if err != nil {
-		return relayercmd.Config{}, newRelayerError("global.timeout is invalid")
+		return relayercmd.Config{}, errors.New("relayer's global.timeout is invalid")
 	}
 
 	var logger tmlog.Logger
@@ -67,7 +68,7 @@ func config(_ context.Context, enableLogs bool) (relayercmd.Config, error) {
 
 	for _, i := range rconf.Chains {
 		if err := i.Init(confHome, globalTimeout, logger, false); err != nil {
-			return relayercmd.Config{}, newRelayerError("cannot init")
+			return relayercmd.Config{}, errors.New("cannot init relayer")
 		}
 	}
 

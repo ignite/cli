@@ -151,7 +151,7 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 
 		g.Go(func() error {
 			if err := link(id); err != nil {
-				return &CouldNotLinkPathError{id, err}
+				return fmt.Errorf("could not link chains for %q path: %s", id, err.Error())
 			}
 			return nil
 		})
@@ -243,28 +243,4 @@ func getChainsByPath(conf relayercmd.Config, path string) (map[string]*relayer.C
 	}
 
 	return chains, src, dst, nil
-}
-
-type relayerErr struct {
-	message string
-}
-
-func newRelayerError(message string) *relayerErr {
-	return &relayerErr{message}
-}
-
-func (e *relayerErr) Error() string {
-	return fmt.Sprintf("relayer error: %s", e.message)
-}
-
-type CouldNotLinkPathError struct {
-	PathID string
-
-	err error
-}
-
-func (e *CouldNotLinkPathError) Unwrap() error { return e.err }
-
-func (e *CouldNotLinkPathError) Error() string {
-	return fmt.Sprintf("couldn not link chains for %q path: %s\n", e.PathID, e.err.Error())
 }
