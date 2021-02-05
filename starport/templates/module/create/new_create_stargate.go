@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // New ...
@@ -18,7 +17,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 
 	g.RunFn(appModifyStargate(opts))
 
-	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
+	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()

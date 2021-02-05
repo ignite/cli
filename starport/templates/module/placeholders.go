@@ -39,6 +39,8 @@ const (
 	PlaceholderSgRootExportArgument         = "// this line is used by starport scaffolding # stargate/root/exportArgument"
 	PlaceholderSgRootNoHeightExportArgument = "// this line is used by starport scaffolding # stargate/root/noHeightExportArgument"
 
+	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
+
 	// Placeholders IBC
 	PlaceholderIBCModuleImport = "// this line is used by starport scaffolding # ibc/module/import"
 	PlaceholderIBCModuleInterface = "// this line is used by starport scaffolding # ibc/module/interface"
