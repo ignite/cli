@@ -14,6 +14,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (
@@ -324,11 +325,16 @@ func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
 		return err
 	}
 
+	addr, err := xurl.HTTPEnsurePort(c.rpcAddress)
+	if err != nil {
+		return err
+	}
+
 	if _, err := conf.Chains.Get(c.ID); err != nil { // not configured err
 		rchain := &relayer.Chain{
 			Key:            "testkey",
 			ChainID:        c.ID,
-			RPCAddr:        c.rpcAddress,
+			RPCAddr:        addr,
 			AccountPrefix:  "cosmos",
 			GasAdjustment:  1.5,
 			TrustingPeriod: "336h",
