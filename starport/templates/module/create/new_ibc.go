@@ -1,9 +1,9 @@
 package modulecreate
 
 import (
-	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"strings"
+	_ "fmt"
+	_ "github.com/cosmos/cosmos-sdk/types"
+	_ "strings"
 
 	"github.com/tendermint/starport/starport/templates/module"
 
@@ -18,6 +18,10 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(appModifyModule(opts))
+	g.RunFn(appModifyGenesis(opts))
+	g.RunFn(appModifyErrors(opts))
+	g.RunFn(appModifyGenesisType(opts))
+	g.RunFn(appModifyGenesisProto(opts))
 
 	//if err := g.Box(templates[cosmosver.Stargate]); err != nil {
 	//	return g, err
@@ -152,6 +156,29 @@ if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 		return nil // return r.File(newFile)
 	}
 }
+
+func appModifyGenesisProto(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Determine the new field number
+		// fieldNumber := strings.Count(content, placeholderGenesisProtoStateField) + 1
+
+		// PlaceholderIBCGenesisProto
+		_ = `
+string port_id = <fieldNumber>`
+
+		// TODO: Append the field increment in the template
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
 
 const templateIBCModuleMethods = `
 // OnChanOpenInit implements the IBCModule interface
