@@ -104,6 +104,55 @@ genesis.PortId = k.GetPort(ctx)`
 	}
 }
 
+func appModifyErrors(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// IBC errors
+		// PlaceholderIBCErrors
+		_  = `
+ErrInvalidPacketTimeout    = sdkerrors.Register(ModuleName, 1500, "invalid packet timeout")
+ErrInvalidVersion          = sdkerrors.Register(ModuleName, 1501, "invalid version")`
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
+func appModifyGenesisType(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Import
+		// PlaceholderIBCGenesisTypeImport
+		_ = `
+host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+
+		// Default genesis
+		// PlaceholderIBCGenesisTypeDefault
+		_ = `
+PortId: PortID,`
+
+		// Validate genesis
+		// PlaceholderIBCGenesisTypeValidate
+		_ = `
+if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+	return err
+}`
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
 const templateIBCModuleMethods = `
 // OnChanOpenInit implements the IBCModule interface
 func (am AppModule) OnChanOpenInit(

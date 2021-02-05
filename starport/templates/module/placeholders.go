@@ -45,4 +45,9 @@ const (
 	PlaceholderIBCModuleMethods = "// this line is used by starport scaffolding # ibc/module/methods"
 	PlaceholderIBCGenesisInit = "// this line is used by starport scaffolding # ibc/genesis/init"
 	PlaceholderIBCGenesisExport = "// this line is used by starport scaffolding # ibc/genesis/export"
+	PlaceholderIBCErrors =  "// this line is used by starport scaffolding # ibc/errors"
+	PlaceholderIBCGenesisTypeImport = "// this line is used by starport scaffolding # ibc/genesistype/import"
+	PlaceholderIBCGenesisTypeDefault = "// this line is used by starport scaffolding # ibc/genesistype/default"
+	PlaceholderIBCGenesisTypeValidate = "// this line is used by starport scaffolding # ibc/genesistype/validate"
+
 )
