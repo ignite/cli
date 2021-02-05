@@ -2,17 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
-	_ "github.com/cosmos/cosmos-sdk/types"
 	"github.com/gobuffalo/plush"
 	"strings"
-	_ "strings"
 
 	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
-	_ "github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	_ "github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // New ...

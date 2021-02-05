@@ -49,6 +49,11 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 		return err
 	}
 
+	// Cannot scaffold IBC module for Launchpad
+	if majorVersion == cosmosver.Launchpad && isIBCModule {
+		return errors.New("launchpad doesn't support IBC")
+	}
+
 	var (
 		g    *genny.Generator
 		opts = &module_create.CreateOptions{
@@ -58,12 +63,13 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 			OwnerName:  owner(path.RawPath),
 		}
 	)
+
+	// Generator from Cosmos SDK version
 	if majorVersion == cosmosver.Launchpad {
 		g, err = module_create.NewCreateLaunchpad(opts)
 	} else {
 		g, err = module_create.NewCreateStargate(opts)
 	}
-
 	if err != nil {
 		return err
 	}
@@ -73,6 +79,20 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 		return err
 	}
 
+	// Scaffold IBC module
+	if isIBCModule {
+		g, err = module_create.NewIBC(opts)
+		if err != nil {
+			return err
+		}
+		run := genny.WetRunner(context.Background())
+		run.With(g)
+		if err := run.Run(); err != nil {
+			return err
+		}
+	}
+
+	// Generate proto and format the source
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
