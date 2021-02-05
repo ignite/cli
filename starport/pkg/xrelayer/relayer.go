@@ -21,7 +21,7 @@ const (
 	maxMsgLength      = 5
 )
 
-// Start relays tx packeR for paths indefinitely until ctx is canceled.
+// Start relays tx packets for paths until ctx is canceled.
 func Start(ctx context.Context, paths ...string) error {
 	// start relays all packets for path waiting in the queue.
 	start := func(id string) error {
@@ -85,8 +85,8 @@ func Start(ctx context.Context, paths ...string) error {
 }
 
 // Link links all chains that has a path to each other.
-// paths are optional and acts as a filter to only link pointing chains.
-// calling Start multiple times for the same chains does not have any side effects.
+// paths are optional and acts as a filter to only link some chains.
+// calling Link multiple times for the same paths does not have any side effects.
 func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, err error) {
 	conf, err := config(ctx, false)
 	if err != nil {
