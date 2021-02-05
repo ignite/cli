@@ -9,6 +9,7 @@ import (
 
 const (
 	moduleFlag string = "module"
+	legacyFlag string = "legacy"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -23,16 +24,24 @@ func NewType() *cobra.Command {
 	addSdkVersionFlag(c)
 
 	c.Flags().String(moduleFlag, "", "Module to add the type into. Default: app's main module")
+	c.Flags().Bool(legacyFlag, false, "Scaffold the type without generating MsgServer service")
 
 	return c
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
 	// Get the module to add the type into
-	module, _ := cmd.Flags().GetString(moduleFlag)
+	module, err := cmd.Flags().GetString(moduleFlag)
+	if err != nil {
+		return err
+	}
+	legacy, err := cmd.Flags().GetBool(legacyFlag)
+	if err != nil {
+		return err
+	}
 
 	sc := scaffolder.New(appPath)
-	if err := sc.AddType(module, args[0], args[1:]...); err != nil {
+	if err := sc.AddType(legacy, module, args[0], args[1:]...); err != nil {
 		return err
 	}
 	fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])

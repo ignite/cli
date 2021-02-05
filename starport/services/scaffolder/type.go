@@ -23,7 +23,7 @@ const (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -109,11 +109,22 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
 			Fields:     tfields,
+			Legacy:     legacy,
 		}
 	)
+	// generate depending on the version
 	if majorVersion == cosmosver.Launchpad {
 		g, err = typed.NewLaunchpad(opts)
 	} else {
+		// check if the msgServer convention is used
+		var msgServerDefined bool
+		msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
+		if err != nil {
+			return err
+		}
+		if !msgServerDefined {
+			opts.Legacy = true
+		}
 		g, err = typed.NewStargate(opts)
 	}
 	if err != nil {
@@ -166,8 +177,21 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 	return
 }
 
-func isGoReservedWord(name string) bool {
+// isMsgServerDefined checks if the module uses the MsgServer convention for transactions
+// this is checked by verifying the existence of the tx.proto file
+func isMsgServerDefined(appPath, moduleName string) (bool, error) {
+	txProto, err := filepath.Abs(filepath.Join(appPath, "proto", moduleName, "tx.proto"))
+	if err != nil {
+		return false, err
+	}
 
+	if _, err := os.Stat(txProto); os.IsNotExist(err) {
+		return false, nil
+	}
+	return true, err
+}
+
+func isGoReservedWord(name string) bool {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {
 		return true
