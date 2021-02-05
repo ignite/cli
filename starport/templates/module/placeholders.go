@@ -43,4 +43,6 @@ const (
 	PlaceholderIBCModuleImport = "// this line is used by starport scaffolding # ibc/module/import"
 	PlaceholderIBCModuleInterface = "// this line is used by starport scaffolding # ibc/module/interface"
 	PlaceholderIBCModuleMethods = "// this line is used by starport scaffolding # ibc/module/methods"
+	PlaceholderIBCGenesisInit = "// this line is used by starport scaffolding # ibc/genesis/init"
+	PlaceholderIBCGenesisExport = "// this line is used by starport scaffolding # ibc/genesis/export"
 )

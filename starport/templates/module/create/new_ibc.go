@@ -63,14 +63,48 @@ _ porttypes.IBCModule   = AppModule{}`
 
 		// IBC interface implementation
 		// PlaceholderIBCModuleMethods
-		_ = templateIBCModuleMetohds
+		_ = templateIBCModuleMethods
 
 		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
 	}
 }
 
-const templateIBCModuleMetohds = `
+func appModifyGenesis(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Genesis init
+		// PlaceholderIBCGenesisInit
+		_ = `
+k.SetPort(ctx, genState.PortId)
+
+// Only try to bind to port if it is not already bound, since we may already own
+// port capability from capability InitGenesis
+if !k.IsBound(ctx, state.PortId) {
+	// module binds to the transfer port on InitChain
+	// and claims the returned capability
+	err := k.BindPort(ctx, genState.PortId)
+	if err != nil {
+		panic(fmt.Sprintf("could not claim port capability: %v", err))
+	}
+}`
+
+		// Genesis export
+		// PlaceholderIBCGenesisExport
+		_  = `
+genesis.PortId = k.GetPort(ctx)`
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
+const templateIBCModuleMethods = `
 // OnChanOpenInit implements the IBCModule interface
 func (am AppModule) OnChanOpenInit(
 	ctx sdk.Context,
