@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+var ErrNoFile = errors.New("no file in specified paths")
+
 // SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the specified directory
 // If checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
@@ -46,7 +48,11 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 
 	// Compute checksum
 	checksum, err := checksumFromPaths(workdir, paths)
-	if err != nil {
+	if errors.Is(err, ErrNoFile) {
+		// Checksum cannot be saved with no file
+		// Therefore if no file are found, this means these have been delete, then the directory has been changed
+		return true, nil
+	} else if err != nil {
 		return false, err
 	}
 
@@ -115,7 +121,7 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	}
 
 	if noFile {
-		return []byte{}, errors.New("no file in specified paths")
+		return []byte{}, ErrNoFile
 	}
 
 	// compute checksum

@@ -16,12 +16,12 @@ import (
 
 // Start starts the blockchain.
 func (r Runner) Start(ctx context.Context, args ...string) error {
-	return r.run(ctx, runOptions{longRunning: true}, r.cc.StartCommand(args...))
+	return r.run(ctx, runOptions{wrappedStdErrMaxLen: 50000}, r.cc.StartCommand(args...))
 }
 
 // LaunchpadStartRestServer start launchpad rest server.
 func (r Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
-	return r.run(ctx, runOptions{longRunning: true}, r.cc.LaunchpadRestServerCommand(apiAddress, rpcAddress))
+	return r.run(ctx, runOptions{wrappedStdErrMaxLen: 50000}, r.cc.LaunchpadRestServerCommand(apiAddress, rpcAddress))
 }
 
 // Init inits the blockchain.

@@ -2,11 +2,11 @@ package typed
 
 import (
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gertd/go-pluralize"
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 type typedStargate struct {
@@ -16,7 +16,16 @@ type typedStargate struct {
 func NewStargate(opts *Options) (*genny.Generator, error) {
 	t := typedStargate{}
 	g := genny.New()
-	g.RunFn(t.handlerModify(opts))
+
+	if opts.Legacy {
+		g.RunFn(t.handlerModifyLegacy(opts))
+	} else {
+		g.RunFn(t.handlerModify(opts))
+		g.RunFn(t.protoTxImportModify(opts))
+		g.RunFn(t.protoTxRPCModify(opts))
+		g.RunFn(t.protoTxMessageModify(opts))
+	}
+
 	g.RunFn(t.typesKeyModify(opts))
 	g.RunFn(t.typesCodecModify(opts))
 	g.RunFn(t.typesCodecImportModify(opts))
@@ -32,7 +41,11 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
 	t.genesisModify(opts, g)
-	return g, box(cosmosver.Stargate, opts, g)
+
+	if opts.Legacy {
+		return g, box(stargateLegacyTemplate, opts, g)
+	}
+	return g, box(stargateTemplate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
@@ -42,18 +55,119 @@ func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-case *types.MsgCreate%[2]v:
-	return handleMsgCreate%[2]v(ctx, k, msg)
 
-case *types.MsgUpdate%[2]v:
-	return handleMsgUpdate%[2]v(ctx, k, msg)
+		// Set once the MsgServer definition if it is not defined yet
+		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
+		content := strings.Replace(f.String(), placeholderHandlerMsgServer, replacementMsgServer, 1)
 
-case *types.MsgDelete%[2]v:
-	return handleMsgDelete%[2]v(ctx, k, msg)
+		templateHandlers := `%[1]v
+		case *types.MsgCreate%[2]v:
+					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgUpdate%[2]v:
+					res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+
+		case *types.MsgDelete%[2]v:
+					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
 `
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacementHandlers := fmt.Sprintf(templateHandlers,
+			placeholder,
+			strings.Title(opts.TypeName),
+		)
+		content = strings.Replace(content, placeholder, replacementHandlers, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxImportModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%s
+import "%s/%s.proto";`
+		replacement := fmt.Sprintf(template, placeholderProtoTxImport,
+			opts.ModuleName,
+			opts.TypeName,
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxImport, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxRPCModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+  rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
+  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+		replacement := fmt.Sprintf(template, placeholderProtoTxRPC,
+			strings.Title(opts.TypeName),
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxRPC, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) protoTxMessageModify(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		var createFields string
+		for i, field := range opts.Fields {
+			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+2)
+		}
+		var updateFields string
+		for i, field := range opts.Fields {
+			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
+		}
+
+		template := `%[1]v
+message MsgCreate%[2]v {
+  string creator = 1;
+%[3]v}
+
+message MsgCreate%[2]vResponse {
+  string id = 1;
+}
+
+message MsgUpdate%[2]v {
+  string creator = 1;
+  string id = 2;
+%[4]v}
+
+message MsgUpdate%[2]vResponse { }
+
+message MsgDelete%[2]v {
+  string creator = 1;
+  string id = 2;
+}
+
+message MsgDelete%[2]vResponse { }
+`
+		replacement := fmt.Sprintf(template, placeholderProtoTxMessage,
+			strings.Title(opts.TypeName),
+			createFields,
+			updateFields,
+		)
+		content := strings.Replace(f.String(), placeholderProtoTxMessage, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -357,6 +471,10 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "vue/src/views/Index.vue"
 		f, err := r.Disk.Find(path)
+		if os.IsNotExist(err) {
+			// Skip modification if the app doesn't contain front-end
+			return nil
+		}
 		if err != nil {
 			return err
 		}
@@ -374,6 +492,30 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			strings.Join(fields, ","),
 		)
 		content := strings.Replace(f.String(), placeholder4, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+// --- Legacy Stargate Types
+
+func (t *typedStargate) handlerModifyLegacy(opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+case *types.MsgCreate%[2]v:
+	return handleMsgCreate%[2]v(ctx, k, msg)
+case *types.MsgUpdate%[2]v:
+	return handleMsgUpdate%[2]v(ctx, k, msg)
+case *types.MsgDelete%[2]v:
+	return handleMsgDelete%[2]v(ctx, k, msg)
+`
+		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

@@ -121,16 +121,25 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, fileContent)
 
+	// Error if the paths contains no file
+	err = SaveDirChecksum("", []string{empty1, empty2}, saveDir, ChecksumFile)
+	require.Error(t, err)
+
 	// HasDirChecksumChanged returns false if the directory has not changed
 	changed, err := HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.False(t, changed)
 
-	// Return true if it doesn't exist
+	// Return true if checksum file doesn't exist
 	newSaveDir, err := ioutil.TempDir(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(newSaveDir)
 	changed, err = HasDirChecksumChanged("", paths, newSaveDir, ChecksumFile)
+	require.NoError(t, err)
+	require.True(t, changed)
+
+	// Return true if the paths contains no file
+	changed, err = HasDirChecksumChanged("", []string{empty1, empty2}, saveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.True(t, changed)
 
