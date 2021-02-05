@@ -10,7 +10,7 @@
 # * we are not offering as many choices to users and are designing around automation.
 # Later we can make this work for more devices and platforms with nearly the same technique.
 # Reasonable build targets include: https://archlinuxarm.org/platforms/armv8
-# For example, the Odroid-N2 is the same software-wise as our Router!
+# For example, the Odroid-C2 is the same software-wise as our Router!
 
 # Fail on error
 set -exo pipefail
@@ -46,31 +46,32 @@ sudo bash -c "echo starport > ./.tmp/result-rootfs/etc/hostname"
 # ===================================================================================
 
 
-# Unmount anything on the loop device
-sudo umount /dev/loop0p2 || true
-sudo umount /dev/loop0p1 || true
+# Unmount anything on the loop device (uncomment if building on metal and "working in a loop")
+# sudo umount /dev/loop0p2 || true
+# sudo umount /dev/loop0p1 || true
 
-# Detach from the loop device
-sudo losetup -d /dev/loop0 || true
+# Detach from the loop device (uncomment if building on metal and "working in a loop")
+# sudo losetup -d /dev/loop0 || true
 
-# Create a folder for images
-rm -rf images || true
-mkdir -p images
+# Create a folder for images (uncomment if building on metal and "working in a loop")
+# rm -rf images || true
+mkdir images
 
 # Make the image file
 fallocate -l 4G "images/starport.img"
 
+
 # loop-mount the image file so it becomes a disk
-sudo losetup --find --show images/starport.img
+export LOOP=$(sudo losetup --find --show images/starport.img)
 
 # partition the loop-mounted disk
-sudo parted --script /dev/loop0 mklabel msdos
-sudo parted --script /dev/loop0 mkpart primary fat32 0% 200M
-sudo parted --script /dev/loop0 mkpart primary ext4 200M 100%
+sudo parted --script $LOOP mklabel msdos
+sudo parted --script $LOOP mkpart primary fat32 0% 200M
+sudo parted --script $LOOP mkpart primary ext4 200M 100%
 
 # format the newly partitioned loop-mounted disk
-sudo mkfs.vfat -F32 /dev/loop0p1
-sudo mkfs.ext4 -F /dev/loop0p2
+sudo mkfs.vfat -F32 $(echo $LOOP)p1
+sudo mkfs.ext4 -F $(echo $LOOP)p2
 
 # Use the toolbox to copy the rootfs into the filesystem we formatted above.
 # * mount the disk's /boot and / partitions
@@ -79,12 +80,12 @@ sudo mkfs.ext4 -F /dev/loop0p2
 # soon will not use toolbox
 
 sudo mkdir -p mnt/boot mnt/rootfs
-sudo mount /dev/loop0p1 mnt/boot
-sudo mount /dev/loop0p2 mnt/rootfs
+sudo mount $(echo $LOOP)p1 mnt/boot
+sudo mount $(echo $LOOP)p2 mnt/rootfs
 sudo rsync -a ./.tmp/result-rootfs/boot/* mnt/boot
 sudo rsync -a ./.tmp/result-rootfs/* mnt/rootfs --exclude boot
 sudo mkdir mnt/rootfs/boot
-sudo umount mnt/boot mnt/rootfs || true
+sudo umount mnt/boot mnt/rootfs
 
-# Drop the loop mount
-sudo losetup -d /dev/loop0
+# Drop the loop mount (uncomment if building outside of Github Actions)
+# sudo losetup -d /dev/loop0
