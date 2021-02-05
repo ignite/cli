@@ -9,7 +9,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/cosmos/cosmos-sdk v0.41.0
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/relayer v1.0.0-rc1.0.20210203103615-cb3edfc32adb
+	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/fatih/color v1.10.0
@@ -54,5 +54,3 @@ require (
 replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
-
-replace github.com/cosmos/relayer => github.com/ilgooz/relayer-1 v0.0.4
