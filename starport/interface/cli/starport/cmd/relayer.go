@@ -1,6 +1,9 @@
 package starportcmd
 
-import "github.com/spf13/cobra"
+import (
+	relayercmd "github.com/cosmos/relayer/cmd"
+	"github.com/spf13/cobra"
+)
 
 func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
@@ -9,5 +12,6 @@ func NewRelayer() *cobra.Command {
 	}
 	c.AddCommand(NewRelayerConfigure())
 	c.AddCommand(NewRelayerConnect())
+	c.AddCommand(relayercmd.NewRootCmd())
 	return c
 }
