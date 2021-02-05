@@ -8,6 +8,6 @@ import (
 // able to find boxes.
 var (
 	launchpadTemplate = packr.New("module/create/templates/launchpad", "./launchpad")
-	stargateTemplate = packr.New("module/create/templates/stargate", "./stargate")
-	ibcTemplate = packr.New("module/create/templates/ibc", "./ibc")
+	stargateTemplate  = packr.New("module/create/templates/stargate", "./stargate")
+	ibcTemplate       = packr.New("module/create/templates/ibc", "./ibc")
 )

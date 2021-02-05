@@ -2,11 +2,11 @@ package modulecreate
 
 // CreateOptions ...
 type CreateOptions struct {
-	ModuleName string
-	ModulePath string
-	AppName    string
-	OwnerName  string
-	IBCOrdering	string
+	ModuleName  string
+	ModulePath  string
+	AppName     string
+	OwnerName   string
+	IBCOrdering string
 }
 
 // Validate that options are usable

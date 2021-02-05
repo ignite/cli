@@ -2,8 +2,9 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/gobuffalo/plush"
 	"strings"
+
+	"github.com/gobuffalo/plush"
 
 	"github.com/tendermint/starport/starport/templates/module"
 
@@ -256,7 +257,6 @@ scopedTransferKeeper,`
 		return r.File(newFile)
 	}
 }
-
 
 const templateIBCModuleMethods = `
 // OnChanOpenInit implements the IBCModule interface
