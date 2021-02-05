@@ -6,7 +6,7 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-// Wait waits untill g.Wait() returns or ctx canceled, whichever occurs first.
+// Wait waits until g.Wait() returns or ctx canceled, whichever occurs first.
 // returned error is context.Canceled if ctx canceled otherwise the error returned by g.Wait().
 //
 // this is useful when errgroup cannot be used with errgroup.WithContext which happens if executed
