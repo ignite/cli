@@ -25,9 +25,10 @@ const (
 // when not provided. even if auto retrieving coins fails, connect command will complete with success.
 func NewRelayerConfigure() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "configure",
-		Short: "Configure source and target chains for relaying",
-		RunE:  relayerConfigureHandler,
+		Use:     "configure",
+		Short:   "Configure source and target chains for relaying",
+		Aliases: []string{"conf"},
+		RunE:    relayerConfigureHandler,
 	}
 	return c
 }
