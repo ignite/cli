@@ -9,9 +9,10 @@ import (
 	"net/http"
 	"os"
 	"os/exec"
-	"os/signal"
 	"path"
 	"path/filepath"
+	"regexp"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 
@@ -44,6 +45,9 @@ var (
 
 	// sourceChecksum is the file containing the checksum to detect source modification
 	sourceChecksum = "source_checksum.txt"
+
+	// binaryChecksum is the file containing the checksum to detect binary modification
+	binaryChecksum = "binary_checksum.txt"
 
 	// configChecksum is the file containing the checksum to detect config modification
 	configChecksum = "config_checksum.txt"
@@ -173,11 +177,24 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					}
 
 					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
+
 				case errors.As(err, &startErr):
-					fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
+
+					// Parse returned error logs
+					parsedErr := startErr.ParseStartError()
+
+					// If empty, we cannot recognized the error
+					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
+					// We suggest the user to eventually reset the app state
+					if parsedErr == "" {
+						fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
 If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
 
-					return err
+						return fmt.Errorf("cannot run %s", startErr.AppName)
+					}
+
+					// return the clear parsed error
+					return errors.New(parsedErr)
 				default:
 					return err
 				}
@@ -189,26 +206,6 @@ If the new code is no longer compatible with the saved state, you can reset the 
 	g.Go(func() error {
 		return c.watchAppBackend(ctx)
 	})
-
-	// save the source checksum on exit
-	// this goroutine is not in the waiting group to not block the program in case the blockchain start fails
-	go func() {
-		interrupt := make(chan os.Signal, 1)
-		signal.Notify(interrupt, os.Interrupt)
-		<-interrupt
-
-		fmt.Fprintf(c.stdLog(logStarport).out, "\nExiting...\n")
-		saveDir, err := c.chainSavePath()
-		if err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save source checksum:%s \n", err.Error())
-		}
-		if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "Failed to save config checksum:%s \n", err.Error())
-		}
-	}()
 
 	return g.Wait()
 }
@@ -283,7 +280,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
-	// isInit determine
+	// isInit determines if the app is initialized
 	var isInit bool
 
 	// determine if the app must reset the state
@@ -312,6 +309,27 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 
+	// we also consider the binary in the checksum to ensure the binary has not been changed by a third party
+	var binaryModified bool
+	binaryName, err := c.Binary()
+	if err != nil {
+		return err
+	}
+	binaryPath, err := exec.LookPath(binaryName)
+	if err != nil {
+		if !errors.Is(err, exec.ErrNotFound) {
+			return err
+		}
+		binaryModified = true
+	} else {
+		binaryModified, err = dirchange.HasDirChecksumChanged("", []string{binaryPath}, saveDir, binaryChecksum)
+		if err != nil {
+			return err
+		}
+	}
+
+	appModified := sourceModified || binaryModified
+
 	// check if exported genesis exists
 	exportGenesisExists := true
 	exportedGenesisPath, err := c.exportedGenesisPath()
@@ -325,7 +343,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// build phase
-	if !isInit || sourceModified {
+	if !isInit || appModified {
 		// build proto
 		if err := c.buildProto(ctx); err != nil {
 			return err
@@ -345,7 +363,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// init phase
 	// nolint:gocritic
-	if !isInit || (sourceModified && !exportGenesisExists) {
+	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Initializing the app...")
 
 		// initialize the blockchain
@@ -357,7 +375,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		if err := c.InitAccounts(ctx, conf); err != nil {
 			return err
 		}
-	} else if sourceModified {
+	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
 		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
@@ -371,6 +389,21 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		}
 	} else {
 		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
+	}
+
+	// save checksums
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
+		return err
+	}
+	binaryPath, err = exec.LookPath(binaryName)
+	if err != nil {
+		return err
+	}
+	if err := dirchange.SaveDirChecksum("", []string{binaryPath}, saveDir, binaryChecksum); err != nil {
+		return err
 	}
 
 	// start the blockchain
@@ -580,9 +613,25 @@ type CannotStartAppError struct {
 }
 
 func (e *CannotStartAppError) Error() string {
-	return fmt.Sprintf("cannot run %sd start:\n\n\t%s", e.AppName, e.Err)
+	return fmt.Sprintf("cannot run %sd start:\n%s", e.AppName, errors.Unwrap(e.Err))
 }
 
 func (e *CannotStartAppError) Unwrap() error {
 	return e.Err
+}
+
+// ParseStartError parses the error into a clear error string
+// The error logs from Cosmos SDK application are too extensive to be directly printed
+// If the error is not recognized, returns an empty string
+func (e *CannotStartAppError) ParseStartError() string {
+	errorLogs := errors.Unwrap(e.Err).Error()
+	switch {
+	case strings.Contains(errorLogs, "bind: address already in use"):
+		r := regexp.MustCompile(`listen .* bind: address already in use`)
+		return r.FindString(errorLogs)
+	case strings.Contains(errorLogs, "validator set is nil in genesis"):
+		return "Error: error during handshake: error on replay: validator set is nil in genesis and still empty after InitChain"
+	default:
+		return ""
+	}
 }

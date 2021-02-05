@@ -9,6 +9,8 @@ import (
 	"path/filepath"
 )
 
+var ErrNoFile = errors.New("no file in specified paths")
+
 // SaveDirChecksum saves the md5 checksum of the provided paths (directories or files) in the specified directory
 // If checksumSavePath directory doesn't exist, it is created
 // paths are relative to workdir, if workdir is empty string paths are absolute
@@ -30,23 +32,28 @@ func SaveDirChecksum(workdir string, paths []string, checksumSavePath string, ch
 
 // HasDirChecksumChanged computes the md5 checksum of the provided paths (directories or files)
 // and compare it with the current saved checksum
-// If the checksum is different, the new checksum is saved
-// Return true if the checksum file doesn't exist yet and if checksumSavePath directory doesn't exist, it is created
+// Return true if the checksum file doesn't exist yet
 // paths are relative to workdir, if workdir is empty string paths are absolute
 func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath string, checksumName string) (bool, error) {
-	checksum, err := checksumFromPaths(workdir, paths)
-	if err != nil {
-		return false, err
-	}
-
 	// create directory if needed
 	if err := os.MkdirAll(checksumSavePath, 0700); err != nil && !os.IsExist(err) {
 		return false, err
 	}
-
 	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
 	if _, err := os.Stat(checksumFilePath); os.IsNotExist(err) {
-		return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
+		return true, nil
+	} else if err != nil {
+		return false, nil
+	}
+
+	// Compute checksum
+	checksum, err := checksumFromPaths(workdir, paths)
+	if errors.Is(err, ErrNoFile) {
+		// Checksum cannot be saved with no file
+		// Therefore if no file are found, this means these have been delete, then the directory has been changed
+		return true, nil
+	} else if err != nil {
+		return false, err
 	}
 
 	// Compare checksums
@@ -59,7 +66,7 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 	}
 
 	// The checksum has changed
-	return true, ioutil.WriteFile(checksumFilePath, checksum, 0644)
+	return true, nil
 }
 
 // checksumFromPaths computes the md5 checksum from the provided paths
@@ -114,7 +121,7 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 	}
 
 	if noFile {
-		return []byte{}, errors.New("no file in specified paths")
+		return []byte{}, ErrNoFile
 	}
 
 	// compute checksum

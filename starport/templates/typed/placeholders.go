@@ -7,6 +7,12 @@ const (
 	placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
 	placeholder44 = "// this line is used by starport scaffolding # 4"
 
+	placeholderProtoTxImport  = "// this line is used by starport scaffolding # tx/proto/import"
+	placeholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
+	placeholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
+
+	placeholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
+
 	// Genesis
 	placeholderGenesisProtoImport     = "// this line is used by starport scaffolding # genesis/proto/import"
 	placeholderGenesisProtoState      = "// this line is used by starport scaffolding # genesis/proto/state"
