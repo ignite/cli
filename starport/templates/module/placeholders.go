@@ -50,5 +50,10 @@ const (
 	PlaceholderIBCGenesisTypeDefault = "// this line is used by starport scaffolding # ibc/genesistype/default"
 	PlaceholderIBCGenesisTypeValidate = "// this line is used by starport scaffolding # ibc/genesistype/validate"
 	PlaceholderIBCGenesisProto = "// this line is used by starport scaffolding # ibc/genesis/proto"
-	PLaceholderIBCKeys = "// this line is used by starport scaffolding # ibc/keys"
+	PlaceholderIBCKeysName = "// this line is used by starport scaffolding # ibc/keys/name"
+	PlaceholderIBCKeysPort = "// this line is used by starport scaffolding # ibc/keys/port"
+	PlaceholderIBCKeeperImport = "// this line is used by starport scaffolding # ibc/keeper/import"
+	PlaceholderIBCKeeperAttribute = "// this line is used by starport scaffolding # ibc/keeper/attribute"
+	PlaceholderIBCKeeperParameter = "// this line is used by starport scaffolding # ibc/keeper/parameter"
+	PlaceholderIBCKeeperReturn = "// this line is used by starport scaffolding # ibc/keeper/return"
 )

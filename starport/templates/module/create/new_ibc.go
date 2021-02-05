@@ -25,6 +25,7 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g.RunFn(appModifyErrors(opts))
 	g.RunFn(appModifyGenesisType(opts))
 	g.RunFn(appModifyGenesisProto(opts))
+	g.RunFn(appModifyKeys(opts))
 
 	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
 		return g, err
@@ -176,6 +177,69 @@ func appModifyGenesisProto(opts *CreateOptions) genny.RunFn {
 string port_id = <fieldNumber>`
 
 		// TODO: Append the field increment in the template
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
+func appModifyKeys(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// PlaceholderIBCKeysName
+		_ = `
+// Version defines the current version the IBC module supports
+Version = "<moduleName>-1"
+
+// PortID is the default port id that transfer module binds to
+PortID = "<moduleName>"`
+
+		// PlaceholderIBCKeysPort
+		_ = `
+var (
+	// PortKey defines the key to store the port ID in store
+	PortKey = KeyPrefix(<moduleName> + "-port")
+)`
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
+func appModifyKeeper(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// PlaceholderIBCKeeperImport
+		_ = `
+capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"`
+
+		// PlaceholderIBCKeeperAttribute
+		_ = `
+channelKeeper types.ChannelKeeper
+portKeeper    types.PortKeeper
+scopedKeeper  capabilitykeeper.ScopedKeeper`
+
+		// PlaceholderIBCKeeperParameter
+		_ = `
+channelKeeper types.ChannelKeeper,
+portKeeper types.PortKeeper,
+scopedKeeper capabilitykeeper.ScopedKeeper,`
+
+		// PlaceholderIBCKeeperReturn
+		_ = `
+channelKeeper: channelKeeper,
+portKeeper:    portKeeper,
+scopedKeeper:  scopedKeeper,`
 
 		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
