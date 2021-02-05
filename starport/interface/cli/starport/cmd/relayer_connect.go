@@ -16,8 +16,9 @@ import (
 // if not paths are specified, all paths are linked.
 func NewRelayerConnect() *cobra.Command {
 	c := &cobra.Command{
-		Use:  "connect [<path>,...]",
-		RunE: relayerConnectHandler,
+		Use:   "connect [<path>,...]",
+		Short: "Link chains associated with paths and start relaying tx packets in between",
+		RunE:  relayerConnectHandler,
 	}
 	return c
 }
