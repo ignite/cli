@@ -9,7 +9,7 @@ import (
 var (
 	refreshRate  = time.Millisecond * 200
 	charset      = spinner.CharSets[4]
-	colorSpinner = "blue"
+	spinnerColor = "blue"
 )
 
 type Spinner struct {
@@ -19,7 +19,7 @@ type Spinner struct {
 // New creates a new spinner.
 func New() *Spinner {
 	sp := spinner.New(charset, refreshRate)
-	sp.Color(colorSpinner)
+	sp.Color(spinnerColor)
 	s := &Spinner{
 		sp: sp,
 	}
@@ -33,19 +33,19 @@ func (s *Spinner) SetText(text string) *Spinner {
 	return s
 }
 
-// SetPreText sets the prefix for spinner.
-func (s *Spinner) SetPreText(text string) *Spinner {
+// SetPrefix sets the prefix for spinner.
+func (s *Spinner) SetPrefix(text string) *Spinner {
 	s.sp.Prefix = text + " "
 	return s
 }
 
-// SetPreText sets the prefix for spinner.
+// SetCharset sets the prefix for spinner.
 func (s *Spinner) SetCharset(charset []string) *Spinner {
 	s.sp.UpdateCharSet(charset)
 	return s
 }
 
-// SetPreText sets the prefix for spinner.
+// SetColor sets the prefix for spinner.
 func (s *Spinner) SetColor(color string) *Spinner {
 	s.sp.Color(color)
 	return s
@@ -60,8 +60,8 @@ func (s *Spinner) Start() *Spinner {
 // Stop stops spinning.
 func (s *Spinner) Stop() *Spinner {
 	s.sp.Stop()
-	s.SetColor(colorSpinner)
-	s.SetPreText("")
+	s.SetColor(spinnerColor)
+	s.SetPrefix("")
 	s.SetCharset(charset)
 	s.sp.Stop()
 	return s

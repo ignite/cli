@@ -89,7 +89,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		s.
 			SetCharset(spinner.CharSets[9]).
 			SetColor("white").
-			SetPreText(" |·").
+			SetPrefix(" |·").
 			SetText(color.Yellow.Sprintf("trying to receive tokens from a faucet...")).
 			Start()
 
