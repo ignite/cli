@@ -19,8 +19,6 @@ import (
 )
 
 func TestGetTxViaGRPCGateway(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env         = newEnv(t)
 		appname     = randstr.Runes(10)
