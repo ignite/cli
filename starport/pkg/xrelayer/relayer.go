@@ -8,19 +8,87 @@ import (
 
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"
+	"github.com/tendermint/starport/starport/pkg/ctxticker"
+	"github.com/tendermint/starport/starport/pkg/looseerrgroup"
 	"golang.org/x/sync/errgroup"
 )
 
 const (
 	linkingTimeout    = time.Second * 10
 	linkingRetryCount = 2
+	txRelayFrequency  = time.Second
+	maxTxSize         = 2 * relayercmd.MB
+	maxMsgLength      = 5
 )
 
-// Start links all chains that has a path to each other.
+// Start relays tx packeR for paths indefinitely until ctx is canceled.
+func Start(ctx context.Context, paths ...string) error {
+	conf, err := config(ctx, true)
+	if err != nil {
+		return err
+	}
+
+	// start relays all packets for path waiting in the queue.
+	start := func(id string) error {
+		rpath, err := conf.Paths.Get(id)
+		if err != nil {
+			return err
+		}
+
+		strategy, err := rpath.GetStrategy()
+		if err != nil {
+			return err
+		}
+
+		if naive, ok := strategy.(*relayer.NaiveStrategy); ok {
+			naive.MaxTxSize = maxTxSize
+			naive.MaxMsgLength = maxMsgLength
+			strategy = naive
+		}
+
+		chains, src, dst, err := getChainsByPath(conf, id)
+		if err != nil {
+			return err
+		}
+
+		sh, err := relayer.NewSyncHeaders(chains[src], chains[dst])
+		if err != nil {
+			return err
+		}
+
+		sp, err := strategy.UnrelayedSequences(chains[src], chains[dst], sh)
+		if err != nil {
+			return err
+		}
+
+		// nothing to relay.
+		if len(sp.Src) == 0 && len(sp.Dst) == 0 {
+			return nil
+		}
+
+		return strategy.RelayPackets(chains[src], chains[dst], sp, sh)
+	}
+
+	g, ctx := errgroup.WithContext(ctx)
+
+	for _, id := range paths {
+		id := id
+
+		g.Go(func() error {
+			return ctxticker.DoNow(ctx, txRelayFrequency, func() error {
+				return start(id)
+			})
+		})
+	}
+
+	return g.Wait()
+}
+
+// Link links all chains that has a path to each other.
 // paths are optional and acts as a filter to only link pointing chains.
 // calling Start multiple times for the same chains does not have any side effects.
-func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, err error) {
-	conf, err := config(ctx)
+func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, err error) {
+	conf, err := config(ctx, false)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -75,14 +143,14 @@ func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPath
 		return nil
 	}
 
-	g, ctx := errgroup.WithContext(ctx)
+	g := &errgroup.Group{}
 
+	// link non linked paths.
 	for _, id := range paths {
-		// link non linked paths.
 		id := id
 
-		g.Go(func() (err error) {
-			if err = link(id); err != nil {
+		g.Go(func() error {
+			if err := link(id); err != nil {
 				return &CouldNotLinkPathError{id, err}
 			}
 			return nil
@@ -90,16 +158,7 @@ func Start(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPath
 	}
 
 	// cosmos/relayer does not support cancelation so we emulate it here.
-	doneC := make(chan error)
-
-	go func() { doneC <- g.Wait() }()
-
-	select {
-	case <-ctx.Done():
-		err = ctx.Err()
-
-	case err = <-doneC:
-	}
+	err = looseerrgroup.Wait(ctx, g)
 
 	return linkedPaths, alreadyLinkedPaths, err
 }
@@ -111,11 +170,14 @@ type Path struct {
 
 	// IsLinked indicates that chains of these paths are linked or not.
 	IsLinked bool
+
+	// Path is underlying relayer path.
+	Path *relayer.Path
 }
 
 // GetPath returns a path by its id.
 func GetPath(ctx context.Context, id string) (Path, error) {
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return Path{}, err
 	}
@@ -136,12 +198,13 @@ func GetPath(ctx context.Context, id string) (Path, error) {
 	return Path{
 		ID:       id,
 		IsLinked: isLinked,
+		Path:     path,
 	}, nil
 }
 
 // ListPaths list all the paths in relayer's database.
 func ListPaths(ctx context.Context) ([]Path, error) {
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return nil, err
 	}

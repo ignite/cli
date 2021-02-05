@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/relayer/relayer"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/tendermintlogger"
+	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 var (
@@ -35,7 +36,7 @@ var (
 
 // config returns the representation of config.yml.
 // it deals with creating and adding default configs if there wasn't a config.yml before.
-func config(_ context.Context) (relayercmd.Config, error) {
+func config(_ context.Context, enableLogs bool) (relayercmd.Config, error) {
 	// ensure that config.yaml exists.
 	if _, err := os.Stat(confYamlPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(filepath.Dir(confYamlPath), os.ModePerm); err != nil {
@@ -59,8 +60,13 @@ func config(_ context.Context) (relayercmd.Config, error) {
 		return relayercmd.Config{}, newRelayerError("global.timeout is invalid")
 	}
 
+	var logger tmlog.Logger
+	if !enableLogs {
+		logger = tendermintlogger.DiscardLogger{}
+	}
+
 	for _, i := range rconf.Chains {
-		if err := i.Init(confHome, globalTimeout, tendermintlogger.DiscardLogger{}, false); err != nil {
+		if err := i.Init(confHome, globalTimeout, logger, false); err != nil {
 			return relayercmd.Config{}, newRelayerError("cannot init")
 		}
 	}

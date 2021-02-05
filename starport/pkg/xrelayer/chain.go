@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/relayer/relayer"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
@@ -69,7 +70,7 @@ func NewChain(ctx context.Context, rpcAddress string, options ...Option) (*Chain
 
 // Account retrieves the default account on chain.
 func (c *Chain) Account(ctx context.Context) (Account, error) {
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return Account{}, err
 	}
@@ -128,12 +129,27 @@ func (c *Chain) TryFaucet(ctx context.Context) error {
 	return nil
 }
 
+// Balance returns the balance for default key in chain
+func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
+	conf, err := config(ctx, false)
+	if err != nil {
+		return nil, err
+	}
+
+	rchain, err := conf.Chains.Get(c.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return rchain.QueryBalance(rchain.Key)
+}
+
 // Connect connects dst chain to c chain. it returns the path id on success otherwise,
 // returns with a non-nil error.
 func (c *Chain) Connect(ctx context.Context, dst *Chain) (id string, err error) {
 	id = fmt.Sprintf("%s-%s", c.ID, dst.ID)
 
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return "", err
 	}
@@ -303,7 +319,7 @@ func (c *Chain) determineAndSetID(ctx context.Context) error {
 
 // ensureAddedToRelayer ensures that chain added to relayer's database.
 func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return err
 	}
@@ -338,7 +354,7 @@ const (
 // determineAndSetAccount determines and sets the default account for relayer if
 // it wasn't exists.
 func (c *Chain) determineAndSetAccount(ctx context.Context) error {
-	conf, err := config(ctx)
+	conf, err := config(ctx, false)
 	if err != nil {
 		return err
 	}
