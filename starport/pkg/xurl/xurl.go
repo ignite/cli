@@ -52,7 +52,7 @@ func HTTPEnsurePort(s string) string {
 func CleanPath(s string) string {
 	u, err := url.Parse(s)
 	if err != nil {
-		return ""
+		return s
 	}
 
 	u.Path = ""
