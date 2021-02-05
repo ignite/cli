@@ -20,12 +20,14 @@ import (
 func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(appModifyModule(opts))
-	g.RunFn(appModifyGenesis(opts))
-	g.RunFn(appModifyErrors(opts))
-	g.RunFn(appModifyGenesisType(opts))
-	g.RunFn(appModifyGenesisProto(opts))
-	g.RunFn(appModifyKeys(opts))
+	g.RunFn(moduleModify(opts))
+	g.RunFn(genesisModify(opts))
+	g.RunFn(errorsModify(opts))
+	g.RunFn(genesisTypeModify(opts))
+	g.RunFn(genesisProtoModify(opts))
+	g.RunFn(keysModify(opts))
+	g.RunFn(keeperModify(opts))
+	g.RunFn(appModify(opts))
 
 	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
 		return g, err
@@ -47,7 +49,7 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 }
 
 // app.go modification on Stargate when creating a module
-func appModifyModule(opts *CreateOptions) genny.RunFn {
+func moduleModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -78,7 +80,7 @@ _ porttypes.IBCModule   = AppModule{}`
 	}
 }
 
-func appModifyGenesis(opts *CreateOptions) genny.RunFn {
+func genesisModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -112,7 +114,7 @@ genesis.PortId = k.GetPort(ctx)`
 	}
 }
 
-func appModifyErrors(opts *CreateOptions) genny.RunFn {
+func errorsModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -131,7 +133,7 @@ ErrInvalidVersion          = sdkerrors.Register(ModuleName, 1501, "invalid versi
 	}
 }
 
-func appModifyGenesisType(opts *CreateOptions) genny.RunFn {
+func genesisTypeModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -161,7 +163,7 @@ if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	}
 }
 
-func appModifyGenesisProto(opts *CreateOptions) genny.RunFn {
+func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -183,7 +185,7 @@ string port_id = <fieldNumber>`
 	}
 }
 
-func appModifyKeys(opts *CreateOptions) genny.RunFn {
+func keysModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -211,7 +213,7 @@ var (
 	}
 }
 
-func appModifyKeeper(opts *CreateOptions) genny.RunFn {
+func keeperModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		_, err := r.Disk.Find(path)
@@ -240,6 +242,25 @@ scopedKeeper capabilitykeeper.ScopedKeeper,`
 channelKeeper: channelKeeper,
 portKeeper:    portKeeper,
 scopedKeeper:  scopedKeeper,`
+
+		// newFile := genny.NewFileS(path, content)
+		return nil // return r.File(newFile)
+	}
+}
+
+func appModify(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := module.PathAppGo
+		_, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// PlaceholderIBCAppKeeper
+		_ = `
+app.IBCKeeper.ChannelKeeper,
+&app.IBCKeeper.PortKeeper,
+scopedTransferKeeper,`
 
 		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)

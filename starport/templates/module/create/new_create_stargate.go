@@ -78,6 +78,7 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 			appCodec,
 			keys[%[2]vtypes.StoreKey],
 			keys[%[2]vtypes.MemStoreKey],
+			// this line is used by starport scaffolding # ibc/app/keeper
 		)`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppKeeperDefinition, opts.ModuleName)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement, 1)
