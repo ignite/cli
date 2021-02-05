@@ -72,11 +72,11 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 	if err := run.Run(); err != nil {
 		return err
 	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-
 	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
 		return err
 	}
