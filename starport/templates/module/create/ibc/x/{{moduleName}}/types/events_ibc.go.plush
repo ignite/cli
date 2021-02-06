@@ -1,0 +1,13 @@
+package types
+
+// IBC events
+const (
+	EventTypeTimeout      = "timeout"
+	EventTypePacket       = "<%= moduleName %>_packet"
+	EventTypeTransfer     = "ibc_transfer"
+	EventTypeChannelClose = "channel_closed"
+
+	AttributeKeyAckSuccess     = "success"
+	AttributeKeyAck            = "acknowledgement"
+	AttributeKeyAckError       = "error"
+)
