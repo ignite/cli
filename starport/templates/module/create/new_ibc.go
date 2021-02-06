@@ -54,7 +54,8 @@ func moduleModify(opts *CreateOptions) genny.RunFn {
 		}
 
 		// Import
-		templateImport := `capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
+		templateImport := `sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+capabilitytypes "github.com/cosmos/cosmos-sdk/x/capability/types"
 channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"
 host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
@@ -88,12 +89,12 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 		templateInit := `k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
-if !k.IsBound(ctx, state.PortId) {
+if !k.IsBound(ctx, genState.PortId) {
 	// module binds to the transfer port on InitChain
 	// and claims the returned capability
 	err := k.BindPort(ctx, genState.PortId)
 	if err != nil {
-		panic(fmt.Sprintf("could not claim port capability: %v", err))
+		panic("could not claim port capability: " + err.Error()))
 	}
 }`
 		content := strings.Replace(f.String(), module.PlaceholderIBCGenesisInit, templateInit, 1)
@@ -165,7 +166,7 @@ func genesisProtoModify(opts *CreateOptions) genny.RunFn {
 		content := f.String()
 		fieldNumber := strings.Count(content, module.PlaceholderGenesisProtoStateField) + 1
 
-		template := `string port_id = %[1]v %[2]v`
+		template := `string port_id = %[1]v; %[2]v`
 		replacement := fmt.Sprintf(template, fieldNumber, module.PlaceholderGenesisProtoStateField)
 		content = strings.Replace(content, module.PlaceholderIBCGenesisProto, replacement, 1)
 
