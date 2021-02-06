@@ -100,5 +100,12 @@ func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("create an IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "--ibc", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
