@@ -8,12 +8,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/mattn/go-zglob"
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
 
@@ -136,7 +136,7 @@ func Generate(
 	}
 
 	// find out the list of proto files under the app and generate code for them.
-	files, err := zglob.Glob(globProto(protoPath))
+	files, err := protoanalysis.SearchProto(protoPath)
 	if err != nil {
 		return err
 	}
@@ -183,5 +183,3 @@ func Generate(
 
 	return nil
 }
-
-func globProto(path string) string { return path + "/**/*.proto" }
