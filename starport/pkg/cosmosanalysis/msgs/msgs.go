@@ -121,8 +121,8 @@ func DiscoverModule(modulePath string) (msgs []string, err error) {
 
 	// checkRequirements checks if all requirements are satisfied.
 	checkRequirements := func(r requirements) bool {
-		for _, name := range r {
-			if name == false {
+		for _, ok := range r {
+			if !ok {
 				return false
 			}
 		}
