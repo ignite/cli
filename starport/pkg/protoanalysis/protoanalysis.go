@@ -1,3 +1,4 @@
+// Package protoanalysis provides a toolset for anaysing proto files -and packages.
 package protoanalysis
 
 import (

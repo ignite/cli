@@ -14,6 +14,8 @@ import (
 // requirements holds a list of sdk.Msg's method names.
 type requirements map[string]bool
 
+// newRequirements creates a new list of requirements(method names) that needed by a sdk.Msg impl.
+// TODO(low priority): dynamically get these from the source code of underlying version of the sdk.
 func newRequirements() requirements {
 	return requirements{
 		"Reset":         false,
@@ -30,14 +32,16 @@ func newRequirements() requirements {
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
 
-// Discover discovers and returns pairs of module import path and their types that implements sdk.Msg.
+// Discover discovers and returns pairs of module import paths and their types that implements sdk.Msg.
 // sourcePath is the root path of an sdk blockchain.
 //
 // discovery algorithm make use of proto definitions to discover modules inside the blockchain.
 //
 // checking whether a type implements sdk.Msg is done by running a simple algorithm of comparing method names
 // of each type in a package with sdk.Msg's, which satisfies our needs for the time being.
-// for a more opinionated check, go/types.Implements() might be utilized as needed.
+// for a more opinionated check:
+//   - go/types.Implements() might be utilized and as needed.
+//   - instead of just comparing method names, their full signatures can be compared.
 func Discover(sourcePath string) (Msgs, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
