@@ -212,7 +212,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog", Stargate)
 	)
 
 	env.Must(env.Exec("create a module",
