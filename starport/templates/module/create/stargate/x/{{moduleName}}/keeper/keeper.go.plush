@@ -16,7 +16,7 @@ type (
 		cdc      codec.Marshaler
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
-		// this line is used by starport scaffolding # ibc/keeper/attributes
+		// this line is used by starport scaffolding # ibc/keeper/attribute
 	}
 )
 
