@@ -6,7 +6,7 @@ ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
 # INSTALL DEPENDENCIES
-RUN apk add --no-cache go npm make git bash which && \
+RUN apk add --no-cache go npm make git bash which protoc && \
 	mkdir /go
 
 # COPY STARPORT SOURCE CODE INTO CONTAINER
