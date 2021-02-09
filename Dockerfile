@@ -6,7 +6,7 @@ ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
 # INSTALL DEPENDENCIES
-RUN apk add --no-cache go npm make git which && \
+RUN apk add --no-cache go npm make git bash which && \
 	mkdir /go
 
 # COPY STARPORT SOURCE CODE INTO CONTAINER
@@ -15,7 +15,7 @@ WORKDIR /starport
 
 # INSTALL STARPORT
 RUN PATH=$PATH:/go/bin && \
-		sh scripts/install
+		bash scripts/install
 
 # CMD
 CMD ["/go/bin/starport"]
