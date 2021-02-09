@@ -8,6 +8,10 @@ ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
 # INSTALL DEPENDENCIES
+RUN rm /etc/pacman.d/gnupg && \
+	pacman-key --init && \
+	pacman-key --populate archlinux
+	
 RUN pacman -Syy --noconfirm archlinux-keyring
 
 RUN pacman -Syyu --noconfirm go npm make git which && \
