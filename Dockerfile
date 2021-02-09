@@ -15,7 +15,7 @@ WORKDIR /starport
 
 # INSTALL STARPORT
 RUN PATH=$PATH:/go/bin && \
-		bash scripts/install
+		sh scripts/install
 
 # CMD
 CMD ["/go/bin/starport"]
