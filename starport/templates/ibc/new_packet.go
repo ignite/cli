@@ -3,15 +3,16 @@ package ibc
 import (
 	"fmt"
 
+	"strings"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"strings"
 )
 
 var (
-	ibcTemplate       = packr.New("ibc/templates/packet", "./packet")
+	ibcTemplate = packr.New("ibc/templates/packet", "./packet")
 )
 
 // Field ...
@@ -68,7 +69,7 @@ func moduleModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		//PlaceholderIBCPacketModuleRecv
+		// PlaceholderIBCPacketModuleRecv
 		_ = `
 case ...:
 	err := am.keeper.OnRecv<Foo>Packet(ctx, packet, data)
@@ -85,7 +86,7 @@ case ...:
 }
 `
 
-		//PlaceholderIBCPacketModuleAck
+		// PlaceholderIBCPacketModuleAck
 		_ = `
 case ...:
 	err := am.keeper.OnAcknowledgement<Foo>Packet(ctx, packet, data, ack)
@@ -96,7 +97,7 @@ case ...:
 }
 `
 
-		//PlaceholderIBCPacketModuleTimeout
+		// PlaceholderIBCPacketModuleTimeout
 		_ = `
 case ...:
 	err := am.keeper.OnTimeoutPacket<Foo>Packet(ctx, packet, data)
@@ -106,7 +107,7 @@ case ...:
 }
 `
 
-		//newFile := genny.NewFileS(path, content)
+		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
 	}
 }
@@ -119,14 +120,14 @@ func protoModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		//PlaceholderIBCPacketProto
+		// PlaceholderIBCPacketProto
 		_ = `
 // <%= title(moduleName) %>PacketData defines a struct for the packet payload
 message <%= title(moduleName) %>PacketData {
 }
 `
 
-		//newFile := genny.NewFileS(path, content)
+		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
 	}
 }
@@ -139,7 +140,7 @@ func typeModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		//PlaceholderIBCPacketType
+		// PlaceholderIBCPacketType
 		_ = `
 // ValidateBasic is used for validating the packet
 func (p <%= title(moduleName) %>PacketData) ValidateBasic() error {
@@ -154,8 +155,7 @@ func (p <%= title(moduleName) %>PacketData) GetBytes() []byte {
 	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
 }`
 
-
-		//newFile := genny.NewFileS(path, content)
+		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
 	}
 }
@@ -168,12 +168,12 @@ func eventModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		//PlaceholderIBCPacketEvent
+		// PlaceholderIBCPacketEvent
 		_ = `
 EventTypePacket       = "<%= moduleName %>_packet"
 `
 
-		//newFile := genny.NewFileS(path, content)
+		// newFile := genny.NewFileS(path, content)
 		return nil // return r.File(newFile)
 	}
 }

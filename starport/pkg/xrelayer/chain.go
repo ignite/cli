@@ -18,7 +18,7 @@ import (
 )
 
 const (
-	//faucetTimeout used to set a timeout while transferring coins from a faucet.
+	// faucetTimeout used to set a timeout while transferring coins from a faucet.
 	faucetTimeout = time.Second * 20
 )
 
