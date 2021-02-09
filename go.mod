@@ -11,6 +11,7 @@ require (
 	github.com/cosmos/go-bip39 v0.0.0-20200817134856-d632e0d11689
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.9.0
 	github.com/gertd/go-pluralize v0.1.7
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
@@ -20,6 +21,7 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
+	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.5.2 // indirect
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
