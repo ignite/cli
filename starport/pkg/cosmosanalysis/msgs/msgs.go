@@ -50,7 +50,7 @@ func Discover(sourcePath string) (Msgs, error) {
 	}
 	bpath := gm.Module.Mod.Path
 
-	// find proto packages that belongs to modules under x/.
+	// find proto packages that belong to modules under x/.
 	xprotopkgs, err := findModuleProtoPkgs(sourcePath, bpath)
 	if err != nil {
 		return nil, err
@@ -149,7 +149,7 @@ func findModuleProtoPkgs(sourcePath, bpath string) ([]protoanalysis.Package, err
 		return nil, err
 	}
 
-	// filter out proto packages that does not reprents x/ modules of blockchain.
+	// filter out proto packages that do not represent x/ modules of blockchain.
 	var xprotopkgs []protoanalysis.Package
 	for _, pkg := range allprotopkgs {
 		if !strings.HasPrefix(pkg.GoImportName, bpath) {

@@ -1,4 +1,4 @@
-// Package protoanalysis provides a toolset for anaysing proto files -and packages.
+// Package protoanalysis provides a toolset for analyzing proto files and packages.
 package protoanalysis
 
 import (
@@ -23,7 +23,7 @@ type Package struct {
 	GoImportName string
 }
 
-// DiscoverPackages recursively discovers proto files, parses them returns info about
+// DiscoverPackages recursively discovers proto files, parses them, and returns info about
 // each found package.
 func DiscoverPackages(path string) ([]Package, error) {
 	files, err := SearchProto(path)
