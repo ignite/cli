@@ -19,7 +19,6 @@ var prefixes = map[logType]struct {
 	logBuild:    {"build", 203},
 	logAppd:     {"%s daemon", 204},
 	logAppcli:   {"%s cli", 205},
-	logRelayer:  {"relayer", 206},
 }
 
 // logType represents the different types of logs.
@@ -30,7 +29,6 @@ const (
 	logBuild
 	logAppd
 	logAppcli
-	logRelayer
 )
 
 // std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.

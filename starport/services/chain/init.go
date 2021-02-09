@@ -10,11 +10,9 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 
 	conf "github.com/tendermint/starport/starport/chainconf"
-	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/confile"
-	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 const (
@@ -111,11 +109,6 @@ func (c *Chain) Init(ctx context.Context) error {
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
 func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
-	sconf, err := secretconf.Open(c.app.Path)
-	if err != nil {
-		return err
-	}
-
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -144,19 +137,6 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", generatedAccount.Mnemonic)
 		} else {
 			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Imported an account. Address: %[1]v\n", account.Address)
-		}
-	}
-
-	// add accounts from secret config into genesis
-	for _, account := range sconf.Accounts {
-		acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
-		if err != nil {
-			return err
-		}
-
-		coins := strings.Join(account.Coins, ",")
-		if err := commands.AddGenesisAccount(ctx, acc.Address, coins); err != nil {
-			return err
 		}
 	}
 
@@ -202,19 +182,6 @@ func (c *Chain) IsInitialized() (bool, error) {
 }
 
 func (c *Chain) configure(ctx context.Context) error {
-	// setup IBC Relayer.
-	if err := c.checkIBCRelayerSupport(); err == nil {
-		if err := xos.RemoveAllUnderHome(".relayer"); err != nil {
-			return err
-		}
-		info, err := c.RelayerInfo()
-		if err != nil {
-			return err
-		}
-		fmt.Fprintf(c.stdLog(logStarport).out, "✨ Relayer info: %s\n", info)
-		return nil
-	}
-
 	// configure blockchain.
 	chainID, err := c.ID()
 	if err != nil {

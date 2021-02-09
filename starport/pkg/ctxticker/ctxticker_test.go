@@ -13,7 +13,7 @@ func TestDoNow(t *testing.T) {
 	ctx, cancel := context.WithCancel(context.Background())
 	var callCount int
 
-	require.NoError(t, DoNow(ctx, time.Millisecond, func() error {
+	require.Error(t, context.Canceled, DoNow(ctx, time.Millisecond, func() error {
 		if callCount == 3 {
 			cancel()
 			return nil

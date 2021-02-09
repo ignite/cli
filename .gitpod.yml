@@ -15,9 +15,6 @@ tasks:
       mkdir -p $BIN_PATH
       (cd /workspace/starport && ./scripts/install)
 
-      # install rly
-      (cd /tmp && git clone https://github.com/cosmos/relayer && cd relayer && git checkout ba17c4db185229d9354187a8b9723097ab527261 && make -C /tmp/relayer install)
-
     command: |
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)

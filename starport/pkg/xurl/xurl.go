@@ -1,6 +1,10 @@
 package xurl
 
-import "strings"
+import (
+	"fmt"
+	"net/url"
+	"strings"
+)
 
 // TCP unsures that s url contains TCP protocol identifier.
 func TCP(s string) string {
@@ -24,6 +28,36 @@ func WS(s string) string {
 		return s
 	}
 	return "ws://" + Address(s)
+}
+
+// HTTPEnsurePort ensures that url has a port number suits with the connection type.
+func HTTPEnsurePort(s string) string {
+	u, err := url.Parse(s)
+	if err != nil || u.Port() != "" {
+		return s
+	}
+
+	port := "80"
+
+	if u.Scheme == "https" {
+		port = "443"
+	}
+
+	u.Host = fmt.Sprintf("%s:%s", u.Hostname(), port)
+
+	return u.String()
+}
+
+// CleanPath cleans path from the url.
+func CleanPath(s string) string {
+	u, err := url.Parse(s)
+	if err != nil {
+		return s
+	}
+
+	u.Path = ""
+
+	return u.String()
 }
 
 // Address unsures that address contains localhost as host if non specified.
