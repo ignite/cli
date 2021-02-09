@@ -7,13 +7,14 @@ FROM lopsided/archlinux
 ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
-# INSTALL DEPENDENCIES
-RUN rm /etc/pacman.d/gnupg && \
+# Ensure that there are no issues with pacman keys.  
+RUN rm -rf /etc/pacman.d/gnupg && \
 	pacman-key --init && \
 	pacman-key --populate archlinux
 	
 RUN pacman -Syy --noconfirm archlinux-keyring
 
+# INSTALL DEPENDENCIES
 RUN pacman -Syyu --noconfirm go npm make git which && \
 	mkdir /go
 
