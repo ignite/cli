@@ -10,8 +10,12 @@ func NewRelayer() *cobra.Command {
 		Use:   "relayer",
 		Short: "Connects blockchains via IBC protocol",
 	}
+
+	rlyCmd := relayercmd.NewRootCmd()
+	rlyCmd.Short = "Low-level commands from github.com/cosmos/relayer"
+
 	c.AddCommand(NewRelayerConfigure())
 	c.AddCommand(NewRelayerConnect())
-	c.AddCommand(relayercmd.NewRootCmd())
+	c.AddCommand(rlyCmd)
 	return c
 }
