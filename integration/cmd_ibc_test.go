@@ -32,14 +32,14 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module with an ordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "foo", "--ibc-ordering", "ordered"),
+			step.Exec("starport", "module", "create", "--ibc", "orderedfoo", "--ibc-ordering", "ordered"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an IBC module with an unordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "foo", "--ibc-unordered", "ordered"),
+			step.Exec("starport", "module", "create", "--ibc", "unorderedfoo", "--ibc-unordered", "unordered"),
 			step.Workdir(path),
 		)),
 	))
