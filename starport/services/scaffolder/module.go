@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+
 	module_create "github.com/tendermint/starport/starport/templates/module/create"
 	module_import "github.com/tendermint/starport/starport/templates/module/import"
 
@@ -64,7 +65,7 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(moduleName string,  options ...ModuleCreationOption) error {
+func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOption) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -98,10 +99,10 @@ func (s *Scaffolder) CreateModule(moduleName string,  options ...ModuleCreationO
 	var (
 		g    *genny.Generator
 		opts = &module_create.CreateOptions{
-			ModuleName: moduleName,
-			ModulePath: path.RawPath,
-			AppName:    path.Package,
-			OwnerName:  owner(path.RawPath),
+			ModuleName:  moduleName,
+			ModulePath:  path.RawPath,
+			AppName:     path.Package,
+			OwnerName:   owner(path.RawPath),
 			IBCOrdering: creationOpts.ibcChannelOrdering,
 		}
 	)

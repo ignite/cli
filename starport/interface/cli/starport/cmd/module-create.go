@@ -8,7 +8,7 @@ import (
 )
 
 const (
-	flagIBC = "ibc"
+	flagIBC         = "ibc"
 	flagIBCOrdering = "ibc-ordering"
 )
 
