@@ -10,7 +10,7 @@ ENV PATH=$PATH:/go/bin
 # Ensure that there are no issues with pacman keys.  
 RUN rm -rf /etc/pacman.d/gnupg && \
 	pacman-key --init && \
-	pacman-key --populate archlinux
+	pacman-key --populate archlinux || pacman-key --populate archlinuxarm
 	
 RUN pacman -Syy --noconfirm archlinux-keyring
 
