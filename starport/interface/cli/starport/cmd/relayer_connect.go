@@ -55,11 +55,11 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 	s.Stop()
 
 	if len(alreadyLinkedPaths) != 0 {
-		fmt.Printf("⛓  %d chains already connected.\n", len(alreadyLinkedPaths)*2)
+		fmt.Printf("⛓  %d paths already created to link chains.\n", len(alreadyLinkedPaths))
 	}
 
 	if len(linkedPaths) != 0 {
-		fmt.Printf("🔌  Linked %d chains.\n", len(linkedPaths)*2)
+		fmt.Printf("🔌  Linked chains with %d paths.\n", len(linkedPaths))
 	}
 
 	fmt.Println()
@@ -79,8 +79,8 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.TabIndent)
 		fmt.Fprintf(w, "%s:\n", path.ID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Src.ChainID, rpath.Src.PortID, rpath.Src.ConnectionID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Dst.ChainID, rpath.Dst.PortID, rpath.Dst.ConnectionID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Src.ChainID, rpath.Src.PortID, rpath.Src.ChannelID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Dst.ChainID, rpath.Dst.PortID, rpath.Dst.ChannelID)
 		fmt.Fprintln(w)
 		w.Flush()
 	}
