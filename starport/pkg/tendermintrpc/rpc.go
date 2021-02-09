@@ -8,14 +8,19 @@ import (
 	"strconv"
 )
 
+const (
+	endpointNetInfo = "/net_info"
+	endpointGenesis = "/genesis"
+)
+
 // Client is a Tendermint RPC client.
 type Client struct {
 	addr string
 }
 
 // New creates a new Tendermint RPC client.
-func New(addr string) *Client {
-	return &Client{addr: addr}
+func New(addr string) Client {
+	return Client{addr: addr}
 }
 
 // NetInfo represents Network Info.
@@ -23,10 +28,13 @@ type NetInfo struct {
 	ConnectedPeers int
 }
 
+func (c Client) url(endpoint string) string {
+	return fmt.Sprintf("%s%s", c.addr, endpoint)
+}
+
 // GetNetInfo retrieves network info.
-func (c *Client) GetNetInfo(ctx context.Context) (NetInfo, error) {
-	endpoint := fmt.Sprintf("%s/net_info", c.addr)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, endpoint, nil)
+func (c Client) GetNetInfo(ctx context.Context) (NetInfo, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url(endpointNetInfo), nil)
 	if err != nil {
 		return NetInfo{}, err
 	}
@@ -53,4 +61,39 @@ func (c *Client) GetNetInfo(ctx context.Context) (NetInfo, error) {
 	return NetInfo{
 		ConnectedPeers: int(peers),
 	}, nil
+}
+
+// Genesis represents Genesis.
+type Genesis struct {
+	ChainID string `json:"chain_id"`
+}
+
+// GetGenesis retrieves Genesis.
+func (c Client) GetGenesis(ctx context.Context) (Genesis, error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, c.url(endpointGenesis), nil)
+	if err != nil {
+		return Genesis{}, err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return Genesis{}, err
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return Genesis{}, fmt.Errorf("%d", resp.StatusCode)
+	}
+
+	var out struct {
+		Result struct {
+			Genesis Genesis `json:"genesis"`
+		} `json:"Result"`
+	}
+
+	if err := json.NewDecoder(resp.Body).Decode(&out); err != nil {
+		return Genesis{}, err
+	}
+
+	return out.Result.Genesis, nil
 }
