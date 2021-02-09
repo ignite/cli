@@ -8,11 +8,9 @@ ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
 # Ensure that there are no issues with pacman keys.  
-RUN rm -rf /etc/pacman.d/gnupg && \
-	pacman-key --init && \
-	pacman-key --populate archlinux || pacman-key --populate archlinuxarm
+RUN pacman-key --refresh-keys
 	
-RUN pacman -Syy --noconfirm archlinux-keyring
+# RUN pacman -Syy --noconfirm archlinux-keyring
 
 # INSTALL DEPENDENCIES
 RUN pacman -Syyu --noconfirm go npm make git which && \
