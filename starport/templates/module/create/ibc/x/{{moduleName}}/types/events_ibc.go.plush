@@ -3,9 +3,7 @@ package types
 // IBC events
 const (
 	EventTypeTimeout      = "timeout"
-	EventTypePacket       = "<%= moduleName %>_packet"
-	EventTypeTransfer     = "ibc_transfer"
-	EventTypeChannelClose = "channel_closed"
+	// this line is used by starport scaffolding # ibc/packet/event
 
 	AttributeKeyAckSuccess     = "success"
 	AttributeKeyAck            = "acknowledgement"

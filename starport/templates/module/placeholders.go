@@ -59,6 +59,4 @@ const (
 	PlaceholderIBCKeeperParameter     = "// this line is used by starport scaffolding # ibc/keeper/parameter"
 	PlaceholderIBCKeeperReturn        = "// this line is used by starport scaffolding # ibc/keeper/return"
 	PlaceholderIBCAppKeeper           = "// this line is used by starport scaffolding # ibc/app/keeper"
-
-	// Placeholders IBC packets
 )

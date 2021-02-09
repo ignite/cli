@@ -4,12 +4,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
-// ValidateBasic is used for validating the packet
-func (p <%= title(moduleName) %>PacketData) ValidateBasic() error {
-	return nil
-}
+// Used to avoid compiler import complain
+var _ = sdk.Bech32MainPrefix
 
-// GetBytes is a helper for serialising
-func (p <%= title(moduleName) %>PacketData) GetBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
-}
+// this line is used by starport scaffolding # ibc/packet/type

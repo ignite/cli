@@ -3,6 +3,4 @@ package <%= nodash(ownerName) %>.<%= appName %>.<%= moduleName %>;
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
-// <%= title(moduleName) %>PacketData defines a struct for the packet payload
-message <%= title(moduleName) %>PacketData {
-}
+// this line is used by starport scaffolding # ibc/packet/proto
