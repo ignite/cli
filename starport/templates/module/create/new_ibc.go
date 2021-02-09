@@ -33,6 +33,7 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
+	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("title", strings.Title)
 
 	ctx.Set("nodash", func(s string) string {

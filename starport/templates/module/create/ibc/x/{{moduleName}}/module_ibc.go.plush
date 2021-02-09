@@ -23,8 +23,8 @@ func (am AppModule) OnChanOpenInit(
 	counterparty channeltypes.Counterparty,
 	version string,
 ) error {
-	if order != channeltypes.NONE {
-		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.NONE, order)
+	if order != channeltypes.<%= ibcOrdering %> {
+		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
 	}
 
 	// Require portID is the portID module is bound to
@@ -57,8 +57,8 @@ func (am AppModule) OnChanOpenTry(
 	version,
 	counterpartyVersion string,
 ) error {
-	if order != channeltypes.NONE {
-		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.NONE, order)
+	if order != channeltypes.<%= ibcOrdering %> {
+		return sdkerrors.Wrapf(channeltypes.ErrInvalidChannelOrdering, "expected %s channel, got %s ", channeltypes.<%= ibcOrdering %>, order)
 	}
 
 	// Require portID is the portID module is bound to

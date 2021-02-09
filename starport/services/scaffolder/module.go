@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-
 	module_create "github.com/tendermint/starport/starport/templates/module/create"
 	module_import "github.com/tendermint/starport/starport/templates/module/import"
 
@@ -29,13 +28,55 @@ const (
 	wasmVersionCommitStargate  = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
 )
 
+// moduleCreationOptions holds options for creating a new module
+type moduleCreationOptions struct {
+	// chainID is the chain's id.
+	ibc bool
+
+	// homePath of the chain's config dir.
+	ibcChannelOrdering string
+}
+
+// Option configures Chain.
+type ModuleCreationOption func(*moduleCreationOptions)
+
+// WithIBC scaffolds a module with IBC enabled
+func WithIBC() ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		m.ibc = true
+	}
+}
+
+// WithIBCChannelOrdering configures channel ordering of the IBC module
+func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		switch ordering {
+		case "none":
+			m.ibcChannelOrdering = "NONE"
+		case "ordered":
+			m.ibcChannelOrdering = "ORDERED"
+		case "unordered":
+			m.ibcChannelOrdering = "UNORDERED"
+		default:
+			m.ibcChannelOrdering = "NONE"
+		}
+	}
+}
+
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
+func (s *Scaffolder) CreateModule(moduleName string,  options ...ModuleCreationOption) error {
 	version, err := s.version()
 	if err != nil {
 		return err
 	}
 	majorVersion := version.Major()
+
+	// Apply the options
+	var creationOpts moduleCreationOptions
+	for _, apply := range options {
+		apply(&creationOpts)
+	}
+
 	// Check if the module already exist
 	ok, err := ModuleExists(s.path, moduleName)
 	if err != nil {
@@ -50,7 +91,7 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 	}
 
 	// Cannot scaffold IBC module for Launchpad
-	if majorVersion == cosmosver.Launchpad && isIBCModule {
+	if majorVersion == cosmosver.Launchpad && creationOpts.ibc {
 		return errors.New("launchpad doesn't support IBC")
 	}
 
@@ -61,6 +102,7 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 			ModulePath: path.RawPath,
 			AppName:    path.Package,
 			OwnerName:  owner(path.RawPath),
+			IBCOrdering: creationOpts.ibcChannelOrdering,
 		}
 	)
 
@@ -80,7 +122,7 @@ func (s *Scaffolder) CreateModule(moduleName string, isIBCModule bool) error {
 	}
 
 	// Scaffold IBC module
-	if isIBCModule {
+	if creationOpts.ibc {
 		g, err = module_create.NewIBC(opts)
 		if err != nil {
 			return err
