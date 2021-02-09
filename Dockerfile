@@ -8,6 +8,7 @@ ENV GOPATH=/go
 ENV PATH=$PATH:/go/bin
 
 # INSTALL DEPENDENCIES
+RUN pacman -S archlinux-keyring
 RUN pacman -Syyu --noconfirm go npm make git which && \
 	mkdir /go
 
@@ -27,10 +28,10 @@ CMD ["/go/bin/starport"]
 # FROM gcr.io/distroless/base
 # COPY --from=builder /starport/build/starport /
 
-# EXPOSE 12345
-# EXPOSE 8080
-# EXPOSE 1317
-# EXPOSE 26656
-# EXPOSE 26657
+EXPOSE 12345
+EXPOSE 8080
+EXPOSE 1317
+EXPOSE 26656
+EXPOSE 26657
 
 # CMD ["/starport"]
