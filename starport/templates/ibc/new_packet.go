@@ -79,7 +79,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		sdk.NewEvent(
 			types.EventType%[3]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
-			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%t", err != nil)),
+			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
 		),
 	)`
 		replacementRecv := fmt.Sprintf(
@@ -145,7 +145,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			PlaceholderIBCPacketProtoField,
 			strings.Title(opts.PacketName),
 			opts.PacketName,
-			fieldCount + 2,
+			fieldCount+2,
 			PlaceholderIBCPacketProtoFieldNumber,
 		)
 		content = strings.Replace(content, PlaceholderIBCPacketProtoField, replacementField, 1)
@@ -166,7 +166,7 @@ message %[2]vPacketData {
 			PlaceholderIBCPacketProtoMessage,
 			strings.Title(opts.PacketName),
 			messageFields,
-			)
+		)
 		content = strings.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage, 1)
 
 		newFile := genny.NewFileS(path, content)
@@ -204,7 +204,7 @@ func (p %[3]vPacketData) GetBytes() []byte {
 			PlaceholderIBCPacketType,
 			strings.Title(opts.ModuleName),
 			strings.Title(opts.PacketName),
-			)
+		)
 		content := strings.Replace(f.String(), PlaceholderIBCPacketType, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
@@ -228,7 +228,7 @@ EventType%[2]vPacket       = "%[3]v_packet"
 			PlaceholderIBCPacketEvent,
 			strings.Title(opts.PacketName),
 			opts.PacketName,
-			)
+		)
 		content := strings.Replace(f.String(), PlaceholderIBCPacketEvent, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
