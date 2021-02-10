@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# generates static Go files to embed protobufjs binaries into Starport for linux and darwin.
+# protobufjs downloaded and packaged as a standalone executable for both platforms.
+# Starport's own binary will only include one or other binary depending on the platform where
+# Starport is being built.
+
+set -e
+
+version=6.10.2
+cachedir=".cache"
+protobufjshash="da34f43ccd51ad97017e139f137521782f5ef119"
+protobufjsdir="$cachedir/protobufjs"
+
+installedprotobufjshash=""
+
+if [ -d $protobufjsdir ]
+then
+    cd $protobufjsdir
+    installedprotobufjshash=$(git rev-parse HEAD)
+fi
+
+if [ "$installedprotobufjshash" != "$protobufjshash" ]
+then
+    rm -rf $protobufjsdir
+    git clone https://github.com/protobufjs/protobuf.js $protobufjsdir
+    cd $protobufjsdir
+    git reset --hard $protobufjshash
+fi
+
+cd cli
+
+cp ../../../scripts/data/gen-protobufjs/package.json package.json
+cp ../../../scripts/data/gen-protobufjs/package-lock.json package-lock.json
+cp ../../../scripts/data/gen-protobufjs/bin/pbjs bin/pbjs 
+
+sudo npm install -g pkg@4.4.9
+npm i 
+
+pkg --debug -t node14-linux-x64,node14-macos-x64 .
+
+cd ../../../
+
+go get -u github.com/kevinburke/go-bindata/...
+go-bindata -pkg protobufjs -prefix .cache/protobufjs/cli -tags="linux" -o starport/pkg/protobufjs/js_linux.go .cache/protobufjs/cli/protobufjs-cli-linux
+go-bindata -pkg protobufjs -prefix .cache/protobufjs/cli -tags="darwin" -o starport/pkg/protobufjs/js_darwin.go .cache/protobufjs/cli/protobufjs-cli-macos
