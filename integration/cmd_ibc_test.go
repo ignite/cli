@@ -18,7 +18,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "foo"),
+			step.Exec("starport", "module", "create", "foo", "--ibc"),
 			step.Workdir(path),
 		)),
 	))
@@ -42,6 +42,76 @@ func TestCreateModuleWithIBC(t *testing.T) {
 			step.Exec("starport", "module", "create", "--ibc", "unorderedfoo", "--ibc-ordering", "unordered"),
 			step.Workdir(path),
 		)),
+	))
+
+	env.EnsureAppIsSteady(path)
+}
+
+func TestCreateIBCPacket(t *testing.T) {
+	t.Parallel()
+
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("ibcblog", Stargate)
+	)
+
+	env.Must(env.Exec("create an IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "foo", "--ibc"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a packet",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "foo", "bar", "text"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating a packet in a non existent module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "nomodule", "bar", "text"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating an existing packet",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "foo", "bar", "post"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("create a packet with custom type fields",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "foo", "ticket", "num:int", "victory:bool"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a packet with no field",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "foo", "empty"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a non-IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "bar"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating a packet in a non IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "ibc", "packet", "bar", "foo", "text"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
