@@ -32,6 +32,8 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
         with:
+          lfs: true
+        with:
           path: ${{ env.working-directory }}
           fetch-depth: 0
 
