@@ -39,6 +39,7 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	// Send message modification
 	g.RunFn(protoTxModify(opts))
 	g.RunFn(handlerTxModify(opts))
+	g.RunFn(clientCliTxModify(opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -321,6 +322,23 @@ func handlerTxModify(opts *PacketOptions) genny.RunFn {
 			strings.Title(opts.PacketName),
 		)
 		content = strings.Replace(content, Placeholder, replacementHandlers, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func clientCliTxModify(opts *PacketOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+	cmd.AddCommand(CmdSen%[2]v())
+`
+		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.PacketName))
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
