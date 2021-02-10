@@ -1,9 +1,15 @@
 package scaffolder
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
+
+	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/templates/ibc"
 
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
@@ -19,8 +25,12 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...s
 	if err != nil {
 		return err
 	}
-	_ = version.Major()
-	_, err = gomodulepath.ParseAt(s.path)
+	majorVersion := version.Major()
+	if majorVersion.Is(cosmosver.Launchpad) {
+		return errors.New("launchpad is not supported for IBC")
+	}
+
+	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
@@ -53,12 +63,40 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...s
 	}
 
 	// Parse provided field
-	_, err = parseFields(fields)
+	tFields, err := parseFields(fields)
 	if err != nil {
 		return err
 	}
 
-	return nil
+	// Generate the packet
+	var (
+		g    *genny.Generator
+		opts = &ibc.PacketOptions{
+			AppName:    path.Package,
+			ModulePath: path.RawPath,
+			ModuleName: moduleName,
+			OwnerName:  owner(path.RawPath),
+			PacketName: packetName,
+			Fields:     tFields,
+		}
+	)
+	g, err = ibc.NewIBC(opts)
+	if err != nil {
+		return err
+	}
+	run := genny.WetRunner(context.Background())
+	run.With(g)
+	if err := run.Run(); err != nil {
+		return err
+	}
+	pwd, err := os.Getwd()
+	if err != nil {
+		return err
+	}
+	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+		return err
+	}
+	return fmtProject(pwd)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

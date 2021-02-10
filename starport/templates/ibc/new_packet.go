@@ -3,6 +3,8 @@ package ibc
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/templates/typed"
+
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -15,26 +17,18 @@ var (
 	ibcTemplate = packr.New("ibc/templates/packet", "./packet")
 )
 
-// Field ...
-type Field struct {
-	Name         string
-	Datatype     string
-	DatatypeName string
-}
-
 // Options ...
-type Options struct {
+type PacketOptions struct {
 	AppName    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	TypeName   string
-	Fields     []Field
-	Legacy     bool
+	PacketName string
+	Fields     []typed.Field
 }
 
 // New ...
-func NewIBC(opts *Options) (*genny.Generator, error) {
+func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(moduleModify(opts))
@@ -63,7 +57,7 @@ func NewIBC(opts *Options) (*genny.Generator, error) {
 	return g, nil
 }
 
-func moduleModify(opts *Options) genny.RunFn {
+func moduleModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		_, err := r.Disk.Find(path)
@@ -114,7 +108,7 @@ case *types.<ModuleName>PacketData_<PacketName>Packet:
 	}
 }
 
-func protoModify(opts *Options) genny.RunFn {
+func protoModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		_, err := r.Disk.Find(path)
@@ -140,7 +134,7 @@ message <%= title(packetName) %>PacketData {
 	}
 }
 
-func typeModify(opts *Options) genny.RunFn {
+func typeModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		_, err := r.Disk.Find(path)
@@ -172,7 +166,7 @@ func (p <%= title(packetName) %>PacketData) GetBytes() []byte {
 	}
 }
 
-func eventModify(opts *Options) genny.RunFn {
+func eventModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		_, err := r.Disk.Find(path)
