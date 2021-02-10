@@ -79,7 +79,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	}
 
 	// Check if the module already exist
-	ok, err := ModuleExists(s.path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -202,22 +202,19 @@ func (s *Scaffolder) ImportModule(name string) error {
 	return fmtProject(pwd)
 }
 
-func ModuleExists(appPath string, moduleName string) (bool, error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
+func moduleExists(appPath string, moduleName string) (bool, error) {
+	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
 		return false, err
 	}
 
-	_, err = os.Stat(abspath)
-	if err == nil {
-		// The module already exists
-		return true, nil
-	}
+	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
+		// The module doesn't exist
 		return false, nil
 	}
-	// Error reading the directory
-	return false, err
+
+	return true, err
 }
 
 func isWasmImported(appPath string) (bool, error) {
