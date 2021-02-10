@@ -110,7 +110,7 @@ func cacheBinary() (err error) {
 		}
 	})
 
-	return
+	return err
 }
 
 // Bytes returns the executable binary bytes of protobufjs.
