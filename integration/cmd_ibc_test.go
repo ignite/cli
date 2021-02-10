@@ -52,7 +52,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog", Stargate)
+		path = env.Scaffold("ibcblog2", Stargate)
 	)
 
 	env.Must(env.Exec("create an IBC module",
