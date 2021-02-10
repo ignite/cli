@@ -21,12 +21,19 @@ const (
 	CachePath = "/tmp/protobufjs"
 )
 
+var cacheOnce sync.Once
+
 // Generate generates static protobuf.js types for given proto where includePaths holds dependency protos.
 func Generate(ctx context.Context, outPath, protoPath string, includePaths []string) error {
-	if err := cacheBinary(); err != nil {
+	var err error
+
+	// caches the protobufjs-cli into CachePath if it isn't there already.
+	cacheOnce.Do(func() { err = cacheBinary() })
+	if err != nil {
 		return err
 	}
 
+	// construct protobufjs-cli command for code generation.
 	command := []string{
 		CachePath,
 		"-t",
@@ -37,6 +44,7 @@ func Generate(ctx context.Context, outPath, protoPath string, includePaths []str
 		outPath,
 	}
 
+	// add proto dependency paths.
 	for _, includePath := range includePaths {
 		command = append(
 			command,
@@ -45,72 +53,69 @@ func Generate(ctx context.Context, outPath, protoPath string, includePaths []str
 		)
 	}
 
+	// add target proto path.
 	command = append(command, protoanalysis.GlobPattern(protoPath))
 
+	// run the command.
 	errb := &bytes.Buffer{}
 
-	err := cmdrunner.
+	err = cmdrunner.
 		New(
 			cmdrunner.DefaultStderr(errb)).
 		Run(ctx,
 			step.New(step.Exec(command[0], command[1:]...)))
 
+	return errors.Wrap(err, errb.String())
+}
+
+func cacheBinary() (err error) {
+	// make sure the parent dir of CachePath exists.
+	if err = os.MkdirAll(filepath.Dir(CachePath), os.ModePerm); err != nil {
+		return
+	}
+
+	// save saves the cli at CachePath.
+	save := func() error {
+		cachedFile, err := os.OpenFile(CachePath, os.O_RDWR|os.O_CREATE, 0755)
+		if err != nil {
+			return err
+		}
+		defer cachedFile.Close()
+
+		_, err = io.Copy(cachedFile, bytes.NewReader(Bytes()))
+		return err
+	}
+
+	// cache the cli if it doesn't exists.
+	cachedFile, err := os.Open(CachePath)
+	if os.IsNotExist(err) {
+		return save()
+	}
 	if err != nil {
-		return errors.Wrap(err, errb.String())
+		return err
+	}
+
+	// compare hashes of the existent cli and original one.
+	// if they're not the same, cache the original again.
+	var (
+		hasherOriginal = sha256.New()
+		hasherCached   = sha256.New()
+	)
+
+	hasherOriginal.Write(Bytes())
+
+	if _, err = io.Copy(hasherCached, cachedFile); err != nil {
+		return
+	}
+
+	hashCached := fmt.Sprintf("%x", hasherCached.Sum(nil))
+	hashOriginal := fmt.Sprintf("%x", hasherOriginal.Sum(nil))
+
+	if hashOriginal != hashCached {
+		return save()
 	}
 
 	return nil
-}
-
-var cacheOnce sync.Once
-
-func cacheBinary() (err error) {
-	cacheOnce.Do(func() {
-		if err = os.MkdirAll(filepath.Dir(CachePath), os.ModePerm); err != nil {
-			return
-		}
-
-		var cached *os.File
-
-		cache := func() {
-			cached, err = os.OpenFile(CachePath, os.O_RDWR|os.O_CREATE, 0755)
-			if err != nil {
-				return
-			}
-			defer cached.Close()
-
-			_, err = io.Copy(cached, bytes.NewReader(Bytes()))
-		}
-
-		cached, err = os.Open(CachePath)
-		if os.IsNotExist(err) {
-			cache()
-			return
-		}
-		if err != nil {
-			return
-		}
-
-		var (
-			hasheroriginal = sha256.New()
-			hashercached   = sha256.New()
-		)
-
-		hasheroriginal.Write(Bytes())
-
-		if _, err = io.Copy(hashercached, cached); err != nil {
-			return
-		}
-
-		hashcached := fmt.Sprintf("%x", hashercached.Sum(nil))
-		hashoriginal := fmt.Sprintf("%x", hashercached.Sum(nil))
-
-		if hashoriginal != hashcached {
-			cache()
-		}
-	})
-
-	return err
 }
 
 // Bytes returns the executable binary bytes of protobufjs.
