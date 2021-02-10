@@ -2,16 +2,16 @@ package scaffolder
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"os"
 	"path/filepath"
+
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
 const (
 	ibcModuleImplementation = "module_ibc.go"
-	keeperDirectory = "keeper"
+	keeperDirectory         = "keeper"
 )
-
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...string) error {
