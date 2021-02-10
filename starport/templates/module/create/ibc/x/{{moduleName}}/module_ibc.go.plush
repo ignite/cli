@@ -133,17 +133,17 @@ func (am AppModule) OnChanCloseConfirm(
 // OnRecvPacket implements the IBCModule interface
 func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
-	packet channeltypes.Packet,
+	modulePacket channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
-    var data types.<%= title(moduleName) %>PacketData
-    if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+    var modulePacketData types.<%= title(moduleName) %>PacketData
+    if err := types.ModuleCdc.UnmarshalBinaryBare(modulePacket.GetData(), &modulePacketData); err != nil {
         return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
     }
 
     acknowledgement := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
 
     // Dispatch packet
-    switch packet := packet.(type) {
+    switch packet := modulePacketData.Packet.(type) {
         // this line is used by starport scaffolding # ibc/packet/module/recv
         default:
             errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
@@ -159,22 +159,22 @@ func (am AppModule) OnRecvPacket(
 // OnAcknowledgementPacket implements the IBCModule interface
 func (am AppModule) OnAcknowledgementPacket(
 	ctx sdk.Context,
-	packet channeltypes.Packet,
+	modulePacket channeltypes.Packet,
 	acknowledgement []byte,
 ) (*sdk.Result, error) {
 	var ack channeltypes.Acknowledgement
-	if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
+	if err := types.ModuleCdc.UnmarshalBinaryBare(acknowledgement, &ack); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
 	}
-	var data types.<%= title(moduleName) %>PacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+	var modulePacketData types.<%= title(moduleName) %>PacketData
+	if err := types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &modulePacketData); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
 	}
 
 	var eventType string
 
 	// Dispatch packet
-	switch packet := packet.(type) {
+	switch packet := modulePacketData.Packet.(type) {
         // this line is used by starport scaffolding # ibc/packet/module/ack
         default:
             errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
@@ -214,15 +214,15 @@ func (am AppModule) OnAcknowledgementPacket(
 // OnTimeoutPacket implements the IBCModule interface
 func (am AppModule) OnTimeoutPacket(
 	ctx sdk.Context,
-	packet channeltypes.Packet,
+	modulePacket channeltypes.Packet,
 ) (*sdk.Result, error) {
-	var data types.<%= title(moduleName) %>PacketData
-	if err := types.ModuleCdc.UnmarshalJSON(packet.GetData(), &data); err != nil {
+	var modulePacketData types.<%= title(moduleName) %>PacketData
+	if err := types.ModuleCdc.UnmarshalBinaryBare(modulePacket.GetData(), &modulePacketData); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
 	}
 
 	// Dispatch packet
-    switch packet := packet.(type) {
+    switch packet := modulePacketData.Packet.(type) {
         // this line is used by starport scaffolding # ibc/packet/module/ack
         default:
             errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)

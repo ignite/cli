@@ -2,7 +2,9 @@ package ibc
 
 const (
 	// Placeholders IBC packets
-	PlaceholderIBCPacketProto         = "// this line is used by starport scaffolding # ibc/packet/proto"
+	PlaceholderIBCPacketProtoField         = "// this line is used by starport scaffolding # ibc/packet/proto/field"
+	PlaceholderIBCPacketProtoFieldNumber         = "// this line is used by starport scaffolding # ibc/packet/proto/field/number"
+	PlaceholderIBCPacketProtoMessage         = "// this line is used by starport scaffolding # ibc/packet/proto/message"
 	PlaceholderIBCPacketType          = "// this line is used by starport scaffolding # ibc/packet/type"
 	PlaceholderIBCPacketEvent         = "// this line is used by starport scaffolding # ibc/packet/event"
 	PlaceholderIBCPacketModuleRecv    = "// this line is used by starport scaffolding # ibc/packet/module/recv"

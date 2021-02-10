@@ -42,6 +42,8 @@ func NewIBC(opts *Options) (*genny.Generator, error) {
 	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
+	// CODEC!!!
+
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
 	}
@@ -71,8 +73,8 @@ func moduleModify(opts *Options) genny.RunFn {
 
 		// PlaceholderIBCPacketModuleRecv
 		_ = `
-case ...:
-	err := am.keeper.OnRecv<Foo>Packet(ctx, packet, data)
+case *types.<ModuleName>PacketData_<PacketName>Packet:
+	err := am.keeper.OnRecv<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet)
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	}
@@ -88,8 +90,8 @@ case ...:
 
 		// PlaceholderIBCPacketModuleAck
 		_ = `
-case ...:
-	err := am.keeper.OnAcknowledgement<Foo>Packet(ctx, packet, data, ack)
+case *types.<ModuleName>PacketData_<PacketName>Packet:
+	err := am.keeper.OnAcknowledgement<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet, ack)
 	if err != nil {
 		return nil, err
 	}
@@ -99,8 +101,8 @@ case ...:
 
 		// PlaceholderIBCPacketModuleTimeout
 		_ = `
-case ...:
-	err := am.keeper.OnTimeoutPacket<Foo>Packet(ctx, packet, data)
+case *types.<ModuleName>PacketData_<PacketName>Packet:
+	err := am.keeper.OnTimeoutPacket<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet)
 	if err != nil {
 		return nil, err
 	}
@@ -120,10 +122,16 @@ func protoModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		// PlaceholderIBCPacketProto
+		// PlaceholderIBCPacketProtoField
+		_ = strings.Count("", PlaceholderIBCPacketProtoFieldNumber)
+		_ = `
+		PacketData packet = count; // placeholder
+`
+
+		// PlaceholderIBCPacketProtoMessage
 		_ = `
 // <%= title(moduleName) %>PacketData defines a struct for the packet payload
-message <%= title(moduleName) %>PacketData {
+message <%= title(packetName) %>PacketData {
 }
 `
 
@@ -143,7 +151,7 @@ func typeModify(opts *Options) genny.RunFn {
 		// PlaceholderIBCPacketType
 		_ = `
 // ValidateBasic is used for validating the packet
-func (p <%= title(moduleName) %>PacketData) ValidateBasic() error {
+func (p <%= title(packetName) %>PacketData) ValidateBasic() error {
 	
 	// TODO: Validate the packet data
 
@@ -151,8 +159,12 @@ func (p <%= title(moduleName) %>PacketData) ValidateBasic() error {
 }
 
 // GetBytes is a helper for serialising
-func (p <%= title(moduleName) %>PacketData) GetBytes() []byte {
-	return sdk.MustSortJSON(ModuleCdc.MustMarshalJSON(&p))
+func (p <%= title(packetName) %>PacketData) GetBytes() []byte {
+	var modulePacket <%= title(packetName) %>PacketData
+
+	modulePacket.Packet = &<ModuleName>PacketData_<PacketName>Packet{p}
+
+	return ModuleCdc.MustMarshalBinaryBare(&p)
 }`
 
 		// newFile := genny.NewFileS(path, content)
