@@ -266,13 +266,22 @@ import "%s/%s.proto";`
 		)
 		content = strings.Replace(content, PlaceholderProtoTxRPC, replacementRPC, 1)
 
+		var sendFields string
+		for i, field := range opts.Fields {
+			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+5)
+		}
+
 		// Message
+		// TODO: Include timestamp height
+		// This addition would include using the type ibc.core.client.v1.Height
+		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
 		templateMessage := `%[1]v
 message MsgSend%[2]v {
   string sender = 1;
-  string channelID = 2;
-  [2]vPacketData packet = 3;
-}
+  string port = 2;
+  string channelID = 3;
+  uint64 timeoutTimestamp = 4;
+%[3]v}
 
 message MsgSend%[2]vResponse {
 }
@@ -281,6 +290,7 @@ message MsgSend%[2]vResponse {
 			templateMessage,
 			PlaceholderProtoTxMessage,
 			strings.Title(opts.PacketName),
+			sendFields,
 		)
 		content = strings.Replace(content, PlaceholderProtoTxMessage, replacementMessage, 1)
 
