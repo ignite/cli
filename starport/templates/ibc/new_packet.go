@@ -36,6 +36,10 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
+	// Send message modification
+	g.RunFn(protoTxModify(opts))
+	g.RunFn(handlerTxModify(opts))
+
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
 	}
@@ -228,6 +232,85 @@ EventType%[2]vPacket       = "%[3]v_packet"
 		)
 		content := strings.Replace(f.String(), PlaceholderIBCPacketEvent, replacement, 1)
 
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func protoTxModify(opts *PacketOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Imports
+		templateImport := `%s
+import "%s/%s.proto";`
+		replacementImport := fmt.Sprintf(
+			templateImport,
+			PlaceholderProtoTxImport,
+			opts.ModuleName,
+			opts.PacketName,
+		)
+		content := strings.Replace(f.String(), PlaceholderProtoTxImport, replacementImport, 1)
+
+		// RPC
+		templateRPC := `%[1]v
+  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);`
+		replacementRPC := fmt.Sprintf(
+			templateRPC,
+			PlaceholderProtoTxRPC,
+			strings.Title(opts.PacketName),
+		)
+		content = strings.Replace(content, PlaceholderProtoTxRPC, replacementRPC, 1)
+
+		// Message
+		templateMessage := `%[1]v
+message MsgSend%[2]v {
+  string sender = 1;
+  string channelID = 2;
+  [2]vPacketData packet = 3;
+}
+
+message MsgSend%[2]vResponse {
+}
+`
+		replacementMessage := fmt.Sprintf(
+			templateMessage,
+			PlaceholderProtoTxMessage,
+			strings.Title(opts.PacketName),
+		)
+		content = strings.Replace(content, PlaceholderProtoTxMessage, replacementMessage, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func handlerTxModify(opts *PacketOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Set once the MsgServer definition if it is not defined yet
+		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
+		content := strings.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer, 1)
+
+		templateHandlers := `%[1]v
+		case *types.MsgSend%[2]v:
+					res, err := msgServer.Send%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+`
+		replacementHandlers := fmt.Sprintf(templateHandlers,
+			Placeholder,
+			strings.Title(opts.PacketName),
+		)
+		content = strings.Replace(content, Placeholder, replacementHandlers, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
