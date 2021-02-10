@@ -7,13 +7,12 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-// NewModuleCreate creates a new module create command to scaffold an
-// sdk module.
+// NewIBCPacket creates a new packet in the module
 func NewIBCPacket() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "packet [moduleName] [packetName] [field1] [field2] ...",
-		Short: "Creates a new empty module to app.",
-		Long:  "Use starport module create to create a new empty module to your blockchain.",
+		Short: "Creates a new interpretable IBC packet.",
+		Long:  "Use starport ibc packet to create a new packet in your IBC module.",
 		Args:  cobra.MinimumNArgs(2),
 		RunE:  createPacketHandler,
 	}

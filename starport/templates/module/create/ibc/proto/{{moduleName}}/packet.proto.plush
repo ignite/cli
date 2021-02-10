@@ -5,7 +5,7 @@ option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
 message <%= title(moduleName) %>PacketData {
     oneof packet {
-        NoData = noData = 1
+        NoData noData = 1;
         // this line is used by starport scaffolding # ibc/packet/proto/field
     }
 }
