@@ -36,7 +36,7 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
-	// CODEC!!!
+	// TODO: CODEC!!!
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -45,7 +45,9 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
+	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("ownerName", opts.OwnerName)
+	ctx.Set("fields", opts.Fields)
 	ctx.Set("title", strings.Title)
 
 	ctx.Set("nodash", func(s string) string {
@@ -54,98 +56,135 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName))
 	return g, nil
 }
 
 func moduleModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		_, err := r.Disk.Find(path)
+		path := fmt.Sprintf("x/%s/module-ibc.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// PlaceholderIBCPacketModuleRecv
-		_ = `
-case *types.<ModuleName>PacketData_<PacketName>Packet:
-	err := am.keeper.OnRecv<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet)
+		// Recv packet dispatch
+		templateRecv := `%[1]v
+case *types.%[2]vPacketData_%[3]vPacket:
+	err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket)
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
-			types.EventType<Foo>Packet,
+			types.EventType%[3]vPacket,
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%t", err != nil)),
 		),
-	)
-}
-`
+	)`
+		replacementRecv := fmt.Sprintf(
+			templateRecv,
+			PlaceholderIBCPacketModuleRecv,
+			strings.Title(opts.ModuleName),
+			strings.Title(opts.PacketName),
+		)
+		content := strings.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv, 1)
 
-		// PlaceholderIBCPacketModuleAck
-		_ = `
-case *types.<ModuleName>PacketData_<PacketName>Packet:
-	err := am.keeper.OnAcknowledgement<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet, ack)
+		// Ack packet dispatch
+		templateAck := `%[1]v
+case *types.%[2]vPacketData_%[3]vPacket:
+	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket, ack)
 	if err != nil {
 		return nil, err
 	}
-	eventType = types.EventType<Foo>Packet
-}
-`
+	eventType = types.EventType%[3]vPacket`
+		replacementAck := fmt.Sprintf(
+			templateAck,
+			PlaceholderIBCPacketModuleAck,
+			strings.Title(opts.ModuleName),
+			strings.Title(opts.PacketName),
+		)
+		content = strings.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck, 1)
 
-		// PlaceholderIBCPacketModuleTimeout
-		_ = `
-case *types.<ModuleName>PacketData_<PacketName>Packet:
-	err := am.keeper.OnTimeoutPacket<Foo>Packet(ctx, modulePacket, packet.<PacketName>Packet)
+		// Timeout packet dispatch
+		templateTimeout := `%[1]v
+case *types.%[2]vPacketData_%[3]vPacket:
+	err := am.keeper.OnTimeoutPacket%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket)
 	if err != nil {
 		return nil, err
-	}
-}
-`
+	}`
+		replacementTimeout := fmt.Sprintf(
+			templateTimeout,
+			PlaceholderIBCPacketModuleTimeout,
+			strings.Title(opts.ModuleName),
+			strings.Title(opts.PacketName),
+		)
+		content = strings.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout, 1)
 
-		// newFile := genny.NewFileS(path, content)
-		return nil // return r.File(newFile)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
 	}
 }
 
 func protoModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		_, err := r.Disk.Find(path)
+		path := fmt.Sprintf("proto/%s/packet.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// PlaceholderIBCPacketProtoField
-		_ = strings.Count("", PlaceholderIBCPacketProtoFieldNumber)
-		_ = `
-		PacketData packet = count; // placeholder
-`
+		content := f.String()
 
-		// PlaceholderIBCPacketProtoMessage
-		_ = `
-// <%= title(moduleName) %>PacketData defines a struct for the packet payload
-message <%= title(packetName) %>PacketData {
+		// Add the field in the module packet
+		fieldCount := strings.Count(content, PlaceholderIBCPacketProtoFieldNumber)
+		templateField := `%[1]v
+		%[2]vPacketData %[3]vpacket = %[4]v; %[5]v`
+		replacementField := fmt.Sprintf(
+			templateField,
+			PlaceholderIBCPacketProtoField,
+			strings.Title(opts.PacketName),
+			opts.PacketName,
+			fieldCount + 2,
+			PlaceholderIBCPacketProtoFieldNumber,
+		)
+		content = strings.Replace(content, PlaceholderIBCPacketProtoField, replacementField, 1)
+
+		// Add the message definition
+		var messageFields string
+		for i, field := range opts.Fields {
+			messageFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+		}
+		templateMessage := `%[1]v
+// %[2]vPacketData defines a struct for the packet payload
+message %[2]vPacketData {
+	%[3]v
 }
 `
+		replacementMessage := fmt.Sprintf(
+			templateMessage,
+			PlaceholderIBCPacketProtoMessage,
+			strings.Title(opts.PacketName),
+			messageFields,
+			)
+		content = strings.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage, 1)
 
-		// newFile := genny.NewFileS(path, content)
-		return nil // return r.File(newFile)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
 	}
 }
 
 func typeModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		_, err := r.Disk.Find(path)
+		path := fmt.Sprintf("x/%s/types/packet.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// PlaceholderIBCPacketType
-		_ = `
+		template := `%[1]v
 // ValidateBasic is used for validating the packet
-func (p <%= title(packetName) %>PacketData) ValidateBasic() error {
+func (p %[3]vPacketData) ValidateBasic() error {
 	
 	// TODO: Validate the packet data
 
@@ -153,33 +192,46 @@ func (p <%= title(packetName) %>PacketData) ValidateBasic() error {
 }
 
 // GetBytes is a helper for serialising
-func (p <%= title(packetName) %>PacketData) GetBytes() []byte {
-	var modulePacket <%= title(packetName) %>PacketData
+func (p %[3]vPacketData) GetBytes() []byte {
+	var modulePacket %[2]vPacketData
 
-	modulePacket.Packet = &<ModuleName>PacketData_<PacketName>Packet{p}
+	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{p}
 
 	return ModuleCdc.MustMarshalBinaryBare(&p)
 }`
+		replacement := fmt.Sprintf(
+			template,
+			PlaceholderIBCPacketType,
+			strings.Title(opts.ModuleName),
+			strings.Title(opts.PacketName),
+			)
+		content := strings.Replace(f.String(), PlaceholderIBCPacketType, replacement, 1)
 
-		// newFile := genny.NewFileS(path, content)
-		return nil // return r.File(newFile)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
 	}
 }
 
 func eventModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		_, err := r.Disk.Find(path)
+		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// PlaceholderIBCPacketEvent
-		_ = `
-EventTypePacket       = "<%= moduleName %>_packet"
+		template := `%[1]v
+EventType%[2]vPacket       = "%[3]v_packet"
 `
+		replacement := fmt.Sprintf(
+			template,
+			PlaceholderIBCPacketEvent,
+			strings.Title(opts.PacketName),
+			opts.PacketName,
+			)
+		content := strings.Replace(f.String(), PlaceholderIBCPacketEvent, replacement, 1)
 
-		// newFile := genny.NewFileS(path, content)
-		return nil // return r.File(newFile)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
 	}
 }
