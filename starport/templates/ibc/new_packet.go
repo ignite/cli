@@ -36,8 +36,6 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
-	// TODO: CODEC!!!
-
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
 	}
@@ -62,7 +60,7 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 
 func moduleModify(opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module-ibc.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -71,7 +69,7 @@ func moduleModify(opts *PacketOptions) genny.RunFn {
 		// Recv packet dispatch
 		templateRecv := `%[1]v
 case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket)
+	err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
 	}
@@ -93,7 +91,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		// Ack packet dispatch
 		templateAck := `%[1]v
 case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket, ack)
+	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
 		return nil, err
 	}
@@ -109,7 +107,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		// Timeout packet dispatch
 		templateTimeout := `%[1]v
 case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnTimeoutPacket%[3]vPacket(ctx, modulePacket, packet.%[3]vPacket)
+	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		return nil, err
 	}`
@@ -139,7 +137,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		// Add the field in the module packet
 		fieldCount := strings.Count(content, PlaceholderIBCPacketProtoFieldNumber)
 		templateField := `%[1]v
-		%[2]vPacketData %[3]vpacket = %[4]v; %[5]v`
+				%[2]vPacketData %[3]vPacket = %[4]v; %[5]v`
 		replacementField := fmt.Sprintf(
 			templateField,
 			PlaceholderIBCPacketProtoField,
@@ -158,8 +156,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
-	%[3]v
-}
+	%[3]v}
 `
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
@@ -195,9 +192,9 @@ func (p %[3]vPacketData) ValidateBasic() error {
 func (p %[3]vPacketData) GetBytes() []byte {
 	var modulePacket %[2]vPacketData
 
-	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{p}
+	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{&p}
 
-	return ModuleCdc.MustMarshalBinaryBare(&p)
+	return ModuleCdc.MustMarshalBinaryBare(&modulePacket)
 }`
 		replacement := fmt.Sprintf(
 			template,

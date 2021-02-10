@@ -223,7 +223,7 @@ func (am AppModule) OnTimeoutPacket(
 
 	// Dispatch packet
     switch packet := modulePacketData.Packet.(type) {
-        // this line is used by starport scaffolding # ibc/packet/module/ack
+        // this line is used by starport scaffolding # ibc/packet/module/timeout
         default:
             errMsg := fmt.Sprintf("unrecognized %s packet type: %T", types.ModuleName, packet)
             return nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
