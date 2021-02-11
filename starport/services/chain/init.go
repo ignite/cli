@@ -134,9 +134,20 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 		}
 
 		if account.Address == "" {
-			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Created an account. Password (mnemonic): %[1]v\n", generatedAccount.Mnemonic)
+			fmt.Fprintf(
+				c.stdLog(logStarport).out,
+				"🙂 Created account %q with address %q with mnemonic: %q\n",
+				generatedAccount.Name,
+				generatedAccount.Address,
+				generatedAccount.Mnemonic,
+			)
 		} else {
-			fmt.Fprintf(c.stdLog(logStarport).out, "🙂 Imported an account. Address: %[1]v\n", account.Address)
+			fmt.Fprintf(
+				c.stdLog(logStarport).out,
+				"🙂 Imported an account %q with address: %q\n",
+				account.Name,
+				account.Address,
+			)
 		}
 	}
 
