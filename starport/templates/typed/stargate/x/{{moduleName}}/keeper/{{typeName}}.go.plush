@@ -37,14 +37,18 @@ func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count int64)  {
 }
 
 // Append<%= title(TypeName) %> appends a <%= TypeName %> in the store with a new id and update the count
-func (k Keeper) Append<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreate<%= title(TypeName) %>) string {
+func (k Keeper) Append<%= title(TypeName) %>(
+    ctx sdk.Context,
+    creator string,<%= for (field) in Fields { %>
+    <%= field.Name %> <%= field.Datatype %>,<% } %>
+) string {
 	// Create the <%= TypeName %>
     count := k.Get<%= title(TypeName) %>Count(ctx)
     id := strconv.FormatInt(count, 10)
     var <%= TypeName %> = types.<%= title(TypeName) %>{
-        Creator: msg.Creator,
+        Creator: creator,
         Id:      id,<%= for (field) in Fields { %>
-        <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+        <%= title(field.Name) %>: <%= field.Name %>,<% } %>
     }
 
     store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))

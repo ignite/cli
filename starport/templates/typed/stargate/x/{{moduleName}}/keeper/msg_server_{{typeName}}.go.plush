@@ -13,7 +13,11 @@ import (
 func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgCreate<%= title(TypeName) %>) (*types.MsgCreate<%= title(TypeName) %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    id := k.Append<%= title(TypeName) %>(ctx, *msg)
+    id := k.Append<%= title(TypeName) %>(
+        ctx,
+        msg.Creator,<%= for (field) in Fields { %>
+        msg.<%= title(field.Name) %>,<% } %>
+    )
 
 	return &types.MsgCreate<%= title(TypeName) %>Response{
 	    Id: id,
