@@ -7,6 +7,7 @@ workspaceLocation: "./starport/docs"
 
 tasks:
   - name: Install Starport
+    before: brew install git-lfs
     init: |
       # Install Starport
       export BIN_PATH=$GOPATH/bin
