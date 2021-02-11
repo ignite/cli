@@ -1,8 +1,7 @@
 package cli
 
 import (
-    "time"
-    <%= if (strconv()) { %>"strconv"<% } %>
+    "strconv"
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -12,13 +11,7 @@ import (
 	channelutils "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/client/utils"
 )
 
-var (
-    DefaultRelativePacketTimeoutTimestamp = uint64((time.Duration(10) * time.Minute).Nanoseconds())
-)
-
-const (
-	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
-)
+var _ = strconv.Itoa(0)
 
 func CmdSend<%= title(packetName) %>() *cobra.Command {
 	cmd := &cobra.Command{
@@ -33,7 +26,7 @@ func CmdSend<%= title(packetName) %>() *cobra.Command {
 				return err
 			}
 
-			sender := clientCtx.GetFromAddress()
+			sender := clientCtx.GetFromAddress().String()
             srcPort := args[0]
             srcChannel := args[1]
 
@@ -42,7 +35,7 @@ func CmdSend<%= title(packetName) %>() *cobra.Command {
             if err != nil {
                 return err
             }
-            consensusState, height, _, err := channelutils.QueryLatestConsensusState(clientCtx, srcPort, srcChannel)
+            consensusState, _, _, err := channelutils.QueryLatestConsensusState(clientCtx, srcPort, srcChannel)
             if err != nil {
                 return err
             }
@@ -50,7 +43,7 @@ func CmdSend<%= title(packetName) %>() *cobra.Command {
                 timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp
             }
 
-			msg := types.NewMsgSend<%= title(packetName) %>(clientCtx.GetFromAddress().String(), srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgSend<%= title(packetName) %>(sender, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -58,7 +51,7 @@ func CmdSend<%= title(packetName) %>() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Uint64(flagPacketTimeoutTimestamp, types.DefaultRelativePacketTimeoutTimestamp, "Packet timeout timestamp in nanoseconds. Default is 10 minutes. The timeout is disabled when set to 0.")
+	cmd.Flags().Uint64(flagPacketTimeoutTimestamp, DefaultRelativePacketTimeoutTimestamp, "Packet timeout timestamp in nanoseconds. Default is 10 minutes. The timeout is disabled when set to 0.")
 	flags.AddTxFlagsToCmd(cmd)
 
     return cmd

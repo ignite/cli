@@ -335,7 +335,7 @@ func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 			return err
 		}
 		template := `%[1]v
-	cmd.AddCommand(CmdSen%[2]v())
+	cmd.AddCommand(CmdSend%[2]v())
 `
 		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.PacketName))
 		content := strings.Replace(f.String(), Placeholder, replacement, 1)
