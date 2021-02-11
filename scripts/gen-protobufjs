@@ -32,12 +32,12 @@ cd cli
 
 cp ../../../scripts/data/gen-protobufjs/package.json package.json
 cp ../../../scripts/data/gen-protobufjs/package-lock.json package-lock.json
-cp ../../../scripts/data/gen-protobufjs/bin/pbjs bin/pbjs 
+cp ../../../scripts/data/gen-protobufjs/bin/pb bin/pb
 
 sudo npm install -g pkg@4.4.9
 npm i 
 
-pkg --debug -t node14-linux-x64,node14-macos-x64 .
+pkg --debug -t node14-linux-x64,node14-macos-x64 . 
 
 cd ../../../
 

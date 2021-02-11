@@ -27,8 +27,10 @@ func ExampleGenerate() {
 	fmt.Println(
 		Generate(
 			context.Background(),
-			"types.js",
+			".",
+			"types",
 			filepath.Join(projectPath, "proto"),
-			resolved),
+			resolved,
+		),
 	)
 }

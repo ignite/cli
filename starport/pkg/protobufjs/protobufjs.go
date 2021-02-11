@@ -24,27 +24,47 @@ const (
 var cacheOnce sync.Once
 
 // Generate generates static protobuf.js types for given proto where includePaths holds dependency protos.
-func Generate(ctx context.Context, outPath, protoPath string, includePaths []string) error {
+// TODO add ts generation. protobufjs supports this but by executing jsdoc command with node dynamically,
+// it doesn't work with bundled node pkg. things needs to be reconstructed.
+func Generate(ctx context.Context, outDir, outName, protoPath string, includePaths []string) error {
 	var err error
 
 	// caches the protobufjs-cli into CachePath if it isn't there already.
 	cacheOnce.Do(func() { err = cacheBinary() })
+
 	if err != nil {
 		return err
 	}
 
-	// construct protobufjs-cli command for code generation.
+	runcmd := func(command []string) error {
+		errb := &bytes.Buffer{}
+
+		err = cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(errb)).
+			Run(ctx,
+				step.New(step.Exec(command[0], command[1:]...)))
+
+		return errors.Wrap(err, errb.String())
+	}
+
+	var (
+		jsOutPath = filepath.Join(outDir, outName+".js")
+	)
+
+	// construct js gen command for the actual code generation.
 	command := []string{
 		CachePath,
+		"js",
 		"-t",
 		"static-module",
 		"-w",
-		"commonjs",
+		"es6",
 		"-o",
-		outPath,
+		jsOutPath,
 	}
 
-	// add proto dependency paths.
+	// add proto dependency paths to that.
 	for _, includePath := range includePaths {
 		command = append(
 			command,
@@ -53,25 +73,17 @@ func Generate(ctx context.Context, outPath, protoPath string, includePaths []str
 		)
 	}
 
-	// add target proto path.
+	// add target proto path to that.
 	command = append(command, protoanalysis.GlobPattern(protoPath))
 
-	// run the command.
-	errb := &bytes.Buffer{}
-
-	err = cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(errb)).
-		Run(ctx,
-			step.New(step.Exec(command[0], command[1:]...)))
-
-	return errors.Wrap(err, errb.String())
+	// run the js command.
+	return runcmd(command)
 }
 
 func cacheBinary() (err error) {
 	// make sure the parent dir of CachePath exists.
 	if err = os.MkdirAll(filepath.Dir(CachePath), os.ModePerm); err != nil {
-		return
+		return err
 	}
 
 	// save saves the cli at CachePath.
@@ -105,7 +117,7 @@ func cacheBinary() (err error) {
 	hasherOriginal.Write(Bytes())
 
 	if _, err = io.Copy(hasherCached, cachedFile); err != nil {
-		return
+		return err
 	}
 
 	hashCached := fmt.Sprintf("%x", hasherCached.Sum(nil))
