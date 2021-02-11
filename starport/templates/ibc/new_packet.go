@@ -3,6 +3,8 @@ package ibc
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/templates/module"
+
 	"github.com/tendermint/starport/starport/templates/typed"
 
 	"strings"
@@ -36,10 +38,11 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
-	// Send message modification
+	// Modification for the new tx
 	g.RunFn(protoTxModify(opts))
 	g.RunFn(handlerTxModify(opts))
 	g.RunFn(clientCliTxModify(opts))
+	g.RunFn(codecModify(opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -339,6 +342,38 @@ func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 `
 		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.PacketName))
 		content := strings.Replace(f.String(), Placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func codecModify(opts *PacketOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Set import if not set yet
+		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
+		content := strings.Replace(f.String(), module.Placeholder, replacement, 1)
+
+		// Register the module packet
+		templateRegistry := `%[1]v
+cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
+`
+		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2, strings.Title(opts.PacketName), opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder2, replacementRegistry, 1)
+
+		// Register the module packet interface
+		templateInterface := `%[1]v
+registry.RegisterImplementations((*sdk.Msg)(nil),
+	&MsgSend%[2]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, strings.Title(opts.PacketName))
+		content = strings.Replace(content, module.Placeholder3, replacementInterface, 1)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

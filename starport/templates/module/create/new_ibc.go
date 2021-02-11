@@ -24,6 +24,7 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g.RunFn(keysModify(opts))
 	g.RunFn(keeperModify(opts))
 	g.RunFn(appModify(opts))
+	g.RunFn(codecModify(opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -243,6 +244,38 @@ func appModify(opts *CreateOptions) genny.RunFn {
 &app.IBCKeeper.PortKeeper,
 scopedTransferKeeper,`
 		content := strings.Replace(f.String(), module.PlaceholderIBCAppKeeper, template, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func codecModify(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Set import if not set yet
+		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
+		content := strings.Replace(f.String(), module.Placeholder, replacement, 1)
+
+		// Register the module packet
+		templateRegistry := `%[1]v
+cdc.RegisterConcrete(&%[2]vPacketData{}, "%[3]v/%[2]vPacketData", nil)
+`
+		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2, strings.Title(opts.ModuleName), opts.ModuleName)
+		content = strings.Replace(content, module.Placeholder2, replacementRegistry, 1)
+
+		// Register the module packet interface
+		templateInterface := `%[1]v
+registry.RegisterImplementations((*sdk.Msg)(nil),
+	&%[2]vPacketData{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, strings.Title(opts.ModuleName))
+		content = strings.Replace(content, module.Placeholder3, replacementInterface, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
