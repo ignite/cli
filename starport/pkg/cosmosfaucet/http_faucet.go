@@ -14,7 +14,7 @@ const (
 	statusError = "error"
 )
 
-type transferRequest struct {
+type TransferRequest struct {
 	// AccountAddress to request for coins.
 	AccountAddress string `json:"address"`
 
@@ -23,19 +23,19 @@ type transferRequest struct {
 	Coins []string `json:"coins"`
 }
 
-type transferResponse struct {
+type TransferResponse struct {
 	Error     string     `json:"error,omitempty"`
-	Transfers []transfer `json:"transfers,omitempty"`
+	Transfers []Transfer `json:"transfers,omitempty"`
 }
 
-type transfer struct {
+type Transfer struct {
 	Coin   string `json:"coin"`
 	Status string `json:"status"`
 	Error  string `json:"error,omitempty"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
-	var req transferRequest
+	var req TransferRequest
 
 	// decode request into req.
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
@@ -51,10 +51,10 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// send coins and create a transfers response.
-	var transfers []transfer
+	var transfers []Transfer
 
 	for _, coin := range coins {
-		t := transfer{
+		t := Transfer{
 			Coin:   coin.String(),
 			Status: statusOK,
 		}
@@ -75,8 +75,25 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 	responseSuccess(w, transfers)
 }
 
+// FaucetInfoResponse is the faucet info payload.
+type FaucetInfoResponse struct {
+	// IsAFaucet indicates that this is a faucet endpoint.
+	// useful for auto discoveries.
+	IsAFaucet bool `json:"is_a_faucet"`
+
+	// ChainID is chain id of the chain that faucet is running for.
+	ChainID string `json:"chain_id"`
+}
+
+func (f Faucet) faucetInfoHandler(w http.ResponseWriter, r *http.Request) {
+	xhttp.ResponseJSON(w, http.StatusOK, FaucetInfoResponse{
+		IsAFaucet: true,
+		ChainID:   f.chainID,
+	})
+}
+
 // coinsToTransfer determines tokens to transfer from transfer request.
-func (f Faucet) coinsToTransfer(req transferRequest) ([]coin, error) {
+func (f Faucet) coinsToTransfer(req TransferRequest) ([]coin, error) {
 	if len(req.Coins) == 0 {
 		return f.coins, nil
 	}
@@ -93,14 +110,14 @@ func (f Faucet) coinsToTransfer(req transferRequest) ([]coin, error) {
 	return coins, nil
 }
 
-func responseSuccess(w http.ResponseWriter, transfers []transfer) {
-	xhttp.ResponseJSON(w, http.StatusOK, transferResponse{
+func responseSuccess(w http.ResponseWriter, transfers []Transfer) {
+	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{
 		Transfers: transfers,
 	})
 }
 
 func responseError(w http.ResponseWriter, code int, err error) {
-	xhttp.ResponseJSON(w, code, transferResponse{
+	xhttp.ResponseJSON(w, code, TransferResponse{
 		Error: err.Error(),
 	})
 }

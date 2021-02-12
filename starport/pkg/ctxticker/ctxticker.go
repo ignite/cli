@@ -13,7 +13,7 @@ func Do(ctx context.Context, d time.Duration, fn func() error) error {
 	for {
 		select {
 		case <-ctx.Done():
-			return nil
+			return ctx.Err()
 
 		case <-ticker.C:
 			if err := fn(); err != nil {

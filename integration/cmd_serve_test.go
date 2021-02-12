@@ -11,8 +11,6 @@ import (
 )
 
 func TestServeLaunchpadAppWithWasm(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog", Launchpad)
@@ -40,8 +38,6 @@ func TestServeLaunchpadAppWithWasm(t *testing.T) {
 }
 
 func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog2", Launchpad)
@@ -62,8 +58,6 @@ func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
 }
 
 func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog3", Launchpad)
@@ -87,8 +81,6 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 }
 
 func TestServeStargateWithWasm(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog", Stargate)
@@ -116,8 +108,6 @@ func TestServeStargateWithWasm(t *testing.T) {
 }
 
 func TestServeStargateWithCustomHome(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog2", Stargate)
@@ -138,8 +128,6 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 }
 
 func TestServeStargateWithConfigHome(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog3", Stargate)

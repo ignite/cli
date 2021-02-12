@@ -101,14 +101,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		return err
 	}
 
-	// initialize the relayer if application supports it so, secret.yml
-	// can be generated and watched for changes.
-	if err := c.checkIBCRelayerSupport(); err == nil {
-		if _, err := c.RelayerInfo(); err != nil {
-			return err
-		}
-	}
-
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
 
@@ -428,13 +420,6 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 
 	// start the blockchain.
 	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
-
-	// run relayer.
-	go func() {
-		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
-		}
-	}()
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)

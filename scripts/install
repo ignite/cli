@@ -31,7 +31,7 @@ go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
 
 # gen statik dev ui.
 go get github.com/rakyll/statik
-statik -src=starport/ui/dist -dest=starport/ui/dist-go -f
+statik -src=starport/ui/dist -dest=starport/ui/dist-go -ns starport:dev-ui -f 
 
 # build Starport.
 echo installing starport...
