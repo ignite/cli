@@ -6,14 +6,13 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
@@ -109,61 +108,10 @@ func Generate(
 	if err != nil {
 		return err
 	}
-
 	defer os.RemoveAll(tmp)
 
-	// start preparing the protoc command for execution.
-	command := []string{
-		"protoc",
-	}
-
-	// append third party proto locations to the command.
-	for _, importPath := range append([]string{protoPath}, protoThirdPartyPaths...) {
-		// skip if a third party proto source actually doesn't exist on the filesystem.
-		if _, err := os.Stat(importPath); os.IsNotExist(err) {
-			continue
-		}
-		command = append(command, "-I", importPath)
-	}
-
-	// find out the list of proto files under the app and generate code for them.
-	files, err := protoanalysis.SearchProto(protoPath)
-	if err != nil {
+	if err := protoc.Generate(ctx, tmp, protoPath, protoThirdPartyPaths, protocOuts); err != nil {
 		return err
-	}
-
-	for _, file := range files {
-		// check if the file belongs to a third party proto. if so, skip it since it should
-		// only be included via `-I`.
-		var includesThirdParty bool
-		for _, protoThirdPartyPath := range protoThirdPartyPaths {
-			if strings.HasPrefix(file, protoThirdPartyPath) {
-				includesThirdParty = true
-				break
-			}
-		}
-		if includesThirdParty {
-			continue
-		}
-
-		// run command for each protocOuts.
-		for _, out := range protocOuts {
-			command := append(command, out)
-			command = append(command, file)
-
-			errb := &bytes.Buffer{}
-
-			err := cmdrunner.
-				New(
-					cmdrunner.DefaultStderr(errb),
-					cmdrunner.DefaultWorkdir(tmp)).
-				Run(ctx,
-					step.New(step.Exec(command[0], command[1:]...)))
-
-			if err != nil {
-				return errors.Wrap(err, errb.String())
-			}
-		}
 	}
 
 	// move generated code for the app under the relative locations in its source code.
