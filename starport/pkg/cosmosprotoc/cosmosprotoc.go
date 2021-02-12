@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protopath"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
 
@@ -91,25 +92,15 @@ func Generate(
 		return err
 	}
 
-	required := gomodule.FilterRequire(modfile.Require, "github.com/cosmos/cosmos-sdk")
-
-	sdkSrcPath, err := gomodule.LocatePath(required[0].Mod)
+	// add Google's and SDK's proto paths to third parties list.
+	resolved, err := protopath.ResolveDependencyPaths(modfile.Require,
+		protopath.NewModule("github.com/cosmos/cosmos-sdk", "proto", "third_party/proto"),
+	)
 	if err != nil {
 		return err
 	}
 
-	// add Google's and SDK's proto paths to third parties list.
-	protoThirdPartyPaths = append(protoThirdPartyPaths,
-		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
-		os.ExpandEnv("$HOME/local/include"),
-
-		// this one is the suggested installation path for placing default proto by
-		// https://grpc.io/docs/protoc-installation/.
-		os.ExpandEnv("$HOME/.local/include"),
-
-		// sdk.
-		filepath.Join(sdkSrcPath, "proto"),
-		filepath.Join(sdkSrcPath, "third_party/proto"))
+	protoThirdPartyPaths = append(protoThirdPartyPaths, resolved...)
 
 	// created a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir -when

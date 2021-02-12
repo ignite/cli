@@ -33,6 +33,7 @@ jobs:
         with:
           path: ${{ env.working-directory }}
           fetch-depth: 0
+          lfs: true
 
       - name: Build UI
         working-directory: ${{ env.working-directory }}
