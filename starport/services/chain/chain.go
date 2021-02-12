@@ -28,8 +28,6 @@ var (
 
 	appBackendConfigWatchPaths = conf.FileNames
 
-	vuePath = "vue"
-
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
 )

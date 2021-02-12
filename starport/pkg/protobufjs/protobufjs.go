@@ -40,10 +40,8 @@ func Generate(ctx context.Context, outDir, outName, protoPath string, includePat
 		errb := &bytes.Buffer{}
 
 		err = cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(errb)).
-			Run(ctx,
-				step.New(step.Exec(command[0], command[1:]...)))
+			New(cmdrunner.DefaultStderr(errb)).
+			Run(ctx, step.New(step.Exec(command[0], command[1:]...)))
 
 		return errors.Wrap(err, errb.String())
 	}
@@ -66,6 +64,10 @@ func Generate(ctx context.Context, outDir, outName, protoPath string, includePat
 
 	// add proto dependency paths to that.
 	for _, includePath := range includePaths {
+		if _, err := os.Stat(includePath); os.IsNotExist(err) {
+			continue
+		}
+
 		command = append(
 			command,
 			"-p",
@@ -75,6 +77,10 @@ func Generate(ctx context.Context, outDir, outName, protoPath string, includePat
 
 	// add target proto path to that.
 	command = append(command, protoanalysis.GlobPattern(protoPath))
+
+	if err := os.MkdirAll(outDir, os.ModePerm); err != nil {
+		return err
+	}
 
 	// run the js command.
 	return runcmd(command)

@@ -36,7 +36,13 @@ var (
 					"third_party/proto",
 					"proto_vendor",
 				},
+				JS: ProtoJS{
+					Out: "vue/generated",
+				},
 			},
+		},
+		Frontend: Frontend{
+			Path: "vue",
 		},
 		Faucet: Faucet{
 			Port: 4500,
@@ -51,6 +57,7 @@ type Config struct {
 	Validator Validator              `yaml:"validator"`
 	Faucet    Faucet                 `yaml:"faucet"`
 	Build     Build                  `yaml:"build"`
+	Frontend  Frontend               `yaml:"frontend"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
@@ -97,6 +104,21 @@ type Proto struct {
 	// ThirdPartyPath is the relative path of where the third party proto files are
 	// located that used by the app.
 	ThirdPartyPaths []string `yaml:"third_party_paths"`
+
+	// JS holds JavaScript code generation configs.
+	JS ProtoJS `yaml:"js"`
+}
+
+// ProtoJS holds JavaScript code generation configs.
+type ProtoJS struct {
+	// Out sets the destination path for generated JS code.
+	Out string
+}
+
+// Frontend holds front-end options.
+type Frontend struct {
+	// Path is the relative source code path of app's frontend.
+	Path string
 }
 
 // Faucet configuration.

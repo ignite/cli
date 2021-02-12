@@ -158,7 +158,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	}
 
 	// If proto dir exists, compile the proto files.
-	if _, err := os.Stat(conf.Build.Proto.Path); os.IsNotExist(err) {
+	protoPath := filepath.Join(c.app.Path, conf.Build.Proto.Path)
+	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
 		return nil
 	}
 
@@ -171,15 +172,20 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
 
-	err = cosmosprotoc.Generate(
-		ctx,
-		c.app.Path,
-		c.app.ImportPath,
-		filepath.Join(c.app.Path, conf.Build.Proto.Path),
-		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path),
+	var (
+		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path)
+		targets      = []cosmosprotoc.Target{
+			cosmosprotoc.WithGoGeneration(c.app.ImportPath),
+		}
 	)
 
-	if err != nil {
+	frontendPath := filepath.Join(c.app.Path, conf.Frontend.Path)
+	if _, err := os.Stat(frontendPath); err == nil && conf.Build.Proto.JS.Out != "" {
+		path := filepath.Join(c.app.Path, conf.Build.Proto.JS.Out)
+		targets = append(targets, cosmosprotoc.WithJSGeneration(path))
+	}
+
+	if err := cosmosprotoc.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

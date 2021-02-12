@@ -100,13 +100,21 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return err
 	}
 
-	return cosmosprotoc.Generate(
-		context.Background(),
-		projectPath,
-		gomodPath,
-		filepath.Join(projectPath, conf.Build.Proto.Path),
-		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath),
+	var (
+		protoPath    = filepath.Join(projectPath, conf.Build.Proto.Path)
+		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath)
+		targets      = []cosmosprotoc.Target{
+			cosmosprotoc.WithGoGeneration(gomodPath),
+		}
 	)
+
+	frontendPath := filepath.Join(projectPath, conf.Frontend.Path)
+	if _, err := os.Stat(frontendPath); err == nil && conf.Build.Proto.JS.Out != "" {
+		path := filepath.Join(projectPath, conf.Build.Proto.JS.Out)
+		targets = append(targets, cosmosprotoc.WithJSGeneration(path))
+	}
+
+	return cosmosprotoc.Generate(context.Background(), projectPath, protoPath, includePaths, targets[0], targets[1:]...)
 }
 
 func initGit(path string) error {
