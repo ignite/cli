@@ -45,7 +45,6 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-// app.go modification on Stargate when creating a module
 func moduleModify(opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
@@ -238,10 +237,20 @@ func appModify(opts *CreateOptions) genny.RunFn {
 			return err
 		}
 
+		// Add route to IBC router
+		templateRouter := `%[1]v
+ibcRouter.AddRoute(%[2]vtypes.ModuleName, %[2]vModule)`
+		replacementRouter := fmt.Sprintf(
+			templateRouter,
+			module.PlaceholderIBCAppRouter,
+			opts.ModuleName,
+		)
+		content := strings.Replace(f.String(), module.PlaceholderIBCAppRouter, replacementRouter, 1)
+
 		// Scoped keeper declaration for the module
 		templateScopedKeeperDeclaration := `Scoped%[1]vKeeper capabilitykeeper.ScopedKeeper`
 		replacementScopedKeeperDeclaration := fmt.Sprintf(templateScopedKeeperDeclaration, strings.Title(opts.ModuleName))
-		content := strings.Replace(f.String(), module.PlaceholderIBCAppScopedKeeperDeclaration, replacementScopedKeeperDeclaration, 1)
+		content = strings.Replace(content, module.PlaceholderIBCAppScopedKeeperDeclaration, replacementScopedKeeperDeclaration, 1)
 
 		// Scoped keeper definition
 		templateScopedKeeperDefinition := `scoped%[1]vKeeper := app.CapabilityKeeper.ScopeToModule(%[2]vtypes.ModuleName)

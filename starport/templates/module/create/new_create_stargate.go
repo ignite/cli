@@ -99,7 +99,8 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 			keys[%[2]vtypes.StoreKey],
 			keys[%[2]vtypes.MemStoreKey],
 			%[4]v
-		)`
+		)
+		%[2]vModule := %[2]v.NewAppModule(appCodec, app.%[2]vKeeper)`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDefinition,
@@ -111,7 +112,7 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 
 		// App Module
 		template = `%[1]v
-		%[2]v.NewAppModule(appCodec, app.%[2]vKeeper),`
+		%[2]vModule,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppAppModule, opts.ModuleName)
 		content = strings.Replace(content, module.PlaceholderSgAppAppModule, replacement, 1)
 

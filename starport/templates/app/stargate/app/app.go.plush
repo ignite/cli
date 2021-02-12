@@ -317,11 +317,6 @@ func New(
 	)
 	transferModule := transfer.NewAppModule(app.TransferKeeper)
 
-	// Create static IBC router, add transfer route, then set and seal it
-	ibcRouter := porttypes.NewRouter()
-	ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
-	app.IBCKeeper.SetRouter(ibcRouter)
-
 	// Create evidence Keeper for to register the IBC light client misbehaviour evidence route
 	evidenceKeeper := evidencekeeper.NewKeeper(
 		appCodec, keys[evidencetypes.StoreKey], &app.StakingKeeper, app.SlashingKeeper,
@@ -339,6 +334,12 @@ func New(
         appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
         &stakingKeeper, govRouter,
     )
+
+    // Create static IBC router, add transfer route, then set and seal it
+    ibcRouter := porttypes.NewRouter()
+    ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+    // this line is used by starport scaffolding # ibc/app/router
+    app.IBCKeeper.SetRouter(ibcRouter)
 
 	/****  Module Options ****/
 
