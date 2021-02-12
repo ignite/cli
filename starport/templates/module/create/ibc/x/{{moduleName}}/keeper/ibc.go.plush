@@ -32,13 +32,13 @@ func (k Keeper) BindPort(ctx sdk.Context, portID string) error {
 	return k.ClaimCapability(ctx, cap, host.PortPath(portID))
 }
 
-// GetPort returns the portID for the transfer module. Used in ExportGenesis
+// GetPort returns the portID for the module. Used in ExportGenesis
 func (k Keeper) GetPort(ctx sdk.Context) string {
 	store := ctx.KVStore(k.storeKey)
 	return string(store.Get(types.PortKey))
 }
 
-// SetPort sets the portID for the transfer module. Used in InitGenesis
+// SetPort sets the portID for the module. Used in InitGenesis
 func (k Keeper) SetPort(ctx sdk.Context, portID string) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.PortKey, []byte(portID))

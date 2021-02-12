@@ -6,6 +6,7 @@ type CreateOptions struct {
 	ModulePath  string
 	AppName     string
 	OwnerName   string
+	IsIBC       bool
 	IBCOrdering string
 }
 

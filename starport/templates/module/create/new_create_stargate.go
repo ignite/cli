@@ -60,9 +60,21 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppModuleBasic, replacement, 1)
 
 		// Keeper declaration
+		var scopedKeeperDeclaration string
+		if opts.IsIBC {
+			// Scoped keeper declaration for IBC module
+			// We set this placeholder so it is modified by the IBC module scaffolder
+			scopedKeeperDeclaration = module.PlaceholderIBCAppScopedKeeperDeclaration
+		}
 		template = `%[1]v
+		%[3]v
 		%[2]vKeeper %[2]vkeeper.Keeper`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppKeeperDeclaration, opts.ModuleName)
+		replacement = fmt.Sprintf(
+			template,
+			module.PlaceholderSgAppKeeperDeclaration,
+			opts.ModuleName,
+			scopedKeeperDeclaration,
+		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement, 1)
 
 		// Store key
@@ -72,14 +84,29 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppStoreKey, replacement, 1)
 
 		// Keeper definition
+		var scopedKeeperDefinition string
+		var ibcKeeperArgument string
+		if opts.IsIBC {
+			// Scoped keeper definition for IBC module
+			// We set this placeholder so it is modified by the IBC module scaffolder
+			scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
+			ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
+		}
 		template = `%[1]v
+		%[3]v
 		app.%[2]vKeeper = *%[2]vkeeper.NewKeeper(
 			appCodec,
 			keys[%[2]vtypes.StoreKey],
 			keys[%[2]vtypes.MemStoreKey],
-			// this line is used by starport scaffolding # ibc/app/keeper
+			%[4]v
 		)`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppKeeperDefinition, opts.ModuleName)
+		replacement = fmt.Sprintf(
+			template,
+			module.PlaceholderSgAppKeeperDefinition,
+			opts.ModuleName,
+			scopedKeeperDefinition,
+			ibcKeeperArgument,
+		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement, 1)
 
 		// App Module
