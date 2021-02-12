@@ -80,7 +80,7 @@ func genesisModify(opts *CreateOptions) genny.RunFn {
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
 if !k.IsBound(ctx, genState.PortId) {
-	// module binds to the transfer port on InitChain
+	// module binds to the port on InitChain
 	// and claims the returned capability
 	err := k.BindPort(ctx, genState.PortId)
 	if err != nil {
@@ -177,7 +177,7 @@ func keysModify(opts *CreateOptions) genny.RunFn {
 		templateName := `// Version defines the current version the IBC module supports
 Version = "%[1]v-1"
 
-// PortID is the default port id that transfer module binds to
+// PortID is the default port id that module binds to
 PortID = "%[1]v"`
 		replacementName := fmt.Sprintf(templateName, opts.ModuleName)
 		content := strings.Replace(f.String(), module.PlaceholderIBCKeysName, replacementName, 1)
