@@ -202,7 +202,7 @@ func (p %[3]vPacketData) GetBytes() ([]byte, error) {
 
 	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{&p}
 
-	return ModuleCdc.MarshalBinaryBare(&modulePacket)
+	return modulePacket.Marshal()
 }`
 		replacement := fmt.Sprintf(
 			template,
