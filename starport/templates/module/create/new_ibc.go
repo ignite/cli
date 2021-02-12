@@ -174,7 +174,7 @@ func keysModify(opts *CreateOptions) genny.RunFn {
 
 		// Append version and the port ID in keys
 		templateName := `// Version defines the current version the IBC module supports
-Version = "%[1]v-1"
+Version = ""
 
 // PortID is the default port id that module binds to
 PortID = "%[1]v"`

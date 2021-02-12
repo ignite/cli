@@ -197,12 +197,12 @@ func (p %[3]vPacketData) ValidateBasic() error {
 }
 
 // GetBytes is a helper for serialising
-func (p %[3]vPacketData) GetBytes() []byte {
+func (p %[3]vPacketData) GetBytes() ([]byte, error) {
 	var modulePacket %[2]vPacketData
 
 	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{&p}
 
-	return ModuleCdc.MustMarshalBinaryBare(&modulePacket)
+	return ModuleCdc.MarshalBinaryBare(&modulePacket)
 }`
 		replacement := fmt.Sprintf(
 			template,
