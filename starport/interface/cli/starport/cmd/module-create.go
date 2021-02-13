@@ -9,7 +9,7 @@ import (
 
 const (
 	flagIBC         = "ibc"
-	flagIBCOrdering = "ibc-ordering"
+	flagIBCOrdering = "ordering"
 )
 
 // NewModuleCreate creates a new module create command to scaffold an
