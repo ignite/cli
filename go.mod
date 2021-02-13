@@ -4,14 +4,17 @@ go 1.15
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
+	github.com/Microsoft/hcsshim v0.8.14 // indirect
 	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/containerd/containerd v1.4.3 // indirect
 	github.com/cosmos/cosmos-sdk v0.41.0
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/docker/docker v20.10.3+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.7
@@ -28,8 +31,10 @@ require (
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/jpillora/chisel v1.7.3
+	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
+	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/olekukonko/tablewriter v0.0.4
 	github.com/otiai10/copy v1.4.2
