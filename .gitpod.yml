@@ -8,9 +8,9 @@ workspaceLocation: "./starport/docs"
 tasks:
   - name: Install Starport
     before: |
-        brew install git-lfs
-        git lfs install
-        git lfs pull
+      brew install gh protobuf git-lfs
+      git lfs install
+      git lfs pull
     init: |
       # Install Starport
       export BIN_PATH=$GOPATH/bin
@@ -36,10 +36,10 @@ tasks:
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
       "
-      
+
 ports:
   - port: 1317
   - port: 26657
   - port: 8080
-  - port: 7575 
-  - port: 4500 
+  - port: 7575
+  - port: 4500
