@@ -8,6 +8,7 @@ workspaceLocation: "./starport/docs"
 tasks:
   - name: Install Starport
     before: |
+        brew install git-lfs
         git lfs install
         git lfs pull
     init: |
