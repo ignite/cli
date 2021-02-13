@@ -1,3 +1,3 @@
 FROM gitpod/workspace-full
 
-RUN brew install gh protobuf git-lfs
+RUN brew install gh protobuf
