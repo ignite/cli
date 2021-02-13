@@ -39,8 +39,11 @@ npm i
 
 pkg --debug -t node14-linux-x64,node14-macos-x64 . 
 
+tar -czvf protobufjs-cli-linux.tar.gz protobufjs-cli-linux
+tar -czvf protobufjs-cli-macos.tar.gz protobufjs-cli-macos
+
 cd ../../../
 
 go get -u github.com/kevinburke/go-bindata/...
-go-bindata -pkg protobufjs -prefix .cache/protobufjs/cli -tags="linux" -o starport/pkg/protobufjs/js_linux.go .cache/protobufjs/cli/protobufjs-cli-linux
-go-bindata -pkg protobufjs -prefix .cache/protobufjs/cli -tags="darwin" -o starport/pkg/protobufjs/js_darwin.go .cache/protobufjs/cli/protobufjs-cli-macos
+go-bindata -nocompress -pkg protobufjs -prefix .cache/protobufjs/cli -tags="linux" -o starport/pkg/protobufjs/js_linux.go .cache/protobufjs/cli/protobufjs-cli-linux.tar.gz
+go-bindata -nocompress -pkg protobufjs -prefix .cache/protobufjs/cli -tags="darwin" -o starport/pkg/protobufjs/js_darwin.go .cache/protobufjs/cli/protobufjs-cli-macos.tar.gz

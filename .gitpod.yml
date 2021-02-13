@@ -8,10 +8,6 @@ workspaceLocation: "./starport/docs"
 tasks:
   - name: Install Starport
     init: |
-      brew install git-lfs
-      git lfs install
-      git lfs pull
-
       # Install Starport
       export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
