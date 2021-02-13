@@ -8,10 +8,10 @@ tasks:
   - name: Install Starport
     before: |
       brew install gh protobuf git-lfs
-      git lfs install
-      git lfs pull
     init: |
       # Install Starport
+      git lfs install
+      git lfs pull
       export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
