@@ -4,6 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io/ioutil"
+
+	"github.com/tendermint/starport/starport/templates/module"
 
 	module_create "github.com/tendermint/starport/starport/templates/module/create"
 	module_import "github.com/tendermint/starport/starport/templates/module/import"
@@ -91,9 +94,22 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 		return err
 	}
 
-	// Cannot scaffold IBC module for Launchpad
-	if majorVersion == cosmosver.Launchpad && creationOpts.ibc {
-		return errors.New("launchpad doesn't support IBC")
+	// Check if the IBC module can be scaffolded
+	if creationOpts.ibc {
+		// Cannot scaffold IBC module for Launchpad
+		if majorVersion == cosmosver.Launchpad && creationOpts.ibc {
+			return errors.New("launchpad doesn't support IBC")
+		}
+
+		// Old scaffolded apps miss a necessary placeholder, we give instruction for the change
+		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
+		if err != nil {
+			return err
+		}
+
+		if !ibcPlaceholder {
+			return errors.New(ibcRouterPlaceholderInstruction())
+		}
 	}
 
 	var (
@@ -273,4 +289,45 @@ func installWasm(version cosmosver.Version) error {
 	default:
 		return errors.New("version not supported")
 	}
+}
+
+// checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter
+// this placeholder is necessary to scaffold a new IBC module
+// if it doesn't exist, we give instruction to add it to the user
+func checkIBCRouterPlaceholder(appPath string) (bool, error) {
+	appGo, err := filepath.Abs(filepath.Join(appPath, module.PathAppGo))
+	if err != nil {
+		return false, err
+	}
+
+	content, err := ioutil.ReadFile(appGo)
+	if err != nil {
+		return false, err
+	}
+
+	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
+}
+
+func ibcRouterPlaceholderInstruction() string {
+	return fmt.Sprintf(`
+The current app doesn't support IBC module.
+
+To support IBC modules, please add the following line in app/app.go:
+
+---
+// Create static IBC router, add transfer route, then set and seal it
+ibcRouter := porttypes.NewRouter()
+ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+  <---- %[1]v
+app.IBCKeeper.SetRouter(ibcRouter)
+---
+
+Then, move the above block of code below the line:
+
+---
+%[2]v
+
+ <----
+---
+`, module.PlaceholderIBCAppRouter, module.PlaceholderSgAppKeeperDefinition)
 }
