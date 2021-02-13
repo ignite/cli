@@ -4,15 +4,10 @@ import (
 	"context"
 	"fmt"
 	"path/filepath"
-	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 )
-
-func TestA(t *testing.T) {
-	ExampleGenerate()
-}
 
 func ExampleGenerate() {
 	projectPath := "/home/ilker/Documents/code/src/github.com/tendermint/starport/local_test/test"
