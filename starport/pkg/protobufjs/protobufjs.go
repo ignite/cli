@@ -1,10 +1,10 @@
 package protobufjs
 
 import (
+	"archive/tar"
 	"bytes"
+	"compress/gzip"
 	"context"
-	"crypto/sha256"
-	"fmt"
 	"io"
 	"os"
 	"path/filepath"
@@ -17,11 +17,11 @@ import (
 )
 
 const (
-	// CachePath is the path where protobufjs binary is cached in the local fs.
-	CachePath = "/tmp/protobufjs"
+	// BinaryPath is the path where protobufjs binary is placed in the local fs.
+	BinaryPath = "/tmp/protobufjs"
 )
 
-var cacheOnce sync.Once
+var placeOnce sync.Once
 
 // Generate generates static protobuf.js types for given proto where includePaths holds dependency protos.
 // TODO add ts generation. protobufjs supports this but by executing jsdoc command with node dynamically,
@@ -29,8 +29,8 @@ var cacheOnce sync.Once
 func Generate(ctx context.Context, outDir, outName, protoPath string, includePaths []string) error {
 	var err error
 
-	// caches the protobufjs-cli into CachePath if it isn't there already.
-	cacheOnce.Do(func() { err = cacheBinary() })
+	// places the protobufjs-cli into BinaryPath.
+	placeOnce.Do(func() { err = placeBinary() })
 
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func Generate(ctx context.Context, outDir, outName, protoPath string, includePat
 
 	// construct js gen command for the actual code generation.
 	command := []string{
-		CachePath,
+		BinaryPath,
 		"js",
 		"-t",
 		"static-module",
@@ -86,54 +86,30 @@ func Generate(ctx context.Context, outDir, outName, protoPath string, includePat
 	return runcmd(command)
 }
 
-func cacheBinary() (err error) {
-	// make sure the parent dir of CachePath exists.
-	if err = os.MkdirAll(filepath.Dir(CachePath), os.ModePerm); err != nil {
+func placeBinary() error {
+	if err := os.MkdirAll(filepath.Dir(BinaryPath), os.ModePerm); err != nil {
 		return err
 	}
 
-	// save saves the cli at CachePath.
-	save := func() error {
-		cachedFile, err := os.OpenFile(CachePath, os.O_RDWR|os.O_CREATE, 0755)
-		if err != nil {
-			return err
-		}
-		defer cachedFile.Close()
-
-		_, err = io.Copy(cachedFile, bytes.NewReader(Bytes()))
-		return err
-	}
-
-	// cache the cli if it doesn't exists.
-	cachedFile, err := os.Open(CachePath)
-	if os.IsNotExist(err) {
-		return save()
-	}
+	gzr, err := gzip.NewReader(bytes.NewReader(Bytes()))
 	if err != nil {
 		return err
 	}
+	defer gzr.Close()
 
-	// compare hashes of the existent cli and original one.
-	// if they're not the same, cache the original again.
-	var (
-		hasherOriginal = sha256.New()
-		hasherCached   = sha256.New()
-	)
+	tr := tar.NewReader(gzr)
 
-	hasherOriginal.Write(Bytes())
-
-	if _, err = io.Copy(hasherCached, cachedFile); err != nil {
+	if _, err := tr.Next(); err != nil {
 		return err
 	}
-
-	hashCached := fmt.Sprintf("%x", hasherCached.Sum(nil))
-	hashOriginal := fmt.Sprintf("%x", hasherOriginal.Sum(nil))
-
-	if hashOriginal != hashCached {
-		return save()
+	f, err := os.OpenFile(BinaryPath, os.O_RDWR|os.O_CREATE, 0755)
+	if err != nil {
+		return err
 	}
+	defer f.Close()
 
-	return nil
+	_, err = io.Copy(f, tr)
+	return err
 }
 
 // Bytes returns the executable binary bytes of protobufjs.
