@@ -18,6 +18,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
@@ -189,7 +190,7 @@ func installWasm(version cosmosver.Version) error {
 			Run(context.Background(),
 				step.New(
 					step.Exec(
-						"go",
+						gocmd.Name(),
 						"get",
 						wasmImport+"@"+wasmVersionCommitLaunchpad,
 					),
@@ -203,7 +204,7 @@ func installWasm(version cosmosver.Version) error {
 			Run(context.Background(),
 				step.New(
 					step.Exec(
-						"go",
+						gocmd.Name(),
 						"get",
 						wasmImport+"@"+wasmVersionCommitStargate,
 					),
