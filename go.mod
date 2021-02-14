@@ -1,6 +1,6 @@
 module github.com/tendermint/starport
 
-go 1.15
+go 1.16
 
 require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
@@ -28,6 +28,7 @@ require (
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/jpillora/chisel v1.7.3
+	github.com/kevinburke/go-bindata v3.22.0+incompatible // indirect
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
