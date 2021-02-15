@@ -44,6 +44,13 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create an non IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "foobar"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
 
@@ -64,14 +71,22 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "foo", "bar", "text"),
+			step.Exec("starport", "packet", "bar", "text", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
 
+	env.Must(env.Exec("should prevent creating a packet with no module specified",
+		step.NewSteps(step.New(
+			step.Exec("starport", "packet", "bar", "text"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+	
 	env.Must(env.Exec("should prevent creating a packet in a non existent module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "nomodule", "bar", "text"),
+			step.Exec("starport", "packet", "bar", "text", "--module", "nomodule"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -79,7 +94,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating an existing packet",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "foo", "bar", "post"),
+			step.Exec("starport", "packet", "bar", "post", "--module", "foo"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -87,14 +102,14 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet with custom type fields",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "foo", "ticket", "num:int", "victory:bool"),
+			step.Exec("starport", "packet", "ticket", "num:int", "victory:bool", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a packet with no field",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "foo", "empty"),
+			step.Exec("starport", "packet", "empty", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
@@ -108,7 +123,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a packet in a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "bar", "foo", "text"),
+			step.Exec("starport", "packet", "foo", "text", "--module", "bar"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
