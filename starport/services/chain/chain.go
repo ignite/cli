@@ -128,7 +128,6 @@ func ConfigPath(configPath string) Option {
 	}
 }
 
-
 // New initializes a new Chain with options that its source lives at path.
 func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
