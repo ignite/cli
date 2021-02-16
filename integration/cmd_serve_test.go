@@ -154,9 +154,8 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 
 func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	var (
-		env     = newEnv(t)
-		apath   = env.Scaffold("sgblog4", Stargate)
-
+		env   = newEnv(t)
+		apath = env.Scaffold("sgblog4", Stargate)
 	)
 	// Move config
 	newConfig := "new_config.yml"

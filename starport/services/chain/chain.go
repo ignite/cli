@@ -457,7 +457,6 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 func (c *Chain) AppBackendConfigWatchPaths() []string {
 	if c.options.ConfigName != "" {
 		return []string{c.options.ConfigName}
-	} else {
-		return conf.FileNames
 	}
+	return conf.FileNames
 }
