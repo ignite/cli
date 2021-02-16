@@ -230,7 +230,7 @@ func (c *Chain) Config() (conf.Config, error) {
 	if c.options.ConfigPath != "" {
 		return conf.ParseFile(os.ExpandEnv(c.options.ConfigPath))
 	}
-	path, err := conf.Locate(c.app.Path)
+	path, err := conf.LocateDefault(c.app.Path)
 	if err != nil {
 		return conf.DefaultConf, nil
 	}

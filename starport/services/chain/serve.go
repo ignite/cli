@@ -101,7 +101,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		if _, err := os.Stat(os.ExpandEnv(c.options.ConfigPath)); err != nil {
 			return err
 		}
-	} else if _, err := conf.Locate(c.app.Path); err != nil {
+	} else if _, err := conf.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
