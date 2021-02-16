@@ -83,7 +83,7 @@ func TestCreateIBCPacket(t *testing.T) {
 		)),
 		ExecShouldError(),
 	))
-	
+
 	env.Must(env.Exec("should prevent creating a packet in a non existent module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "packet", "bar", "text", "--module", "nomodule"),
