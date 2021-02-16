@@ -148,7 +148,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", "", ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

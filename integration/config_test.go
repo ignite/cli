@@ -51,7 +51,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", "", ExecCtx(ctx)))
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	configs := []struct {

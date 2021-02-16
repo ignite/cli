@@ -4,6 +4,9 @@ package integration_test
 
 import (
 	"context"
+	"io/ioutil"
+	"os"
+	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -32,7 +35,7 @@ func TestServeLaunchpadAppWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -52,7 +55,7 @@ func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "./home", "./clihome", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "./home", "./clihome", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -75,7 +78,7 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Wasm", apath, "", "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -102,7 +105,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -122,7 +125,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -145,7 +148,35 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", "", ExecCtx(ctx)))
+
+	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+}
+
+func TestServeStargateWithCustomConfigFile(t *testing.T) {
+	configDir, err := ioutil.TempDir("", "starportconfig")
+	require.NoError(t, err)
+	defer os.Remove(configDir)
+
+	var (
+		env     = newEnv(t)
+		apath   = env.Scaffold("sgblog4", Stargate)
+		servers = env.RandomizeServerPorts(configDir)
+	)
+
+	// Set config homes
+	env.SetRandomHomeConfig(apath)
+
+	var (
+		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
+		isBackendAliveErr error
+	)
+	go func() {
+		defer cancel()
+		isBackendAliveErr = env.IsAppServed(ctx, servers)
+	}()
+	configFile := filepath.Join(configDir, "config.yml")
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", configFile, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
