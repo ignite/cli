@@ -35,7 +35,6 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 
 	g.RunFn(moduleModify(opts))
 	g.RunFn(protoModify(opts))
-	g.RunFn(typeModify(opts))
 	g.RunFn(eventModify(opts))
 
 	// Modification for the new tx
@@ -173,44 +172,6 @@ message %[2]vPacketData {
 			messageFields,
 		)
 		content = strings.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage, 1)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func typeModify(opts *PacketOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/packet.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		template := `%[1]v
-// ValidateBasic is used for validating the packet
-func (p %[3]vPacketData) ValidateBasic() error {
-	
-	// TODO: Validate the packet data
-
-	return nil
-}
-
-// GetBytes is a helper for serialising
-func (p %[3]vPacketData) GetBytes() ([]byte, error) {
-	var modulePacket %[2]vPacketData
-
-	modulePacket.Packet = &%[2]vPacketData_%[3]vPacket{&p}
-
-	return modulePacket.Marshal()
-}`
-		replacement := fmt.Sprintf(
-			template,
-			PlaceholderIBCPacketType,
-			strings.Title(opts.ModuleName),
-			strings.Title(opts.PacketName),
-		)
-		content := strings.Replace(f.String(), PlaceholderIBCPacketType, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
