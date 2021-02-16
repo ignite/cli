@@ -24,8 +24,8 @@ func NewServe() *cobra.Command {
 	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
-	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().StringP(flagConfig, "c", "", "Custom config file")
+	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of -the app state on first start")
+	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
 
 	return c
 }
