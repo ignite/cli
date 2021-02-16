@@ -26,8 +26,6 @@ var (
 		"third_party",
 	}
 
-	appBackendConfigWatchPaths = conf.FileNames
-
 	vuePath = "vue"
 
 	errorColor = color.Red.Render
@@ -80,7 +78,7 @@ type chainOptions struct {
 	keyringBackend chaincmd.KeyringBackend
 
 	// path of a custom config file
-	ConfigPath string
+	ConfigName string
 }
 
 // Option configures Chain.
@@ -121,10 +119,10 @@ func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	}
 }
 
-// ConfigPath specifies a custom config.yml file to use
-func ConfigPath(configPath string) Option {
+// ConfigName specifies a custom config file to use
+func ConfigName(configName string) Option {
 	return func(c *Chain) {
-		c.options.ConfigPath = configPath
+		c.options.ConfigName = configName
 	}
 }
 
@@ -227,8 +225,8 @@ func (c *Chain) StoragePaths() (paths []string, err error) {
 
 // Config returns the config of the chain
 func (c *Chain) Config() (conf.Config, error) {
-	if c.options.ConfigPath != "" {
-		return conf.ParseFile(os.ExpandEnv(c.options.ConfigPath))
+	if c.options.ConfigName != "" {
+		return conf.ParseFile(filepath.Join(c.app.Path, c.options.ConfigName))
 	}
 	path, err := conf.LocateDefault(c.app.Path)
 	if err != nil {
@@ -453,4 +451,13 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccroptions...)
+}
+
+// AppBackendConfigWatchPaths returns the files to watch for config changes
+func (c *Chain) AppBackendConfigWatchPaths() []string {
+	if c.options.ConfigName != "" {
+		return []string{c.options.ConfigName}
+	} else {
+		return conf.FileNames
+	}
 }

@@ -4,7 +4,6 @@ package integration_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -17,7 +16,7 @@ func TestServeLaunchpadAppWithWasm(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog", Launchpad)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -44,7 +43,7 @@ func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog2", Launchpad)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	var (
@@ -64,11 +63,11 @@ func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("blog3", Launchpad)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	// Set config homes
-	env.SetRandomHomeConfig(apath)
+	env.SetRandomHomeConfig(apath, "")
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
@@ -87,7 +86,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog", Stargate)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -114,7 +113,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog2", Stargate)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	var (
@@ -134,11 +133,11 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog3", Stargate)
-		servers = env.RandomizeServerPorts(apath)
+		servers = env.RandomizeServerPorts(apath, "")
 	)
 
 	// Set config homes
-	env.SetRandomHomeConfig(apath)
+	env.SetRandomHomeConfig(apath, "")
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
@@ -154,18 +153,20 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 }
 
 func TestServeStargateWithCustomConfigFile(t *testing.T) {
-	configDir, err := ioutil.TempDir("", "starportconfig")
-	require.NoError(t, err)
-	defer os.Remove(configDir)
-
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog4", Stargate)
-		servers = env.RandomizeServerPorts(configDir)
+
 	)
+	// Move config
+	newConfig := "new_config.yml"
+	err := os.Rename(filepath.Join(apath, "config.yml"), filepath.Join(apath, newConfig))
+	require.NoError(t, err)
+
+	servers := env.RandomizeServerPorts(apath, newConfig)
 
 	// Set config homes
-	env.SetRandomHomeConfig(configDir)
+	env.SetRandomHomeConfig(apath, newConfig)
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
@@ -175,8 +176,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	configFile := filepath.Join(configDir, "config.yml")
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", configFile, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", newConfig, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

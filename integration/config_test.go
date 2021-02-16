@@ -31,7 +31,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 		env               = newEnv(t)
 		appname           = randstr.Runes(10)
 		path              = env.Scaffold(appname, sdkVersion)
-		servers           = env.RandomizeServerPorts(path)
+		servers           = env.RandomizeServerPorts(path, "")
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error
 	)

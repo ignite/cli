@@ -97,8 +97,8 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	}
 
 	// make sure that config.yml exists.
-	if c.options.ConfigPath != "" {
-		if _, err := os.Stat(os.ExpandEnv(c.options.ConfigPath)); err != nil {
+	if c.options.ConfigName != "" {
+		if _, err := os.Stat(filepath.Join(c.app.Path, c.options.ConfigName)); err != nil {
 			return err
 		}
 	} else if _, err := conf.LocateDefault(c.app.Path); err != nil {
@@ -251,7 +251,7 @@ func (c *Chain) refreshServe() {
 func (c *Chain) watchAppBackend(ctx context.Context) error {
 	return fswatcher.Watch(
 		ctx,
-		append(appBackendSourceWatchPaths, appBackendConfigWatchPaths...),
+		append(appBackendSourceWatchPaths, c.AppBackendConfigWatchPaths()...),
 		fswatcher.Workdir(c.app.Path),
 		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
@@ -294,7 +294,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 	if isInit {
-		configModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum)
+		configModified, err := dirchange.HasDirChecksumChanged(c.app.Path, c.AppBackendConfigWatchPaths(), saveDir, configChecksum)
 		if err != nil {
 			return err
 		}
@@ -396,7 +396,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// save checksums
-	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
+	if err := dirchange.SaveDirChecksum(c.app.Path, c.AppBackendConfigWatchPaths(), saveDir, configChecksum); err != nil {
 		return err
 	}
 	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {

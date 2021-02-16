@@ -241,7 +241,11 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string) starportconf.Servers {
+func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Servers {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// generate random server ports and servers list.
 	ports, err := availableport.Find(7)
 	require.NoError(e.t, err)
@@ -261,7 +265,7 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
@@ -278,9 +282,13 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
-func (e env) SetRandomHomeConfig(path string) {
+func (e env) SetRandomHomeConfig(path string, configFile string) {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// update config.yml with the generated temporary directories
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
