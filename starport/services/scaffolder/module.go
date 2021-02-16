@@ -24,6 +24,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
+var (
+	ErrNoIBCRouterPlaceholder = errors.New("app.go doesn't contain the necessary placeholder to generate an IBC module")
+)
+
 const (
 	wasmImport                 = "github.com/CosmWasm/wasmd"
 	apppkg                     = "app"
@@ -108,7 +112,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 		}
 
 		if !ibcPlaceholder {
-			return errors.New(ibcRouterPlaceholderInstruction())
+			return ErrNoIBCRouterPlaceholder
 		}
 	}
 
@@ -306,28 +310,4 @@ func checkIBCRouterPlaceholder(appPath string) (bool, error) {
 	}
 
 	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
-}
-
-func ibcRouterPlaceholderInstruction() string {
-	return fmt.Sprintf(`
-The current app doesn't support IBC module.
-
-To support IBC modules, please add the following line in app/app.go:
-
----
-// Create static IBC router, add transfer route, then set and seal it
-ibcRouter := porttypes.NewRouter()
-ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
-  <---- %[1]v
-app.IBCKeeper.SetRouter(ibcRouter)
----
-
-Then, move the above block of code below the line:
-
----
-%[2]v
-
- <----
----
-`, module.PlaceholderIBCAppRouter, module.PlaceholderSgAppKeeperDefinition)
 }

@@ -5,11 +5,34 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/scaffolder"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
 	flagIBC         = "ibc"
 	flagIBCOrdering = "ordering"
+)
+
+var ibcRouterPlaceholderInstruction = fmt.Sprintf(`
+💬 To enable scaffolding of IBC modules, remove these lines from app/app.go:
+
+ibcRouter := porttypes.NewRouter()
+ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+app.IBCKeeper.SetRouter(ibcRouter)
+
+💬 Then, find the following line:
+
+%[1]v
+
+💬 Finally, add this block of code below:
+
+ibcRouter := porttypes.NewRouter()
+ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
+%[2]v
+app.IBCKeeper.SetRouter(ibcRouter)
+`,
+	module.PlaceholderSgAppKeeperDefinition,
+	module.PlaceholderIBCAppRouter,
 )
 
 // NewModuleCreate creates a new module create command to scaffold an
@@ -50,6 +73,13 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 	sc := scaffolder.New(appPath)
 	if err := sc.CreateModule(name, options...); err != nil {
+
+		// If this is an old scaffolded application that doesn't contain the necessary placeholder
+		// We give instruction to the user to modify the application
+		if err == scaffolder.ErrNoIBCRouterPlaceholder {
+			fmt.Print(ibcRouterPlaceholderInstruction)
+		}
+
 		return err
 	}
 	fmt.Printf("\n🎉 Module created %s.\n\n", name)
