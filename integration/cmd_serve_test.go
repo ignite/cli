@@ -165,7 +165,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	)
 
 	// Set config homes
-	env.SetRandomHomeConfig(apath)
+	env.SetRandomHomeConfig(configDir)
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
