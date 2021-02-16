@@ -190,8 +190,10 @@ func (e *ValidationError) Error() string {
 func Locate(root string) (path string, err error) {
 	for _, name := range FileNames {
 		path = filepath.Join(root, name)
-		if _, err := os.Stat(path); !os.IsNotExist(err) {
+		if _, err := os.Stat(path); err == nil {
 			return path, nil
+		} else if !os.IsNotExist(err) {
+			return "", err
 		}
 	}
 	return "", ErrCouldntLocateConfig

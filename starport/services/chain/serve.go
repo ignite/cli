@@ -97,7 +97,11 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	}
 
 	// make sure that config.yml exists.
-	if _, err := conf.Locate(c.app.Path); err != nil {
+	if c.options.ConfigPath != "" {
+		if _, err := os.Stat(os.ExpandEnv(c.options.ConfigPath)); err != nil {
+			return err
+		}
+	} else if _, err := conf.Locate(c.app.Path); err != nil {
 		return err
 	}
 

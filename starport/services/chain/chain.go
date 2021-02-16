@@ -78,6 +78,9 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
+
+	// path of a custom config file
+	ConfigPath string
 }
 
 // Option configures Chain.
@@ -111,12 +114,20 @@ func CLIHomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specify the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
 	}
 }
+
+// ConfigPath specifies a custom config.yml file to use
+func ConfigPath(configPath string) Option {
+	return func(c *Chain) {
+		c.options.ConfigPath = configPath
+	}
+}
+
 
 // New initializes a new Chain with options that its source lives at path.
 func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
@@ -196,6 +207,7 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
+// StoragePaths returns the home and the cli home (for Launchpad blockchain)
 func (c *Chain) StoragePaths() (paths []string, err error) {
 	home, err := c.Home()
 	if err != nil {
@@ -214,7 +226,11 @@ func (c *Chain) StoragePaths() (paths []string, err error) {
 	return paths, nil
 }
 
+// Config returns the config of the chain
 func (c *Chain) Config() (conf.Config, error) {
+	if c.options.ConfigPath != "" {
+		return conf.ParseFile(os.ExpandEnv(c.options.ConfigPath))
+	}
 	path, err := conf.Locate(c.app.Path)
 	if err != nil {
 		return conf.DefaultConf, nil
