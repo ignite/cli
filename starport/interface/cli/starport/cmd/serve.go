@@ -8,6 +8,7 @@ import (
 
 const flagForceReset = "force-reset"
 const flagResetOnce = "reset-once"
+const flagConfig = "config"
 
 var appPath string
 
@@ -24,16 +25,27 @@ func NewServe() *cobra.Command {
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+	c.Flags().StringP(flagConfig, "c", "", "Custom config file")
 
 	return c
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
-	// create the chain
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
+
+	// check if custom config is defined
+	config, err := cmd.Flags().GetString(flagConfig)
+	if err != nil {
+		return err
+	}
+	if config != "" {
+		chainOption = append(chainOption, chain.ConfigPath(config))
+	}
+
+	// create the chain
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
