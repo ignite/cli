@@ -21,10 +21,10 @@ const (
 	//faucetTimeout used to set a timeout while transferring coins from a faucet.
 	faucetTimeout = time.Second * 20
 
-	transferPort = "transfer"
-	transferVersion = "ics20-1"
-	orderingUnordered = "unordered"
-	orderingOrdered = "ordered"
+	TransferPort = "transfer"
+	TransferVersion = "ics20-1"
+	OrderingUnordered = "unordered"
+	OrderingOrdered = "ordered"
 )
 
 // Chain represents a chain in relayer.
@@ -162,11 +162,11 @@ type channelOptions struct {
 // newChannelOptions returns default channel options
 func newChannelOptions() channelOptions {
 	return channelOptions{
-		sourcePort: transferPort,
-		sourceVersion: transferVersion,
-		targetPort: transferPort,
-		targetVersion: transferVersion,
-		ordering: orderingUnordered,
+		sourcePort: TransferPort,
+		sourceVersion: TransferVersion,
+		targetPort: TransferPort,
+		targetVersion: TransferVersion,
+		ordering: OrderingUnordered,
 	}
 }
 
@@ -202,9 +202,9 @@ func TargetVersion(version string) ChannelOption {
 }
 
 // Ordered sets the new channel as ordered
-func Ordered(version string) ChannelOption {
+func Ordered() ChannelOption {
 	return func(c *channelOptions) {
-		c.ordering = orderingOrdered
+		c.ordering = OrderingOrdered
 	}
 }
 

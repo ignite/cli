@@ -32,7 +32,7 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
-	c.Flags().BoolP(advancedFlag, "a", false,"Advanced configuration options for custom IBC modules")
+	c.Flags().BoolP(advancedFlag, "a", false, "Advanced configuration options for custom IBC modules")
 	return c
 }
 
@@ -49,7 +49,25 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetFaucetAddress string
 	)
 
-	if err := cliquiz.Ask(
+	// advanced configuration for the channel
+	var (
+		sourcePort          string
+		sourceVersion    string
+		targetPort string
+		targetVersion string
+		ordered string
+	)
+
+	// check if advanced configuration
+	advanced, err := cmd.Flags().GetBool(advancedFlag)
+	if err != nil {
+		return err
+	}
+
+	var questions []cliquiz.Question
+
+	// source configuration
+	questions = append(questions,
 		cliquiz.NewQuestion("Source RPC",
 			&sourceRPCAddress,
 			cliquiz.DefaultAnswer(defaultSourceRPCAddress),
@@ -58,6 +76,26 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		cliquiz.NewQuestion("Source Faucet",
 			&sourceFaucetAddress,
 		),
+	)
+
+	// advanced source configuration
+	if advanced {
+		questions = append(questions,
+			cliquiz.NewQuestion("Source Port",
+				&sourcePort,
+				cliquiz.DefaultAnswer(xrelayer.TransferPort),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Source Version",
+				&sourceVersion,
+				cliquiz.DefaultAnswer(xrelayer.TransferVersion),
+				cliquiz.Required(),
+			),
+			)
+	}
+
+	// target configuration
+	questions = append(questions,
 		cliquiz.NewQuestion("Target RPC",
 			&targetRPCAddress,
 			cliquiz.DefaultAnswer(defaultTargetRPCAddress),
@@ -66,7 +104,30 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		cliquiz.NewQuestion("Target Faucet",
 			&targetFaucetAddress,
 		),
-	); err != nil {
+	)
+
+	// advanced target configuration and other advanced configuration
+	if advanced {
+		questions = append(questions,
+			cliquiz.NewQuestion("Target Port",
+				&targetPort,
+				cliquiz.DefaultAnswer(xrelayer.TransferPort),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Target Version",
+				&targetVersion,
+				cliquiz.DefaultAnswer(xrelayer.TransferVersion),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Ordered Channel (yes/no)",
+				&ordered,
+				cliquiz.DefaultAnswer("no"),
+				cliquiz.Required(),
+			),
+		)
+	}
+
+	if err := cliquiz.Ask(questions...); err != nil {
 		return err
 	}
 
@@ -116,6 +177,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		return c, nil
 	}
 
+	// initialize the chains
 	sourceChain, err := init(relayerSource, sourceRPCAddress, sourceFaucetAddress)
 	if err != nil {
 		return err
@@ -128,7 +190,23 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	s.SetText("Configuring...").Start()
 
-	connectionID, err := sourceChain.Connect(cmd.Context(), targetChain)
+	// sets advanced channel options
+	var channelOptions []xrelayer.ChannelOption
+	if advanced {
+		channelOptions = append(channelOptions,
+			xrelayer.SourcePort(sourcePort),
+			xrelayer.SourceVersion(sourceVersion),
+			xrelayer.TargetPort(targetPort),
+			xrelayer.TargetVersion(targetVersion),
+		)
+
+		if ordered == "yes" {
+			channelOptions = append(channelOptions, xrelayer.Ordered())
+		}
+	}
+
+	// create the connection configuration
+	connectionID, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
