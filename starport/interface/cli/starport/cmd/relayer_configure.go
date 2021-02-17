@@ -51,11 +51,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	// advanced configuration for the channel
 	var (
-		sourcePort          string
-		sourceVersion    string
-		targetPort string
+		sourcePort    string
+		sourceVersion string
+		targetPort    string
 		targetVersion string
-		ordered string
+		ordered       string
 	)
 
 	// check if advanced configuration
@@ -91,7 +91,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 				cliquiz.DefaultAnswer(xrelayer.TransferVersion),
 				cliquiz.Required(),
 			),
-			)
+		)
 	}
 
 	// target configuration

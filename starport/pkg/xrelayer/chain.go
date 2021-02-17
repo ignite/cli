@@ -18,13 +18,13 @@ import (
 )
 
 const (
-	//faucetTimeout used to set a timeout while transferring coins from a faucet.
+	// faucetTimeout used to set a timeout while transferring coins from a faucet.
 	faucetTimeout = time.Second * 20
 
-	TransferPort = "transfer"
-	TransferVersion = "ics20-1"
+	TransferPort      = "transfer"
+	TransferVersion   = "ics20-1"
 	OrderingUnordered = "unordered"
-	OrderingOrdered = "ordered"
+	OrderingOrdered   = "ordered"
 )
 
 // Chain represents a chain in relayer.
@@ -152,21 +152,21 @@ func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
 
 // channelOptions represents options for configuring the IBC channel between two chains
 type channelOptions struct {
-	sourcePort string
+	sourcePort    string
 	sourceVersion string
-	targetPort string
+	targetPort    string
 	targetVersion string
-	ordering string
+	ordering      string
 }
 
 // newChannelOptions returns default channel options
 func newChannelOptions() channelOptions {
 	return channelOptions{
-		sourcePort: TransferPort,
+		sourcePort:    TransferPort,
 		sourceVersion: TransferVersion,
-		targetPort: TransferPort,
+		targetPort:    TransferPort,
 		targetVersion: TransferVersion,
-		ordering: OrderingUnordered,
+		ordering:      OrderingUnordered,
 	}
 }
 
