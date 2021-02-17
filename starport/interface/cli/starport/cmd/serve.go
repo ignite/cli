@@ -1,8 +1,6 @@
 package starportcmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -44,7 +42,7 @@ func serveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if config != "" {
-		chainOption = append(chainOption, chain.ConfigFile(os.ExpandEnv(config)))
+		chainOption = append(chainOption, chain.ConfigFile(config))
 	}
 
 	// create the chain
