@@ -1,6 +1,7 @@
-package msgs
+package module
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -32,7 +33,28 @@ func newRequirements() requirements {
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
 
-// Discover discovers and returns pairs of module import paths and their types that implements sdk.Msg.
+// Module keeps metadata about a Cosmos SDK module.
+type Module struct {
+	// Name of the module.
+	Name string
+
+	// TypesImportPath is the Go import path of the types pkg of the module.
+	TypesImportPath string
+
+	// Msg is a list of sdk.Msg implementation of the module.
+	Msgs []Msg
+}
+
+// Msg keeps metadata about an sdk.Msg implementation.
+type Msg struct {
+	// Name of the type.
+	Name string
+
+	// URI of the type.
+	URI string
+}
+
+// Discover discovers and returns modules and their types that implements sdk.Msg.
 // sourcePath is the root path of an sdk blockchain.
 //
 // discovery algorithm make use of proto definitions to discover modules inside the blockchain.
@@ -42,7 +64,7 @@ type Msgs map[string][]string
 // for a more opinionated check:
 //   - go/types.Implements() might be utilized and as needed.
 //   - instead of just comparing method names, their full signatures can be compared.
-func Discover(sourcePath string) (Msgs, error) {
+func Discover(sourcePath string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -56,21 +78,41 @@ func Discover(sourcePath string) (Msgs, error) {
 		return nil, err
 	}
 
-	msgs := make(Msgs)
+	var modules []Module
 
 	for _, xproto := range xprotopkgs {
-		rxpath := strings.TrimPrefix(xproto.GoImportName, bpath)
-		xpath := filepath.Join(sourcePath, rxpath)
+		var (
+			rxpath = strings.TrimPrefix(xproto.GoImportName, bpath)
+			xpath  = filepath.Join(sourcePath, rxpath)
+		)
 
 		xmsgs, err := DiscoverModule(xpath)
 		if err != nil {
 			return nil, err
 		}
 
-		msgs[xproto.GoImportName] = xmsgs
+		var msgs []Msg
+
+		for _, xmsg := range xmsgs {
+			msgs = append(msgs, Msg{
+				Name: xmsg,
+				URI:  fmt.Sprintf("%s.%s", xproto.Name, xmsg),
+			})
+		}
+
+		var (
+			spname = strings.Split(xproto.Name, ".")
+			m      = Module{
+				Name:            spname[len(spname)-1],
+				TypesImportPath: xproto.GoImportName,
+				Msgs:            msgs,
+			}
+		)
+
+		modules = append(modules, m)
 	}
 
-	return msgs, nil
+	return modules, nil
 }
 
 // DiscoverModule discovers sdk messages defined in a module that resides under modulePath.
