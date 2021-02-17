@@ -1,10 +1,11 @@
 package starportcmd
 
 import (
+	"os"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
-	"os"
 )
 
 const flagForceReset = "force-reset"
