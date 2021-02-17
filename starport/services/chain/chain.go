@@ -25,7 +25,7 @@ var (
 		"proto",
 		"third_party",
 	}
-	
+
 	vuePath = "vue"
 
 	errorColor = color.Red.Render
