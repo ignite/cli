@@ -33,7 +33,7 @@ func newRequirements() requirements {
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
 
-// Module keeps metadata about an sdk module.
+// Module keeps metadata about a Cosmos SDK module.
 type Module struct {
 	// Name of the module.
 	Name string
