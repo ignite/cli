@@ -82,7 +82,13 @@ func Watch(ctx context.Context, paths []string, options ...Option) error {
 	w.wt.IgnoreHiddenFiles(w.ignoreHidden)
 
 	// add paths to watch
-	w.addPaths(paths...)
+	for _, path := range paths {
+		if filepath.IsAbs(path) {
+			w.addAbsPath(path)
+		} else {
+			w.addPath(path)
+		}
+	}
 
 	// start watching.
 	w.done.Add(1)
@@ -110,9 +116,15 @@ func (w *watcher) listen() {
 	}
 }
 
-func (w *watcher) addPaths(paths ...string) {
+func (w *watcher) addPath(paths ...string) {
 	for _, path := range paths {
 		w.wt.AddRecursive(filepath.Join(w.workdir, path))
+	}
+}
+
+func (w *watcher) addAbsPath(paths ...string) {
+	for _, path := range paths {
+		w.wt.AddRecursive(path)
 	}
 }
 

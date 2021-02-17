@@ -4,6 +4,7 @@ package integration_test
 
 import (
 	"context"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -153,19 +154,24 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 }
 
 func TestServeStargateWithCustomConfigFile(t *testing.T) {
+	tmpDir, err := ioutil.TempDir("", "starporttest")
+	require.NoError(t, err)
+	defer os.RemoveAll(tmpDir)
+
 	var (
 		env   = newEnv(t)
 		apath = env.Scaffold("sgblog4", Stargate)
 	)
 	// Move config
 	newConfig := "new_config.yml"
-	err := os.Rename(filepath.Join(apath, "config.yml"), filepath.Join(apath, newConfig))
+	newConfigPath := filepath.Join(tmpDir, newConfig)
+	err = os.Rename(filepath.Join(apath, "config.yml"), newConfigPath)
 	require.NoError(t, err)
 
-	servers := env.RandomizeServerPorts(apath, newConfig)
+	servers := env.RandomizeServerPorts(tmpDir, newConfig)
 
 	// Set config homes
-	env.SetRandomHomeConfig(apath, newConfig)
+	env.SetRandomHomeConfig(tmpDir, newConfig)
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
@@ -175,7 +181,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", newConfig, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", newConfigPath, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
