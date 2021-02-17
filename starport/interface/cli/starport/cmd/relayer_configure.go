@@ -13,6 +13,8 @@ import (
 )
 
 const (
+	advancedFlag = "advanced"
+
 	relayerSource = "source"
 	relayerTarget = "target"
 
@@ -30,6 +32,7 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
+	c.Flags().BoolP(advancedFlag, "a", false,"Advanced configuration options for custom IBC modules")
 	return c
 }
 
