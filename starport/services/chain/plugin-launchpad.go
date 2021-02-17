@@ -7,6 +7,7 @@ import (
 
 	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pelletier/go-toml"
@@ -42,7 +43,7 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		Run(ctx,
 			step.New(
 				step.Exec(
-					"go",
+					gocmd.Name(),
 					"mod",
 					"edit",
 					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",

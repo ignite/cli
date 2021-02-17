@@ -21,6 +21,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
@@ -209,7 +210,7 @@ func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok b
 func (e env) EnsureAppIsSteady(appPath string) {
 	e.Exec("make sure app is steady",
 		step.NewSteps(step.New(
-			step.Exec("go", "test", "./..."),
+			step.Exec(gocmd.Name(), "test", "./..."),
 			step.Workdir(appPath),
 		)),
 	)

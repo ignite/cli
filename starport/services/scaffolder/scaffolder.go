@@ -9,6 +9,7 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
@@ -51,7 +52,7 @@ func fmtProject(path string) error {
 		Run(context.Background(),
 			step.New(
 				step.Exec(
-					"go",
+					gocmd.Name(),
 					"fmt",
 					"./...",
 				),

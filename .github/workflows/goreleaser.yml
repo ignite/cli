@@ -15,7 +15,8 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: "1.16.0-rc1"
+          stable: false
 
       - name: Set up Node
         uses: actions/setup-node@v2-beta
@@ -31,8 +32,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v2
-        with:
-          lfs: true
         with:
           path: ${{ env.working-directory }}
           fetch-depth: 0
