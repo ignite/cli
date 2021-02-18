@@ -245,9 +245,14 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
+	watchPaths := appBackendSourceWatchPaths
+	if c.ConfigPath() != "" {
+		watchPaths = append(watchPaths, c.ConfigPath())
+	}
+
 	return fswatcher.Watch(
 		ctx,
-		append(appBackendSourceWatchPaths, c.AppBackendConfigWatchPaths()...),
+		watchPaths,
 		fswatcher.Workdir(c.app.Path),
 		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
@@ -290,9 +295,12 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 	if isInit {
-		configModified, err := dirchange.HasDirChecksumChanged(c.app.Path, c.AppBackendConfigWatchPaths(), saveDir, configChecksum)
-		if err != nil {
-			return err
+		configModified := false
+		if c.ConfigPath() != "" {
+			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum)
+			if err != nil {
+				return err
+			}
 		}
 
 		if forceReset || configModified {
@@ -392,8 +400,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// save checksums
-	if err := dirchange.SaveDirChecksum(c.app.Path, c.AppBackendConfigWatchPaths(), saveDir, configChecksum); err != nil {
-		return err
+	if c.ConfigPath() != "" {
+		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum); err != nil {
+			return err
+		}
 	}
 	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
 		return err

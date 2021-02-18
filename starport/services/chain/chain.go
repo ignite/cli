@@ -223,16 +223,26 @@ func (c *Chain) StoragePaths() (paths []string, err error) {
 	return paths, nil
 }
 
-// Config returns the config of the chain
-func (c *Chain) Config() (conf.Config, error) {
+// ConfigPath returns the config path of the chain
+// Empty string means that the chain has no defined config
+func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
-		return conf.ParseFile(c.options.ConfigFile)
+		return c.options.ConfigFile
 	}
 	path, err := conf.LocateDefault(c.app.Path)
 	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// Config returns the config of the chain
+func (c *Chain) Config() (conf.Config, error) {
+	configPath := c.ConfigPath()
+	if configPath == "" {
 		return conf.DefaultConf, nil
 	}
-	return conf.ParseFile(path)
+	return conf.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -451,12 +461,4 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	}
 
 	return chaincmdrunner.New(ctx, cc, ccroptions...)
-}
-
-// AppBackendConfigWatchPaths returns the files to watch for config changes
-func (c *Chain) AppBackendConfigWatchPaths() []string {
-	if c.options.ConfigFile != "" {
-		return []string{c.options.ConfigFile}
-	}
-	return conf.FileNames
 }
