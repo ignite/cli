@@ -91,7 +91,7 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return err
 	}
 
-	confpath, err := conf.Locate(projectPath)
+	confpath, err := conf.LocateDefault(projectPath)
 	if err != nil {
 		return err
 	}

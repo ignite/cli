@@ -112,7 +112,10 @@ func (w *watcher) listen() {
 
 func (w *watcher) addPaths(paths ...string) {
 	for _, path := range paths {
-		w.wt.AddRecursive(filepath.Join(w.workdir, path))
+		if !filepath.IsAbs(path) {
+			path = filepath.Join(w.workdir, path)
+		}
+		w.wt.AddRecursive(path)
 	}
 }
 

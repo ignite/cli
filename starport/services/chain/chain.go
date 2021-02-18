@@ -26,8 +26,6 @@ var (
 		"third_party",
 	}
 
-	appBackendConfigWatchPaths = conf.FileNames
-
 	vuePath = "vue"
 
 	errorColor = color.Red.Render
@@ -78,6 +76,9 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
+
+	// path of a custom config file
+	ConfigFile string
 }
 
 // Option configures Chain.
@@ -111,10 +112,17 @@ func CLIHomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specify the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
+	}
+}
+
+// ConfigFile specifies a custom config file to use
+func ConfigFile(configFile string) Option {
+	return func(c *Chain) {
+		c.options.ConfigFile = configFile
 	}
 }
 
@@ -196,6 +204,7 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 	return rpcAddress, nil
 }
 
+// StoragePaths returns the home and the cli home (for Launchpad blockchain)
 func (c *Chain) StoragePaths() (paths []string, err error) {
 	home, err := c.Home()
 	if err != nil {
@@ -214,12 +223,26 @@ func (c *Chain) StoragePaths() (paths []string, err error) {
 	return paths, nil
 }
 
-func (c *Chain) Config() (conf.Config, error) {
-	path, err := conf.Locate(c.app.Path)
+// ConfigPath returns the config path of the chain
+// Empty string means that the chain has no defined config
+func (c *Chain) ConfigPath() string {
+	if c.options.ConfigFile != "" {
+		return c.options.ConfigFile
+	}
+	path, err := conf.LocateDefault(c.app.Path)
 	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// Config returns the config of the chain
+func (c *Chain) Config() (conf.Config, error) {
+	configPath := c.ConfigPath()
+	if configPath == "" {
 		return conf.DefaultConf, nil
 	}
-	return conf.ParseFile(path)
+	return conf.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
