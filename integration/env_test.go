@@ -182,7 +182,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok bool) {
+func (e env) Serve(msg, path, home, clihome, configPath string, options ...execOption) (ok bool) {
 	serveCommand := []string{
 		"serve",
 		"-v",
@@ -193,6 +193,9 @@ func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok b
 	}
 	if clihome != "" {
 		serveCommand = append(serveCommand, "--cli-home", clihome)
+	}
+	if configPath != "" {
+		serveCommand = append(serveCommand, "--config", configPath)
 	}
 
 	return e.Exec(msg,
@@ -238,7 +241,11 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string) starportconf.Servers {
+func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Servers {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// generate random server ports and servers list.
 	ports, err := availableport.Find(7)
 	require.NoError(e.t, err)
@@ -258,7 +265,7 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
@@ -275,9 +282,13 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
-func (e env) SetRandomHomeConfig(path string) {
+func (e env) SetRandomHomeConfig(path string, configFile string) {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// update config.yml with the generated temporary directories
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
