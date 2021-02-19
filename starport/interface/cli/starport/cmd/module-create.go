@@ -54,24 +54,23 @@ func NewModuleCreate() *cobra.Command {
 func createModuleHandler(cmd *cobra.Command, args []string) error {
 	var options []scaffolder.ModuleCreationOption
 
-	// Check if the module must be an IBC module
+	name := args[0]
+
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {
 		return err
 	}
 
-	if ibcModule {
-		options = append(options, scaffolder.WithIBC())
-
-		// Get channel ordering
-		ibcOrdering, err := cmd.Flags().GetString(flagIBCOrdering)
-		if err != nil {
-			return err
-		}
-		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering))
+	ibcOrdering, err := cmd.Flags().GetString(flagIBCOrdering)
+	if err != nil {
+		return err
 	}
 
-	name := args[0]
+	// Check if the module must be an IBC module
+	if ibcModule {
+		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
+	}
+
 	sc := scaffolder.New(appPath)
 	if err := sc.CreateModule(name, options...); err != nil {
 

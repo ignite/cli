@@ -24,7 +24,8 @@ func NewIBCPacket() *cobra.Command {
 }
 
 func createPacketHandler(cmd *cobra.Command, args []string) error {
-	// Get the module
+	packet := args[0]
+	fields := args[1:]
 	module, err := cmd.Flags().GetString(moduleFlag)
 	if err != nil {
 		return err
@@ -34,7 +35,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	sc := scaffolder.New(appPath)
-	if err := sc.AddPacket(module, args[0], args[1:]...); err != nil {
+	if err := sc.AddPacket(module, packet, fields...); err != nil {
 		return err
 	}
 	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
