@@ -9,7 +9,6 @@ import (
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
-	t.Parallel()
 
 	var (
 		env  = newEnv(t)
@@ -55,7 +54,6 @@ func TestCreateModuleWithIBC(t *testing.T) {
 }
 
 func TestCreateIBCPacket(t *testing.T) {
-	t.Parallel()
 
 	var (
 		env  = newEnv(t)

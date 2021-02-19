@@ -59,8 +59,6 @@ func WithIBC() ModuleCreationOption {
 func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		switch ordering {
-		case "none":
-			m.ibcChannelOrdering = "NONE"
 		case "ordered":
 			m.ibcChannelOrdering = "ORDERED"
 		case "unordered":
@@ -101,7 +99,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	// Check if the IBC module can be scaffolded
 	if creationOpts.ibc {
 		// Cannot scaffold IBC module for Launchpad
-		if majorVersion == cosmosver.Launchpad && creationOpts.ibc {
+		if majorVersion == cosmosver.Launchpad {
 			return errors.New("launchpad doesn't support IBC")
 		}
 
