@@ -14,13 +14,9 @@ import (
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
-	t.Parallel()
-
 	for _, sdkVersion := range []string{Launchpad, Stargate} {
 		sdkVersion := sdkVersion
 		t.Run(sdkVersion, func(t *testing.T) {
-			t.Parallel()
-
 			testOverwriteSDKConfigsAndChainID(t, sdkVersion)
 		})
 	}
