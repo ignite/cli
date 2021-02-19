@@ -1,17 +1,19 @@
-package cosmosprotoc
+package cosmosproto
 
 import (
 	"context"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/protobufjs"
+	"github.com/tendermint/starport/starport/pkg/nodetime/protobufjs"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 	"golang.org/x/mod/modfile"
@@ -27,31 +29,27 @@ var (
 	sdkProto           = "proto"
 	sdkProtoThirdParty = "third_party/proto"
 
-	jsGeneratedProtoPath = "proto"
+	fileTypes = "types"
 )
 
 type generateOptions struct {
-	goEnabled bool
 	gomodPath string
-	jsEnabled bool
-	jsOutPath string
+	jsOut     func(protoanalysis.Package, string) string
 }
 
 // Target adds a new code generation target to Generate.
 type Target func(*generateOptions)
 
 // WithJSGeneration adds JS code generation.
-func WithJSGeneration(outPath string) Target {
+func WithJSGeneration(out func(pkg protoanalysis.Package, moduleName string) (path string)) Target {
 	return func(o *generateOptions) {
-		o.jsEnabled = true
-		o.jsOutPath = outPath
+		o.jsOut = out
 	}
 }
 
 // WithGoGeneration adds Go code generation.
 func WithGoGeneration(gomodPath string) Target {
 	return func(o *generateOptions) {
-		o.goEnabled = true
 		o.gomodPath = gomodPath
 	}
 }
@@ -92,13 +90,13 @@ func Generate(
 		return err
 	}
 
-	if g.o.jsEnabled {
+	if g.o.jsOut != nil {
 		if err := g.generateJS(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.goEnabled {
+	if g.o.gomodPath != "" {
 		if err := g.generateGo(); err != nil {
 			return err
 		}
@@ -159,8 +157,27 @@ func (g *generator) generateJS() error {
 		return err
 	}
 
-	outPath := filepath.Join(g.o.jsOutPath, jsGeneratedProtoPath)
-	return protobufjs.Generate(g.ctx, outPath, "types", g.protoPath, append(g.includePaths, includePaths...))
+	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	if err != nil {
+		return err
+	}
+
+	for _, pkg := range pkgs {
+		msp := strings.Split(pkg.Name, ".")
+		moduleName := msp[len(msp)-1]
+
+		if err := protobufjs.Generate(
+			g.ctx,
+			g.o.jsOut(pkg, moduleName),
+			fileTypes,
+			pkg.Path,
+			append(g.includePaths, includePaths...),
+		); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
 
 func (g *generator) resolveInclude(modules ...protopath.Module) (paths []string, err error) {

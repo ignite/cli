@@ -3,6 +3,7 @@ package protobufjs
 import (
 	"bytes"
 	"context"
+	"os"
 	"path/filepath"
 	"sync"
 

@@ -13,10 +13,12 @@ import (
 	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/cosmosproto"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
@@ -164,8 +166,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return nil
 	}
 
-	if err := cosmosprotoc.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		if err == cosmosprotoc.ErrProtocNotInstalled {
+	if err := cosmosproto.InstallDependencies(context.Background(), c.app.Path); err != nil {
+		if err == cosmosproto.ErrProtocNotInstalled {
 			return starporterrors.ErrStarportRequiresProtoc
 		}
 		return err
@@ -175,18 +177,18 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	var (
 		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path)
-		targets      = []cosmosprotoc.Target{
-			cosmosprotoc.WithGoGeneration(c.app.ImportPath),
+		targets      = []cosmosproto.Target{
+			cosmosproto.WithGoGeneration(c.app.ImportPath),
 		}
 	)
 
-	frontendPath := filepath.Join(c.app.Path, conf.Frontend.Path)
-	if _, err := os.Stat(frontendPath); err == nil && conf.Build.Proto.JS.Out != "" {
-		path := filepath.Join(c.app.Path, conf.Build.Proto.JS.Out)
-		targets = append(targets, cosmosprotoc.WithJSGeneration(path))
+	if conf.Client.Vuex.Path != "" {
+		targets = append(targets, cosmosproto.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
+			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")
+		}))
 	}
 
-	if err := cosmosprotoc.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
+	if err := cosmosproto.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

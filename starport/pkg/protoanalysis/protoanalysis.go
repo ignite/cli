@@ -3,6 +3,7 @@ package protoanalysis
 
 import (
 	"os"
+	"path/filepath"
 	"sync"
 
 	"github.com/emicklei/proto"
@@ -18,6 +19,9 @@ const (
 type Package struct {
 	// Name of the proto pkg.
 	Name string
+
+	// Path of the package in the fs.
+	Path string
 
 	// GoImportName is the go package name of proto package.
 	GoImportName string
@@ -84,7 +88,9 @@ func Parse(path string) (Package, error) {
 		return Package{}, err
 	}
 
-	var pkg Package
+	pkg := Package{
+		Path: filepath.Dir(path),
+	}
 
 	proto.Walk(
 		def,

@@ -20,6 +20,18 @@ var (
 
 	// DefaultConf holds default configuration.
 	DefaultConf = Config{
+		Build: Build{
+			Proto: Proto{
+				Path: "proto",
+				ThirdPartyPaths: []string{
+					"third_party/proto",
+					"proto_vendor",
+				},
+			},
+		},
+		Faucet: Faucet{
+			Port: 4500,
+		},
 		Servers: Servers{
 			RPCAddr:      "0.0.0.0:26657",
 			P2PAddr:      "0.0.0.0:26656",
@@ -28,24 +40,6 @@ var (
 			APIAddr:      "0.0.0.0:1317",
 			FrontendAddr: "0.0.0.0:8080",
 			DevUIAddr:    "0.0.0.0:12345",
-		},
-		Build: Build{
-			Proto: Proto{
-				Path: "proto",
-				ThirdPartyPaths: []string{
-					"third_party/proto",
-					"proto_vendor",
-				},
-				JS: ProtoJS{
-					Out: "vue/generated",
-				},
-			},
-		},
-		Frontend: Frontend{
-			Path: "vue",
-		},
-		Faucet: Faucet{
-			Port: 4500,
 		},
 	}
 )
@@ -56,8 +50,8 @@ type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
 	Faucet    Faucet                 `yaml:"faucet"`
+	Client    Client                 `yaml:"client"`
 	Build     Build                  `yaml:"build"`
-	Frontend  Frontend               `yaml:"frontend"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Servers   Servers                `yaml:"servers"`
@@ -104,21 +98,18 @@ type Proto struct {
 	// ThirdPartyPath is the relative path of where the third party proto files are
 	// located that used by the app.
 	ThirdPartyPaths []string `yaml:"third_party_paths"`
-
-	// JS holds JavaScript code generation configs.
-	JS ProtoJS `yaml:"js"`
 }
 
-// ProtoJS holds JavaScript code generation configs.
-type ProtoJS struct {
-	// Out sets the destination path for generated JS code.
-	Out string
+// Client configures code generation for clients.
+type Client struct {
+	// Vuex configures code generation for Vuex.
+	Vuex Vuex `yaml:"vuex"`
 }
 
-// Frontend holds front-end options.
-type Frontend struct {
-	// Path is the relative source code path of app's frontend.
-	Path string
+// Vuex configures code generation for Vuex.
+type Vuex struct {
+	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
 }
 
 // Faucet configuration.

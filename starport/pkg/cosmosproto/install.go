@@ -1,4 +1,4 @@
-package cosmosprotoc
+package cosmosproto
 
 import (
 	"bytes"

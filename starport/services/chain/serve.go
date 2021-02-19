@@ -462,7 +462,7 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	vueFullPath := filepath.Join(c.app.Path, conf.Frontend.Path)
+	vueFullPath := filepath.Join(c.app.Path, vuePath)
 	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
 		return nil
 	}
