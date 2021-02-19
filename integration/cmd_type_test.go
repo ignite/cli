@@ -9,8 +9,6 @@ import (
 )
 
 func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -81,8 +79,6 @@ func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
 }
 
 func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Stargate)
@@ -160,8 +156,6 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 }
 
 func TestCreateTypeInCustomModule(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -208,8 +202,6 @@ func TestCreateTypeInCustomModule(t *testing.T) {
 }
 
 func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Stargate)
