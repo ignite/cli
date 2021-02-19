@@ -110,6 +110,7 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		}
 	)
 
+	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		targets = append(targets, cosmosproto.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
 			return filepath.Join(projectPath, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")

@@ -182,6 +182,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		}
 	)
 
+	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		targets = append(targets, cosmosproto.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
 			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")
