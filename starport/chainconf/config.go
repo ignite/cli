@@ -199,12 +199,14 @@ func (e *ValidationError) Error() string {
 	return fmt.Sprintf("config is not valid: %s", e.Message)
 }
 
-// Locate locates the path for the config file otherwise returns ErrCouldntLocateConfig.
-func Locate(root string) (path string, err error) {
+// LocateDefault locates the default path for the config file, if no file found returns ErrCouldntLocateConfig.
+func LocateDefault(root string) (path string, err error) {
 	for _, name := range FileNames {
 		path = filepath.Join(root, name)
-		if _, err := os.Stat(path); !os.IsNotExist(err) {
+		if _, err := os.Stat(path); err == nil {
 			return path, nil
+		} else if !os.IsNotExist(err) {
+			return "", err
 		}
 	}
 	return "", ErrCouldntLocateConfig
