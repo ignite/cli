@@ -51,7 +51,7 @@ func CmdSend<%= title(packetName) %>() *cobra.Command {
 		},
 	}
 
-	cmd.Flags().Uint64(flagPacketTimeoutTimestamp, DefaultRelativePacketTimeoutTimestamp, "Packet timeout timestamp in nanoseconds. Default is 10 minutes. The timeout is disabled when set to 0.")
+	cmd.Flags().Uint64(flagPacketTimeoutTimestamp, DefaultRelativePacketTimeoutTimestamp, "Packet timeout timestamp in nanoseconds. Default is 10 minutes.")
 	flags.AddTxFlagsToCmd(cmd)
 
     return cmd
