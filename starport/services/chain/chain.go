@@ -26,9 +26,9 @@ var (
 		"third_party",
 	}
 
-	appBackendConfigWatchPaths = conf.FileNames
-
 	vuePath = "vue"
+
+	appBackendConfigWatchPaths = conf.FileNames
 
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render

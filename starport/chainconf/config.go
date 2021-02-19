@@ -20,15 +20,6 @@ var (
 
 	// DefaultConf holds default configuration.
 	DefaultConf = Config{
-		Servers: Servers{
-			RPCAddr:      "0.0.0.0:26657",
-			P2PAddr:      "0.0.0.0:26656",
-			ProfAddr:     "0.0.0.0:6060",
-			GRPCAddr:     "0.0.0.0:9090",
-			APIAddr:      "0.0.0.0:1317",
-			FrontendAddr: "0.0.0.0:8080",
-			DevUIAddr:    "0.0.0.0:12345",
-		},
 		Build: Build{
 			Proto: Proto{
 				Path: "proto",
@@ -41,6 +32,15 @@ var (
 		Faucet: Faucet{
 			Port: 4500,
 		},
+		Servers: Servers{
+			RPCAddr:      "0.0.0.0:26657",
+			P2PAddr:      "0.0.0.0:26656",
+			ProfAddr:     "0.0.0.0:6060",
+			GRPCAddr:     "0.0.0.0:9090",
+			APIAddr:      "0.0.0.0:1317",
+			FrontendAddr: "0.0.0.0:8080",
+			DevUIAddr:    "0.0.0.0:12345",
+		},
 	}
 )
 
@@ -50,6 +50,7 @@ type Config struct {
 	Accounts  []Account              `yaml:"accounts"`
 	Validator Validator              `yaml:"validator"`
 	Faucet    Faucet                 `yaml:"faucet"`
+	Client    Client                 `yaml:"client"`
 	Build     Build                  `yaml:"build"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
@@ -97,6 +98,18 @@ type Proto struct {
 	// ThirdPartyPath is the relative path of where the third party proto files are
 	// located that used by the app.
 	ThirdPartyPaths []string `yaml:"third_party_paths"`
+}
+
+// Client configures code generation for clients.
+type Client struct {
+	// Vuex configures code generation for Vuex.
+	Vuex Vuex `yaml:"vuex"`
+}
+
+// Vuex configures code generation for Vuex.
+type Vuex struct {
+	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
 }
 
 // Faucet configuration.
