@@ -17,7 +17,13 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: 1.15
+          go-version: "1.16"
+          stable: false
+
+      - name: "Get Go 1.15"	
+        run: |	
+          go get golang.org/dl/go1.15	
+          go1.15 download	
 
       - name: Install protoc
         uses: arduino/setup-protoc@v1
@@ -30,7 +36,6 @@ jobs:
         with:
           path: ${{ env.working-directory }}
           fetch-depth: 0
-          lfs: true
 
       - name: Build UI
         working-directory: ${{ env.working-directory }}
@@ -52,3 +57,5 @@ jobs:
       - name: Run Integration Tests
         working-directory: ${{ env.working-directory }}
         run: ./scripts/test-integration 
+        env:
+          GONAME: "go1.15"

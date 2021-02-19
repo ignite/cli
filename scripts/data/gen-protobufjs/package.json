@@ -11,7 +11,7 @@
   "main": "index.js",
   "types": "index.d.ts",
   "bin": {
-    "pb": "bin/pb"
+    "nodetime": "bin/nodetime"
   },
   "dependencies": {
     "chalk": "^4.0.0",
@@ -24,7 +24,8 @@
     "protobufjs": "^6.10.2",
     "semver": "^7.1.2",
     "tmp": "^0.2.1",
-    "uglify-js": "^3.7.7"
+    "uglify-js": "^3.7.7",
+    "swagger-typescript-api": "5.0.0"
   },
   "pkg": {
     "assets": ["targets/**/*", "wrappers/**/*"]
