@@ -150,10 +150,16 @@ func (am AppModule) OnRecvPacket(
             return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, errMsg)
     }
 
+    // Encode acknowledgement
+    ackBytes, err := acknowledgement.Marshal()
+    if err != nil {
+        return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrInvalidType, err.Error())
+    }
+
 	// NOTE: acknowledgement will be written synchronously during IBC handler execution.
 	return &sdk.Result{
 		Events: ctx.EventManager().Events().ToABCIEvents(),
-	}, acknowledgement.GetBytes(), nil
+	}, ackBytes, nil
 }
 
 // OnAcknowledgementPacket implements the IBCModule interface
@@ -163,9 +169,9 @@ func (am AppModule) OnAcknowledgementPacket(
 	acknowledgement []byte,
 ) (*sdk.Result, error) {
 	var ack channeltypes.Acknowledgement
-	if err := types.ModuleCdc.UnmarshalBinaryBare(acknowledgement, &ack); err != nil {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
-	}
+	if err := ack.Unmarshal(acknowledgement); err != nil {
+        return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
+    }
 	var modulePacketData types.<%= title(moduleName) %>PacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
