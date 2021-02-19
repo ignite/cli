@@ -41,6 +41,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())
+	c.AddCommand(NewIBCPacket())
 	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	return c
 }

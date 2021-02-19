@@ -54,7 +54,7 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 			return err
 		}
 
-		templateTypesImport := `import "fmt"`
+		templateTypesImport := `"fmt"`
 		content := strings.Replace(f.String(), placeholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v

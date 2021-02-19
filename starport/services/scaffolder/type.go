@@ -38,7 +38,7 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := ModuleExists(s.path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -51,6 +51,7 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 		return fmt.Errorf("%s can't be used as a type name", stype)
 	}
 
+	// Check type is not already created
 	ok, err = isTypeCreated(s.path, moduleName, stype)
 	if err != nil {
 		return err
@@ -59,45 +60,10 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 		return fmt.Errorf("%s type is already added", stype)
 	}
 
-	// Used to check duplicated field
-	existingFields := make(map[string]bool)
-
-	var tfields []typed.Field
-	for _, f := range fields {
-		fs := strings.Split(f, ":")
-		name := fs[0]
-
-		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if isGoReservedWord(name) {
-			return fmt.Errorf("%s can't be used as a field name", name)
-		}
-
-		// Ensure the field is not duplicated
-		if _, exists := existingFields[name]; exists {
-			return fmt.Errorf("the field %s is duplicated", name)
-		}
-		existingFields[name] = true
-
-		datatypeName, datatype := TypeString, TypeString
-		acceptedTypes := map[string]string{
-			"string": TypeString,
-			"bool":   TypeBool,
-			"int":    TypeInt32,
-		}
-		isTypeSpecified := len(fs) == 2
-		if isTypeSpecified {
-			if t, ok := acceptedTypes[fs[1]]; ok {
-				datatype = t
-				datatypeName = fs[1]
-			} else {
-				return fmt.Errorf("the field type %s doesn't exist", fs[1])
-			}
-		}
-		tfields = append(tfields, typed.Field{
-			Name:         name,
-			Datatype:     datatype,
-			DatatypeName: datatypeName,
-		})
+	// Parse provided field
+	tFields, err := parseFields(fields)
+	if err != nil {
+		return err
 	}
 
 	var (
@@ -108,7 +74,7 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
-			Fields:     tfields,
+			Fields:     tFields,
 			Legacy:     legacy,
 		}
 	)
@@ -143,6 +109,52 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 		return err
 	}
 	return fmtProject(pwd)
+}
+
+// parseFields parses the provided fields, analyses the types and checks there is no duplicated field
+func parseFields(fields []string) ([]typed.Field, error) {
+	// Used to check duplicated field
+	existingFields := make(map[string]bool)
+
+	var tFields []typed.Field
+	for _, f := range fields {
+		fs := strings.Split(f, ":")
+		name := fs[0]
+
+		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
+		if isGoReservedWord(name) {
+			return tFields, fmt.Errorf("%s can't be used as a field name", name)
+		}
+
+		// Ensure the field is not duplicated
+		if _, exists := existingFields[name]; exists {
+			return tFields, fmt.Errorf("the field %s is duplicated", name)
+		}
+		existingFields[name] = true
+
+		datatypeName, datatype := TypeString, TypeString
+		acceptedTypes := map[string]string{
+			"string": TypeString,
+			"bool":   TypeBool,
+			"int":    TypeInt32,
+		}
+		isTypeSpecified := len(fs) == 2
+		if isTypeSpecified {
+			if t, ok := acceptedTypes[fs[1]]; ok {
+				datatype = t
+				datatypeName = fs[1]
+			} else {
+				return tFields, fmt.Errorf("the field type %s doesn't exist", fs[1])
+			}
+		}
+		tFields = append(tFields, typed.Field{
+			Name:         name,
+			Datatype:     datatype,
+			DatatypeName: datatypeName,
+		})
+	}
+
+	return tFields, nil
 }
 
 func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {
