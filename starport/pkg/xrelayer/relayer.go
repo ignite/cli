@@ -56,17 +56,29 @@ func Start(ctx context.Context, paths ...string) error {
 			return err
 		}
 
+		// relay packets
 		sp, err := strategy.UnrelayedSequences(chains[src], chains[dst], sh)
 		if err != nil {
 			return err
 		}
-
-		// nothing to relay.
-		if len(sp.Src) == 0 && len(sp.Dst) == 0 {
-			return nil
+		if len(sp.Src) > 0 || len(sp.Dst) > 0 {
+			if err := strategy.RelayPackets(chains[src], chains[dst], sp, sh); err != nil {
+				return err
+			}
 		}
 
-		return strategy.RelayPackets(chains[src], chains[dst], sp, sh)
+		// relay acknowledgments
+		sp, err = strategy.UnrelayedAcknowledgements(chains[src], chains[dst], sh)
+		if err != nil {
+			return err
+		}
+		if len(sp.Src) > 0 || len(sp.Dst) > 0 {
+			if err := strategy.RelayAcknowledgements(chains[src], chains[dst], sp, sh); err != nil {
+				return err
+			}
+		}
+
+		return nil
 	}
 
 	g, ctx := errgroup.WithContext(ctx)
