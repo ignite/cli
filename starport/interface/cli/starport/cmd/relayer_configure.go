@@ -111,12 +111,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 			cliquiz.DefaultAnswer(xrelayer.TransferVersion),
 			cliquiz.Required(),
 		)
-		questionTargetPort = cliquiz.NewQuestion("Target Port",
+		questionTargetPort = cliquiz.NewQuestion(
+			"Target Port",
 			&targetPort,
 			cliquiz.DefaultAnswer(xrelayer.TransferPort),
 			cliquiz.Required(),
 		)
-		questionTargetVersion = cliquiz.NewQuestion("Target Version",
+		questionTargetVersion = cliquiz.NewQuestion(
+			"Target Version",
 			&targetVersion,
 			cliquiz.DefaultAnswer(xrelayer.TransferVersion),
 			cliquiz.Required(),
