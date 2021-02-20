@@ -33,6 +33,7 @@ func Generate(ctx context.Context, outPath, specPath string) error {
 	command := []string{
 		nodetime.BinaryPath,
 		nodetime.CommandSTA,
+		"--js",
 		"-p",
 		specPath,
 		"-o",

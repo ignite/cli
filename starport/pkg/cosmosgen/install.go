@@ -1,4 +1,4 @@
-package cosmosproto
+package cosmosgen
 
 import (
 	"bytes"
@@ -26,23 +26,20 @@ func InstallDependencies(ctx context.Context, appPath string) error {
 			cmdrunner.DefaultWorkdir(appPath),
 		).
 		Run(ctx,
-			// installs the gocosmos plugin with the version specified under the
-			// go.mod of the app.
 			step.New(
 				step.Exec(
 					"go",
 					"get",
+					// installs the gocosmos plugin.
 					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos@v0.3.1",
-				),
-			),
-			// install grpc-gateway.
-			step.New(
-				step.Exec(
-					"go",
-					"get",
+
+					// install Go code generation plugin.
+					"github.com/golang/protobuf/protoc-gen-go@v1.4.3",
+
+					// install grpc-gateway plugins.
 					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@v1.16.0",
 					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@v1.16.0",
-					"github.com/golang/protobuf/protoc-gen-go@v1.4.3",
+					"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.2.0",
 				),
 			),
 		)

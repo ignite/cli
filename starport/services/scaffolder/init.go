@@ -11,7 +11,7 @@ import (
 	"github.com/gobuffalo/genny"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosproto"
+	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -86,8 +86,8 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return nil
 	}
 
-	if err := cosmosproto.InstallDependencies(context.Background(), projectPath); err != nil {
-		if err == cosmosproto.ErrProtocNotInstalled {
+	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
+		if err == cosmosgen.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
@@ -105,19 +105,19 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 	var (
 		protoPath    = filepath.Join(projectPath, conf.Build.Proto.Path)
 		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath)
-		targets      = []cosmosproto.Target{
-			cosmosproto.WithGoGeneration(gomodPath),
+		targets      = []cosmosgen.Target{
+			cosmosgen.WithGoGeneration(gomodPath),
 		}
 	)
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		targets = append(targets, cosmosproto.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
+		targets = append(targets, cosmosgen.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
 			return filepath.Join(projectPath, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")
 		}))
 	}
 
-	return cosmosproto.Generate(context.Background(), projectPath, protoPath, includePaths, targets[0], targets[1:]...)
+	return cosmosgen.Generate(context.Background(), projectPath, protoPath, includePaths, targets[0], targets[1:]...)
 }
 
 func initGit(path string) error {
