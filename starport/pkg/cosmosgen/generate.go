@@ -238,7 +238,7 @@ func (g *generator) generateJS() error {
 			srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
 			outjs   = filepath.Join(out, "rest.js")
 		)
-		if err := sta.Generate(g.ctx, outjs, srcspec); err != nil {
+		if err := sta.Generate(g.ctx, outjs, srcspec, "2"); err != nil { // 2 points to sdk module name.
 			return err
 		}
 
