@@ -150,8 +150,17 @@ func (g *generator) generateGo() error {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := protoc.Generate(g.ctx, tmp, g.protoPath, includePaths, protocOuts); err != nil {
+	// discover every sdk module.
+	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	if err != nil {
 		return err
+	}
+
+	// code generate for each module.
+	for _, pkg := range pkgs {
+		if err := protoc.Generate(g.ctx, tmp, pkg.Path, includePaths, protocOuts); err != nil {
+			return err
+		}
 	}
 
 	// move generated code for the app under the relative locations in its source code.
@@ -171,7 +180,7 @@ func (g *generator) generateJS() error {
 		return err
 	}
 
-	// discover each sdk module.
+	// discover every sdk module.
 	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
 	if err != nil {
 		return err
