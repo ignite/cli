@@ -204,7 +204,7 @@ func TestCreateTypeInCustomModule(t *testing.T) {
 func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog", Stargate)
 	)
 
 	env.Must(env.Exec("create a module",
@@ -235,7 +235,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("should prevent creating a type in a non existant module",
+	env.Must(env.Exec("should prevent creating a type in a non existent module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
