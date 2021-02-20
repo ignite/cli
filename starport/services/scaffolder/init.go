@@ -11,11 +11,11 @@ import (
 	"github.com/gobuffalo/genny"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/errors"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/templates/app"
 )
@@ -112,8 +112,8 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		targets = append(targets, cosmosgen.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
-			return filepath.Join(projectPath, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")
+		targets = append(targets, cosmosgen.WithJSGeneration(func(m module.Module) string {
+			return filepath.Join(projectPath, conf.Client.Vuex.Path, giturl.UserAndRepo(m.Pkg.GoImportName), m.Name, "module")
 		}))
 	}
 

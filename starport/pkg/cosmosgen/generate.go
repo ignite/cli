@@ -2,19 +2,21 @@ package cosmosgen
 
 import (
 	"context"
+	"embed"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
+	"text/template"
 
+	"github.com/iancoleman/strcase"
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/nodetime/protobufjs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 	"golang.org/x/mod/modfile"
@@ -37,9 +39,20 @@ var (
 	fileTypes = "types"
 )
 
+//go:embed templates/*
+var templates embed.FS
+
+var tpl = template.Must(
+	template.New("client.js.tpl").
+		Funcs(template.FuncMap{
+			"camelCase": strcase.ToLowerCamel,
+		}).
+		ParseFS(templates, "templates/client.js.tpl"),
+)
+
 type generateOptions struct {
 	gomodPath string
-	jsOut     func(protoanalysis.Package, string) string
+	jsOut     func(module.Module) string
 }
 
 // TODO add WithInstall.
@@ -48,7 +61,7 @@ type generateOptions struct {
 type Target func(*generateOptions)
 
 // WithJSGeneration adds JS code generation.
-func WithJSGeneration(out func(pkg protoanalysis.Package, moduleName string) (path string)) Target {
+func WithJSGeneration(out func(module.Module) (path string)) Target {
 	return func(o *generateOptions) {
 		o.jsOut = out
 	}
@@ -151,14 +164,14 @@ func (g *generator) generateGo() error {
 	defer os.RemoveAll(tmp)
 
 	// discover every sdk module.
-	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	modules, err := module.Discover(g.projectPath)
 	if err != nil {
 		return err
 	}
 
 	// code generate for each module.
-	for _, pkg := range pkgs {
-		if err := protoc.Generate(g.ctx, tmp, pkg.Path, includePaths, protocOuts); err != nil {
+	for _, m := range modules {
+		if err := protoc.Generate(g.ctx, tmp, m.Pkg.Path, includePaths, protocOuts); err != nil {
 			return err
 		}
 	}
@@ -181,26 +194,21 @@ func (g *generator) generateJS() error {
 	}
 
 	// discover every sdk module.
-	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	modules, err := module.Discover(g.projectPath)
 	if err != nil {
 		return err
 	}
 
 	// code generate for each module.
-	for _, pkg := range pkgs {
-		var (
-			msp        = strings.Split(pkg.Name, ".")
-			moduleName = msp[len(msp)-1]
-
-			out = g.o.jsOut(pkg, moduleName)
-		)
+	for _, m := range modules {
+		out := g.o.jsOut(m)
 
 		// generate protobufjs types for each module.
 		err = protobufjs.Generate(
 			g.ctx,
 			out,
 			fileTypes,
-			pkg.Path,
+			m.Pkg.Path,
 			jsIncludePaths,
 		)
 		if err != nil {
@@ -217,7 +225,7 @@ func (g *generator) generateJS() error {
 		err = protoc.Generate(
 			g.ctx,
 			oaitemp,
-			pkg.Path,
+			m.Pkg.Path,
 			oaiIncludePaths,
 			openAPIOut,
 		)
@@ -231,6 +239,27 @@ func (g *generator) generateJS() error {
 			outjs   = filepath.Join(out, "rest.js")
 		)
 		if err := sta.Generate(g.ctx, outjs, srcspec); err != nil {
+			return err
+		}
+
+		// generate the client, the js wrapper.
+		outclient := filepath.Join(out, "index.js")
+		f, err := os.OpenFile(outclient, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		err = tpl.Execute(f, struct {
+			Module    module.Module
+			TypesPath string
+			RESTPath  string
+		}{
+			m,
+			"./types",
+			"./rest",
+		})
+		if err != nil {
 			return err
 		}
 	}
