@@ -11,5 +11,4 @@ client:
     path: "vue/src/store"
 faucet:
   name: bob 
-  coins:
-    - "5token"
+  coins: ["5token"]

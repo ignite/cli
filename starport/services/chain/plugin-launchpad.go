@@ -116,13 +116,6 @@ func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runne
 	return g.Wait()
 }
 
-func (p *launchpadPlugin) StoragePaths() []string {
-	return []string{
-		launchpadHome(p.app),
-		launchpadCLIHome(p.app),
-	}
-}
-
 func (p *launchpadPlugin) Home() string {
 	return launchpadHome(p.app)
 }

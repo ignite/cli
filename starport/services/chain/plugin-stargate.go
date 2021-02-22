@@ -111,12 +111,6 @@ func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner
 	return &CannotStartAppError{p.app.Name, err}
 }
 
-func (p *stargatePlugin) StoragePaths() []string {
-	return []string{
-		p.Home(),
-	}
-}
-
 func (p *stargatePlugin) Home() string {
 	return stargateHome(p.app)
 }
