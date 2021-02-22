@@ -85,7 +85,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 		w.Flush()
 	}
 
-	printSection("Listening and relaying txs between chains...")
+	printSection("Listening and relaying packets between chains...")
 
 	return xrelayer.Start(cmd.Context(), pathsToUse...)
 }
