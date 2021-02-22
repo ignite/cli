@@ -29,9 +29,6 @@ type Plugin interface {
 	// StartCommands returns step.Exec configuration to start servers.
 	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
 
-	// StoragePaths returns a list of where persistent data kept.
-	StoragePaths() []string
-
 	// Home returns the blockchain node's home dir.
 	Home() string
 
