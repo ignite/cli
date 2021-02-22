@@ -42,6 +42,8 @@ var (
 //go:embed templates/*
 var templates embed.FS
 
+// tpl holds the js client template which is for wrapping the generated protobufjs types and rest client,
+// utilizing cosmjs' type registry, tx signing & broadcasting through exported, high level txClient() and queryClient() funcs.
 var tpl = template.Must(
 	template.New("client.js.tpl").
 		Funcs(template.FuncMap{
@@ -60,7 +62,8 @@ type generateOptions struct {
 // Target adds a new code generation target to Generate.
 type Target func(*generateOptions)
 
-// WithJSGeneration adds JS code generation.
+// WithJSGeneration adds JS code generation. out hook is called for each module to
+// retrieve the path that should be used to place generated js code inside for a given module.
 func WithJSGeneration(out func(module.Module) (path string)) Target {
 	return func(o *generateOptions) {
 		o.jsOut = out
