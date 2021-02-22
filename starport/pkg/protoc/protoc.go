@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"os"
-	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -21,7 +20,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 
 	// append third party proto locations to the command.
-	for _, importPath := range append([]string{protoPath}, includePaths...) {
+	for _, importPath := range includePaths {
 		// skip if a third party proto source actually doesn't exist on the filesystem.
 		if _, err := os.Stat(importPath); os.IsNotExist(err) {
 			continue
@@ -35,39 +34,22 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		return err
 	}
 
-	includesThirdParty := func(filepath string) bool {
-		for _, protoThirdPartyPath := range includePaths {
-			if strings.HasPrefix(filepath, protoThirdPartyPath) {
-				return true
-			}
-		}
-		return false
-	}
+	// run command for each protocOuts.
+	for _, out := range protocOuts {
+		command := append(command, out)
+		command = append(command, files...)
 
-	for _, file := range files {
-		// check if the file belongs to a third party proto. if so, skip it since it should
-		// only be included via `-I`.
-		if includesThirdParty(file) {
-			continue
-		}
+		errb := &bytes.Buffer{}
 
-		// run command for each protocOuts.
-		for _, out := range protocOuts {
-			command := append(command, out)
-			command = append(command, file)
+		err := cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(errb),
+				cmdrunner.DefaultWorkdir(outDir)).
+			Run(ctx,
+				step.New(step.Exec(command[0], command[1:]...)))
 
-			errb := &bytes.Buffer{}
-
-			err := cmdrunner.
-				New(
-					cmdrunner.DefaultStderr(errb),
-					cmdrunner.DefaultWorkdir(outDir)).
-				Run(ctx,
-					step.New(step.Exec(command[0], command[1:]...)))
-
-			if err != nil {
-				return errors.Wrap(err, errb.String())
-			}
+		if err != nil {
+			return errors.Wrap(err, errb.String())
 		}
 	}
 

@@ -4,8 +4,10 @@ var path  = require("path"),
     jscli = require("../pbjs.js"),
     tscli = require("../pbts.js");
 
-var args = process.argv.slice(3);
 var mode = process.argv[2];
+var args = process.argv.slice(3);
+process.argv.splice(2, 1);
+
 var ret;
 
 if (mode === "sta") {

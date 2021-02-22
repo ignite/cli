@@ -13,7 +13,7 @@ import (
 	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosproto"
+	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
@@ -166,8 +166,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return nil
 	}
 
-	if err := cosmosproto.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		if err == cosmosproto.ErrProtocNotInstalled {
+	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
+		if err == cosmosgen.ErrProtocNotInstalled {
 			return starporterrors.ErrStarportRequiresProtoc
 		}
 		return err
@@ -177,19 +177,19 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	var (
 		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path)
-		targets      = []cosmosproto.Target{
-			cosmosproto.WithGoGeneration(c.app.ImportPath),
+		targets      = []cosmosgen.Target{
+			cosmosgen.WithGoGeneration(c.app.ImportPath),
 		}
 	)
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		targets = append(targets, cosmosproto.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
+		targets = append(targets, cosmosgen.WithJSGeneration(func(pkg protoanalysis.Package, moduleName string) string {
 			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, giturl.UserAndRepo(pkg.GoImportName), moduleName, "module")
 		}))
 	}
 
-	if err := cosmosproto.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
+	if err := cosmosgen.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
 		return &CannotBuildAppError{err}
 	}
 

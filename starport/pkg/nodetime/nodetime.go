@@ -24,7 +24,7 @@ const (
 	// CommandPBTS is https://github.com/protobufjs/protobuf.js/blob/master/cli/bin/pbts.
 	CommandPBTS = "ts"
 
-	// STA is https://github.com/acacode/swagger-typescript-api.
+	// CommandSTA is https://github.com/acacode/swagger-typescript-api.
 	CommandSTA = "sta"
 )
 

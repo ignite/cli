@@ -1,4 +1,4 @@
-package cosmosproto
+package cosmosgen
 
 import (
 	"context"
@@ -13,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/nodetime/protobufjs"
+	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
@@ -23,6 +24,10 @@ var (
 	protocOuts = []string{
 		"--gocosmos_out=plugins=interfacetype+grpc,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 		"--grpc-gateway_out=logtostderr=true:.",
+	}
+
+	openAPIOut = []string{
+		"--openapiv2_out=logtostderr=true,allow_merge=true:.",
 	}
 
 	sdkImport          = "github.com/cosmos/cosmos-sdk"
@@ -36,6 +41,8 @@ type generateOptions struct {
 	gomodPath string
 	jsOut     func(protoanalysis.Package, string) string
 }
+
+// TODO add WithInstall.
 
 // Target adds a new code generation target to Generate.
 type Target func(*generateOptions)
@@ -90,14 +97,16 @@ func Generate(
 		return err
 	}
 
-	if g.o.jsOut != nil {
-		if err := g.generateJS(); err != nil {
+	if g.o.gomodPath != "" {
+		if err := g.generateGo(); err != nil {
 			return err
 		}
 	}
 
-	if g.o.gomodPath != "" {
-		if err := g.generateGo(); err != nil {
+	// js generation requires Go types to be existent in the source code.
+	// so it needs to run after Go code gen.
+	if g.o.jsOut != nil {
+		if err := g.generateJS(); err != nil {
 			return err
 		}
 	}
@@ -141,8 +150,17 @@ func (g *generator) generateGo() error {
 	}
 	defer os.RemoveAll(tmp)
 
-	if err := protoc.Generate(g.ctx, tmp, g.protoPath, append(g.includePaths, includePaths...), protocOuts); err != nil {
+	// discover every sdk module.
+	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	if err != nil {
 		return err
+	}
+
+	// code generate for each module.
+	for _, pkg := range pkgs {
+		if err := protoc.Generate(g.ctx, tmp, pkg.Path, includePaths, protocOuts); err != nil {
+			return err
+		}
 	}
 
 	// move generated code for the app under the relative locations in its source code.
@@ -152,27 +170,67 @@ func (g *generator) generateGo() error {
 }
 
 func (g *generator) generateJS() error {
-	includePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto))
+	jsIncludePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto))
 	if err != nil {
 		return err
 	}
 
+	oaiIncludePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto, sdkProtoThirdParty))
+	if err != nil {
+		return err
+	}
+
+	// discover every sdk module.
 	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
 	if err != nil {
 		return err
 	}
 
+	// code generate for each module.
 	for _, pkg := range pkgs {
-		msp := strings.Split(pkg.Name, ".")
-		moduleName := msp[len(msp)-1]
+		var (
+			msp        = strings.Split(pkg.Name, ".")
+			moduleName = msp[len(msp)-1]
 
-		if err := protobufjs.Generate(
+			out = g.o.jsOut(pkg, moduleName)
+		)
+
+		// generate protobufjs types for each module.
+		err = protobufjs.Generate(
 			g.ctx,
-			g.o.jsOut(pkg, moduleName),
+			out,
 			fileTypes,
 			pkg.Path,
-			append(g.includePaths, includePaths...),
-		); err != nil {
+			jsIncludePaths,
+		)
+		if err != nil {
+			return err
+		}
+
+		oaitemp, err := ioutil.TempDir("", "")
+		if err != nil {
+			return err
+		}
+		defer os.RemoveAll(oaitemp)
+
+		// generate OpenAPI spec.
+		err = protoc.Generate(
+			g.ctx,
+			oaitemp,
+			pkg.Path,
+			oaiIncludePaths,
+			openAPIOut,
+		)
+		if err != nil {
+			return err
+		}
+
+		// generate the REST client from the OpenAPI spec.
+		var (
+			srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
+			outjs   = filepath.Join(out, "rest.js")
+		)
+		if err := sta.Generate(g.ctx, outjs, srcspec); err != nil {
 			return err
 		}
 	}
@@ -181,5 +239,11 @@ func (g *generator) generateJS() error {
 }
 
 func (g *generator) resolveInclude(modules ...protopath.Module) (paths []string, err error) {
-	return protopath.ResolveDependencyPaths(g.modfile.Require, modules...)
+	includePaths, err := protopath.ResolveDependencyPaths(g.modfile.Require, modules...)
+	if err != nil {
+		return nil, err
+	}
+	includePaths = append([]string{g.protoPath}, includePaths...)
+	includePaths = append(includePaths, g.includePaths...)
+	return includePaths, nil
 }
