@@ -288,7 +288,11 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf(" |· (balance: %s)\n\n", coins)
+	balance := coins.String()
+	if balance == "" {
+		balance = "-"
+	}
+	fmt.Printf(" |· (balance: %s)\n\n", balance)
 
 	return c, nil
 }
