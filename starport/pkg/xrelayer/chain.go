@@ -380,11 +380,11 @@ func (c *Chain) setupChain(ctx context.Context) error {
 
 // determineAndSetID determines chain's id and uses it.
 func (c *Chain) determineAndSetID(ctx context.Context) error {
-	genesis, err := c.tmclient.GetGenesis(ctx)
+	info, err := c.tmclient.Status(ctx)
 	if err != nil {
 		return errors.Wrap(err, "cannot fetch chain info")
 	}
-	c.ID = genesis.ChainID
+	c.ID = info.Network
 	return nil
 }
 
