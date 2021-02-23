@@ -149,7 +149,7 @@ func (c Client) Status(ctx context.Context) (NodeInfo, error) {
 			} `json:"result"`
 		}
 
-		if err := json.NewDecoder(r).Decode(&out); err != nil {
+		if err := json.NewDecoder(b).Decode(&out); err != nil {
 			return NodeInfo{}, err
 		}
 
