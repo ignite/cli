@@ -25,6 +25,28 @@ type Package struct {
 
 	// GoImportName is the go package name of proto package.
 	GoImportName string
+
+	// Messages is a list of proto messages defined in the package.
+	Messages []Message
+}
+
+// MessageByName finds a message by its name inside Package.
+func (p Package) MessageByName(name string) Message {
+	for _, message := range p.Messages {
+		if message.Name == name {
+			return message
+		}
+	}
+	return Message{}
+}
+
+// Message represents a proto message.
+type Message struct {
+	// Name of the message.
+	Name string
+
+	// Path of the file where message is defined at.
+	Path string
 }
 
 // DiscoverPackages recursively discovers proto files, parses them, and returns info about
@@ -39,15 +61,6 @@ func DiscoverPackages(path string) ([]Package, error) {
 		// m protects pkgs.
 		m    sync.Mutex
 		pkgs []Package
-
-		isPkgExists = func(pkg Package) bool {
-			for _, epkg := range pkgs {
-				if pkg == epkg {
-					return true
-				}
-			}
-			return false
-		}
 	)
 
 	g := &errgroup.Group{}
@@ -64,9 +77,21 @@ func DiscoverPackages(path string) ([]Package, error) {
 			m.Lock()
 			defer m.Unlock()
 
-			if !isPkgExists(pkg) {
-				pkgs = append(pkgs, pkg)
+			var (
+				exists bool
+				index  int
+			)
+			for i, epkg := range pkgs {
+				if epkg.Name == pkg.Name {
+					exists = true
+					index = i
+				}
 			}
+			if !exists {
+				pkgs = append(pkgs, pkg)
+				index = len(pkgs) - 1
+			}
+			pkgs[index].Messages = append(pkgs[index].Messages, pkg.Messages...)
 
 			return nil
 		})
@@ -100,7 +125,14 @@ func Parse(path string) (Package, error) {
 				return
 			}
 			pkg.GoImportName = o.Constant.Source
-		}))
+		}),
+		proto.WithMessage(func(m *proto.Message) {
+			pkg.Messages = append(pkg.Messages, Message{
+				Name: m.Name,
+				Path: path,
+			})
+		}),
+	)
 
 	return pkg, nil
 }
