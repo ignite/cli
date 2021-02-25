@@ -22,8 +22,13 @@ const (
 	TypeInt32  = "int32"
 )
 
+type AddTypeOption struct {
+	Legacy bool
+	Indexed bool
+}
+
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -75,7 +80,7 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
 			Fields:     tFields,
-			Legacy:     legacy,
+			Legacy:     addTypeOptions.Legacy,
 		}
 	)
 	// generate depending on the version
