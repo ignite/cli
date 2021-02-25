@@ -1,6 +1,9 @@
 package starportcmd
 
 import (
+	"fmt"
+	"strings"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -30,5 +33,17 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	return c.Build(cmd.Context())
+
+	if err := c.Build(cmd.Context()); err != nil {
+		return err
+	}
+
+	binaries, err := c.Binaries()
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
+
+	return nil
 }
