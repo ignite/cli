@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/typed/indexed"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -87,16 +88,23 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 	if majorVersion == cosmosver.Launchpad {
 		g, err = typed.NewLaunchpad(opts)
 	} else {
-		// check if the msgServer convention is used
-		var msgServerDefined bool
-		msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-		if err != nil {
-			return err
+		// Check if indexed type
+		if addTypeOptions.Indexed {
+			g, err = indexed.NewStargate(opts)
+		} else {
+			// Scaffolding a type with ID
+
+			// check if the msgServer convention is used
+			var msgServerDefined bool
+			msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
+			if err != nil {
+				return err
+			}
+			if !msgServerDefined {
+				opts.Legacy = true
+			}
+			g, err = typed.NewStargate(opts)
 		}
-		if !msgServerDefined {
-			opts.Legacy = true
-		}
-		g, err = typed.NewStargate(opts)
 	}
 	if err != nil {
 		return err
