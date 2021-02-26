@@ -33,7 +33,7 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.protoRPCImportModify(opts))
 	g.RunFn(t.protoRPCModify(opts))
 	g.RunFn(t.protoRPCMessageModify(opts))
-	g.RunFn(t.moduleGRPCGateway(opts))
+	g.RunFn(t.moduleGRPCGatewayModify(opts))
 	g.RunFn(t.clientCliTxModify(opts))
 	g.RunFn(t.clientCliQueryModify(opts))
 	g.RunFn(t.typesQueryModify(opts))
@@ -43,9 +43,9 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	t.genesisModify(opts, g)
 
 	if opts.Legacy {
-		return g, box(stargateLegacyTemplate, opts, g)
+		return g, Box(stargateLegacyTemplate, opts, g)
 	}
-	return g, box(stargateTemplate, opts, g)
+	return g, Box(stargateTemplate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
@@ -255,7 +255,7 @@ message QueryAll%[2]vResponse {
 	}
 }
 
-func (t *typedStargate) moduleGRPCGateway(opts *Options) genny.RunFn {
+func (t *typedStargate) moduleGRPCGatewayModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)

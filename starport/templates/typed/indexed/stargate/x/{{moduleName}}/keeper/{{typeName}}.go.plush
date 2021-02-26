@@ -8,10 +8,10 @@ import (
 )
 
 // Set<%= title(TypeName) %> set a specific <%= TypeName %> in the store from its index
-func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, index string, <%= TypeName %> types.<%= title(TypeName) %>) {
+func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-	store.Set(types.KeyPrefix(index), b)
+	store.Set(types.KeyPrefix(<%= TypeName %>.Index), b)
 }
 
 // Get<%= title(TypeName) %> returns a <%= TypeName %> from its index

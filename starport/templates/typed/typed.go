@@ -17,7 +17,7 @@ var (
 	stargateLegacyTemplate = packr.New("typed/templates/stargate_legacy", "./stargate_legacy")
 )
 
-func box(box *packr.Box, opts *Options, g *genny.Generator) error {
+func Box(box *packr.Box, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {
 		return err
 	}
