@@ -32,3 +32,19 @@ func (k Keeper) Remove<%= title(TypeName) %>(ctx sdk.Context, index string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 	store.Delete(types.KeyPrefix(index))
 }
+
+// GetAll<%= title(TypeName) %> returns all <%= TypeName %>
+func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (list []types.<%= title(TypeName) %>) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	iterator := sdk.KVStorePrefixIterator(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.<%= title(TypeName) %>
+		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+        list = append(list, val)
+	}
+
+    return
+}
