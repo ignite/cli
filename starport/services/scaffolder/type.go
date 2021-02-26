@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
 	"go/ast"
@@ -86,6 +87,10 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 	)
 	// generate depending on the version
 	if majorVersion == cosmosver.Launchpad {
+		if addTypeOptions.Indexed {
+			return errors.New("indexed types not supported on Launchpad")
+		}
+
 		g, err = typed.NewLaunchpad(opts)
 	} else {
 		// Check if indexed type
