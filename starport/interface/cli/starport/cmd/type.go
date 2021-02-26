@@ -8,8 +8,8 @@ import (
 )
 
 const (
-	moduleFlag string = "module"
-	legacyFlag string = "legacy"
+	moduleFlag  string = "module"
+	legacyFlag  string = "legacy"
 	indexedFlag string = "indexed"
 )
 

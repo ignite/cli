@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/typed/indexed"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/typed/indexed"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -25,7 +26,7 @@ const (
 )
 
 type AddTypeOption struct {
-	Legacy bool
+	Legacy  bool
 	Indexed bool
 }
 

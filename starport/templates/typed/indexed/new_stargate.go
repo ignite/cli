@@ -2,15 +2,17 @@ package indexed
 
 import (
 	"fmt"
+
 	"github.com/gobuffalo/packr/v2"
+
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"strings"
 )
 
 var (
-	stargateIndexedTemplate       = packr.New("typed/indexed/templates/stargate", "./stargate")
+	stargateIndexedTemplate = packr.New("typed/indexed/templates/stargate", "./stargate")
 )
 
 // New ...
