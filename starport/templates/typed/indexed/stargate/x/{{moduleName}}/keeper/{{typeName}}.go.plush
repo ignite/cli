@@ -4,7 +4,6 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
-	"strconv"
 )
 
 // Set<%= title(TypeName) %> set a specific <%= TypeName %> in the store from its index
@@ -15,7 +14,7 @@ func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types
 }
 
 // Get<%= title(TypeName) %> returns a <%= TypeName %> from its index
-func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, index string) (val types.<%= title(TypeName), found bool) %> {
+func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, index string) (val types.<%= title(TypeName) %>, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
 
 	b := store.Get(types.KeyPrefix(index))

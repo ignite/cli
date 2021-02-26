@@ -65,7 +65,7 @@ import "%s/%s.proto";`
 		// Add the service
 		templateService := `%[1]v
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{index}";
 	}
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
@@ -203,7 +203,7 @@ for _, elem := range gs.%[3]vList {
 	if _, ok := %[2]vIndexMap[elem.Index]; ok {
 		return fmt.Errorf("duplicated index for %[2]v")
 	}
-	%[2]vIdMap[elem.Index] = true
+	%[2]vIndexMap[elem.Index] = true
 }`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
