@@ -10,7 +10,7 @@ curl https://get.starport.network/starport! | bash
 
 This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/allinbits/starport-installer).
 
-If the installer fails due to `/usr/local/` not being writable by the user, then execute the following command:
+If the installer fails due to `/usr/local/bin/` not being writable by the user, then execute the following command:
 
 ```
 curl https://get.starport.network/starport | bash
