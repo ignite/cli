@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -30,6 +31,9 @@ func NewType() *cobra.Command {
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
 	// Get the module to add the type into
 	module, err := cmd.Flags().GetString(moduleFlag)
 	if err != nil {
@@ -44,6 +48,9 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 	if err := sc.AddType(legacy, module, args[0], args[1:]...); err != nil {
 		return err
 	}
+
+	s.Stop()
+
 	fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 	return nil
 }
