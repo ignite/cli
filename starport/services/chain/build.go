@@ -7,7 +7,6 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/pkg/errors"
 	starporterrors "github.com/tendermint/starport/starport/errors"
@@ -33,19 +32,10 @@ func (c *Chain) Build(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := cmdrunner.
+
+	return cmdrunner.
 		New(c.cmdOptions()...).
-		Run(ctx, steps...); err != nil {
-		return err
-	}
-
-	binaries, err := c.Binaries()
-	if err != nil {
-		return err
-	}
-
-	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
-	return nil
+		Run(ctx, steps...)
 }
 
 func (c *Chain) buildSteps() (steps step.Steps, err error) {
