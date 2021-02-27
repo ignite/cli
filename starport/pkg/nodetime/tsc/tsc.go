@@ -12,18 +12,18 @@ import (
 	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
 
+const nodeModulesPath = "/snapshot/gen-nodetime/node_modules"
+
 var (
 	defaultConfig = func() Config {
 		return Config{
 			CompilerOptions: CompilerOptions{
-				Target:    "es2020",
-				Module:    "es6",
-				TypeRoots: []string{"/snapshot/gen-nodetime/node_modules/@types"},
-				Types:     []string{"node"},
-				Paths: map[string][]string{
-					"*":    {"/snapshot/gen-nodetime/node_modules/*"},
-					"long": {"/snapshot/gen-nodetime/node_modules/long/index.js"},
-				},
+				BaseURL:          nodeModulesPath,
+				ModuleResolution: "node",
+				Target:           "es2020",
+				Module:           "es2020",
+				TypeRoots:        []string{filepath.Join(nodeModulesPath, "@types")},
+				SkipLibCheck:     true,
 			},
 		}
 	}
@@ -38,12 +38,13 @@ type Config struct {
 
 // CompilerOptions section of tsconfig.json.
 type CompilerOptions struct {
-	Declaration bool                `json:"declaration"`
-	Paths       map[string][]string `json:"paths"`
-	Target      string              `json:"target"`
-	Module      string              `json:"module"`
-	TypeRoots   []string            `json:"typeRoots"`
-	Types       []string            `json:"types"`
+	BaseURL          string   `json:"baseUrl"`
+	ModuleResolution string   `json:"moduleResolution"`
+	Target           string   `json:"target"`
+	Module           string   `json:"module"`
+	TypeRoots        []string `json:"typeRoots"`
+	Declaration      bool     `json:"declaration"`
+	SkipLibCheck     bool     `json:"skipLibCheck"`
 }
 
 var placeOnce sync.Once

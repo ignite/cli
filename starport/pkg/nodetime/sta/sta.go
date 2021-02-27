@@ -31,6 +31,7 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) er
 		nodetime.BinaryPath,
 		nodetime.CommandSTA,
 		"--module-name-index",
+		moduleNameIndex,
 		"-p",
 		specPath,
 		"-o",

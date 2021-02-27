@@ -8,6 +8,9 @@
     "build": "vue-cli-service build"
   },
   "dependencies": {
+    "@cosmjs/launchpad": "0.23.2",
+    "@cosmjs/proto-signing": "0.24.0-alpha.26",
+    "@cosmjs/stargate": "0.24.0-alpha.26",
     "@tendermint/vue": "0.1.12",
     "core-js": "^3.6.5",
     "vue": "^2.6.11",

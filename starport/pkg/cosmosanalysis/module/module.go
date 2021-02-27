@@ -150,12 +150,16 @@ func DiscoverModule(modulePath string) (msgs []string, err error) {
 				fname := fdecl.Name.Name
 
 				// find the struct name that method belongs to.
-				sexp, ok := fdecl.Recv.List[0].Type.(*ast.StarExpr)
+				t := fdecl.Recv.List[0].Type
+				sident, ok := t.(*ast.Ident)
 				if !ok {
-					return true
+					sexp, ok := t.(*ast.StarExpr)
+					if !ok {
+						return true
+					}
+					sident = sexp.X.(*ast.Ident)
 				}
-
-				sname := sexp.X.(*ast.Ident).Name
+				sname := sident.Name
 
 				// mark the requirement that this struct satisfies.
 				if _, ok := structs[sname]; !ok {

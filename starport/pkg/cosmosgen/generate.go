@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
 	"text/template"
 
 	"github.com/iancoleman/strcase"
@@ -47,13 +48,20 @@ var templates embed.FS
 
 // tpl holds the js client template which is for wrapping the generated protobufjs types and rest client,
 // utilizing cosmjs' type registry, tx signing & broadcasting through exported, high level txClient() and queryClient() funcs.
-var tpl = template.Must(
-	template.New("client.js.tpl").
-		Funcs(template.FuncMap{
-			"camelCase": strcase.ToLowerCamel,
-		}).
-		ParseFS(templates, "templates/client.js.tpl"),
-)
+func tpl(protoPath string) *template.Template {
+	return template.Must(
+		template.New("client.ts.tpl").
+			Funcs(template.FuncMap{
+				"camelCase": strcase.ToLowerCamel,
+				"resolveFile": func(fullPath string) string {
+					rel, _ := filepath.Rel(protoPath, fullPath)
+					rel = strings.TrimSuffix(rel, ".proto")
+					return rel
+				},
+			}).
+			ParseFS(templates, "templates/client.ts.tpl"),
+	)
+}
 
 type generateOptions struct {
 	gomodPath string
@@ -257,32 +265,25 @@ func (g *generator) generateJS() error {
 			outREST = filepath.Join(out, "rest.ts")
 		)
 
-		if err := sta.Generate(g.ctx, outREST, srcspec, "2"); err != nil { // 2 points to sdk module name.
+		if err := sta.Generate(g.ctx, outREST, srcspec, "-1"); err != nil { // -1 removes the route namespace.
 			return err
 		}
 
 		// generate the client, the js wrapper.
-		outclient := filepath.Join(out, "index.js")
+		outclient := filepath.Join(out, "index.ts")
 		f, err := os.OpenFile(outclient, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
 			return err
 		}
 		defer f.Close()
 
-		err = tpl.Execute(f, struct {
-			Module    module.Module
-			TypesPath string
-			RESTPath  string
-		}{
-			m,
-			"./types",
-			"./rest",
-		})
+		// generate the js client wrapper.
+		err = tpl(g.protoPath).Execute(f, struct{ Module module.Module }{m})
 		if err != nil {
 			return err
 		}
 
-		// generate .js and .d.ts files for ts files.
+		// generate .js and .d.ts files for all ts files.
 		if err := tsc.Generate(g.ctx, tsc.Config{
 			Include: []string{out + "/**/*.ts"},
 			CompilerOptions: tsc.CompilerOptions{
