@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -9,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/typed/indexed"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -22,8 +25,13 @@ const (
 	TypeInt32  = "int32"
 )
 
+type AddTypeOption struct {
+	Legacy  bool
+	Indexed bool
+}
+
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, stype string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -75,23 +83,34 @@ func (s *Scaffolder) AddType(legacy bool, moduleName string, stype string, field
 			OwnerName:  owner(path.RawPath),
 			TypeName:   stype,
 			Fields:     tFields,
-			Legacy:     legacy,
+			Legacy:     addTypeOptions.Legacy,
 		}
 	)
 	// generate depending on the version
 	if majorVersion == cosmosver.Launchpad {
+		if addTypeOptions.Indexed {
+			return errors.New("indexed types not supported on Launchpad")
+		}
+
 		g, err = typed.NewLaunchpad(opts)
 	} else {
-		// check if the msgServer convention is used
-		var msgServerDefined bool
-		msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-		if err != nil {
-			return err
+		// Check if indexed type
+		if addTypeOptions.Indexed {
+			g, err = indexed.NewStargate(opts)
+		} else {
+			// Scaffolding a type with ID
+
+			// check if the msgServer convention is used
+			var msgServerDefined bool
+			msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
+			if err != nil {
+				return err
+			}
+			if !msgServerDefined {
+				opts.Legacy = true
+			}
+			g, err = typed.NewStargate(opts)
 		}
-		if !msgServerDefined {
-			opts.Legacy = true
-		}
-		g, err = typed.NewStargate(opts)
 	}
 	if err != nil {
 		return err

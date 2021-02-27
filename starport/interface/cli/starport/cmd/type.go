@@ -4,12 +4,14 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 const (
-	moduleFlag string = "module"
-	legacyFlag string = "legacy"
+	moduleFlag  string = "module"
+	legacyFlag  string = "legacy"
+	indexedFlag string = "indexed"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -25,25 +27,39 @@ func NewType() *cobra.Command {
 
 	c.Flags().String(moduleFlag, "", "Module to add the type into. Default: app's main module")
 	c.Flags().Bool(legacyFlag, false, "Scaffold the type without generating MsgServer service")
+	c.Flags().Bool(indexedFlag, false, "Scaffold an indexed type")
 
 	return c
 }
 
 func typeHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
 	// Get the module to add the type into
 	module, err := cmd.Flags().GetString(moduleFlag)
 	if err != nil {
 		return err
 	}
-	legacy, err := cmd.Flags().GetBool(legacyFlag)
+
+	// Add type options
+	var opts scaffolder.AddTypeOption
+	opts.Legacy, err = cmd.Flags().GetBool(legacyFlag)
+	if err != nil {
+		return err
+	}
+	opts.Indexed, err = cmd.Flags().GetBool(indexedFlag)
 	if err != nil {
 		return err
 	}
 
 	sc := scaffolder.New(appPath)
-	if err := sc.AddType(legacy, module, args[0], args[1:]...); err != nil {
+	if err := sc.AddType(opts, module, args[0], args[1:]...); err != nil {
 		return err
 	}
+
+	s.Stop()
+
 	fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 	return nil
 }
