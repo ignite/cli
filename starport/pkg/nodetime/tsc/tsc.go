@@ -21,8 +21,8 @@ var (
 				TypeRoots: []string{"/snapshot/gen-nodetime/node_modules/@types"},
 				Types:     []string{"node"},
 				Paths: map[string][]string{
-					"*":    []string{"/snapshot/gen-nodetime/node_modules/*"},
-					"long": []string{"/snapshot/gen-nodetime/node_modules/long/index.js"},
+					"*":    {"/snapshot/gen-nodetime/node_modules/*"},
+					"long": {"/snapshot/gen-nodetime/node_modules/long/index.js"},
 				},
 			},
 		}

@@ -37,8 +37,6 @@ var (
 	sdkImport          = "github.com/cosmos/cosmos-sdk"
 	sdkProto           = "proto"
 	sdkProtoThirdParty = "third_party/proto"
-
-	fileTypes = "types"
 )
 
 type generateOptions struct {
