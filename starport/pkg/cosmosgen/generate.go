@@ -213,6 +213,9 @@ func (g *generator) generateJS() error {
 			tsOut,
 			protoc.Plugin(tsprotoPluginPath),
 		)
+		if err != nil {
+			return err
+		}
 
 		// generate OpenAPI spec.
 		oaitemp, err := ioutil.TempDir("", "")
