@@ -68,7 +68,7 @@
         <p>
           Your blockchain is built with
           <a
-            href="https://github.com/cosmos/cosmos-sdk"
+            href="https://docs.cosmos.network/"
             target="_blank"
             class="-sp-c-txt-highlight"
             >Cosmos SDK</a
