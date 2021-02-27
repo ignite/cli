@@ -68,12 +68,11 @@
         <p>
           Your blockchain is built with
           <a
-            href="https://github.com/cosmos/cosmos-sdk"
+            href="https://docs.cosmos.network/"
             target="_blank"
             class="-sp-c-txt-highlight"
             >Cosmos SDK</a
-          >
-          , a modular framework for building blockchains. Every feature in the
+          >, a modular framework for building blockchains. Every feature in the
           Cosmos SDK is packaged as a separate module that can interact with
           other modules. We've installed the
           <span>auth</span>, <span>bank</span>, and <span>staking</span> modules

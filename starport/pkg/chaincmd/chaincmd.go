@@ -437,6 +437,10 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	command = c.attachKeyringBackend(command)
 	command = c.attachNode(command)
 
+	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+		command = append(command, optionOutput, constJSON)
+	}
+
 	return c.cliCommand(command)
 }
 

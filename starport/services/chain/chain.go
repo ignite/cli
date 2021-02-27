@@ -340,6 +340,11 @@ func (c *Chain) DefaultHome() (string, error) {
 // CLIHome returns the blockchain node's home dir.
 // This directory is the same as home for Stargate, it is a separate directory for Launchpad
 func (c *Chain) CLIHome() (string, error) {
+	// Return home dir for Stargate app
+	if c.SDKVersion().Is(cosmosver.Stargate) {
+		return c.Home()
+	}
+
 	// check if cli home is explicitly defined for the app
 	home := c.options.cliHomePath
 	if home == "" {

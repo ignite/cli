@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -24,8 +25,14 @@ func NewIBCPacket() *cobra.Command {
 }
 
 func createPacketHandler(cmd *cobra.Command, args []string) error {
-	packet := args[0]
-	fields := args[1:]
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
+	var (
+		packet = args[0]
+		fields = args[1:]
+	)
+
 	module, err := cmd.Flags().GetString(moduleFlag)
 	if err != nil {
 		return err
@@ -38,6 +45,9 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err := sc.AddPacket(module, packet, fields...); err != nil {
 		return err
 	}
+
+	s.Stop()
+
 	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
 	return nil
 }

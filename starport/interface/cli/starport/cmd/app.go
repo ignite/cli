@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
@@ -25,20 +26,31 @@ func NewApp() *cobra.Command {
 }
 
 func appHandler(cmd *cobra.Command, args []string) error {
-	name := args[0]
-	addressPrefix, _ := cmd.Flags().GetString("address-prefix")
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
+	var (
+		name             = args[0]
+		addressPrefix, _ = cmd.Flags().GetString("address-prefix")
+	)
+
 	version, err := sdkVersion(cmd)
 	if err != nil {
 		return err
 	}
+
 	sc := scaffolder.New("",
 		scaffolder.AddressPrefix(addressPrefix),
 		scaffolder.SdkVersion(version),
 	)
+
 	appdir, err := sc.Init(name)
 	if err != nil {
 		return err
 	}
+
+	s.Stop()
+
 	message := `
 ⭐️ Successfully created a Cosmos app '%[1]v'.
 👉 Get started with the following commands:

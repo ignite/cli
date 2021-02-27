@@ -24,7 +24,7 @@ func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQuerierModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
-	return g, box(launchpadTemplate, opts, g)
+	return g, Box(launchpadTemplate, opts, g)
 }
 
 func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
@@ -41,8 +41,8 @@ func (t *typedLaunchpad) handlerModify(opts *Options) genny.RunFn {
 			return handleMsgSet%[2]v(ctx, k, msg)
 		case types.MsgDelete%[2]v:
 			return handleMsgDelete%[2]v(ctx, k, msg)`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -77,8 +77,8 @@ func (t *typedLaunchpad) typesCodecModify(opts *Options) genny.RunFn {
 		cdc.RegisterConcrete(MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 		cdc.RegisterConcrete(MsgSet%[2]v{}, "%[3]v/Set%[2]v", nil)
 		cdc.RegisterConcrete(MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName), opts.ModuleName)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName), opts.ModuleName)
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -95,8 +95,8 @@ func (t *typedLaunchpad) clientCliTxModify(opts *Options) genny.RunFn {
 		GetCmdCreate%[2]v(cdc),
 		GetCmdSet%[2]v(cdc),
 		GetCmdDelete%[2]v(cdc),`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -112,8 +112,8 @@ func (t *typedLaunchpad) clientCliQueryModify(opts *Options) genny.RunFn {
 		template := `%[1]v
 			GetCmdList%[2]v(queryRoute, cdc),
 			GetCmdGet%[2]v(queryRoute, cdc),`
-		replacement := fmt.Sprintf(template, placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -153,12 +153,12 @@ func (t *typedLaunchpad) keeperQuerierModify(opts *Options) genny.RunFn {
 		case types.QueryGet%[2]v:
 			return get%[2]v(ctx, path[1:], k)`
 		replacement := fmt.Sprintf(template, opts.ModulePath, opts.ModuleName)
-		replacement2 := fmt.Sprintf(template2, placeholder, opts.ModulePath, opts.ModuleName)
-		replacement3 := fmt.Sprintf(template3, placeholder2, strings.Title(opts.TypeName))
+		replacement2 := fmt.Sprintf(template2, Placeholder, opts.ModulePath, opts.ModuleName)
+		replacement3 := fmt.Sprintf(template3, Placeholder2, strings.Title(opts.TypeName))
 		content := f.String()
 		content = strings.Replace(content, replacement, "", 1)
-		content = strings.Replace(content, placeholder, replacement2, 1)
-		content = strings.Replace(content, placeholder2, replacement3, 1)
+		content = strings.Replace(content, Placeholder, replacement2, 1)
+		content = strings.Replace(content, Placeholder2, replacement3, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -179,8 +179,8 @@ func (t *typedLaunchpad) clientRestRestModify(opts *Options) genny.RunFn {
 		r.HandleFunc("/%[2]v/%[4]v", delete%[3]vHandler(cliCtx)).Methods("DELETE")
 
 		`
-		replacement := fmt.Sprintf(template, placeholder, opts.ModuleName, strings.Title(opts.TypeName), opts.TypeName)
-		content := strings.Replace(f.String(), placeholder, replacement, 1)
+		replacement := fmt.Sprintf(template, Placeholder, opts.ModuleName, strings.Title(opts.TypeName), opts.TypeName)
+		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -202,8 +202,8 @@ func (t *typedLaunchpad) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			fields += fmt.Sprintf(`'%[1]v', `, field.Name)
 		}
 		replacement := fmt.Sprintf(`%[1]v
-		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, placeholder4, opts.TypeName, fields, opts.ModuleName)
-		content := strings.Replace(f.String(), placeholder4, replacement, 1)
+		<sp-type-form type="%[2]v" :fields="[%[3]v]" module="%[4]v" />`, Placeholder4, opts.TypeName, fields, opts.ModuleName)
+		content := strings.Replace(f.String(), Placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

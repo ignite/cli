@@ -20,6 +20,11 @@ import (
 const (
 	// faucetTimeout used to set a timeout while transferring coins from a faucet.
 	faucetTimeout = time.Second * 20
+
+	TransferPort      = "transfer"
+	TransferVersion   = "ics20-1"
+	OrderingUnordered = "unordered"
+	OrderingOrdered   = "ordered"
 )
 
 // Chain represents a chain in relayer.
@@ -145,9 +150,74 @@ func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
 	return rchain.QueryBalance(rchain.Key)
 }
 
+// channelOptions represents options for configuring the IBC channel between two chains
+type channelOptions struct {
+	sourcePort    string
+	sourceVersion string
+	targetPort    string
+	targetVersion string
+	ordering      string
+}
+
+// newChannelOptions returns default channel options
+func newChannelOptions() channelOptions {
+	return channelOptions{
+		sourcePort:    TransferPort,
+		sourceVersion: TransferVersion,
+		targetPort:    TransferPort,
+		targetVersion: TransferVersion,
+		ordering:      OrderingUnordered,
+	}
+}
+
+// ChannelOption is used to configure relayer IBC connection
+type ChannelOption func(*channelOptions)
+
+// SourcePort configures the source port of the new channel
+func SourcePort(port string) ChannelOption {
+	return func(c *channelOptions) {
+		c.sourcePort = port
+	}
+}
+
+// TargetPort configures the target port of the new channel
+func TargetPort(port string) ChannelOption {
+	return func(c *channelOptions) {
+		c.targetPort = port
+	}
+}
+
+// SourceVersion configures the source version of the new channel
+func SourceVersion(version string) ChannelOption {
+	return func(c *channelOptions) {
+		c.sourceVersion = version
+	}
+}
+
+// TargetVersion configures the target version of the new channel
+func TargetVersion(version string) ChannelOption {
+	return func(c *channelOptions) {
+		c.targetVersion = version
+	}
+}
+
+// Ordered sets the new channel as ordered
+func Ordered() ChannelOption {
+	return func(c *channelOptions) {
+		c.ordering = OrderingOrdered
+	}
+}
+
 // Connect connects dst chain to c chain. it returns the path id on success otherwise,
 // returns with a non-nil error.
-func (c *Chain) Connect(ctx context.Context, dst *Chain) (id string, err error) {
+func (c *Chain) Connect(ctx context.Context, dst *Chain, channelOpts ...ChannelOption) (id string, err error) {
+	channelOptions := newChannelOptions()
+
+	// apply channel options
+	for _, o := range channelOpts {
+		o(&channelOptions)
+	}
+
 	id = fmt.Sprintf("%s-%s", c.ID, dst.ID)
 
 	conf, err := config(ctx, false)
@@ -160,15 +230,15 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain) (id string, err error) 
 		Strategy: relayer.NewNaiveStrategy(),
 		Src: &relayer.PathEnd{
 			ChainID: c.ID,
-			PortID:  "transfer",
-			Order:   "unordered",
-			Version: "ics20-1",
+			PortID:  channelOptions.sourcePort,
+			Order:   channelOptions.ordering,
+			Version: channelOptions.sourceVersion,
 		},
 		Dst: &relayer.PathEnd{
 			ChainID: dst.ID,
-			PortID:  "transfer",
-			Order:   "unordered",
-			Version: "ics20-1",
+			PortID:  channelOptions.targetPort,
+			Order:   channelOptions.ordering,
+			Version: channelOptions.targetVersion,
 		},
 	}
 
@@ -310,11 +380,11 @@ func (c *Chain) setupChain(ctx context.Context) error {
 
 // determineAndSetID determines chain's id and uses it.
 func (c *Chain) determineAndSetID(ctx context.Context) error {
-	genesis, err := c.tmclient.GetGenesis(ctx)
+	info, err := c.tmclient.Status(ctx)
 	if err != nil {
 		return errors.Wrap(err, "cannot fetch chain info")
 	}
-	c.ID = genesis.ChainID
+	c.ID = info.Network
 	return nil
 }
 

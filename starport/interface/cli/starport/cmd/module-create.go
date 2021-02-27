@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
 )
@@ -52,6 +53,9 @@ func NewModuleCreate() *cobra.Command {
 }
 
 func createModuleHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
 	var options []scaffolder.ModuleCreationOption
 
 	name := args[0]
@@ -82,6 +86,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 
 		return err
 	}
+
+	s.Stop()
+
 	fmt.Printf("\n🎉 Module created %s.\n\n", name)
 	return nil
 }

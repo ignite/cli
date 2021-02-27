@@ -1,25 +1,25 @@
 package typed
 
 const (
-	placeholder   = "// this line is used by starport scaffolding # 1"
-	placeholder2  = "// this line is used by starport scaffolding # 2"
-	placeholder3  = "// this line is used by starport scaffolding # 3"
-	placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
-	placeholder44 = "// this line is used by starport scaffolding # 4"
+	Placeholder   = "// this line is used by starport scaffolding # 1"
+	Placeholder2  = "// this line is used by starport scaffolding # 2"
+	Placeholder3  = "// this line is used by starport scaffolding # 3"
+	Placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
+	Placeholder44 = "// this line is used by starport scaffolding # 4"
 
-	placeholderProtoTxImport  = "// this line is used by starport scaffolding # tx/proto/import"
-	placeholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
-	placeholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
+	PlaceholderProtoTxImport  = "// this line is used by starport scaffolding # tx/proto/import"
+	PlaceholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
+	PlaceholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
-	placeholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
+	PlaceholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
 
 	// Genesis
-	placeholderGenesisProtoImport     = "// this line is used by starport scaffolding # genesis/proto/import"
-	placeholderGenesisProtoState      = "// this line is used by starport scaffolding # genesis/proto/state"
-	placeholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
-	placeholderGenesisTypesImport     = "// this line is used by starport scaffolding # genesis/types/import"
-	placeholderGenesisTypesDefault    = "// this line is used by starport scaffolding # genesis/types/default"
-	placeholderGenesisTypesValidate   = "// this line is used by starport scaffolding # genesis/types/validate"
-	placeholderGenesisModuleInit      = "// this line is used by starport scaffolding # genesis/module/init"
-	placeholderGenesisModuleExport    = "// this line is used by starport scaffolding # genesis/module/export"
+	PlaceholderGenesisProtoImport     = "// this line is used by starport scaffolding # genesis/proto/import"
+	PlaceholderGenesisProtoState      = "// this line is used by starport scaffolding # genesis/proto/state"
+	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
+	PlaceholderGenesisTypesImport     = "// this line is used by starport scaffolding # genesis/types/import"
+	PlaceholderGenesisTypesDefault    = "// this line is used by starport scaffolding # genesis/types/default"
+	PlaceholderGenesisTypesValidate   = "// this line is used by starport scaffolding # genesis/types/validate"
+	PlaceholderGenesisModuleInit      = "// this line is used by starport scaffolding # genesis/module/init"
+	PlaceholderGenesisModuleExport    = "// this line is used by starport scaffolding # genesis/module/export"
 )

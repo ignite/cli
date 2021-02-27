@@ -8,7 +8,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestGenerateAnAppWithTypeAndVerify(t *testing.T) {
+func TestGenerateAnAppWithLaunchpadWithTypeAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -155,7 +155,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestCreateTypeInCustomModule(t *testing.T) {
+func TestCreateTypeInCustomModuleWithLaunchpad(t *testing.T) {
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -193,6 +193,14 @@ func TestCreateTypeInCustomModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating an indexed type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "indexeduser", "email", "--indexed"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -249,6 +257,51 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
+	))
+
+	env.EnsureAppIsSteady(path)
+}
+
+func TestCreateIndexTypeWithStargate(t *testing.T) {
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("blog", Stargate)
+	)
+
+	env.Must(env.Exec("create an indexed type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "user", "email", "--indexed"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "user", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating an indexed type with a typename that already exist",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "user", "email", "--indexed", "--module", "example"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("create an indexed type in a custom module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "indexeduser", "email", "--indexed", "--module", "example"),
+			step.Workdir(path),
+		)),
 	))
 
 	env.EnsureAppIsSteady(path)
