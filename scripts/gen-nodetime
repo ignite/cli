@@ -1,42 +1,13 @@
 #!/bin/bash
 
 # generates static Go files to embed node cli programs into Starport for linux and darwin.
-# protobufjs and swagger-typescript-api bundled together and packaged as a standalone
-# executable for both platforms.
-# Starport's own binary will only include one or other binary depending on the platform where
-# Starport is being built.
 
 set -e
 
-version=6.10.2
-cachedir=".cache"
-protobufjshash="da34f43ccd51ad97017e139f137521782f5ef119"
-protobufjsdir="$cachedir/protobufjs"
+cd ./scripts/data/gen-nodetime
 
-installedprotobufjshash=""
-
-if [ -d $protobufjsdir ]
-then
-    cd $protobufjsdir
-    installedprotobufjshash=$(git rev-parse HEAD)
-fi
-
-if [ "$installedprotobufjshash" != "$protobufjshash" ]
-then
-    rm -rf $protobufjsdir
-    git clone https://github.com/protobufjs/protobuf.js $protobufjsdir
-    cd $protobufjsdir
-    git reset --hard $protobufjshash
-fi
-
-cd cli
-
-cp -r ../../../scripts/data/gen-protobufjs/* . 
-
-sudo npm install -g pkg@4.4.9
 npm i 
-
-pkg --debug -t node14-linux-x64,node14-macos-x64 -o nodetime .
+npm run build
 
 tar -czvf nodetime-linux.tar.gz nodetime-linux
 tar -czvf nodetime-darwin.tar.gz nodetime-macos

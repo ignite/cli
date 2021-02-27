@@ -2,14 +2,11 @@
 package sta
 
 import (
-	"bytes"
 	"context"
 	"path/filepath"
 	"sync"
 
-	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
 
@@ -33,9 +30,7 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) er
 	command := []string{
 		nodetime.BinaryPath,
 		nodetime.CommandSTA,
-		"--js",
 		"--module-name-index",
-		moduleNameIndex,
 		"-p",
 		specPath,
 		"-o",
@@ -45,13 +40,5 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) er
 	}
 
 	// execute the command.
-	errb := &bytes.Buffer{}
-
-	err = cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(errb)).
-		Run(ctx,
-			step.New(step.Exec(command[0], command[1:]...)))
-
-	return errors.Wrap(err, errb.String())
+	return cmdrunner.Exec(ctx, command[0], command[1:]...)
 }

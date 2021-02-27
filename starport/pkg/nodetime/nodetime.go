@@ -18,11 +18,11 @@ const BinaryPath = "/tmp/nodetime"
 
 // the list of CLIs included.
 const (
-	// CommandPBTS is https://github.com/protobufjs/protobuf.js/blob/master/cli/bin/pbjs.
-	CommandPBJS = "js"
+	// CommandTSProto is https://github.com/stephenh/ts-proto.
+	CommandTSProto = "ts-proto"
 
-	// CommandPBTS is https://github.com/protobufjs/protobuf.js/blob/master/cli/bin/pbts.
-	CommandPBTS = "ts"
+	// CommandTSC is https://github.com/microsoft/TypeScript.
+	CommandTSC = "tsc"
 
 	// CommandSTA is https://github.com/acacode/swagger-typescript-api.
 	CommandSTA = "sta"

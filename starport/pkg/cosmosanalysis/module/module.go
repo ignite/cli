@@ -52,6 +52,9 @@ type Msg struct {
 
 	// URI of the type.
 	URI string
+
+	// FilePath is the path of the .proto file where message is defined at.
+	FilePath string
 }
 
 // Discover discovers and returns modules and their types that implements sdk.Msg.
@@ -95,8 +98,9 @@ func Discover(sourcePath string) ([]Module, error) {
 
 		for _, xmsg := range xmsgs {
 			msgs = append(msgs, Msg{
-				Name: xmsg,
-				URI:  fmt.Sprintf("%s.%s", xproto.Name, xmsg),
+				Name:     xmsg,
+				URI:      fmt.Sprintf("%s.%s", xproto.Name, xmsg),
+				FilePath: xproto.MessageByName(xmsg).Path,
 			})
 		}
 
