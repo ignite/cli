@@ -29,8 +29,9 @@ const (
 )
 
 var (
-	onceBinary sync.Once
-	binary     []byte
+	onceBinary      sync.Once
+	oncePlaceBinary sync.Once
+	binary          []byte
 )
 
 // Binary returns the binary bytes of the executable.
@@ -59,18 +60,24 @@ func Binary() []byte {
 
 // PlaceBinary places the binary to BinaryPath.
 func PlaceBinary() error {
-	// make sure that parent dir of the binary exists.
-	if err := os.MkdirAll(filepath.Dir(BinaryPath), os.ModePerm); err != nil {
-		return err
-	}
+	var err error
 
-	// place the binary to BinaryPath.
-	f, err := os.OpenFile(BinaryPath, os.O_RDWR|os.O_CREATE, 0755)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
+	oncePlaceBinary.Do(func() {
+		// make sure that parent dir of the binary exists.
+		if err = os.MkdirAll(filepath.Dir(BinaryPath), os.ModePerm); err != nil {
+			return
+		}
 
-	_, err = io.Copy(f, bytes.NewReader(Binary()))
+		// place the binary to BinaryPath.
+		var f *os.File
+
+		if f, err = os.OpenFile(BinaryPath, os.O_RDWR|os.O_CREATE, 0755); err != nil {
+			return
+		}
+		defer f.Close()
+
+		_, err = io.Copy(f, bytes.NewReader(Binary()))
+	})
+
 	return err
 }

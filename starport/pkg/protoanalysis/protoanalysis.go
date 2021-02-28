@@ -2,8 +2,10 @@
 package protoanalysis
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/emicklei/proto"
@@ -31,13 +33,13 @@ type Package struct {
 }
 
 // MessageByName finds a message by its name inside Package.
-func (p Package) MessageByName(name string) Message {
+func (p Package) MessageByName(name string) (Message, error) {
 	for _, message := range p.Messages {
 		if message.Name == name {
-			return message
+			return message, nil
 		}
 	}
-	return Message{}
+	return Message{}, errors.New("no message found")
 }
 
 // Message represents a proto message.
@@ -47,6 +49,10 @@ type Message struct {
 
 	// Path of the file where message is defined at.
 	Path string
+}
+
+func (p Package) GoImportPath() string {
+	return strings.Split(p.GoImportName, ";")[0]
 }
 
 // DiscoverPackages recursively discovers proto files, parses them, and returns info about
