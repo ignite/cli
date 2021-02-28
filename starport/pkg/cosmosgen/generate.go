@@ -243,6 +243,9 @@ func (g *generator) generateJS() error {
 			tsOut,
 			protoc.Plugin(tsprotoPluginPath),
 		)
+		if err != nil {
+			return err
+		}
 
 		// generate OpenAPI spec.
 		oaitemp, err := ioutil.TempDir("", "")
@@ -311,7 +314,7 @@ func (g *generator) generateJS() error {
 	// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
 	// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
 	// not use generated modules.
-	// not used ones will never get resolved inside JS envrionment and will not ship to production, JS bundlers will avoid.
+	// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
 	//
 	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
 	// at some point, it is a nice to have.
