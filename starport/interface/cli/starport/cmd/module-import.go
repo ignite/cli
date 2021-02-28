@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -21,11 +22,17 @@ func NewModuleImport() *cobra.Command {
 }
 
 func importModuleHandler(cmd *cobra.Command, args []string) error {
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
 	name := args[0]
 	sc := scaffolder.New(appPath)
 	if err := sc.ImportModule(name); err != nil {
 		return err
 	}
+
+	s.Stop()
+
 	fmt.Printf("\n🎉 Imported module `%s`.\n\n", name)
 	return nil
 }

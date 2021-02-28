@@ -23,23 +23,23 @@ func (t *typedStargate) genesisProtoModify(opts *Options) genny.RunFn {
 
 		templateProtoImport := `%[1]v
 import "%[2]v/%[3]v.proto";`
-		replacementProtoImport := fmt.Sprintf(templateProtoImport, placeholderGenesisProtoImport, opts.ModuleName, opts.TypeName)
-		content := strings.Replace(f.String(), placeholderGenesisProtoImport, replacementProtoImport, 1)
+		replacementProtoImport := fmt.Sprintf(templateProtoImport, PlaceholderGenesisProtoImport, opts.ModuleName, opts.TypeName)
+		content := strings.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport, 1)
 
 		// Determine the new field number
-		fieldNumber := strings.Count(content, placeholderGenesisProtoStateField) + 1
+		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
 
 		templateProtoState := `%[1]v
 		repeated %[2]v %[3]vList = %[4]v; %[5]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
-			placeholderGenesisProtoState,
+			PlaceholderGenesisProtoState,
 			strings.Title(opts.TypeName),
 			opts.TypeName,
 			fieldNumber,
-			placeholderGenesisProtoStateField,
+			PlaceholderGenesisProtoStateField,
 		)
-		content = strings.Replace(content, placeholderGenesisProtoState, replacementProtoState, 1)
+		content = strings.Replace(content, PlaceholderGenesisProtoState, replacementProtoState, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -55,12 +55,12 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 		}
 
 		templateTypesImport := `"fmt"`
-		content := strings.Replace(f.String(), placeholderGenesisTypesImport, templateTypesImport, 1)
+		content := strings.Replace(f.String(), PlaceholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
-		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, placeholderGenesisTypesDefault, strings.Title(opts.TypeName))
-		content = strings.Replace(content, placeholderGenesisTypesDefault, replacementTypesDefault, 1)
+		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, PlaceholderGenesisTypesDefault, strings.Title(opts.TypeName))
+		content = strings.Replace(content, PlaceholderGenesisTypesDefault, replacementTypesDefault, 1)
 
 		templateTypesValidate := `%[1]v
 // Check for duplicated ID in %[2]v
@@ -74,11 +74,11 @@ for _, elem := range gs.%[3]vList {
 }`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
-			placeholderGenesisTypesValidate,
+			PlaceholderGenesisTypesValidate,
 			opts.TypeName,
 			strings.Title(opts.TypeName),
 		)
-		content = strings.Replace(content, placeholderGenesisTypesValidate, replacementTypesValidate, 1)
+		content = strings.Replace(content, PlaceholderGenesisTypesValidate, replacementTypesValidate, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -104,11 +104,11 @@ k.Set%[3]vCount(ctx, int64(len(genState.%[3]vList)))
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
-			placeholderGenesisModuleInit,
+			PlaceholderGenesisModuleInit,
 			opts.TypeName,
 			strings.Title(opts.TypeName),
 		)
-		content := strings.Replace(f.String(), placeholderGenesisModuleInit, replacementModuleInit, 1)
+		content := strings.Replace(f.String(), PlaceholderGenesisModuleInit, replacementModuleInit, 1)
 
 		templateModuleExport := `%[1]v
 // Get all %[2]v
@@ -120,11 +120,11 @@ for _, elem := range %[2]vList {
 `
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
-			placeholderGenesisModuleExport,
+			PlaceholderGenesisModuleExport,
 			opts.TypeName,
 			strings.Title(opts.TypeName),
 		)
-		content = strings.Replace(content, placeholderGenesisModuleExport, replacementModuleExport, 1)
+		content = strings.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
