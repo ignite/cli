@@ -140,7 +140,7 @@ func (am AppModule) OnRecvPacket(
         return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
     }
 
-    acknowledgement := channeltypes.NewResultAcknowledgement([]byte{byte(1)})
+    var ack channeltypes.Acknowledgement
 
     // Dispatch packet
     switch packet := modulePacketData.Packet.(type) {
@@ -151,7 +151,7 @@ func (am AppModule) OnRecvPacket(
     }
 
     // Encode acknowledgement
-    ackBytes, err := acknowledgement.Marshal()
+    ackBytes, err := ack.Marshal()
     if err != nil {
         return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrInvalidType, err.Error())
     }

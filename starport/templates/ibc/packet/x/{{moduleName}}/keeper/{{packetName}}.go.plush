@@ -65,31 +65,42 @@ func (k Keeper) Transmit<%= title(packetName) %>Packet(
 }
 
 // OnRecv<%= title(packetName) %>Packet processes packet reception
-func (k Keeper) OnRecv<%= title(packetName) %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(packetName) %>PacketData) error {
+func (k Keeper) OnRecv<%= title(packetName) %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(packetName) %>PacketData) (ack types.<%= title(packetName) %>PacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
-		return err
+		return ack, err
 	}
 
 	// TODO: packet reception logic
 
-	return nil
+	return ack, nil
 }
 
 // OnAcknowledgement<%= title(packetName) %>Packet responds to the the success or failure of a packet
 // acknowledgement written on the receiving chain.
 func (k Keeper) OnAcknowledgement<%= title(packetName) %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(packetName) %>PacketData, ack channeltypes.Acknowledgement) error {
-	switch ack.Response.(type) {
+	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
 
 		// TODO: failed acknowledgement logic
+        _ = dispatchedAck.Error
 
 		return nil
-	default:
+	case *channeltypes.Acknowledgement_Result:
+        // Decode the packet acknowledgment
+        var packetAck types.<%= title(packetName) %>PacketAck
+        err := packetAck.Unmarshal(dispatchedAck.Result)
+        if err != nil {
+            // The counter-party module doesn't implement the correct acknowledgment format
+            return errors.New("cannot unmarshal acknowledgment")
+        }
 
 	    // TODO: successful acknowledgement logic
 
 		return nil
+	default:
+    	// The counter-party module doesn't implement the correct acknowledgment format
+    	return errors.New("invalid acknowledgment format")
 	}
 }
 

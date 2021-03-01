@@ -20,7 +20,7 @@ const (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...string) error {
+func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetFields []string, ackFields []string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -62,8 +62,14 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...s
 		return fmt.Errorf("the packet %s already exist", packetName)
 	}
 
-	// Parse provided field
-	tFields, err := parseFields(fields)
+	// Parse packet fields
+	parsedPacketFields, err := parseFields(packetFields)
+	if err != nil {
+		return err
+	}
+
+	// Parse acknowledgment fields
+	parsedAcksFields, err := parseFields(ackFields)
 	if err != nil {
 		return err
 	}
@@ -77,10 +83,11 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, fields ...s
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
 			PacketName: packetName,
-			Fields:     tFields,
+			Fields:     parsedPacketFields,
+			AckFields: 	parsedAcksFields,
 		}
 	)
-	g, err = ibc.NewIBC(opts)
+	g, err = ibc.NewPacket(opts)
 	if err != nil {
 		return err
 	}
