@@ -13,7 +13,7 @@ import (
 var placeOnce sync.Once
 
 // Generate generates client code and TS types to outPath from an OpenAPI spec that resides at specPath.
-func Generate(ctx context.Context, outPath, specPath string) error {
+func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) error {
 	var err error
 
 	// places the protobufjs-cli into BinaryPath.
@@ -30,6 +30,8 @@ func Generate(ctx context.Context, outPath, specPath string) error {
 	command := []string{
 		nodetime.BinaryPath,
 		nodetime.CommandSTA,
+		"--module-name-index",
+		moduleNameIndex,
 		"-p",
 		specPath,
 		"-o",

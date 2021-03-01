@@ -2,10 +2,14 @@ package cosmosgen
 
 import (
 	"context"
+	"embed"
 	"io/ioutil"
 	"os"
 	"path/filepath"
+	"strings"
+	"text/template"
 
+	"github.com/iancoleman/strcase"
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -38,6 +42,26 @@ var (
 	sdkProto           = "proto"
 	sdkProtoThirdParty = "third_party/proto"
 )
+
+//go:embed templates/*
+var templates embed.FS
+
+// tpl holds the js client template which is for wrapping the generated protobufjs types and rest client,
+// utilizing cosmjs' type registry, tx signing & broadcasting through exported, high level txClient() and queryClient() funcs.
+func tpl(protoPath string) *template.Template {
+	return template.Must(
+		template.New("client.ts.tpl").
+			Funcs(template.FuncMap{
+				"camelCase": strcase.ToLowerCamel,
+				"resolveFile": func(fullPath string) string {
+					rel, _ := filepath.Rel(protoPath, fullPath)
+					rel = strings.TrimSuffix(rel, ".proto")
+					return rel
+				},
+			}).
+			ParseFS(templates, "templates/client.ts.tpl"),
+	)
+}
 
 type generateOptions struct {
 	gomodPath string
@@ -240,11 +264,26 @@ func (g *generator) generateJS() error {
 			srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
 			outREST = filepath.Join(out, "rest.ts")
 		)
-		if err := sta.Generate(g.ctx, outREST, srcspec); err != nil {
+
+		if err := sta.Generate(g.ctx, outREST, srcspec, "-1"); err != nil { // -1 removes the route namespace.
 			return err
 		}
 
-		// generate .js and .d.ts files for ts files.
+		// generate the client, the js wrapper.
+		outclient := filepath.Join(out, "index.ts")
+		f, err := os.OpenFile(outclient, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		// generate the js client wrapper.
+		err = tpl(g.protoPath).Execute(f, struct{ Module module.Module }{m})
+		if err != nil {
+			return err
+		}
+
+		// generate .js and .d.ts files for all ts files.
 		if err := tsc.Generate(g.ctx, tsc.Config{
 			Include: []string{out + "/**/*.ts"},
 			CompilerOptions: tsc.CompilerOptions{
