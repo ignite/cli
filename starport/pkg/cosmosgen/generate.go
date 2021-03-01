@@ -5,25 +5,29 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/nodetime/protobufjs"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
+	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 	"golang.org/x/mod/modfile"
 )
 
 var (
-	protocOuts = []string{
+	goOuts = []string{
 		"--gocosmos_out=plugins=interfacetype+grpc,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 		"--grpc-gateway_out=logtostderr=true:.",
+	}
+
+	tsOut = []string{
+		"--ts_proto_out=.",
 	}
 
 	openAPIOut = []string{
@@ -33,13 +37,11 @@ var (
 	sdkImport          = "github.com/cosmos/cosmos-sdk"
 	sdkProto           = "proto"
 	sdkProtoThirdParty = "third_party/proto"
-
-	fileTypes = "types"
 )
 
 type generateOptions struct {
 	gomodPath string
-	jsOut     func(protoanalysis.Package, string) string
+	jsOut     func(module.Module) string
 }
 
 // TODO add WithInstall.
@@ -47,8 +49,9 @@ type generateOptions struct {
 // Target adds a new code generation target to Generate.
 type Target func(*generateOptions)
 
-// WithJSGeneration adds JS code generation.
-func WithJSGeneration(out func(pkg protoanalysis.Package, moduleName string) (path string)) Target {
+// WithJSGeneration adds JS code generation. out hook is called for each module to
+// retrieve the path that should be used to place generated js code inside for a given module.
+func WithJSGeneration(out func(module.Module) (path string)) Target {
 	return func(o *generateOptions) {
 		o.jsOut = out
 	}
@@ -151,14 +154,14 @@ func (g *generator) generateGo() error {
 	defer os.RemoveAll(tmp)
 
 	// discover every sdk module.
-	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	modules, err := module.Discover(g.projectPath)
 	if err != nil {
 		return err
 	}
 
 	// code generate for each module.
-	for _, pkg := range pkgs {
-		if err := protoc.Generate(g.ctx, tmp, pkg.Path, includePaths, protocOuts); err != nil {
+	for _, m := range modules {
+		if err := protoc.Generate(g.ctx, tmp, m.Pkg.Path, includePaths, goOuts); err != nil {
 			return err
 		}
 	}
@@ -170,55 +173,62 @@ func (g *generator) generateGo() error {
 }
 
 func (g *generator) generateJS() error {
-	jsIncludePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto))
+	includePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto, sdkProtoThirdParty))
 	if err != nil {
 		return err
 	}
 
-	oaiIncludePaths, err := g.resolveInclude(protopath.NewModule(sdkImport, sdkProto, sdkProtoThirdParty))
+	tsprotoPluginPath, err := tsproto.BinaryPath()
 	if err != nil {
 		return err
 	}
 
 	// discover every sdk module.
-	pkgs, err := protoanalysis.DiscoverPackages(g.protoPath)
+	modules, err := module.Discover(g.projectPath)
 	if err != nil {
 		return err
 	}
 
 	// code generate for each module.
-	for _, pkg := range pkgs {
+	for _, m := range modules {
 		var (
-			msp        = strings.Split(pkg.Name, ".")
-			moduleName = msp[len(msp)-1]
-
-			out = g.o.jsOut(pkg, moduleName)
+			out      = g.o.jsOut(m)
+			typesOut = filepath.Join(out, "types")
 		)
 
-		// generate protobufjs types for each module.
-		err = protobufjs.Generate(
+		// reset destination dir.
+		if err := os.RemoveAll(out); err != nil {
+			return err
+		}
+		if err := os.MkdirAll(typesOut, 0755); err != nil {
+			return err
+		}
+
+		// generate ts-proto types.
+		err = protoc.Generate(
 			g.ctx,
-			out,
-			fileTypes,
-			pkg.Path,
-			jsIncludePaths,
+			typesOut,
+			m.Pkg.Path,
+			includePaths,
+			tsOut,
+			protoc.Plugin(tsprotoPluginPath),
 		)
 		if err != nil {
 			return err
 		}
 
+		// generate OpenAPI spec.
 		oaitemp, err := ioutil.TempDir("", "")
 		if err != nil {
 			return err
 		}
 		defer os.RemoveAll(oaitemp)
 
-		// generate OpenAPI spec.
 		err = protoc.Generate(
 			g.ctx,
 			oaitemp,
-			pkg.Path,
-			oaiIncludePaths,
+			m.Pkg.Path,
+			includePaths,
 			openAPIOut,
 		)
 		if err != nil {
@@ -228,9 +238,19 @@ func (g *generator) generateJS() error {
 		// generate the REST client from the OpenAPI spec.
 		var (
 			srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
-			outjs   = filepath.Join(out, "rest.js")
+			outREST = filepath.Join(out, "rest.ts")
 		)
-		if err := sta.Generate(g.ctx, outjs, srcspec); err != nil {
+		if err := sta.Generate(g.ctx, outREST, srcspec); err != nil {
+			return err
+		}
+
+		// generate .js and .d.ts files for ts files.
+		if err := tsc.Generate(g.ctx, tsc.Config{
+			Include: []string{out + "/**/*.ts"},
+			CompilerOptions: tsc.CompilerOptions{
+				Declaration: true,
+			},
+		}); err != nil {
 			return err
 		}
 	}

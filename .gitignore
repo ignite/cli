@@ -1,5 +1,6 @@
 build/
 dist
+nodetime-*
 packrd
 *-packr.go
 node_modules
@@ -7,4 +8,3 @@ node_modules
 apps/
 .idea
 .vscode
-.cache

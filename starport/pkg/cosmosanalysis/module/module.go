@@ -38,8 +38,8 @@ type Module struct {
 	// Name of the module.
 	Name string
 
-	// TypesImportPath is the Go import path of the types pkg of the module.
-	TypesImportPath string
+	// Pkg holds the proto package info.
+	Pkg protoanalysis.Package
 
 	// Msg is a list of sdk.Msg implementation of the module.
 	Msgs []Msg
@@ -52,6 +52,9 @@ type Msg struct {
 
 	// URI of the type.
 	URI string
+
+	// FilePath is the path of the .proto file where message is defined at.
+	FilePath string
 }
 
 // Discover discovers and returns modules and their types that implements sdk.Msg.
@@ -95,17 +98,18 @@ func Discover(sourcePath string) ([]Module, error) {
 
 		for _, xmsg := range xmsgs {
 			msgs = append(msgs, Msg{
-				Name: xmsg,
-				URI:  fmt.Sprintf("%s.%s", xproto.Name, xmsg),
+				Name:     xmsg,
+				URI:      fmt.Sprintf("%s.%s", xproto.Name, xmsg),
+				FilePath: xproto.MessageByName(xmsg).Path,
 			})
 		}
 
 		var (
 			spname = strings.Split(xproto.Name, ".")
 			m      = Module{
-				Name:            spname[len(spname)-1],
-				TypesImportPath: xproto.GoImportName,
-				Msgs:            msgs,
+				Name: spname[len(spname)-1],
+				Pkg:  xproto,
+				Msgs: msgs,
 			}
 		)
 
