@@ -25,15 +25,25 @@ func NewServe() *cobra.Command {
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
+	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules")
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
 
 	return c
 }
 
 func serveHandler(cmd *cobra.Command, args []string) error {
+	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
+	if err != nil {
+		return err
+	}
+
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	if isRebuildProtoOnce {
+		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	// check if custom config is defined

@@ -10,8 +10,7 @@ import (
 )
 
 const (
-	onlyProtoFlag = "only-proto"
-	protoAllFlag  = "proto-all"
+	flagRebuildProtoOnce = "rebuild-proto-once"
 )
 
 // NewBuild returns a new build command to build a blockchain app.
@@ -24,16 +23,24 @@ func NewBuild() *cobra.Command {
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	c.Flags().Bool(onlyProtoFlag, false, "Only enables proto code generation")
-	c.Flags().Bool(protoAllFlag, false, "Enables proto code generation for dependency modules as well")
+	c.Flags().Bool(flagRebuildProtoOnce, false, "Only enables proto code generation including 3rd party modules")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
 func buildHandler(cmd *cobra.Command, args []string) error {
+	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
+	if err != nil {
+		return err
+	}
+
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	}
+
+	if isRebuildProtoOnce {
+		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
 	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)

@@ -64,9 +64,10 @@ func tpl(protoPath string) *template.Template {
 }
 
 type generateOptions struct {
-	includeDirs []string
-	gomodPath   string
-	jsOut       func(module.Module) string
+	includeDirs         []string
+	gomodPath           string
+	jsOut               func(module.Module) string
+	jsIncludeThirdParty bool
 }
 
 // TODO add WithInstall.
@@ -76,9 +77,12 @@ type Option func(*generateOptions)
 
 // WithJSGeneration adds JS code generation. out hook is called for each module to
 // retrieve the path that should be used to place generated js code inside for a given module.
-func WithJSGeneration(out func(module.Module) (path string)) Option {
+// if includeThirdPartyModules set to true, code generation will be made for the 3rd party modules
+// used by the app -including the SDK- as well.
+func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string)) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
+		o.jsIncludeThirdParty = includeThirdPartyModules
 	}
 }
 
@@ -308,25 +312,27 @@ func (g *generator) generateJS() error {
 		g.appPath, // user's blockchain. may contain internal modules. it is the first place to look for.
 	}
 
-	// go through the Go dependencies (inside go.mod) of each source path, some of them might be hosting
-	// Cosmos SDK modules that could be in use by user's blockchain.
-	//
-	// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
-	// SDK as well during this process.
-	//
-	// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
-	// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
-	// not use generated modules.
-	// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
-	//
-	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
-	// at some point, it is a nice to have.
-	for _, dep := range g.deps {
-		deppath, err := gomodule.LocatePath(dep)
-		if err != nil {
-			return err
+	if g.o.jsIncludeThirdParty {
+		// go through the Go dependencies (inside go.mod) of each source path, some of them might be hosting
+		// Cosmos SDK modules that could be in use by user's blockchain.
+		//
+		// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
+		// SDK as well during this process.
+		//
+		// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
+		// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
+		// not use generated modules.
+		// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
+		//
+		// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
+		// at some point, it is a nice to have.
+		for _, dep := range g.deps {
+			deppath, err := gomodule.LocatePath(dep)
+			if err != nil {
+				return err
+			}
+			sourcePaths = append(sourcePaths, deppath)
 		}
-		sourcePaths = append(sourcePaths, deppath)
 	}
 
 	gs := &errgroup.Group{}
