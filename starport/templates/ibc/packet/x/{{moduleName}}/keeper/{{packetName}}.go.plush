@@ -1,6 +1,8 @@
 package keeper
 
 import (
+    "errors"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
@@ -65,15 +67,15 @@ func (k Keeper) Transmit<%= title(packetName) %>Packet(
 }
 
 // OnRecv<%= title(packetName) %>Packet processes packet reception
-func (k Keeper) OnRecv<%= title(packetName) %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(packetName) %>PacketData) (ack types.<%= title(packetName) %>PacketAck, err error) {
+func (k Keeper) OnRecv<%= title(packetName) %>Packet(ctx sdk.Context, packet channeltypes.Packet, data types.<%= title(packetName) %>PacketData) (packetAck types.<%= title(packetName) %>PacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
-		return ack, err
+		return packetAck, err
 	}
 
 	// TODO: packet reception logic
 
-	return ack, nil
+	return packetAck, nil
 }
 
 // OnAcknowledgement<%= title(packetName) %>Packet responds to the the success or failure of a packet
