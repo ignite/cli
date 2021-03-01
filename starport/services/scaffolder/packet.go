@@ -84,7 +84,7 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 			OwnerName:  owner(path.RawPath),
 			PacketName: packetName,
 			Fields:     parsedPacketFields,
-			AckFields: 	parsedAcksFields,
+			AckFields:  parsedAcksFields,
 		}
 	)
 	g, err = ibc.NewPacket(opts)

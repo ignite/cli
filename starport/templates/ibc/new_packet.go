@@ -27,7 +27,7 @@ type PacketOptions struct {
 	OwnerName  string
 	PacketName string
 	Fields     []typed.Field
-	AckFields	[]typed.Field
+	AckFields  []typed.Field
 }
 
 // New ...

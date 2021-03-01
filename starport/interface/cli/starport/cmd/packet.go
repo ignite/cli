@@ -34,7 +34,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	var (
-		packet = args[0]
+		packet       = args[0]
 		packetFields = args[1:]
 	)
 
