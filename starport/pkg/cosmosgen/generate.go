@@ -272,6 +272,7 @@ func (g *generator) generateJS() error {
 			srcspec = filepath.Join(oaitemp, "apidocs.swagger.json")
 			outREST = filepath.Join(out, "rest.ts")
 		)
+
 		if err := sta.Generate(g.ctx, outREST, srcspec, "-1"); err != nil { // -1 removes the route namespace.
 			return err
 		}
