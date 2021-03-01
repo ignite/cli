@@ -12,8 +12,8 @@ const types = [
 
 const registry = new Registry(<any>types);
 
-const defaultFee= {
-  amount: coins(0, "token"),
+const defaultFee = {
+  amount: [],
   gas: "200000",
 };
 
