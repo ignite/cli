@@ -1,4 +1,4 @@
-import { coins } from "@cosmjs/launchpad";
+import { coins, StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
@@ -12,8 +12,17 @@ const types = [
 
 const registry = new Registry(<any>types);
 
+const defaultFee= {
+  amount: coins(0, "token"),
+  gas: "200000",
+};
+
 interface TxClientOptions {
   addr: string
+}
+
+interface SignAndBroadcastOptions {
+  fee: StdFee
 }
 
 const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
@@ -21,13 +30,9 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
 
   const client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
   const { address } = (await wallet.getAccounts())[0];
-  const fee = {
-    amount: coins(0, "token"),
-    gas: "200000",
-  };
 
   return {
-    signAndBroadcast: (msgs: EncodeObject[]) => client.signAndBroadcast(address, msgs, fee),
+    signAndBroadcast: (msgs: EncodeObject[], { fee: fee }: SignAndBroadcastOptions = { fee: defaultFee }) => client.signAndBroadcast(address, msgs, fee),
     {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: data }),
     {{ end }}
   };
