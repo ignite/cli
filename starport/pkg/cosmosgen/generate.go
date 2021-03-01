@@ -19,6 +19,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
 	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/protopath"
 	gomodmodule "golang.org/x/mod/module"
@@ -181,15 +182,16 @@ func (g *generator) generateGo() error {
 	}
 	defer os.RemoveAll(tmp)
 
-	// discover every sdk module.
-	modules, err := g.discoverModules(g.appPath)
+	// discover proto packages in the app.
+	pp := filepath.Join(g.appPath, g.protoDir)
+	pkgs, err := protoanalysis.DiscoverPackages(pp)
 	if err != nil {
 		return err
 	}
 
 	// code generate for each module.
-	for _, m := range modules {
-		if err := protoc.Generate(g.ctx, tmp, m.Pkg.Path, includePaths, goOuts); err != nil {
+	for _, pkg := range pkgs {
+		if err := protoc.Generate(g.ctx, tmp, pkg.Path, includePaths, goOuts); err != nil {
 			return err
 		}
 	}
