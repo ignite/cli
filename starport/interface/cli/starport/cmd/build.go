@@ -23,7 +23,7 @@ func NewBuild() *cobra.Command {
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Only enables proto code generation including 3rd party modules")
+	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
