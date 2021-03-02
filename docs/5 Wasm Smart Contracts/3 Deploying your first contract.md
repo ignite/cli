@@ -7,7 +7,7 @@ The `wasm` adaptation of the ERC20 contract is called the CW20, it encapsulates 
 The `wasm` module uses Rust language instead of Solidity, therefore it is necessary to have Rust installed on the machine you are planning to compile and upload the smart contract. In the following steps, we will download the CW20 code, test it, deploy it for production, host it on a blockchain and use it.
 Requirements are:
 
-- [Starport](https://github.com/tendermint/starport)
+- [Starport v0.14.0](https://github.com/tendermint/starport)
 - [Install Rust](https://www.rust-lang.org/)
 - Install Cargo generate
 `cargo install cargo-generate --features vendored-openssl`
@@ -16,7 +16,7 @@ Requirements are:
 If you have followed along the commands in the last chapters, you should have a blockchain with `wasm` enabled in your `myapp` folder. Let's revisit the commands necessary:
 
 ```bash
-starport app github.com/username/myapp
+starport app github.com/username/myapp --sdk-version stargate
 cd myapp
 ```
 
@@ -52,7 +52,7 @@ cd cosmwasm-plus
 docker run --rm -v "$(pwd)":/code \
   --mount type=volume,source="$(basename "$(pwd)")_cache",target=/code/target \
   --mount type=volume,source=registry_cache,target=/usr/local/cargo/registry \
-  cosmwasm/workspace-optimizer:0.10.4
+  cosmwasm/workspace-optimizer:0.10.7
 ```
 
 Now we have our contract wasm file in our target folder. In order to upload it to the blockchain, we will copy the contact to our current folder.
@@ -67,7 +67,7 @@ cp ./cosmwasm-plus/artifacts/cw20_base.wasm .
 We now have our `cw20_base.wasm` file in our current folder with the bytecode accordingly. We can upload the contract with the following command to our blockchain `myapp`
 
 ```bash
-myappcli tx wasm store cw20_base.wasm --from user1 --gas 1500000
+myappd tx wasm store cw20_base.wasm --from alice --gas 1500000
 ```
 
 You will get asked to sign the transaction, insert `y` and press Enter to confirm.
@@ -76,13 +76,13 @@ You will get asked to sign the transaction, insert `y` and press Enter to confir
 We can now check if it is listed with
 
 ```bash
-myappcli query wasm list-code
+myappd query wasm list-code
 ```
 
 The output will look something similar to
 
 ```
-> myappcli query wasm list-code
+> myappd query wasm list-code
 [
   {
     "id": 1,
@@ -102,7 +102,7 @@ Having uploaded the code it is now available to instantiate and create our first
 For demonstration purposes, let's name our CW20 Token XRP and print an arbitrary amount for testing purposes.
 
 ```bash
-myappcli tx wasm instantiate 1 '{ "name": "xrp", "symbol": "XRP", "decimals": 8, "initial_balances": [ { "address": "cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf", "amount": 10000000000 } ]}' --from user1 --label xrp --gas 1000000
+myappd tx wasm instantiate 1 '{ "name": "xrp", "symbol": "XRP", "decimals": 8, "mint": {"minter": "cosmos1vvvpnffcl4lzk7zfcr5y8zlp7hqmwuvjck2aq0", "cap": "99900000000"}, "initial_balances": [ { "address": "cosmos1vvvpnffcl4lzk7zfcr5y8zlp7hqmwuvjck2aq0", "amount": "12345678000"} ]}' --from alice --label xrp --gas 1000000 
 ```
 
 When everything is successfull, you will be greeted with a message to confirm the transaction y|N - input y and enter.
@@ -120,7 +120,7 @@ confirm transaction before signing and broadcasting [y/N]: y
 You can query for transaction details with the following command, using the txhash displayed above:
 
 ```bash
-myappcli query tx D58E53C4E97A9A687E7E818B68FFB3E810B1661FCAFF72594D7CD3BAB3DB4760
+myappd query tx D58E53C4E97A9A687E7E818B68FFB3E810B1661FCAFF72594D7CD3BAB3DB4760
 ```
 
 Checking transactions this way can be very convinient for debugging or researching more information.

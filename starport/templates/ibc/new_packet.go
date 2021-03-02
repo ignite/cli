@@ -27,10 +27,11 @@ type PacketOptions struct {
 	OwnerName  string
 	PacketName string
 	Fields     []typed.Field
+	AckFields  []typed.Field
 }
 
 // New ...
-func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
+func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(moduleModify(opts))
@@ -53,6 +54,7 @@ func NewIBC(opts *PacketOptions) (*genny.Generator, error) {
 	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
+	ctx.Set("ackFields", opts.AckFields)
 	ctx.Set("title", strings.Title)
 
 	ctx.Set("nodash", func(s string) string {
@@ -76,9 +78,16 @@ func moduleModify(opts *PacketOptions) genny.RunFn {
 		// Recv packet dispatch
 		templateRecv := `%[1]v
 case *types.%[2]vPacketData_%[3]vPacket:
-	err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
+	packetAck, err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
-		acknowledgement = channeltypes.NewErrorAcknowledgement(err.Error())
+		ack = channeltypes.NewErrorAcknowledgement(err.Error())
+	} else {
+		// Encode packet acknowledgment
+		packetAckBytes, err := packetAck.Marshal()
+		if err != nil {
+			return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+		}
+		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
@@ -155,21 +164,32 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 		)
 		content = strings.Replace(content, PlaceholderIBCPacketProtoField, replacementField, 1)
 
-		// Add the message definition
-		var messageFields string
+		// Add the message definition for packet and acknowledgment
+		var packetFields string
 		for i, field := range opts.Fields {
-			messageFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			packetFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
 		}
+
+		var ackFields string
+		for i, field := range opts.AckFields {
+			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+		}
+
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
 	%[3]v}
+
+// %[2]vPacketAck defines a struct for the packet acknowledgment
+message %[2]vPacketAck {
+	%[4]v}
 `
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderIBCPacketProtoMessage,
 			strings.Title(opts.PacketName),
-			messageFields,
+			packetFields,
+			ackFields,
 		)
 		content = strings.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage, 1)
 
