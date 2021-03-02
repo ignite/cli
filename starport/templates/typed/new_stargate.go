@@ -478,18 +478,13 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
-		fields := []string{` ['creator', 1, 'string'] `}
-		for id, field := range opts.Fields {
-			fields = append(fields, fmt.Sprintf(` ['%s', %d, '%s'] `, field.Name, id+2, field.Datatype))
-		}
 		replacement := fmt.Sprintf(`%[1]v
-		<sp-type-form path="%[2]v.%[3]v.%[4]v" type="%[5]v" :fields="[%[6]v]" />`,
+		<SpType modulePath="%[2]v.%[3]v.%[4]v" moduleType="%[5]v"  />`,
 			Placeholder4,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName,
-			strings.Join(fields, ","),
 		)
 		content := strings.Replace(f.String(), Placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)

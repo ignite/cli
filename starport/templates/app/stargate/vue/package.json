@@ -5,23 +5,43 @@
   "scripts": {
     "dev": "npm install && vue-cli-service serve",
     "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "build": "vue-cli-service build",
+    "lint": "vue-cli-service lint",
+    "test": "echo \"Error: run tests from root\" && exit 1"
   },
   "dependencies": {
-    "@cosmjs/launchpad": "0.23.2",
-    "@cosmjs/proto-signing": "0.24.0-alpha.26",
-    "@cosmjs/stargate": "0.24.0-alpha.26",
-    "@tendermint/vue": "0.1.12",
-    "core-js": "^3.6.5",
-    "vue": "^2.6.11",
-    "vue-router": "^3.2.0",
-    "vuex": "^3.4.0"
+    "@cosmjs/crypto": "^0.23.2",
+    "@cosmjs/encoding": "^0.23.2",
+    "@cosmjs/proto-signing": "^0.24.0-alpha.26",
+    "@cosmjs/stargate": "^0.24.0-alpha.26",
+    "@starport/vue": "^0.1.20",
+    "@starport/vuex": "^0.1.20",
+    "bip39": "^3.0.3",
+    "core-js": "^3.9.1",
+    "crypto-js": "^4.0.0",
+    "file-saver": "^2.0.5",
+    "moment": "^2.29.1",
+    "vue": "^3.0.7",
+    "vue-router": "^4.0.3",
+    "vue-uuid": "^2.0.2",
+    "vuex": "^4.0.0"
   },
   "devDependencies": {
-    "@vue/cli-plugin-babel": "^4.4.0",
-    "@vue/cli-plugin-router": "^4.4.0",
-    "@vue/cli-plugin-vuex": "^4.4.6",
-    "@vue/cli-service": "^4.4.0",
-    "vue-template-compiler": "^2.6.11"
+    "@babel/core": "^7.13.8",
+    "@babel/node": "^7.13.0",
+    "@vue/cli-plugin-babel": "^4.5.11",
+    "@vue/cli-plugin-eslint": "^4.5.11",
+    "@vue/cli-plugin-vuex": "^4.5.11",
+    "@vue/cli-service": "^4.5.11",
+    "@vue/compiler-sfc": "^3.0.7",
+    "@vue/eslint-config-prettier": "^6.0.0",
+    "babel-eslint": "^10.1.0",
+    "eslint": "^7.21.0",
+    "eslint-plugin-prettier": "^3.3.1",
+    "eslint-plugin-vue": "^7.7.0",
+    "node-sass": "^5.0.0",
+    "prettier": "^2.2.1",
+    "protobufjs": "^6.10.2",
+    "sass-loader": "^10.1.1"
   }
 }
