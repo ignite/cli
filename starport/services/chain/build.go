@@ -18,7 +18,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
-	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // Build builds an app.
@@ -165,23 +164,25 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
 
-	var (
-		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path)
-		targets      = []cosmosgen.Target{
-			cosmosgen.WithGoGeneration(c.app.ImportPath),
-		}
-	)
+	options := []cosmosgen.Option{
+		cosmosgen.WithGoGeneration(c.app.ImportPath),
+		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+	}
+
+	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		targets = append(targets, cosmosgen.WithJSGeneration(func(m module.Module) string {
-			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, giturl.UserAndRepo(m.Pkg.GoImportName), m.Name, "module")
+		options = append(options, cosmosgen.WithJSGeneration(enableThirdPartyModuleCodegen, func(m module.Module) string {
+			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, "chain", giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
 		}))
 	}
 
-	if err := cosmosgen.Generate(ctx, c.app.Path, protoPath, includePaths, targets[0], targets[1:]...); err != nil {
+	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
+
+	c.protoBuiltAtLeastOnce = true
 
 	return nil
 }

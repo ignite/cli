@@ -1,6 +1,7 @@
 package module
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -12,6 +13,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
+// ErrModuleNotFound error returned when an sdk module cannot be found.
+var ErrModuleNotFound = errors.New("sdk module not found")
+
 // requirements holds a list of sdk.Msg's method names.
 type requirements map[string]bool
 
@@ -19,9 +23,6 @@ type requirements map[string]bool
 // TODO(low priority): dynamically get these from the source code of underlying version of the sdk.
 func newRequirements() requirements {
 	return requirements{
-		"Reset":         false,
-		"String":        false,
-		"ProtoMessage":  false,
 		"Route":         false,
 		"Type":          false,
 		"GetSigners":    false,
@@ -73,47 +74,59 @@ func Discover(sourcePath string) ([]Module, error) {
 	if err != nil {
 		return nil, err
 	}
-	bpath := gm.Module.Mod.Path
+	basegopath := gm.Module.Mod.Path
 
 	// find proto packages that belong to modules under x/.
-	xprotopkgs, err := findModuleProtoPkgs(sourcePath, bpath)
+	pkgs, err := findModuleProtoPkgs(sourcePath, basegopath)
 	if err != nil {
 		return nil, err
 	}
 
 	var modules []Module
 
-	for _, xproto := range xprotopkgs {
-		var (
-			rxpath = strings.TrimPrefix(xproto.GoImportName, bpath)
-			xpath  = filepath.Join(sourcePath, rxpath)
-		)
+	// discover discovers and sdk module by a proto pkg.
+	discover := func(pkg protoanalysis.Package) error {
+		pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), basegopath)
+		pkgpath := filepath.Join(sourcePath, pkgrelpath)
 
-		xmsgs, err := DiscoverModule(xpath)
+		msgs, err := DiscoverModule(pkgpath)
+		if err == ErrModuleNotFound {
+			return nil
+		}
 		if err != nil {
-			return nil, err
-		}
-
-		var msgs []Msg
-
-		for _, xmsg := range xmsgs {
-			msgs = append(msgs, Msg{
-				Name:     xmsg,
-				URI:      fmt.Sprintf("%s.%s", xproto.Name, xmsg),
-				FilePath: xproto.MessageByName(xmsg).Path,
-			})
+			return err
 		}
 
 		var (
-			spname = strings.Split(xproto.Name, ".")
+			spname = strings.Split(pkg.Name, ".")
 			m      = Module{
 				Name: spname[len(spname)-1],
-				Pkg:  xproto,
-				Msgs: msgs,
+				Pkg:  pkg,
 			}
 		)
 
+		for _, msg := range msgs {
+			pkgmsg, err := pkg.MessageByName(msg)
+			if err != nil { // no msg found in the proto defs corresponds to discovered sdk message.
+				return nil
+			}
+
+			m.Msgs = append(m.Msgs, Msg{
+				Name:     msg,
+				URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
+				FilePath: pkgmsg.Path,
+			})
+		}
+
 		modules = append(modules, m)
+
+		return nil
+	}
+
+	for _, pkg := range pkgs {
+		if err := discover(pkg); err != nil {
+			return nil, err
+		}
 	}
 
 	return modules, nil
@@ -187,6 +200,10 @@ func DiscoverModule(modulePath string) (msgs []string, err error) {
 		if checkRequirements(reqs) {
 			msgs = append(msgs, name)
 		}
+	}
+
+	if len(msgs) == 0 {
+		return nil, ErrModuleNotFound
 	}
 
 	return msgs, nil

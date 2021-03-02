@@ -16,7 +16,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -102,22 +101,19 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return err
 	}
 
-	var (
-		protoPath    = filepath.Join(projectPath, conf.Build.Proto.Path)
-		includePaths = xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath)
-		targets      = []cosmosgen.Target{
-			cosmosgen.WithGoGeneration(gomodPath),
-		}
-	)
+	options := []cosmosgen.Option{
+		cosmosgen.WithGoGeneration(gomodPath),
+		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+	}
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		targets = append(targets, cosmosgen.WithJSGeneration(func(m module.Module) string {
-			return filepath.Join(projectPath, conf.Client.Vuex.Path, giturl.UserAndRepo(m.Pkg.GoImportName), m.Name, "module")
+		options = append(options, cosmosgen.WithJSGeneration(false, func(m module.Module) string {
+			return filepath.Join(projectPath, conf.Client.Vuex.Path, "chain", giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
 		}))
 	}
 
-	return cosmosgen.Generate(context.Background(), projectPath, protoPath, includePaths, targets[0], targets[1:]...)
+	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
 }
 
 func initGit(path string) error {

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"golang.org/x/mod/modfile"
+	"golang.org/x/mod/module"
 )
 
 var (
@@ -38,7 +38,7 @@ func NewModule(importPath string, protoPaths ...string) Module {
 // r should be the list of required packages of the target go app. it is used to resolve exact versions
 // of the go modules that used by the target app.
 // global dependencies are also included to paths.
-func ResolveDependencyPaths(r []*modfile.Require, modules ...Module) (paths []string, err error) {
+func ResolveDependencyPaths(versions []module.Version, modules ...Module) (paths []string, err error) {
 	paths = append(paths, globalInclude...)
 
 	var importPaths []string
@@ -47,14 +47,14 @@ func ResolveDependencyPaths(r []*modfile.Require, modules ...Module) (paths []st
 		importPaths = append(importPaths, module.importPath)
 	}
 
-	required := gomodule.FilterRequire(r, importPaths...)
+	vs := gomodule.FilterVersions(versions, importPaths...)
 
-	if len(required) != len(modules) {
+	if len(vs) != len(modules) {
 		return nil, errors.New("go.mod has missing proto modules")
 	}
 
-	for i, req := range required {
-		path, err := gomodule.LocatePath(req.Mod)
+	for i, v := range vs {
+		path, err := gomodule.LocatePath(v)
 		if err != nil {
 			return nil, err
 		}
