@@ -174,7 +174,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		options = append(options, cosmosgen.WithJSGeneration(enableThirdPartyModuleCodegen, func(m module.Module) string {
-			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+			return filepath.Join(c.app.Path, conf.Client.Vuex.Path, "chain", giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
 		}))
 	}
 
