@@ -1,13 +1,24 @@
 package modulecreate
 
 import (
-	"github.com/gobuffalo/packr/v2"
+	"embed"
+
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
 var (
-	launchpadTemplate = packr.New("module/create/templates/launchpad", "./launchpad")
-	stargateTemplate  = packr.New("module/create/templates/stargate", "./stargate")
-	ibcTemplate       = packr.New("module/create/templates/ibc", "./ibc")
+	//go:embed launchpad/* launchpad/**/*
+	fsLaunchpad embed.FS
+
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
+
+	//go:embed ibc/* ibc/**/*
+	fsIBC embed.FS
+
+	launchpadTemplate = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+	stargateTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	ibcTemplate       = xgenny.NewEmbedWalker(fsIBC, "ibc/")
 )
