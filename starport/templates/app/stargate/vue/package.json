@@ -1,25 +1,9 @@
 {
-  "name": "vue-template",
-  "version": "0.1.12",
-  "description": "A Vue 3 boilerplate project utilizing @starport/vue and @starport/vuex",
-  "author": "Tendermint, Inc <hello@tendermint.com>",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/tendermint/vue-template.git"
-  },
-  "homepage": "https://github.com/tendermint/vue-template",
-  "license": "Apache-2.0",
-  "licenses": [
-    {
-      "type": "Apache-2.0",
-      "url": "http://www.apache.org/licenses/LICENSE-2.0"
-    }
-  ],
-  "main": "src/index.js",
-  "publishConfig": {
-    "access": "public"
-  },
+  "name": "frontend",
+  "version": "0.1.0",
+  "private": true,
   "scripts": {
+    "dev": "npm install && vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint",
