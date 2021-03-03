@@ -26,7 +26,7 @@ starport module import wasm
 
 You will be greeted by a success message like `🎉 Imported module 'wasm'.`
 
-Our blockchain application has been setup. Now we can run the blockchain daemon.
+Our blockchain app has been setup. Now we can run the blockchain daemon.
 
 ```bash
 starport serve
