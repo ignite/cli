@@ -31,7 +31,6 @@
     2. [Adding support for CosmWasm](5%20Wasm%20Smart%20Contracts/2%20Adding%20Support%20for%20CosmWasm.md)
     3. [Deploying your first contract](5%20Wasm%20Smart%20Contracts/3%20Deploying%20your%20first%20contract.md)  
 6. Extra
-    1. [Raspberry Pi](6%20Extra/RaspberryPi.md)
 
 ## Other Tutorials
 
