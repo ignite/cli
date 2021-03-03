@@ -5,7 +5,6 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 const (
@@ -145,7 +144,7 @@ func WithKeyringPassword(password string) Option {
 // API request to the node that has a different node address other than the default one.
 func WithNodeAddress(addr string) Option {
 	return func(c *ChainCmd) {
-		c.nodeAddress = xurl.TCP(addr)
+		c.nodeAddress = addr
 	}
 }
 
@@ -461,6 +460,7 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 		)
 	}
 
+	command = c.attachNode(command)
 	return c.cliCommand(command)
 }
 
@@ -488,6 +488,7 @@ func (c ChainCmd) StatusCommand() step.Option {
 		commandStatus,
 	}
 
+	command = c.attachNode(command)
 	return c.cliCommand(command)
 }
 
@@ -515,7 +516,7 @@ func (c ChainCmd) attachHome(command []string) []string {
 	return command
 }
 
-// attacNode appends the node flag to the provided command
+// attachNode appends the node flag to the provided command
 func (c ChainCmd) attachNode(command []string) []string {
 	if c.nodeAddress != "" {
 		command = append(command, []string{optionNode, c.nodeAddress}...)
