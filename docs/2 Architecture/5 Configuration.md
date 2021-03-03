@@ -4,7 +4,7 @@ With Starport your blockchain can be configured with `config.yml`.
 
 ## `accounts`
 
-A list of user accounts created during genesis of your application.
+A list of user accounts created during genesis of your app.
 
 | Key     | Required | Type            | Description                                       |
 | ------- | -------- | --------------- | ------------------------------------------------- |
