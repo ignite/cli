@@ -31,7 +31,8 @@ brew install tendermint/tap/starport
 ## Build from source
 
 ```
-git clone https://github.com/tendermint/starport && cd starport && make
+git clone https://github.com/tendermint/starport --depth=1
+cd starport && make
 ```
 
 This will build and install `starport` binary into `$GOBIN`.

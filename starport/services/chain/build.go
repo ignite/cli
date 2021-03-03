@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xos"
 )
@@ -77,7 +78,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				"go",
+				gocmd.Name(),
 				"mod",
 				"tidy",
 			),
@@ -94,7 +95,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				"go",
+				gocmd.Name(),
 				"mod",
 				"verify",
 			),
@@ -120,7 +121,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 				// ldflags somehow won't work if directly execute go binary.
 				// bash stays as a workaround for now.
 				step.Exec(
-					"bash", "-c", fmt.Sprintf("go build -mod readonly -o %s -ldflags '%s'", installPath, ldflags),
+					"bash", "-c", fmt.Sprintf("%s build -mod readonly -o %s -ldflags '%s'", gocmd.Name(), installPath, ldflags),
 				),
 				step.Workdir(mainPath),
 				step.PostExec(captureBuildErr),

@@ -1,18 +1,21 @@
 package indexed
 
 import (
+	"embed"
 	"fmt"
-
-	"github.com/gobuffalo/packr/v2"
 
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 var (
-	stargateIndexedTemplate = packr.New("typed/indexed/templates/stargate", "./stargate")
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
+
+	stargateIndexedTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 // New ...
