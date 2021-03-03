@@ -9,7 +9,7 @@ ie.
 starport app github.com/user/app --sdk-version=stargate
 ```
 
-## Stargate application
+## Stargate app
 
 Scaffolding a Stargate app currently uses version `^0.40` of the Cosmos SDK.
 
@@ -109,7 +109,7 @@ A typical directory structure for a Stargate app `foo` will contain the followin
             └── types.go
 ```
 
-## Launchpad application
+## Launchpad app
 
 Scaffolding a Launchpad app is currently the default that is being used by Starport, and uses version `0.39.x` of the Cosmos SDK.
 
