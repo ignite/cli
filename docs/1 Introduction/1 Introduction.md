@@ -1,45 +1,56 @@
 # An introduction to Starport
 
-draft Let us dive into Starport, what we can achieve with it, and which other technologies play well with it.
+Starport is a developer-friendly interface to the Cosmos SDK.
 
 ## What is Starport?
 
-Starport is a tool that makes it easier to create blockchains.
+The Starport tool is the easiest way to create blockchains using the Tendermint Consensus engine and the Cosmos SDK. <!-- @fadeev does it matter that we use Go? --> Starport is written in the Go programming language. The new blockchain has a Proof-of-Stake (PoS) system with validators that can be defined in the genesis block.
 
-Starport uses the Tendermint Consensus engine and the Cosmos SDK to create a blockchain application in the Go programming language. This blockchain has a Proof-of-Stake system with validators that can be defined in the genesis block.
+With just a few commands, you can use Starport to:
 
-With just a few commands, you can create a blockchain, launch it, serve it on the cloud and have a GUI ready to start testing your application.
+1. Create a blockchain
+2. Launch a blockchain
+3. Serve your blockchain on the cloud
+4. Create a client-side app you can interact with in web browser
 
-Bootstrapping blockchains was initially the job of the `scaffold` program, which was used to create a blockchain application. Starport takes it to the next level and also creates a user interface with Vue.js, which provides a good starting point for developers creating a browser-based client-side application for your blockchain.
+<!-- do we need to mention Vue.js? -->
 
-The scaffolded application still includes a command line interface that lets you manage keys, create validators, send tokens.
+ Starport creates a user interface with Vue.js. This user interface provides a good starting point for developers by creating a browser-based client-side app for your blockchain. The scaffolded app created with Starport includes a command line interface that lets you manage keys, create validators, send tokens.
 
-## Projects using Tendermint / Cosmos SDK
+Note: Starport replaces the `scaffold` program that was previously used to create a blockchain app.
 
-There are many projects already showcasing that the Tendermint BFT Consensus Engine and the Cosmos SDK.
+## Projects using Tendermint and Cosmos SDK
 
-The following projects are using the technology:
+Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK, including:
 
-- [Cosmos](https://github.com/cosmos/gaia) (Main IBC Hub and "Rolemodel" of the Cosmos SDK)
-- [Binance Chain](https://github.com/binance-chain) (DEX and utility token)
-- [Crypto.com Chain](https://github.com/crypto-com/chain-main) (Payments, DeFi, and utility token)
-- [IRIS](https://github.com/irisnet) (IBC Hub and developer oriented)
-- [Kava](https://github.com/Kava-Labs/kava) (DeFi and Stable Coins)
-- [Aragon](https://docs.chain.aragon.org/) (DAO catalyst)
-- [CosmWasm](https://cosmwasm.com/) (smart contracts using WASM)
-- [Ethermint](https://ethermint.zone/) (Ethereum virtual machine)
+- [Cosmos](https://github.com/cosmos/gaia) The main IBC Hub and role model of the Cosmos SDK
 
-[See the full list here](https://cosmonauts.world/).
+- [Binance Chain](https://github.com/binance-chain) DEX and utility token
 
-## Modules
+- [Crypto.com Chain](https://github.com/crypto-com/chain-main) Payments, DeFi, and utility token
 
-Cosmos modules are the foundational building blocks for building a blockchain. Modules can be created and shared with anyone. Each module plugs into the Cosmos SDK. Some of the modules are core building blocks for creating blockchains, while other modules enable new features.
+- [IRIS](https://github.com/irisnet) IBC Hub and developer-oriented
 
-Many of the live blockchains use multiple Cosmos modules. The foundational modules for starport are: `auth`, `bank`, `staking`, `params`, `capability`, `mint`, `governance`, `crisis`, `slashing`, `ibc`, `upgrade`, `evidence` and `supply`. We also recommend adding the `wasm` or the `evm` module, this allows you to deploy - Web Assembly for wasm, Solidity for evm - smart contracts to your blockchain. The `evm` module enables the Ethereum EVM to be used in your blockchain. Each module comes with clear documentation and codebase. If you want to make changes to a specific module, you can fork the module and change what suits your use case better.
+- [Kava](https://github.com/Kava-Labs/kava) DeFi and Stable Coins
+
+- [Aragon](https://docs.chain.aragon.org/) DAO catalyst
+
+- [CosmWasm](https://cosmwasm.com/) Smart contracts using WASM
+
+- [Ethermint](https://ethermint.zone/) Ethereum virtual machine
+
+For the full list, explore the [Cosmos Network](https://cosmonauts.world/) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+
+## Cosmos SDK Modules
+
+Cosmos SDK modules are the foundational building blocks for building a blockchain. The Cosmos SDK offers a variety of native modules to make a blockchain work. Modules can be created and shared with anyone. You can use Starport to add modules. The code edits and additions are managed. <!-- link to the architecture modules topic and list high-level benefits -->
 
 ## Summary
 
 - Starport lets you create, develop, and build a blockchain.
+
 - Starport and Cosmos SDK are written in Go.
+
 - Today, Cosmos SDK has a unique position worldwide as one of the most successful blockchains.
+
 - Developers can use different Cosmos SDK modules to customize their blockchain.
