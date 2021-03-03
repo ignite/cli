@@ -6,7 +6,7 @@ The genesis block is for all blockchains the starting point of history. As per d
 
 The genesis block is usually the only block in the blockchain that cannot be found on same P2P network that you are about to start, it has to be shared in different ways - we will have a look at ways to share the genesis file in another tutorial.
 
-Because it is the starting point for a blockchain, especially in Proof-of-Stake blockchains, it contains a list of initial addresses and balances. Furthermore, most of the times the genesis block defines which network you are using.
+Because the genesis block is the starting point for a blockchain, especially in Proof-of-Stake (PoS) blockchains, the genesis block contains a list of initial addresses and balances. The genesis block also defines which network you are using.
 
 With Starport you will create a genesis file from your `config.yml`, it typically looks similar to this:
 
@@ -289,7 +289,7 @@ With Starport you will create a genesis file from your `config.yml`, it typicall
 }
 ```
 
-Looking closely at the genesis file, you can observe that it contains the initial state parameters for your blockchain application, furthermore it contains definitions and parameters of modules that you are using.
+Looking closely at the genesis file, you can observe that it contains the initial state parameters for your blockchain app, furthermore it contains definitions and parameters of modules that you are using.
 
 Apart from module definition and configuration, the genesis file holds the addresses for the initial stakeholders and validators of a blockchain. These reside in the `gentx` parameter, which is part of the `genutil`. When starting a blockchain, these validators should be part of the network in order to get the network running. Or at least 66% of the validators should be available in order to start the BFT consensus.
 
