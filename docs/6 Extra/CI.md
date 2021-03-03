@@ -1,16 +1,20 @@
 # CI
 
-By default, a scaffolded blockchain includes a Github action that builds for amd64 and arm64 on Windows, Mac, and Linux.
+<!-- @fadeev why is this doc titled CI? do we need to keep this doc? Are we defining the prerequisites for continuous integration? --> By default, a scaffolded blockchain includes a Github action that builds for AMD64 and ARM64 platforms on Windows, Mac, and Linux.
 
-## Docker Images And Pi Images
+## Docker Images
 
-In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as secrets: https://github.com/{username}/{repository}/settings/secrets/actions
+For Docker images to build successfully, you must add your Docker Hub credentials as GitHub Actions secrets:
 
-Add these:
+```
+https://github.com/{username}/{repository}/settings/secrets/actions
+```
+
+Add actions secrets for these environment variables:
 
 ```
 DOCKERHUB_USERNAME
 DOCKERHUB_TOKEN
 ```
 
-You can get the token [here](https://hub.docker.com/settings/security).
+To generate a Docker access token, go to your Docker Hub Account Settings > [security](https://hub.docker.com/settings/security).
