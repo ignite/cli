@@ -1,15 +1,23 @@
 package moduleimport
 
 import (
+	"embed"
 	"fmt"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+)
+
+var (
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
+
+	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 // New ...
@@ -17,7 +25,7 @@ func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(opts))
 	g.RunFn(rootModifyStargate(opts))
-	if err := g.Box(packr.New("module/import/templates/stargate", "./stargate")); err != nil {
+	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()

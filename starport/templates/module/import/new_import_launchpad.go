@@ -7,7 +7,6 @@ import (
 	"github.com/tendermint/starport/starport/templates/module"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 )
@@ -18,9 +17,6 @@ func NewImportLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
 	g.RunFn(appModifyLaunchpad(opts))
 	g.RunFn(exportModifyLaunchpad(opts))
 	g.RunFn(cmdMainModifyLaunchpad(opts))
-	if err := g.Box(packr.New("wasm", "./wasm")); err != nil {
-		return g, err
-	}
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)

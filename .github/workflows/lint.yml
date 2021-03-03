@@ -14,8 +14,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.16"
-          stable: false
+          go-version: 1.16
 
       - uses: actions/checkout@v2
 
@@ -25,4 +24,3 @@ jobs:
           args: --timeout 10m
           github-token: ${{ secrets.github_token }}
           skip-go-installation: true
-

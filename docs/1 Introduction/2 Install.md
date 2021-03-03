@@ -33,7 +33,8 @@ Starport uses [Git LFS](https://git-lfs.github.com/). Please make sure that it i
 If you have installed Git LFS after cloning Starport, checkout to your preferred branch to trigger a pull for large files or run `git lfs pull`.
 
 ```
-git clone https://github.com/tendermint/starport && cd starport && make
+git clone https://github.com/tendermint/starport --depth=1
+cd starport && make
 ```
 
 This will build and install `starport` binary into `$GOBIN`.

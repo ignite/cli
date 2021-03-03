@@ -17,8 +17,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v2
         with:
-          go-version: "1.16"
-          stable: false
+          go-version: 1.16
 
       - name: "Get Go 1.15"	
         run: |	
@@ -27,9 +26,6 @@ jobs:
 
       - name: Install protoc
         uses: arduino/setup-protoc@v1
-
-      - name: Set up packr2
-        run: go get -u github.com/gobuffalo/packr/v2/packr2
 
       - name: Checkout
         uses: actions/checkout@v2
@@ -40,14 +36,6 @@ jobs:
       - name: Build UI
         working-directory: ${{ env.working-directory }}
         run: make ui
-
-      - name: Run packr2
-        working-directory: ${{ env.working-directory }}
-        run: |
-          export GOPATH=$GITHUB_WORKSPACE/go
-          export PATH=$PATH:$GOPATH
-          cd starport/interface/cli/starport
-          packr2 -v
 
       - name: Install Starport
         working-directory: ${{ env.working-directory }}
