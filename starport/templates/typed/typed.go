@@ -1,23 +1,34 @@
 package typed
 
 import (
+	"embed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
+	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
 var (
-	launchpadTemplate      = packr.New("typed/templates/launchpad", "./launchpad")
-	stargateTemplate       = packr.New("typed/templates/stargate", "./stargate")
-	stargateLegacyTemplate = packr.New("typed/templates/stargate_legacy", "./stargate_legacy")
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
+
+	//go:embed stargate_legacy/* stargate_legacy/**/*
+	fsStargateLegacy embed.FS
+
+	//go:embed launchpad/* launchpad/**/*
+	fsLaunchpad embed.FS
+
+	stargateTemplate       = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
+	launchpadTemplate      = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 )
 
-func Box(box *packr.Box, opts *Options, g *genny.Generator) error {
+func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	if err := g.Box(box); err != nil {
 		return err
 	}
