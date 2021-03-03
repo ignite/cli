@@ -64,7 +64,7 @@ As well as update the following files:
 
 # Launchpad
 
-Using `starport type` on a Launchpad application will create the following files:
+Using `starport type` on a Launchpad app will create the following files:
 ```
 .
 └── x
