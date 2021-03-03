@@ -6,9 +6,9 @@ Starport installation instructions can be found here: https://github.com/tenderm
 
 To the machine you are executing on there are not many requirements. It runs on Linux or Mac Operating Systems and can be run from a Raspberry Pi.
 
-## Your blockchain application
+## Your blockchain app
 
-To create a blockchain application we use the command `app`
+To create a blockchain app we use the command `app`
 
 ```bash
 starport app github.com/username/myapp
@@ -25,11 +25,11 @@ This will create the folder `myapp` and is a usable blockchain blueprint. If you
 
 `starport serve`
 
-To start the server, go into you application's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.
+To start the server, go into you app's directory and run `starport serve`. This commands installs dependencies, builds and initializes the app and runs both Tendermint RPC server (by default on `localhost:26657`) as well as LCD (by default on `localhost:1317`) with hot reloading enabled.
 
-`starport serve` uses `config.yml` to initialize your application, make sure you have it in your project directory (see [Configure](#configure)).
+`starport serve` uses `config.yml` to initialize your app, make sure you have it in your project directory (see [Configure](#configure)).
 
-Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your application's binary (`blogd` in this case) can accept external connections.
+Note: depending on your OS and firewall settings, you may have to accept a prompt asking if your app's binary (`blogd` in this case) can accept external connections.
 
 | Flag        | Default | Description                          |
 | ----------- | ------- | ------------------------------------ |
@@ -77,7 +77,7 @@ These are the basic commands for getting started with starport. From creating a 
 
 An account on the blockchain is a keypair of private and public keys.
 When you start your blockchain with starport, you can define the name of the keys and the amount of coins they start with. The keys are created for you and displayed on startup. You can use these keys when interacting with your blockchain.
-A list of user accounts is created during genesis of your application. You can define them as follows in your `config.yml` file. See an example in chapter [configuration](../03_configuration/03_configuration.md).
+A list of user accounts is created during genesis of your app. You can define them as follows in your `config.yml` file. See an example in chapter [configuration](../03_configuration/03_configuration.md).
 
 | Key   | Required | Type            | Description                                       |
 | ----- | -------- | --------------- | ------------------------------------------------- |
@@ -100,4 +100,4 @@ The validator property describes your set of validators. Use a `name` that you h
 - A combination `starport app` and `starport serve` already let's you manage your blockchain out of the box.
 - The default blockchain includes networking and a consensus protocol with your own token.
 - Data is managed with the Key-Value Store and data types can be added with `starport type`.
-- Accounts are created during genesis of the application. These can be configured in the `config.yml`.
+- Accounts are created during genesis of the app. These can be configured in the `config.yml`.
