@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"sync"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
 
@@ -41,5 +41,5 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) er
 	}
 
 	// execute the command.
-	return cmdrunner.Exec(ctx, command[0], command[1:]...)
+	return exec.Exec(ctx, command, exec.IncludeStdLogsToError())
 }

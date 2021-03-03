@@ -30,6 +30,30 @@ type Package struct {
 
 	// Messages is a list of proto messages defined in the package.
 	Messages []Message
+
+	// Services is a list of RPC services.
+	Services []Service
+}
+
+// Service is an RPC service.
+type Service struct {
+	// Name of the services.
+	Name string
+
+	// RPCFuncs is a list of RPC funcs of the service.
+	RPCFuncs []RPCFunc
+}
+
+// RPCFunc is an RPC func.
+type RPCFunc struct {
+	// Name of the RPC func.
+	Name string
+
+	// RequestType is the request type of RPC func.
+	RequestType string
+
+	// ReturnsType is the response type of RPC func.
+	ReturnsType string
 }
 
 // MessageByName finds a message by its name inside Package.
@@ -95,9 +119,10 @@ func DiscoverPackages(path string) ([]Package, error) {
 			}
 			if !exists {
 				pkgs = append(pkgs, pkg)
-				index = len(pkgs) - 1
+			} else {
+				pkgs[index].Messages = append(pkgs[index].Messages, pkg.Messages...)
+				pkgs[index].Services = append(pkgs[index].Services, pkg.Services...)
 			}
-			pkgs[index].Messages = append(pkgs[index].Messages, pkg.Messages...)
 
 			return nil
 		})
@@ -137,6 +162,25 @@ func Parse(path string) (Package, error) {
 				Name: m.Name,
 				Path: path,
 			})
+		}),
+		proto.WithService(func(s *proto.Service) {
+			sv := Service{
+				Name: s.Name,
+			}
+
+			for _, el := range s.Elements {
+				rpc, ok := el.(*proto.RPC)
+				if !ok {
+					continue
+				}
+				sv.RPCFuncs = append(sv.RPCFuncs, RPCFunc{
+					Name:        rpc.Name,
+					RequestType: rpc.RequestType,
+					ReturnsType: rpc.ReturnsType,
+				})
+			}
+
+			pkg.Services = append(pkg.Services, sv)
 		}),
 	)
 

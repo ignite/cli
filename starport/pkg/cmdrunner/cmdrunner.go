@@ -1,13 +1,11 @@
 package cmdrunner
 
 import (
-	"bytes"
 	"context"
 	"io"
 	"os"
 	"os/exec"
 
-	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"golang.org/x/sync/errgroup"
 )
@@ -188,16 +186,4 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 		panic(err)
 	}
 	return &cmdSignal{c, w}
-}
-
-// Exec executes a command with args, it's a shortcut func for basic command executions.
-func Exec(ctx context.Context, command string, args ...string) error {
-	errb := &bytes.Buffer{}
-
-	err := New(
-		DefaultStderr(errb)).
-		Run(ctx,
-			step.New(step.Exec(command, args...)))
-
-	return errors.Wrap(err, errb.String())
 }
