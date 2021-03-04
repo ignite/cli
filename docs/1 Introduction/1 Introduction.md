@@ -39,7 +39,7 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 
 - [Ethermint](https://ethermint.zone/) Ethereum virtual machine
 
-For the full list, explore the [Cosmos Network](https://cosmonauts.world/) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+For the full list, explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
 
 ## Cosmos SDK Modules
 
