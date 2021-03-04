@@ -19,7 +19,7 @@ Local Starport installation requires the follow software be installed and runnin
 
 ## Installing Starport
 
-To install Starport, run this command:
+To install Starport:
 
 ```
 curl https://get.starport.network/starport! | bash
@@ -37,7 +37,7 @@ The installation requires user permission to write to `/usr/local/bin/`. If the 
 curl https://get.starport.network/starport | bash
 ```
 
-To move the `starport` executable to `/usr/local/bin/`, run this command:
+To move the `starport` executable to `/usr/local/bin/`:
 
 ```
 sudo mv starport /usr/local/bin/
@@ -51,14 +51,14 @@ You can build and install the precompiled `starport` binary into `$GOBIN`.
 
 When building from source, your `$GOPATH` environment variable must be set correctly.
 
-To set `$GOPATH` environment variable, run this command:
+To set `$GOPATH` environment variable:
 
 ```
 mkdir ~/go
 export GOPATH=~/go
 ```
 
-To install the precompiled `starport` binary, run this command:
+To install the precompiled `starport` binary:
 
 ```
 git clone https://github.com/tendermint/starport --depth=1
