@@ -4,18 +4,15 @@ Starport is a developer-friendly interface to the Cosmos SDK.
 
 ## What is Starport?
 
-The Starport tool is the easiest way to create blockchains using the Tendermint Consensus engine and the Cosmos SDK. <!-- @fadeev does it matter that we use Go? --> Starport is written in the Go programming language. The new blockchain has a Proof-of-Stake (PoS) system with validators that can be defined in the genesis block.
+The Starport tool is the easiest way to create blockchains using the Tendermint Consensus engine and the Cosmos SDK.
 
 With just a few commands, you can use Starport to:
 
 1. Create a blockchain
 2. Launch a blockchain
-3. Serve your blockchain on the cloud
-4. Create a client-side app you can interact with in web browser
+3. Create a client-side app you can interact with in a web browser
 
-<!-- do we need to mention Vue.js? -->
-
- Starport creates a user interface with Vue.js. This user interface provides a good starting point for developers by creating a browser-based client-side app for your blockchain. The scaffolded app created with Starport includes a command line interface that lets you manage keys, create validators, send tokens.
+Starport and the SDK modules are written in the Go programming language. Starport creates a user interface with Vue.js. This user interface provides a good starting point for developers by creating a browser-based client-side app for your blockchain. The scaffolded app created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
 
 Note: Starport replaces the `scaffold` program that was previously used to create a blockchain app.
 
@@ -31,8 +28,8 @@ Cosmos SDK modules are the foundational building blocks for building a blockchai
 
 - Starport lets you create, develop, and build a blockchain.
 
-- Starport and Cosmos SDK are written in Go.
+- Starport and Cosmos SDK modules are written in Go.
 
-- Today, Cosmos SDK has a unique position worldwide as one of the most successful blockchains.
+- Today, Cosmos SDK has a unique worldwide position as one of the most successful blockchains.
 
-- Developers can use different Cosmos SDK modules to customize their blockchain.
+- You can use different Cosmos SDK modules to customize their blockchain.
