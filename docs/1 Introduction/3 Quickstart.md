@@ -1,21 +1,29 @@
-# Quickstart
+# Quickstart for local Starport installation
 
-With `starport` installed on your machine, you can now build your very first blockchain!
+Now that `starport` is installed on your machine, you can build your very first blockchain! <!-- or do we want to write for gitpod too? -->
+
+To build a blockchain:
 
 ```
 starport app github.com/username/myapp && cd myapp
 ```
 
-This command will create a directory `myapp` and scaffold a Cosmos SDK blockchain.
+The `app` command creates the directory `myapp` and scaffolds a Cosmos SDK blockchain.
+
+To run your blockchain:
 
 ```
 starport serve
 ```
 
-`serve` will install dependencies, build, initialise and run your blokchain.
+The `serve` command installs dependencies, builds, initializes, and starts your blockchain.
+
+To update functionality for a custom type:
 
 ```
 starport type post title body
 ```
 
-`type` scaffolds functionality to create, read, update and delete for a custom type.
+The `type` command scaffolds functionality to create, read, update, and delete for a custom type.
+
+<!-- what is a type? why do we need custom types? -->
