@@ -8,14 +8,14 @@ Local Starport installation requires the follow software be installed and runnin
 
 - [Golang >=1.14](https://golang.org/)
 
-  Version 1.14 or later is required.
+  Starport and Cosmos SDK modules are written in Go. Version 1.14 or later is required.
 
 - [Protocol Buffer compiler](https://grpc.io/docs/protoc-installation/)
 
   <!-- purpose of this compiler? -->
 - [Node.js >=12.19.0](https://nodejs.org/)
 
-  Node.js is used to build the welcome screen, block explorer, and run the web scaffold.
+  Node.js is used to build the welcome screen, block explorer, and run the web scaffold. Version 12.1.9.0 or later is required.
 
 ## Installing Starport
 
@@ -43,17 +43,9 @@ To move the `starport` executable to `/usr/local/bin/`, run this command:
 sudo mv starport /usr/local/bin/
 ```
 
-<!-- per <https://github.com/allinbits/starport-installer/blob/master/README.md> installing with Homebrew is not supported, so let's comment out from the doc
+<!-- per <https://github.com/allinbits/starport-installer/blob/master/README.md> installing with Homebrew is not supported, so let's comment out from the doc ## macOS with Homebrew ``` brew install tendermint/tap/starport ``` -->
 
-## macOS with Homebrew
-
-```
-brew install tendermint/tap/starport
-```
-
--->
-
-## Build from source
+ ## Build from source
 
 You can build and install the precompiled `starport` binary into `$GOBIN`.
 
