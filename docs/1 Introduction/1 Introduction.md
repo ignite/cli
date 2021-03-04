@@ -21,25 +21,7 @@ Note: Starport replaces the `scaffold` program that was previously used to creat
 
 ## Projects using Tendermint and Cosmos SDK
 
-Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK, including:
-
-- [Cosmos](https://github.com/cosmos/gaia) The main IBC Hub and role model of the Cosmos SDK
-
-- [Binance Chain](https://github.com/binance-chain) DEX and utility token
-
-- [Crypto.com Chain](https://github.com/crypto-com/chain-main) Payments, DeFi, and utility token
-
-- [IRIS](https://github.com/irisnet) IBC Hub and developer-oriented
-
-- [Kava](https://github.com/Kava-Labs/kava) DeFi and Stable Coins
-
-- [Aragon](https://docs.chain.aragon.org/) DAO catalyst
-
-- [CosmWasm](https://cosmwasm.com/) Smart contracts using WASM
-
-- [Ethermint](https://ethermint.zone/) Ethereum virtual machine
-
-For the full list, explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK. For the full list, explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
 
 ## Cosmos SDK Modules
 
