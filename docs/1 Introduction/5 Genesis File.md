@@ -1,14 +1,18 @@
 # Genesis File
 
-The first block in a blockchain, block 0, is traditionally called the "genesis" or "genesis block".
+The first block in a blockchain, block 0, is traditionally called the _genesis_ or _genesis block_.
 
-The genesis block is for all blockchains the starting point of history. As per definition of blockchain, each block contains a hash of all transactions that it embeds as well as a pointer to the previous block. Obviously, as the starting point - the genesis block does not have a pointer to any previous block.
+For all blockchains, the genesis block is the starting point of history. Per the definition of blockchain, each block contains a hash of all transactions that it embeds and a pointer to the previous block. Because the genesis block is the starting point of a blockchain, the genesis block does not have a pointer to a previous block.
 
-The genesis block is usually the only block in the blockchain that cannot be found on same P2P network that you are about to start, it has to be shared in different ways - we will have a look at ways to share the genesis file in another tutorial.
+The genesis block is usually the only block in the blockchain that is not on the same P2P network that you are about to start. The genesis block must be shared in different ways. <!-- a good rule is to never mention future can we just omit?
+
+we will have a look at ways to share the genesis file in another tutorial. -->
 
 Because the genesis block is the starting point for a blockchain, especially in Proof-of-Stake (PoS) blockchains, the genesis block contains a list of initial addresses and balances. The genesis block also defines which network you are using.
 
-With Starport you will create a genesis file from your `config.yml`, it typically looks similar to this:
+With Starport, a genesis file is automatically created from your `config.yml` file. <!-- this is a generated file? -->
+
+The genesis file typically looks like this example:
 
 ```json
 {
@@ -289,13 +293,14 @@ With Starport you will create a genesis file from your `config.yml`, it typicall
 }
 ```
 
-Looking closely at the genesis file, you can observe that it contains the initial state parameters for your blockchain app, furthermore it contains definitions and parameters of modules that you are using.
+Looking closely at the genesis file, you can observe that it contains the initial state parameters for your blockchain app and it contains definitions and parameters of the modules that you are using.
 
-Apart from module definition and configuration, the genesis file holds the addresses for the initial stakeholders and validators of a blockchain. These reside in the `gentx` parameter, which is part of the `genutil`. When starting a blockchain, these validators should be part of the network in order to get the network running. Or at least 66% of the validators should be available in order to start the BFT consensus.
+Apart from module definition and configuration, the genesis file holds the addresses for the initial stakeholders and validators of a blockchain. These addresses reside in the `gentx` parameter that is part of the `genutil`. When starting a blockchain, at least 66% of the validators must be part of the network to start the BFT consensus process. <!-- what is "BFT consensus" is this a process? -->
 
-In order to setup your genesis file correctly, it is important to understand the `config.yml`, which is discussed in more depth [here](4%20Configuration.md).
+To setup your genesis file correctly, it is important to understand the `config.yml`, which is discussed in more depth [here](4%20Configuration.md).
 
 ## Summary
 
 - The genesis block is the first block of a blockchain.
+
 - The genesis block contains initial stakeholders and starting validators.
