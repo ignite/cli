@@ -5,7 +5,6 @@ Now that `starport` is installed on your machine, you can build your very first 
 To build a blockchain:
 
 ```
-starport app github.com/username/myapp && cd myapp
 ```
 
 The `app` command creates the directory `myapp` and scaffolds a Cosmos SDK blockchain.
