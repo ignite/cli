@@ -1,4 +1,4 @@
-package typed
+package message
 
 import (
 	"fmt"
@@ -11,6 +11,9 @@ import (
 func NewStargate(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
+	g.RunFn(handlerModify(opts))
+	g.RunFn(protoTxRPCModify(opts))
+	g.RunFn(protoTxMessageModify(opts))
 	g.RunFn(typesCodecModify(opts))
 	g.RunFn(typesCodecImportModify(opts))
 	g.RunFn(typesCodecInterfaceModify(opts))
@@ -165,4 +168,3 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 		return r.File(newFile)
 	}
 }
-

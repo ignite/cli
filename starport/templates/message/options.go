@@ -1,11 +1,6 @@
-package typed
+package message
 
-// Field ...
-type Field struct {
-	Name         string
-	Datatype     string
-	DatatypeName string
-}
+import "github.com/tendermint/starport/starport/templates/typed"
 
 // Options ...
 type Options struct {
@@ -13,10 +8,10 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	MsgName   string
-	MsgDesc	string
-	Fields     []Field
-	ResFields     []Field
+	MsgName    string
+	MsgDesc    string
+	Fields     []typed.Field
+	ResFields  []typed.Field
 }
 
 // Validate that options are usuable

@@ -439,7 +439,7 @@ var _ = func() error {
 		b.SetResolver("x/{{moduleName}}/keeper/msg_server_{{msgName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "2343d1ac146f2c2362728f62aa5d1690"})
 		b.SetResolver("x/{{moduleName}}/keeper/query_{{typeName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "b60178f1bb1139bb417bf667584edf19"})
 		b.SetResolver("x/{{moduleName}}/keeper/{{typeName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "f7983454b6a610bad6744a4892c9f4c0"})
-		b.SetResolver("x/{{moduleName}}/types/messages_{{msgName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "2510ead07599a52f1ce145f06375d99c"})
+		b.SetResolver("x/{{moduleName}}/types/message_{{msgName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "2510ead07599a52f1ce145f06375d99c"})
 	}()
 
 	func() {
@@ -453,7 +453,7 @@ var _ = func() error {
 		b.SetResolver("x/{{moduleName}}/keeper/grpc_query_{{typeName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "cebd77aa7ca9c3d6b7779883b820922b"})
 		b.SetResolver("x/{{moduleName}}/keeper/query_{{typeName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "77bb2c22b157f1d37e0c144ed07f7f15"})
 		b.SetResolver("x/{{moduleName}}/keeper/{{typeName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "959e7279ab380f0d95712f1667136a6c"})
-		b.SetResolver("x/{{moduleName}}/types/messages_{{msgName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "5aa1557054517cb292e5e31d5facfab2"})
+		b.SetResolver("x/{{moduleName}}/types/message_{{msgName}}.go.plush", packr.Pointer{ForwardBox: gk, ForwardPath: "5aa1557054517cb292e5e31d5facfab2"})
 	}()
 
 	return nil
