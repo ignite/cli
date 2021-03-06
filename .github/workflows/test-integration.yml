@@ -19,11 +19,6 @@ jobs:
         with:
           go-version: "1.16"
 
-      - name: "Get Go 1.15"	
-        run: |	
-          go get golang.org/dl/go1.15	
-          go1.15 download	
-
       - name: Install protoc
         uses: arduino/setup-protoc@v1
 
@@ -46,4 +41,4 @@ jobs:
         working-directory: ${{ env.working-directory }}
         run: ./scripts/test-integration 
         env:
-          GONAME: "go1.15"
+          GONAME: "go1.16"
