@@ -131,10 +131,10 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	msgs, err := DiscoverMessages(pkgpath)
 	if err == ErrModuleNotFound {
-		return Module{}, nil
+		return Module{}, err
 	}
 	if err != nil {
-		return Module{}, nil
+		return Module{}, err
 	}
 
 	namesplit := strings.Split(pkg.Name, ".")
@@ -147,7 +147,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	for _, msg := range msgs {
 		pkgmsg, err := pkg.MessageByName(msg)
 		if err != nil { // no msg found in the proto defs corresponds to discovered sdk message.
-			return Module{}, nil
+			return Module{}, err
 		}
 
 		m.Msgs = append(m.Msgs, Msg{
