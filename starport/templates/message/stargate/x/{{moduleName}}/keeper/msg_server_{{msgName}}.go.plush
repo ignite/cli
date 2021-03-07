@@ -12,6 +12,7 @@ func (k msgServer) <%= title(MsgName) %>(goCtx context.Context,  msg *types.Msg<
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // TODO: Handling the message
+    _ = ctx
 
 	return &types.Msg<%= title(MsgName) %>Response{}, nil
 }

@@ -15,7 +15,7 @@ const (
 // NewType command creates a new type command to scaffold types.
 func NewMessage() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "type [message] [description] [field1] [field2] ...",
+		Use:   "message [name] [description] [field1] [field2] ...",
 		Short: "Generates an empty message",
 		Args:  cobra.MinimumNArgs(2),
 		RunE:  messageHandler,

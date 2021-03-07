@@ -48,7 +48,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s type is already added", msgName)
+		return fmt.Errorf("%s message is already added", msgName)
 	}
 
 	// Parse provided fields
