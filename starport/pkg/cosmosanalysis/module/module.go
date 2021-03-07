@@ -131,7 +131,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 	msgs, err := DiscoverMessages(pkgpath)
 	if err == ErrModuleNotFound {
-		return Module{}, err
+		return Module{}, nil
 	}
 	if err != nil {
 		return Module{}, err
