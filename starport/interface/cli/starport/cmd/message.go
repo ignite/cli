@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	responseFlag string = "response"
+	responseFlag    string = "response"
 	descriptionFlag string = "desc"
 )
 
