@@ -57,11 +57,11 @@ export default {
 	},
 	computed: {
 		hasWallet() {
-			return this.$store.hasModule(['chain', 'common', 'wallet'])
+			return this.$store.hasModule([ 'common', 'wallet'])
 		}
 	},
 	async created() {
-		await this.$store.dispatch('chain/common/env/init')
+		await this.$store.dispatch('common/env/init')
 		this.initialized = true
 	},
 	errorCaptured(err) {

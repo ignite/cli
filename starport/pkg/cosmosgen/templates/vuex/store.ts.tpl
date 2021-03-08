@@ -4,14 +4,14 @@ import { txClient, queryClient } from './module'
 {{ end }}
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -28,9 +28,7 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        {{ range .Module.Queries }}{{ .Name }}: {},
         {{ end }}
         _Structure: {
             {{ range .Module.Types }}{{ .Name }}: getStructure({{ .Name }}.fromPartial({})),
@@ -62,7 +60,7 @@ export default {
 	},
 	getters: {
         {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.{{ .Name }}[JSON.stringify(params)] ?? {}
 		},
         {{ end }}
 		getTypeStructure: (state) => (type) => {
@@ -72,8 +70,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -92,8 +90,8 @@ export default {
         {{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: '{{ .Name }}', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: key })
 			} catch (e) {
 				console.log('Query Failed: API node unavailable')
 			}

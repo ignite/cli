@@ -484,7 +484,7 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
-			opts.TypeName,
+			strings.Title(opts.TypeName),
 		)
 		content := strings.Replace(f.String(), Placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)
