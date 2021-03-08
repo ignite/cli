@@ -11,7 +11,7 @@
 export default {
 	computed: {
 		address() {
-			return this.$store.getters['chain/common/wallet/address']
+			return this.$store.getters['common/wallet/address']
 		}
 	}
 }

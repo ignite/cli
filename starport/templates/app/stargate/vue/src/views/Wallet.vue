@@ -77,7 +77,7 @@ export default {
 	},
 	computed: {
 		wallet() {
-			return this.$store.getters['chain/common/wallet/wallet']
+			return this.$store.getters['common/wallet/wallet']
 		}
 	},
 	async created() {

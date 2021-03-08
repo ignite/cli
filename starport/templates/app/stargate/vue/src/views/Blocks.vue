@@ -68,7 +68,7 @@ export default {
 		page: async function (newPage) {
 			this.blocks = []
 			const chain = await axios.get(
-				this.$store.getters['chain/common/env/apiTendermint'] +
+				this.$store.getters['common/env/apiTendermint'] +
 					'/blockchain?minHeight=1&maxHeight=20'
 			)
 			const lowest = parseInt(
@@ -85,7 +85,7 @@ export default {
 				from = 1
 			}
 			const page = await axios.get(
-				this.$store.getters['chain/common/env/apiTendermint'] +
+				this.$store.getters['common/env/apiTendermint'] +
 					'/blockchain?minHeight=' +
 					from +
 					'&maxHeight=' +
@@ -104,7 +104,7 @@ export default {
 	},
 	async mounted() {
 		const chain = await axios.get(
-			this.$store.getters['chain/common/env/apiTendermint'] +
+			this.$store.getters['common/env/apiTendermint'] +
 				'/blockchain?minHeight=1&maxHeight=20'
 		)
 		const lowest = parseInt(
@@ -121,7 +121,7 @@ export default {
 			from = 1
 		}
 		const page = await axios.get(
-			this.$store.getters['chain/common/env/apiTendermint'] +
+			this.$store.getters['common/env/apiTendermint'] +
 				'/blockchain?minHeight=' +
 				from +
 				'&maxHeight=' +

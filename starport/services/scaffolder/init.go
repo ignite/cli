@@ -108,7 +108,7 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "chain")
+		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,

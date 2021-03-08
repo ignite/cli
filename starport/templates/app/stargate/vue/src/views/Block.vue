@@ -17,14 +17,14 @@ export default {
 	},
 	async created() {
 		const blockDetails = await axios.get(
-			this.$store.getters['chain/common/env/apiTendermint'] +
+			this.$store.getters['common/env/apiTendermint'] +
 				'/block?height=' +
 				this.$route.params.block
 		)
 
 		const txDecoded = blockDetails.data.result.block.data.txs.map(async (x) => {
 			const dec = await this.$store.getters[
-				'chain/common/env/apiClient'
+				'common/env/apiClient'
 			].decodeTx(x)
 			return dec
 		})
