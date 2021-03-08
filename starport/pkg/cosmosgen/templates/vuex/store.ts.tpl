@@ -87,7 +87,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        {{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, ...key }) {
+		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, Object.values(key))).data
 				commit('QUERY', { query: '{{ .Name }}', key, value })
@@ -96,8 +96,8 @@ export default {
 				console.log('Query Failed: API node unavailable')
 			}
 		},
-        {{ end }}
-        {{ range .Module.Msgs }}async {{ .Name }}({ rootGetters }, { value }) {
+		{{ end }}
+		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
@@ -105,6 +105,15 @@ export default {
 				throw 'Failed to broadcast transaction: ' + e
 			}
 		},
-        {{ end }}
+		{{ end }}
+		{{ range .Module.Msgs }}async {{ .Name }}({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
+				return msg
+			} catch (e) {
+				throw 'Failed to broadcast transaction: ' + e
+			}
+		},
+		{{ end }}
 	}
 }
