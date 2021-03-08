@@ -1,4 +1,6 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
 import { IdentifiedClientState } from "./module/types/ibc/core/client/v1/client"
 import { ConsensusStateWithHeight } from "./module/types/ibc/core/client/v1/client"
@@ -11,14 +13,14 @@ import { IdentifiedGenesisMetadata } from "./module/types/ibc/core/client/v1/gen
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -35,21 +37,11 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        getClientState: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getClientStates: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getConsensusState: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getConsensusStates: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getClientParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        ClientState: {},
+        ClientStates: {},
+        ConsensusState: {},
+        ConsensusStates: {},
+        ClientParams: {},
         
         _Structure: {
             IdentifiedClientState: getStructure(IdentifiedClientState.fromPartial({})),
@@ -88,19 +80,19 @@ export default {
 	},
 	getters: {
         getClientState: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ClientState[JSON.stringify(params)] ?? {}
 		},
         getClientStates: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ClientStates[JSON.stringify(params)] ?? {}
 		},
         getConsensusState: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ConsensusState[JSON.stringify(params)] ?? {}
 		},
         getConsensusStates: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ConsensusStates[JSON.stringify(params)] ?? {}
 		},
         getClientParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ClientParams[JSON.stringify(params)] ?? {}
 		},
         
 		getTypeStructure: (state) => (type) => {
@@ -110,8 +102,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -127,84 +119,149 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        async QueryClientState({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryClientState({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryClientState.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ClientState', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientState', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryClientState', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryClientStates({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryClientStates({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryClientStates.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ClientStates', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientStates', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryClientStates', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryConsensusState({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryConsensusState({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryConsensusState.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ConsensusState', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusState', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryConsensusState', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryConsensusStates({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryConsensusStates({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryConsensusStates.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ConsensusStates', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusStates', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryConsensusStates', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryClientParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryClientParams({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryClientParams.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ClientParams', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientParams', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryClientParams', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        
-        async MsgSubmitMisbehaviour({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgSubmitMisbehaviour(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
-			}
-		},
-        async MsgCreateClient({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgCreateClient(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
-			}
-		},
-        async MsgUpdateClient({ rootGetters }, { value }) {
+		
+		async sendMsgUpdateClient({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgUpdateClient(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpdateClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpdateClient:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        async MsgUpgradeClient({ rootGetters }, { value }) {
+		async sendMsgSubmitMisbehaviour({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSubmitMisbehaviour(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgCreateClient({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgCreateClient(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgCreateClient:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgUpgradeClient({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		
+		async MsgUpdateClient({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUpdateClient(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpdateClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpdateClient:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgSubmitMisbehaviour({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSubmitMisbehaviour(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSubmitMisbehaviour:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgCreateClient({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgCreateClient(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgCreateClient:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgUpgradeClient({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }

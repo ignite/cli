@@ -1,4 +1,7 @@
 import { txClient, queryClient } from './module';
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex';
+import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis";
 import { HistoricalInfo } from "./module/types/cosmos/staking/v1beta1/staking";
 import { CommissionRates } from "./module/types/cosmos/staking/v1beta1/staking";
 import { Commission } from "./module/types/cosmos/staking/v1beta1/staking";
@@ -19,15 +22,14 @@ import { DelegationResponse } from "./module/types/cosmos/staking/v1beta1/stakin
 import { RedelegationEntryResponse } from "./module/types/cosmos/staking/v1beta1/staking";
 import { RedelegationResponse } from "./module/types/cosmos/staking/v1beta1/staking";
 import { Pool } from "./module/types/cosmos/staking/v1beta1/staking";
-import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis";
 async function initTxClient(vuexGetters) {
-    return await txClient(vuexGetters['chain/common/wallet/signer'], {
-        addr: vuexGetters['chain/common/env/apiTendermint']
+    return await txClient(vuexGetters['common/wallet/signer'], {
+        addr: vuexGetters['common/env/apiTendermint']
     });
 }
 async function initQueryClient(vuexGetters) {
     return await queryClient({
-        addr: vuexGetters['chain/common/env/apiCosmos']
+        addr: vuexGetters['common/env/apiCosmos']
     });
 }
 function getStructure(template) {
@@ -42,49 +44,22 @@ function getStructure(template) {
 }
 const getDefaultState = () => {
     return {
-        getValidators: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getValidator: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getValidatorDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getValidatorUnbondingDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDelegation: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getUnbondingDelegation: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDelegatorDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDelegatorUnbondingDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getRedelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDelegatorValidators: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDelegatorValidator: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getHistoricalInfo: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getPool: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
+        Validators: {},
+        Validator: {},
+        ValidatorDelegations: {},
+        ValidatorUnbondingDelegations: {},
+        Delegation: {},
+        UnbondingDelegation: {},
+        DelegatorDelegations: {},
+        DelegatorUnbondingDelegations: {},
+        Redelegations: {},
+        DelegatorValidators: {},
+        DelegatorValidator: {},
+        HistoricalInfo: {},
+        Pool: {},
+        Params: {},
         _Structure: {
+            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
             HistoricalInfo: getStructure(HistoricalInfo.fromPartial({})),
             CommissionRates: getStructure(CommissionRates.fromPartial({})),
             Commission: getStructure(Commission.fromPartial({})),
@@ -105,7 +80,6 @@ const getDefaultState = () => {
             RedelegationEntryResponse: getStructure(RedelegationEntryResponse.fromPartial({})),
             RedelegationResponse: getStructure(RedelegationResponse.fromPartial({})),
             Pool: getStructure(Pool.fromPartial({})),
-            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
         },
         _Subscriptions: new Set(),
     };
@@ -131,46 +105,46 @@ export default {
     },
     getters: {
         getValidators: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Validators[JSON.stringify(params)] ?? {};
         },
         getValidator: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Validator[JSON.stringify(params)] ?? {};
         },
         getValidatorDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.ValidatorDelegations[JSON.stringify(params)] ?? {};
         },
         getValidatorUnbondingDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.ValidatorUnbondingDelegations[JSON.stringify(params)] ?? {};
         },
         getDelegation: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Delegation[JSON.stringify(params)] ?? {};
         },
         getUnbondingDelegation: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.UnbondingDelegation[JSON.stringify(params)] ?? {};
         },
         getDelegatorDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DelegatorDelegations[JSON.stringify(params)] ?? {};
         },
         getDelegatorUnbondingDelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DelegatorUnbondingDelegations[JSON.stringify(params)] ?? {};
         },
         getRedelegations: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Redelegations[JSON.stringify(params)] ?? {};
         },
         getDelegatorValidators: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DelegatorValidators[JSON.stringify(params)] ?? {};
         },
         getDelegatorValidator: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DelegatorValidator[JSON.stringify(params)] ?? {};
         },
         getHistoricalInfo: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.HistoricalInfo[JSON.stringify(params)] ?? {};
         },
         getPool: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Pool[JSON.stringify(params)] ?? {};
         },
         getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Params[JSON.stringify(params)] ?? {};
         },
         getTypeStructure: (state) => (type) => {
             return state._Structure[type].fields;
@@ -179,8 +153,8 @@ export default {
     actions: {
         init({ dispatch, rootGetters }) {
             console.log('init');
-            if (rootGetters['chain/common/env/client']) {
-                rootGetters['chain/common/env/client'].on('newblock', () => {
+            if (rootGetters['common/env/client']) {
+                rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
                 });
             }
@@ -199,200 +173,295 @@ export default {
         async QueryValidators({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryValidators.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Validators', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidators', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryValidators', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryValidator({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryValidator.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Validator', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidator', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryValidator', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryValidatorDelegations({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryValidatorDelegations.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'ValidatorDelegations', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidatorDelegations', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryValidatorDelegations', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryValidatorUnbondingDelegations({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryValidatorUnbondingDelegations.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'ValidatorUnbondingDelegations', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidatorUnbondingDelegations', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryValidatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDelegation({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDelegation.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Delegation', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegation', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDelegation', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryUnbondingDelegation({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryUnbondingDelegation.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'UnbondingDelegation', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryUnbondingDelegation', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryUnbondingDelegation', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDelegatorDelegations({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDelegatorDelegations.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DelegatorDelegations', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorDelegations', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDelegatorDelegations', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDelegatorUnbondingDelegations({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDelegatorUnbondingDelegations.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DelegatorUnbondingDelegations', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorUnbondingDelegations', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDelegatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryRedelegations({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryRedelegations.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Redelegations', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryRedelegations', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryRedelegations', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDelegatorValidators({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DelegatorValidators', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorValidators', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDelegatorValidator({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDelegatorValidator.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DelegatorValidator', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorValidator', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDelegatorValidator', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryHistoricalInfo({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryHistoricalInfo.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'HistoricalInfo', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryHistoricalInfo', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryHistoricalInfo', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryPool({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryPool.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Pool', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryPool', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryPool', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
             }
         },
-        async MsgBeginRedelegate({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
-            }
-        },
-        async MsgEditValidator({ rootGetters }, { value }) {
+        async sendMsgEditValidator({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgEditValidator(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgEditValidator:Send', 'Could not broadcast Tx.');
+                }
             }
         },
-        async MsgDelegate({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgDelegate(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
-            }
-        },
-        async MsgUndelegate({ rootGetters }, { value }) {
+        async sendMsgUndelegate({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgUndelegate(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.');
+                }
             }
         },
-        async MsgCreateValidator({ rootGetters }, { value }) {
+        async sendMsgBeginRedelegate({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value);
+                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgDelegate({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgDelegate(value);
+                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgCreateValidator({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async MsgEditValidator({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgEditValidator(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgUndelegate({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgUndelegate(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgBeginRedelegate({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgDelegate({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgDelegate(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgCreateValidator({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message.');
+                }
             }
         },
     }

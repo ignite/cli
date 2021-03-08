@@ -340,7 +340,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title cosmos/slashing/v1beta1/slashing.proto
+ * @title cosmos/slashing/v1beta1/query.proto
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {

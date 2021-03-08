@@ -171,7 +171,7 @@ export class HttpClient {
     }
 }
 /**
- * @title cosmos/gov/v1beta1/gov.proto
+ * @title cosmos/gov/v1beta1/query.proto
  * @version version not set
  */
 export class Api extends HttpClient {

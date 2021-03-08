@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as Long from "long";
 import { util, configure, Writer, Reader } from "protobufjs/minimal";
-import { MerklePrefix } from "../../commitment/v1/commitment";
+import { MerklePrefix } from "../../../../ibc/core/commitment/v1/commitment";
 
 export const protobufPackage = "ibc.core.connection.v1";
 

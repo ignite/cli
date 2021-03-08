@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as Long from "long";
 import { util, configure, Writer, Reader } from "protobufjs/minimal";
-import { DecCoin } from "../../base/v1beta1/coin";
+import { DecCoin } from "../../../cosmos/base/v1beta1/coin";
 import {
   ValidatorAccumulatedCommission,
   ValidatorHistoricalRewards,
@@ -10,7 +10,7 @@ import {
   ValidatorSlashEvent,
   Params,
   FeePool,
-} from "./distribution";
+} from "../../../cosmos/distribution/v1beta1/distribution";
 
 export const protobufPackage = "cosmos.distribution.v1beta1";
 

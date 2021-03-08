@@ -5,7 +5,7 @@ import {
   IdentifiedClientState,
   ClientConsensusStates,
   Params,
-} from "./client";
+} from "../../../../ibc/core/client/v1/client";
 
 export const protobufPackage = "ibc.core.client.v1";
 

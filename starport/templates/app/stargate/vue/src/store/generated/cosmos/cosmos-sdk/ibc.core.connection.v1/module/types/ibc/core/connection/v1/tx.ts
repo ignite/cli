@@ -4,9 +4,9 @@ import * as Long from "long";
 import {
   Counterparty,
   Version,
-} from "./connection";
+} from "../../../../ibc/core/connection/v1/connection";
 import { Any } from "../../../../google/protobuf/any";
-import { Height } from "../../client/v1/client";
+import { Height } from "../../../../ibc/core/client/v1/client";
 
 export const protobufPackage = "ibc.core.connection.v1";
 

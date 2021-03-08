@@ -1,4 +1,6 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
 import { BaseVestingAccount } from "./module/types/cosmos/vesting/v1beta1/vesting"
 import { ContinuousVestingAccount } from "./module/types/cosmos/vesting/v1beta1/vesting"
@@ -8,14 +10,14 @@ import { PeriodicVestingAccount } from "./module/types/cosmos/vesting/v1beta1/ve
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -74,8 +76,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -91,15 +93,32 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        
-        async MsgCreateVestingAccount({ rootGetters }, { value }) {
+		
+		async sendMsgCreateVestingAccount({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgCreateVestingAccount(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateVestingAccount:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgCreateVestingAccount:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		
+		async MsgCreateVestingAccount({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgCreateVestingAccount(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateVestingAccount:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgCreateVestingAccount:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }

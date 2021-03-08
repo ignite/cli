@@ -1,17 +1,19 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
 import { Equivocation } from "./module/types/cosmos/evidence/v1beta1/evidence"
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -28,12 +30,8 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        getEvidence: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getAllEvidence: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        Evidence: {},
+        AllEvidence: {},
         
         _Structure: {
             Equivocation: getStructure(Equivocation.fromPartial({})),
@@ -65,10 +63,10 @@ export default {
 	},
 	getters: {
         getEvidence: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.Evidence[JSON.stringify(params)] ?? {}
 		},
         getAllEvidence: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.AllEvidence[JSON.stringify(params)] ?? {}
 		},
         
 		getTypeStructure: (state) => (type) => {
@@ -78,8 +76,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -95,33 +93,50 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        async QueryEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'Evidence', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryEvidence', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryAllEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryAllEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'AllEvidence', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        
-        async MsgSubmitEvidence({ rootGetters }, { value }) {
+		
+		async sendMsgSubmitEvidence({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgSubmitEvidence(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		
+		async MsgSubmitEvidence({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSubmitEvidence(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }

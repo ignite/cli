@@ -1,6 +1,6 @@
 /* eslint-disable */
 import { Reader, Writer } from "protobufjs/minimal";
-import { Coin } from "../../base/v1beta1/coin";
+import { Coin } from "../../../cosmos/base/v1beta1/coin";
 
 export const protobufPackage = "cosmos.distribution.v1beta1";
 

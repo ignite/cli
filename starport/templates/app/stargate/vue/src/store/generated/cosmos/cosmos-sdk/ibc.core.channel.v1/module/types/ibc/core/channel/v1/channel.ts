@@ -1,7 +1,7 @@
 /* eslint-disable */
 import * as Long from "long";
 import { util, configure, Writer, Reader } from "protobufjs/minimal";
-import { Height } from "../../client/v1/client";
+import { Height } from "../../../../ibc/core/client/v1/client";
 
 export const protobufPackage = "ibc.core.channel.v1";
 

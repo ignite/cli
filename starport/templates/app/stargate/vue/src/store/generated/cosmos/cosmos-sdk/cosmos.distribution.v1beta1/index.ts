@@ -1,5 +1,14 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
+import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
 import { Params } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { ValidatorHistoricalRewards } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { ValidatorCurrentRewards } from "./module/types/cosmos/distribution/v1beta1/distribution"
@@ -12,24 +21,17 @@ import { CommunityPoolSpendProposal } from "./module/types/cosmos/distribution/v
 import { DelegatorStartingInfo } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { DelegationDelegatorReward } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { CommunityPoolSpendProposalWithDeposit } from "./module/types/cosmos/distribution/v1beta1/distribution"
-import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -46,35 +48,24 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        getParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getValidatorOutstandingRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getValidatorCommission: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getValidatorSlashes: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getDelegationRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getDelegationTotalRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getDelegatorValidators: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getDelegatorWithdrawAddress: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getCommunityPool: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        Params: {},
+        ValidatorOutstandingRewards: {},
+        ValidatorCommission: {},
+        ValidatorSlashes: {},
+        DelegationRewards: {},
+        DelegationTotalRewards: {},
+        DelegatorValidators: {},
+        DelegatorWithdrawAddress: {},
+        CommunityPool: {},
         
         _Structure: {
+            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
+            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
+            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
+            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
+            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
+            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
+            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
             Params: getStructure(Params.fromPartial({})),
             ValidatorHistoricalRewards: getStructure(ValidatorHistoricalRewards.fromPartial({})),
             ValidatorCurrentRewards: getStructure(ValidatorCurrentRewards.fromPartial({})),
@@ -87,13 +78,6 @@ const getDefaultState = () => {
             DelegatorStartingInfo: getStructure(DelegatorStartingInfo.fromPartial({})),
             DelegationDelegatorReward: getStructure(DelegationDelegatorReward.fromPartial({})),
             CommunityPoolSpendProposalWithDeposit: getStructure(CommunityPoolSpendProposalWithDeposit.fromPartial({})),
-            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
-            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
-            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
-            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
-            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
-            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
-            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -122,31 +106,31 @@ export default {
 	},
 	getters: {
         getParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.Params[JSON.stringify(params)] ?? {}
 		},
         getValidatorOutstandingRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ValidatorOutstandingRewards[JSON.stringify(params)] ?? {}
 		},
         getValidatorCommission: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ValidatorCommission[JSON.stringify(params)] ?? {}
 		},
         getValidatorSlashes: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.ValidatorSlashes[JSON.stringify(params)] ?? {}
 		},
         getDelegationRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.DelegationRewards[JSON.stringify(params)] ?? {}
 		},
         getDelegationTotalRewards: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.DelegationTotalRewards[JSON.stringify(params)] ?? {}
 		},
         getDelegatorValidators: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.DelegatorValidators[JSON.stringify(params)] ?? {}
 		},
         getDelegatorWithdrawAddress: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.DelegatorWithdrawAddress[JSON.stringify(params)] ?? {}
 		},
         getCommunityPool: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.CommunityPool[JSON.stringify(params)] ?? {}
 		},
         
 		getTypeStructure: (state) => (type) => {
@@ -156,8 +140,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -173,120 +157,185 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'Params', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryValidatorOutstandingRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryValidatorOutstandingRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryValidatorOutstandingRewards.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ValidatorOutstandingRewards', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidatorOutstandingRewards', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryValidatorOutstandingRewards', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryValidatorCommission({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryValidatorCommission({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryValidatorCommission.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ValidatorCommission', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidatorCommission', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryValidatorCommission', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryValidatorSlashes({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryValidatorSlashes({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryValidatorSlashes.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'ValidatorSlashes', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidatorSlashes', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryValidatorSlashes', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryDelegationRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryDelegationRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryDelegationRewards.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'DelegationRewards', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegationRewards', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryDelegationRewards', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryDelegationTotalRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryDelegationTotalRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryDelegationTotalRewards.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'DelegationTotalRewards', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegationTotalRewards', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryDelegationTotalRewards', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryDelegatorValidators({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryDelegatorValidators({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'DelegatorValidators', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorValidators', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryDelegatorWithdrawAddress({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryDelegatorWithdrawAddress({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryDelegatorWithdrawAddress.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'DelegatorWithdrawAddress', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorWithdrawAddress', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryDelegatorWithdrawAddress', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QueryCommunityPool({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryCommunityPool({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryCommunityPool.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'CommunityPool', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryCommunityPool', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryCommunityPool', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        
-        async MsgFundCommunityPool({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
-			}
-		},
-        async MsgSetWithdrawAddress({ rootGetters }, { value }) {
+		
+		async sendMsgSetWithdrawAddress({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+		async sendMsgWithdrawDelegatorReward({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        async MsgWithdrawValidatorCommission({ rootGetters }, { value }) {
+		async sendMsgWithdrawValidatorCommission({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgWithdrawValidatorCommission(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		async sendMsgFundCommunityPool({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgFundCommunityPool:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		
+		async MsgSetWithdrawAddress({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgWithdrawValidatorCommission({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgWithdrawValidatorCommission(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgFundCommunityPool({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgFundCommunityPool:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }

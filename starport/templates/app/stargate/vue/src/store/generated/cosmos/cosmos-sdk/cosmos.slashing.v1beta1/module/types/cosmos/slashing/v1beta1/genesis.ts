@@ -4,7 +4,7 @@ import { util, configure, Writer, Reader } from "protobufjs/minimal";
 import {
   Params,
   ValidatorSigningInfo,
-} from "./slashing";
+} from "../../../cosmos/slashing/v1beta1/slashing";
 
 export const protobufPackage = "cosmos.slashing.v1beta1";
 

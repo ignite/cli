@@ -1,6 +1,6 @@
 /* eslint-disable */
-import { Params, Metadata } from "./bank";
-import { Coin } from "../../base/v1beta1/coin";
+import { Params, Metadata } from "../../../cosmos/bank/v1beta1/bank";
+import { Coin } from "../../../cosmos/base/v1beta1/coin";
 import { Writer, Reader } from "protobufjs/minimal";
 
 export const protobufPackage = "cosmos.bank.v1beta1";

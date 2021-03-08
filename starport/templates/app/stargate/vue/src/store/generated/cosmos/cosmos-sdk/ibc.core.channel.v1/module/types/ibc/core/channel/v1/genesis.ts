@@ -4,7 +4,7 @@ import { util, configure, Writer, Reader } from "protobufjs/minimal";
 import {
   IdentifiedChannel,
   PacketState,
-} from "./channel";
+} from "../../../../ibc/core/channel/v1/channel";
 
 export const protobufPackage = "ibc.core.channel.v1";
 

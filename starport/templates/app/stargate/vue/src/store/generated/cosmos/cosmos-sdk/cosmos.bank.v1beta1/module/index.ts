@@ -2,13 +2,13 @@ import { coins, StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
-import { MsgSend } from "./types/cosmos/bank/v1beta1/tx";
 import { MsgMultiSend } from "./types/cosmos/bank/v1beta1/tx";
+import { MsgSend } from "./types/cosmos/bank/v1beta1/tx";
 
 
 const types = [
-  ["/cosmos.bank.v1beta1.MsgSend", MsgSend],
   ["/cosmos.bank.v1beta1.MsgMultiSend", MsgMultiSend],
+  ["/cosmos.bank.v1beta1.MsgSend", MsgSend],
   
 ];
 
@@ -35,8 +35,8 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
 
   return {
     signAndBroadcast: (msgs: EncodeObject[], { fee: fee }: SignAndBroadcastOptions = { fee: defaultFee }) => client.signAndBroadcast(address, msgs, fee),
-    msgSend: (data: MsgSend): EncodeObject => ({ typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: data }),
     msgMultiSend: (data: MsgMultiSend): EncodeObject => ({ typeUrl: "/cosmos.bank.v1beta1.MsgMultiSend", value: data }),
+    msgSend: (data: MsgSend): EncodeObject => ({ typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: data }),
     
   };
 };

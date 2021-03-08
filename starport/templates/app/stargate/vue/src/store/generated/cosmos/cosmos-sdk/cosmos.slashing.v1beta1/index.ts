@@ -1,21 +1,23 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
-import { ValidatorSigningInfo } from "./module/types/cosmos/slashing/v1beta1/slashing"
-import { Params } from "./module/types/cosmos/slashing/v1beta1/slashing"
 import { SigningInfo } from "./module/types/cosmos/slashing/v1beta1/genesis"
 import { ValidatorMissedBlocks } from "./module/types/cosmos/slashing/v1beta1/genesis"
 import { MissedBlock } from "./module/types/cosmos/slashing/v1beta1/genesis"
+import { ValidatorSigningInfo } from "./module/types/cosmos/slashing/v1beta1/slashing"
+import { Params } from "./module/types/cosmos/slashing/v1beta1/slashing"
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -32,22 +34,16 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        getParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getSigningInfo: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
-        getSigningInfos: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        Params: {},
+        SigningInfo: {},
+        SigningInfos: {},
         
         _Structure: {
-            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
             SigningInfo: getStructure(SigningInfo.fromPartial({})),
             ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
             MissedBlock: getStructure(MissedBlock.fromPartial({})),
+            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
+            Params: getStructure(Params.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -76,13 +72,13 @@ export default {
 	},
 	getters: {
         getParams: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.Params[JSON.stringify(params)] ?? {}
 		},
         getSigningInfo: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.SigningInfo[JSON.stringify(params)] ?? {}
 		},
         getSigningInfos: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+			return state.SigningInfos[JSON.stringify(params)] ?? {}
 		},
         
 		getTypeStructure: (state) => (type) => {
@@ -92,8 +88,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -109,42 +105,59 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'Params', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QuerySigningInfo({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QuerySigningInfo({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'SigningInfo', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QuerySigningInfo', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        async QuerySigningInfos({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QuerySigningInfos({ commit, rootGetters }, { subscribe = false, ...key }) {
 			try {
 				const value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				commit('QUERY', { query: 'SigningInfos', key, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:QuerySigningInfos', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
-        
-        async MsgUnjail({ rootGetters }, { value }) {
+		
+		async sendMsgUnjail({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgUnjail(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUnjail:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUnjail:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		
+		async MsgUnjail({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUnjail(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUnjail:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUnjail:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }

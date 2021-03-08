@@ -1,4 +1,6 @@
 import { txClient, queryClient } from './module';
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex';
 import { TextProposal } from "./module/types/cosmos/gov/v1beta1/gov";
 import { Deposit } from "./module/types/cosmos/gov/v1beta1/gov";
 import { Proposal } from "./module/types/cosmos/gov/v1beta1/gov";
@@ -8,13 +10,13 @@ import { DepositParams } from "./module/types/cosmos/gov/v1beta1/gov";
 import { VotingParams } from "./module/types/cosmos/gov/v1beta1/gov";
 import { TallyParams } from "./module/types/cosmos/gov/v1beta1/gov";
 async function initTxClient(vuexGetters) {
-    return await txClient(vuexGetters['chain/common/wallet/signer'], {
-        addr: vuexGetters['chain/common/env/apiTendermint']
+    return await txClient(vuexGetters['common/wallet/signer'], {
+        addr: vuexGetters['common/env/apiTendermint']
     });
 }
 async function initQueryClient(vuexGetters) {
     return await queryClient({
-        addr: vuexGetters['chain/common/env/apiCosmos']
+        addr: vuexGetters['common/env/apiCosmos']
     });
 }
 function getStructure(template) {
@@ -29,30 +31,14 @@ function getStructure(template) {
 }
 const getDefaultState = () => {
     return {
-        getProposal: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getProposals: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getVote: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getVotes: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDeposit: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDeposits: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getTallyResult: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
+        Proposal: {},
+        Proposals: {},
+        Vote: {},
+        Votes: {},
+        Params: {},
+        Deposit: {},
+        Deposits: {},
+        TallyResult: {},
         _Structure: {
             TextProposal: getStructure(TextProposal.fromPartial({})),
             Deposit: getStructure(Deposit.fromPartial({})),
@@ -87,28 +73,28 @@ export default {
     },
     getters: {
         getProposal: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Proposal[JSON.stringify(params)] ?? {};
         },
         getProposals: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Proposals[JSON.stringify(params)] ?? {};
         },
         getVote: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Vote[JSON.stringify(params)] ?? {};
         },
         getVotes: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Votes[JSON.stringify(params)] ?? {};
         },
         getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Params[JSON.stringify(params)] ?? {};
         },
         getDeposit: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Deposit[JSON.stringify(params)] ?? {};
         },
         getDeposits: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Deposits[JSON.stringify(params)] ?? {};
         },
         getTallyResult: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.TallyResult[JSON.stringify(params)] ?? {};
         },
         getTypeStructure: (state) => (type) => {
             return state._Structure[type].fields;
@@ -117,8 +103,8 @@ export default {
     actions: {
         init({ dispatch, rootGetters }) {
             console.log('init');
-            if (rootGetters['chain/common/env/client']) {
-                rootGetters['chain/common/env/client'].on('newblock', () => {
+            if (rootGetters['common/env/client']) {
+                rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
                 });
             }
@@ -137,116 +123,173 @@ export default {
         async QueryProposal({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryProposal.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Proposal', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryProposal', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryProposal', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryProposals({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryProposals.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Proposals', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryProposals', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryProposals', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryVote({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryVote.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Vote', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryVote', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryVote', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryVotes({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryVotes.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Votes', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryVotes', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryVotes', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDeposit({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDeposit.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Deposit', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDeposit', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDeposit', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDeposits({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDeposits.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Deposits', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDeposits', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDeposits', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryTallyResult({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryTallyResult.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'TallyResult', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryTallyResult', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryTallyResult', 'API Node Unavailable. Could not perform query.'));
             }
         },
-        async MsgVote({ rootGetters }, { value }) {
+        async sendMsgVote({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgVote(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgVote:Send', 'Could not broadcast Tx.');
+                }
             }
         },
-        async MsgSubmitProposal({ rootGetters }, { value }) {
+        async sendMsgSubmitProposal({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgSubmitProposal(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Send', 'Could not broadcast Tx.');
+                }
             }
         },
-        async MsgDeposit({ rootGetters }, { value }) {
+        async sendMsgDeposit({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgDeposit(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgDeposit:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async MsgVote({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgVote(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgVote:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgSubmitProposal({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgSubmitProposal(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgDeposit({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgDeposit(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgDeposit:Create', 'Could not create message.');
+                }
             }
         },
     }

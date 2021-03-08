@@ -3,11 +3,11 @@ import {
   VoteOption,
   voteOptionFromJSON,
   voteOptionToJSON,
-} from "./gov";
+} from "../../../cosmos/gov/v1beta1/gov";
 import { Reader, util, configure, Writer } from "protobufjs/minimal";
 import * as Long from "long";
 import { Any } from "../../../google/protobuf/any";
-import { Coin } from "../../base/v1beta1/coin";
+import { Coin } from "../../../cosmos/base/v1beta1/coin";
 
 export const protobufPackage = "cosmos.gov.v1beta1";
 

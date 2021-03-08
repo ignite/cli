@@ -4,9 +4,9 @@ import { Timestamp } from "../../../google/protobuf/timestamp";
 import {
   Description,
   CommissionRates,
-} from "./staking";
+} from "../../../cosmos/staking/v1beta1/staking";
 import { Any } from "../../../google/protobuf/any";
-import { Coin } from "../../base/v1beta1/coin";
+import { Coin } from "../../../cosmos/base/v1beta1/coin";
 
 export const protobufPackage = "cosmos.staking.v1beta1";
 

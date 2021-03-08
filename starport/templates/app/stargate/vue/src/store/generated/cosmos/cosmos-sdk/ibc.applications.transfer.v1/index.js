@@ -1,15 +1,17 @@
 import { txClient, queryClient } from './module';
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex';
 import { FungibleTokenPacketData } from "./module/types/ibc/applications/transfer/v1/transfer";
 import { DenomTrace } from "./module/types/ibc/applications/transfer/v1/transfer";
 import { Params } from "./module/types/ibc/applications/transfer/v1/transfer";
 async function initTxClient(vuexGetters) {
-    return await txClient(vuexGetters['chain/common/wallet/signer'], {
-        addr: vuexGetters['chain/common/env/apiTendermint']
+    return await txClient(vuexGetters['common/wallet/signer'], {
+        addr: vuexGetters['common/env/apiTendermint']
     });
 }
 async function initQueryClient(vuexGetters) {
     return await queryClient({
-        addr: vuexGetters['chain/common/env/apiCosmos']
+        addr: vuexGetters['common/env/apiCosmos']
     });
 }
 function getStructure(template) {
@@ -24,15 +26,9 @@ function getStructure(template) {
 }
 const getDefaultState = () => {
     return {
-        getDenomTrace: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getDenomTraces: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
-        getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
-        },
+        DenomTrace: {},
+        DenomTraces: {},
+        Params: {},
         _Structure: {
             FungibleTokenPacketData: getStructure(FungibleTokenPacketData.fromPartial({})),
             DenomTrace: getStructure(DenomTrace.fromPartial({})),
@@ -62,13 +58,13 @@ export default {
     },
     getters: {
         getDenomTrace: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DenomTrace[JSON.stringify(params)] ?? {};
         },
         getDenomTraces: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.DenomTraces[JSON.stringify(params)] ?? {};
         },
         getParams: (state) => (params = {}) => {
-            return state.Post[JSON.stringify(params)] ?? {};
+            return state.Params[JSON.stringify(params)] ?? {};
         },
         getTypeStructure: (state) => (type) => {
             return state._Structure[type].fields;
@@ -77,8 +73,8 @@ export default {
     actions: {
         init({ dispatch, rootGetters }) {
             console.log('init');
-            if (rootGetters['chain/common/env/client']) {
-                rootGetters['chain/common/env/client'].on('newblock', () => {
+            if (rootGetters['common/env/client']) {
+                rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
                 });
             }
@@ -97,43 +93,62 @@ export default {
         async QueryDenomTrace({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DenomTrace', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryDenomTraces({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'DenomTraces', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query.'));
             }
         },
         async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
             try {
                 const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
-                commit('QUERY', { query: 'Post', key, value });
+                commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryPost', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
             }
             catch (e) {
-                console.log('Query Failed: API node unavailable');
+                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
             }
         },
-        async MsgTransfer({ rootGetters }, { value }) {
+        async sendMsgTransfer({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgTransfer(value);
                 await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
-                throw 'Failed to broadcast transaction: ' + e;
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgTransfer:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgTransfer:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async MsgTransfer({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgTransfer(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgTransfer:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgTransfer:Create', 'Could not create message.');
+                }
             }
         },
     }

@@ -1,16 +1,18 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
 
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -64,8 +66,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -81,15 +83,32 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        
-        async MsgVerifyInvariant({ rootGetters }, { value }) {
+		
+		async sendMsgVerifyInvariant({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgVerifyInvariant(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgVerifyInvariant:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgVerifyInvariant:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        
+		
+		async MsgVerifyInvariant({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgVerifyInvariant(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgVerifyInvariant:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgVerifyInvariant:Create', 'Could not create message.')
+				}
+			}
+		},
+		
 	}
 }
