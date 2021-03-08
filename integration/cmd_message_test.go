@@ -16,7 +16,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "foo", "text", "vote:int", "like:bool", "--res", "foo,bar:int,foobar:bool"),
+			step.Exec("starport", "message", "foo", "text", "vote:int", "like:bool", "-r", "foo,bar:int,foobar:bool"),
 			step.Workdir(path),
 		)),
 	))
@@ -38,7 +38,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a message in a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "foo", "text", "--module", "foo", "--desc", "foo bar foobar"),
+			step.Exec("starport", "message", "foo", "text", "--module", "foo", "--desc", "foo bar foobar", "--response", "foo,bar:int,foobar:bool"),
 			step.Workdir(path),
 		)),
 	))
