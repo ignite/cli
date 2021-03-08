@@ -146,8 +146,11 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill sdk Msgs.
 	for _, msg := range msgs {
 		pkgmsg, err := pkg.MessageByName(msg)
-		if err != nil { // no msg found in the proto defs corresponds to discovered sdk message.
-			return Module{}, err
+		if err != nil {
+			// no msg found in the proto defs corresponds to discovered sdk message.
+			// if it cannot be found, nothing to worry about, this means that it is used
+			// only internally and not open for actual use.
+			continue
 		}
 
 		m.Msgs = append(m.Msgs, Msg{
