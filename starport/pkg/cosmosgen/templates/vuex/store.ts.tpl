@@ -1,4 +1,5 @@
 import { txClient, queryClient } from './module'
+import { SpVuexError } from '@starport/vuex'
 
 {{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
 {{ end }}
@@ -93,7 +94,7 @@ export default {
 				commit('QUERY', { query: '{{ .Name }}', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: key })
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.'))
 			}
 		},
 		{{ end }}
@@ -102,7 +103,11 @@ export default {
 				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:{{ .Name }}:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
 		{{ end }}
@@ -111,7 +116,11 @@ export default {
 				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
 				return msg
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:{{ .Name }}:Create', 'Could not create message.')
+				}
 			}
 		},
 		{{ end }}
