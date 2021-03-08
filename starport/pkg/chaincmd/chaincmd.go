@@ -63,6 +63,7 @@ type ChainCmd struct {
 	cliCmd          string
 	cliHome         string
 	nodeAddress     string
+	legacySend      bool
 
 	isAutoChainIDDetectionEnabled bool
 
@@ -161,6 +162,14 @@ func WithLaunchpadCLI(cliCmd string) Option {
 func WithLaunchpadCLIHome(cliHome string) Option {
 	return func(c *ChainCmd) {
 		c.cliHome = cliHome
+	}
+}
+
+// WithLegacySendCommand will make the command use the legacy tx send syntax from launchpad
+// on stargate chains. e.g.: CosmWasm
+func WithLegacySendCommand() Option {
+	return func(c *ChainCmd) {
+		c.legacySend = true
 	}
 }
 
@@ -418,7 +427,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		commandTx,
 	}
 
-	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
+	if c.sdkVersion.Major().Is(cosmosver.Stargate) && !c.legacySend {
 		command = append(command,
 			"bank",
 		)
