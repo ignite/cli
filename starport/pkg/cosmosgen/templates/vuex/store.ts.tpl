@@ -1,4 +1,5 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
 {{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
