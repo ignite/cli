@@ -104,7 +104,7 @@ export default {
 					}
 				}
 				commit('QUERY', { query: '{{ .Name }}', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: key })
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { all, ...key} })
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.'))
 			}
