@@ -89,9 +89,20 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, ...key }) {
+		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, all=false, ...key }) {
 			try {
-				const value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, Object.values(key))).data
+				let params=Object.values(key)
+				let value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, params)).data
+				while (all && value.pagination && value.pagination.next_key!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+					for (let prop of Object.keys(next_values)) {
+						if (Array.isArray(next_values[prop])) {
+							value[prop]=[...value[prop], ...next_values[prop]]
+						}else{
+							value[prop]=next_values[prop]
+						}
+					}
+				}
 				commit('QUERY', { query: '{{ .Name }}', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: key })
 			} catch (e) {
