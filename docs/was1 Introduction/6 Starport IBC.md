@@ -1,6 +1,6 @@
 # Starport IBC
 
-Inter-Blockchain Communication Protocol in short [IBC](https://github.com/cosmos/ics#ibc-quick-references), enables communication of blockchains. IBC allows a reliable and secure connection between two chains which can be used for transferring of tokens, multi-chain smart contracts, atomic swaps or data and code sharding of any kind.
+Inter-Blockchain Communication protocol [IBC](https://github.com/cosmos/ics#ibc-quick-references) enables communication between blockchains. IBC allows a reliable and secure connection between two chains that can be used for transferring of tokens, multi-chain smart contracts, atomic swaps, or data and code sharding of any kind.
 
 In order to communicate between chains, bootstrapping two blockchains with starport will give us a picture of how it is intended to work and what happens on each of the blockchain apps in the communication process. In this tutorial, we will be creating two blockchains, connecting those blockchains and transferring tokens via IBC.
 

@@ -14,7 +14,7 @@ With just a few commands, you can use Starport to:
 
 Starport and the SDK modules are written in the Go programming language. Starport creates a user interface with Vue.js. This user interface provides a good starting point for developers by creating a browser-based client-side app for your blockchain. The scaffolded app created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
 
-Note: Starport replaces the `scaffold` program that was previously used to create a blockchain app.
+Starport replaces the `scaffold` program that was previously used to create a blockchain app.
 
 ## Projects using Tendermint and Cosmos SDK
 
@@ -29,7 +29,5 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 - Starport lets you create, develop, and build a blockchain.
 
 - Starport and Cosmos SDK modules are written in Go.
-
-- Today, Cosmos SDK has a unique worldwide position as one of the most successful blockchains.
 
 - You can use different Cosmos SDK modules to customize their blockchain.
