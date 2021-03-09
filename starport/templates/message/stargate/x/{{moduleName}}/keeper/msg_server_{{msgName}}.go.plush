@@ -1,0 +1,18 @@
+package keeper
+
+import (
+	"context"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+
+func (k msgServer) <%= title(MsgName) %>(goCtx context.Context,  msg *types.Msg<%= title(MsgName) %>) (*types.Msg<%= title(MsgName) %>Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    // TODO: Handling the message
+    _ = ctx
+
+	return &types.Msg<%= title(MsgName) %>Response{}, nil
+}
