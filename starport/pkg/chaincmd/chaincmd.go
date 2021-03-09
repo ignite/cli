@@ -59,7 +59,7 @@ type ChainCmd struct {
 	chainID         string
 	homeDir         string
 	keyringBackend  KeyringBackend
-	KeyringPassword string
+	keyringPassword string
 	cliCmd          string
 	cliHome         string
 	nodeAddress     string
@@ -137,7 +137,7 @@ func WithKeyringBackend(keyringBackend KeyringBackend) Option {
 // WithKeyringPassword provides a password to unlock keyring
 func WithKeyringPassword(password string) Option {
 	return func(c *ChainCmd) {
-		c.KeyringPassword = password
+		c.keyringPassword = password
 	}
 }
 
@@ -499,6 +499,16 @@ func (c ChainCmd) StatusCommand() step.Option {
 
 	command = c.attachNode(command)
 	return c.cliCommand(command)
+}
+
+// KeyringBackend returns the underlying keyring backend.
+func (c ChainCmd) KeyringBackend() KeyringBackend {
+	return c.keyringBackend
+}
+
+// KeyringPassword returns the underlying keyring password.
+func (c ChainCmd) KeyringPassword() string {
+	return c.keyringPassword
 }
 
 // attachChainID appends the chain ID flag to the provided command
