@@ -89,7 +89,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, all=false, ...key }) {
+		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, params)).data
@@ -105,8 +105,10 @@ export default {
 				}
 				commit('QUERY', { query: '{{ .Name }}', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { all, ...key} })
+				return state.{{.Name }}[JSON.stringify(key)] ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.'))
+				return {}
 			}
 		},
 		{{ end }}
