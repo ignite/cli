@@ -88,9 +88,9 @@ func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) 
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
-	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
-	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
+	config.Set("rpc.laddr", xurl.TCP(conf.Host.RPC))
+	config.Set("p2p.laddr", xurl.TCP(conf.Host.P2P))
+	config.Set("rpc.pprof_laddr", conf.Host.Prof)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -109,7 +109,7 @@ func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runne
 	})
 
 	g.Go(func() error {
-		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Host.API), xurl.TCP(conf.Host.RPC))
 		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
 	})
 
