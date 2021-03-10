@@ -463,7 +463,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Host.API))
 
 	host := conf.Faucet.Host
-	if host == "" {
+	if conf.Faucet.Port != 0 {
 		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
 	}
 
@@ -558,7 +558,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	host := conf.Faucet.Host
-	if host == "" {
+	if conf.Faucet.Port != 0 {
 		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
 	}
 

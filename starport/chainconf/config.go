@@ -39,7 +39,7 @@ var (
 			},
 		},
 		Faucet: Faucet{
-			Host: ":4500",
+			Host: "0.0.0.0:4500",
 		},
 	}
 )
