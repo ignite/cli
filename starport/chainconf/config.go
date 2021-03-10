@@ -20,14 +20,14 @@ var (
 
 	// DefaultConf holds default configuration.
 	DefaultConf = Config{
-		Servers: Servers{
-			RPCAddr:      "0.0.0.0:26657",
-			P2PAddr:      "0.0.0.0:26656",
-			ProfAddr:     "0.0.0.0:6060",
-			GRPCAddr:     "0.0.0.0:9090",
-			APIAddr:      "0.0.0.0:1317",
-			FrontendAddr: "0.0.0.0:8080",
-			DevUIAddr:    "0.0.0.0:12345",
+		Host: Host{
+			RPC:      ":26657",
+			P2P:      ":26656",
+			Prof:     ":6060",
+			GRPC:     ":9090",
+			API:      ":1317",
+			Frontend: ":8080",
+			DevUI:    ":12345",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -53,7 +53,7 @@ type Config struct {
 	Build     Build                  `yaml:"build"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
-	Servers   Servers                `yaml:"servers"`
+	Host      Host                   `yaml:"host"`
 }
 
 // AccountByName finds account by name.
@@ -133,15 +133,15 @@ type Init struct {
 	KeyringBackend string `yaml:"keyring-backend"`
 }
 
-// Servers keeps configuration related to started servers.
-type Servers struct {
-	RPCAddr      string `yaml:"rpc-address"`
-	P2PAddr      string `yaml:"p2p-address"`
-	ProfAddr     string `yaml:"prof-address"`
-	GRPCAddr     string `yaml:"grpc-address"`
-	APIAddr      string `yaml:"api-address"`
-	FrontendAddr string `yaml:"frontend-address"`
-	DevUIAddr    string `yaml:"dev-ui-address"`
+// Host keeps configuration related to started servers.
+type Host struct {
+	RPC      string `yaml:"rpc"`
+	P2P      string `yaml:"p2p"`
+	Prof     string `yaml:"prof"`
+	GRPC     string `yaml:"grpc"`
+	API      string `yaml:"api"`
+	Frontend string `yaml:"frontend"`
+	DevUI    string `yaml:"dev-ui"`
 }
 
 // Parse parses config.yml into UserConfig.
