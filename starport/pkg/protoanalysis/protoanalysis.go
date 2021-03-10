@@ -62,10 +62,10 @@ type RPCFunc struct {
 
 // HTTPAnnotations keeps info about http annotations of an RPC func.
 type HTTPAnnotations struct {
-	// URLParams is a list of paramaters defined in the http endpoint annotation.
+	// URLParams is a list of parameters defined in the http endpoint annotation.
 	URLParams []string
 
-	// URLHasQuery indicates if query paramaters can be passed in the gRPC Gatweway mode.
+	// URLHasQuery indicates if query parameters can be passed in the gRPC Gatweway mode.
 	URLHasQuery bool
 }
 
