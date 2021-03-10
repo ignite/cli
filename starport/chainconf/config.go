@@ -39,7 +39,7 @@ var (
 			},
 		},
 		Faucet: Faucet{
-			Port: 4500,
+			Host: ":4500",
 		},
 	}
 )
@@ -101,9 +101,6 @@ type Proto struct {
 
 // Faucet configuration.
 type Faucet struct {
-	// Port number for faucet server to listen at.
-	Port int `yaml:"port"`
-
 	// Name is faucet account's name.
 	Name *string `yaml:"name"`
 
@@ -113,6 +110,12 @@ type Faucet struct {
 	// CoinsMax holds of chain denoms and their max amounts that can be transferred
 	// to single user.
 	CoinsMax []string `yaml:"coins_max"`
+
+	// Host is the host of the faucet server
+	Host string `yaml:"host"`
+
+	// Port number for faucet server to listen at.
+	Port int `yaml:"port"`
 }
 
 // Init overwrites sdk configurations with given values.

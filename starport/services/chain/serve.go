@@ -462,8 +462,13 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Host.RPC))
 	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Host.API))
 
+	host := conf.Faucet.Host
+	if host == "" {
+		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
+	}
+
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://0.0.0.0:%d\n", conf.Faucet.Port)
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", host)
 	}
 
 	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Host.DevUI))
@@ -552,8 +557,13 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 		return err
 	}
 
+	host := conf.Faucet.Host
+	if host == "" {
+		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
+	}
+
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port),
+		Addr:    host,
 		Handler: faucet,
 	})
 }

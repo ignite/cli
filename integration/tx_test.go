@@ -23,7 +23,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		env         = newEnv(t)
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname, Stargate)
-		host     = env.RandomizeServerPorts(path, "")
+		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
