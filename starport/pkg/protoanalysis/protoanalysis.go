@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -54,6 +55,18 @@ type RPCFunc struct {
 
 	// ReturnsType is the response type of RPC func.
 	ReturnsType string
+
+	// HTTPAnnotations keeps info about http annotations of an RPC func.
+	HTTPAnnotations HTTPAnnotations
+}
+
+// HTTPAnnotations keeps info about http annotations of an RPC func.
+type HTTPAnnotations struct {
+	// URLParams is a list of paramaters defined in the http endpoint annotation.
+	URLParams []string
+
+	// URLHasQuery indicates if query paramaters can be passed in the gRPC Gatweway mode.
+	URLHasQuery bool
 }
 
 // MessageByName finds a message by its name inside Package.
@@ -131,6 +144,8 @@ func DiscoverPackages(path string) ([]Package, error) {
 	return pkgs, g.Wait()
 }
 
+var urlParamRe = regexp.MustCompile(`(?m){(\w+)}`)
+
 // Parse parses a proto file residing at path.
 func Parse(path string) (Package, error) {
 	f, err := os.Open(path)
@@ -148,6 +163,11 @@ func Parse(path string) (Package, error) {
 		Path: filepath.Dir(path),
 	}
 
+	var (
+		messages []*proto.Message
+		services []*proto.Service
+	)
+
 	proto.Walk(
 		def,
 		proto.WithPackage(func(p *proto.Package) { pkg.Name = p.Name }),
@@ -158,31 +178,79 @@ func Parse(path string) (Package, error) {
 			pkg.GoImportName = o.Constant.Source
 		}),
 		proto.WithMessage(func(m *proto.Message) {
-			pkg.Messages = append(pkg.Messages, Message{
-				Name: m.Name,
-				Path: path,
-			})
+			messages = append(messages, m)
 		}),
 		proto.WithService(func(s *proto.Service) {
-			sv := Service{
-				Name: s.Name,
+			services = append(services, s)
+		}),
+	)
+
+	for _, m := range messages {
+		pkg.Messages = append(pkg.Messages, Message{
+			Name: m.Name,
+			Path: path,
+		})
+	}
+
+	for _, s := range services {
+		sv := Service{
+			Name: s.Name,
+		}
+
+		for _, el := range s.Elements {
+			rpc, ok := el.(*proto.RPC)
+			if !ok {
+				continue
 			}
 
-			for _, el := range s.Elements {
-				rpc, ok := el.(*proto.RPC)
+			rpcFunc := RPCFunc{
+				Name:        rpc.Name,
+				RequestType: rpc.RequestType,
+				ReturnsType: rpc.ReturnsType,
+			}
+
+			// check for http annotations and collect info about them.
+			for _, el := range rpc.Elements {
+				option, ok := el.(*proto.Option)
 				if !ok {
 					continue
 				}
-				sv.RPCFuncs = append(sv.RPCFuncs, RPCFunc{
-					Name:        rpc.Name,
-					RequestType: rpc.RequestType,
-					ReturnsType: rpc.ReturnsType,
-				})
-			}
+				if !strings.Contains(option.Name, "google.api.http") {
+					continue
+				}
 
-			pkg.Services = append(pkg.Services, sv)
-		}),
-	)
+				// fill url params.
+				match := urlParamRe.FindAllStringSubmatch(option.Constant.Source, -1)
+				for _, item := range match {
+					rpcFunc.HTTPAnnotations.URLParams = append(rpcFunc.HTTPAnnotations.URLParams, item[1])
+				}
+
+				// fill has query params.
+				for _, m := range messages {
+					if m.Name != rpc.RequestType {
+						continue
+					}
+
+					var fieldCount int
+					for _, el := range m.Elements {
+						switch el.(type) {
+						case
+							*proto.NormalField,
+							*proto.MapField,
+							*proto.OneOfField:
+							fieldCount++
+						}
+					}
+
+					rpcFunc.HTTPAnnotations.URLHasQuery = fieldCount > len(rpcFunc.HTTPAnnotations.URLParams)
+				}
+
+			}
+			sv.RPCFuncs = append(sv.RPCFuncs, rpcFunc)
+		}
+
+		pkg.Services = append(pkg.Services, sv)
+	}
 
 	return pkg, nil
 }

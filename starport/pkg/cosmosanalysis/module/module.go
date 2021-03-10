@@ -68,6 +68,9 @@ type Query struct {
 
 	// FullName of the query with service name and rpc func name.
 	FullName string
+
+	// HTTPAnnotations keeps info about http annotations of query.
+	HTTPAnnotations protoanalysis.HTTPAnnotations
 }
 
 // Type is a proto type that might be used by module.
@@ -208,8 +211,9 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 				continue
 			}
 			m.Queries = append(m.Queries, Query{
-				Name:     q.Name,
-				FullName: fullName,
+				Name:            q.Name,
+				FullName:        fullName,
+				HTTPAnnotations: q.HTTPAnnotations,
 			})
 		}
 	}
