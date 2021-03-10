@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
@@ -46,15 +47,16 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 					gocmd.Name(),
 					"mod",
 					"edit",
-					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
+					"-require=github.com/cosmos/cosmos-sdk@v0.39.2",
 				),
 			),
 		)
 }
 
 func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
+	fmt.Println(1, runner.Cmd().KeyringBackend())
 	return runner.LaunchpadSetConfigs(ctx,
-		chaincmdrunner.NewKV("keyring-backend", "test"),
+		chaincmdrunner.NewKV("keyring-backend", string(runner.Cmd().KeyringBackend())),
 		chaincmdrunner.NewKV("chain-id", chainID),
 		chaincmdrunner.NewKV("output", "json"),
 		chaincmdrunner.NewKV("indent", "true"),

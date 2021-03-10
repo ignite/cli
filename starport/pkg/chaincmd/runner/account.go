@@ -50,9 +50,9 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 		input := &bytes.Buffer{}
 		fmt.Fprintln(input, mnemonic)
 
-		if r.cc.KeyringPassword != "" {
-			fmt.Fprintln(input, r.cc.KeyringPassword)
-			fmt.Fprintln(input, r.cc.KeyringPassword)
+		if r.cc.KeyringPassword() != "" {
+			fmt.Fprintln(input, r.cc.KeyringPassword())
+			fmt.Fprintln(input, r.cc.KeyringPassword())
 		}
 
 		if err := r.run(
@@ -80,9 +80,9 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 		r.cc.ShowKeyAddressCommand(name),
 	}
 
-	if r.cc.KeyringPassword != "" {
+	if r.cc.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword)
+		fmt.Fprintln(input, r.cc.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
@@ -109,9 +109,9 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 		r.cc.ShowKeyAddressCommand(name),
 	}
 
-	if r.cc.KeyringPassword != "" {
+	if r.cc.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword)
+		fmt.Fprintln(input, r.cc.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
