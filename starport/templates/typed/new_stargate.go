@@ -145,19 +145,19 @@ message MsgCreate%[2]v {
 %[3]v}
 
 message MsgCreate%[2]vResponse {
-  string id = 1;
+  uint64 id = 1;
 }
 
 message MsgUpdate%[2]v {
   string creator = 1;
-  string id = 2;
+  uint64 id = 2;
 %[4]v}
 
 message MsgUpdate%[2]vResponse { }
 
 message MsgDelete%[2]v {
   string creator = 1;
-  string id = 2;
+  uint64 id = 2;
 }
 
 message MsgDelete%[2]vResponse { }
@@ -230,7 +230,7 @@ func (t *typedStargate) protoRPCMessageModify(opts *Options) genny.RunFn {
 		}
 		template := `%[1]v
 message QueryGet%[2]vRequest {
-	string id = 1;
+	uint64 id = 1;
 }
 
 message QueryGet%[2]vResponse {
