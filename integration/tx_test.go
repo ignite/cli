@@ -23,7 +23,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		env         = newEnv(t)
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname, Stargate)
-		servers     = env.RandomizeServerPorts(path, "")
+		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
 
@@ -57,7 +57,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		),
 		step.PreExec(func() error {
 			output.Reset()
-			return env.IsAppServed(ctx, servers)
+			return env.IsAppServed(ctx, host)
 		}),
 		step.PostExec(func(execErr error) error {
 			if execErr != nil {
@@ -96,7 +96,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					"10token",
 					"--keyring-backend", "test",
 					"--chain-id", appname,
-					"--node", xurl.TCP(servers.RPCAddr),
+					"--node", xurl.TCP(host.RPC),
 					"--yes",
 				),
 				step.PreExec(func() error {
@@ -115,7 +115,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						return err
 					}
 
-					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(servers.APIAddr), tx.Hash)
+					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.API), tx.Hash)
 					req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
 					if err != nil {
 						return errors.Wrap(err, "call to get tx via gRPC gateway")

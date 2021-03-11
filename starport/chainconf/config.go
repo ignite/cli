@@ -20,14 +20,14 @@ var (
 
 	// DefaultConf holds default configuration.
 	DefaultConf = Config{
-		Servers: Servers{
-			RPCAddr:      "0.0.0.0:26657",
-			P2PAddr:      "0.0.0.0:26656",
-			ProfAddr:     "0.0.0.0:6060",
-			GRPCAddr:     "0.0.0.0:9090",
-			APIAddr:      "0.0.0.0:1317",
-			FrontendAddr: "0.0.0.0:8080",
-			DevUIAddr:    "0.0.0.0:12345",
+		Host: Host{
+			RPC:      ":26657",
+			P2P:      ":26656",
+			Prof:     ":6060",
+			GRPC:     ":9090",
+			API:      ":1317",
+			Frontend: ":8080",
+			DevUI:    ":12345",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -39,7 +39,7 @@ var (
 			},
 		},
 		Faucet: Faucet{
-			Port: 4500,
+			Host: ":4500",
 		},
 	}
 )
@@ -53,7 +53,7 @@ type Config struct {
 	Build     Build                  `yaml:"build"`
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
-	Servers   Servers                `yaml:"servers"`
+	Host      Host                   `yaml:"host"`
 }
 
 // AccountByName finds account by name.
@@ -101,9 +101,6 @@ type Proto struct {
 
 // Faucet configuration.
 type Faucet struct {
-	// Port number for faucet server to listen at.
-	Port int `yaml:"port"`
-
 	// Name is faucet account's name.
 	Name *string `yaml:"name"`
 
@@ -113,6 +110,12 @@ type Faucet struct {
 	// CoinsMax holds of chain denoms and their max amounts that can be transferred
 	// to single user.
 	CoinsMax []string `yaml:"coins_max"`
+
+	// Host is the host of the faucet server
+	Host string `yaml:"host"`
+
+	// Port number for faucet server to listen at.
+	Port int `yaml:"port"`
 }
 
 // Init overwrites sdk configurations with given values.
@@ -133,15 +136,15 @@ type Init struct {
 	KeyringBackend string `yaml:"keyring-backend"`
 }
 
-// Servers keeps configuration related to started servers.
-type Servers struct {
-	RPCAddr      string `yaml:"rpc-address"`
-	P2PAddr      string `yaml:"p2p-address"`
-	ProfAddr     string `yaml:"prof-address"`
-	GRPCAddr     string `yaml:"grpc-address"`
-	APIAddr      string `yaml:"api-address"`
-	FrontendAddr string `yaml:"frontend-address"`
-	DevUIAddr    string `yaml:"dev-ui-address"`
+// Host keeps configuration related to started servers.
+type Host struct {
+	RPC      string `yaml:"rpc"`
+	P2P      string `yaml:"p2p"`
+	Prof     string `yaml:"prof"`
+	GRPC     string `yaml:"grpc"`
+	API      string `yaml:"api"`
+	Frontend string `yaml:"frontend"`
+	DevUI    string `yaml:"dev-ui"`
 }
 
 // Parse parses config.yml into UserConfig.
@@ -197,4 +200,16 @@ func LocateDefault(root string) (path string, err error) {
 		}
 	}
 	return "", ErrCouldntLocateConfig
+}
+
+// FaucetHost returns the faucet host to use
+func FaucetHost(conf Config) string {
+	// We keep supporting Port option for backward compatibility
+	// TODO: drop this option in the future
+	host := conf.Faucet.Host
+	if conf.Faucet.Port != 0 {
+		host = fmt.Sprintf(":%d", conf.Faucet.Port)
+	}
+
+	return host
 }

@@ -201,7 +201,7 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		rpcAddress = conf.Servers.RPCAddr
+		rpcAddress = conf.Host.RPC
 	}
 	return rpcAddress, nil
 }
@@ -423,7 +423,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
-		chaincmd.WithNodeAddress(xurl.TCP(config.Servers.RPCAddr)),
+		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
 	}
 
 	if c.plugin.Version() == cosmosver.Launchpad {

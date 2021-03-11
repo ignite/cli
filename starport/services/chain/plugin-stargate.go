@@ -68,8 +68,8 @@ func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) erro
 	config.Set("api.enable", true)
 	config.Set("api.enabled-unsafe-cors", true)
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("api.address", xurl.TCP(conf.Servers.APIAddr))
-	config.Set("grpc.address", conf.Servers.GRPCAddr)
+	config.Set("api.address", xurl.TCP(conf.Host.API))
+	config.Set("grpc.address", conf.Host.GRPC)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -89,9 +89,9 @@ func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) e
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("consensus.timeout_commit", "1s")
 	config.Set("consensus.timeout_propose", "1s")
-	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
-	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
-	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
+	config.Set("rpc.laddr", xurl.TCP(conf.Host.RPC))
+	config.Set("p2p.laddr", xurl.TCP(conf.Host.P2P))
+	config.Set("rpc.pprof_laddr", conf.Host.Prof)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -106,7 +106,7 @@ func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner
 		"--pruning",
 		"nothing",
 		"--grpc.address",
-		conf.Servers.GRPCAddr,
+		conf.Host.GRPC,
 	)
 	return &CannotStartAppError{p.app.Name, err}
 }
