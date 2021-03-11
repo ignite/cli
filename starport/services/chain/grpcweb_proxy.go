@@ -18,6 +18,7 @@ func newGRPCWebProxyHandler(grpcServerAddress string) (*grpc.ClientConn, http.Ha
 	grpcopts := []grpc.DialOption{
 		grpc.WithInsecure(),
 		// TODO: https://github.com/tendermint/starport/issues/562
+		//nolint:staticcheck
 		grpc.WithCodec(proxy.Codec()),
 	}
 
@@ -41,6 +42,7 @@ func newGRPCWebProxyHandler(grpcServerAddress string) (*grpc.ClientConn, http.Ha
 	// Server with logging and monitoring enabled.
 	grpcserver := grpc.NewServer(
 		// TODO: https://github.com/tendermint/starport/issues/562
+		//nolint:staticcheck
 		grpc.CustomCodec(proxy.Codec()), // needed for proxy to function.
 		grpc.UnknownServiceHandler(proxy.TransparentHandler(director)),
 		grpc_middleware.WithUnaryServerChain(),

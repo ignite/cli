@@ -168,6 +168,11 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 // ImportModule imports specified module with name to the scaffolded app.
 func (s *Scaffolder) ImportModule(name string) error {
+	// Only wasm is currently supported
+	if name != "wasm" {
+		return errors.New("module cannot be imported. Supported module: wasm")
+	}
+
 	version, err := s.version()
 	if err != nil {
 		return err
