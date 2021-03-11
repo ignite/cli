@@ -424,7 +424,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -433,7 +433,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
+	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
@@ -459,14 +459,14 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://0.0.0.0:%d\n", conf.Faucet.Port)
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", conf.FaucetHost(config))
 	}
 
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
 }
@@ -489,7 +489,7 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 		}
 		return nil // ignore errors.
 	}
-	host, port, err := net.SplitHostPort(conf.Servers.FrontendAddr)
+	host, port, err := net.SplitHostPort(conf.Host.Frontend)
 	if err != nil {
 		return err
 	}
@@ -508,9 +508,9 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 				step.Env(
 					fmt.Sprintf("HOST=%s", host),
 					fmt.Sprintf("PORT=%s", port),
-					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Servers.APIAddr)),
-					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Servers.RPCAddr)),
-					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Servers.RPCAddr)),
+					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Host.API)),
+					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Host.RPC)),
+					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Host.RPC)),
 				),
 				step.PostExec(postExec),
 			),
@@ -523,7 +523,7 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		return err
 	}
 
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Host.GRPC)
 	if err != nil {
 		return err
 	}
@@ -531,9 +531,9 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 
 	conf := Config{
 		SdkVersion:      c.plugin.Name(),
-		EngineAddr:      xurl.HTTP(config.Servers.RPCAddr),
-		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
-		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
+		EngineAddr:      xurl.HTTP(config.Host.RPC),
+		AppBackendAddr:  xurl.HTTP(config.Host.API),
+		AppFrontendAddr: xurl.HTTP(config.Host.Frontend),
 	} // TODO get vals from const
 	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
@@ -541,19 +541,19 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.Servers.DevUIAddr,
+		Addr:    config.Host.DevUI,
 		Handler: handler,
 	})
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
-	conf, err := c.Config()
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port),
+		Addr:    conf.FaucetHost(config),
 		Handler: faucet,
 	})
 }
