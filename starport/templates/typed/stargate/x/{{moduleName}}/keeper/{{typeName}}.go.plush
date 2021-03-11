@@ -1,6 +1,7 @@
 package keeper
 
 import (
+	"encoding/binary"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -8,7 +9,7 @@ import (
 )
 
 // Get<%= title(TypeName) %>Count get the total number of <%= TypeName %>
-func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) int64 {
+func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) uint64 {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>CountKey))
 	byteKey := types.KeyPrefix(types.<%= title(TypeName) %>CountKey)
 	bz := store.Get(byteKey)
@@ -19,7 +20,7 @@ func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) int64 {
 	}
 
 	// Parse bytes
-	count, err := strconv.ParseInt(string(bz), 10, 64)
+	count, err := strconv.ParseUint(string(bz), 10, 64)
 	if err != nil {
 		// Panic because the count should be always formattable to int64
 		panic("cannot decode count")
@@ -29,10 +30,10 @@ func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) int64 {
 }
 
 // Set<%= title(TypeName) %>Count set the total number of <%= TypeName %>
-func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count int64)  {
+func (k Keeper) Set<%= title(TypeName) %>Count(ctx sdk.Context, count uint64)  {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>CountKey))
 	byteKey := types.KeyPrefix(types.<%= title(TypeName) %>CountKey)
-	bz := []byte(strconv.FormatInt(count, 10))
+	bz := []byte(strconv.FormatUint(count, 10))
 	store.Set(byteKey, bz)
 }
 
@@ -44,10 +45,9 @@ func (k Keeper) Append<%= title(TypeName) %>(
 ) uint64 {
 	// Create the <%= TypeName %>
     count := k.Get<%= title(TypeName) %>Count(ctx)
-    id := strconv.FormatInt(count, 10)
     var <%= TypeName %> = types.<%= title(TypeName) %>{
         Creator: creator,
-        Id:      id,<%= for (field) in Fields { %>
+        Id:      count,<%= for (field) in Fields { %>
         <%= title(field.Name) %>: <%= field.Name %>,<% } %>
     }
 
@@ -58,7 +58,7 @@ func (k Keeper) Append<%= title(TypeName) %>(
     // Update <%= TypeName %> count
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
 
-    return id
+    return count
 }
 
 // Set<%= title(TypeName) %> set a specific <%= TypeName %> in the store

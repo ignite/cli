@@ -24,6 +24,7 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 		g.RunFn(t.protoTxImportModify(opts))
 		g.RunFn(t.protoTxRPCModify(opts))
 		g.RunFn(t.protoTxMessageModify(opts))
+		t.genesisModify(opts, g)
 	}
 
 	g.RunFn(t.typesKeyModify(opts))
@@ -40,7 +41,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestRestModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
-	t.genesisModify(opts, g)
 
 	if opts.Legacy {
 		return g, Box(stargateLegacyTemplate, opts, g)
