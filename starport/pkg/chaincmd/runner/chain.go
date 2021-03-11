@@ -142,11 +142,11 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 		r.cc.BankSendCommand(fromAccount, toAccount, amount),
 	}
 
-	if r.cc.KeyringPassword != "" {
+	if r.cc.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword)
-		fmt.Fprintln(input, r.cc.KeyringPassword)
-		fmt.Fprintln(input, r.cc.KeyringPassword)
+		fmt.Fprintln(input, r.cc.KeyringPassword())
+		fmt.Fprintln(input, r.cc.KeyringPassword())
+		fmt.Fprintln(input, r.cc.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
