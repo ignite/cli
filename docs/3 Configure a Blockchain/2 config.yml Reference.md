@@ -1,11 +1,9 @@
-# Configure Starport
+# config.yml Reference
 
-The `config.yml` file generated in your blockchain folder describes the development environment for your blockchain.
+The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain. 
 
 <!-- TOC depthFrom:2 depthTo:2 withLinks:1 updateOnSave:1 orderedList:0 -->
 
-- [Genesis file](#genesis-file)
-- [config.yml Attributes and Examples](#configyml-attributes-and-examples)
 - [accounts](#accounts)
 - [`build`](#build)
 - [Example build](#example-build)
@@ -34,67 +32,13 @@ validator:
   staked: "100000000stake"
 ```
 
-## Genesis file
-
-With Starport, a genesis file for the new blockchain is automatically created from your `config.yml` file. See [Using Tendermint > Genesis](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#genesis) in the Tendermint Core documentation.
-
-There is an optional genesis parameter in the `config.yml`, which you can use to define parameters in your genesis file directly, such as the chain-id as follows:
-
-```yml
-genesis:
-  chain_id: "foobar"
-```
-
-You can also manipulate parameters of different modules. If you wanted for example change the `staking` module, which contains staking parameters such as which token gets staked, you would add the following to your `config.yml``
-
-```yml
-genesis:
-  app_state:
-    staking:
-      params:
-        bond_denom: "denom"
-```
-
-After manipulating the `config.yml` to your likings, you can start the blockchain app with `starport serve`. This will create (or override) the folder located at your user homefolder `~/.myappd` (the name of your app with a `d` for `daemon` attached) and initiate your blockchain with the genesis file, located under `~/.myappd/config`. The second folder you can find in the `~/.myappd` folder is `data` - this is where the blockchain will write the consecutive blocks and transactions. The other folder created is the `~/.myappcli` folder, which contains a configuration file for your current command line interface, such as `chain-id`, output parameters such as `json` or `indent` mode. If you want to make sure all of your data from the blockchain setup is deleted, make sure to remove the `~/.myappd` and `~/.myappcli` folder.
-
-
- Let us examine the parts of the configuration of this file.
-
-```yml
-accounts:
-  - name: user1
-    coins: ["1000token", "100000000stake"]
-  - name: user2
-    coins: ["500token"]
-validator:
-  name: user1
-  staked: "100000000stake"
-```
+(rough here, but we should mention how changes are recognized with `starport serve` )
 
 The `accounts` define the initial distribution of Tokens on the blockchain. Here is the place where you can define original holders of the tokens on your blockchain. These accounts will get translated into the genesis block and after launching your blockchain the users mentioned have access to their respective tokens. The `name` parameter in `accounts` will create a random new keypair in your blockchain app keychain, which you can access on the command line. You can also reference these names under `validator` to define the starting validators with a bounded stake that you can configure. The bounding stake has to be equal to or less the stake given in the `accounts` parameter. The `coins` specify the amount of coins and their denomination on the blockchain. Here you can list a variety of coin denominations and their respective amounts to be used on your blockchain.
 
-There is an optional genesis parameter in the `config.yml`, which you can use to define parameters in your genesis file directly, such as the chain-id as follows:
+<!-- what is this? can we delete a blockchain setup? --> If you want to make sure all of your data from the blockchain setup is deleted, make sure to remove the `~/.myappd` and `~/.myappcli` folder. <!-- end comment about delete -->
 
-```yml
-genesis:
-  chain_id: "foobar"
-```
-
-(useful for development, for example, building a module that has params and you can set these params and can test parameters, app easy to build and test it for certain parameters ) You can also manipulate parameters of different modules. If you wanted for example change the `staking` module, which contains staking parameters such as which token gets staked, you would add the following to your `config.yml``
-
-```yml
-genesis:
-  app_state:
-    staking:
-      params:
-        bond_denom: "denom"
-```
-
-After manipulating the `config.yml` to your likings, you can start the blockchain app with `starport serve`. This will create (or override) the folder located at your user homefolder `~/.myappd` (the name of your app with a `d` for `daemon` attached) and initiate your blockchain with the genesis file, located under `~/.myappd/config`. The second folder you can find in the `~/.myappd` folder is `data` - this is where the blockchain will write the consecutive blocks and transactions. The other folder created is the `~/.myappcli` folder, which contains a configuration file for your current command line interface, such as `chain-id`, output parameters such as `json` or `indent` mode.
-
-If you want to make sure all of your data from the blockchain setup is deleted, make sure to remove the `~/.myappd` and `~/.myappcli` folder.
-
-## config.yml Attributes and Examples
+ ## config.yml Attributes and Examples
 
 Configure The `config.yml` file
 
@@ -103,12 +47,10 @@ Configure The `config.yml` file
 A list of user accounts created during genesis of the blockchain that define the initial distribution of tokens on the blockchain. Only the named users .
 
 Key     | Required | Type            | Description
-------- | -------- | --------------- | --------------------------------------------------------------------------------------------------------------------
-name    | Y        | String          | Local name of a key pair. Only specified account names have access to their tokens after the blockchain is launched.
+------- | -------- | --------------- | --------------------------------------------------------------------------------------------------------------------------
+name    | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched.
 coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"
 address | N        | String          | Account address in Bech32 address format
-
-### Example accounts
 
 ```yaml
 accounts:
