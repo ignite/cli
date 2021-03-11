@@ -11,10 +11,12 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 var (
@@ -437,7 +439,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
-		chaincmd.WithNodeAddress(config.Servers.RPCAddr),
+		chaincmd.WithNodeAddress(xurl.TCP(config.Servers.RPCAddr)),
 	}
 
 	if c.plugin.Version() == cosmosver.Launchpad {

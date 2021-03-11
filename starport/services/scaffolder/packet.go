@@ -17,6 +17,7 @@ import (
 const (
 	ibcModuleImplementation = "module_ibc.go"
 	keeperDirectory         = "keeper"
+	typesDirectory          = "types"
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
