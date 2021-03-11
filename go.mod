@@ -22,6 +22,7 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
+	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/gookit/color v1.3.6
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
