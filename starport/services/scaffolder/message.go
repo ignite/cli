@@ -52,11 +52,11 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields)
+	parsedMsgFields, err := parseFields(fields, isForbiddenMessageField)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resField)
+	parsedResFields, err := parseFields(resField, isGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -109,6 +109,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	return fmtProject(pwd)
 }
 
+// isMsgCreated checks if the message is already scaffolded
 func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
 	absPath, err := filepath.Abs(filepath.Join(
 		appPath,
@@ -128,4 +129,13 @@ func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err erro
 	}
 
 	return true, err
+}
+
+// isForbiddenTypeField returns true if the name is forbidden as a message name
+func isForbiddenMessageField(name string) bool {
+	if name == "creator" {
+		return true
+	}
+
+	return isGoReservedWord(name)
 }

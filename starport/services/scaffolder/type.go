@@ -69,7 +69,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 	}
 
 	// Parse provided field
-	tFields, err := parseFields(fields)
+	tFields, err := parseFields(fields, isForbiddenTypeField)
 	if err != nil {
 		return err
 	}
@@ -131,7 +131,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 }
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func parseFields(fields []string) ([]typed.Field, error) {
+func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.Field, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
@@ -141,7 +141,7 @@ func parseFields(fields []string) ([]typed.Field, error) {
 		name := fs[0]
 
 		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if isGoReservedWord(name) {
+		if isForbiddenField(name) {
 			return tFields, fmt.Errorf("%s can't be used as a field name", name)
 		}
 
@@ -220,6 +220,19 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+// isForbiddenTypeField returns true if the name is forbidden as a field name
+func isForbiddenTypeField(name string) bool {
+	switch name {
+	case
+		"id",
+		"index",
+		"creator":
+		return true
+	}
+
+	return isGoReservedWord(name)
 }
 
 func isGoReservedWord(name string) bool {
