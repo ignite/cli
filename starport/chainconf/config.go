@@ -203,7 +203,7 @@ func LocateDefault(root string) (path string, err error) {
 }
 
 // FaucetHost returns the faucet host to use
-func FaucetHost(conf Config) (string) {
+func FaucetHost(conf Config) string {
 	// We keep supporting Port option for backward compatibility
 	// TODO: drop this option in the future
 	host := conf.Faucet.Host
