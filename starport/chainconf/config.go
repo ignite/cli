@@ -39,7 +39,7 @@ var (
 			},
 		},
 		Faucet: Faucet{
-			Host: "0.0.0.0:4500",
+			Host: ":4500",
 		},
 	}
 )
@@ -200,4 +200,16 @@ func LocateDefault(root string) (path string, err error) {
 		}
 	}
 	return "", ErrCouldntLocateConfig
+}
+
+// FaucetHost returns the faucet host to use
+func FaucetHost(conf Config) (string) {
+	// We keep supporting Port option for backward compatibility
+	// TODO: drop this option in the future
+	host := conf.Faucet.Host
+	if conf.Faucet.Port != 0 {
+		host = fmt.Sprintf(":%d", conf.Faucet.Port)
+	}
+
+	return host
 }

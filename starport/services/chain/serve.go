@@ -424,7 +424,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -433,7 +433,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
+	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
@@ -459,19 +459,14 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Host.RPC))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Host.API))
-
-	host := conf.Faucet.Host
-	if conf.Faucet.Port != 0 {
-		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
-	}
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", host)
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", conf.FaucetHost(config))
 	}
 
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Host.DevUI))
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
 }
@@ -552,18 +547,13 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
-	conf, err := c.Config()
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	host := conf.Faucet.Host
-	if conf.Faucet.Port != 0 {
-		host = fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port)
-	}
-
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    host,
+		Addr:    conf.FaucetHost(config),
 		Handler: faucet,
 	})
 }
