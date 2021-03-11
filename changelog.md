@@ -1,5 +1,27 @@
 # Changelog
 
+## `v0.15.0`
+
+### Features:
+
+- IBC module scaffolding
+- IBC packet scaffolding with acknowledgements
+- JavaScript and Vuex client code generation for Cosmos SDK and standard modules
+- Standalone relayer with `configure` and `connect` commands
+- Advanced relayer options for configuring ports and versions
+- Scaffold now follows `MsgServer` convention
+- Message scaffolding
+- Added `starport type ... --indexed` to scaffold indexed types
+- Custom config file support with `starport serve -c custom.yml`
+- Detailed terminal output for created accounts: name, address, mnemonic
+- Added spinners to indicate progress for long-running commands
+- Updated to Cosmos SDK v0.42.1
+
+### Changes:
+
+- Replaced `packr` with Go 1.16 `embed`
+- Renamed `servers` top-level property to `host`
+
 ## `v0.14.0`
 
 ### Features:
