@@ -16,15 +16,12 @@ require (
 	github.com/gertd/go-pluralize v0.1.7
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
-	github.com/gobuffalo/flect v0.2.2 // indirect
 	github.com/gobuffalo/genny v0.6.0
-	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/gobuffalo/packd v1.0.0
 	github.com/gobuffalo/packr/v2 v2.8.1 // indirect
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
-	github.com/gogo/protobuf v1.3.3 // indirect
 	github.com/gookit/color v1.3.6
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
@@ -44,20 +41,18 @@ require (
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rogpeppe/go-internal v1.7.0 // indirect
 	github.com/rs/cors v1.7.0
-	github.com/sirupsen/logrus v1.8.1 // indirect
+	github.com/sirupsen/logrus v1.8.0 // indirect
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83
 	github.com/tendermint/tendermint v0.34.7
-	golang.org/dl v0.0.0-20210310182059-0efbb602dbd1 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
-	golang.org/x/mod v0.4.2
+	golang.org/x/mod v0.4.1
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/sys v0.0.0-20210309074719-68d13333faf2 // indirect
+	golang.org/x/sys v0.0.0-20210301091718-77cc2087c03b // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d // indirect
-	golang.org/x/tools v0.1.0 // indirect
 	google.golang.org/grpc v1.35.0
 )
 
