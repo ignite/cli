@@ -6,7 +6,7 @@
 
 - IBC module scaffolding
 - IBC packet scaffolding with acknowledgements
-- JavaScript and Vuex client code generation for Cosmos SDK and standard modules
+- JavaScript and Vuex client code generation for Cosmos SDK and custom modules
 - Standalone relayer with `configure` and `connect` commands
 - Advanced relayer options for configuring ports and versions
 - Scaffold now follows `MsgServer` convention
