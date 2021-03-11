@@ -36,10 +36,15 @@ tasks:
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
       "
-      
+
 ports:
   - port: 1317
   - port: 26657
   - port: 8080
   - port: 7575 
   - port: 4500 
+
+vscode:
+  extensions:
+    - vymarkov.nodejs-devops-extension-pack@0.0.12:lLl4kIpAV9RJvYaGPctDJA==
+    - zxh404.vscode-proto3@0.5.3:RT2nlrSGFR1wH2b/dRg82A==

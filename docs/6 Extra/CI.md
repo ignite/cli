@@ -4,7 +4,7 @@ By default, a scaffolded blockchain includes a Github action that builds for amd
 
 ## Docker Images And Pi Images
 
-In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as secrets: https://github.com/{username}/{repository}/settings/secrets/actions
+In order for Docker images and Raspberry Pi images to build successfully, please add your docker hub credentials as secrets: https://github.com/alexp404/starport/settings/secrets/actions
 
 Add these:
 
