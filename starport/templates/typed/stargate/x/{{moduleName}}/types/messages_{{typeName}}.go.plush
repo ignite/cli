@@ -45,7 +45,7 @@ func (msg *MsgCreate<%= title(TypeName) %>) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgUpdate<%= title(TypeName) %>{}
 
-func NewMsgUpdate<%= title(TypeName) %>(creator string, id string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgUpdate<%= title(TypeName) %> {
+func NewMsgUpdate<%= title(TypeName) %>(creator string, id uint64<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgUpdate<%= title(TypeName) %> {
   return &MsgUpdate<%= title(TypeName) %>{
         Id: id,
 		Creator: creator,<%= for (field) in Fields { %>
@@ -84,7 +84,7 @@ func (msg *MsgUpdate<%= title(TypeName) %>) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
 
-func NewMsgDelete<%= title(TypeName) %>(creator string, id string) *MsgDelete<%= title(TypeName) %> {
+func NewMsgDelete<%= title(TypeName) %>(creator string, id uint64) *MsgDelete<%= title(TypeName) %> {
   return &MsgDelete<%= title(TypeName) %>{
         Id: id,
 		Creator: creator,
