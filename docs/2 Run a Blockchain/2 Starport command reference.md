@@ -1,6 +1,6 @@
 # Starport command reference
 
-The Starport tool CLI provides command line help. <!-- should we change "application" and "app" to "blockchain" in the command descriptions? I'm confused at the interchangeble terms -->
+The best way to learn about Starport commands is at the command line. The Starport tool CLI provides command line help. <!-- should we change "application" and "app" to "blockchain" in the command descriptions? I'm confused at the interchangeble terms -->
 
 For example, to list all Starport commands, type `starport`:
 
