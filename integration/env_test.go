@@ -221,9 +221,9 @@ func (e env) EnsureAppIsSteady(appPath string) {
 
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
-func (e env) IsAppServed(ctx context.Context, servers starportconf.Servers) error {
+func (e env) IsAppServed(ctx context.Context, host starportconf.Host) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(servers.APIAddr)+"/node_info")
+		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
@@ -242,7 +242,7 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Servers {
+func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Host {
 	if configFile == "" {
 		configFile = "config.yml"
 	}
@@ -255,14 +255,14 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.S
 		return fmt.Sprintf("localhost:%d", port)
 	}
 
-	servers := starportconf.Servers{
-		RPCAddr:      genAddr(ports[0]),
-		P2PAddr:      genAddr(ports[1]),
-		ProfAddr:     genAddr(ports[2]),
-		GRPCAddr:     genAddr(ports[3]),
-		APIAddr:      genAddr(ports[4]),
-		FrontendAddr: genAddr(ports[5]),
-		DevUIAddr:    genAddr(ports[6]),
+	servers := starportconf.Host{
+		RPC:      genAddr(ports[0]),
+		P2P:      genAddr(ports[1]),
+		Prof:     genAddr(ports[2]),
+		GRPC:     genAddr(ports[3]),
+		API:      genAddr(ports[4]),
+		Frontend: genAddr(ports[5]),
+		DevUI:    genAddr(ports[6]),
 	}
 
 	// update config.yml with the generated servers list.
@@ -273,7 +273,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.S
 	var conf starportconf.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	conf.Servers = servers
+	conf.Host = servers
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)

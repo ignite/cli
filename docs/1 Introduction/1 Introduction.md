@@ -29,7 +29,7 @@ The following projects are using the technology:
 - [CosmWasm](https://cosmwasm.com/) (smart contracts using WASM)
 - [Ethermint](https://ethermint.zone/) (Ethereum virtual machine)
 
-[See the full list here](https://cosmonauts.world/).
+[See the full list here](https://cosmos.network/ecosystem/apps).
 
 ## Modules
 
