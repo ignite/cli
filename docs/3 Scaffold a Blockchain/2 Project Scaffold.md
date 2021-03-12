@@ -1,22 +1,14 @@
-# Project Scaffolding
+# Project Scaffold Reference
 
-Scaffolding a project using Starport is done with the `starport app` command.
-
-The default project version scaffolded in Starport is Launchpad version.
-
-To scaffold a project , or a Stargate version. The version can be specified by passing the `sdk-version` flag, followed by either `stargate` or `launchpad`.
-
-ie.
-
-```
-starport app github.com/user/app --sdk-version=stargate
-```
+The `starport app` command scaffolds a project. By default, the Cosmos SDK version is Stargate. <!-- what is a project? compared to a "blockchain" or "app" -->
 
 ## Address prefix
 
-You can change the way addresses look in your blockchain. On the Cosmos SDK Main Hub, addresses have a `cosmos` prefix, like `cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf`.
+You can change the way addresses look in your blockchain.
 
-To specify the address prefix on the command line, use the `--address-prefix` parameter. For example, to change the blockchain prefix to moonlight:
+On the Cosmos SDK Hub, addresses have a `cosmos` prefix, like `cosmos12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf`.
+
+To specify a custom address prefix on the command line, use the `--address-prefix` flag. For example, to change the blockchain prefix to moonlight:
 
 ```
 starport app github.com/foo/bar --address-prefix moonlight
@@ -24,14 +16,18 @@ starport app github.com/foo/bar --address-prefix moonlight
 
 To change the address prefix for subsequent blockchain builds:
 
-1. Change the `AccountAddressPrefix` variable in `/app/prefix.go`. Do not change other variables in the file.
+1. Change the `AccountAddressPrefix` variable in the `/app/prefix.go` file. Be sure to preserve other variables in the file.
 2. To recognize the new prefix, change the `VUE_APP_ADDRESS_PREFIX` variable in `/vue/.env`.
 
 ## Stargate app
 
-Scaffolding a Stargate app currently uses version `^0.40` of the Cosmos SDK.
+```
+starport app github.com/foo/bar
+```
 
-A typical directory structure for a Stargate app `foo` will contain the following structure:
+Scaffolding a Stargate app currently uses version `^0.42` of the Cosmos SDK.
+<!-- is there a way to use a release variable here? -->
+A typical directory structure for a Stargate app `foo` contains the following structure: <!-- how can I verify this? and did this nifty structure get auto-generated? -->
 
 ```
 ├── app
@@ -129,9 +125,16 @@ A typical directory structure for a Stargate app `foo` will contain the followin
 
 ## Launchpad app
 
-Scaffolding a Launchpad app is currently the default that is being used by Starport, and uses version `0.39.x` of the Cosmos SDK.
+To scaffold an app using the earlier `launchpad` release, use the `--sdk-version` flag:
 
-A typical directory structure for a Launchpad app `bar` will contain the following structure:
+```
+starport app github.com/foo/bar --sdk-version launchpad
+```
+<!-- do we want to use a different value for [github.com/org/repo] in the launchpad command? -->
+Scaffolding a Starport app on launchpad uses version `^0.39` of the Cosmos SDK.
+
+A typical directory structure for a Stargate app `foo` contains the following structure:
+
 
 ```
 ├── app
