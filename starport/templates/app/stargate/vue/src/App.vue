@@ -12,16 +12,9 @@
 					</template>
 					<template v-slot:default>
 						<SpLinkIcon link="/" text="Dashboard" icon="Dashboard" />
-						<SpLinkIcon link="/modules" text="Modules" icon="Modules" />
-						<SpLinkIcon
-							link="/transactions"
-							text="Transactions"
-							icon="Transactions"
-						/>
 						<SpLinkIcon link="/types" text="Custom Type" icon="Form" />
 						<div class="sp-dash"></div>
-						<SpLinkIcon link="/settings" text="Settings" icon="Settings" />
-						<SpLinkIcon link="/docs" text="Documentation" icon="Docs" />
+						<SpLinkIcon href="https://github.com/tendermint/starport" target="_blank" text="Documentation" icon="Docs" />
 					</template>
 					<template v-slot:footer>
 						<SpStatusAPI :showText="sidebarOpen" />

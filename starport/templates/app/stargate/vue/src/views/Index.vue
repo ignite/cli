@@ -1,7 +1,8 @@
 <template>
 	<div>
 		<div class="container">
-			<SpLatestBlocks />
+			<SpTokenSend :address="address" />
+			<SpTransferList :address="address" />
 			<!-- this line is used by starport scaffolding # 4 -->
 		</div>
 	</div>
@@ -16,6 +17,11 @@
 </style>
 <script>
 export default {
-	name: 'Index'
+	name: 'Index',
+	computed: {
+		address() {
+			return this.$store.getters['common/wallet/address']
+		}
+	}
 }
 </script>
