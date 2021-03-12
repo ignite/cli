@@ -32,4 +32,14 @@ starport type post title body
 
 The `type` command scaffolds functionality a custom type.
 
-<!-- link to starport tutorial for 2 blockchains? -->
+## Learn more
+
+- [Configure a Blockchain](./3%20Configure%20Your%20Blockchain)
+- [Run a Blockchain](./2%20Run%20a%20Blockchain)
+- [Starport repo in GitHub](https://github.com/tendermint/starport)
+- [Cosmos SDK Documentation](https://docs.cosmos.network)
+- [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
+- [Starport Channel on Discord](https://discord.com/channels/669268347736686612/737461683588431924)
+
+
+<!-- link to starport tutorial for 2 blockchains? where do we send our users next -->
