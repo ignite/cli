@@ -94,37 +94,79 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryParams({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryParams.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key } });
+                return state.Params[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QuerySigningInfo({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QuerySigningInfo({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'SigningInfo', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: key });
+                    commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: { all, ...key } });
+                return state.SigningInfo[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QuerySigningInfo', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QuerySigningInfos({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QuerySigningInfos({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'SigningInfos', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: key });
+                    commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: { all, ...key } });
+                return state.SigningInfos[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QuerySigningInfos', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
         async sendMsgUnjail({ rootGetters }, { value }) {

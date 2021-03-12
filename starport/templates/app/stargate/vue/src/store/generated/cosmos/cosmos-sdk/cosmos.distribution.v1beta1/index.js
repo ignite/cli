@@ -146,131 +146,229 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryParams({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryParams.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key } });
+                return state.Params[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryValidatorOutstandingRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryValidatorOutstandingRewards({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryValidatorOutstandingRewards.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryValidatorOutstandingRewards.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryValidatorOutstandingRewards.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'ValidatorOutstandingRewards', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryValidatorOutstandingRewards', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidatorOutstandingRewards', payload: { all, ...key } });
+                return state.ValidatorOutstandingRewards[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryValidatorOutstandingRewards', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryValidatorCommission({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryValidatorCommission({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryValidatorCommission.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryValidatorCommission.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryValidatorCommission.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'ValidatorCommission', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryValidatorCommission', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidatorCommission', payload: { all, ...key } });
+                return state.ValidatorCommission[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryValidatorCommission', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryValidatorSlashes({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryValidatorSlashes({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryValidatorSlashes.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryValidatorSlashes.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryValidatorSlashes.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'ValidatorSlashes', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryValidatorSlashes', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryValidatorSlashes', payload: { all, ...key } });
+                return state.ValidatorSlashes[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryValidatorSlashes', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryDelegationRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDelegationRewards({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDelegationRewards.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDelegationRewards.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDelegationRewards.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DelegationRewards', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDelegationRewards', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegationRewards', payload: { all, ...key } });
+                return state.DelegationRewards[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDelegationRewards', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryDelegationTotalRewards({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDelegationTotalRewards({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDelegationTotalRewards.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDelegationTotalRewards.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDelegationTotalRewards.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DelegationTotalRewards', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDelegationTotalRewards', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegationTotalRewards', payload: { all, ...key } });
+                return state.DelegationTotalRewards[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDelegationTotalRewards', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryDelegatorValidators({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDelegatorValidators({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DelegatorValidators', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDelegatorValidators', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorValidators', payload: { all, ...key } });
+                return state.DelegatorValidators[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryDelegatorWithdrawAddress({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDelegatorWithdrawAddress({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDelegatorWithdrawAddress.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDelegatorWithdrawAddress.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDelegatorWithdrawAddress.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DelegatorWithdrawAddress', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDelegatorWithdrawAddress', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDelegatorWithdrawAddress', payload: { all, ...key } });
+                return state.DelegatorWithdrawAddress[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDelegatorWithdrawAddress', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryCommunityPool({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryCommunityPool({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryCommunityPool.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryCommunityPool.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryCommunityPool.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'CommunityPool', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryCommunityPool', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryCommunityPool', payload: { all, ...key } });
+                return state.CommunityPool[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryCommunityPool', 'API Node Unavailable. Could not perform query.'));
-            }
-        },
-        async sendMsgSetWithdrawAddress({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgWithdrawDelegatorReward({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx.');
-                }
+                return {};
             }
         },
         async sendMsgWithdrawValidatorCommission({ rootGetters }, { value }) {
@@ -301,31 +399,31 @@ export default {
                 }
             }
         },
-        async MsgSetWithdrawAddress({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+        async sendMsgWithdrawDelegatorReward({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value);
-                return msg;
+                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
                     throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgSetWithdrawAddress({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value);
+                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.');
                 }
             }
         },
@@ -354,6 +452,34 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgFundCommunityPool:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgSetWithdrawAddress({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message.');
                 }
             }
         },

@@ -93,22 +93,48 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryEvidence({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
 			try {
-				const value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, Object.values(key))).data
+				let params=Object.values(key)
+				let value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, params)).data
+				while (all && value.pagination && value.pagination.next_key!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryEvidence.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+					for (let prop of Object.keys(next_values)) {
+						if (Array.isArray(next_values[prop])) {
+							value[prop]=[...value[prop], ...next_values[prop]]
+						}else{
+							value[prop]=next_values[prop]
+						}
+					}
+				}
 				commit('QUERY', { query: 'Evidence', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryEvidence', payload: key })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryEvidence', payload: { all, ...key} })
+				return state.Evidence[JSON.stringify(key)] ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query.'))
+				return {}
 			}
 		},
-		async QueryAllEvidence({ commit, rootGetters }, { subscribe = false, ...key }) {
+		async QueryAllEvidence({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
 			try {
-				const value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, Object.values(key))).data
+				let params=Object.values(key)
+				let value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, params)).data
+				while (all && value.pagination && value.pagination.next_key!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+					for (let prop of Object.keys(next_values)) {
+						if (Array.isArray(next_values[prop])) {
+							value[prop]=[...value[prop], ...next_values[prop]]
+						}else{
+							value[prop]=next_values[prop]
+						}
+					}
+				}
 				commit('QUERY', { query: 'AllEvidence', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: key })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: { all, ...key} })
+				return state.AllEvidence[JSON.stringify(key)] ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query.'))
+				return {}
 			}
 		},
 		

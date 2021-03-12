@@ -90,37 +90,79 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryDenomTrace({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDenomTrace({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DenomTrace', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { all, ...key } });
+                return state.DenomTrace[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryDenomTraces({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryDenomTraces({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'DenomTraces', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { all, ...key } });
+                return state.DenomTraces[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
-        async QueryParams({ commit, rootGetters }, { subscribe = false, ...key }) {
+        async QueryParams({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
             try {
-                const value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, Object.values(key))).data;
+                let params = Object.values(key);
+                let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data;
+                while (all && value.pagination && value.pagination.next_key != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryParams.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                    for (let prop of Object.keys(next_values)) {
+                        if (Array.isArray(next_values[prop])) {
+                            value[prop] = [...value[prop], ...next_values[prop]];
+                        }
+                        else {
+                            value[prop] = next_values[prop];
+                        }
+                    }
+                }
                 commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryParams', payload: key });
+                    commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key } });
+                return state.Params[JSON.stringify(key)] ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
+                return {};
             }
         },
         async sendMsgTransfer({ rootGetters }, { value }) {
