@@ -42,13 +42,13 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 		return fmt.Errorf("%s can't be used as a type name", msgName)
 	}
 
-	// Check msg is not already created
-	ok, err = isMsgCreated(s.path, moduleName, msgName)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, msgName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s message is already added", msgName)
+		return fmt.Errorf("%s component is already added", msgName)
 	}
 
 	// Parse provided fields

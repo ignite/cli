@@ -54,13 +54,13 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 		return fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Check packet doesn't exist
-	ok, err = isPacketCreated(s.path, moduleName, packetName)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, packetName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("the packet %s already exist", packetName)
+		return fmt.Errorf("the component %s already exist", packetName)
 	}
 
 	// Parse packet fields
