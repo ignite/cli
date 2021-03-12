@@ -1,6 +1,6 @@
 # Starport command reference
 
-The Starport tool CLI provides command line help.
+The Starport tool CLI provides command line help. <!-- should we change "application" and "app" to "blockchain" in the command descriptions? I'm confused at the interchangeble terms -->
 
 For example, to list all Starport commands, type `starport`:
 
@@ -26,3 +26,5 @@ Flags:
 
 Use "starport [command] --help" for more information about a command.
 ```
+
+This command list was generated for Starport version v0.14.0.
