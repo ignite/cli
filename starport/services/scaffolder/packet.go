@@ -64,13 +64,13 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields)
+	parsedPacketFields, err := parseFields(packetFields, isForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields)
+	parsedAcksFields, err := parseFields(ackFields, isGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -139,4 +139,17 @@ func isPacketCreated(appPath, moduleName, packetName string) (isCreated bool, er
 	}
 
 	return true, err
+}
+
+// isForbiddenPacketField returns true if the name is forbidden as a packet name
+func isForbiddenPacketField(name string) bool {
+	switch name {
+	case
+		"sender",
+		"port",
+		"channelID":
+		return true
+	}
+
+	return isGoReservedWord(name)
 }
