@@ -2,13 +2,13 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
+import { PacketSequence } from "./module/types/ibc/core/channel/v1/genesis"
 import { Channel } from "./module/types/ibc/core/channel/v1/channel"
 import { IdentifiedChannel } from "./module/types/ibc/core/channel/v1/channel"
 import { Counterparty } from "./module/types/ibc/core/channel/v1/channel"
 import { Packet } from "./module/types/ibc/core/channel/v1/channel"
 import { PacketState } from "./module/types/ibc/core/channel/v1/channel"
 import { Acknowledgement } from "./module/types/ibc/core/channel/v1/channel"
-import { PacketSequence } from "./module/types/ibc/core/channel/v1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -51,13 +51,13 @@ const getDefaultState = () => {
         NextSequenceReceive: {},
         
         _Structure: {
+            PacketSequence: getStructure(PacketSequence.fromPartial({})),
             Channel: getStructure(Channel.fromPartial({})),
             IdentifiedChannel: getStructure(IdentifiedChannel.fromPartial({})),
             Counterparty: getStructure(Counterparty.fromPartial({})),
             Packet: getStructure(Packet.fromPartial({})),
             PacketState: getStructure(PacketState.fromPartial({})),
             Acknowledgement: getStructure(Acknowledgement.fromPartial({})),
-            PacketSequence: getStructure(PacketSequence.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -149,7 +149,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryChannel({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryChannel({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryChannel.apply(null, params)).data
@@ -165,13 +165,13 @@ export default {
 				}
 				commit('QUERY', { query: 'Channel', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannel', payload: { all, ...key} })
-				return state.Channel[JSON.stringify(key)] ?? {}
+				return getters['getChannel'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryChannel', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryChannels({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryChannels({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryChannels.apply(null, params)).data
@@ -187,13 +187,13 @@ export default {
 				}
 				commit('QUERY', { query: 'Channels', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannels', payload: { all, ...key} })
-				return state.Channels[JSON.stringify(key)] ?? {}
+				return getters['getChannels'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryChannels', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryConnectionChannels({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryConnectionChannels({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryConnectionChannels.apply(null, params)).data
@@ -209,13 +209,13 @@ export default {
 				}
 				commit('QUERY', { query: 'ConnectionChannels', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConnectionChannels', payload: { all, ...key} })
-				return state.ConnectionChannels[JSON.stringify(key)] ?? {}
+				return getters['getConnectionChannels'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryConnectionChannels', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryChannelClientState({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryChannelClientState({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryChannelClientState.apply(null, params)).data
@@ -231,13 +231,13 @@ export default {
 				}
 				commit('QUERY', { query: 'ChannelClientState', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannelClientState', payload: { all, ...key} })
-				return state.ChannelClientState[JSON.stringify(key)] ?? {}
+				return getters['getChannelClientState'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryChannelClientState', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryChannelConsensusState({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryChannelConsensusState({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryChannelConsensusState.apply(null, params)).data
@@ -253,13 +253,13 @@ export default {
 				}
 				commit('QUERY', { query: 'ChannelConsensusState', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannelConsensusState', payload: { all, ...key} })
-				return state.ChannelConsensusState[JSON.stringify(key)] ?? {}
+				return getters['getChannelConsensusState'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryChannelConsensusState', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryPacketCommitment({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryPacketCommitment({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPacketCommitment.apply(null, params)).data
@@ -275,13 +275,13 @@ export default {
 				}
 				commit('QUERY', { query: 'PacketCommitment', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketCommitment', payload: { all, ...key} })
-				return state.PacketCommitment[JSON.stringify(key)] ?? {}
+				return getters['getPacketCommitment'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryPacketCommitment', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryPacketCommitments({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryPacketCommitments({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPacketCommitments.apply(null, params)).data
@@ -297,13 +297,13 @@ export default {
 				}
 				commit('QUERY', { query: 'PacketCommitments', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketCommitments', payload: { all, ...key} })
-				return state.PacketCommitments[JSON.stringify(key)] ?? {}
+				return getters['getPacketCommitments'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryPacketCommitments', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryPacketReceipt({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryPacketReceipt({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPacketReceipt.apply(null, params)).data
@@ -319,13 +319,13 @@ export default {
 				}
 				commit('QUERY', { query: 'PacketReceipt', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketReceipt', payload: { all, ...key} })
-				return state.PacketReceipt[JSON.stringify(key)] ?? {}
+				return getters['getPacketReceipt'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryPacketReceipt', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryPacketAcknowledgement({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryPacketAcknowledgement({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPacketAcknowledgement.apply(null, params)).data
@@ -341,13 +341,13 @@ export default {
 				}
 				commit('QUERY', { query: 'PacketAcknowledgement', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketAcknowledgement', payload: { all, ...key} })
-				return state.PacketAcknowledgement[JSON.stringify(key)] ?? {}
+				return getters['getPacketAcknowledgement'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryPacketAcknowledgement', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryPacketAcknowledgements({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryPacketAcknowledgements({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPacketAcknowledgements.apply(null, params)).data
@@ -363,13 +363,13 @@ export default {
 				}
 				commit('QUERY', { query: 'PacketAcknowledgements', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketAcknowledgements', payload: { all, ...key} })
-				return state.PacketAcknowledgements[JSON.stringify(key)] ?? {}
+				return getters['getPacketAcknowledgements'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryPacketAcknowledgements', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryUnreceivedPackets({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryUnreceivedPackets({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryUnreceivedPackets.apply(null, params)).data
@@ -385,13 +385,13 @@ export default {
 				}
 				commit('QUERY', { query: 'UnreceivedPackets', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUnreceivedPackets', payload: { all, ...key} })
-				return state.UnreceivedPackets[JSON.stringify(key)] ?? {}
+				return getters['getUnreceivedPackets'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryUnreceivedPackets', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryUnreceivedAcks({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryUnreceivedAcks({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryUnreceivedAcks.apply(null, params)).data
@@ -407,13 +407,13 @@ export default {
 				}
 				commit('QUERY', { query: 'UnreceivedAcks', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUnreceivedAcks', payload: { all, ...key} })
-				return state.UnreceivedAcks[JSON.stringify(key)] ?? {}
+				return getters['getUnreceivedAcks'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryUnreceivedAcks', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryNextSequenceReceive({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryNextSequenceReceive({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryNextSequenceReceive.apply(null, params)).data
@@ -429,25 +429,13 @@ export default {
 				}
 				commit('QUERY', { query: 'NextSequenceReceive', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryNextSequenceReceive', payload: { all, ...key} })
-				return state.NextSequenceReceive[JSON.stringify(key)] ?? {}
+				return getters['getNextSequenceReceive'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryNextSequenceReceive', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
 		
-		async sendMsgRecvPacket({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
 		async sendMsgTimeoutOnClose({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgTimeoutOnClose(value)
@@ -457,42 +445,6 @@ export default {
 					throw new SpVuexError('TxClient:MsgTimeoutOnClose:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgTimeoutOnClose:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgChannelCloseConfirm({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgAcknowledgement({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgAcknowledgement:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgChannelOpenInit({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
@@ -508,27 +460,39 @@ export default {
 				}
 			}
 		},
-		async sendMsgChannelOpenConfirm({ rootGetters }, { value }) {
+		async sendMsgChannelOpenInit({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value)
+				const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Send', 'Could not broadcast Tx.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
-		async sendMsgTimeout({ rootGetters }, { value }) {
+		async sendMsgAcknowledgement({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgTimeout(value)
+				const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value)
 				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgTimeout:Send', 'Could not broadcast Tx.')
+					throw new SpVuexError('TxClient:MsgAcknowledgement:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgChannelCloseConfirm({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
@@ -541,6 +505,42 @@ export default {
 					throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgChannelOpenAck:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgChannelOpenConfirm({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgRecvPacket({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgTimeout({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgTimeout(value)
+				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgTimeout:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
@@ -557,18 +557,6 @@ export default {
 			}
 		},
 		
-		async MsgRecvPacket({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message.')
-				}
-			}
-		},
 		async MsgTimeoutOnClose({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgTimeoutOnClose(value)
@@ -578,42 +566,6 @@ export default {
 					throw new SpVuexError('TxClient:MsgTimeoutOnClose:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgTimeoutOnClose:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgChannelCloseConfirm({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgAcknowledgement({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgAcknowledgement:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgChannelOpenInit({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message.')
 				}
 			}
 		},
@@ -629,27 +581,39 @@ export default {
 				}
 			}
 		},
-		async MsgChannelOpenConfirm({ rootGetters }, { value }) {
+		async MsgChannelOpenInit({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value)
+				const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value)
 				return msg
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Create', 'Could not create message.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message.')
 				}
 			}
 		},
-		async MsgTimeout({ rootGetters }, { value }) {
+		async MsgAcknowledgement({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgTimeout(value)
+				const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value)
 				return msg
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgTimeout:Create', 'Could not create message.')
+					throw new SpVuexError('TxClient:MsgAcknowledgement:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgChannelCloseConfirm({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message.')
 				}
 			}
 		},
@@ -662,6 +626,42 @@ export default {
 					throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgChannelOpenAck:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgChannelOpenConfirm({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgRecvPacket({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgTimeout({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgTimeout(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgTimeout:Create', 'Could not create message.')
 				}
 			}
 		},

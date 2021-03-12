@@ -90,7 +90,7 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryDenomTrace({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryDenomTrace({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, params)).data;
@@ -108,14 +108,14 @@ export default {
                 commit('QUERY', { query: 'DenomTrace', key, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { all, ...key } });
-                return state.DenomTrace[JSON.stringify(key)] ?? {};
+                return getters['getDenomTrace'](key) ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query.'));
                 return {};
             }
         },
-        async QueryDenomTraces({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryDenomTraces({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, params)).data;
@@ -133,14 +133,14 @@ export default {
                 commit('QUERY', { query: 'DenomTraces', key, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { all, ...key } });
-                return state.DenomTraces[JSON.stringify(key)] ?? {};
+                return getters['getDenomTraces'](key) ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query.'));
                 return {};
             }
         },
-        async QueryParams({ commit, rootGetters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data;
@@ -158,7 +158,7 @@ export default {
                 commit('QUERY', { query: 'Params', key, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key } });
-                return state.Params[JSON.stringify(key)] ?? {};
+                return getters['getParams'](key) ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));

@@ -2,11 +2,11 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
+import { ValidatorSigningInfo } from "./module/types/cosmos/slashing/v1beta1/slashing"
+import { Params } from "./module/types/cosmos/slashing/v1beta1/slashing"
 import { SigningInfo } from "./module/types/cosmos/slashing/v1beta1/genesis"
 import { ValidatorMissedBlocks } from "./module/types/cosmos/slashing/v1beta1/genesis"
 import { MissedBlock } from "./module/types/cosmos/slashing/v1beta1/genesis"
-import { ValidatorSigningInfo } from "./module/types/cosmos/slashing/v1beta1/slashing"
-import { Params } from "./module/types/cosmos/slashing/v1beta1/slashing"
 
 
 async function initTxClient(vuexGetters) {
@@ -39,11 +39,11 @@ const getDefaultState = () => {
         SigningInfos: {},
         
         _Structure: {
+            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
+            Params: getStructure(Params.fromPartial({})),
             SigningInfo: getStructure(SigningInfo.fromPartial({})),
             ValidatorMissedBlocks: getStructure(ValidatorMissedBlocks.fromPartial({})),
             MissedBlock: getStructure(MissedBlock.fromPartial({})),
-            ValidatorSigningInfo: getStructure(ValidatorSigningInfo.fromPartial({})),
-            Params: getStructure(Params.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -105,7 +105,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryParams({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -121,13 +121,13 @@ export default {
 				}
 				commit('QUERY', { query: 'Params', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key} })
-				return state.Params[JSON.stringify(key)] ?? {}
+				return getters['getParams'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QuerySigningInfo({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfo({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, params)).data
@@ -143,13 +143,13 @@ export default {
 				}
 				commit('QUERY', { query: 'SigningInfo', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: { all, ...key} })
-				return state.SigningInfo[JSON.stringify(key)] ?? {}
+				return getters['getSigningInfo'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QuerySigningInfo', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QuerySigningInfos({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfos({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, params)).data
@@ -165,7 +165,7 @@ export default {
 				}
 				commit('QUERY', { query: 'SigningInfos', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: { all, ...key} })
-				return state.SigningInfos[JSON.stringify(key)] ?? {}
+				return getters['getSigningInfos'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QuerySigningInfos', 'API Node Unavailable. Could not perform query.'))
 				return {}

@@ -93,7 +93,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryEvidence({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryEvidence({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, params)).data
@@ -109,13 +109,13 @@ export default {
 				}
 				commit('QUERY', { query: 'Evidence', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryEvidence', payload: { all, ...key} })
-				return state.Evidence[JSON.stringify(key)] ?? {}
+				return getters['getEvidence'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryAllEvidence({ commit, rootGetters,state }, { subscribe = false, all=false, ...key }) {
+		async QueryAllEvidence({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, params)).data
@@ -131,7 +131,7 @@ export default {
 				}
 				commit('QUERY', { query: 'AllEvidence', key, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: { all, ...key} })
-				return state.AllEvidence[JSON.stringify(key)] ?? {}
+				return getters['getAllEvidence'](key) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query.'))
 				return {}
