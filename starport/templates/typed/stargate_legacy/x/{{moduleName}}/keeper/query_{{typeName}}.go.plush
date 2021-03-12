@@ -18,7 +18,7 @@ func list<%= title(TypeName) %>(ctx sdk.Context, keeper Keeper, legacyQuerierCdc
 	return bz, nil
 }
 
-func get<%= title(TypeName) %>(ctx sdk.Context, id key, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
+func get<%= title(TypeName) %>(ctx sdk.Context, key string, keeper Keeper, legacyQuerierCdc *codec.LegacyAmino) ([]byte, error) {
 	id, err := strconv.ParseUint(key, 10, 64)
     if err != nil {
         return nil, err

@@ -91,7 +91,7 @@ func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -148,7 +148,7 @@ func delete<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

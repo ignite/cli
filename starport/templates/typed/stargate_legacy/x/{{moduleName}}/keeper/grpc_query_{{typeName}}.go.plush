@@ -48,7 +48,7 @@ func (k Keeper) <%= title(TypeName) %>(c context.Context, req *types.QueryGet<%=
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.<%= title(TypeName) %>Key + req.Id)), &<%= TypeName %>)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= title(TypeName) %>IDBytes(req.Id)), &<%= TypeName %>)
 
 	return &types.QueryGet<%= title(TypeName) %>Response{<%= title(TypeName) %>: &<%= TypeName %>}, nil
 }
