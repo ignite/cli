@@ -37,9 +37,9 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
-	// Ensure the msg name is not a Go reserved name, it would generate an incorrect code
-	if isGoReservedWord(msgName) {
-		return fmt.Errorf("%s can't be used as a type name", msgName)
+	// Ensure the name is valid, otherwise it would generate an incorrect code
+	if isForbiddenTypeName(msgName) {
+		return fmt.Errorf("%s can't be used as a packet name", msgName)
 	}
 
 	// Check msg is not already created
