@@ -1,15 +1,11 @@
-# Tutorials
+# Scaffold a Blockchain
 
-We have written a few tutorials to get started with Starport and the Cosmos SDK as quickly as possible.
+<!-- what is the general message we want to give? intro to the structure that is created for project and types or? we should say something about why we specify a github repo -->
 
-See how to use the Cosmos SDK to build
+The `starport app` command scaffolds a project.
 
-[Poll](https://github.com/cosmos/sdk-tutorials/blob/master/voter/index.md)
+This command replaces the `scaffold` program that was previously used to create a blockchain.
 
-[Blog](https://github.com/cosmos/sdk-tutorials/blob/master/blog/tutorial/01-index.md)
+## Tutorials
 
-[Proof of File Existence](https://github.com/cosmos/sdk-tutorials/blob/master/proof-of-file-existence/tutorial/01-intro.md)
-
-[Scavenge](https://github.com/cosmos/sdk-tutorials/blob/master/scavenge/tutorial/01-background.md)
-
-[Nameservice](https://github.com/cosmos/sdk-tutorials/blob/master/nameservice/tutorial/00-intro.md)
+[Tutorials](https://github.com/cosmos/sdk-tutorials/) help you get started with Starport and the Cosmos SDK.
