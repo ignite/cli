@@ -26,7 +26,7 @@ Cosmos SDK has a unique worldwide position as one of the most successful blockch
 
 ## Summary
 
-- Starport lets you create, develop, and build a blockchain.
+- Starport lets you create, develop, and build a blockchain. <!-- I'm still unclear about terminology, we build a blockchain but it's really an app? or we use the starport app command to build the blockchain app? teach me -->
 
 - Starport and Cosmos SDK modules are written in Go.
 
