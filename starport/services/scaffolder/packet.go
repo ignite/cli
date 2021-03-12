@@ -55,7 +55,7 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenTypeName(packetName) {
+	if isForbiddenComponentName(packetName) {
 		return fmt.Errorf("%s can't be used as a packet name", packetName)
 	}
 

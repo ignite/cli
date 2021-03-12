@@ -55,7 +55,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 	}
 
 	// Ensure the type name is valid, otherwise it would generate an incorrect code
-	if isForbiddenTypeName(typeName) {
+	if isForbiddenComponentName(typeName) {
 		return fmt.Errorf("%s can't be used as a type name", typeName)
 	}
 
@@ -222,8 +222,21 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 	return true, err
 }
 
-// isForbiddenTypeName returns true if the name is forbidden as a type name
-func isForbiddenTypeName(name string) bool {
+// isForbiddenTypeField returns true if the name is forbidden as a field name
+func isForbiddenTypeField(name string) bool {
+	switch name {
+	case
+		"id",
+		"index",
+		"creator":
+		return true
+	}
+
+	return isGoReservedWord(name)
+}
+
+// isForbiddenComponentName returns true if the name is forbidden as a component name
+func isForbiddenComponentName(name string) bool {
 	switch name {
 	case
 		"logger",
@@ -238,18 +251,6 @@ func isForbiddenTypeName(name string) bool {
 	return isGoReservedWord(name)
 }
 
-// isForbiddenTypeField returns true if the name is forbidden as a field name
-func isForbiddenTypeField(name string) bool {
-	switch name {
-	case
-		"id",
-		"index",
-		"creator":
-		return true
-	}
-
-	return isGoReservedWord(name)
-}
 
 func isGoReservedWord(name string) bool {
 	// Check keyword or literal
