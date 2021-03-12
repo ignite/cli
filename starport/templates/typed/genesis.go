@@ -100,7 +100,7 @@ for _, elem := range genState.%[3]vList {
 }
 
 // Set %[2]v count
-k.Set%[3]vCount(ctx, int64(len(genState.%[3]vList)))
+k.Set%[3]vCount(ctx, uint64(len(genState.%[3]vList)))
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,

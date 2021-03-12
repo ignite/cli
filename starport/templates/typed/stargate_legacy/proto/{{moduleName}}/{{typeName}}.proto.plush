@@ -7,7 +7,7 @@ import "gogoproto/gogo.proto";
 
 message <%= title(TypeName) %> {
   string creator = 1;
-  string id = 2;<%= for (i, field) in Fields { %>
+  uint64 id = 2;<%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
 }
 
@@ -18,11 +18,11 @@ message MsgCreate<%= title(TypeName) %> {
 
 message MsgUpdate<%= title(TypeName) %> {
   string creator = 1;
-  string id = 2;<%= for (i, field) in Fields { %>
+  uint64 id = 2;<%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name %> = <%= i+3 %>; <% } %>
 }
 
 message MsgDelete<%= title(TypeName) %> {
   string creator = 1;
-  string id = 2;
+  uint64 id = 2;
 }
