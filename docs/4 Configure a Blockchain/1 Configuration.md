@@ -19,7 +19,9 @@ validator:
  staked: "100000000stake"
 ```
 
-##
+## Bootstrap your blockchain with changes
+
+To bootstrap your blockchain with changes, you can change values for parameters in the generated `config.yml` and add parameters
 
 For parameter details, see (config.yml Reference)[2%20config.yml%20Reference.md].
 
