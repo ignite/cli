@@ -1,7 +1,7 @@
 package cli
 
 import (
-  <%= if (strconv()) { %>"strconv"<% } %>
+    "strconv"
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -42,7 +42,11 @@ func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
 		Short: "Update a <%= TypeName %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            id := args[0]
+            id, err := strconv.ParseUint(args[0], 10, 64)
+            if err != nil {
+                return err
+            }
+
       <%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i + 1 %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
       <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -69,7 +73,10 @@ func CmdDelete<%= title(TypeName) %>() *cobra.Command {
 		Short: "Delete a <%= TypeName %> by id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            id := args[0]
+            id, err := strconv.ParseUint(args[0], 10, 64)
+            if err != nil {
+                return err
+            }
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

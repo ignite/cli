@@ -2,6 +2,7 @@ package cli
 
 import (
     "context"
+    "strconv"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -51,8 +52,13 @@ func CmdShow<%= title(TypeName) %>() *cobra.Command {
 
             queryClient := types.NewQueryClient(clientCtx)
 
+            id, err := strconv.ParseUint(args[0], 10, 64)
+            if err != nil {
+                return err
+            }
+
             params := &types.QueryGet<%= title(TypeName) %>Request{
-                Id: args[0],
+                Id: id,
             }
 
             res, err := queryClient.<%= title(TypeName) %>(context.Background(), params)

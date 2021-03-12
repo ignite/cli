@@ -22,7 +22,7 @@ func (k Keeper) Get<%= title(TypeName) %>Count(ctx sdk.Context) uint64 {
 	// Parse bytes
 	count, err := strconv.ParseUint(string(bz), 10, 64)
 	if err != nil {
-		// Panic because the count should be always formattable to int64
+		// Panic because the count should be always formattable to iint64
 		panic("cannot decode count")
 	}
 
