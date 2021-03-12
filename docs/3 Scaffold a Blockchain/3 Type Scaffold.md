@@ -1,15 +1,15 @@
-# Type Scaffolding
+# Type Scaffold Reference
 
 You can scaffold types within Starport by running a command:
 ```
 starport type [type-name] [field1:type1] [field2:type2] ...
 ```
-
+<<!-- why do we scaffold types? what is the module string? is this the Cosmos SDK module? and this is how we add modules to a blockchain? I am sure this is explained somewhere, where can I learn? -->
 
 
 ## Stargate
 
-This will create the following files:
+A project that is scaffolded with the Stargate version of Cosmos SDK creates the following files: <!-- how does this tie in to types? -->
 
 ```
 .
@@ -36,7 +36,7 @@ This will create the following files:
         └── handlerMsgCreate{{TypeName}}.go
 ```
 
-As well as update the following files:
+The following existing files are updated:
 
 ```
 .
@@ -64,7 +64,8 @@ As well as update the following files:
 
 # Launchpad
 
-Using `starport type` on a Launchpad app will create the following files:
+A project that is scaffolded with the Launchpad version of Cosmos SDK creates the following files:
+
 ```
 .
 └── x
@@ -88,7 +89,7 @@ Using `starport type` on a Launchpad app will create the following files:
             └── Type{{TypeName}}.go
 ```
 
-As well as update the following files:
+The following existing files are updated:
 
 ```
 .
