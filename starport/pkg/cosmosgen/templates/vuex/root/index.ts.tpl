@@ -4,7 +4,7 @@
 {{ end }}
 
 export default { 
-  {{ range . }}{{ .FullName }}: load({{ .FullName }}, '{{ .FullPath }}'),
+  {{ range . }}{{ .FullName }}: load({{ .FullName }}, '{{ .Path }}'),
   {{ end }}
 }
 

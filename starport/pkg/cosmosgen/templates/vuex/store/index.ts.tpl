@@ -62,6 +62,9 @@ export default {
 	},
 	getters: {
         {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.{{ .Name }}[JSON.stringify(params)] ?? {}
 		},
         {{ end }}
@@ -89,12 +92,13 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}} query)).data:(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}}{{ if (gt $i 0)}}, {{ end}} key.{{$a}} {{end}})).data
+				{{ if .HTTPAnnotations.URLHasQuery}}
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -103,9 +107,10 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: '{{ .Name }}', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { all, ...key} })
-				return getters['get{{.Name }}'](key) ?? {}
+				{{ end }}
+				commit('QUERY', { query: '{{ .Name }}', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { options: { all }, params: {...key},query }})
+				return getters['get{{.Name }}']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.'))
 				return {}
