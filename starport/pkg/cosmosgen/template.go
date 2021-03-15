@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"embed"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -66,7 +65,6 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			)
 
 		out := filepath.Join(destDir, strings.TrimSuffix(filepath.Base(path), ".tpl"))
-		fmt.Println(out)
 
 		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 		if err != nil {
