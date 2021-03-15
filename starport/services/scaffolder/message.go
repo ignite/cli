@@ -39,7 +39,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
 	if isForbiddenComponentName(msgName) {
-		return fmt.Errorf("%s can't be used as a packet name", msgName)
+		return fmt.Errorf("%s can't be used as a message name", msgName)
 	}
 
 	// Check component name is not already used
@@ -124,7 +124,7 @@ func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err erro
 
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
-		// Packet doesn't exist
+		// Message doesn't exist
 		return false, nil
 	}
 
