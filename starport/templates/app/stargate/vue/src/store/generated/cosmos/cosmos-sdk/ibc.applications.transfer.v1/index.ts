@@ -101,7 +101,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryDenomTrace({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomTrace({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, params)).data
@@ -123,7 +123,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDenomTraces({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomTraces({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, params)).data
@@ -145,7 +145,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -168,10 +168,12 @@ export default {
 			}
 		},
 		
-		async sendMsgTransfer({ rootGetters }, { value }) {
+		async sendMsgTransfer({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgTransfer(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgTransfer:Init', 'Could not initialize signing client. Wallet is required.')

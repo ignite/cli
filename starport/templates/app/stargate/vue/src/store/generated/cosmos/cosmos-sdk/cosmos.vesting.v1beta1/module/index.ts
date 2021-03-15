@@ -1,4 +1,4 @@
-import { coins, StdFee } from "@cosmjs/launchpad";
+import {  StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
@@ -22,7 +22,8 @@ interface TxClientOptions {
 }
 
 interface SignAndBroadcastOptions {
-  fee: StdFee
+  fee: StdFee,
+  memo?: string
 }
 
 const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
@@ -32,7 +33,7 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
   const { address } = (await wallet.getAccounts())[0];
 
   return {
-    signAndBroadcast: (msgs: EncodeObject[], { fee: fee }: SignAndBroadcastOptions = { fee: defaultFee }) => client.signAndBroadcast(address, msgs, fee),
+    signAndBroadcast: (msgs: EncodeObject[], { fee=defaultFee, memo=null }: SignAndBroadcastOptions) => memo?client.signAndBroadcast(address, msgs, fee,memo):client.signAndBroadcast(address, msgs, fee),
     msgCreateVestingAccount: (data: MsgCreateVestingAccount): EncodeObject => ({ typeUrl: "/cosmos.vesting.v1beta1.MsgCreateVestingAccount", value: data }),
     
   };

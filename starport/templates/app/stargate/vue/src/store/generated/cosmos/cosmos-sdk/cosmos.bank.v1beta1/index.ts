@@ -2,6 +2,7 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
+import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis"
 import { Params } from "./module/types/cosmos/bank/v1beta1/bank"
 import { SendEnabled } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Input } from "./module/types/cosmos/bank/v1beta1/bank"
@@ -9,7 +10,6 @@ import { Output } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Supply } from "./module/types/cosmos/bank/v1beta1/bank"
 import { DenomUnit } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Metadata } from "./module/types/cosmos/bank/v1beta1/bank"
-import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -46,6 +46,7 @@ const getDefaultState = () => {
         DenomsMetadata: {},
         
         _Structure: {
+            Balance: getStructure(Balance.fromPartial({})),
             Params: getStructure(Params.fromPartial({})),
             SendEnabled: getStructure(SendEnabled.fromPartial({})),
             Input: getStructure(Input.fromPartial({})),
@@ -53,7 +54,6 @@ const getDefaultState = () => {
             Supply: getStructure(Supply.fromPartial({})),
             DenomUnit: getStructure(DenomUnit.fromPartial({})),
             Metadata: getStructure(Metadata.fromPartial({})),
-            Balance: getStructure(Balance.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -127,7 +127,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryBalance({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryBalance({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryBalance.apply(null, params)).data
@@ -149,7 +149,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryAllBalances({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryAllBalances({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryAllBalances.apply(null, params)).data
@@ -171,7 +171,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryTotalSupply({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryTotalSupply({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryTotalSupply.apply(null, params)).data
@@ -193,7 +193,7 @@ export default {
 				return {}
 			}
 		},
-		async QuerySupplyOf({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QuerySupplyOf({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).querySupplyOf.apply(null, params)).data
@@ -215,7 +215,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -237,7 +237,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDenomMetadata({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomMetadata({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDenomMetadata.apply(null, params)).data
@@ -259,7 +259,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDenomsMetadata({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomsMetadata({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDenomsMetadata.apply(null, params)).data
@@ -282,10 +282,12 @@ export default {
 			}
 		},
 		
-		async sendMsgMultiSend({ rootGetters }, { value }) {
+		async sendMsgMultiSend({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgMultiSend(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.')
@@ -294,10 +296,12 @@ export default {
 				}
 			}
 		},
-		async sendMsgSend({ rootGetters }, { value }) {
+		async sendMsgSend({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgSend(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.')

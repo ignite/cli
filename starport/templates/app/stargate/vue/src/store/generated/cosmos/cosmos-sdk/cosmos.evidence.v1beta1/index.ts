@@ -93,7 +93,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryEvidence({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryEvidence({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, params)).data
@@ -115,7 +115,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryAllEvidence({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryAllEvidence({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, params)).data
@@ -138,10 +138,12 @@ export default {
 			}
 		},
 		
-		async sendMsgSubmitEvidence({ rootGetters }, { value }) {
+		async sendMsgSubmitEvidence({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgSubmitEvidence(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgSubmitEvidence:Init', 'Could not initialize signing client. Wallet is required.')

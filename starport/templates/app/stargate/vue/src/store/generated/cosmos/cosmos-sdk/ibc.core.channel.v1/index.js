@@ -1,13 +1,13 @@
 import { txClient, queryClient } from './module';
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex';
-import { PacketSequence } from "./module/types/ibc/core/channel/v1/genesis";
 import { Channel } from "./module/types/ibc/core/channel/v1/channel";
 import { IdentifiedChannel } from "./module/types/ibc/core/channel/v1/channel";
 import { Counterparty } from "./module/types/ibc/core/channel/v1/channel";
 import { Packet } from "./module/types/ibc/core/channel/v1/channel";
 import { PacketState } from "./module/types/ibc/core/channel/v1/channel";
 import { Acknowledgement } from "./module/types/ibc/core/channel/v1/channel";
+import { PacketSequence } from "./module/types/ibc/core/channel/v1/genesis";
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -44,13 +44,13 @@ const getDefaultState = () => {
         UnreceivedAcks: {},
         NextSequenceReceive: {},
         _Structure: {
-            PacketSequence: getStructure(PacketSequence.fromPartial({})),
             Channel: getStructure(Channel.fromPartial({})),
             IdentifiedChannel: getStructure(IdentifiedChannel.fromPartial({})),
             Counterparty: getStructure(Counterparty.fromPartial({})),
             Packet: getStructure(Packet.fromPartial({})),
             PacketState: getStructure(PacketState.fromPartial({})),
             Acknowledgement: getStructure(Acknowledgement.fromPartial({})),
+            PacketSequence: getStructure(PacketSequence.fromPartial({})),
         },
         _Subscriptions: new Set(),
     };
@@ -138,7 +138,7 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryChannel({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryChannel({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryChannel.apply(null, params)).data;
@@ -163,7 +163,7 @@ export default {
                 return {};
             }
         },
-        async QueryChannels({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryChannels({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryChannels.apply(null, params)).data;
@@ -188,7 +188,7 @@ export default {
                 return {};
             }
         },
-        async QueryConnectionChannels({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryConnectionChannels({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryConnectionChannels.apply(null, params)).data;
@@ -213,7 +213,7 @@ export default {
                 return {};
             }
         },
-        async QueryChannelClientState({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryChannelClientState({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryChannelClientState.apply(null, params)).data;
@@ -238,7 +238,7 @@ export default {
                 return {};
             }
         },
-        async QueryChannelConsensusState({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryChannelConsensusState({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryChannelConsensusState.apply(null, params)).data;
@@ -263,7 +263,7 @@ export default {
                 return {};
             }
         },
-        async QueryPacketCommitment({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryPacketCommitment({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryPacketCommitment.apply(null, params)).data;
@@ -288,7 +288,7 @@ export default {
                 return {};
             }
         },
-        async QueryPacketCommitments({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryPacketCommitments({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryPacketCommitments.apply(null, params)).data;
@@ -313,7 +313,7 @@ export default {
                 return {};
             }
         },
-        async QueryPacketReceipt({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryPacketReceipt({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryPacketReceipt.apply(null, params)).data;
@@ -338,7 +338,7 @@ export default {
                 return {};
             }
         },
-        async QueryPacketAcknowledgement({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryPacketAcknowledgement({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryPacketAcknowledgement.apply(null, params)).data;
@@ -363,7 +363,7 @@ export default {
                 return {};
             }
         },
-        async QueryPacketAcknowledgements({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryPacketAcknowledgements({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryPacketAcknowledgements.apply(null, params)).data;
@@ -388,7 +388,7 @@ export default {
                 return {};
             }
         },
-        async QueryUnreceivedPackets({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryUnreceivedPackets({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryUnreceivedPackets.apply(null, params)).data;
@@ -413,7 +413,7 @@ export default {
                 return {};
             }
         },
-        async QueryUnreceivedAcks({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryUnreceivedAcks({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryUnreceivedAcks.apply(null, params)).data;
@@ -438,7 +438,7 @@ export default {
                 return {};
             }
         },
-        async QueryNextSequenceReceive({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryNextSequenceReceive({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryNextSequenceReceive.apply(null, params)).data;
@@ -463,10 +463,12 @@ export default {
                 return {};
             }
         },
-        async sendMsgTimeoutOnClose({ rootGetters }, { value }) {
+        async sendMsgTimeoutOnClose({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgTimeoutOnClose(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -477,80 +479,12 @@ export default {
                 }
             }
         },
-        async sendMsgChannelOpenTry({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenTry(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgChannelOpenInit({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgAcknowledgement({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgAcknowledgement:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgChannelCloseConfirm({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgChannelOpenAck({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenAck(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgChannelOpenConfirm({ rootGetters }, { value }) {
+        async sendMsgChannelOpenConfirm({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -561,24 +495,44 @@ export default {
                 }
             }
         },
-        async sendMsgRecvPacket({ rootGetters }, { value }) {
+        async sendMsgAcknowledgement({ rootGetters }, { value, fee, memo }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const msg = await (await initTxClient(rootGetters)).msgAcknowledgement(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.');
+                    throw new SpVuexError('TxClient:MsgAcknowledgement:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx.');
+                    throw new SpVuexError('TxClient:MsgAcknowledgement:Send', 'Could not broadcast Tx.');
                 }
             }
         },
-        async sendMsgTimeout({ rootGetters }, { value }) {
+        async sendMsgChannelOpenTry({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenTry(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgTimeout({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgTimeout(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -589,10 +543,60 @@ export default {
                 }
             }
         },
-        async sendMsgChannelCloseInit({ rootGetters }, { value }) {
+        async sendMsgChannelOpenAck({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenAck(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgChannelCloseConfirm({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgRecvPacket({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgChannelCloseInit({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgChannelCloseInit(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -600,6 +604,22 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgChannelCloseInit:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async sendMsgChannelOpenInit({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx.');
                 }
             }
         },
@@ -617,31 +637,17 @@ export default {
                 }
             }
         },
-        async MsgChannelOpenTry({ rootGetters }, { value }) {
+        async MsgChannelOpenConfirm({ rootGetters }, { value }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenTry(value);
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value);
                 return msg;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
+                    throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgChannelOpenInit({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Create', 'Could not create message.');
                 }
             }
         },
@@ -659,59 +665,17 @@ export default {
                 }
             }
         },
-        async MsgChannelCloseConfirm({ rootGetters }, { value }) {
+        async MsgChannelOpenTry({ rootGetters }, { value }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value);
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenTry(value);
                 return msg;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.');
+                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgChannelOpenAck({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenAck(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgChannelOpenConfirm({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgChannelOpenConfirm(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgChannelOpenConfirm:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgRecvPacket({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgChannelOpenTry:Create', 'Could not create message.');
                 }
             }
         },
@@ -729,6 +693,48 @@ export default {
                 }
             }
         },
+        async MsgChannelOpenAck({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenAck(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelOpenAck:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgChannelCloseConfirm({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelCloseConfirm(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgRecvPacket({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgRecvPacket(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message.');
+                }
+            }
+        },
         async MsgChannelCloseInit({ rootGetters }, { value }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgChannelCloseInit(value);
@@ -740,6 +746,20 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgChannelCloseInit:Create', 'Could not create message.');
+                }
+            }
+        },
+        async MsgChannelOpenInit({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgChannelOpenInit(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message.');
                 }
             }
         },

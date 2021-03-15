@@ -71,10 +71,12 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async sendMsgVerifyInvariant({ rootGetters }, { value }) {
+        async sendMsgVerifyInvariant({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgVerifyInvariant(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {

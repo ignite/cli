@@ -2,6 +2,7 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
+import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis"
 import { HistoricalInfo } from "./module/types/cosmos/staking/v1beta1/staking"
 import { CommissionRates } from "./module/types/cosmos/staking/v1beta1/staking"
 import { Commission } from "./module/types/cosmos/staking/v1beta1/staking"
@@ -22,7 +23,6 @@ import { DelegationResponse } from "./module/types/cosmos/staking/v1beta1/stakin
 import { RedelegationEntryResponse } from "./module/types/cosmos/staking/v1beta1/staking"
 import { RedelegationResponse } from "./module/types/cosmos/staking/v1beta1/staking"
 import { Pool } from "./module/types/cosmos/staking/v1beta1/staking"
-import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -66,6 +66,7 @@ const getDefaultState = () => {
         Params: {},
         
         _Structure: {
+            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
             HistoricalInfo: getStructure(HistoricalInfo.fromPartial({})),
             CommissionRates: getStructure(CommissionRates.fromPartial({})),
             Commission: getStructure(Commission.fromPartial({})),
@@ -86,7 +87,6 @@ const getDefaultState = () => {
             RedelegationEntryResponse: getStructure(RedelegationEntryResponse.fromPartial({})),
             RedelegationResponse: getStructure(RedelegationResponse.fromPartial({})),
             Pool: getStructure(Pool.fromPartial({})),
-            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -181,7 +181,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryValidators({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidators({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidators.apply(null, params)).data
@@ -203,7 +203,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidator({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidator({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidator.apply(null, params)).data
@@ -225,7 +225,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidatorDelegations({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidatorDelegations({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidatorDelegations.apply(null, params)).data
@@ -247,7 +247,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidatorUnbondingDelegations({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidatorUnbondingDelegations({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidatorUnbondingDelegations.apply(null, params)).data
@@ -269,7 +269,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegation({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegation({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegation.apply(null, params)).data
@@ -291,7 +291,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryUnbondingDelegation({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryUnbondingDelegation({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryUnbondingDelegation.apply(null, params)).data
@@ -313,7 +313,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorDelegations({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorDelegations({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorDelegations.apply(null, params)).data
@@ -335,7 +335,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorUnbondingDelegations({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorUnbondingDelegations({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorUnbondingDelegations.apply(null, params)).data
@@ -357,7 +357,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryRedelegations({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryRedelegations({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryRedelegations.apply(null, params)).data
@@ -379,7 +379,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorValidators({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorValidators({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, params)).data
@@ -401,7 +401,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorValidator({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorValidator({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorValidator.apply(null, params)).data
@@ -423,7 +423,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryHistoricalInfo({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryHistoricalInfo({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryHistoricalInfo.apply(null, params)).data
@@ -445,7 +445,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryPool({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryPool({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryPool.apply(null, params)).data
@@ -467,7 +467,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -490,58 +490,12 @@ export default {
 			}
 		},
 		
-		async sendMsgBeginRedelegate({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgCreateValidator({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgDelegate({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgDelegate(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgUndelegate({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgEditValidator({ rootGetters }, { value }) {
+		async sendMsgEditValidator({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgEditValidator(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.')
@@ -550,7 +504,75 @@ export default {
 				}
 			}
 		},
+		async sendMsgBeginRedelegate({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgUndelegate({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgCreateValidator({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgDelegate({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgDelegate(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
 		
+		async MsgEditValidator({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgEditValidator(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.')
+				}
+			}
+		},
 		async MsgBeginRedelegate({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value)
@@ -560,6 +582,18 @@ export default {
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgUndelegate({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.')
 				}
 			}
 		},
@@ -584,30 +618,6 @@ export default {
 					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgUndelegate({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgEditValidator({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgEditValidator(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.')
 				}
 			}
 		},

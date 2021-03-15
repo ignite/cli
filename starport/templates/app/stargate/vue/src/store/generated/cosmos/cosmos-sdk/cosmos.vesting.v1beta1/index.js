@@ -82,10 +82,12 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async sendMsgCreateVestingAccount({ rootGetters }, { value }) {
+        async sendMsgCreateVestingAccount({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgCreateVestingAccount(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {

@@ -2,13 +2,6 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
-import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
-import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
 import { Params } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { ValidatorHistoricalRewards } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { ValidatorCurrentRewards } from "./module/types/cosmos/distribution/v1beta1/distribution"
@@ -21,6 +14,13 @@ import { CommunityPoolSpendProposal } from "./module/types/cosmos/distribution/v
 import { DelegatorStartingInfo } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { DelegationDelegatorReward } from "./module/types/cosmos/distribution/v1beta1/distribution"
 import { CommunityPoolSpendProposalWithDeposit } from "./module/types/cosmos/distribution/v1beta1/distribution"
+import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
+import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -59,13 +59,6 @@ const getDefaultState = () => {
         CommunityPool: {},
         
         _Structure: {
-            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
-            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
-            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
-            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
-            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
-            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
-            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
             Params: getStructure(Params.fromPartial({})),
             ValidatorHistoricalRewards: getStructure(ValidatorHistoricalRewards.fromPartial({})),
             ValidatorCurrentRewards: getStructure(ValidatorCurrentRewards.fromPartial({})),
@@ -78,6 +71,13 @@ const getDefaultState = () => {
             DelegatorStartingInfo: getStructure(DelegatorStartingInfo.fromPartial({})),
             DelegationDelegatorReward: getStructure(DelegationDelegatorReward.fromPartial({})),
             CommunityPoolSpendProposalWithDeposit: getStructure(CommunityPoolSpendProposalWithDeposit.fromPartial({})),
+            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
+            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
+            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
+            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
+            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
+            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
+            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -157,7 +157,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -179,7 +179,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidatorOutstandingRewards({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidatorOutstandingRewards({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidatorOutstandingRewards.apply(null, params)).data
@@ -201,7 +201,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidatorCommission({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidatorCommission({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidatorCommission.apply(null, params)).data
@@ -223,7 +223,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryValidatorSlashes({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryValidatorSlashes({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryValidatorSlashes.apply(null, params)).data
@@ -245,7 +245,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegationRewards({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegationRewards({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegationRewards.apply(null, params)).data
@@ -267,7 +267,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegationTotalRewards({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegationTotalRewards({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegationTotalRewards.apply(null, params)).data
@@ -289,7 +289,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorValidators({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorValidators({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorValidators.apply(null, params)).data
@@ -311,7 +311,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryDelegatorWithdrawAddress({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryDelegatorWithdrawAddress({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryDelegatorWithdrawAddress.apply(null, params)).data
@@ -333,7 +333,7 @@ export default {
 				return {}
 			}
 		},
-		async QueryCommunityPool({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryCommunityPool({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryCommunityPool.apply(null, params)).data
@@ -356,22 +356,12 @@ export default {
 			}
 		},
 		
-		async sendMsgSetWithdrawAddress({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgFundCommunityPool({ rootGetters }, { value }) {
+		async sendMsgFundCommunityPool({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.')
@@ -380,10 +370,12 @@ export default {
 				}
 			}
 		},
-		async sendMsgWithdrawDelegatorReward({ rootGetters }, { value }) {
+		async sendMsgWithdrawDelegatorReward({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgWithdrawDelegatorReward(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
@@ -392,10 +384,26 @@ export default {
 				}
 			}
 		},
-		async sendMsgWithdrawValidatorCommission({ rootGetters }, { value }) {
+		async sendMsgSetWithdrawAddress({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgWithdrawValidatorCommission({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgWithdrawValidatorCommission(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgWithdrawValidatorCommission:Init', 'Could not initialize signing client. Wallet is required.')
@@ -405,18 +413,6 @@ export default {
 			}
 		},
 		
-		async MsgSetWithdrawAddress({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message.')
-				}
-			}
-		},
 		async MsgFundCommunityPool({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value)
@@ -438,6 +434,18 @@ export default {
 					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgSetWithdrawAddress({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Create', 'Could not create message.')
 				}
 			}
 		},

@@ -105,7 +105,7 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
@@ -127,7 +127,7 @@ export default {
 				return {}
 			}
 		},
-		async QuerySigningInfo({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfo({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, params)).data
@@ -149,7 +149,7 @@ export default {
 				return {}
 			}
 		},
-		async QuerySigningInfos({ commit, rootGetters, getters, state }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfos({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
 			try {
 				let params=Object.values(key)
 				let value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, params)).data
@@ -172,10 +172,12 @@ export default {
 			}
 		},
 		
-		async sendMsgUnjail({ rootGetters }, { value }) {
+		async sendMsgUnjail({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgUnjail(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgUnjail:Init', 'Could not initialize signing client. Wallet is required.')

@@ -18,7 +18,7 @@ const txClient = async (wallet, { addr: addr } = { addr: "http://localhost:26657
     const client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
     const { address } = (await wallet.getAccounts())[0];
     return {
-        signAndBroadcast: (msgs, { fee: fee } = { fee: defaultFee }) => client.signAndBroadcast(address, msgs, fee),
+        signAndBroadcast: (msgs, { fee = defaultFee, memo = null }) => memo ? client.signAndBroadcast(address, msgs, fee, memo) : client.signAndBroadcast(address, msgs, fee),
         msgMultiSend: (data) => ({ typeUrl: "/cosmos.bank.v1beta1.MsgMultiSend", value: data }),
         msgSend: (data) => ({ typeUrl: "/cosmos.bank.v1beta1.MsgSend", value: data }),
     };

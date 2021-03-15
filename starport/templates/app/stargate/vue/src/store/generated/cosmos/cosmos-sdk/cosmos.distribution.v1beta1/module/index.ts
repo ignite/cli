@@ -1,17 +1,17 @@
-import { coins, StdFee } from "@cosmjs/launchpad";
+import {  StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
-import { MsgSetWithdrawAddress } from "./types/cosmos/distribution/v1beta1/tx";
 import { MsgFundCommunityPool } from "./types/cosmos/distribution/v1beta1/tx";
 import { MsgWithdrawDelegatorReward } from "./types/cosmos/distribution/v1beta1/tx";
+import { MsgSetWithdrawAddress } from "./types/cosmos/distribution/v1beta1/tx";
 import { MsgWithdrawValidatorCommission } from "./types/cosmos/distribution/v1beta1/tx";
 
 
 const types = [
-  ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress],
   ["/cosmos.distribution.v1beta1.MsgFundCommunityPool", MsgFundCommunityPool],
   ["/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", MsgWithdrawDelegatorReward],
+  ["/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", MsgSetWithdrawAddress],
   ["/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", MsgWithdrawValidatorCommission],
   
 ];
@@ -28,7 +28,8 @@ interface TxClientOptions {
 }
 
 interface SignAndBroadcastOptions {
-  fee: StdFee
+  fee: StdFee,
+  memo?: string
 }
 
 const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
@@ -38,10 +39,10 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
   const { address } = (await wallet.getAccounts())[0];
 
   return {
-    signAndBroadcast: (msgs: EncodeObject[], { fee: fee }: SignAndBroadcastOptions = { fee: defaultFee }) => client.signAndBroadcast(address, msgs, fee),
-    msgSetWithdrawAddress: (data: MsgSetWithdrawAddress): EncodeObject => ({ typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", value: data }),
+    signAndBroadcast: (msgs: EncodeObject[], { fee=defaultFee, memo=null }: SignAndBroadcastOptions) => memo?client.signAndBroadcast(address, msgs, fee,memo):client.signAndBroadcast(address, msgs, fee),
     msgFundCommunityPool: (data: MsgFundCommunityPool): EncodeObject => ({ typeUrl: "/cosmos.distribution.v1beta1.MsgFundCommunityPool", value: data }),
     msgWithdrawDelegatorReward: (data: MsgWithdrawDelegatorReward): EncodeObject => ({ typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward", value: data }),
+    msgSetWithdrawAddress: (data: MsgSetWithdrawAddress): EncodeObject => ({ typeUrl: "/cosmos.distribution.v1beta1.MsgSetWithdrawAddress", value: data }),
     msgWithdrawValidatorCommission: (data: MsgWithdrawValidatorCommission): EncodeObject => ({ typeUrl: "/cosmos.distribution.v1beta1.MsgWithdrawValidatorCommission", value: data }),
     
   };

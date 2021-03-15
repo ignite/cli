@@ -120,7 +120,7 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryProposal({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryProposal({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryProposal.apply(null, params)).data;
@@ -145,7 +145,7 @@ export default {
                 return {};
             }
         },
-        async QueryProposals({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryProposals({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryProposals.apply(null, params)).data;
@@ -170,7 +170,7 @@ export default {
                 return {};
             }
         },
-        async QueryVote({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryVote({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryVote.apply(null, params)).data;
@@ -195,7 +195,7 @@ export default {
                 return {};
             }
         },
-        async QueryVotes({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryVotes({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryVotes.apply(null, params)).data;
@@ -220,7 +220,7 @@ export default {
                 return {};
             }
         },
-        async QueryParams({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data;
@@ -245,7 +245,7 @@ export default {
                 return {};
             }
         },
-        async QueryDeposit({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryDeposit({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryDeposit.apply(null, params)).data;
@@ -270,7 +270,7 @@ export default {
                 return {};
             }
         },
-        async QueryDeposits({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryDeposits({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryDeposits.apply(null, params)).data;
@@ -295,7 +295,7 @@ export default {
                 return {};
             }
         },
-        async QueryTallyResult({ commit, rootGetters, getters, state }, { subscribe = false, all = false, ...key }) {
+        async QueryTallyResult({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
             try {
                 let params = Object.values(key);
                 let value = (await (await initQueryClient(rootGetters)).queryTallyResult.apply(null, params)).data;
@@ -320,10 +320,12 @@ export default {
                 return {};
             }
         },
-        async sendMsgSubmitProposal({ rootGetters }, { value }) {
+        async sendMsgSubmitProposal({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgSubmitProposal(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -334,10 +336,12 @@ export default {
                 }
             }
         },
-        async sendMsgVote({ rootGetters }, { value }) {
+        async sendMsgVote({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgVote(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {
@@ -348,10 +352,12 @@ export default {
                 }
             }
         },
-        async sendMsgDeposit({ rootGetters }, { value }) {
+        async sendMsgDeposit({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgDeposit(value);
-                await (await initTxClient(rootGetters)).signAndBroadcast([msg]);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e.toString() == 'wallet is required') {

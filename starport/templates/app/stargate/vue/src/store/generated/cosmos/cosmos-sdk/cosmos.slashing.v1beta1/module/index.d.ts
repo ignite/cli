@@ -7,9 +7,10 @@ interface TxClientOptions {
 }
 interface SignAndBroadcastOptions {
     fee: StdFee;
+    memo?: string;
 }
 declare const txClient: (wallet: OfflineSigner, { addr: addr }?: TxClientOptions) => Promise<{
-    signAndBroadcast: (msgs: EncodeObject[], { fee: fee }?: SignAndBroadcastOptions) => Promise<import("@cosmjs/stargate").BroadcastTxResponse>;
+    signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions) => Promise<import("@cosmjs/stargate").BroadcastTxResponse>;
     msgUnjail: (data: MsgUnjail) => EncodeObject;
 }>;
 interface QueryClientOptions {
