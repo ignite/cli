@@ -1,3 +1,5 @@
+// THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
+
 import { coins, StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
