@@ -6,6 +6,26 @@ import (
 	"path/filepath"
 )
 
+// isComponentCreated checks if the component has been already created with Starport in the project
+func isComponentCreated(appPath, moduleName, compName string) (bool, error) {
+	// Check for type, packet or message creation
+	created, err := isTypeCreated(appPath, moduleName, compName)
+	if err != nil {
+		return false, err
+	}
+	if created {
+		return created, nil
+	}
+	created, err = isPacketCreated(appPath, moduleName, compName)
+	if err != nil {
+		return false, err
+	}
+	if created {
+		return created, nil
+	}
+	return isMsgCreated(appPath, moduleName, compName)
+}
+
 // isMsgServerDefined checks if the module uses the MsgServer convention for transactions
 // this is checked by verifying the existence of the tx.proto file
 func isMsgServerDefined(appPath, moduleName string) (bool, error) {

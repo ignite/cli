@@ -39,16 +39,16 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
 	if isForbiddenComponentName(msgName) {
-		return fmt.Errorf("%s can't be used as a packet name", msgName)
+		return fmt.Errorf("%s can't be used as a message name", msgName)
 	}
 
-	// Check msg is not already created
-	ok, err = isMsgCreated(s.path, moduleName, msgName)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, msgName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s message is already added", msgName)
+		return fmt.Errorf("%s component is already added", msgName)
 	}
 
 	// Parse provided fields
@@ -124,7 +124,7 @@ func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err erro
 
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
-		// Packet doesn't exist
+		// Message doesn't exist
 		return false, nil
 	}
 

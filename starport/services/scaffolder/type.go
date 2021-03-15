@@ -59,13 +59,13 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 		return fmt.Errorf("%s can't be used as a type name", typeName)
 	}
 
-	// Check type is not already created
-	ok, err = isTypeCreated(s.path, moduleName, typeName)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, typeName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s type is already added", typeName)
+		return fmt.Errorf("%s component is already added", typeName)
 	}
 
 	// Parse provided field
