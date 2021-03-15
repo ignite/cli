@@ -54,6 +54,11 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 		return fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
+	// Ensure the name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(packetName) {
+		return fmt.Errorf("%s can't be used as a packet name", packetName)
+	}
+
 	// Check component name is not already used
 	ok, err = isComponentCreated(s.path, moduleName, packetName)
 	if err != nil {

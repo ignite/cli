@@ -40,6 +40,22 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 	return true, err
 }
 
+// isForbiddenComponentName returns true if the name is forbidden as a component name
+func isForbiddenComponentName(name string) bool {
+	switch name {
+	case
+		"logger",
+		"keeper",
+		"query",
+		"genesis",
+		"types",
+		"tx":
+		return true
+	}
+
+	return isGoReservedWord(name)
+}
+
 func isGoReservedWord(name string) bool {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {

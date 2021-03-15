@@ -31,7 +31,7 @@ type AddTypeOption struct {
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -54,18 +54,18 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
-	// Ensure the type name is not a Go reserved name, it would generate an incorrect code
-	if isGoReservedWord(stype) {
-		return fmt.Errorf("%s can't be used as a type name", stype)
+	// Ensure the type name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(typeName) {
+		return fmt.Errorf("%s can't be used as a type name", typeName)
 	}
 
 	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, stype)
+	ok, err = isComponentCreated(s.path, moduleName, typeName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s component is already added", stype)
+		return fmt.Errorf("%s component is already added", typeName)
 	}
 
 	// Parse provided field
@@ -81,7 +81,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			TypeName:   stype,
+			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
 		}
