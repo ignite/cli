@@ -53,9 +53,15 @@ export default {
     },
     getters: {
         getEvidence: (state) => (params = {}) => {
+            if (!params.query) {
+                params.query = null;
+            }
             return state.Evidence[JSON.stringify(params)] ?? {};
         },
         getAllEvidence: (state) => (params = {}) => {
+            if (!params.query) {
+                params.query = null;
+            }
             return state.AllEvidence[JSON.stringify(params)] ?? {};
         },
         getTypeStructure: (state) => (type) => {
@@ -82,37 +88,24 @@ export default {
                 dispatch(subscription.action, subscription.payload);
             });
         },
-        async QueryEvidence({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
+        async QueryEvidence({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
             try {
-                let params = Object.values(key);
-                let value = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, params)).data;
-                while (all && value.pagination && value.pagination.next_key != null) {
-                    let next_values = (await (await initQueryClient(rootGetters)).queryEvidence.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
-                    for (let prop of Object.keys(next_values)) {
-                        if (Array.isArray(next_values[prop])) {
-                            value[prop] = [...value[prop], ...next_values[prop]];
-                        }
-                        else {
-                            value[prop] = next_values[prop];
-                        }
-                    }
-                }
-                commit('QUERY', { query: 'Evidence', key, value });
+                let value = query ? (await (await initQueryClient(rootGetters)).queryEvidence(key.evidence_hash, query)).data : (await (await initQueryClient(rootGetters)).queryEvidence(key.evidence_hash)).data;
+                commit('QUERY', { query: 'Evidence', key: { params: { ...key }, query }, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryEvidence', payload: { all, ...key } });
-                return getters['getEvidence'](key) ?? {};
+                    commit('SUBSCRIBE', { action: 'QueryEvidence', payload: { options: { all }, params: { ...key }, query } });
+                return getters['getEvidence']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query.'));
                 return {};
             }
         },
-        async QueryAllEvidence({ commit, rootGetters, getters }, { subscribe = false, all = false, ...key }) {
+        async QueryAllEvidence({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
             try {
-                let params = Object.values(key);
-                let value = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, params)).data;
-                while (all && value.pagination && value.pagination.next_key != null) {
-                    let next_values = (await (await initQueryClient(rootGetters)).queryAllEvidence.apply(null, [...params, { 'pagination.key': value.pagination.next_key }])).data;
+                let value = query ? (await (await initQueryClient(rootGetters)).queryAllEvidence(query)).data : (await (await initQueryClient(rootGetters)).queryAllEvidence()).data;
+                while (all && value.pagination && value.pagination.nextKey != null) {
+                    let next_values = (await (await initQueryClient(rootGetters)).queryAllEvidence({ ...query, 'pagination.key': value.pagination.nextKey })).data;
                     for (let prop of Object.keys(next_values)) {
                         if (Array.isArray(next_values[prop])) {
                             value[prop] = [...value[prop], ...next_values[prop]];
@@ -122,10 +115,10 @@ export default {
                         }
                     }
                 }
-                commit('QUERY', { query: 'AllEvidence', key, value });
+                commit('QUERY', { query: 'AllEvidence', key: { params: { ...key }, query }, value });
                 if (subscribe)
-                    commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: { all, ...key } });
-                return getters['getAllEvidence'](key) ?? {};
+                    commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: { options: { all }, params: { ...key }, query } });
+                return getters['getAllEvidence']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
                 console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query.'));

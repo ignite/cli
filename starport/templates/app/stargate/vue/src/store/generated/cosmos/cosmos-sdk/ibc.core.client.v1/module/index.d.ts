@@ -3,8 +3,8 @@ import { OfflineSigner, EncodeObject } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
 import { MsgSubmitMisbehaviour } from "./types/ibc/core/client/v1/tx";
 import { MsgUpdateClient } from "./types/ibc/core/client/v1/tx";
-import { MsgUpgradeClient } from "./types/ibc/core/client/v1/tx";
 import { MsgCreateClient } from "./types/ibc/core/client/v1/tx";
+import { MsgUpgradeClient } from "./types/ibc/core/client/v1/tx";
 interface TxClientOptions {
     addr: string;
 }
@@ -16,8 +16,8 @@ declare const txClient: (wallet: OfflineSigner, { addr: addr }?: TxClientOptions
     signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions) => Promise<import("@cosmjs/stargate").BroadcastTxResponse>;
     msgSubmitMisbehaviour: (data: MsgSubmitMisbehaviour) => EncodeObject;
     msgUpdateClient: (data: MsgUpdateClient) => EncodeObject;
-    msgUpgradeClient: (data: MsgUpgradeClient) => EncodeObject;
     msgCreateClient: (data: MsgCreateClient) => EncodeObject;
+    msgUpgradeClient: (data: MsgUpgradeClient) => EncodeObject;
 }>;
 interface QueryClientOptions {
     addr: string;

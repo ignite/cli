@@ -80,18 +80,33 @@ export default {
 	},
 	getters: {
         getClientState: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.ClientState[JSON.stringify(params)] ?? {}
 		},
         getClientStates: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.ClientStates[JSON.stringify(params)] ?? {}
 		},
         getConsensusState: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.ConsensusState[JSON.stringify(params)] ?? {}
 		},
         getConsensusStates: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.ConsensusStates[JSON.stringify(params)] ?? {}
 		},
         getClientParams: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.ClientParams[JSON.stringify(params)] ?? {}
 		},
         
@@ -119,34 +134,26 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryClientState({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryClientState({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryClientState.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryClientState.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'ClientState', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientState', payload: { all, ...key} })
-				return getters['getClientState'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryClientState( key.client_id,  query)).data:(await (await initQueryClient(rootGetters)).queryClientState( key.client_id )).data
+				
+				commit('QUERY', { query: 'ClientState', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientState', payload: { options: { all }, params: {...key},query }})
+				return getters['getClientState']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryClientState', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryClientStates({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryClientStates({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryClientStates.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryClientStates.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryClientStates( query)).data:(await (await initQueryClient(rootGetters)).queryClientStates()).data
+				
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryClientStates({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -155,20 +162,22 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: 'ClientStates', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientStates', payload: { all, ...key} })
-				return getters['getClientStates'](key) ?? {}
+				
+				commit('QUERY', { query: 'ClientStates', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientStates', payload: { options: { all }, params: {...key},query }})
+				return getters['getClientStates']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryClientStates', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryConsensusState({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryConsensusState({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryConsensusState.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryConsensusState.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryConsensusState( key.client_id,  key.revision_number,  key.revision_height,  query)).data:(await (await initQueryClient(rootGetters)).queryConsensusState( key.client_id ,  key.revision_number ,  key.revision_height )).data
+				
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryConsensusState( key.client_id,  key.revision_number,  key.revision_height, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -177,20 +186,22 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: 'ConsensusState', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusState', payload: { all, ...key} })
-				return getters['getConsensusState'](key) ?? {}
+				
+				commit('QUERY', { query: 'ConsensusState', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusState', payload: { options: { all }, params: {...key},query }})
+				return getters['getConsensusState']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryConsensusState', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryConsensusStates({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryConsensusStates({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryConsensusStates.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryConsensusStates.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryConsensusStates( key.client_id,  query)).data:(await (await initQueryClient(rootGetters)).queryConsensusStates( key.client_id )).data
+				
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryConsensusStates( key.client_id, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -199,31 +210,23 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: 'ConsensusStates', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusStates', payload: { all, ...key} })
-				return getters['getConsensusStates'](key) ?? {}
+				
+				commit('QUERY', { query: 'ConsensusStates', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConsensusStates', payload: { options: { all }, params: {...key},query }})
+				return getters['getConsensusStates']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryConsensusStates', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryClientParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryClientParams({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryClientParams.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryClientParams.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'ClientParams', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientParams', payload: { all, ...key} })
-				return getters['getClientParams'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryClientParams( query)).data:(await (await initQueryClient(rootGetters)).queryClientParams()).data
+				
+				commit('QUERY', { query: 'ClientParams', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryClientParams', payload: { options: { all }, params: {...key},query }})
+				return getters['getClientParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryClientParams', 'API Node Unavailable. Could not perform query.'))
 				return {}
@@ -258,20 +261,6 @@ export default {
 				}
 			}
 		},
-		async sendMsgUpgradeClient({ rootGetters }, { value, fee, memo }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
 		async sendMsgCreateClient({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgCreateClient(value)
@@ -283,6 +272,20 @@ export default {
 					throw new SpVuexError('TxClient:MsgCreateClient:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgCreateClient:Send', 'Could not broadcast Tx.')
+				}
+			}
+		},
+		async sendMsgUpgradeClient({ rootGetters }, { value, fee, memo }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
@@ -311,18 +314,6 @@ export default {
 				}
 			}
 		},
-		async MsgUpgradeClient({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgUpgradeClient:Create', 'Could not create message.')
-				}
-			}
-		},
 		async MsgCreateClient({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgCreateClient(value)
@@ -332,6 +323,18 @@ export default {
 					throw new SpVuexError('TxClient:MsgCreateClient:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgCreateClient:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgUpgradeClient({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgUpgradeClient(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgUpgradeClient:Create', 'Could not create message.')
 				}
 			}
 		},

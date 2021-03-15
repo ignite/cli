@@ -1,3 +1,4 @@
+// THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry } from "@cosmjs/proto-signing";
 import { Api } from "./rest";

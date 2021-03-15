@@ -68,12 +68,21 @@ export default {
 	},
 	getters: {
         getDenomTrace: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.DenomTrace[JSON.stringify(params)] ?? {}
 		},
         getDenomTraces: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.DenomTraces[JSON.stringify(params)] ?? {}
 		},
         getParams: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
         
@@ -101,34 +110,26 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryDenomTrace({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomTrace({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryDenomTrace.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'DenomTrace', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { all, ...key} })
-				return getters['getDenomTrace'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryDenomTrace( key.hash,  query)).data:(await (await initQueryClient(rootGetters)).queryDenomTrace( key.hash )).data
+				
+				commit('QUERY', { query: 'DenomTrace', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { options: { all }, params: {...key},query }})
+				return getters['getDenomTrace']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryDenomTraces({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryDenomTraces({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryDenomTraces.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryDenomTraces( query)).data:(await (await initQueryClient(rootGetters)).queryDenomTraces()).data
+				
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).queryDenomTraces({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -137,31 +138,23 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: 'DenomTraces', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { all, ...key} })
-				return getters['getDenomTraces'](key) ?? {}
+				
+				commit('QUERY', { query: 'DenomTraces', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { options: { all }, params: {...key},query }})
+				return getters['getDenomTraces']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryParams.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'Params', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key} })
-				return getters['getParams'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryParams( query)).data:(await (await initQueryClient(rootGetters)).queryParams()).data
+				
+				commit('QUERY', { query: 'Params', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: {...key},query }})
+				return getters['getParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
 				return {}

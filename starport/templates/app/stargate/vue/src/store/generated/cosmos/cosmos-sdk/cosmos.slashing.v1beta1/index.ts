@@ -72,12 +72,21 @@ export default {
 	},
 	getters: {
         getParams: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.Params[JSON.stringify(params)] ?? {}
 		},
         getSigningInfo: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.SigningInfo[JSON.stringify(params)] ?? {}
 		},
         getSigningInfos: (state) => (params = {}) => {
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
 			return state.SigningInfos[JSON.stringify(params)] ?? {}
 		},
         
@@ -105,56 +114,39 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryParams({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).queryParams.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryParams.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'Params', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { all, ...key} })
-				return getters['getParams'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).queryParams( query)).data:(await (await initQueryClient(rootGetters)).queryParams()).data
+				
+				commit('QUERY', { query: 'Params', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: {...key},query }})
+				return getters['getParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QuerySigningInfo({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfo({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).querySigningInfo.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).querySigningInfo.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
-				}
-				commit('QUERY', { query: 'SigningInfo', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: { all, ...key} })
-				return getters['getSigningInfo'](key) ?? {}
+				
+				let value = query?(await (await initQueryClient(rootGetters)).querySigningInfo( key.cons_address,  query)).data:(await (await initQueryClient(rootGetters)).querySigningInfo( key.cons_address )).data
+				
+				commit('QUERY', { query: 'SigningInfo', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfo', payload: { options: { all }, params: {...key},query }})
+				return getters['getSigningInfo']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QuerySigningInfo', 'API Node Unavailable. Could not perform query.'))
 				return {}
 			}
 		},
-		async QuerySigningInfos({ commit, rootGetters, getters }, { subscribe = false, all=false, ...key }) {
+		async QuerySigningInfos({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				let params=Object.values(key)
-				let value = (await (await initQueryClient(rootGetters)).querySigningInfos.apply(null, params)).data
-				while (all && value.pagination && value.pagination.next_key!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).querySigningInfos.apply(null,[...params, {'pagination.key':value.pagination.next_key}] )).data
+				
+				let value = query?(await (await initQueryClient(rootGetters)).querySigningInfos( query)).data:(await (await initQueryClient(rootGetters)).querySigningInfos()).data
+				
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).querySigningInfos({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
@@ -163,9 +155,10 @@ export default {
 						}
 					}
 				}
-				commit('QUERY', { query: 'SigningInfos', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: { all, ...key} })
-				return getters['getSigningInfos'](key) ?? {}
+				
+				commit('QUERY', { query: 'SigningInfos', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: 'QuerySigningInfos', payload: { options: { all }, params: {...key},query }})
+				return getters['getSigningInfos']( { params: {...key}, query}) ?? {}
 			} catch (e) {
 				console.error(new SpVuexError('QueryClient:QuerySigningInfos', 'API Node Unavailable. Could not perform query.'))
 				return {}
