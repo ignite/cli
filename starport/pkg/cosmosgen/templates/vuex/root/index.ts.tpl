@@ -1,10 +1,13 @@
-{{ range . }}import {{ .Name }} from './{{ .Path }}'
+// THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
+
+{{ range . }}import {{ .FullName }} from './{{ .FullPath }}'
 {{ end }}
 
 export default { 
-  {{ range . }}{{ .Name }}: load({{ .Name }}, '{{ .Path }}'),
+  {{ range . }}{{ .FullName }}: load({{ .FullName }}, '{{ .FullPath }}'),
   {{ end }}
 }
+
 
 function load(mod, fullns) {
     return function init(store) {

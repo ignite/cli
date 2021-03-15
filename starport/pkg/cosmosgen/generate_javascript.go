@@ -185,39 +185,17 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	}
 
 	// generate the js client wrapper.
-	outclient := filepath.Join(out, "index.ts")
-	f, err := os.OpenFile(outclient, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
 	pp := filepath.Join(appPath, g.g.protoDir)
-	err = templateJSClient(pp).Execute(f, struct{ Module module.Module }{m})
-	if err != nil {
+	if err := templateJSClient.Write(out, pp, struct{ Module module.Module }{m}); err != nil {
 		return err
 	}
 
 	// generate Vuex if enabled.
 	if g.g.o.vuexStoreRootPath != "" {
-		storePath := filepath.Join(storeDirPath, "index.ts")
-		f, err := os.OpenFile(storePath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		err = templateVuexStore.Write(storeDirPath, pp, struct{ Module module.Module }{m})
 		if err != nil {
 			return err
 		}
-		defer f.Close()
-
-		err = templateVuexStore(pp).Execute(f, struct{ Module module.Module }{m})
-		if err != nil {
-			return err
-		}
-
-		// mark vuex root dir.
-		f, err = os.Create(filepath.Join(storeDirPath, vuexRootMarker))
-		if err != nil {
-			return err
-		}
-		f.Close()
 	}
 
 	// generate .js and .d.ts files for all ts files.
@@ -231,8 +209,10 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	}
 
 	type module struct {
-		Name string
-		Path string
+		Name     string
+		Path     string
+		FullName string
+		FullPath string
 	}
 
 	var modules []module
@@ -242,21 +222,23 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		if err != nil {
 			return err
 		}
-		pathrel = filepath.Dir(pathrel)
-		name := strcase.ToCamel(strings.ReplaceAll(pathrel, "/", "_"))
-		modules = append(modules, module{name, pathrel})
+		var (
+			fullPath = filepath.Dir(pathrel)
+			fullName = strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_"))
+			path     = filepath.Base(fullPath)
+			name     = strcase.ToCamel(path)
+		)
+		modules = append(modules, module{
+			Name:     name,
+			Path:     path,
+			FullName: fullName,
+			FullPath: fullPath,
+		})
 	}
 
 	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
 
-	f, err := os.OpenFile(loaderPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
-	if err != nil {
-		return err
-	}
-	defer f.Close()
-
-	err = templateVuexLoader(g.g.o.vuexStoreRootPath).Execute(f, modules)
-	if err != nil {
+	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", modules); err != nil {
 		return err
 	}
 

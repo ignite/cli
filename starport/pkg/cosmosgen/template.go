@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"embed"
+	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -13,32 +14,72 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateJSClient   = tpl("js/client.ts.tpl")   // js wrapper client.
-	templateVuexStore  = tpl("vuex/store.ts.tpl")  // vuex store.
-	templateVuexLoader = tpl("vuex/loader.ts.tpl") // vuex store loader.
+	templateJSClient  = newTemplateWriter("js")         // js wrapper client.
+	templateVuexRoot  = newTemplateWriter("vuex/root")  // vuex store loader.
+	templateVuexStore = newTemplateWriter("vuex/store") // vuex store.
 )
+
+type templateWriter struct {
+	templateDir string
+}
 
 // tpl returns a func for template residing at templatePath to initialize a text template
 // with given protoPath.
-func tpl(templatePath string) func(protoPath string) *template.Template {
-	return func(protoPath string) *template.Template {
-		path := filepath.Join("templates", templatePath)
+func newTemplateWriter(templateDir string) templateWriter {
+	return templateWriter{
+		templateDir,
+	}
+}
 
-		funcs := template.FuncMap{
-			"camelCase": strcase.ToLowerCamel,
-			"resolveFile": func(fullPath string) string {
-				rel, _ := filepath.Rel(protoPath, fullPath)
-				rel = strings.TrimSuffix(rel, ".proto")
-				return rel
-			},
-		}
+func (t templateWriter) Write(destDir, protoPath string, data interface{}) error {
+	base := filepath.Join("templates", t.templateDir)
 
-		return template.
+	// find out templates inside the dir.
+	files, err := templates.ReadDir(base)
+	if err != nil {
+		return err
+	}
+
+	var paths []string
+	for _, file := range files {
+		paths = append(paths, filepath.Join(base, file.Name()))
+	}
+
+	funcs := template.FuncMap{
+		"camelCase": strcase.ToLowerCamel,
+		"resolveFile": func(fullPath string) string {
+			rel, _ := filepath.Rel(protoPath, fullPath)
+			rel = strings.TrimSuffix(rel, ".proto")
+			return rel
+		},
+	}
+
+	// render and write the template.
+	write := func(path string) error {
+		tpl := template.
 			Must(
 				template.
 					New(filepath.Base(path)).
 					Funcs(funcs).
-					ParseFS(templates, path),
+					ParseFS(templates, paths...),
 			)
+
+		out := filepath.Join(destDir, strings.TrimSuffix(filepath.Base(path), ".tpl"))
+
+		f, err := os.OpenFile(out, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+
+		return tpl.Execute(f, data)
 	}
+
+	for _, path := range paths {
+		if err := write(path); err != nil {
+			return err
+		}
+	}
+
+	return nil
 }
