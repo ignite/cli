@@ -469,7 +469,7 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 
 func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "vue/src/views/Index.vue"
+		path := "vue/src/views/Types.vue"
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end

@@ -1,13 +1,14 @@
 <template>
 	<div>
 		<div class="container">
-			<SpBlockExplorer />
+      	<!-- this line is used by starport scaffolding # 4 -->
 		</div>
 	</div>
 </template>
 
 <script>
 export default {
-	name: 'Legacy'
+	name: 'Types'
 }
 </script>
+
