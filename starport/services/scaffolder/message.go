@@ -37,26 +37,26 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
-	// Ensure the msg name is not a Go reserved name, it would generate an incorrect code
-	if isGoReservedWord(msgName) {
-		return fmt.Errorf("%s can't be used as a type name", msgName)
+	// Ensure the name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(msgName) {
+		return fmt.Errorf("%s can't be used as a message name", msgName)
 	}
 
-	// Check msg is not already created
-	ok, err = isMsgCreated(s.path, moduleName, msgName)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, msgName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s message is already added", msgName)
+		return fmt.Errorf("%s component is already added", msgName)
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields)
+	parsedMsgFields, err := parseFields(fields, isForbiddenMessageField)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resField)
+	parsedResFields, err := parseFields(resField, isGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -109,6 +109,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	return fmtProject(pwd)
 }
 
+// isMsgCreated checks if the message is already scaffolded
 func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
 	absPath, err := filepath.Abs(filepath.Join(
 		appPath,
@@ -123,9 +124,18 @@ func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err erro
 
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
-		// Packet doesn't exist
+		// Message doesn't exist
 		return false, nil
 	}
 
 	return true, err
+}
+
+// isForbiddenTypeField returns true if the name is forbidden as a message name
+func isForbiddenMessageField(name string) bool {
+	if name == "creator" {
+		return true
+	}
+
+	return isGoReservedWord(name)
 }

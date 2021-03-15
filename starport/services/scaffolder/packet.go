@@ -54,23 +54,28 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 		return fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Check packet doesn't exist
-	ok, err = isPacketCreated(s.path, moduleName, packetName)
+	// Ensure the name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(packetName) {
+		return fmt.Errorf("%s can't be used as a packet name", packetName)
+	}
+
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, packetName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("the packet %s already exist", packetName)
+		return fmt.Errorf("the component %s already exist", packetName)
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields)
+	parsedPacketFields, err := parseFields(packetFields, isForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields)
+	parsedAcksFields, err := parseFields(ackFields, isGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -139,4 +144,17 @@ func isPacketCreated(appPath, moduleName, packetName string) (isCreated bool, er
 	}
 
 	return true, err
+}
+
+// isForbiddenPacketField returns true if the name is forbidden as a packet name
+func isForbiddenPacketField(name string) bool {
+	switch name {
+	case
+		"sender",
+		"port",
+		"channelID":
+		return true
+	}
+
+	return isGoReservedWord(name)
 }
