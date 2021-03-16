@@ -1,17 +1,19 @@
 import { txClient, queryClient } from './module'
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex'
 
 {{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
 {{ end }}
 
 async function initTxClient(vuexGetters) {
-	return await txClient(vuexGetters['chain/common/wallet/signer'], {
-		addr: vuexGetters['chain/common/env/apiTendermint']
+	return await txClient(vuexGetters['common/wallet/signer'], {
+		addr: vuexGetters['common/env/apiTendermint']
 	})
 }
 
 async function initQueryClient(vuexGetters) {
 	return await queryClient({
-		addr: vuexGetters['chain/common/env/apiCosmos']
+		addr: vuexGetters['common/env/apiCosmos']
 	})
 }
 
@@ -28,9 +30,7 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
-		},
+        {{ range .Module.Queries }}{{ .Name }}: {},
         {{ end }}
         _Structure: {
             {{ range .Module.Types }}{{ .Name }}: getStructure({{ .Name }}.fromPartial({})),
@@ -62,7 +62,10 @@ export default {
 	},
 	getters: {
         {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
-			return state.Post[JSON.stringify(params)] ?? {}
+					if (!(<any> params).query) {
+						(<any> params).query=null
+					}
+			return state.{{ .Name }}[JSON.stringify(params)] ?? {}
 		},
         {{ end }}
 		getTypeStructure: (state) => (type) => {
@@ -72,8 +75,8 @@ export default {
 	actions: {
 		init({ dispatch, rootGetters }) {
 			console.log('init')
-			if (rootGetters['chain/common/env/client']) {
-				rootGetters['chain/common/env/client'].on('newblock', () => {
+			if (rootGetters['common/env/client']) {
+				rootGetters['common/env/client'].on('newblock', () => {
 					dispatch('StoreUpdate')
 				})
 			}
@@ -89,24 +92,58 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-        {{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters }, { subscribe = false, ...key }) {
+		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
-				const value = (await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}.apply(null, Object.values(key))).data
-				commit('QUERY', { query: 'Post', key, value })
-				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPost', payload: key })
+				
+				let value = query?(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}} query)).data:(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}}{{ if (gt $i 0)}}, {{ end}} key.{{$a}} {{end}})).data
+				{{ if .HTTPAnnotations.URLHasQuery}}
+				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					for (let prop of Object.keys(next_values)) {
+						if (Array.isArray(next_values[prop])) {
+							value[prop]=[...value[prop], ...next_values[prop]]
+						}else{
+							value[prop]=next_values[prop]
+						}
+					}
+				}
+				{{ end }}
+				commit('QUERY', { query: '{{ .Name }}', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { options: { all }, params: {...key},query }})
+				return getters['get{{.Name }}']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.log('Query Failed: API node unavailable')
+				console.error(new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.'))
+				return {}
 			}
 		},
-        {{ end }}
-        {{ range .Module.Msgs }}async {{ .Name }}({ rootGetters }, { value }) {
+		{{ end }}
+		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
-				await (await initTxClient(rootGetters)).signAndBroadcast([msg])
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
-				throw 'Failed to broadcast transaction: ' + e
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:{{ .Name }}:Send', 'Could not broadcast Tx.')
+				}
 			}
 		},
-        {{ end }}
+		{{ end }}
+		{{ range .Module.Msgs }}async {{ .Name }}({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).{{ camelCase .Name }}(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:{{ .Name }}:Create', 'Could not create message.')
+				}
+			}
+		},
+		{{ end }}
 	}
 }

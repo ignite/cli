@@ -469,7 +469,7 @@ func (t *typedStargate) clientRestRestModify(opts *Options) genny.RunFn {
 
 func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "vue/src/views/Index.vue"
+		path := "vue/src/views/Types.vue"
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end
@@ -479,12 +479,12 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			return err
 		}
 		replacement := fmt.Sprintf(`%[1]v
-		<SpType modulePath="%[2]v/%[3]v/%[2]v.%[3]v.%[4]v" moduleType="%[5]v"  />`,
+		<SpType modulePath="%[2]v.%[3]v.%[4]v" moduleType="%[5]v"  />`,
 			Placeholder4,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
-			opts.TypeName,
+			strings.Title(opts.TypeName),
 		)
 		content := strings.Replace(f.String(), Placeholder4, replacement, 1)
 		newFile := genny.NewFileS(path, content)

@@ -1,21 +1,19 @@
 <template>
 	<div>
 		<div class="container">
-			<SpLatestBlocks />
-			<!-- this line is used by starport scaffolding # 4 -->
+			<SpTokenSend :address="address" />
+			<SpTransferList :address="address" />
 		</div>
 	</div>
 </template>
 
-<style scoped>
-.container {
-	max-width: 800px;
-	margin: 2rem auto;
-	padding: 1rem;
-}
-</style>
 <script>
 export default {
-	name: 'Index'
+	name: 'Index',
+	computed: {
+		address() {
+			return this.$store.getters['common/wallet/address']
+		}
+	}
 }
 </script>
