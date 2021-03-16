@@ -7,9 +7,6 @@ workspaceLocation: "./starport/docs"
 
 tasks:
   - name: Install Starport
-    before: |
-      go get golang.org/dl/go1.15
-      go1.15 download
 
     init: |
       # Install Starport
