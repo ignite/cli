@@ -24,14 +24,9 @@ rm -rf starport/ui/dist
     npm i >/dev/null && \
     npm run build >/dev/null)
 
-echo packing the ui...
-go get -u github.com/gobuffalo/packr/v2/packr2 >/dev/null
-(cd ./starport/interface/cli/starport && \
-    packr2)
-
 # gen statik dev ui.
 go get github.com/rakyll/statik
-statik -src=starport/ui/dist -dest=starport/ui/dist-go -f
+statik -src=starport/ui/dist -dest=starport/ui/dist-go -ns starport:dev-ui -f 
 
 # build Starport.
 echo installing starport...

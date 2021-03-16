@@ -12,8 +12,6 @@ import (
 )
 
 func TestGenerateAnAppAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -26,8 +24,6 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 }
 
 func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -52,8 +48,6 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 }
 
 func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Launchpad)
@@ -78,8 +72,6 @@ func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
 }
 
 func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
-	t.Parallel()
-
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog", Stargate)

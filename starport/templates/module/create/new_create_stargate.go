@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // New ...
@@ -18,7 +17,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 
 	g.RunFn(appModifyStargate(opts))
 
-	if err := g.Box(templates[cosmosver.Stargate]); err != nil {
+	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
@@ -61,9 +60,21 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppModuleBasic, replacement, 1)
 
 		// Keeper declaration
+		var scopedKeeperDeclaration string
+		if opts.IsIBC {
+			// Scoped keeper declaration for IBC module
+			// We set this placeholder so it is modified by the IBC module scaffolder
+			scopedKeeperDeclaration = module.PlaceholderIBCAppScopedKeeperDeclaration
+		}
 		template = `%[1]v
+		%[3]v
 		%[2]vKeeper %[2]vkeeper.Keeper`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppKeeperDeclaration, opts.ModuleName)
+		replacement = fmt.Sprintf(
+			template,
+			module.PlaceholderSgAppKeeperDeclaration,
+			opts.ModuleName,
+			scopedKeeperDeclaration,
+		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement, 1)
 
 		// Store key
@@ -73,18 +84,35 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppStoreKey, replacement, 1)
 
 		// Keeper definition
+		var scopedKeeperDefinition string
+		var ibcKeeperArgument string
+		if opts.IsIBC {
+			// Scoped keeper definition for IBC module
+			// We set this placeholder so it is modified by the IBC module scaffolder
+			scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
+			ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
+		}
 		template = `%[1]v
+		%[3]v
 		app.%[2]vKeeper = *%[2]vkeeper.NewKeeper(
 			appCodec,
 			keys[%[2]vtypes.StoreKey],
 			keys[%[2]vtypes.MemStoreKey],
-		)`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgAppKeeperDefinition, opts.ModuleName)
+			%[4]v
+		)
+		%[2]vModule := %[2]v.NewAppModule(appCodec, app.%[2]vKeeper)`
+		replacement = fmt.Sprintf(
+			template,
+			module.PlaceholderSgAppKeeperDefinition,
+			opts.ModuleName,
+			scopedKeeperDefinition,
+			ibcKeeperArgument,
+		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement, 1)
 
 		// App Module
 		template = `%[1]v
-		%[2]v.NewAppModule(appCodec, app.%[2]vKeeper),`
+		%[2]vModule,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppAppModule, opts.ModuleName)
 		content = strings.Replace(content, module.PlaceholderSgAppAppModule, replacement, 1)
 

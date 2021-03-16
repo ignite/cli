@@ -10,6 +10,18 @@ curl https://get.starport.network/starport! | bash
 
 This command will download the latest `starport` binary from Github and install it into `/usr/local/bin`. To learn more about how to install previous versions of the binary, refer to the [documentation](https://github.com/allinbits/starport-installer).
 
+If the installer fails due to `/usr/local/bin/` not being writable by the user, then execute the following command:
+
+```
+curl https://get.starport.network/starport | bash
+```
+
+Finally, move the `starport` executable to `/usr/local/bin/` manually:
+
+```
+sudo mv starport /usr/local/bin/
+```
+
 ## macOS with Homebrew
 
 ```
@@ -17,9 +29,12 @@ brew install tendermint/tap/starport
 ```
 
 ## Build from source
+Starport uses [Git LFS](https://git-lfs.github.com/). Please make sure that it is installed before cloning Starport.
+If you have installed Git LFS after cloning Starport, checkout to your preferred branch to trigger a pull for large files or run `git lfs pull`.
 
 ```
-git clone https://github.com/tendermint/starport && cd starport && make
+git clone https://github.com/tendermint/starport --depth=1
+cd starport && make
 ```
 
 This will build and install `starport` binary into `$GOBIN`.

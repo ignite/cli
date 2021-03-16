@@ -82,7 +82,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		denom         = "stake"
 	)
 	if info.Config.Validator.Staked != "" {
-		if c, err := types.ParseCoin(info.Config.Validator.Staked); err == nil {
+		if c, err := types.ParseCoinNormalized(info.Config.Validator.Staked); err == nil {
 			denom = c.Denom
 		}
 	}
@@ -205,12 +205,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// propose to join to the network.
-	coins, err := types.ParseCoins(account.Coins) // parse the coins of the account
+	coins, err := types.ParseCoinsNormalized(account.Coins) // parse the coins of the account
 	if err != nil {
 		return err
 	}
 
-	selfDelegation, err := types.ParseCoin(proposal.Validator.StakingAmount) // parse the self delegation of this account for the validator
+	selfDelegation, err := types.ParseCoinNormalized(proposal.Validator.StakingAmount) // parse the self delegation of this account for the validator
 	if err != nil {
 		return err
 	}

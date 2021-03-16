@@ -1,20 +1,19 @@
-import Vue from "vue";
-import VueRouter from "vue-router";
-import Index from "../views/Index.vue";
+import { createRouter, createWebHistory } from 'vue-router'
+import Index from '@/views/Index.vue'
+import Types from '@/views/Types.vue'
 
-Vue.use(VueRouter);
-
+const routerHistory = createWebHistory()
 const routes = [
-  {
-    path: "/",
-    component: Index,
-  },
-];
+	{
+		path: '/',
+		component: Index
+	},
+	{ path: '/types', component: Types }
+]
 
-const router = new VueRouter({
-  mode: "history",
-  base: process.env.BASE_URL,
-  routes,
-});
+const router = createRouter({
+	history: routerHistory,
+	routes
+})
 
-export default router;
+export default router

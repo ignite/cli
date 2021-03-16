@@ -1,21 +1,31 @@
 package app
 
 import (
+	"embed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
+	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
-// these needs to be created in the compiler time, otherwise packr2 won't be
-// able to find boxes.
-var templates = map[cosmosver.MajorVersion]*packr.Box{
-	cosmosver.Launchpad: packr.New("app/templates/launchpad", "./launchpad"),
-	cosmosver.Stargate:  packr.New("app/templates/stargate", "./stargate"),
-}
+var (
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
+
+	//go:embed launchpad/* launchpad/**/*
+	fsLaunchpad embed.FS
+
+	// these needs to be created in the compiler time, otherwise packr2 won't be
+	// able to find boxes.
+	templates = map[cosmosver.MajorVersion]packd.Walker{
+		cosmosver.Stargate:  xgenny.NewEmbedWalker(fsStargate, "stargate/"),
+		cosmosver.Launchpad: xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/"),
+	}
+)
 
 // New ...
 func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, error) {
