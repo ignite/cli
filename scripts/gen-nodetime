@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# generates static Go files to embed node cli programs into Starport for linux and darwin.
+
+set -e
+
+cd ./scripts/data/gen-nodetime
+
+npm i 
+npm run build
+
+tar -czvf nodetime-linux.tar.gz nodetime-linux
+tar -czvf nodetime-darwin.tar.gz nodetime-macos
+
+cp nodetime-linux.tar.gz ../../../starport/pkg/nodetime/ 
+cp nodetime-darwin.tar.gz ../../../starport/pkg/nodetime/ 

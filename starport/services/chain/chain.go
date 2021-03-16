@@ -62,6 +62,10 @@ type Chain struct {
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
+
+	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
+	protoBuiltAtLeastOnce bool
+
 	stdout, stderr io.Writer
 }
 
@@ -78,6 +82,10 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
+
+	// isThirdPartyModuleCodegen indicates if proto code generation should be made
+	// for 3rd party modules. SDK modules are also considered as a 3rd party.
+	isThirdPartyModuleCodegenEnabled bool
 
 	// path of a custom config file
 	ConfigFile string
@@ -125,6 +133,14 @@ func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 func ConfigFile(configFile string) Option {
 	return func(c *Chain) {
 		c.options.ConfigFile = configFile
+	}
+}
+
+// EnableThirdPartyModuleCodegen enables code generation for third party modules,
+// including the SDK.
+func EnableThirdPartyModuleCodegen() Option {
+	return func(c *Chain) {
+		c.options.isThirdPartyModuleCodegenEnabled = true
 	}
 }
 

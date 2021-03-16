@@ -21,12 +21,12 @@ func ParseAt(path string) (*modfile.File, error) {
 }
 
 // FilterRequire filters dependencies under require section by their paths.
-func FilterRequire(dependencies []*modfile.Require, paths ...string) []*modfile.Require {
-	var filtered []*modfile.Require
+func FilterVersions(dependencies []module.Version, paths ...string) []module.Version {
+	var filtered []module.Version
 
 	for _, dep := range dependencies {
 		for _, path := range paths {
-			if dep.Mod.Path == path {
+			if dep.Path == path {
 				filtered = append(filtered, dep)
 				break
 			}
@@ -34,6 +34,30 @@ func FilterRequire(dependencies []*modfile.Require, paths ...string) []*modfile.
 	}
 
 	return filtered
+}
+
+func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
+	var versions []module.Version
+
+	isReplacementAdded := func(rv module.Version) bool {
+		for _, rep := range f.Replace {
+			if rv.Path == rep.Old.Path {
+				versions = append(versions, rep.New)
+
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for _, req := range f.Require {
+		if !isReplacementAdded(req.Mod) {
+			versions = append(versions, req.Mod)
+		}
+	}
+
+	return versions, nil
 }
 
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.

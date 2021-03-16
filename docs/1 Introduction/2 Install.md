@@ -29,6 +29,8 @@ brew install tendermint/tap/starport
 ```
 
 ## Build from source
+Starport uses [Git LFS](https://git-lfs.github.com/). Please make sure that it is installed before cloning Starport.
+If you have installed Git LFS after cloning Starport, checkout to your preferred branch to trigger a pull for large files or run `git lfs pull`.
 
 ```
 git clone https://github.com/tendermint/starport --depth=1
