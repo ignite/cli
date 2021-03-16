@@ -1,24 +1,35 @@
 package typed
 
 import (
+	"embed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packr/v2"
+	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
-var templates = map[cosmosver.MajorVersion]*packr.Box{
-	cosmosver.Launchpad: packr.New("typed/templates/launchpad", "./launchpad"),
-	cosmosver.Stargate:  packr.New("typed/templates/stargate", "./stargate"),
-}
+var (
+	//go:embed stargate/* stargate/**/*
+	fsStargate embed.FS
 
-func box(sdkVersion cosmosver.MajorVersion, opts *Options, g *genny.Generator) error {
-	if err := g.Box(templates[sdkVersion]); err != nil {
+	//go:embed stargate_legacy/* stargate_legacy/**/*
+	fsStargateLegacy embed.FS
+
+	//go:embed launchpad/* launchpad/**/*
+	fsLaunchpad embed.FS
+
+	stargateTemplate       = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
+	launchpadTemplate      = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+)
+
+func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
+	if err := g.Box(box); err != nil {
 		return err
 	}
 	ctx := plush.NewContext()

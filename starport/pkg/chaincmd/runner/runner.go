@@ -89,6 +89,11 @@ func (r Runner) Copy(options ...Option) Runner {
 	return r
 }
 
+// Cmd returns underlying chain cmd.
+func (r Runner) Cmd() chaincmd.ChainCmd {
+	return r.cc
+}
+
 type runOptions struct {
 	// wrappedStdErrMaxLen determines the maximum length of the wrapped error logs
 	// this option is used for long running command to prevent the buffer containing stderr getting too big

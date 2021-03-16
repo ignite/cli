@@ -25,11 +25,10 @@ The following projects are using the technology:
 - [Crypto.com Chain](https://github.com/crypto-com/chain-main) (Payments, DeFi, and utility token)
 - [IRIS](https://github.com/irisnet) (IBC Hub and developer oriented)
 - [Kava](https://github.com/Kava-Labs/kava) (DeFi and Stable Coins)
-- [Aragon](https://docs.chain.aragon.org/) (DAO catalyst)
 - [CosmWasm](https://cosmwasm.com/) (smart contracts using WASM)
 - [Ethermint](https://ethermint.zone/) (Ethereum virtual machine)
 
-[See the full list here](https://cosmonauts.world/).
+[See the full list here](https://cosmos.network/ecosystem/apps).
 
 ## Modules
 

@@ -1,0 +1,64 @@
+package keeper
+
+import (
+    "fmt"
+	"context"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+
+func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgCreate<%= title(TypeName) %>) (*types.MsgCreate<%= title(TypeName) %>Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    id := k.Append<%= title(TypeName) %>(
+        ctx,
+        msg.Creator,<%= for (field) in Fields { %>
+        msg.<%= title(field.Name) %>,<% } %>
+    )
+
+	return &types.MsgCreate<%= title(TypeName) %>Response{
+	    Id: id,
+	}, nil
+}
+
+func (k msgServer) Update<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgUpdate<%= title(TypeName) %>) (*types.MsgUpdate<%= title(TypeName) %>Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    var <%= TypeName %> = types.<%= title(TypeName) %>{
+		Creator: msg.Creator,
+		Id:      msg.Id,<%= for (field) in Fields { %>
+    	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+	}
+
+    // Checks that the element exists
+    if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+    }
+
+    // Checks if the the msg sender is the same as the current owner
+    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
+        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+    }
+
+	k.Set<%= title(TypeName) %>(ctx, <%= TypeName %>)
+
+	return &types.MsgUpdate<%= title(TypeName) %>Response{}, nil
+}
+
+func (k msgServer) Delete<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgDelete<%= title(TypeName) %>) (*types.MsgDelete<%= title(TypeName) %>Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+    }
+    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
+        return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
+    }
+
+	k.Remove<%= title(TypeName) %>(ctx, msg.Id)
+
+	return &types.MsgDelete<%= title(TypeName) %>Response{}, nil
+}

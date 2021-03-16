@@ -79,7 +79,7 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 
 	// read files
 	for _, path := range paths {
-		if workdir != "" {
+		if !filepath.IsAbs(path) {
 			path = filepath.Join(workdir, path)
 		}
 
