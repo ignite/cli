@@ -23,6 +23,7 @@ const (
 	commandExport            = "export"
 
 	optionHome                             = "--home"
+	optionNode                             = "--node"
 	optionKeyringBackend                   = "--keyring-backend"
 	optionChainID                          = "--chain-id"
 	optionOutput                           = "--output"
@@ -62,6 +63,7 @@ type ChainCmd struct {
 	cliCmd          string
 	cliHome         string
 	nodeAddress     string
+	legacySend      bool
 
 	isAutoChainIDDetectionEnabled bool
 
@@ -139,9 +141,9 @@ func WithKeyringPassword(password string) Option {
 	}
 }
 
-// WitNodeAddress sets the node address for the commands that needs to make an
+// WithNodeAddress sets the node address for the commands that needs to make an
 // API request to the node that has a different node address other than the default one.
-func WitNodeAddress(addr string) Option {
+func WithNodeAddress(addr string) Option {
 	return func(c *ChainCmd) {
 		c.nodeAddress = addr
 	}
@@ -160,6 +162,14 @@ func WithLaunchpadCLI(cliCmd string) Option {
 func WithLaunchpadCLIHome(cliHome string) Option {
 	return func(c *ChainCmd) {
 		c.cliHome = cliHome
+	}
+}
+
+// WithLegacySendCommand will make the command use the legacy tx send syntax from launchpad
+// on stargate chains. e.g.: CosmWasm
+func WithLegacySendCommand() Option {
+	return func(c *ChainCmd) {
+		c.legacySend = true
 	}
 }
 
@@ -417,7 +427,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		commandTx,
 	}
 
-	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
+	if c.sdkVersion.Major().Is(cosmosver.Stargate) && !c.legacySend {
 		command = append(command,
 			"bank",
 		)
@@ -433,6 +443,11 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 
 	command = c.attachChainID(command)
 	command = c.attachKeyringBackend(command)
+	command = c.attachNode(command)
+
+	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+		command = append(command, optionOutput, constJSON)
+	}
 
 	return c.cliCommand(command)
 }
@@ -454,6 +469,7 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 		)
 	}
 
+	command = c.attachNode(command)
 	return c.cliCommand(command)
 }
 
@@ -481,7 +497,18 @@ func (c ChainCmd) StatusCommand() step.Option {
 		commandStatus,
 	}
 
+	command = c.attachNode(command)
 	return c.cliCommand(command)
+}
+
+// KeyringBackend returns the underlying keyring backend.
+func (c ChainCmd) KeyringBackend() KeyringBackend {
+	return c.keyringBackend
+}
+
+// KeyringPassword returns the underlying keyring password.
+func (c ChainCmd) KeyringPassword() string {
+	return c.keyringPassword
 }
 
 // attachChainID appends the chain ID flag to the provided command
@@ -504,6 +531,14 @@ func (c ChainCmd) attachKeyringBackend(command []string) []string {
 func (c ChainCmd) attachHome(command []string) []string {
 	if c.homeDir != "" {
 		command = append(command, []string{optionHome, c.homeDir}...)
+	}
+	return command
+}
+
+// attachNode appends the node flag to the provided command
+func (c ChainCmd) attachNode(command []string) []string {
+	if c.nodeAddress != "" {
+		command = append(command, []string{optionNode, c.nodeAddress}...)
 	}
 	return command
 }

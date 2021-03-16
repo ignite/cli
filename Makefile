@@ -21,11 +21,8 @@ build-static:
 	@go-bindata -pkg cosmosfaucet -prefix starport/pkg/cosmosfaucet -o starport/pkg/cosmosfaucet/openapi_generated.go starport/pkg/cosmosfaucet/openapi/...
 
 build: mod pre-build
-	@go get -u github.com/gobuffalo/packr/v2/packr2
-	@cd ./starport/interface/cli/starport && packr2
 	@mkdir -p build/
 	@go build $(BUILD_FLAGS) -o build/ ./starport/interface/cli/...
-	@packr2 clean
 	@go mod tidy
 
 clean:

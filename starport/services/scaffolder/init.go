@@ -11,10 +11,11 @@ import (
 	"github.com/gobuffalo/genny"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/templates/app"
 )
 
@@ -84,14 +85,14 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return nil
 	}
 
-	if err := cosmosprotoc.InstallDependencies(context.Background(), projectPath); err != nil {
-		if err == cosmosprotoc.ErrProtocNotInstalled {
+	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
+		if err == cosmosgen.ErrProtocNotInstalled {
 			return errors.ErrStarportRequiresProtoc
 		}
 		return err
 	}
 
-	confpath, err := conf.Locate(projectPath)
+	confpath, err := conf.LocateDefault(projectPath)
 	if err != nil {
 		return err
 	}
@@ -100,13 +101,26 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 		return err
 	}
 
-	return cosmosprotoc.Generate(
-		context.Background(),
-		projectPath,
-		gomodPath,
-		filepath.Join(projectPath, conf.Build.Proto.Path),
-		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, projectPath),
-	)
+	options := []cosmosgen.Option{
+		cosmosgen.WithGoGeneration(gomodPath),
+		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+	}
+
+	// generate Vuex code as well if it is enabled.
+	if conf.Client.Vuex.Path != "" {
+		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+		options = append(options,
+			cosmosgen.WithVuexGeneration(
+				false,
+				func(m module.Module) string {
+					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+				},
+				storeRootPath,
+			),
+		)
+	}
+
+	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
 }
 
 func initGit(path string) error {

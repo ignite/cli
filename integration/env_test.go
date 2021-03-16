@@ -21,6 +21,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
@@ -182,7 +183,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok bool) {
+func (e env) Serve(msg, path, home, clihome, configPath string, options ...execOption) (ok bool) {
 	serveCommand := []string{
 		"serve",
 		"-v",
@@ -193,6 +194,9 @@ func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok b
 	}
 	if clihome != "" {
 		serveCommand = append(serveCommand, "--cli-home", clihome)
+	}
+	if configPath != "" {
+		serveCommand = append(serveCommand, "--config", configPath)
 	}
 
 	return e.Exec(msg,
@@ -209,7 +213,7 @@ func (e env) Serve(msg, path, home, clihome string, options ...execOption) (ok b
 func (e env) EnsureAppIsSteady(appPath string) {
 	e.Exec("make sure app is steady",
 		step.NewSteps(step.New(
-			step.Exec("go", "test", "./..."),
+			step.Exec(gocmd.Name(), "test", "./..."),
 			step.Workdir(appPath),
 		)),
 	)
@@ -217,9 +221,9 @@ func (e env) EnsureAppIsSteady(appPath string) {
 
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
-func (e env) IsAppServed(ctx context.Context, servers starportconf.Servers) error {
+func (e env) IsAppServed(ctx context.Context, host starportconf.Host) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(servers.APIAddr)+"/node_info")
+		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
 		if err == nil && !ok {
 			err = errors.New("app is not online")
 		}
@@ -238,7 +242,11 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string) starportconf.Servers {
+func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Host {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// generate random server ports and servers list.
 	ports, err := availableport.Find(7)
 	require.NoError(e.t, err)
@@ -247,25 +255,25 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 		return fmt.Sprintf("localhost:%d", port)
 	}
 
-	servers := starportconf.Servers{
-		RPCAddr:      genAddr(ports[0]),
-		P2PAddr:      genAddr(ports[1]),
-		ProfAddr:     genAddr(ports[2]),
-		GRPCAddr:     genAddr(ports[3]),
-		APIAddr:      genAddr(ports[4]),
-		FrontendAddr: genAddr(ports[5]),
-		DevUIAddr:    genAddr(ports[6]),
+	servers := starportconf.Host{
+		RPC:      genAddr(ports[0]),
+		P2P:      genAddr(ports[1]),
+		Prof:     genAddr(ports[2]),
+		GRPC:     genAddr(ports[3]),
+		API:      genAddr(ports[4]),
+		Frontend: genAddr(ports[5]),
+		DevUI:    genAddr(ports[6]),
 	}
 
 	// update config.yml with the generated servers list.
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
 	var conf starportconf.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	conf.Servers = servers
+	conf.Host = servers
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
@@ -275,9 +283,13 @@ func (e env) RandomizeServerPorts(path string) starportconf.Servers {
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
-func (e env) SetRandomHomeConfig(path string) {
+func (e env) SetRandomHomeConfig(path string, configFile string) {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
 	// update config.yml with the generated temporary directories
-	configyml, err := os.OpenFile(filepath.Join(path, "config.yml"), os.O_RDWR|os.O_CREATE, 0755)
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
 	require.NoError(e.t, err)
 	defer configyml.Close()
 

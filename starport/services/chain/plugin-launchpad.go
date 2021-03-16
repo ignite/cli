@@ -2,11 +2,13 @@ package chain
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"path/filepath"
 
 	starportconf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"golang.org/x/sync/errgroup"
 
 	"github.com/pelletier/go-toml"
@@ -42,18 +44,19 @@ func (p *launchpadPlugin) Setup(ctx context.Context) error {
 		Run(ctx,
 			step.New(
 				step.Exec(
-					"go",
+					gocmd.Name(),
 					"mod",
 					"edit",
-					"-require=github.com/cosmos/cosmos-sdk@v0.39.1",
+					"-require=github.com/cosmos/cosmos-sdk@v0.39.2",
 				),
 			),
 		)
 }
 
 func (p *launchpadPlugin) Configure(ctx context.Context, runner chaincmdrunner.Runner, chainID string) error {
+	fmt.Println(1, runner.Cmd().KeyringBackend())
 	return runner.LaunchpadSetConfigs(ctx,
-		chaincmdrunner.NewKV("keyring-backend", "test"),
+		chaincmdrunner.NewKV("keyring-backend", string(runner.Cmd().KeyringBackend())),
 		chaincmdrunner.NewKV("chain-id", chainID),
 		chaincmdrunner.NewKV("output", "json"),
 		chaincmdrunner.NewKV("indent", "true"),
@@ -87,9 +90,9 @@ func (p *launchpadPlugin) configtoml(homePath string, conf starportconf.Config) 
 		return err
 	}
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
-	config.Set("rpc.laddr", xurl.TCP(conf.Servers.RPCAddr))
-	config.Set("p2p.laddr", xurl.TCP(conf.Servers.P2PAddr))
-	config.Set("rpc.pprof_laddr", conf.Servers.ProfAddr)
+	config.Set("rpc.laddr", xurl.TCP(conf.Host.RPC))
+	config.Set("p2p.laddr", xurl.TCP(conf.Host.P2P))
+	config.Set("rpc.pprof_laddr", conf.Host.Prof)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -108,18 +111,11 @@ func (p *launchpadPlugin) Start(ctx context.Context, runner chaincmdrunner.Runne
 	})
 
 	g.Go(func() error {
-		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Servers.APIAddr), xurl.TCP(conf.Servers.RPCAddr))
+		err := runner.LaunchpadStartRestServer(ctx, xurl.TCP(conf.Host.API), xurl.TCP(conf.Host.RPC))
 		return errors.Wrapf(err, "cannot run %[1]vcli rest-server", p.app.Name)
 	})
 
 	return g.Wait()
-}
-
-func (p *launchpadPlugin) StoragePaths() []string {
-	return []string{
-		launchpadHome(p.app),
-		launchpadCLIHome(p.app),
-	}
 }
 
 func (p *launchpadPlugin) Home() string {

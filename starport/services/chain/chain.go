@@ -11,11 +11,12 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
+
 	conf "github.com/tendermint/starport/starport/chainconf"
-	secretconf "github.com/tendermint/starport/starport/chainconf/secret"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
 var (
@@ -26,10 +27,6 @@ var (
 		"proto",
 		"third_party",
 	}
-
-	appBackendConfigWatchPaths = append([]string{
-		secretconf.SecretFile,
-	}, conf.FileNames...)
 
 	vuePath = "vue"
 
@@ -65,6 +62,10 @@ type Chain struct {
 	serveCancel    context.CancelFunc
 	serveRefresher chan struct{}
 	served         bool
+
+	// protoBuiltAtLeastOnce indicates that app's proto generation at least made once.
+	protoBuiltAtLeastOnce bool
+
 	stdout, stderr io.Writer
 }
 
@@ -81,6 +82,13 @@ type chainOptions struct {
 
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
+
+	// isThirdPartyModuleCodegen indicates if proto code generation should be made
+	// for 3rd party modules. SDK modules are also considered as a 3rd party.
+	isThirdPartyModuleCodegenEnabled bool
+
+	// path of a custom config file
+	ConfigFile string
 }
 
 // Option configures Chain.
@@ -114,10 +122,25 @@ func CLIHomePath(path string) Option {
 	}
 }
 
-// KeyringBackend specify the keyring backend to use for the chain command
+// KeyringBackend specifies the keyring backend to use for the chain command
 func KeyringBackend(keyringBackend chaincmd.KeyringBackend) Option {
 	return func(c *Chain) {
 		c.options.keyringBackend = keyringBackend
+	}
+}
+
+// ConfigFile specifies a custom config file to use
+func ConfigFile(configFile string) Option {
+	return func(c *Chain) {
+		c.options.ConfigFile = configFile
+	}
+}
+
+// EnableThirdPartyModuleCodegen enables code generation for third party modules,
+// including the SDK.
+func EnableThirdPartyModuleCodegen() Option {
+	return func(c *Chain) {
+		c.options.isThirdPartyModuleCodegenEnabled = true
 	}
 }
 
@@ -194,11 +217,12 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		if err != nil {
 			return "", err
 		}
-		rpcAddress = conf.Servers.RPCAddr
+		rpcAddress = conf.Host.RPC
 	}
 	return rpcAddress, nil
 }
 
+// StoragePaths returns the home and the cli home (for Launchpad blockchain)
 func (c *Chain) StoragePaths() (paths []string, err error) {
 	home, err := c.Home()
 	if err != nil {
@@ -217,12 +241,26 @@ func (c *Chain) StoragePaths() (paths []string, err error) {
 	return paths, nil
 }
 
-func (c *Chain) Config() (conf.Config, error) {
-	path, err := conf.Locate(c.app.Path)
+// ConfigPath returns the config path of the chain
+// Empty string means that the chain has no defined config
+func (c *Chain) ConfigPath() string {
+	if c.options.ConfigFile != "" {
+		return c.options.ConfigFile
+	}
+	path, err := conf.LocateDefault(c.app.Path)
 	if err != nil {
+		return ""
+	}
+	return path
+}
+
+// Config returns the config of the chain
+func (c *Chain) Config() (conf.Config, error) {
+	configPath := c.ConfigPath()
+	if configPath == "" {
 		return conf.DefaultConf, nil
 	}
-	return conf.ParseFile(path)
+	return conf.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -320,6 +358,11 @@ func (c *Chain) DefaultHome() (string, error) {
 // CLIHome returns the blockchain node's home dir.
 // This directory is the same as home for Stargate, it is a separate directory for Launchpad
 func (c *Chain) CLIHome() (string, error) {
+	// Return home dir for Stargate app
+	if c.SDKVersion().Is(cosmosver.Stargate) {
+		return c.Home()
+	}
+
 	// check if cli home is explicitly defined for the app
 	home := c.options.cliHomePath
 	if home == "" {
@@ -396,6 +439,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
+		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
 	}
 
 	if c.plugin.Version() == cosmosver.Launchpad {

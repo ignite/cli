@@ -96,17 +96,13 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		return err
 	}
 
-	// make sure that config.yml exists.
-	if _, err := conf.Locate(c.app.Path); err != nil {
-		return err
-	}
-
-	// initialize the relayer if application supports it so, secret.yml
-	// can be generated and watched for changes.
-	if err := c.checkIBCRelayerSupport(); err == nil {
-		if _, err := c.RelayerInfo(); err != nil {
+	// make sure that config.yml exists
+	if c.options.ConfigFile != "" {
+		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
+	} else if _, err := conf.LocateDefault(c.app.Path); err != nil {
+		return err
 	}
 
 	// start serving components.
@@ -253,9 +249,14 @@ func (c *Chain) refreshServe() {
 }
 
 func (c *Chain) watchAppBackend(ctx context.Context) error {
+	watchPaths := appBackendSourceWatchPaths
+	if c.ConfigPath() != "" {
+		watchPaths = append(watchPaths, c.ConfigPath())
+	}
+
 	return fswatcher.Watch(
 		ctx,
-		append(appBackendSourceWatchPaths, appBackendConfigWatchPaths...),
+		watchPaths,
 		fswatcher.Workdir(c.app.Path),
 		fswatcher.OnChange(c.refreshServe),
 		fswatcher.IgnoreHidden(),
@@ -298,9 +299,12 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 		return err
 	}
 	if isInit {
-		configModified, err := dirchange.HasDirChecksumChanged(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum)
-		if err != nil {
-			return err
+		configModified := false
+		if c.ConfigPath() != "" {
+			configModified, err = dirchange.HasDirChecksumChanged(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum)
+			if err != nil {
+				return err
+			}
 		}
 
 		if forceReset || configModified {
@@ -400,8 +404,10 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	}
 
 	// save checksums
-	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendConfigWatchPaths, saveDir, configChecksum); err != nil {
-		return err
+	if c.ConfigPath() != "" {
+		if err := dirchange.SaveDirChecksum(c.app.Path, []string{c.ConfigPath()}, saveDir, configChecksum); err != nil {
+			return err
+		}
 	}
 	if err := dirchange.SaveDirChecksum(c.app.Path, appBackendSourceWatchPaths, saveDir, sourceChecksum); err != nil {
 		return err
@@ -418,7 +424,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, conf conf.Config) error {
+func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -427,14 +433,7 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	g, ctx := errgroup.WithContext(ctx)
 
 	// start the blockchain.
-	g.Go(func() error { return c.plugin.Start(ctx, commands, conf) })
-
-	// run relayer.
-	go func() {
-		if err := c.initRelayer(ctx, conf); err != nil && ctx.Err() == nil {
-			fmt.Fprintf(c.stdLog(logStarport).err, "could not init relayer: %s", err)
-		}
-	}()
+	g.Go(func() error { return c.plugin.Start(ctx, commands, config) })
 
 	// start the faucet if enabled.
 	faucet, err := c.Faucet(ctx)
@@ -460,14 +459,14 @@ func (c *Chain) start(ctx context.Context, conf conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(conf.Servers.RPCAddr))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(conf.Servers.APIAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://0.0.0.0:%d\n", conf.Faucet.Port)
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", conf.FaucetHost(config))
 	}
 
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(conf.Servers.DevUIAddr))
+	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
 }
@@ -490,7 +489,7 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 		}
 		return nil // ignore errors.
 	}
-	host, port, err := net.SplitHostPort(conf.Servers.FrontendAddr)
+	host, port, err := net.SplitHostPort(conf.Host.Frontend)
 	if err != nil {
 		return err
 	}
@@ -509,9 +508,9 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 				step.Env(
 					fmt.Sprintf("HOST=%s", host),
 					fmt.Sprintf("PORT=%s", port),
-					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Servers.APIAddr)),
-					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Servers.RPCAddr)),
-					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Servers.RPCAddr)),
+					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Host.API)),
+					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Host.RPC)),
+					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Host.RPC)),
 				),
 				step.PostExec(postExec),
 			),
@@ -524,7 +523,7 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		return err
 	}
 
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Servers.GRPCAddr)
+	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Host.GRPC)
 	if err != nil {
 		return err
 	}
@@ -532,9 +531,9 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 
 	conf := Config{
 		SdkVersion:      c.plugin.Name(),
-		EngineAddr:      xurl.HTTP(config.Servers.RPCAddr),
-		AppBackendAddr:  xurl.HTTP(config.Servers.APIAddr),
-		AppFrontendAddr: xurl.HTTP(config.Servers.FrontendAddr),
+		EngineAddr:      xurl.HTTP(config.Host.RPC),
+		AppBackendAddr:  xurl.HTTP(config.Host.API),
+		AppFrontendAddr: xurl.HTTP(config.Host.Frontend),
 	} // TODO get vals from const
 	handler, err := newDevHandler(c.app, conf, grpcHandler)
 	if err != nil {
@@ -542,19 +541,19 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.Servers.DevUIAddr,
+		Addr:    config.Host.DevUI,
 		Handler: handler,
 	})
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
-	conf, err := c.Config()
+	config, err := c.Config()
 	if err != nil {
 		return err
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    fmt.Sprintf("0.0.0.0:%d", conf.Faucet.Port),
+		Addr:    conf.FaucetHost(config),
 		Handler: faucet,
 	})
 }

@@ -14,13 +14,9 @@ import (
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
-	t.Parallel()
-
 	for _, sdkVersion := range []string{Launchpad, Stargate} {
 		sdkVersion := sdkVersion
 		t.Run(sdkVersion, func(t *testing.T) {
-			t.Parallel()
-
 			testOverwriteSDKConfigsAndChainID(t, sdkVersion)
 		})
 	}
@@ -31,7 +27,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 		env               = newEnv(t)
 		appname           = randstr.Runes(10)
 		path              = env.Scaffold(appname, sdkVersion)
-		servers           = env.RandomizeServerPorts(path)
+		servers           = env.RandomizeServerPorts(path, "")
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error
 	)
@@ -51,7 +47,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", "", ExecCtx(ctx)))
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	configs := []struct {

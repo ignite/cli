@@ -1,0 +1,36 @@
+package keeper
+
+import (
+	"context"
+
+    "<%= modulePath %>/x/<%= moduleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
+)
+
+
+func (k msgServer) Send<%= title(packetName) %>(goCtx context.Context,  msg *types.MsgSend<%= title(packetName) %>) (*types.MsgSend<%= title(packetName) %>Response, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    // TODO: logic before transmitting the packet
+
+    // Construct the packet
+    var packet types.<%= title(packetName) %>PacketData
+    <%= for (field) in fields { %>
+    packet.<%= title(field.Name) %> = msg.<%= title(field.Name) %><% } %>
+
+    // Transmit the packet
+    err := k.Transmit<%= title(packetName) %>Packet(
+        ctx,
+        packet,
+        msg.Port,
+        msg.ChannelID,
+        clienttypes.ZeroHeight(),
+        msg.TimeoutTimestamp,
+    )
+    if err != nil {
+        return nil, err
+    }
+
+	return &types.MsgSend<%= title(packetName) %>Response{}, nil
+}

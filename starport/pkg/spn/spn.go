@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"net/http"
 	"os"
@@ -15,6 +14,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
+	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
@@ -112,39 +113,19 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 		}
 	}
 
-	// request amounts from faucet.
-	body, err := json.Marshal(struct {
-		Address string `json:"address"`
-	}{address})
+	// request coins from the faucet.
+	fc := cosmosfaucet.NewClient(c.faucetAddress)
+	faucetResp, err := fc.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
 	if err != nil {
-		return err
+		return errors.Wrap(err, "faucet server request failed")
 	}
-
-	req, err = http.NewRequestWithContext(ctx, http.MethodPost, c.faucetAddress, bytes.NewReader(body))
-	if err != nil {
-		return err
+	if faucetResp.Error != "" {
+		return fmt.Errorf("cannot retrieve tokens from faucet: %s", faucetResp.Error)
 	}
-	req.Header.Set("Content-Type", "application/json")
-
-	resp, err = http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-	if resp.StatusCode != http.StatusOK {
-		return fmt.Errorf("faucet server request failed: %v", resp.Status)
-	}
-
-	var result struct {
-		Status string `json:"status"`
-		Error  string `json:"error"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		return err
-	}
-
-	if result.Status != "ok" {
-		return fmt.Errorf("cannot retrieve tokens from faucet: %s", result.Error)
+	for _, transfer := range faucetResp.Transfers {
+		if transfer.Error != "" {
+			return fmt.Errorf("cannot retrieve tokens from faucet: %s", transfer.Error)
+		}
 	}
 
 	return nil

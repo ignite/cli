@@ -68,6 +68,9 @@ func Ask(question ...Question) error {
 			input := &survey.Input{
 				Message: q.question,
 			}
+			if !q.required {
+				input.Message += " (optional)"
+			}
 			if q.defaultAnswer != nil {
 				input.Default = fmt.Sprintf("%v", q.defaultAnswer)
 			}

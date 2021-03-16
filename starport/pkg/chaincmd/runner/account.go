@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -46,11 +47,19 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 
 	// import the account when mnemonic is provided, otherwise create a new one.
 	if mnemonic != "" {
+		input := &bytes.Buffer{}
+		fmt.Fprintln(input, mnemonic)
+
+		if r.cc.KeyringPassword() != "" {
+			fmt.Fprintln(input, r.cc.KeyringPassword())
+			fmt.Fprintln(input, r.cc.KeyringPassword())
+		}
+
 		if err := r.run(
 			ctx,
 			runOptions{},
 			r.cc.ImportKeyCommand(name),
-			step.Write([]byte(mnemonic+"\n")),
+			step.Write(input.Bytes()),
 		); err != nil {
 			return Account{}, err
 		}
@@ -67,7 +76,17 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	}
 
 	// get full details of the account.
-	if err := r.run(ctx, runOptions{stdout: b}, r.cc.ShowKeyAddressCommand(name)); err != nil {
+	opt := []step.Option{
+		r.cc.ShowKeyAddressCommand(name),
+	}
+
+	if r.cc.KeyringPassword() != "" {
+		input := &bytes.Buffer{}
+		fmt.Fprintln(input, r.cc.KeyringPassword())
+		opt = append(opt, step.Write(input.Bytes()))
+	}
+
+	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
 		return Account{}, err
 	}
 	account.Address = strings.TrimSpace(b.String())
@@ -86,7 +105,17 @@ type Account struct {
 func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 	b := &bytes.Buffer{}
 
-	if err := r.run(ctx, runOptions{stdout: b}, r.cc.ShowKeyAddressCommand(name)); err != nil {
+	opt := []step.Option{
+		r.cc.ShowKeyAddressCommand(name),
+	}
+
+	if r.cc.KeyringPassword() != "" {
+		input := &bytes.Buffer{}
+		fmt.Fprintln(input, r.cc.KeyringPassword())
+		opt = append(opt, step.Write(input.Bytes()))
+	}
+
+	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
 		if strings.Contains(err.Error(), "item could not be found") ||
 			strings.Contains(err.Error(), "not a valid name or address") {
 			return Account{}, ErrAccountDoesNotExist

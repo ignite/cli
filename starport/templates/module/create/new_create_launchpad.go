@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // New ...
@@ -18,7 +17,7 @@ func NewCreateLaunchpad(opts *CreateOptions) (*genny.Generator, error) {
 
 	g.RunFn(appModifyLaunchpad(opts))
 
-	if err := g.Box(templates[cosmosver.Launchpad]); err != nil {
+	if err := g.Box(launchpadTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
