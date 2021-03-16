@@ -12,6 +12,7 @@ require (
 	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
+	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.7
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
@@ -22,12 +23,14 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
-	github.com/gookit/color v1.3.6
+	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
+	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.11
 	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/jpillora/chisel v1.7.3
+	github.com/kr/pretty v0.1.0
 	github.com/magefile/mage v1.11.0 // indirect
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
