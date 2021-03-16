@@ -415,7 +415,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title cosmos/evidence/v1beta1/query.proto
+ * @title cosmos/evidence/v1beta1/tx.proto
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {

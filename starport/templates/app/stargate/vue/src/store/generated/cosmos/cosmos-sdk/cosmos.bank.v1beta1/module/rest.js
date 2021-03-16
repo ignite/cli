@@ -130,7 +130,7 @@ export class HttpClient {
     }
 }
 /**
- * @title cosmos/bank/v1beta1/query.proto
+ * @title cosmos/bank/v1beta1/bank.proto
  * @version version not set
  */
 export class Api extends HttpClient {

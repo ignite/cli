@@ -130,7 +130,7 @@ export class HttpClient {
     }
 }
 /**
- * @title cosmos/slashing/v1beta1/query.proto
+ * @title cosmos/slashing/v1beta1/slashing.proto
  * @version version not set
  */
 export class Api extends HttpClient {

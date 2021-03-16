@@ -2,7 +2,6 @@ import { txClient, queryClient } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
-import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis"
 import { Params } from "./module/types/cosmos/bank/v1beta1/bank"
 import { SendEnabled } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Input } from "./module/types/cosmos/bank/v1beta1/bank"
@@ -10,6 +9,7 @@ import { Output } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Supply } from "./module/types/cosmos/bank/v1beta1/bank"
 import { DenomUnit } from "./module/types/cosmos/bank/v1beta1/bank"
 import { Metadata } from "./module/types/cosmos/bank/v1beta1/bank"
+import { Balance } from "./module/types/cosmos/bank/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -46,7 +46,6 @@ const getDefaultState = () => {
         DenomsMetadata: {},
         
         _Structure: {
-            Balance: getStructure(Balance.fromPartial({})),
             Params: getStructure(Params.fromPartial({})),
             SendEnabled: getStructure(SendEnabled.fromPartial({})),
             Input: getStructure(Input.fromPartial({})),
@@ -54,6 +53,7 @@ const getDefaultState = () => {
             Supply: getStructure(Supply.fromPartial({})),
             DenomUnit: getStructure(DenomUnit.fromPartial({})),
             Metadata: getStructure(Metadata.fromPartial({})),
+            Balance: getStructure(Balance.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -262,20 +262,6 @@ export default {
 			}
 		},
 		
-		async sendMsgSend({ rootGetters }, { value, fee, memo }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgSend(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
 		async sendMsgMultiSend({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgMultiSend(value)
@@ -290,19 +276,21 @@ export default {
 				}
 			}
 		},
-		
-		async MsgSend({ rootGetters }, { value }) {
+		async sendMsgSend({ rootGetters }, { value, fee, memo }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgSend(value)
-				return msg
+				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgSend:Create', 'Could not create message.')
+					throw new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx.')
 				}
 			}
 		},
+		
 		async MsgMultiSend({ rootGetters }, { value }) {
 			try {
 				const msg = await (await initTxClient(rootGetters)).msgMultiSend(value)
@@ -312,6 +300,18 @@ export default {
 					throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgMultiSend:Create', 'Could not create message.')
+				}
+			}
+		},
+		async MsgSend({ rootGetters }, { value }) {
+			try {
+				const msg = await (await initTxClient(rootGetters)).msgSend(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgSend:Create', 'Could not create message.')
 				}
 			}
 		},

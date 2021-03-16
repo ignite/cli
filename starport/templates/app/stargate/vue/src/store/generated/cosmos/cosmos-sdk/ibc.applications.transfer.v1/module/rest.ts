@@ -479,7 +479,7 @@ export class HttpClient<SecurityDataType = unknown> {
 }
 
 /**
- * @title ibc/applications/transfer/v1/query.proto
+ * @title ibc/applications/transfer/v1/tx.proto
  * @version version not set
  */
 export class Api<SecurityDataType extends unknown> extends HttpClient<SecurityDataType> {

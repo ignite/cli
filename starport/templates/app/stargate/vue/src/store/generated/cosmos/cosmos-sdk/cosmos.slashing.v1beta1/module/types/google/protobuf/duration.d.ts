@@ -22,7 +22,7 @@ export declare const protobufPackage = "google.protobuf";
  *     if (duration.seconds < 0 && duration.nanos > 0) {
  *       duration.seconds += 1;
  *       duration.nanos -= 1000000000;
- *     } else if (duration.seconds > 0 && duration.nanos < 0) {
+ *     } else if (durations.seconds > 0 && duration.nanos < 0) {
  *       duration.seconds -= 1;
  *       duration.nanos += 1000000000;
  *     }

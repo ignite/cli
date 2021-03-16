@@ -1,13 +1,6 @@
 import { txClient, queryClient } from './module';
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex';
-import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
-import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
 import { Params } from "./module/types/cosmos/distribution/v1beta1/distribution";
 import { ValidatorHistoricalRewards } from "./module/types/cosmos/distribution/v1beta1/distribution";
 import { ValidatorCurrentRewards } from "./module/types/cosmos/distribution/v1beta1/distribution";
@@ -20,6 +13,13 @@ import { CommunityPoolSpendProposal } from "./module/types/cosmos/distribution/v
 import { DelegatorStartingInfo } from "./module/types/cosmos/distribution/v1beta1/distribution";
 import { DelegationDelegatorReward } from "./module/types/cosmos/distribution/v1beta1/distribution";
 import { CommunityPoolSpendProposalWithDeposit } from "./module/types/cosmos/distribution/v1beta1/distribution";
+import { DelegatorWithdrawInfo } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { ValidatorOutstandingRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { ValidatorAccumulatedCommissionRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { ValidatorHistoricalRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { ValidatorCurrentRewardsRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { DelegatorStartingInfoRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
+import { ValidatorSlashEventRecord } from "./module/types/cosmos/distribution/v1beta1/genesis";
 async function initTxClient(vuexGetters) {
     return await txClient(vuexGetters['common/wallet/signer'], {
         addr: vuexGetters['common/env/apiTendermint']
@@ -52,13 +52,6 @@ const getDefaultState = () => {
         DelegatorWithdrawAddress: {},
         CommunityPool: {},
         _Structure: {
-            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
-            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
-            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
-            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
-            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
-            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
-            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
             Params: getStructure(Params.fromPartial({})),
             ValidatorHistoricalRewards: getStructure(ValidatorHistoricalRewards.fromPartial({})),
             ValidatorCurrentRewards: getStructure(ValidatorCurrentRewards.fromPartial({})),
@@ -71,6 +64,13 @@ const getDefaultState = () => {
             DelegatorStartingInfo: getStructure(DelegatorStartingInfo.fromPartial({})),
             DelegationDelegatorReward: getStructure(DelegationDelegatorReward.fromPartial({})),
             CommunityPoolSpendProposalWithDeposit: getStructure(CommunityPoolSpendProposalWithDeposit.fromPartial({})),
+            DelegatorWithdrawInfo: getStructure(DelegatorWithdrawInfo.fromPartial({})),
+            ValidatorOutstandingRewardsRecord: getStructure(ValidatorOutstandingRewardsRecord.fromPartial({})),
+            ValidatorAccumulatedCommissionRecord: getStructure(ValidatorAccumulatedCommissionRecord.fromPartial({})),
+            ValidatorHistoricalRewardsRecord: getStructure(ValidatorHistoricalRewardsRecord.fromPartial({})),
+            ValidatorCurrentRewardsRecord: getStructure(ValidatorCurrentRewardsRecord.fromPartial({})),
+            DelegatorStartingInfoRecord: getStructure(DelegatorStartingInfoRecord.fromPartial({})),
+            ValidatorSlashEventRecord: getStructure(ValidatorSlashEventRecord.fromPartial({})),
         },
         _Subscriptions: new Set(),
     };
@@ -301,6 +301,22 @@ export default {
                 return {};
             }
         },
+        async sendMsgFundCommunityPool({ rootGetters }, { value, fee, memo }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value);
+                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
         async sendMsgWithdrawValidatorCommission({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgWithdrawValidatorCommission(value);
@@ -333,22 +349,6 @@ export default {
                 }
             }
         },
-        async sendMsgFundCommunityPool({ rootGetters }, { value, fee, memo }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value);
-                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
         async sendMsgSetWithdrawAddress({ rootGetters }, { value, fee, memo }) {
             try {
                 const msg = await (await initTxClient(rootGetters)).msgSetWithdrawAddress(value);
@@ -362,6 +362,20 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgSetWithdrawAddress:Send', 'Could not broadcast Tx.');
+                }
+            }
+        },
+        async MsgFundCommunityPool({ rootGetters }, { value }) {
+            try {
+                const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value);
+                return msg;
+            }
+            catch (e) {
+                if (e.toString() == 'wallet is required') {
+                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Create', 'Could not create message.');
                 }
             }
         },
@@ -390,20 +404,6 @@ export default {
                 }
                 else {
                     throw new SpVuexError('TxClient:MsgWithdrawDelegatorReward:Create', 'Could not create message.');
-                }
-            }
-        },
-        async MsgFundCommunityPool({ rootGetters }, { value }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgFundCommunityPool(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgFundCommunityPool:Create', 'Could not create message.');
                 }
             }
         },

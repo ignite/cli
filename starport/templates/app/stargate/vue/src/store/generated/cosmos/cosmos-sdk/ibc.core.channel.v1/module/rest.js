@@ -162,7 +162,7 @@ export class HttpClient {
     }
 }
 /**
- * @title ibc/core/channel/v1/channel.proto
+ * @title ibc/core/channel/v1/tx.proto
  * @version version not set
  */
 export class Api extends HttpClient {
