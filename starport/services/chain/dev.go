@@ -63,7 +63,7 @@ type Config struct {
 }
 
 // newDevHandler creates a new development server handler for app by given conf.
-func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
+func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) http.Handler {
 	dev := &development{
 		app:  app,
 		conf: conf,
@@ -76,7 +76,7 @@ func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Hand
 	router.PathPrefix("/grpc").Handler(http.StripPrefix("/grpc", grpcwebHandler))
 	router.PathPrefix("/").Handler(cors(dev.devAssetsHandler())).Methods(http.MethodGet)
 
-	return router, nil
+	return router
 }
 
 func (d *development) devAssetsHandler() http.Handler {
