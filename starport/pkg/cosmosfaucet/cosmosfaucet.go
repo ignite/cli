@@ -24,9 +24,13 @@ const (
 	DefaultMaxAmount = 100000000
 )
 
+// Faucet represents a faucet.
 type Faucet struct {
 	// runner used to intereact with blockchain's binary to transfer tokens.
 	runner chaincmdrunner.Runner
+
+	// chainID is the chain id of the chain that faucet is operating for.
+	chainID string
 
 	// accountName to transfer tokens from.
 	accountName string
@@ -82,10 +86,16 @@ func Coin(amount, maxAmount uint64, denom string) Option {
 	}
 }
 
-// OpenAPI configures how to serve Open API page and and spec.
-func OpenAPI(chainID, apiAddress string) Option {
+// ChainID adds chain id to faucet. faucet will automatically fetch when it isn't provided.
+func ChainID(id string) Option {
 	return func(f *Faucet) {
-		f.openAPIData.ChainID = chainID
+		f.chainID = id
+	}
+}
+
+// OpenAPI configures how to serve Open API page and and spec.
+func OpenAPI(apiAddress string) Option {
+	return func(f *Faucet) {
 		f.openAPIData.APIAddress = apiAddress
 	}
 }
@@ -113,6 +123,16 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
 			return Faucet{}, err
 		}
+	}
+
+	if f.chainID == "" {
+		status, err := f.runner.Status(ctx)
+		if err != nil {
+			return Faucet{}, err
+		}
+
+		f.chainID = status.ChainID
+		f.openAPIData.ChainID = status.ChainID
 	}
 
 	return f, nil

@@ -68,7 +68,7 @@ type Config struct {
 
 // newDevHandler creates a new development server handler for app by given conf.
 func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
-	uifs, err := fs.New()
+	uifs, err := fs.NewWithNamespace("starport:dev-ui")
 	if err != nil {
 		return nil, err
 	}

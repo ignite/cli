@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -9,6 +10,8 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/typed/indexed"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -22,8 +25,13 @@ const (
 	TypeInt32  = "int32"
 )
 
+type AddTypeOption struct {
+	Legacy  bool
+	Indexed bool
+}
+
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -38,7 +46,7 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := ModuleExists(s.path, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -46,58 +54,24 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
-	// Ensure the type name is not a Go reserved name, it would generate an incorrect code
-	if isGoReservedWord(stype) {
-		return fmt.Errorf("%s can't be used as a type name", stype)
+	// Ensure the type name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(typeName) {
+		return fmt.Errorf("%s can't be used as a type name", typeName)
 	}
 
-	ok, err = isTypeCreated(s.path, moduleName, stype)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, typeName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s type is already added", stype)
+		return fmt.Errorf("%s component is already added", typeName)
 	}
 
-	// Used to check duplicated field
-	existingFields := make(map[string]bool)
-
-	var tfields []typed.Field
-	for _, f := range fields {
-		fs := strings.Split(f, ":")
-		name := fs[0]
-
-		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if isGoReservedWord(name) {
-			return fmt.Errorf("%s can't be used as a field name", name)
-		}
-
-		// Ensure the field is not duplicated
-		if _, exists := existingFields[name]; exists {
-			return fmt.Errorf("the field %s is duplicated", name)
-		}
-		existingFields[name] = true
-
-		datatypeName, datatype := TypeString, TypeString
-		acceptedTypes := map[string]string{
-			"string": TypeString,
-			"bool":   TypeBool,
-			"int":    TypeInt32,
-		}
-		isTypeSpecified := len(fs) == 2
-		if isTypeSpecified {
-			if t, ok := acceptedTypes[fs[1]]; ok {
-				datatype = t
-				datatypeName = fs[1]
-			} else {
-				return fmt.Errorf("the field type %s doesn't exist", fs[1])
-			}
-		}
-		tfields = append(tfields, typed.Field{
-			Name:         name,
-			Datatype:     datatype,
-			DatatypeName: datatypeName,
-		})
+	// Parse provided field
+	tFields, err := parseFields(fields, isForbiddenTypeField)
+	if err != nil {
+		return err
 	}
 
 	var (
@@ -107,14 +81,36 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			TypeName:   stype,
-			Fields:     tfields,
+			TypeName:   typeName,
+			Fields:     tFields,
+			Legacy:     addTypeOptions.Legacy,
 		}
 	)
+	// generate depending on the version
 	if majorVersion == cosmosver.Launchpad {
+		if addTypeOptions.Indexed {
+			return errors.New("indexed types not supported on Launchpad")
+		}
+
 		g, err = typed.NewLaunchpad(opts)
 	} else {
-		g, err = typed.NewStargate(opts)
+		// Check if indexed type
+		if addTypeOptions.Indexed {
+			g, err = indexed.NewStargate(opts)
+		} else {
+			// Scaffolding a type with ID
+
+			// check if the msgServer convention is used
+			var msgServerDefined bool
+			msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
+			if err != nil {
+				return err
+			}
+			if !msgServerDefined {
+				opts.Legacy = true
+			}
+			g, err = typed.NewStargate(opts)
+		}
 	}
 	if err != nil {
 		return err
@@ -132,6 +128,52 @@ func (s *Scaffolder) AddType(moduleName string, stype string, fields ...string) 
 		return err
 	}
 	return fmtProject(pwd)
+}
+
+// parseFields parses the provided fields, analyses the types and checks there is no duplicated field
+func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.Field, error) {
+	// Used to check duplicated field
+	existingFields := make(map[string]bool)
+
+	var tFields []typed.Field
+	for _, f := range fields {
+		fs := strings.Split(f, ":")
+		name := fs[0]
+
+		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
+		if isForbiddenField(name) {
+			return tFields, fmt.Errorf("%s can't be used as a field name", name)
+		}
+
+		// Ensure the field is not duplicated
+		if _, exists := existingFields[name]; exists {
+			return tFields, fmt.Errorf("the field %s is duplicated", name)
+		}
+		existingFields[name] = true
+
+		datatypeName, datatype := TypeString, TypeString
+		acceptedTypes := map[string]string{
+			"string": TypeString,
+			"bool":   TypeBool,
+			"int":    TypeInt32,
+		}
+		isTypeSpecified := len(fs) == 2
+		if isTypeSpecified {
+			if t, ok := acceptedTypes[fs[1]]; ok {
+				datatype = t
+				datatypeName = fs[1]
+			} else {
+				return tFields, fmt.Errorf("the field type %s doesn't exist", fs[1])
+			}
+		}
+		tFields = append(tFields, typed.Field{
+			Name:         name,
+			Datatype:     datatype,
+			DatatypeName: datatypeName,
+		})
+	}
+
+	return tFields, nil
 }
 
 func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {
@@ -166,53 +208,15 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 	return
 }
 
-func isGoReservedWord(name string) bool {
-
-	// Check keyword or literal
-	if token.Lookup(name).IsKeyword() {
-		return true
-	}
-
-	// Check with builtin identifier
+// isForbiddenTypeField returns true if the name is forbidden as a field name
+func isForbiddenTypeField(name string) bool {
 	switch name {
 	case
-		"panic",
-		"recover",
-		"append",
-		"bool",
-		"byte",
-		"cap",
-		"close",
-		"complex",
-		"complex64",
-		"complex128",
-		"uint16",
-		"copy",
-		"false",
-		"float32",
-		"float64",
-		"imag",
-		"int",
-		"int8",
-		"int16",
-		"uint32",
-		"int32",
-		"int64",
-		"iota",
-		"len",
-		"make",
-		"new",
-		"nil",
-		"uint64",
-		"print",
-		"println",
-		"real",
-		"string",
-		"true",
-		"uint",
-		"uint8",
-		"uintptr":
+		"id",
+		"index",
+		"creator":
 		return true
 	}
-	return false
+
+	return isGoReservedWord(name)
 }

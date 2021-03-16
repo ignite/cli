@@ -7,16 +7,17 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"strings"
 
 	"github.com/pkg/errors"
 	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosprotoc"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/giturl"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
-	"github.com/tendermint/starport/starport/pkg/xos"
 )
 
 // Build builds an app.
@@ -33,19 +34,10 @@ func (c *Chain) Build(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	if err := cmdrunner.
+
+	return cmdrunner.
 		New(c.cmdOptions()...).
-		Run(ctx, steps...); err != nil {
-		return err
-	}
-
-	binaries, err := c.Binaries()
-	if err != nil {
-		return err
-	}
-
-	fmt.Fprintf(c.stdLog(logStarport).out, "🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
-	return nil
+		Run(ctx, steps...)
 }
 
 func (c *Chain) buildSteps() (steps step.Steps, err error) {
@@ -87,7 +79,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				"go",
+				gocmd.Name(),
 				"mod",
 				"tidy",
 			),
@@ -104,7 +96,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	steps.Add(step.New(step.NewOptions().
 		Add(
 			step.Exec(
-				"go",
+				gocmd.Name(),
 				"mod",
 				"verify",
 			),
@@ -130,7 +122,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 				// ldflags somehow won't work if directly execute go binary.
 				// bash stays as a workaround for now.
 				step.Exec(
-					"bash", "-c", fmt.Sprintf("go build -mod readonly -o %s -ldflags '%s'", installPath, ldflags),
+					"bash", "-c", fmt.Sprintf("%s build -mod readonly -o %s -ldflags '%s'", gocmd.Name(), installPath, ldflags),
 				),
 				step.Workdir(mainPath),
 				step.PostExec(captureBuildErr),
@@ -158,12 +150,13 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	}
 
 	// If proto dir exists, compile the proto files.
-	if _, err := os.Stat(conf.Build.Proto.Path); os.IsNotExist(err) {
+	protoPath := filepath.Join(c.app.Path, conf.Build.Proto.Path)
+	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
 		return nil
 	}
 
-	if err := cosmosprotoc.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		if err == cosmosprotoc.ErrProtocNotInstalled {
+	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
+		if err == cosmosgen.ErrProtocNotInstalled {
 			return starporterrors.ErrStarportRequiresProtoc
 		}
 		return err
@@ -171,17 +164,32 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building proto...")
 
-	err = cosmosprotoc.Generate(
-		ctx,
-		c.app.Path,
-		c.app.ImportPath,
-		filepath.Join(c.app.Path, conf.Build.Proto.Path),
-		xos.PrefixPathToList(conf.Build.Proto.ThirdPartyPaths, c.app.Path),
-	)
+	options := []cosmosgen.Option{
+		cosmosgen.WithGoGeneration(c.app.ImportPath),
+		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+	}
 
-	if err != nil {
+	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
+
+	// generate Vuex code as well if it is enabled.
+	if conf.Client.Vuex.Path != "" {
+		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
+		options = append(options,
+			cosmosgen.WithVuexGeneration(
+				enableThirdPartyModuleCodegen,
+				func(m module.Module) string {
+					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+				},
+				storeRootPath,
+			),
+		)
+	}
+
+	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
 	}
+
+	c.protoBuiltAtLeastOnce = true
 
 	return nil
 }

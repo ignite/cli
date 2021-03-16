@@ -6,3 +6,9 @@ accounts:
 validator:
   name: alice
   staked: "100000000stake"
+client:
+  vuex:
+    path: "vue/src/store"
+faucet:
+  name: bob 
+  coins: ["5token"]

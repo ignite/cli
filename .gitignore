@@ -1,7 +1,6 @@
 build/
 dist
-packrd
-*-packr.go
+nodetime-*
 node_modules
 .DS_Store
 apps/
