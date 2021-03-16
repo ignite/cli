@@ -1,5 +1,4 @@
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-
 VERSION = $(shell git describe --tags)
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='$(VERSION)' \
@@ -7,42 +6,20 @@ LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 
-all: install
-
-mod:
-	@go mod tidy
-
 pre-build:
-	@echo "Fetching latest tags"
 	@git fetch --tags
 
-build-static:
-	@go get github.com/go-bindata/go-bindata/...
-	@go-bindata -pkg cosmosfaucet -prefix starport/pkg/cosmosfaucet -o starport/pkg/cosmosfaucet/openapi_generated.go starport/pkg/cosmosfaucet/openapi/...
+install: pre-build
+	@go install $(BUILD_FLAGS) ./...
 
-build: mod pre-build
-	@mkdir -p build/
-	@go build $(BUILD_FLAGS) -o build/ ./starport/interface/cli/...
-	@go mod tidy
+format:
+	@find . -name '*.go' -type f | xargs gofmt -d -s
 
-clean:
-	@rm -rf build
+lint:
+	@golangci-lint run --out-format=tab --issues-exit-code=0
 
 ui:
 	@rm -rf starport/ui/dist
 	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
-	go get github.com/rakyll/statik
 
-install: ui build
-	@go install $(BUILD_FLAGS) ./...
-
-cli: build
-	@go install $(BUILD_FLAGS) ./...
-
-lint:
-	golangci-lint run --out-format=tab --issues-exit-code=0
-	find . -name '*.go' -type f -not -path "./vendor*" -not -path "*.git*" | xargs gofmt -d -s
-
-.PHONY: lint
-
-.PHONY: all mod pre-build build ui install
+.PHONY: install
