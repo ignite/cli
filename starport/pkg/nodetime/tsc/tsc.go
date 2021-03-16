@@ -7,7 +7,7 @@ import (
 	"sync"
 
 	"github.com/imdario/mergo"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
@@ -89,5 +89,5 @@ func Generate(ctx context.Context, config Config) error {
 	}
 
 	// execute the command.
-	return cmdrunner.Exec(ctx, command[0], command[1:]...)
+	return exec.Exec(ctx, command, exec.IncludeStdLogsToError())
 }

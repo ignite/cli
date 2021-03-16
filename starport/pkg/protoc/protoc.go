@@ -2,12 +2,10 @@
 package protoc
 
 import (
-	"bytes"
 	"context"
 	"os"
 
-	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
@@ -64,17 +62,11 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		command := append(command, out)
 		command = append(command, files...)
 
-		errb := &bytes.Buffer{}
-
-		err := cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(errb),
-				cmdrunner.DefaultWorkdir(outDir)).
-			Run(ctx,
-				step.New(step.Exec(command[0], command[1:]...)))
-
-		if err != nil {
-			return errors.Wrap(err, errb.String())
+		if err := exec.Exec(ctx, command,
+			exec.StepOption(step.Workdir(outDir)),
+			exec.IncludeStdLogsToError(),
+		); err != nil {
+			return err
 		}
 	}
 

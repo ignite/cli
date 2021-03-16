@@ -5,6 +5,7 @@ import (
 	"errors"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strings"
 	"sync"
 
@@ -30,6 +31,42 @@ type Package struct {
 
 	// Messages is a list of proto messages defined in the package.
 	Messages []Message
+
+	// Services is a list of RPC services.
+	Services []Service
+}
+
+// Service is an RPC service.
+type Service struct {
+	// Name of the services.
+	Name string
+
+	// RPCFuncs is a list of RPC funcs of the service.
+	RPCFuncs []RPCFunc
+}
+
+// RPCFunc is an RPC func.
+type RPCFunc struct {
+	// Name of the RPC func.
+	Name string
+
+	// RequestType is the request type of RPC func.
+	RequestType string
+
+	// ReturnsType is the response type of RPC func.
+	ReturnsType string
+
+	// HTTPAnnotations keeps info about http annotations of an RPC func.
+	HTTPAnnotations HTTPAnnotations
+}
+
+// HTTPAnnotations keeps info about http annotations of an RPC func.
+type HTTPAnnotations struct {
+	// URLParams is a list of parameters defined in the http endpoint annotation.
+	URLParams []string
+
+	// URLHasQuery indicates if query parameters can be passed in the gRPC Gatweway mode.
+	URLHasQuery bool
 }
 
 // MessageByName finds a message by its name inside Package.
@@ -95,9 +132,10 @@ func DiscoverPackages(path string) ([]Package, error) {
 			}
 			if !exists {
 				pkgs = append(pkgs, pkg)
-				index = len(pkgs) - 1
+			} else {
+				pkgs[index].Messages = append(pkgs[index].Messages, pkg.Messages...)
+				pkgs[index].Services = append(pkgs[index].Services, pkg.Services...)
 			}
-			pkgs[index].Messages = append(pkgs[index].Messages, pkg.Messages...)
 
 			return nil
 		})
@@ -105,6 +143,8 @@ func DiscoverPackages(path string) ([]Package, error) {
 
 	return pkgs, g.Wait()
 }
+
+var urlParamRe = regexp.MustCompile(`(?m){(\w+)}`)
 
 // Parse parses a proto file residing at path.
 func Parse(path string) (Package, error) {
@@ -123,6 +163,11 @@ func Parse(path string) (Package, error) {
 		Path: filepath.Dir(path),
 	}
 
+	var (
+		messages []*proto.Message
+		services []*proto.Service
+	)
+
 	proto.Walk(
 		def,
 		proto.WithPackage(func(p *proto.Package) { pkg.Name = p.Name }),
@@ -133,12 +178,79 @@ func Parse(path string) (Package, error) {
 			pkg.GoImportName = o.Constant.Source
 		}),
 		proto.WithMessage(func(m *proto.Message) {
-			pkg.Messages = append(pkg.Messages, Message{
-				Name: m.Name,
-				Path: path,
-			})
+			messages = append(messages, m)
+		}),
+		proto.WithService(func(s *proto.Service) {
+			services = append(services, s)
 		}),
 	)
+
+	for _, m := range messages {
+		pkg.Messages = append(pkg.Messages, Message{
+			Name: m.Name,
+			Path: path,
+		})
+	}
+
+	for _, s := range services {
+		sv := Service{
+			Name: s.Name,
+		}
+
+		for _, el := range s.Elements {
+			rpc, ok := el.(*proto.RPC)
+			if !ok {
+				continue
+			}
+
+			rpcFunc := RPCFunc{
+				Name:        rpc.Name,
+				RequestType: rpc.RequestType,
+				ReturnsType: rpc.ReturnsType,
+			}
+
+			// check for http annotations and collect info about them.
+			for _, el := range rpc.Elements {
+				option, ok := el.(*proto.Option)
+				if !ok {
+					continue
+				}
+				if !strings.Contains(option.Name, "google.api.http") {
+					continue
+				}
+
+				// fill url params.
+				match := urlParamRe.FindAllStringSubmatch(option.Constant.Source, -1)
+				for _, item := range match {
+					rpcFunc.HTTPAnnotations.URLParams = append(rpcFunc.HTTPAnnotations.URLParams, item[1])
+				}
+
+				// fill has query params.
+				for _, m := range messages {
+					if m.Name != rpc.RequestType {
+						continue
+					}
+
+					var fieldCount int
+					for _, el := range m.Elements {
+						switch el.(type) {
+						case
+							*proto.NormalField,
+							*proto.MapField,
+							*proto.OneOfField:
+							fieldCount++
+						}
+					}
+
+					rpcFunc.HTTPAnnotations.URLHasQuery = fieldCount > len(rpcFunc.HTTPAnnotations.URLParams)
+				}
+
+			}
+			sv.RPCFuncs = append(sv.RPCFuncs, rpcFunc)
+		}
+
+		pkg.Services = append(pkg.Services, sv)
+	}
 
 	return pkg, nil
 }

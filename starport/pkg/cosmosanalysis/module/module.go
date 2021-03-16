@@ -3,9 +3,6 @@ package module
 import (
 	"errors"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"path/filepath"
 	"strings"
 
@@ -44,6 +41,12 @@ type Module struct {
 
 	// Msg is a list of sdk.Msg implementation of the module.
 	Msgs []Msg
+
+	// Queries is a list of module queries.
+	Queries []Query
+
+	// Types is a list of proto types that might be used by module.
+	Types []Type
 }
 
 // Msg keeps metadata about an sdk.Msg implementation.
@@ -56,6 +59,30 @@ type Msg struct {
 
 	// FilePath is the path of the .proto file where message is defined at.
 	FilePath string
+}
+
+// Query is an sdk Query.
+type Query struct {
+	// Name of the RPC func.
+	Name string
+
+	// FullName of the query with service name and rpc func name.
+	FullName string
+
+	// HTTPAnnotations keeps info about http annotations of query.
+	HTTPAnnotations protoanalysis.HTTPAnnotations
+}
+
+// Type is a proto type that might be used by module.
+type Type struct {
+	Name string
+
+	// FilePath is the path of the .proto file where message is defined at.
+	FilePath string
+}
+
+type moduleDiscoverer struct {
+	sourcePath, basegopath string
 }
 
 // Discover discovers and returns modules and their types that implements sdk.Msg.
@@ -74,144 +101,129 @@ func Discover(sourcePath string) ([]Module, error) {
 	if err != nil {
 		return nil, err
 	}
-	basegopath := gm.Module.Mod.Path
+
+	md := &moduleDiscoverer{
+		sourcePath: sourcePath,
+		basegopath: gm.Module.Mod.Path,
+	}
 
 	// find proto packages that belong to modules under x/.
-	pkgs, err := findModuleProtoPkgs(sourcePath, basegopath)
+	pkgs, err := md.findModuleProtoPkgs()
 	if err != nil {
 		return nil, err
 	}
 
 	var modules []Module
 
-	// discover discovers and sdk module by a proto pkg.
-	discover := func(pkg protoanalysis.Package) error {
-		pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), basegopath)
-		pkgpath := filepath.Join(sourcePath, pkgrelpath)
-
-		msgs, err := DiscoverModule(pkgpath)
-		if err == ErrModuleNotFound {
-			return nil
-		}
+	for _, pkg := range pkgs {
+		m, err := md.discover(pkg)
 		if err != nil {
-			return err
-		}
-
-		var (
-			spname = strings.Split(pkg.Name, ".")
-			m      = Module{
-				Name: spname[len(spname)-1],
-				Pkg:  pkg,
-			}
-		)
-
-		for _, msg := range msgs {
-			pkgmsg, err := pkg.MessageByName(msg)
-			if err != nil { // no msg found in the proto defs corresponds to discovered sdk message.
-				return nil
-			}
-
-			m.Msgs = append(m.Msgs, Msg{
-				Name:     msg,
-				URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
-				FilePath: pkgmsg.Path,
-			})
+			return nil, err
 		}
 
 		modules = append(modules, m)
-
-		return nil
-	}
-
-	for _, pkg := range pkgs {
-		if err := discover(pkg); err != nil {
-			return nil, err
-		}
 	}
 
 	return modules, nil
 }
 
-// DiscoverModule discovers sdk messages defined in a module that resides under modulePath.
-func DiscoverModule(modulePath string) (msgs []string, err error) {
-	// parse go packages/files under modulePath.
-	fset := token.NewFileSet()
+// discover discovers and sdk module by a proto pkg.
+func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
+	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
+	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
 
-	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
+	msgs, err := DiscoverMessages(pkgpath)
+	if err == ErrModuleNotFound {
+		return Module{}, nil
+	}
 	if err != nil {
-		return nil, err
+		return Module{}, err
 	}
 
-	// collect all structs under modulePath to find out the ones that satisfy requirements.
-	structs := make(map[string]requirements)
+	namesplit := strings.Split(pkg.Name, ".")
+	m := Module{
+		Name: namesplit[len(namesplit)-1],
+		Pkg:  pkg,
+	}
 
-	for _, pkg := range pkgs {
-		for _, f := range pkg.Files {
-			ast.Inspect(f, func(n ast.Node) bool {
-				// look for struct methods.
-				fdecl, ok := n.(*ast.FuncDecl)
-				if !ok {
-					return true
+	// fill sdk Msgs.
+	for _, msg := range msgs {
+		pkgmsg, err := pkg.MessageByName(msg)
+		if err != nil {
+			// no msg found in the proto defs corresponds to discovered sdk message.
+			// if it cannot be found, nothing to worry about, this means that it is used
+			// only internally and not open for actual use.
+			continue
+		}
+
+		m.Msgs = append(m.Msgs, Msg{
+			Name:     msg,
+			URI:      fmt.Sprintf("%s.%s", pkg.Name, msg),
+			FilePath: pkgmsg.Path,
+		})
+	}
+
+	// isType whether if protomsg can be added as an any Type to Module.
+	isType := func(protomsg protoanalysis.Message) bool {
+		// do not use GenesisState type.
+		if protomsg.Name == "GenesisState" {
+			return false
+		}
+
+		// do not use if an SDK message.
+		for _, msg := range msgs {
+			if msg == protomsg.Name {
+				return false
+			}
+		}
+
+		// do not use if used as a request/return type type of an RPC.
+		for _, s := range pkg.Services {
+			for _, q := range s.RPCFuncs {
+				if q.RequestType == protomsg.Name || q.ReturnsType == protomsg.Name {
+					return false
 				}
+			}
+		}
 
-				// not a method.
-				if fdecl.Recv == nil {
-					return true
-				}
+		return true
+	}
 
-				// fname is the name of method.
-				fname := fdecl.Name.Name
+	// fill types.
+	for _, protomsg := range pkg.Messages {
+		if !isType(protomsg) {
+			continue
+		}
 
-				// find the struct name that method belongs to.
-				t := fdecl.Recv.List[0].Type
-				sident, ok := t.(*ast.Ident)
-				if !ok {
-					sexp, ok := t.(*ast.StarExpr)
-					if !ok {
-						return true
-					}
-					sident = sexp.X.(*ast.Ident)
-				}
-				sname := sident.Name
+		m.Types = append(m.Types, Type{
+			Name:     protomsg.Name,
+			FilePath: protomsg.Path,
+		})
+	}
 
-				// mark the requirement that this struct satisfies.
-				if _, ok := structs[sname]; !ok {
-					structs[sname] = newRequirements()
-				}
-
-				structs[sname][fname] = true
-
-				return true
+	// fill queries.
+	for _, s := range pkg.Services {
+		for _, q := range s.RPCFuncs {
+			fullName := s.Name + q.Name
+			// cannot have a msg and query with the same name.
+			// if there is, this must be due to there is a Msg service definition.
+			if _, err := pkg.MessageByName(fullName); err == nil {
+				continue
+			}
+			m.Queries = append(m.Queries, Query{
+				Name:            q.Name,
+				FullName:        fullName,
+				HTTPAnnotations: q.HTTPAnnotations,
 			})
 		}
 	}
 
-	// checkRequirements checks if all requirements are satisfied.
-	checkRequirements := func(r requirements) bool {
-		for _, ok := range r {
-			if !ok {
-				return false
-			}
-		}
-		return true
-	}
-
-	for name, reqs := range structs {
-		if checkRequirements(reqs) {
-			msgs = append(msgs, name)
-		}
-	}
-
-	if len(msgs) == 0 {
-		return nil, ErrModuleNotFound
-	}
-
-	return msgs, nil
+	return m, nil
 }
 
-func findModuleProtoPkgs(sourcePath, bpath string) ([]protoanalysis.Package, error) {
+func (d *moduleDiscoverer) findModuleProtoPkgs() ([]protoanalysis.Package, error) {
 	// find out all proto packages inside blockchain.
-	allprotopkgs, err := protoanalysis.DiscoverPackages(sourcePath)
+	allprotopkgs, err := protoanalysis.DiscoverPackages(d.sourcePath)
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +231,7 @@ func findModuleProtoPkgs(sourcePath, bpath string) ([]protoanalysis.Package, err
 	// filter out proto packages that do not represent x/ modules of blockchain.
 	var xprotopkgs []protoanalysis.Package
 	for _, pkg := range allprotopkgs {
-		if !strings.HasPrefix(pkg.GoImportName, bpath) {
+		if !strings.HasPrefix(pkg.GoImportName, d.basegopath) {
 			continue
 		}
 
