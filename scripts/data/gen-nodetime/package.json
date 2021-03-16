@@ -6,7 +6,7 @@
     "nodetime": "./nodetime"
   },
   "scripts": {
-    "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
+    "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64,node14-linux-armv8,node14-macos-armv8 -o nodetime ."
   },
   "dependencies": {
     "@cosmjs/launchpad": "^0.23.2",
