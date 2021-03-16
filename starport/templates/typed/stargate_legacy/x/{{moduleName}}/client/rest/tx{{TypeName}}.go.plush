@@ -12,9 +12,6 @@ import (
     "github.com/gorilla/mux"
 )
 
-// Used to not have an error if strconv is unused
-var _ = strconv.Itoa(42)
-
 type create<%= title(TypeName) %>Request struct {
 	BaseReq rest.BaseReq `json:"base_req"`
 	Creator string `json:"creator"`
@@ -78,7 +75,10 @@ type update<%= title(TypeName) %>Request struct {
 
 func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-        id := mux.Vars(r)["id"]
+        id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+        if err != nil {
+            return
+        }
 
 		var req update<%= title(TypeName) %>Request
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
@@ -91,7 +91,7 @@ func update<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return
@@ -132,7 +132,10 @@ type delete<%= title(TypeName) %>Request struct {
 
 func delete<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-        id := mux.Vars(r)["id"]
+        id, err := strconv.ParseUint(mux.Vars(r)["id"], 10, 64)
+        if err != nil {
+            return
+        }
 
 		var req delete<%= title(TypeName) %>Request
 		if !rest.ReadRESTReq(w, r, clientCtx.LegacyAmino, &req) {
@@ -145,7 +148,7 @@ func delete<%= title(TypeName) %>Handler(clientCtx client.Context) http.HandlerF
 			return
 		}
 
-		_, err := sdk.AccAddressFromBech32(req.Creator)
+		_, err = sdk.AccAddressFromBech32(req.Creator)
 		if err != nil {
 			rest.WriteErrorResponse(w, http.StatusBadRequest, err.Error())
 			return

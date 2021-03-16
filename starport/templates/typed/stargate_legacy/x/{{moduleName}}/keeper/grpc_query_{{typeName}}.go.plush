@@ -5,6 +5,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"google.golang.org/grpc/codes"
@@ -47,8 +48,12 @@ func (k Keeper) <%= title(TypeName) %>(c context.Context, req *types.QueryGet<%=
 	var <%= TypeName %> types.<%= title(TypeName) %>
 	ctx := sdk.UnwrapSDKContext(c)
 
+    if !k.Has<%= title(TypeName) %>(ctx, req.Id) {
+        return nil, sdkerrors.ErrKeyNotFound
+    }
+
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-	k.cdc.MustUnmarshalBinaryBare(store.Get(types.KeyPrefix(types.<%= title(TypeName) %>Key + req.Id)), &<%= TypeName %>)
+	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= title(TypeName) %>IDBytes(req.Id)), &<%= TypeName %>)
 
 	return &types.QueryGet<%= title(TypeName) %>Response{<%= title(TypeName) %>: &<%= TypeName %>}, nil
 }
