@@ -6,15 +6,12 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
-	"github.com/rakyll/statik/fs"
 	"github.com/rs/cors"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
+	"github.com/tendermint/starport/starport/ui"
 	"golang.org/x/sync/errgroup"
-
-	// register dev ui for statik filesystem.
-	_ "github.com/tendermint/starport/starport/ui/dist-go/statik"
 )
 
 const (
@@ -55,7 +52,6 @@ type env struct {
 type development struct {
 	app  App
 	conf Config
-	uifs http.FileSystem
 }
 
 // Config used to configure development handler.
@@ -68,14 +64,9 @@ type Config struct {
 
 // newDevHandler creates a new development server handler for app by given conf.
 func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Handler, error) {
-	uifs, err := fs.NewWithNamespace("starport:dev-ui")
-	if err != nil {
-		return nil, err
-	}
 	dev := &development{
 		app:  app,
 		conf: conf,
-		uifs: uifs,
 	}
 
 	cors := cors.Default().Handler
@@ -89,7 +80,7 @@ func newDevHandler(app App, conf Config, grpcwebHandler http.Handler) (http.Hand
 }
 
 func (d *development) devAssetsHandler() http.Handler {
-	return http.FileServer(d.uifs)
+	return http.FileServer(http.FS(ui.FS()))
 }
 
 func (d *development) statusHandler() http.Handler {
