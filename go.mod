@@ -48,8 +48,8 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83
-	github.com/tendermint/tendermint v0.34.7
+	github.com/tendermint/spn v0.0.0-20210317152221-9edcaa238a3c
+	github.com/tendermint/tendermint v0.34.8
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/mod v0.4.1
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
