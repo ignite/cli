@@ -10,7 +10,9 @@ pre-build:
 	@git fetch --tags
 
 install: pre-build
+	@echo Installing Starport...
 	@go install $(BUILD_FLAGS) ./...
+	@starport version
 
 format:
 	@find . -name '*.go' -type f | xargs gofmt -d -s
@@ -22,4 +24,4 @@ ui:
 	@rm -rf starport/ui/dist
 	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
 
-.PHONY: install
+.DEFAULT_GOAL := install 
