@@ -2,6 +2,7 @@ package cosmosfaucet
 
 import (
 	"bytes"
+	_ "embed" // used for embedding openapi assets.
 	"html/template"
 	"net/http"
 	"time"
@@ -13,10 +14,16 @@ const (
 )
 
 var (
-	fileOpenAPIIndex = bytes.NewReader(MustAsset(fileNameOpenAPIIndex))
-	tmplOpenAPISpec  = template.Must(template.
-				New(fileNameOpenAPISpec).
-				Parse(string(MustAsset(fileNameOpenAPISpec))))
+	//go:embed openapi/index.html
+	bytesOpenAPIIndex []byte
+
+	//go:embed openapi/openapi.yml.tmpl
+	bytesOpenAPISpec []byte
+)
+
+var (
+	fileOpenAPIIndex = bytes.NewReader(bytesOpenAPIIndex)
+	tmplOpenAPISpec  = template.Must(template.New(fileNameOpenAPISpec).Parse(string(bytesOpenAPISpec)))
 )
 
 func (f Faucet) openAPIIndexHandler(w http.ResponseWriter, r *http.Request) {
