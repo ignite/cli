@@ -5,6 +5,9 @@ builds:
     goarch:
       - amd64
       - arm64
+    ignore:
+      - goos: darwin
+        goarch: arm64
 
 brews:
   - name: "starport"
