@@ -2,7 +2,6 @@
 
 You can run Starport in a web-based Gitpod IDE or you can install Starport on your local computer.
 
-As a developer, you will most likely want to install Starport to work in a local development environment.
 
 ## Prerequisites
 
@@ -27,7 +26,7 @@ curl https://get.starport.network/starport! | bash
 
 The latest `starport` binary is downloaded from the Github repo and installed in `/usr/local/bin`.
 
-To install previous versions of the precompiled `starport` binary, see [star-port installer docs](https://github.com/allinbits/starport-installer) on GitHub.
+To install previous versions of the precompiled `starport` binary or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
 
 ### Write permission
 
@@ -74,5 +73,5 @@ cd starport && make
 ## Summary
 
 - To setup a local development environment, install Starport locally on your computer.
-- Install Starport by using cURL, Homebrew, or from precompiled binaries.
+- Install Starport by fetching the binary using cURL, Homebrew, or by building from source.
 - The latest version is installed by default. You can install previous versions of the precompiled `starport` binary.
