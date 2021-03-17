@@ -535,14 +535,10 @@ func (c *Chain) runDevServer(ctx context.Context) error {
 		AppBackendAddr:  xurl.HTTP(config.Host.API),
 		AppFrontendAddr: xurl.HTTP(config.Host.Frontend),
 	} // TODO get vals from const
-	handler, err := newDevHandler(c.app, conf, grpcHandler)
-	if err != nil {
-		return err
-	}
 
 	return xhttp.Serve(ctx, &http.Server{
 		Addr:    config.Host.DevUI,
-		Handler: handler,
+		Handler: newDevHandler(c.app, conf, grpcHandler),
 	})
 }
 
