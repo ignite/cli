@@ -17,17 +17,6 @@ if [[ -z `which protoc` && ! -z $BIN_PATH ]]; then
 	protoc --version
 fi
 
-# build the dependencies..
-echo "building the ui..."
-rm -rf starport/ui/dist
-(cd starport/ui && \
-    npm i >/dev/null && \
-    npm run build >/dev/null)
-
-# gen statik dev ui.
-go get github.com/rakyll/statik
-statik -src=starport/ui/dist -dest=starport/ui/dist-go -ns starport:dev-ui -f 
-
 # build Starport.
 echo installing starport...
 go install -mod=readonly ./... 1>/dev/null
