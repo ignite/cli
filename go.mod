@@ -11,7 +11,6 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
-	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.7
@@ -19,7 +18,6 @@ require (
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/packd v1.0.0
-	github.com/gobuffalo/packr/v2 v2.8.1 // indirect
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
