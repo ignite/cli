@@ -16,6 +16,8 @@ Local Starport installation requires the follow software be installed and runnin
 
 - [Node.js >=12.19.0](https://nodejs.org/)
 
+Make sure that your `$PATH` includes `$GOPATH/bin` with `export PATH=$PATH:$GOPATH/bin`.
+
 ## Installing Starport with cURL
 
 To install Starport with cURL:
