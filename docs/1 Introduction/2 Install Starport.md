@@ -2,7 +2,6 @@
 
 You can run Starport in a web-based Gitpod IDE or you can install Starport on your local computer.
 
-As a developer, you will most likely want to install Starport to work in a local development environment.
 
 ## Prerequisites
 
