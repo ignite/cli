@@ -27,7 +27,7 @@ curl https://get.starport.network/starport! | bash
 
 The latest `starport` binary is downloaded from the Github repo and installed in `/usr/local/bin`.
 
-To install previous versions of the precompiled `starport` binary, see [star-port installer docs](https://github.com/allinbits/starport-installer) on GitHub.
+To install previous versions of the precompiled `starport` binary or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
 
 ### Write permission
 
