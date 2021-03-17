@@ -21,7 +21,7 @@ lint:
 	@golangci-lint run --out-format=tab --issues-exit-code=0
 
 ui:
-	@rm -rf starport/ui/dist
-	-@which npm 1>/dev/null && cd starport/ui && npm install 1>/dev/null && npm run build 1>/dev/null
+	@rm -rf starport/ui/app/dist
+	-@which npm 1>/dev/null && cd starport/ui/app && npm install 1>/dev/null && npm run build 1>/dev/null
 
 .DEFAULT_GOAL := install 
