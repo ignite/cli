@@ -12,11 +12,10 @@ Local Starport installation requires the follow software be installed and runnin
 
   Make sure that your `$PATH` includes `$HOME/go/bin` with `export PATH=$PATH:$HOME/go/bin`.
 
-- [Protocol Buffer compiler](https://grpc.io/docs/protoc-installation/)
-
 - [Node.js >=12.19.0](https://nodejs.org/)
 
-Make sure that your `$PATH` includes `$GOPATH/bin` with `export PATH=$PATH:$GOPATH/bin`.
+- [Protocol Buffer compiler](https://grpc.io/docs/protoc-installation/)
+
 
 ## Installing Starport with cURL
 
