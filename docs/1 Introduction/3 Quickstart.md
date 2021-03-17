@@ -41,5 +41,6 @@ The `type` command scaffolds functionality a custom type.
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
 - [Starport Channel on Discord](https://discord.com/channels/669268347736686612/737461683588431924)
 
+## Next steps
 
-<!-- link to starport tutorial for 2 blockchains? where do we send our users next -->
+To learn about building Cosmos SDK blockchains with Starport, try a beginner-friendly [IBC Hello world tutorial](https://tutorials.cosmos.network/hello-world/tutorial/).
