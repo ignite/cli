@@ -40,10 +40,14 @@ To change the prefix manually after the blockchain has been scaffolded, modify t
 ```
 
 
-1. Change the `AccountAddressPrefix` variable in the `/app/prefix.go` file. Be sure to preserve other variables in the file.
-2. To recognize the new prefix, change the `VUE_APP_ADDRESS_PREFIX` variable in `/vue/.env`.
 
-## Stargate app
+## Cosmos SDK version
+
+By default `starport app` creates a Cosmos SDK blockchain using the latest stable version of the SDK.
+
+Starport also supports legacy Cosmos SDK v0.39.2 (Launchpad). This legacy Launchpad version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain. If, however, you do, you can use `--sdk-version` with a value `launchpad`.
+
+starport app github.com/hello/planet --sdk-version launchpad
 
 ```
 starport app github.com/foo/bar
