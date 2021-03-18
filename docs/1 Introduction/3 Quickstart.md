@@ -1,6 +1,6 @@
 # Quickstart
 
-Use these three commands to build, start, and define your first blockchain.
+Use these three commands to build, start, and add features to your first blockchain.
 
 ## Create a blockchain
 
@@ -22,7 +22,7 @@ starport serve
 
 The `serve` command installs dependencies, builds, initializes, and starts the blockchain.
 
-## Define
+## Add features
 
 To add a custom type with create, read, update, and delete (CRUD) functionality:
 
