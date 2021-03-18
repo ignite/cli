@@ -30,7 +30,7 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        {{ range .Module.Queries }}{{ .Name }}: {},
+        {{ range .Module.HTTPQueries }}{{ .Name }}: {},
         {{ end }}
         _Structure: {
             {{ range .Module.Types }}{{ .Name }}: getStructure({{ .Name }}.fromPartial({})),
@@ -61,7 +61,7 @@ export default {
 		}
 	},
 	getters: {
-        {{ range .Module.Queries }}get{{ .Name }}: (state) => (params = {}) => {
+        {{ range .Module.HTTPQueries }}get{{ .Name }}: (state) => (params = {}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
@@ -92,13 +92,13 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		{{ range .Module.Queries }}async {{ .FullName }}({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		{{ range .Module.HTTPQueries }}async {{ .FullName }}({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
 			try {
 				
-				let value = query?(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}} query)).data:(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}}{{ if (gt $i 0)}}, {{ end}} key.{{$a}} {{end}})).data
-				{{ if .HTTPAnnotations.URLHasQuery}}
+				let value = query?(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}} query)).data:(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}}{{ if (gt $i 0)}}, {{ end}} key.{{$a}} {{end}})).data
+				{{ if (index .Rules 0).HasQuery}}
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=.HTTPAnnotations.URLParams}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					let next_values=(await (await initQueryClient(rootGetters)).{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					for (let prop of Object.keys(next_values)) {
 						if (Array.isArray(next_values[prop])) {
 							value[prop]=[...value[prop], ...next_values[prop]]
