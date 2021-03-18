@@ -57,7 +57,7 @@ type RPCFunc struct {
 	ReturnsType string
 
 	// HTTPAnnotations keeps info about http annotations of an RPC func.
-	HTTPAnnotations HTTPAnnotations
+	HTTPAnnotations *HTTPAnnotations
 }
 
 // HTTPAnnotations keeps info about http annotations of an RPC func.
@@ -218,6 +218,7 @@ func Parse(path string) (Package, error) {
 				if !strings.Contains(option.Name, "google.api.http") {
 					continue
 				}
+				rpcFunc.HTTPAnnotations = &HTTPAnnotations{}
 
 				// fill url params.
 				match := urlParamRe.FindAllStringSubmatch(option.Constant.Source, -1)

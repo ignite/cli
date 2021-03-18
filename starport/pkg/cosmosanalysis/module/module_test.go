@@ -1,11 +1,13 @@
 package module
 
 import (
+	"testing"
+
 	"github.com/kr/pretty"
 )
 
-func ExampleDiscover() {
-	pretty.Println(Discover("/home/ilker/Documents/code/src/github.com/tendermint/starport/local_test/mars"))
+func TestExampleDiscover(t *testing.T) {
+	pretty.Println(Discover("/home/ilker/Documents/code/src/github.com/tendermint/starport/local_test/liquidity"))
 	// outputs:
 	// []module.Module{
 	//   {
