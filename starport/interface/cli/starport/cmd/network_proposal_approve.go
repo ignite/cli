@@ -72,11 +72,11 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, ioutil.Discard)
+		correct, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, ioutil.Discard)
 		if err != nil {
 			return err
 		}
-		if !verified {
+		if !correct {
 			return fmt.Errorf("genesis from proposal(s) %s is invalid", numbers.List(ids, "#"))
 		}
 		s.Stop()

@@ -26,9 +26,9 @@ import (
 
 const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 
-// VerifyProposals generates a genesis file from the current launch information and proposals to verify
+// SimulateProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return false, err
