@@ -808,8 +808,11 @@ github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoM
 github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
 github.com/tendermint/spn v0.0.0-20210317152221-9edcaa238a3c h1:XsEg003eO9w8rZZZzJDAKHpGj6g8da4pyfIjR9u1954=
 github.com/tendermint/spn v0.0.0-20210317152221-9edcaa238a3c/go.mod h1:204ljH50NUxGkC+IWbx/2FYt0pmqHgsRpPAM9pljZ+k=
+github.com/tendermint/spn v0.0.0-20210318154532-4be63aacf775 h1:QRIgaVyAippbHM3cT/p5uq2o7xazLfUJZfXWAT2fHPY=
+github.com/tendermint/spn v0.0.0-20210318154532-4be63aacf775/go.mod h1:5FNgGdUl15AtT0qJNt8Hdi9lzBEud6vOtu+Ok+ntCjE=
 github.com/tendermint/starport v0.12.0/go.mod h1:iKwUbPpZeAe79FYGZDC85zV5sMLeVGH4zlWb4EiaoBU=
 github.com/tendermint/starport v0.13.2/go.mod h1:SXyIpowpAMdPORCp4kUMyEyBnuaU+W/0dfdsTx5uI2Q=
+github.com/tendermint/starport v0.15.0/go.mod h1:Tuy0bC2vFKIuDTmpMUgS/ammvUw5XSNQHPOw3Pnq5EE=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=
