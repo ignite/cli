@@ -204,16 +204,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill queries.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
-			fullName := s.Name + q.Name
-			// cannot have a msg and query with the same name.
-			// if there is, this must be due to there is a Msg service definition.
-			if _, err := pkg.MessageByName(fullName); err == nil {
+			if q.HTTPAnnotations == nil {
 				continue
 			}
 			m.Queries = append(m.Queries, Query{
 				Name:            q.Name,
-				FullName:        fullName,
-				HTTPAnnotations: q.HTTPAnnotations,
+				FullName:        s.Name + q.Name,
+				HTTPAnnotations: *q.HTTPAnnotations,
 			})
 		}
 	}
