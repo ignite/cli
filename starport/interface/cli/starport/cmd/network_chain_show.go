@@ -75,7 +75,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		fmt.Printf(string(genesis))
+		fmt.Print(string(genesis))
 	case showPeers:
 		// Show the peers in the config.toml format
 		fmt.Printf("persistent_peers = \"%s\"", strings.Join(info.Peers, ","))
