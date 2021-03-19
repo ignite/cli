@@ -39,12 +39,6 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 
 	chainID := args[0]
 
-	// Fetch launch information
-	info, err := nb.LaunchInformation(context.Background(), chainID)
-	if err != nil {
-		return err
-	}
-
 	// Get flags
 	home, _, err := getHomeFlags(cmd)
 	if err != nil {
@@ -60,6 +54,12 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	}
 	if showGenesis && showPeers {
 		return fmt.Errorf("%s and %s flags cannot be set both", genesisFlag, peersFlag)
+	}
+
+	// Fetch launch information
+	info, err := nb.LaunchInformation(context.Background(), chainID)
+	if err != nil {
+		return err
 	}
 
 	switch {
