@@ -3,9 +3,17 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"strings"
 
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
+)
+
+const (
+	genesisFlag = "genesis"
+	peersFlag   = "peers"
 )
 
 // NewNetworkChainShow creates a new chain show command to show
@@ -17,6 +25,9 @@ func NewNetworkChainShow() *cobra.Command {
 		RunE:  networkChainShowHandler,
 		Args:  cobra.ExactArgs(1),
 	}
+	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().Bool(genesisFlag, false, "Show exclusively the genesis of the chain")
+	c.Flags().Bool(peersFlag, false, "Show exclusively the peers of the chain")
 	return c
 }
 
@@ -28,25 +39,62 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 
 	chainID := args[0]
 
-	c, err := nb.ShowChain(context.Background(), chainID)
-	if err != nil {
-		return err
-	}
-	chainyaml, err := yaml.Marshal(c)
-	if err != nil {
-		return err
-	}
-
+	// Fetch launch information
 	info, err := nb.LaunchInformation(context.Background(), chainID)
 	if err != nil {
 		return err
 	}
-	infoyaml, err := yaml.Marshal(info)
+
+	// Get flags
+	home, _, err := getHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
+	showGenesis, err := cmd.Flags().GetBool(genesisFlag)
+	if err != nil {
+		return err
+	}
+	showPeers, err := cmd.Flags().GetBool(peersFlag)
+	if err != nil {
+		return err
+	}
+	if showGenesis && showPeers {
+		return fmt.Errorf("%s and %s flags cannot be set both", genesisFlag, peersFlag)
+	}
 
-	fmt.Printf("\nChain:\n---\n%s\n\nLaunch Information:\n---\n%s", string(chainyaml), string(infoyaml))
+	switch {
+	case showGenesis:
+		// Generate the genesis in a temporary directory and show the content
+		tmpHome, err := nb.GenerateTemporaryGenesis(cmd.Context(), chainID, home, info)
+		defer os.RemoveAll(tmpHome)
+		if err != nil {
+			return err
+		}
+		genesisPath := fmt.Sprintf("%s/config/genesis.json", tmpHome)
+		genesis, err := ioutil.ReadFile(genesisPath)
+		if err != nil {
+			return err
+		}
+		fmt.Printf(string(genesis))
+	case showPeers:
+		// Show the peers in the config.toml format
+		fmt.Printf("persistent_peers = \"%s\"", strings.Join(info.Peers, ","))
+	default:
+		// No flag, show the chain information and launch information in yaml format
+		chain, err := nb.ShowChain(context.Background(), chainID)
+		if err != nil {
+			return err
+		}
+		chainyaml, err := yaml.Marshal(chain)
+		if err != nil {
+			return err
+		}
+		infoyaml, err := yaml.Marshal(info)
+		if err != nil {
+			return err
+		}
+		fmt.Printf("\nChain:\n---\n%s\n\nLaunch Information:\n---\n%s", string(chainyaml), string(infoyaml))
+	}
 
 	return nil
 }
