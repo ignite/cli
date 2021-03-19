@@ -64,20 +64,6 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	return b.SimulateProposals(ctx, chainID, homeDir, proposals, commandOut)
 }
 
-type LaunchpadGentx struct {
-	Value struct {
-		Msg []struct {
-			Value struct {
-				ValidatorAddress string `json:"validator_address"`
-				Value            struct {
-					Denom  string `json:"denom"`
-					Amount string `json:"amount"`
-				} `json:"value"`
-			} `json:"valmue"`
-		} `json:"msg"`
-	} `json:"value"`
-}
-
 type StargateGentx struct {
 	Body struct {
 		Messages []struct {
@@ -91,29 +77,6 @@ type StargateGentx struct {
 }
 
 func parseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
-	// Try parsing Launchpad gentx
-	var launchpadGentx LaunchpadGentx
-	if err := json.Unmarshal(gentx, &launchpadGentx); err != nil {
-		return info, err
-	}
-	if launchpadGentx.Value.Msg != nil {
-		// This is a launchpad gentx
-		if len(launchpadGentx.Value.Msg) != 1 {
-			return info, errors.New("add validator gentx must contain 1 message")
-		}
-		info.ValidatorAddress = launchpadGentx.Value.Msg[0].Value.ValidatorAddress
-		amount, ok := sdk.NewIntFromString(launchpadGentx.Value.Msg[0].Value.Value.Amount)
-		if !ok {
-			return info, errors.New("the self-delegation inside the gentx is invalid")
-		}
-		info.SelfDelegation = sdk.NewCoin(
-			launchpadGentx.Value.Msg[0].Value.Value.Denom,
-			amount,
-		)
-
-		return info, nil
-	}
-
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
