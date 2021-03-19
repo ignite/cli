@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	genesistypes "github.com/tendermint/spn/x/genesis/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
@@ -50,23 +50,23 @@ type ProposalAddValidator struct {
 	P2PAddress       string
 }
 
-var statusFromSPN = map[genesistypes.ProposalStatus]ProposalStatus{
-	genesistypes.ProposalStatus_PENDING:  ProposalStatusPending,
-	genesistypes.ProposalStatus_APPROVED: ProposalStatusApproved,
-	genesistypes.ProposalStatus_REJECTED: ProposalStatusRejected,
+var statusFromSPN = map[launchtypes.ProposalStatus]ProposalStatus{
+	launchtypes.ProposalStatus_PENDING:  ProposalStatusPending,
+	launchtypes.ProposalStatus_APPROVED: ProposalStatusApproved,
+	launchtypes.ProposalStatus_REJECTED: ProposalStatusRejected,
 }
 
-var statusToSPN = map[ProposalStatus]genesistypes.ProposalStatus{
-	ProposalStatusAll:      genesistypes.ProposalStatus_ANY_STATUS,
-	ProposalStatusPending:  genesistypes.ProposalStatus_PENDING,
-	ProposalStatusApproved: genesistypes.ProposalStatus_APPROVED,
-	ProposalStatusRejected: genesistypes.ProposalStatus_REJECTED,
+var statusToSPN = map[ProposalStatus]launchtypes.ProposalStatus{
+	ProposalStatusAll:      launchtypes.ProposalStatus_ANY_STATUS,
+	ProposalStatusPending:  launchtypes.ProposalStatus_PENDING,
+	ProposalStatusApproved: launchtypes.ProposalStatus_APPROVED,
+	ProposalStatusRejected: launchtypes.ProposalStatus_REJECTED,
 }
 
-var proposalTypeToSPN = map[ProposalType]genesistypes.ProposalType{
-	ProposalTypeAll:          genesistypes.ProposalType_ANY_TYPE,
-	ProposalTypeAddAccount:   genesistypes.ProposalType_ADD_ACCOUNT,
-	ProposalTypeAddValidator: genesistypes.ProposalType_ADD_VALIDATOR,
+var proposalTypeToSPN = map[ProposalType]launchtypes.ProposalType{
+	ProposalTypeAll:          launchtypes.ProposalType_ANY_TYPE,
+	ProposalTypeAddAccount:   launchtypes.ProposalType_ADD_ACCOUNT,
+	ProposalTypeAddValidator: launchtypes.ProposalType_ADD_VALIDATOR,
 }
 
 // proposalListOptions holds proposal listing options.
@@ -112,12 +112,12 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	}
 
 	var proposals []Proposal
-	var spnProposals []*genesistypes.Proposal
+	var spnProposals []*launchtypes.Proposal
 
-	queryClient := genesistypes.NewQueryClient(c.clientCtx)
+	queryClient := launchtypes.NewQueryClient(c.clientCtx)
 
 	// Send query
-	res, err := queryClient.ListProposals(ctx, &genesistypes.QueryListProposalsRequest{
+	res, err := queryClient.ListProposals(ctx, &launchtypes.QueryListProposalsRequest{
 		ChainID: chainID,
 		Status:  spnStatus,
 		Type:    spnType,
@@ -140,19 +140,19 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	return proposals, nil
 }
 
-func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
+func (c *Client) toProposal(proposal launchtypes.Proposal) (Proposal, error) {
 	p := Proposal{
 		ID:     int(proposal.ProposalInformation.ProposalID),
 		Status: statusFromSPN[proposal.ProposalState.GetStatus()],
 	}
 	switch payload := proposal.Payload.(type) {
-	case *genesistypes.Proposal_AddAccountPayload:
+	case *launchtypes.Proposal_AddAccountPayload:
 		p.Account = &ProposalAddAccount{
 			Address: payload.AddAccountPayload.Address.String(),
 			Coins:   payload.AddAccountPayload.Coins,
 		}
 
-	case *genesistypes.Proposal_AddValidatorPayload:
+	case *launchtypes.Proposal_AddValidatorPayload:
 		p.Validator = &ProposalAddValidator{
 			P2PAddress: payload.AddValidatorPayload.Peer,
 			Gentx:      payload.AddValidatorPayload.GenTx,
@@ -163,10 +163,10 @@ func (c *Client) toProposal(proposal genesistypes.Proposal) (Proposal, error) {
 }
 
 func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, id int) (Proposal, error) {
-	queryClient := genesistypes.NewQueryClient(c.clientCtx)
+	queryClient := launchtypes.NewQueryClient(c.clientCtx)
 
 	// Query the proposal
-	param := &genesistypes.QueryShowProposalRequest{
+	param := &launchtypes.QueryShowProposalRequest{
 		ChainID:    chainID,
 		ProposalID: int32(id),
 	}
@@ -220,12 +220,12 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 			}
 
 			// Create the proposal payload
-			payload := genesistypes.NewProposalAddAccountPayload(
+			payload := launchtypes.NewProposalAddAccountPayload(
 				addr,
 				proposal.Account.Coins,
 			)
 
-			msgs = append(msgs, genesistypes.NewMsgProposalAddAccount(
+			msgs = append(msgs, launchtypes.NewMsgProposalAddAccount(
 				chainID,
 				clientCtx.GetFromAddress(),
 				payload,
@@ -240,14 +240,14 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 			validatorAddress := types.ValAddress(addr)
 
 			// Create the proposal payload
-			payload := genesistypes.NewProposalAddValidatorPayload(
+			payload := launchtypes.NewProposalAddValidatorPayload(
 				proposal.Validator.Gentx,
 				validatorAddress,
 				proposal.Validator.SelfDelegation,
 				proposal.Validator.P2PAddress,
 			)
 
-			msgs = append(msgs, genesistypes.NewMsgProposalAddValidator(
+			msgs = append(msgs, launchtypes.NewMsgProposalAddValidator(
 				chainID,
 				clientCtx.GetFromAddress(),
 				payload,
