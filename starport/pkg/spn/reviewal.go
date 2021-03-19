@@ -5,7 +5,7 @@ import (
 	"errors"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	genesistypes "github.com/tendermint/spn/x/genesis/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 // reviewal keeps a proposal's reviewal.
@@ -50,9 +50,9 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		r(&rev)
 
 		if rev.isApproved {
-			msgs = append(msgs, genesistypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+			msgs = append(msgs, launchtypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress()))
 		} else {
-			msgs = append(msgs, genesistypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+			msgs = append(msgs, launchtypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress()))
 		}
 	}
 
