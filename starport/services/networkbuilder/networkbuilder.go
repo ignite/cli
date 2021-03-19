@@ -31,6 +31,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/chain"
+
+	"github.com/otiai10/copy"
 )
 
 const (
@@ -454,6 +456,48 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	return g.Wait()
+}
+
+// Generate the genesis from the launch information in a temporary directory and return this directory
+func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, homeDir string, launchInfo spn.LaunchInformation) (string, error) {
+	tmpHome, err := ioutil.TempDir("", chainID+"*")
+	if err != nil {
+		return "", err
+	}
+
+	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return "", err
+	}
+
+	appPath := filepath.Join(sourcePath, chainID)
+	chainHandler, err := chain.New(ctx, appPath,
+		chain.HomePath(tmpHome),
+		chain.LogLevel(chain.LogSilent),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// copy the default config to the temporary directory
+	originHome := homeDir
+	if originHome == "" {
+		originHome, err = chainHandler.DefaultHome()
+		if err != nil {
+			return "", err
+		}
+	}
+	if err := copy.Copy(originHome, tmpHome); err != nil {
+		return "", err
+	}
+
+	// Run the commands to generate genesis
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
+		return "", err
+	}
+
+	return tmpHome, nil
 }
 
 // generateGenesis generate the genesis from the launch information in the specified app home
