@@ -10,7 +10,7 @@ starport module create [name] [flags]
 
 `name` defines the name of a new module. This name has to be unique within a project.
 
-Files and directories created and modified by module scaffolding:
+Files and directories created and modified by scaffolding:
 
 * `proto`: a directory is created that contains placeholders for query and message services
 * `x`: a directory is created that contains common logic for a module

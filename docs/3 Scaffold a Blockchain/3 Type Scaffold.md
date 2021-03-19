@@ -14,7 +14,7 @@ starport type [typeName] [field1] [field2] ... [flags]
 
 A type is scaffolded in a module. Optional `--module` flag specifies the name of the module, in which a type will be scaffolded. By default a type is scaffolded in a module name of which matches the name of the project.
 
-`type` modifies the following directories and files:
+Files and directories created and modified by scaffolding:
 
 * `proto`: services for SDK messages and queries, HTTP endpoints
 * `x/module_name/keeper`: gRPC message server and query handler
