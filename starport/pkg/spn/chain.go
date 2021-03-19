@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	genesistypes "github.com/tendermint/spn/x/genesis/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
@@ -47,8 +47,8 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 		return nil, nil, err
 	}
 
-	q := genesistypes.NewQueryClient(clientCtx)
-	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	chainList, err := q.ListChains(ctx, &launchtypes.QueryListChainsRequest{
 		Prefix: o.prefix,
 		Pagination: &query.PageRequest{
 			Key:   o.paginationKey,
@@ -72,7 +72,7 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, s
 	if err != nil {
 		return err
 	}
-	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
+	return c.broadcast(ctx, clientCtx, launchtypes.NewMsgChainCreate(
 		chainID,
 		clientCtx.GetFromAddress(),
 		sourceURL,
@@ -103,8 +103,8 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.ShowChain(ctx, &genesistypes.QueryShowChainRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.ShowChain(ctx, &launchtypes.QueryShowChainRequest{
 		ChainID: chainID,
 	})
 	if err != nil {
@@ -115,7 +115,7 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 }
 
 // toChain converts proto chain to Chain type.
-func toChain(chain *genesistypes.Chain) Chain {
+func toChain(chain *launchtypes.Chain) Chain {
 	return Chain{
 		ChainID:   chain.ChainID,
 		Creator:   chain.Creator,
@@ -140,8 +140,8 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.LaunchInformation(ctx, &genesistypes.QueryLaunchInformationRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.LaunchInformation(ctx, &launchtypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	})
 	if err != nil {
@@ -180,8 +180,8 @@ func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, ch
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.SimulatedLaunchInformation(ctx, &genesistypes.QuerySimulatedLaunchInformationRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.SimulatedLaunchInformation(ctx, &launchtypes.QuerySimulatedLaunchInformationRequest{
 		ChainID:     chainID,
 		ProposalIDs: proposalIDs32,
 	})

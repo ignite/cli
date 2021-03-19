@@ -11,7 +11,6 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
-	github.com/desertbit/timer v0.0.0-20180107155436-c41aec40b27f // indirect
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
 	github.com/gertd/go-pluralize v0.1.7
@@ -19,7 +18,6 @@ require (
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/packd v1.0.0
-	github.com/gobuffalo/packr/v2 v2.8.1 // indirect
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
@@ -48,8 +46,8 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83
-	github.com/tendermint/tendermint v0.34.7
+	github.com/tendermint/spn v0.0.0-20210318154532-4be63aacf775
+	github.com/tendermint/tendermint v0.34.8
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/mod v0.4.1
 	golang.org/x/net v0.0.0-20210119194325-5f4716e94777 // indirect
