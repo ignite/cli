@@ -35,13 +35,13 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 			// Check values inside the gentx are correct
 			gentxInfo, err := parseGentx(proposal.Validator.Gentx)
 			if err != nil {
-				return false, "", err
+				return false, fmt.Sprintf("cannot parse proposal %v gentx: %v", id, err.Error()), nil
 			}
 
 			// Check validator address
 			if valAddress != gentxInfo.ValidatorAddress {
 				return false, fmt.Sprintf(
-					"proposal %v contains a validator address %v that doesn't match the one inside the gentx %v",
+					"proposal %v contains a validator address %v that doesn't match the one inside the gentx: %v",
 					id,
 					valAddress,
 					gentxInfo.ValidatorAddress,
@@ -51,7 +51,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 			// Check self delagation
 			if !selfDelegation.IsEqual(gentxInfo.SelfDelegation) {
 				return false, fmt.Sprintf(
-					"proposal %v contains a self delegation %v that doesn't match the one inside the gentx %v",
+					"proposal %v contains a self delegation %v that doesn't match the one inside the gentx: %v",
 					id,
 					selfDelegation.String(),
 					gentxInfo.SelfDelegation.String(),
@@ -96,11 +96,36 @@ func parseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
 	if err := json.Unmarshal(gentx, &launchpadGentx); err != nil {
 		return info, err
 	}
+	if launchpadGentx.Value.Msg != nil {
+		// This is a launchpad gentx
+		if len(launchpadGentx.Value.Msg) != 1 {
+			return info, errors.New("add validator gentx must contain 1 message")
+		}
+		info.ValidatorAddress = launchpadGentx.Value.Msg[0].Value.ValidatorAddress
+		amount, ok := sdk.NewIntFromString(launchpadGentx.Value.Msg[0].Value.Value.Amount)
+		if !ok {
+			return info, errors.New("the self-delegation inside the gentx is invalid")
+		}
+		info.SelfDelegation = sdk.NewCoin(
+			launchpadGentx.Value.Msg[0].Value.Value.Denom,
+			amount,
+		)
+
+		return info, nil
+	}
 
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
 		return info, err
+	}
+	if stargateGentx.Body.Messages == nil {
+		return info, errors.New("the gentx cannot be parsed")
+	}
+
+	// This is a stargate gentx
+	if len(stargateGentx.Body.Messages) != 1 {
+		return info, errors.New("add validator gentx must contain 1 message")
 	}
 	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
@@ -112,6 +137,5 @@ func parseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
 		amount,
 	)
 
-	// Unrecognized gentx
-	return info, errors.New("the gentx cannot be parsed")
+	return info, nil
 }
