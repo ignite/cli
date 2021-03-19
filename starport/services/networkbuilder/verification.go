@@ -5,9 +5,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
-	"io"
 )
 
 type GentxInfo struct {
