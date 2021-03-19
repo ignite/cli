@@ -69,7 +69,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	correct, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
+	correct, reason, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,10 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	if correct {
 		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 	} else {
-		fmt.Printf("Genesis from proposal(s) %s is invalid 🔍❌️\n", numbers.List(ids, "#"))
+		fmt.Printf("Proposal(s) %s invalid 🔍❌️\nReason: %s️\n",
+			numbers.List(ids, "#"),
+			reason,
+		)
 	}
 
 	return nil

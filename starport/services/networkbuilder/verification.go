@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"io"
@@ -16,13 +17,13 @@ type GentxInfo struct {
 
 // VerifyProposals if proposals are correct and simulate them with the current launch information
 // Correctness means checks that have to be performed off-chain
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, string, error) {
 
 	// Check all proposal
 	for _, id := range proposals {
 		proposal, err := b.ProposalGet(ctx, chainID, id)
 		if err != nil {
-			return false, err
+			return false, "", err
 		}
 
 		// If this is a add validator proposal
@@ -33,17 +34,27 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 			// Check values inside the gentx are correct
 			gentxInfo, err := parseGentx(proposal.Validator.Gentx)
 			if err != nil {
-				return false, err
+				return false, "", err
 			}
 
 			// Check validator address
 			if valAddress != gentxInfo.ValidatorAddress {
-				return false, nil
+				return false, fmt.Sprintf(
+					"proposal %v contains a validator address %v that doesn't match the one inside the gentx %v",
+					id,
+					valAddress,
+					gentxInfo.ValidatorAddress,
+				), nil
 			}
 
 			// Check self delagation
 			if !selfDelegation.IsEqual(gentxInfo.SelfDelegation) {
-				return false, nil
+				return false, fmt.Sprintf(
+					"proposal %v contains a self delegation %v that doesn't match the one inside the gentx %v",
+					id,
+					selfDelegation.String(),
+					gentxInfo.SelfDelegation.String(),
+				), nil
 			}
 		}
 	}
