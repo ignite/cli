@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"sync"
 
 	"github.com/emicklei/proto"
 )
@@ -12,7 +11,6 @@ import (
 const optionGoPkg = "go_package"
 
 type parser struct {
-	m        sync.Mutex // protects following.
 	packages []*pkg
 }
 
@@ -84,9 +82,6 @@ func (p *parser) parseFile(path string) error {
 	if err != nil {
 		return err
 	}
-
-	p.m.Lock()
-	defer p.m.Unlock()
 
 	var pkgName string
 
