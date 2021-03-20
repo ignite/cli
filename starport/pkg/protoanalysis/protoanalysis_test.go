@@ -17,6 +17,8 @@ func TestLiquidity(t *testing.T) {
 			Path:         "testdata/liquidity",
 			GoImportName: "github.com/tendermint/liquidity/x/liquidity/types",
 			Messages: []Message{
+				{Name: "PoolRecord", Path: "testdata/liquidity/genesis.proto"},
+				{Name: "GenesisState", Path: "testdata/liquidity/genesis.proto"},
 				{Name: "PoolType", Path: "testdata/liquidity/liquidity.proto"},
 				{Name: "Params", Path: "testdata/liquidity/liquidity.proto"},
 				{Name: "Pool", Path: "testdata/liquidity/liquidity.proto"},
@@ -27,23 +29,6 @@ func TestLiquidity(t *testing.T) {
 				{Name: "DepositMsgState", Path: "testdata/liquidity/liquidity.proto"},
 				{Name: "WithdrawMsgState", Path: "testdata/liquidity/liquidity.proto"},
 				{Name: "SwapMsgState", Path: "testdata/liquidity/liquidity.proto"},
-				{Name: "MsgCreatePool", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgCreatePoolRequest", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgCreatePoolResponse", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgDepositWithinBatch", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgDepositWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgDepositWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgWithdrawWithinBatch", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgWithdrawWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgWithdrawWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgSwapWithinBatch", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgSwapWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
-				{Name: "MsgSwapWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
-				{Name: "BaseReq", Path: "testdata/liquidity/tx.proto"},
-				{Name: "Fee", Path: "testdata/liquidity/tx.proto"},
-				{Name: "PubKey", Path: "testdata/liquidity/tx.proto"},
-				{Name: "Signature", Path: "testdata/liquidity/tx.proto"},
-				{Name: "StdTx", Path: "testdata/liquidity/tx.proto"},
 				{Name: "QueryLiquidityPoolRequest", Path: "testdata/liquidity/query.proto"},
 				{Name: "QueryLiquidityPoolResponse", Path: "testdata/liquidity/query.proto"},
 				{Name: "QueryLiquidityPoolBatchRequest", Path: "testdata/liquidity/query.proto"},
@@ -64,8 +49,23 @@ func TestLiquidity(t *testing.T) {
 				{Name: "QueryPoolBatchWithdrawMsgRequest", Path: "testdata/liquidity/query.proto"},
 				{Name: "QueryPoolBatchWithdrawMsgsResponse", Path: "testdata/liquidity/query.proto"},
 				{Name: "QueryPoolBatchWithdrawMsgResponse", Path: "testdata/liquidity/query.proto"},
-				{Name: "PoolRecord", Path: "testdata/liquidity/genesis.proto"},
-				{Name: "GenesisState", Path: "testdata/liquidity/genesis.proto"},
+				{Name: "MsgCreatePool", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgCreatePoolRequest", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgCreatePoolResponse", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgDepositWithinBatch", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgDepositWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgDepositWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgWithdrawWithinBatch", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgWithdrawWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgWithdrawWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgSwapWithinBatch", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgSwapWithinBatchRequest", Path: "testdata/liquidity/tx.proto"},
+				{Name: "MsgSwapWithinBatchResponse", Path: "testdata/liquidity/tx.proto"},
+				{Name: "BaseReq", Path: "testdata/liquidity/tx.proto"},
+				{Name: "Fee", Path: "testdata/liquidity/tx.proto"},
+				{Name: "PubKey", Path: "testdata/liquidity/tx.proto"},
+				{Name: "Signature", Path: "testdata/liquidity/tx.proto"},
+				{Name: "StdTx", Path: "testdata/liquidity/tx.proto"},
 			},
 			Services: []Service{
 				{
@@ -115,31 +115,6 @@ func TestLiquidity(t *testing.T) {
 									HasBody:  true,
 								},
 							},
-						},
-					},
-				},
-				{
-					Name: "Msg",
-					RPCFuncs: []RPCFunc{
-						{
-							Name:        "CreatePool",
-							RequestType: "MsgCreatePool",
-							ReturnsType: "MsgCreatePoolResponse",
-						},
-						{
-							Name:        "DepositWithinBatch",
-							RequestType: "MsgDepositWithinBatch",
-							ReturnsType: "MsgDepositWithinBatchResponse",
-						},
-						{
-							Name:        "WithdrawWithinBatch",
-							RequestType: "MsgWithdrawWithinBatch",
-							ReturnsType: "MsgWithdrawWithinBatchResponse",
-						},
-						{
-							Name:        "Swap",
-							RequestType: "MsgSwapWithinBatch",
-							ReturnsType: "MsgSwapWithinBatchResponse",
 						},
 					},
 				},
@@ -249,11 +224,34 @@ func TestLiquidity(t *testing.T) {
 						},
 					},
 				},
+				{
+					Name: "Msg",
+					RPCFuncs: []RPCFunc{
+						{
+							Name:        "CreatePool",
+							RequestType: "MsgCreatePool",
+							ReturnsType: "MsgCreatePoolResponse",
+						},
+						{
+							Name:        "DepositWithinBatch",
+							RequestType: "MsgDepositWithinBatch",
+							ReturnsType: "MsgDepositWithinBatchResponse",
+						},
+						{
+							Name:        "WithdrawWithinBatch",
+							RequestType: "MsgWithdrawWithinBatch",
+							ReturnsType: "MsgWithdrawWithinBatchResponse",
+						},
+						{
+							Name:        "Swap",
+							RequestType: "MsgSwapWithinBatch",
+							ReturnsType: "MsgSwapWithinBatchResponse",
+						},
+					},
+				},
 			},
 		},
 	}
-
-	require.NoError(t, err)
 
 	require.Equal(t, expected, packages)
 }

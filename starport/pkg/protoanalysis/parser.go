@@ -7,7 +7,6 @@ import (
 	"sync"
 
 	"github.com/emicklei/proto"
-	"github.com/mattn/go-zglob"
 )
 
 const optionGoPkg = "go_package"
@@ -60,7 +59,7 @@ type file struct {
 }
 
 func (p *parser) parse(ctx context.Context, pattern string) error {
-	paths, err := zglob.Glob(pattern)
+	paths, err := Search(pattern)
 	if err != nil {
 		return err
 	}

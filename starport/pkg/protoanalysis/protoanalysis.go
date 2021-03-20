@@ -3,6 +3,7 @@ package protoanalysis
 
 import (
 	"context"
+	"sort"
 
 	"github.com/mattn/go-zglob"
 )
@@ -24,9 +25,18 @@ func Parse(ctx context.Context, pattern string) ([]Package, error) {
 	return packages, nil
 }
 
+func Search(pattern string) ([]string, error) {
+	files, err := zglob.Glob(pattern)
+	if err != nil {
+		return nil, err
+	}
+	sort.Strings(files)
+	return files, nil
+}
+
 // SearchRecursive recursively finds all proto files under path.
 func SearchRecursive(dir string) ([]string, error) {
-	return zglob.Glob(PatternRecursive(dir))
+	return Search(PatternRecursive(dir))
 }
 
 // PatternRecursive returns a recursive glob search pattern to find all proto files under path.
