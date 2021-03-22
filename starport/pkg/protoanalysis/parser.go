@@ -6,22 +6,60 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+	"github.com/tendermint/starport/starport/pkg/fs"
 )
 
 const optionGoPkg = "go_package"
 
+// parser parses proto packages.
 type parser struct {
 	packages []*pkg
 }
 
-func newParser() *parser {
-	return &parser{}
+// parse parses proto files in the fs that matches with pattern and returns
+// the low level representations of proto packages.
+func parse(ctx context.Context, pattern string) ([]*pkg, error) {
+	pr := &parser{}
+
+	paths, err := fs.Search(pattern)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, path := range paths {
+		if ctx.Err() != nil {
+			return nil, ctx.Err()
+		}
+		if err := pr.parseFile(path); err != nil {
+			return nil, err
+		}
+	}
+
+	return pr.packages, nil
 }
 
+// pkg represents a proto package.
 type pkg struct {
-	name  string
-	dir   string
+	// name of the proto package.
+	name string
+
+	// directory of the proto package in the fs.
+	dir string
+
+	// files is a list of proto files that construct a proto package.
 	files []file
+}
+
+// file represents a parsed proto file.
+type file struct {
+	// path of the proto file in the fs.
+	path string
+
+	// parsed data.
+	pkg      *proto.Package
+	options  []*proto.Option
+	messages []*proto.Message
+	services []*proto.Service
 }
 
 func (p *pkg) options() (o []*proto.Option) {
@@ -46,29 +84,6 @@ func (p *pkg) services() (s []*proto.Service) {
 	}
 
 	return
-}
-
-type file struct {
-	path     string
-	pkg      *proto.Package
-	options  []*proto.Option
-	messages []*proto.Message
-	services []*proto.Service
-}
-
-func (p *parser) parse(ctx context.Context, pattern string) error {
-	paths, err := Search(pattern)
-	if err != nil {
-		return err
-	}
-
-	for _, path := range paths {
-		if err := p.parseFile(path); err != nil {
-			return err
-		}
-	}
-
-	return nil
 }
 
 func (p *parser) parseFile(path string) error {

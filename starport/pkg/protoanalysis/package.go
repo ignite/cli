@@ -46,9 +46,6 @@ type Message struct {
 
 	// Path of the file where message is defined at.
 	Path string
-
-	// FieldCount is the top level field count of message.
-	//FieldCount int
 }
 
 // Service is an RPC service.
@@ -60,7 +57,7 @@ type Service struct {
 	RPCFuncs []RPCFunc
 }
 
-// RPC is an RPC func.
+// RPCFunc is an RPC func.
 type RPCFunc struct {
 	// Name of the RPC func.
 	Name string
@@ -72,10 +69,8 @@ type RPCFunc struct {
 	ReturnsType string
 
 	// HTTPRules keeps info about http rules of an RPC func.
-	//
-	// a single func might have multiple endpoints configures as per the spec. therefore,
-	// it is an in-line slice.
-	// see: https://github.com/googleapis/googleapis/blob/ca1372c/google/api/http.proto#L182-L198
+	// spec:
+	//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
 	HTTPRules []HTTPRule
 }
 

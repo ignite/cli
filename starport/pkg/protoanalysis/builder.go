@@ -11,26 +11,25 @@ type builder struct {
 	p pkg
 }
 
-func newBuilder(p pkg) builder {
-	return builder{p}
-}
+// buil turns a low lovel proto pkg into a high level Package.
+func build(p pkg) Package {
+	br := builder{p}
 
-func (b builder) build() Package {
-	pkg := Package{
-		Name:     b.p.name,
-		Path:     b.p.dir,
-		Messages: b.buildMessages(),
-		Services: b.toServices(b.p.services()),
+	pk := Package{
+		Name:     p.name,
+		Path:     p.dir,
+		Messages: br.buildMessages(),
+		Services: br.toServices(p.services()),
 	}
 
-	for _, option := range b.p.options() {
+	for _, option := range p.options() {
 		if option.Name == optionGoPkg {
-			pkg.GoImportName = option.Constant.Source
+			pk.GoImportName = option.Constant.Source
 			break
 		}
 	}
 
-	return pkg
+	return pk
 }
 
 func (b builder) buildMessages() (messages []Message) {
@@ -89,11 +88,9 @@ func (b builder) elementsToRPCFunc(elems []proto.Visitee) (rpcFuncs []RPCFunc) {
 		rpcFuncs = append(rpcFuncs, rf)
 	}
 
-	return
+	return rpcFuncs
 }
 
-// spec:
-//   https://github.com/googleapis/googleapis/blob/master/google/api/http.proto.
 func (b builder) elementsToHTTPRules(requestMessage *proto.Message, elems []proto.Visitee) (httpRules []HTTPRule) {
 	for _, el := range elems {
 		option, ok := el.(*proto.Option)
@@ -172,7 +169,7 @@ func (b builder) constantToHTTPRules(requestMessage *proto.Message, constant pro
 		httpRules = append(httpRules, b.constantToHTTPRules(requestMessage, *constant)...)
 	}
 
-	return
+	return httpRules
 }
 
 func (b builder) messageFieldsCount(message *proto.Message) (count int) {
