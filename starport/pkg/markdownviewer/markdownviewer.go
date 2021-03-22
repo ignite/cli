@@ -4,7 +4,7 @@ import (
 	"os"
 
 	"github.com/charmbracelet/glow/ui"
-	"golang.org/x/crypto/ssh/terminal"
+	"golang.org/x/term"
 )
 
 // View starts the Markdown viewer at path that .md files are located at.
@@ -28,7 +28,7 @@ func View(path string) error {
 func config(path string) (ui.Config, error) {
 	var width uint
 
-	w, _, err := terminal.GetSize(int(os.Stdout.Fd()))
+	w, _, err := term.GetSize(int(os.Stdout.Fd()))
 	if err != nil {
 		return ui.Config{}, err
 	}
