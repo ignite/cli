@@ -1,4 +1,4 @@
-import { txClient, queryClient } from './module'
+import { txClient, queryClient, MissingWalletError } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
@@ -24,6 +24,17 @@ async function initQueryClient(vuexGetters) {
 	return await queryClient({
 		addr: vuexGetters['common/env/apiCosmos']
 	})
+}
+
+function mergeResults(value, next_values) {
+	for (let prop of Object.keys(next_values)) {
+		if (Array.isArray(next_values[prop])) {
+			value[prop]=[...value[prop], ...next_values[prop]]
+		}else{
+			value[prop]=next_values[prop]
+		}
+	}
+	return value
 }
 
 function getStructure(template) {

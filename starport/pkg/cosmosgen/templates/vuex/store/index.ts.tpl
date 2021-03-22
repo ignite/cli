@@ -137,7 +137,7 @@ export default {
 			}
 		},
 		{{ end }}
-		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee, memo }) {
+		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.{{ camelCase .Name }}(value)

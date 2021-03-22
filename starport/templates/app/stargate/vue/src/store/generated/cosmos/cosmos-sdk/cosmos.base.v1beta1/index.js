@@ -13,6 +13,17 @@ async function initQueryClient(vuexGetters) {
         addr: vuexGetters['common/env/apiCosmos']
     });
 }
+function mergeResults(value, next_values) {
+    for (let prop of Object.keys(next_values)) {
+        if (Array.isArray(next_values[prop])) {
+            value[prop] = [...value[prop], ...next_values[prop]];
+        }
+        else {
+            value[prop] = next_values[prop];
+        }
+    }
+    return value;
+}
 function getStructure(template) {
     let structure = { fields: [] };
     for (const [key, value] of Object.entries(template)) {

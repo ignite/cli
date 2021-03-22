@@ -1,7 +1,8 @@
-import { txClient, queryClient } from './module'
+import { txClient, queryClient, MissingWalletError } from './module'
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex'
 
+import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis"
 import { HistoricalInfo } from "./module/types/cosmos/staking/v1beta1/staking"
 import { CommissionRates } from "./module/types/cosmos/staking/v1beta1/staking"
 import { Commission } from "./module/types/cosmos/staking/v1beta1/staking"
@@ -22,7 +23,6 @@ import { DelegationResponse } from "./module/types/cosmos/staking/v1beta1/stakin
 import { RedelegationEntryResponse } from "./module/types/cosmos/staking/v1beta1/staking"
 import { RedelegationResponse } from "./module/types/cosmos/staking/v1beta1/staking"
 import { Pool } from "./module/types/cosmos/staking/v1beta1/staking"
-import { LastValidatorPower } from "./module/types/cosmos/staking/v1beta1/genesis"
 
 
 async function initTxClient(vuexGetters) {
@@ -35,6 +35,17 @@ async function initQueryClient(vuexGetters) {
 	return await queryClient({
 		addr: vuexGetters['common/env/apiCosmos']
 	})
+}
+
+function mergeResults(value, next_values) {
+	for (let prop of Object.keys(next_values)) {
+		if (Array.isArray(next_values[prop])) {
+			value[prop]=[...value[prop], ...next_values[prop]]
+		}else{
+			value[prop]=next_values[prop]
+		}
+	}
+	return value
 }
 
 function getStructure(template) {
@@ -66,6 +77,7 @@ const getDefaultState = () => {
         Params: {},
         
         _Structure: {
+            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
             HistoricalInfo: getStructure(HistoricalInfo.fromPartial({})),
             CommissionRates: getStructure(CommissionRates.fromPartial({})),
             Commission: getStructure(Commission.fromPartial({})),
@@ -86,7 +98,6 @@ const getDefaultState = () => {
             RedelegationEntryResponse: getStructure(RedelegationEntryResponse.fromPartial({})),
             RedelegationResponse: getStructure(RedelegationResponse.fromPartial({})),
             Pool: getStructure(Pool.fromPartial({})),
-            LastValidatorPower: getStructure(LastValidatorPower.fromPartial({})),
             
 		},
 		_Subscriptions: new Set(),
@@ -223,394 +234,508 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		async QueryValidators({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryValidators({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryValidators( query)).data:(await (await initQueryClient(rootGetters)).queryValidators()).data
+				if (query) {
+					value = (await queryClient.queryValidators( query)).data
+				}else{
+					value = (await queryClient.queryValidators()).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryValidators({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryValidators({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'Validators', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidators', payload: { options: { all }, params: {...key},query }})
 				return getters['getValidators']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryValidators', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryValidators', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryValidator({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryValidator({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryValidator( key.validator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryValidator( key.validator_addr )).data
+				if (query) {
+					value = (await queryClient.queryValidator( key.validator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryValidator( key.validator_addr )).data
+				}
+				
 				
 				commit('QUERY', { query: 'Validator', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidator', payload: { options: { all }, params: {...key},query }})
 				return getters['getValidator']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryValidator', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryValidator', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryValidatorDelegations({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryValidatorDelegations({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryValidatorDelegations( key.validator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryValidatorDelegations( key.validator_addr )).data
+				if (query) {
+					value = (await queryClient.queryValidatorDelegations( key.validator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryValidatorDelegations( key.validator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryValidatorDelegations( key.validator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryValidatorDelegations( key.validator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'ValidatorDelegations', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidatorDelegations', payload: { options: { all }, params: {...key},query }})
 				return getters['getValidatorDelegations']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryValidatorDelegations', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryValidatorDelegations', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryValidatorUnbondingDelegations({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryValidatorUnbondingDelegations({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryValidatorUnbondingDelegations( key.validator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryValidatorUnbondingDelegations( key.validator_addr )).data
+				if (query) {
+					value = (await queryClient.queryValidatorUnbondingDelegations( key.validator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryValidatorUnbondingDelegations( key.validator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryValidatorUnbondingDelegations( key.validator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryValidatorUnbondingDelegations( key.validator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'ValidatorUnbondingDelegations', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryValidatorUnbondingDelegations', payload: { options: { all }, params: {...key},query }})
 				return getters['getValidatorUnbondingDelegations']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryValidatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryValidatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryDelegation({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryDelegation({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryDelegation( key.validator_addr,  key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryDelegation( key.validator_addr ,  key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryDelegation( key.validator_addr,  key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryDelegation( key.validator_addr ,  key.delegator_addr )).data
+				}
+				
 				
 				commit('QUERY', { query: 'Delegation', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegation', payload: { options: { all }, params: {...key},query }})
 				return getters['getDelegation']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDelegation', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryDelegation', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryUnbondingDelegation({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryUnbondingDelegation({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryUnbondingDelegation( key.validator_addr,  key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryUnbondingDelegation( key.validator_addr ,  key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryUnbondingDelegation( key.validator_addr,  key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryUnbondingDelegation( key.validator_addr ,  key.delegator_addr )).data
+				}
+				
 				
 				commit('QUERY', { query: 'UnbondingDelegation', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUnbondingDelegation', payload: { options: { all }, params: {...key},query }})
 				return getters['getUnbondingDelegation']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryUnbondingDelegation', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryUnbondingDelegation', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryDelegatorDelegations({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryDelegatorDelegations({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryDelegatorDelegations( key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryDelegatorDelegations( key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryDelegatorDelegations( key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryDelegatorDelegations( key.delegator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryDelegatorDelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryDelegatorDelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'DelegatorDelegations', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorDelegations', payload: { options: { all }, params: {...key},query }})
 				return getters['getDelegatorDelegations']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDelegatorDelegations', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryDelegatorDelegations', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryDelegatorUnbondingDelegations({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryDelegatorUnbondingDelegations({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryDelegatorUnbondingDelegations( key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryDelegatorUnbondingDelegations( key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryDelegatorUnbondingDelegations( key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryDelegatorUnbondingDelegations( key.delegator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryDelegatorUnbondingDelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryDelegatorUnbondingDelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'DelegatorUnbondingDelegations', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorUnbondingDelegations', payload: { options: { all }, params: {...key},query }})
 				return getters['getDelegatorUnbondingDelegations']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDelegatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryDelegatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryRedelegations({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryRedelegations({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryRedelegations( key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryRedelegations( key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryRedelegations( key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryRedelegations( key.delegator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryRedelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryRedelegations( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'Redelegations', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryRedelegations', payload: { options: { all }, params: {...key},query }})
 				return getters['getRedelegations']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryRedelegations', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryRedelegations', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryDelegatorValidators({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryDelegatorValidators({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryDelegatorValidators( key.delegator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryDelegatorValidators( key.delegator_addr )).data
+				if (query) {
+					value = (await queryClient.queryDelegatorValidators( key.delegator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryDelegatorValidators( key.delegator_addr )).data
+				}
+				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await (await initQueryClient(rootGetters)).queryDelegatorValidators( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					for (let prop of Object.keys(next_values)) {
-						if (Array.isArray(next_values[prop])) {
-							value[prop]=[...value[prop], ...next_values[prop]]
-						}else{
-							value[prop]=next_values[prop]
-						}
-					}
+					let next_values=(await queryClient.queryDelegatorValidators( key.delegator_addr, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
+					value = mergeResults(value,next_values);
 				}
 				
 				commit('QUERY', { query: 'DelegatorValidators', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorValidators', payload: { options: { all }, params: {...key},query }})
 				return getters['getDelegatorValidators']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryDelegatorValidator({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryDelegatorValidator({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryDelegatorValidator( key.delegator_addr,  key.validator_addr,  query)).data:(await (await initQueryClient(rootGetters)).queryDelegatorValidator( key.delegator_addr ,  key.validator_addr )).data
+				if (query) {
+					value = (await queryClient.queryDelegatorValidator( key.delegator_addr,  key.validator_addr,  query)).data
+				}else{
+					value = (await queryClient.queryDelegatorValidator( key.delegator_addr ,  key.validator_addr )).data
+				}
+				
 				
 				commit('QUERY', { query: 'DelegatorValidator', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDelegatorValidator', payload: { options: { all }, params: {...key},query }})
 				return getters['getDelegatorValidator']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDelegatorValidator', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryDelegatorValidator', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryHistoricalInfo({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryHistoricalInfo({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryHistoricalInfo( key.height,  query)).data:(await (await initQueryClient(rootGetters)).queryHistoricalInfo( key.height )).data
+				if (query) {
+					value = (await queryClient.queryHistoricalInfo( key.height,  query)).data
+				}else{
+					value = (await queryClient.queryHistoricalInfo( key.height )).data
+				}
+				
 				
 				commit('QUERY', { query: 'HistoricalInfo', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryHistoricalInfo', payload: { options: { all }, params: {...key},query }})
 				return getters['getHistoricalInfo']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryHistoricalInfo', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryHistoricalInfo', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryPool({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryPool({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryPool( query)).data:(await (await initQueryClient(rootGetters)).queryPool()).data
+				if (query) {
+					value = (await queryClient.queryPool( query)).data
+				}else{
+					value = (await queryClient.queryPool()).data
+				}
+				
 				
 				commit('QUERY', { query: 'Pool', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPool', payload: { options: { all }, params: {...key},query }})
 				return getters['getPool']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPool', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryPool', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
-		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe = false , all = false}, params: {...key}, query=null }) {
+		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
+				const queryClient=await initQueryClient(rootGetters)
+				let value
 				
-				let value = query?(await (await initQueryClient(rootGetters)).queryParams( query)).data:(await (await initQueryClient(rootGetters)).queryParams()).data
+				if (query) {
+					value = (await queryClient.queryParams( query)).data
+				}else{
+					value = (await queryClient.queryParams()).data
+				}
+				
 				
 				commit('QUERY', { query: 'Params', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: {...key},query }})
 				return getters['getParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'))
+				let err = new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.')
+				err.original = e
+				console.error(err)
 				return {}
 			}
 		},
 		
-		async sendMsgDelegate({ rootGetters }, { value, fee, memo }) {
+		async sendMsgEditValidator({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgDelegate(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgEditValidator(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgEditValidator({ rootGetters }, { value, fee, memo }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgEditValidator(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError ) {
 					throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgEditValidator:Send', 'Could not broadcast Tx.')
+					let err = new SpVuexError('TxClient:MsgEditValidator:Send', 'Could not broadcast Tx.')
+					err.original = e
+					throw err
 				}
 			}
 		},
-		async sendMsgCreateValidator({ rootGetters }, { value, fee, memo }) {
+		async sendMsgUndelegate({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgUndelegate(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.')
-				}
-			}
-		},
-		async sendMsgUndelegate({ rootGetters }, { value, fee, memo }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError ) {
 					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.')
+					let err = new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.')
+					err.original = e
+					throw err
 				}
 			}
 		},
-		async sendMsgBeginRedelegate({ rootGetters }, { value, fee, memo }) {
+		async sendMsgBeginRedelegate({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value)
-				const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], {fee: { amount: fee, 
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgBeginRedelegate(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError ) {
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.')
+					let err = new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.')
+					err.original = e
+					throw err
+				}
+			}
+		},
+		async sendMsgCreateValidator({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgCreateValidator(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError ) {
+					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					let err = new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.')
+					err.original = e
+					throw err
+				}
+			}
+		},
+		async sendMsgDelegate({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgDelegate(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError ) {
+					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					let err = new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.')
+					err.original = e
+					throw err
 				}
 			}
 		},
 		
-		async MsgDelegate({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgDelegate(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message.')
-				}
-			}
-		},
 		async MsgEditValidator({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgEditValidator(value)
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgEditValidator(value)
 				return msg
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.')
-				}
-			}
-		},
-		async MsgCreateValidator({ rootGetters }, { value }) {
-			try {
-				const msg = await (await initTxClient(rootGetters)).msgCreateValidator(value)
-				return msg
-			} catch (e) {
-				if (e.toString()=='wallet is required') {
-					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message.')
+					let err = new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.')
+					err.original = e
+					throw err
 				}
 			}
 		},
 		async MsgUndelegate({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgUndelegate(value)
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgUndelegate(value)
 				return msg
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.')
+					let err = new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.')
+					err.original = e
+					throw err
 				}
 			}
 		},
 		async MsgBeginRedelegate({ rootGetters }, { value }) {
 			try {
-				const msg = await (await initTxClient(rootGetters)).msgBeginRedelegate(value)
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgBeginRedelegate(value)
 				return msg
 			} catch (e) {
 				if (e.toString()=='wallet is required') {
 					throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message.')
+					let err = new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message.')
+					err.original = e
+					throw err
+				}
+			}
+		},
+		async MsgCreateValidator({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgCreateValidator(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					let err = new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message.')
+					err.original = e
+					throw err
+				}
+			}
+		},
+		async MsgDelegate({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgDelegate(value)
+				return msg
+			} catch (e) {
+				if (e.toString()=='wallet is required') {
+					throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					let err = new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message.')
+					err.original = e
+					throw err
 				}
 			}
 		},
