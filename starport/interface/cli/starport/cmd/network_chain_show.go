@@ -66,12 +66,11 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	case showGenesis:
 		// Generate the genesis in a temporary directory and show the content
 		tmpHome, err := nb.GenerateTemporaryGenesis(cmd.Context(), chainID, home, info)
-		defer os.RemoveAll(tmpHome)
+		defer os.RemoveAll(string(tmpHome))
 		if err != nil {
 			return err
 		}
-		genesisPath := fmt.Sprintf("%s/config/genesis.json", tmpHome)
-		genesis, err := ioutil.ReadFile(genesisPath)
+		genesis, err := ioutil.ReadFile(tmpHome.GenesisPath())
 		if err != nil {
 			return err
 		}

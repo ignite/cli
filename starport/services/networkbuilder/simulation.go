@@ -36,14 +36,14 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	// Generate a temporary genesis from the simulated launch information
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
 	tmpHome, err := b.GenerateTemporaryGenesis(ctx, chainID, homeDir, simulatedLaunchInfo)
-	defer os.RemoveAll(tmpHome)
+	defer os.RemoveAll(string(tmpHome))
 	if err != nil {
 		return false, err
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
 	// set the config with random ports to test the start command
-	addressAPI, err := setSimulationConfig(tmpHome)
+	addressAPI, err := setSimulationConfig(string(tmpHome))
 	if err != nil {
 		return false, err
 	}
@@ -51,7 +51,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
-		chain.HomePath(tmpHome),
+		chain.HomePath(string(tmpHome)),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
@@ -70,7 +70,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
-	if runner.ValidateGenesis(ctx); err != nil {
+	if err := runner.ValidateGenesis(ctx); err != nil {
 		return false, nil
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis correctly formatted"))
@@ -92,7 +92,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 		// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
 		// after the execution of gentxs
-		if strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
+		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
 			err = nil
 		}
 		exit <- err

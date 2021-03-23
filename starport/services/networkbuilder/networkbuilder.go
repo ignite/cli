@@ -458,8 +458,14 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	return g.Wait()
 }
 
+type ChainHome string
+
+func (h ChainHome) GenesisPath() string {
+	return fmt.Sprintf("%s/config/genesis.json", h)
+}
+
 // Generate the genesis from the launch information in a temporary directory and return this directory
-func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, homeDir string, launchInfo spn.LaunchInformation) (string, error) {
+func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, homeDir string, launchInfo spn.LaunchInformation) (ChainHome, error) {
 	tmpHome, err := os.MkdirTemp("", "")
 	if err != nil {
 		return "", err
@@ -495,7 +501,7 @@ func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, 
 	// Run the commands to generate genesis
 	err = generateGenesis(ctx, chainInfo, launchInfo, chainHandler)
 
-	return tmpHome, err
+	return ChainHome(tmpHome), err
 }
 
 // generateGenesis generate the genesis from the launch information in the specified app home
@@ -544,7 +550,9 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	}
 
 	// reset gentx directory
-	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
+	if err := os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm); err != nil {
+		return err
+	}
 	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
 	if err != nil {
 		return err
