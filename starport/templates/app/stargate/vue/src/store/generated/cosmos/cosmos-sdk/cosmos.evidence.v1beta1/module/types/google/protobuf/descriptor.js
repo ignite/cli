@@ -1256,7 +1256,6 @@ const baseFieldDescriptorProto = {
     defaultValue: "",
     oneofIndex: 0,
     jsonName: "",
-    proto3Optional: false,
 };
 export const FieldDescriptorProto = {
     encode(message, writer = Writer.create()) {
@@ -1289,9 +1288,6 @@ export const FieldDescriptorProto = {
         }
         if (message.options !== undefined) {
             FieldOptions.encode(message.options, writer.uint32(66).fork()).ldelim();
-        }
-        if (message.proto3Optional === true) {
-            writer.uint32(136).bool(message.proto3Optional);
         }
         return writer;
     },
@@ -1331,9 +1327,6 @@ export const FieldDescriptorProto = {
                     break;
                 case 8:
                     message.options = FieldOptions.decode(reader, reader.uint32());
-                    break;
-                case 17:
-                    message.proto3Optional = reader.bool();
                     break;
                 default:
                     reader.skipType(tag & 7);
@@ -1404,12 +1397,6 @@ export const FieldDescriptorProto = {
         else {
             message.options = undefined;
         }
-        if (object.proto3Optional !== undefined && object.proto3Optional !== null) {
-            message.proto3Optional = Boolean(object.proto3Optional);
-        }
-        else {
-            message.proto3Optional = false;
-        }
         return message;
     },
     toJSON(message) {
@@ -1430,8 +1417,6 @@ export const FieldDescriptorProto = {
             (obj.options = message.options
                 ? FieldOptions.toJSON(message.options)
                 : undefined);
-        message.proto3Optional !== undefined &&
-            (obj.proto3Optional = message.proto3Optional);
         return obj;
     },
     fromPartial(object) {
@@ -1495,12 +1480,6 @@ export const FieldDescriptorProto = {
         }
         else {
             message.options = undefined;
-        }
-        if (object.proto3Optional !== undefined && object.proto3Optional !== null) {
-            message.proto3Optional = object.proto3Optional;
-        }
-        else {
-            message.proto3Optional = false;
         }
         return message;
     },

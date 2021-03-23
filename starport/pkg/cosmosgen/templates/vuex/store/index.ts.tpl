@@ -111,7 +111,7 @@ export default {
 		async {{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}}{{ if (gt $j 0)}}, {{ end}} key.{{$a}}{{end}} {{ if $rule.HasQuery }}{{ if $rule.Params }}, {{ end }}query{{ end }}{{ if $rule.HasBody}}{{ if $rule.HasQuery }},{{ end }}{...key}{{ end }} )).data
+				let value= (await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}}{{ if (gt $j 0)}}, {{ end}} key.{{$a}}{{end}} {{ if $rule.HasQuery }}{{ if $rule.Params }}, {{ end }}query{{ end }}{{ if $rule.HasBody}}{{ if or $rule.HasQuery $rule.Params}},{{ end }}{...key}{{ end }} )).data
 				
 				{{ if $rule.HasQuery}}
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
