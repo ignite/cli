@@ -52,8 +52,8 @@ func (k Keeper) Append<%= title(TypeName) %>(
     }
 
     store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-    bz := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-    store.Set(Get<%= title(TypeName) %>IDBytes(<%= TypeName %>.Id), bz)
+    appendedValue := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
+    store.Set(Get<%= title(TypeName) %>IDBytes(<%= TypeName %>.Id), appendedValue)
 
     // Update <%= TypeName %> count
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
