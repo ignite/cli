@@ -57,7 +57,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Fetch launch information
-	info, err := nb.LaunchInformation(context.Background(), chainID)
+	info, err := nb.LaunchInformation(cmd.Context(), chainID)
 	if err != nil {
 		return err
 	}
