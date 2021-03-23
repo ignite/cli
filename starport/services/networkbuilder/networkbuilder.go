@@ -493,11 +493,9 @@ func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, 
 	}
 
 	// Run the commands to generate genesis
-	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
-		return "", err
-	}
+	err = generateGenesis(ctx, chainInfo, launchInfo, chainHandler)
 
-	return tmpHome, nil
+	return tmpHome, err
 }
 
 // generateGenesis generate the genesis from the launch information in the specified app home
