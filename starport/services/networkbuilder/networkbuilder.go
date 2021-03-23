@@ -460,7 +460,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 // Generate the genesis from the launch information in a temporary directory and return this directory
 func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, homeDir string, launchInfo spn.LaunchInformation) (string, error) {
-	tmpHome, err := ioutil.TempDir("", chainID+"*")
+	tmpHome, err := os.MkdirTemp("", "")
 	if err != nil {
 		return "", err
 	}

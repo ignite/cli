@@ -53,11 +53,11 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if showGenesis && showPeers {
-		return fmt.Errorf("%s and %s flags cannot be set both", genesisFlag, peersFlag)
+		return fmt.Errorf("%s and %s flags cannot be used together", genesisFlag, peersFlag)
 	}
 
 	// Fetch launch information
-	info, err := nb.LaunchInformation(context.Background(), chainID)
+	info, err := nb.LaunchInformation(cmd.Context(), chainID)
 	if err != nil {
 		return err
 	}
@@ -78,7 +78,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		fmt.Print(string(genesis))
 	case showPeers:
 		// Show the peers in the config.toml format
-		fmt.Printf("persistent_peers = \"%s\"", strings.Join(info.Peers, ","))
+		fmt.Printf(`persistent_peers = "%s"`, strings.Join(info.Peers, ","))
 	default:
 		// No flag, show the chain information and launch information in yaml format
 		chain, err := nb.ShowChain(context.Background(), chainID)
