@@ -19,7 +19,7 @@ func (e VerificationError) Error() string {
 	return e.Err.Error()
 }
 
-type gentxInfo struct {
+type GentxInfo struct {
 	ValidatorAddress string
 	SelfDelegation   sdk.Coin
 }
@@ -41,7 +41,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			selfDelegation := proposal.Validator.SelfDelegation
 
 			// Check values inside the gentx are correct
-			gentxInfo, err := parseGentx(proposal.Validator.Gentx)
+			gentxInfo, err := ParseGentx(proposal.Validator.Gentx)
 			if err != nil {
 				return VerificationError{
 					fmt.Errorf("cannot parse proposal %v gentx: %v", id, err.Error()),
@@ -90,7 +90,7 @@ type stargateGentx struct {
 	} `json:"body"`
 }
 
-func parseGentx(gentx jsondoc.Doc) (info gentxInfo, err error) {
+func ParseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
 	// Try parsing Stargate gentx
 	var stargateGentx stargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {

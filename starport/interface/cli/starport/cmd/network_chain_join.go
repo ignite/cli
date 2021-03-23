@@ -8,15 +8,26 @@ import (
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/pkg/xcobra"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"github.com/tendermint/tendermint/libs/os"
 )
+
+const (
+	flagGentx = "gentx"
+	flagPeer  = "peer"
+)
+
+var flagGroupManualJoin = []string{flagGentx, flagPeer}
 
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
@@ -28,13 +39,21 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().String(flagGentx, "", fmt.Sprintf("Path to a gentx file (optional, requires --%s to be provided)", flagGentx))
+	c.Flags().String(flagPeer, "", fmt.Sprintf("Configure peer in node-id@host:port format (optional, requires --%s to be provided)", flagPeer))
 	return c
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
-	var (
-		chainID = args[0]
-	)
+	chainID := args[0]
+
+	manualFlagCheck, err := xcobra.CheckFlagValues(cmd.Flags(), flagGroupManualJoin)
+	if err != nil {
+		return err
+	}
+	if manualFlagCheck == xcobra.FlagsSomeEmpty {
+		return fmt.Errorf("%s flags needs to be provided together", strings.Join(flagGroupManualJoin, ", "))
+	}
 
 	s := clispinner.New()
 	defer s.Stop()
@@ -55,12 +74,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// init the blockchain.
 	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID(), initOptions...)
-
-	if err == context.Canceled {
-		s.Stop()
-		fmt.Println("aborted")
-		return nil
-	}
 	if err != nil {
 		return err
 	}
@@ -72,14 +85,14 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	s.Stop()
+
 	// hold default values and user inputs for target chain to later use these to join to the chain.
 	var (
-		proposal      networkbuilder.Proposal
-		account       chain.Account
-		publicAddress string
-		accountName   = "user1"
-		accountCoins  = "1000token,100000000stake"
-		denom         = "stake"
+		account      chain.Account
+		accountName  = "user1"
+		accountCoins = "1000token,100000000stake"
+		denom        = "stake"
 	)
 	if info.Config.Validator.Staked != "" {
 		if c, err := types.ParseCoinNormalized(info.Config.Validator.Staked); err == nil {
@@ -101,18 +114,106 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// ask to create an account proposal,
 	printSection("Account proposal")
 
-	if err := cliquiz.Ask(
-		cliquiz.NewQuestion("Account coins",
-			&account.Coins,
-			cliquiz.DefaultAnswer(accountCoins),
-		),
-	); err != nil {
+	accQuestions := cliquiz.NewQuestion("Account coins",
+		&account.Coins,
+		cliquiz.DefaultAnswer(accountCoins),
+	)
+
+	if err := cliquiz.Ask(accQuestions); err != nil {
 		return err
+	}
+
+	gentx, selfDelegation, publicAddress, err := createValidatorInfo(cmd, blockchain, account, denom)
+	if err != nil {
+		return err
+	}
+
+	prettyGentx, err := gentx.Pretty()
+	if err != nil {
+		return err
+	}
+
+	// ask to confirm to join to network.
+	fmt.Printf("\nYour validator's details (Gentx): \n\n%s\n\n", prettyGentx)
+	fmt.Printf("Confirm joining to %s as a validator with the Gentx above:\n", chainID)
+
+	var shouldJoin string
+	var answerYes, answerNo = "yes", "no"
+
+	for {
+		if err := cliquiz.Ask(cliquiz.NewQuestion(fmt.Sprintf("Please enter %q or %q", answerYes, answerNo),
+			&shouldJoin,
+			cliquiz.Required(),
+		)); err != nil {
+			return err
+		}
+		if shouldJoin == answerNo {
+			s.Stop()
+			fmt.Println("said no")
+			return nil
+		}
+		if shouldJoin == answerYes {
+			break
+		}
+	}
+
+	// propose to join to the network.
+	coins, err := types.ParseCoinsNormalized(account.Coins) // parse the coins of the account
+	if err != nil {
+		return err
+	}
+
+	s.SetText("Proposing...")
+	s.Start()
+
+	if err := blockchain.Join(cmd.Context(), account.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
+		return err
+	}
+	s.Stop()
+
+	fmt.Println("\n📜  Proposal about joining as a validator has been successfully submitted!")
+	return nil
+}
+
+func createValidatorInfo(
+	cmd *cobra.Command,
+	blockchain *networkbuilder.Blockchain,
+	account chain.Account,
+	denom string,
+) (
+	gentx jsondoc.Doc,
+	selfDelegation types.Coin,
+	publicAddress string,
+	err error,
+) {
+	var (
+		gentxPath, _ = cmd.Flags().GetString(flagGentx)
+		peer, _      = cmd.Flags().GetString(flagPeer)
+	)
+
+	check, err := xcobra.CheckFlagValues(cmd.Flags(), flagGroupManualJoin)
+	if err != nil {
+		return nil, types.Coin{}, "", err
+	}
+
+	if check == xcobra.FlagsAllFilled {
+		if gentx, err = os.ReadFile(gentxPath); err != nil {
+			return nil, types.Coin{}, "", errors.Wrap(err, "cannot open gentx file")
+		}
+
+		info, err := networkbuilder.ParseGentx(gentx)
+		if err != nil {
+			return nil, types.Coin{}, "", err
+		}
+
+		return gentx, info.SelfDelegation, peer, nil
 	}
 
 	// ask to create a validator proposal.
 	fmt.Println()
 	printSection("Validator proposal")
+
+	var proposal networkbuilder.Proposal
 
 	questions := []cliquiz.Question{
 		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount,
@@ -165,66 +266,19 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		questions = append(questions, cliquiz.NewQuestion("Peer's address", &publicAddress, opts...))
 	}
 
-	s.Stop()
-
 	if err := cliquiz.Ask(questions...); err != nil {
-		return err
-	}
-	gentx, err := blockchain.IssueGentx(cmd.Context(), account, proposal)
-	if err != nil {
-		return err
+		return nil, types.Coin{}, "", err
 	}
 
-	prettyGentx, err := gentx.Pretty()
-	if err != nil {
-		return err
+	if gentx, err = blockchain.IssueGentx(cmd.Context(), account, proposal); err != nil {
+		return nil, types.Coin{}, "", err
 	}
 
-	// ask to confirm to join to network.
-	fmt.Printf("\nYour validator's details (Gentx): \n\n%s\n\n", prettyGentx)
-	fmt.Printf("Confirm joining to %s as a validator with the Gentx above:\n", chainID)
-
-	var shouldJoin string
-	var answerYes, answerNo = "yes", "no"
-
-	for {
-		if err := cliquiz.Ask(cliquiz.NewQuestion(fmt.Sprintf("Please enter %q or %q", answerYes, answerNo),
-			&shouldJoin,
-			cliquiz.Required(),
-		)); err != nil {
-			return err
-		}
-		if shouldJoin == answerNo {
-			s.Stop()
-			fmt.Println("said no")
-			return nil
-		}
-		if shouldJoin == answerYes {
-			break
-		}
+	if selfDelegation, err = types.ParseCoinNormalized(proposal.Validator.StakingAmount); err != nil {
+		return nil, types.Coin{}, "", err
 	}
 
-	// propose to join to the network.
-	coins, err := types.ParseCoinsNormalized(account.Coins) // parse the coins of the account
-	if err != nil {
-		return err
-	}
-
-	selfDelegation, err := types.ParseCoinNormalized(proposal.Validator.StakingAmount) // parse the self delegation of this account for the validator
-	if err != nil {
-		return err
-	}
-
-	s.SetText("Proposing...")
-	s.Start()
-
-	if err := blockchain.Join(cmd.Context(), account.Address, publicAddress, coins, gentx, selfDelegation); err != nil {
-		return err
-	}
-	s.Stop()
-
-	fmt.Println("\n📜  Proposal about joining as a validator has been successfully submitted!")
-	return nil
+	return gentx, selfDelegation, publicAddress, nil
 }
 
 func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
