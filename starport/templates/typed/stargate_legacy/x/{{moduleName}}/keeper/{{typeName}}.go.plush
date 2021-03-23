@@ -48,8 +48,8 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreat
     }
 
     store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-    value := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-    store.Set(Get<%= title(TypeName) %>IDBytes(<%= TypeName %>.Id), value)
+    bz := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
+    store.Set(Get<%= title(TypeName) %>IDBytes(<%= TypeName %>.Id), bz)
 
     // Update <%= TypeName %> count
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
