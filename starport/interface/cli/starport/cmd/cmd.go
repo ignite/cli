@@ -32,6 +32,7 @@ func New() *cobra.Command {
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
+	c.AddCommand(NewDocs())
 	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
 	c.AddCommand(NewServe())
