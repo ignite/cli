@@ -81,9 +81,9 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 			numbers.List(ids, "#"),
 			err.Error(),
 		)
+	} else {
+		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 	}
-
-	fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 
 	return nil
 }
