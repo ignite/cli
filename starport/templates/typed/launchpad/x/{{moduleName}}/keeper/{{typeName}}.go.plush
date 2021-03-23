@@ -50,8 +50,8 @@ func (k Keeper) Create<%= title(TypeName) %>(ctx sdk.Context, msg types.MsgCreat
 
 	store := ctx.KVStore(k.storeKey)
 	key := []byte(types.<%= title(TypeName) %>Prefix + <%= TypeName %>.ID)
-	value := k.cdc.MustMarshalBinaryLengthPrefixed(<%= TypeName %>)
-	store.Set(key, value)
+	appendedValue := k.cdc.MustMarshalBinaryLengthPrefixed(<%= TypeName %>)
+	store.Set(key, appendedValue)
 
 	// Update <%= TypeName %> count
     k.Set<%= title(TypeName) %>Count(ctx, count+1)
