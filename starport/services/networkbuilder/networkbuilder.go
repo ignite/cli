@@ -465,7 +465,7 @@ func (b *Builder) GenerateTemporaryGenesis(
 	homeDir string,
 	launchInfo spn.LaunchInformation,
 	tmpDir string,
-	) (string, error) {
+) (string, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return "", err
