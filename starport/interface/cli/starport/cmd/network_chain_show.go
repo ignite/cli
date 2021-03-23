@@ -53,7 +53,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if showGenesis && showPeers {
-		return fmt.Errorf("%s and %s flags cannot be set both", genesisFlag, peersFlag)
+		return fmt.Errorf("%s and %s flags cannot be used together", genesisFlag, peersFlag)
 	}
 
 	// Fetch launch information
