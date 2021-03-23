@@ -550,9 +550,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	}
 
 	// reset gentx directory
-	if err := os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm); err != nil {
-		return err
-	}
+	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
 	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
 	if err != nil {
 		return err
