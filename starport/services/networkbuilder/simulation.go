@@ -33,17 +33,22 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		return false, err
 	}
 
+	tmpHome, err := os.MkdirTemp("", "")
+	if err != nil {
+		return false, err
+	}
+	defer os.RemoveAll(tmpHome)
+
 	// Generate a temporary genesis from the simulated launch information
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
-	tmpHome, err := b.GenerateTemporaryGenesis(ctx, chainID, homeDir, simulatedLaunchInfo)
-	defer os.RemoveAll(string(tmpHome))
+	_, err = b.GenerateTemporaryGenesis(ctx, chainID, homeDir, simulatedLaunchInfo, tmpHome)
 	if err != nil {
 		return false, err
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
 	// set the config with random ports to test the start command
-	addressAPI, err := setSimulationConfig(string(tmpHome))
+	addressAPI, err := setSimulationConfig(tmpHome)
 	if err != nil {
 		return false, err
 	}
@@ -51,7 +56,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
-		chain.HomePath(string(tmpHome)),
+		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)

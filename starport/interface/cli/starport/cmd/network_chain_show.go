@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -64,13 +63,18 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 
 	switch {
 	case showGenesis:
-		// Generate the genesis in a temporary directory and show the content
-		tmpHome, err := nb.GenerateTemporaryGenesis(cmd.Context(), chainID, home, info)
-		defer os.RemoveAll(string(tmpHome))
+		tmpHome, err := os.MkdirTemp("", "")
 		if err != nil {
 			return err
 		}
-		genesis, err := ioutil.ReadFile(tmpHome.GenesisPath())
+		defer os.RemoveAll(tmpHome)
+
+		// Generate the genesis in a temporary directory and show the content
+		genesisPath, err := nb.GenerateTemporaryGenesis(cmd.Context(), chainID, home, info, tmpHome)
+		if err != nil {
+			return err
+		}
+		genesis, err := ioutil.ReadFile(genesisPath)
 		if err != nil {
 			return err
 		}

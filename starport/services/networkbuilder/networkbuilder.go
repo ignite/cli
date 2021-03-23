@@ -458,19 +458,14 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	return g.Wait()
 }
 
-type ChainHome string
-
-func (h ChainHome) GenesisPath() string {
-	return fmt.Sprintf("%s/config/genesis.json", h)
-}
-
-// Generate the genesis from the launch information in a temporary directory and return this directory
-func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, homeDir string, launchInfo spn.LaunchInformation) (ChainHome, error) {
-	tmpHome, err := os.MkdirTemp("", "")
-	if err != nil {
-		return "", err
-	}
-
+// Generate the genesis from the launch information in a given temporary directory and return the genesis path
+func (b *Builder) GenerateTemporaryGenesis(
+	ctx context.Context,
+	chainID string,
+	homeDir string,
+	launchInfo spn.LaunchInformation,
+	tmpDir string,
+	) (string, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
 		return "", err
@@ -478,7 +473,7 @@ func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, 
 
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
-		chain.HomePath(tmpHome),
+		chain.HomePath(tmpDir),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
@@ -494,14 +489,16 @@ func (b *Builder) GenerateTemporaryGenesis(ctx context.Context, chainID string, 
 			return "", err
 		}
 	}
-	if err := copy.Copy(originHome, tmpHome); err != nil {
+	if err := copy.Copy(originHome, tmpDir); err != nil {
 		return "", err
 	}
 
 	// Run the commands to generate genesis
-	err = generateGenesis(ctx, chainInfo, launchInfo, chainHandler)
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
+		return "", err
+	}
 
-	return ChainHome(tmpHome), err
+	return chainHandler.GenesisPath()
 }
 
 // generateGenesis generate the genesis from the launch information in the specified app home
