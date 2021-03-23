@@ -80,7 +80,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		fmt.Printf(`persistent_peers = "%s"`, strings.Join(info.Peers, ","))
 	default:
 		// No flag, show the chain information and launch information in yaml format
-		chain, err := nb.ShowChain(context.Background(), chainID)
+		chain, err := nb.ShowChain(cmd.Context(), chainID)
 		if err != nil {
 			return err
 		}
