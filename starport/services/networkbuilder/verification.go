@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
-type GentxInfo struct {
+type gentxInfo struct {
 	ValidatorAddress string
 	SelfDelegation   sdk.Coin
 }
@@ -64,7 +64,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	return b.SimulateProposals(ctx, chainID, homeDir, proposals, commandOut)
 }
 
-type StargateGentx struct {
+type stargateGentx struct {
 	Body struct {
 		Messages []struct {
 			ValidatorAddress string `json:"validator_address"`
