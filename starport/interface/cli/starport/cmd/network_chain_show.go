@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"fmt"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -74,7 +73,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		if err != nil {
 			return err
 		}
-		genesis, err := ioutil.ReadFile(genesisPath)
+		genesis, err := os.ReadFile(genesisPath)
 		if err != nil {
 			return err
 		}
