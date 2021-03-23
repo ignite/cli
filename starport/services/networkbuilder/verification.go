@@ -76,9 +76,9 @@ type stargateGentx struct {
 	} `json:"body"`
 }
 
-func parseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
+func parseGentx(gentx jsondoc.Doc) (info gentxInfo, err error) {
 	// Try parsing Stargate gentx
-	var stargateGentx StargateGentx
+	var stargateGentx stargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
 		return info, err
 	}
