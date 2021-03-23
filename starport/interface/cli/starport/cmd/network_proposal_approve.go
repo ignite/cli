@@ -72,16 +72,9 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		correct, reason, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, ioutil.Discard)
+		err = nb.VerifyProposals(cmd.Context(), chainID, home, ids, ioutil.Discard)
 		if err != nil {
 			return err
-		}
-		if !correct {
-			return fmt.Errorf(
-				"proposal(s) %s invalid: %s",
-				numbers.List(ids, "#"),
-				reason,
-			)
 		}
 		s.Stop()
 	}

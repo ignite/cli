@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -69,19 +70,20 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	correct, reason, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
-	if err != nil {
-		return err
-	}
+	err = nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
 	s.Stop()
-	if correct {
-		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
-	} else {
-		fmt.Printf("Proposal(s) %s invalid 🔍❌️\nReason: %s️\n",
+	if err != nil {
+		var verificationError networkbuilder.VerificationError
+		if !errors.As(err, &verificationError) {
+			return err
+		}
+		fmt.Printf("Proposal(s) %s invalid 🔍❌️\nError: %s️\n",
 			numbers.List(ids, "#"),
-			reason,
+			err.Error(),
 		)
 	}
+
+	fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 
 	return nil
 }

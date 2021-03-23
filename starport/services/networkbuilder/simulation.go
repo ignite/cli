@@ -78,7 +78,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
 	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainHandler); err != nil {
 		return VerificationError{
-			fmt.Errorf( "genesis cannot be generated from launch information: %s", err.Error()),
+			fmt.Errorf("genesis cannot be generated from launch information: %s", err.Error()),
 		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
@@ -99,7 +99,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
 	if runner.ValidateGenesis(ctx); err != nil {
 		return VerificationError{
-			fmt.Errorf( "genesis is invalid: %s", err.Error()),
+			fmt.Errorf("genesis is invalid: %s", err.Error()),
 		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis correctly formatted"))
@@ -129,7 +129,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 
 	if err := <-exit; err != nil {
 		return VerificationError{
-			fmt.Errorf( "blockchain cannot start from the generated genesis: %s", err.Error()),
+			fmt.Errorf("blockchain cannot start from the generated genesis: %s", err.Error()),
 		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "chain can be started"))
