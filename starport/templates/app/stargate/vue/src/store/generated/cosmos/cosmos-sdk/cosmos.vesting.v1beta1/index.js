@@ -106,9 +106,7 @@ export default {
                     throw new SpVuexError('TxClient:MsgCreateVestingAccount:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgCreateVestingAccount:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgCreateVestingAccount:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -119,13 +117,11 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgCreateVestingAccount:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgCreateVestingAccount:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgCreateVestingAccount:Create', 'Could not create message: ' + e.message);
                 }
             }
         },

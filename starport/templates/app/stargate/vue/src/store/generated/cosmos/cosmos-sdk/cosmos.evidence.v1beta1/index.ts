@@ -110,55 +110,51 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
+		
+		
+		
+		 
+
 		async QueryEvidence({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				
-				if (query) {
-					value = (await queryClient.queryEvidence( key.evidence_hash,  query)).data
-				}else{
-					value = (await queryClient.queryEvidence( key.evidence_hash )).data
-				}
+				let value= (await queryClient.queryEvidence( key.evidence_hash  )).data
 				
 				
 				commit('QUERY', { query: 'Evidence', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryEvidence', payload: { options: { all }, params: {...key},query }})
 				return getters['getEvidence']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		
+		
+		
+		
+		 
+
 		async QueryAllEvidence({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				
-				if (query) {
-					value = (await queryClient.queryAllEvidence( query)).data
-				}else{
-					value = (await queryClient.queryAllEvidence()).data
-				}
+				let value= (await queryClient.queryAllEvidence( query )).data
 				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryAllEvidence({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					value = mergeResults(value,next_values);
+					value = mergeResults(value, next_values);
 				}
 				
 				commit('QUERY', { query: 'AllEvidence', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryAllEvidence', payload: { options: { all }, params: {...key},query }})
 				return getters['getAllEvidence']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		
 		
 		async sendMsgSubmitEvidence({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
@@ -168,12 +164,10 @@ export default {
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e == MissingWalletError ) {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgSubmitEvidence:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:MsgSubmitEvidence:Send', 'Could not broadcast Tx.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -184,12 +178,11 @@ export default {
 				const msg = await txClient.msgSubmitEvidence(value)
 				return msg
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgSubmitEvidence:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:MsgSubmitEvidence:Create', 'Could not create message.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:MsgSubmitEvidence:Create', 'Could not create message: ' + e.message)
+					
 				}
 			}
 		},

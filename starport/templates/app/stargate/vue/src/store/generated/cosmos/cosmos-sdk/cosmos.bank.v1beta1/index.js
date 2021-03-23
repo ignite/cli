@@ -151,13 +151,7 @@ export default {
         async QueryBalance({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryBalance(key.address, key.denom, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryBalance(key.address, key.denom)).data;
-                }
+                let value = (await queryClient.queryBalance(key.address, key.denom)).data;
                 commit('QUERY', { query: 'Balance', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryBalance', payload: { options: { all }, params: { ...key }, query } });
@@ -173,13 +167,7 @@ export default {
         async QueryAllBalances({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryAllBalances(key.address, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryAllBalances(key.address)).data;
-                }
+                let value = (await queryClient.queryAllBalances(key.address, query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryAllBalances(key.address, { ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -199,13 +187,7 @@ export default {
         async QueryTotalSupply({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryTotalSupply(query)).data;
-                }
-                else {
-                    value = (await queryClient.queryTotalSupply()).data;
-                }
+                let value = (await queryClient.queryTotalSupply()).data;
                 commit('QUERY', { query: 'TotalSupply', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryTotalSupply', payload: { options: { all }, params: { ...key }, query } });
@@ -221,13 +203,7 @@ export default {
         async QuerySupplyOf({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.querySupplyOf(key.denom, query)).data;
-                }
-                else {
-                    value = (await queryClient.querySupplyOf(key.denom)).data;
-                }
+                let value = (await queryClient.querySupplyOf(key.denom)).data;
                 commit('QUERY', { query: 'SupplyOf', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QuerySupplyOf', payload: { options: { all }, params: { ...key }, query } });
@@ -243,13 +219,7 @@ export default {
         async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryParams(query)).data;
-                }
-                else {
-                    value = (await queryClient.queryParams()).data;
-                }
+                let value = (await queryClient.queryParams()).data;
                 commit('QUERY', { query: 'Params', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: { ...key }, query } });
@@ -265,13 +235,7 @@ export default {
         async QueryDenomMetadata({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryDenomMetadata(key.denom, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryDenomMetadata(key.denom)).data;
-                }
+                let value = (await queryClient.queryDenomMetadata(key.denom)).data;
                 commit('QUERY', { query: 'DenomMetadata', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryDenomMetadata', payload: { options: { all }, params: { ...key }, query } });
@@ -287,13 +251,7 @@ export default {
         async QueryDenomsMetadata({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryDenomsMetadata(query)).data;
-                }
-                else {
-                    value = (await queryClient.queryDenomsMetadata()).data;
-                }
+                let value = (await queryClient.queryDenomsMetadata(query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryDenomsMetadata({ ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -308,25 +266,6 @@ export default {
                 err.original = e;
                 console.error(err);
                 return {};
-            }
-        },
-        async sendMsgSend({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgSend(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
             }
         },
         async sendMsgMultiSend({ rootGetters }, { value, fee = [], memo = '' }) {
@@ -348,18 +287,20 @@ export default {
                 }
             }
         },
-        async MsgSend({ rootGetters }, { value }) {
+        async sendMsgSend({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
                 const msg = await txClient.msgSend(value);
-                return msg;
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgSend:Create', 'Could not create message.');
+                    let err = new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx.');
                     err.original = e;
                     throw err;
                 }
@@ -372,11 +313,28 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
                     let err = new SpVuexError('TxClient:MsgMultiSend:Create', 'Could not create message.');
+                    err.original = e;
+                    throw err;
+                }
+            }
+        },
+        async MsgSend({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgSend(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    let err = new SpVuexError('TxClient:MsgSend:Create', 'Could not create message.');
                     err.original = e;
                     throw err;
                 }

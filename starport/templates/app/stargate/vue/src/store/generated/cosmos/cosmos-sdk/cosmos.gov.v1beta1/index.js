@@ -158,13 +158,7 @@ export default {
         async QueryProposal({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryProposal(key.proposal_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryProposal(key.proposal_id)).data;
-                }
+                let value = (await queryClient.queryProposal(key.proposal_id)).data;
                 commit('QUERY', { query: 'Proposal', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryProposal', payload: { options: { all }, params: { ...key }, query } });
@@ -180,13 +174,7 @@ export default {
         async QueryProposals({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryProposals(query)).data;
-                }
-                else {
-                    value = (await queryClient.queryProposals()).data;
-                }
+                let value = (await queryClient.queryProposals(query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryProposals({ ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -206,13 +194,7 @@ export default {
         async QueryVote({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryVote(key.proposal_id, key.voter, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryVote(key.proposal_id, key.voter)).data;
-                }
+                let value = (await queryClient.queryVote(key.proposal_id, key.voter)).data;
                 commit('QUERY', { query: 'Vote', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryVote', payload: { options: { all }, params: { ...key }, query } });
@@ -228,13 +210,7 @@ export default {
         async QueryVotes({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryVotes(key.proposal_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryVotes(key.proposal_id)).data;
-                }
+                let value = (await queryClient.queryVotes(key.proposal_id, query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryVotes(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -254,13 +230,7 @@ export default {
         async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryParams(key.params_type, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryParams(key.params_type)).data;
-                }
+                let value = (await queryClient.queryParams(key.params_type)).data;
                 commit('QUERY', { query: 'Params', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: { ...key }, query } });
@@ -276,13 +246,7 @@ export default {
         async QueryDeposit({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryDeposit(key.proposal_id, key.depositor, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryDeposit(key.proposal_id, key.depositor)).data;
-                }
+                let value = (await queryClient.queryDeposit(key.proposal_id, key.depositor)).data;
                 commit('QUERY', { query: 'Deposit', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryDeposit', payload: { options: { all }, params: { ...key }, query } });
@@ -298,13 +262,7 @@ export default {
         async QueryDeposits({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryDeposits(key.proposal_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryDeposits(key.proposal_id)).data;
-                }
+                let value = (await queryClient.queryDeposits(key.proposal_id, query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryDeposits(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -324,13 +282,7 @@ export default {
         async QueryTallyResult({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryTallyResult(key.proposal_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryTallyResult(key.proposal_id)).data;
-                }
+                let value = (await queryClient.queryTallyResult(key.proposal_id)).data;
                 commit('QUERY', { query: 'TallyResult', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryTallyResult', payload: { options: { all }, params: { ...key }, query } });
@@ -407,7 +359,7 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
@@ -424,7 +376,7 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
@@ -441,7 +393,7 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {

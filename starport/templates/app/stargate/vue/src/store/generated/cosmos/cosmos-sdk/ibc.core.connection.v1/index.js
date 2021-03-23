@@ -133,13 +133,7 @@ export default {
         async QueryConnection({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryConnection(key.connection_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryConnection(key.connection_id)).data;
-                }
+                let value = (await queryClient.queryConnection(key.connection_id)).data;
                 commit('QUERY', { query: 'Connection', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryConnection', payload: { options: { all }, params: { ...key }, query } });
@@ -155,13 +149,7 @@ export default {
         async QueryConnections({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryConnections(query)).data;
-                }
-                else {
-                    value = (await queryClient.queryConnections()).data;
-                }
+                let value = (await queryClient.queryConnections(query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
                     let next_values = (await queryClient.queryConnections({ ...query, 'pagination.key': value.pagination.nextKey })).data;
                     value = mergeResults(value, next_values);
@@ -181,13 +169,7 @@ export default {
         async QueryClientConnections({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryClientConnections(key.client_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryClientConnections(key.client_id)).data;
-                }
+                let value = (await queryClient.queryClientConnections(key.client_id)).data;
                 commit('QUERY', { query: 'ClientConnections', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryClientConnections', payload: { options: { all }, params: { ...key }, query } });
@@ -203,13 +185,7 @@ export default {
         async QueryConnectionClientState({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryConnectionClientState(key.connection_id, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryConnectionClientState(key.connection_id)).data;
-                }
+                let value = (await queryClient.queryConnectionClientState(key.connection_id)).data;
                 commit('QUERY', { query: 'ConnectionClientState', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryConnectionClientState', payload: { options: { all }, params: { ...key }, query } });
@@ -225,13 +201,7 @@ export default {
         async QueryConnectionConsensusState({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
                 const queryClient = await initQueryClient(rootGetters);
-                let value;
-                if (query) {
-                    value = (await queryClient.queryConnectionConsensusState(key.connection_id, key.revision_number, key.revision_height, query)).data;
-                }
-                else {
-                    value = (await queryClient.queryConnectionConsensusState(key.connection_id, key.revision_number, key.revision_height)).data;
-                }
+                let value = (await queryClient.queryConnectionConsensusState(key.connection_id, key.revision_number, key.revision_height)).data;
                 commit('QUERY', { query: 'ConnectionConsensusState', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryConnectionConsensusState', payload: { options: { all }, params: { ...key }, query } });
@@ -282,25 +252,6 @@ export default {
                 }
             }
         },
-        async sendMsgConnectionOpenConfirm({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgConnectionOpenConfirm(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
         async sendMsgConnectionOpenAck({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -320,6 +271,25 @@ export default {
                 }
             }
         },
+        async sendMsgConnectionOpenConfirm({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgConnectionOpenConfirm(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Send', 'Could not broadcast Tx.');
+                    err.original = e;
+                    throw err;
+                }
+            }
+        },
         async MsgConnectionOpenTry({ rootGetters }, { value }) {
             try {
                 const txClient = await initTxClient(rootGetters);
@@ -327,7 +297,7 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgConnectionOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
@@ -344,28 +314,11 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgConnectionOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
                     let err = new SpVuexError('TxClient:MsgConnectionOpenInit:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async MsgConnectionOpenConfirm({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgConnectionOpenConfirm(value);
-                return msg;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Create', 'Could not create message.');
                     err.original = e;
                     throw err;
                 }
@@ -378,11 +331,28 @@ export default {
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgConnectionOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
                     let err = new SpVuexError('TxClient:MsgConnectionOpenAck:Create', 'Could not create message.');
+                    err.original = e;
+                    throw err;
+                }
+            }
+        },
+        async MsgConnectionOpenConfirm({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgConnectionOpenConfirm(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Create', 'Could not create message.');
                     err.original = e;
                     throw err;
                 }

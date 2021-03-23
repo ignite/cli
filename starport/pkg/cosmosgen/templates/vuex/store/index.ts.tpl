@@ -103,39 +103,31 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
-		{{ range .Module.HTTPQueries }}async {{ .FullName }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
+		{{ range .Module.HTTPQueries }}
+		{{ $FullName := .FullName }}
+		{{ $Name := .Name }}
+		{{ range $i,$rule := .Rules}} 
+
+		async {{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				{{ if (index .Rules 0).HasBody}}
-					{{ if (index .Rules 0).HasQuery}}				
-				value = (await queryClient.{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}} query, {...key})).data
-					{{ else }}
-				value = (await queryClient.{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}} {...key})).data
-					{{ end }}
-				{{ else }}
-				if (query) {
-					value = (await queryClient.{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}} query)).data
-				}else{
-					value = (await queryClient.{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}}{{ if (gt $i 0)}}, {{ end}} key.{{$a}} {{end}})).data
-				}
-				{{ end }}
-				{{ if (index .Rules 0).HasQuery}}
+				let value= (await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}}{{ if (gt $j 0)}}, {{ end}} key.{{$a}}{{end}} {{ if $rule.HasQuery }}{{ if $rule.Params }}, {{ end }}query{{ end }}{{ if $rule.HasBody}}{{ if $rule.HasQuery }},{{ end }}{...key}{{ end }} )).data
+				
+				{{ if $rule.HasQuery}}
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await queryClient.{{ camelCase .FullName }}({{ range $i,$a :=(index .Rules 0).Params}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					value = mergeResults(value,next_values);
+					let next_values=(await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey}{{if $rule.HasBody}},{...key}{{ end}})).data
+					value = mergeResults(value, next_values);
 				}
 				{{ end }}
-				commit('QUERY', { query: '{{ .Name }}', key: { params: {...key}, query}, value })
-				if (subscribe) commit('SUBSCRIBE', { action: '{{ .FullName }}', payload: { options: { all }, params: {...key},query }})
-				return getters['get{{.Name }}']( { params: {...key}, query}) ?? {}
+				commit('QUERY', { query: '{{ $Name }}', key: { params: {...key}, query}, value })
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}', payload: { options: { all }, params: {...key},query }})
+				return getters['get{{ $Name }}']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:{{ .FullName }}', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:{{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		{{ end }}
 		{{ end }}
 		{{ range .Module.Msgs }}async send{{ .Name }}({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
@@ -145,12 +137,10 @@ export default {
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e == MissingWalletError ) {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:{{ .Name }}:Send', 'Could not broadcast Tx.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:{{ .Name }}:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -161,12 +151,11 @@ export default {
 				const msg = await txClient.{{ camelCase .Name }}(value)
 				return msg
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:{{ .Name }}:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:{{ .Name }}:Create', 'Could not create message.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:{{ .Name }}:Create', 'Could not create message: ' + e.message)
+					
 				}
 			}
 		},

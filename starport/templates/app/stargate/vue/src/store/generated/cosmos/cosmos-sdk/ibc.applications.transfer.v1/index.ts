@@ -121,77 +121,71 @@ export default {
 				dispatch(subscription.action, subscription.payload)
 			})
 		},
+		
+		
+		
+		 
+
 		async QueryDenomTrace({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				
-				if (query) {
-					value = (await queryClient.queryDenomTrace( key.hash,  query)).data
-				}else{
-					value = (await queryClient.queryDenomTrace( key.hash )).data
-				}
+				let value= (await queryClient.queryDenomTrace( key.hash  )).data
 				
 				
 				commit('QUERY', { query: 'DenomTrace', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { options: { all }, params: {...key},query }})
 				return getters['getDenomTrace']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		
+		
+		
+		
+		 
+
 		async QueryDenomTraces({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				
-				if (query) {
-					value = (await queryClient.queryDenomTraces( query)).data
-				}else{
-					value = (await queryClient.queryDenomTraces()).data
-				}
+				let value= (await queryClient.queryDenomTraces( query )).data
 				
 				
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryDenomTraces({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
-					value = mergeResults(value,next_values);
+					value = mergeResults(value, next_values);
 				}
 				
 				commit('QUERY', { query: 'DenomTraces', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { options: { all }, params: {...key},query }})
 				return getters['getDenomTraces']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		
+		
+		
+		
+		 
+
 		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value
-				
-				if (query) {
-					value = (await queryClient.queryParams( query)).data
-				}else{
-					value = (await queryClient.queryParams()).data
-				}
+				let value= (await queryClient.queryParams(  )).data
 				
 				
 				commit('QUERY', { query: 'Params', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: {...key},query }})
 				return getters['getParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				let err = new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.')
-				err.original = e
-				console.error(err)
+				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message))
 				return {}
 			}
 		},
+		
 		
 		async sendMsgTransfer({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
@@ -201,12 +195,10 @@ export default {
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
-				if (e == MissingWalletError ) {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgTransfer:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:MsgTransfer:Send', 'Could not broadcast Tx.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:MsgTransfer:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -217,12 +209,11 @@ export default {
 				const msg = await txClient.msgTransfer(value)
 				return msg
 			} catch (e) {
-				if (e.toString()=='wallet is required') {
+				if (e == MissingWalletError) {
 					throw new SpVuexError('TxClient:MsgTransfer:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					let err = new SpVuexError('TxClient:MsgTransfer:Create', 'Could not create message.')
-					err.original = e
-					throw err
+					throw new SpVuexError('TxClient:MsgTransfer:Create', 'Could not create message: ' + e.message)
+					
 				}
 			}
 		},
