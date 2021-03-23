@@ -82,7 +82,7 @@ func (msg *MsgUpdate<%= title(TypeName) %>) ValidateBasic() error {
    return nil
 }
 
-var _ sdk.Msg = &MsgCreate<%= title(TypeName) %>{}
+var _ sdk.Msg = &MsgDelete<%= title(TypeName) %>{}
 
 func NewMsgDelete<%= title(TypeName) %>(creator string, id uint64) *MsgDelete<%= title(TypeName) %> {
   return &MsgDelete<%= title(TypeName) %>{
