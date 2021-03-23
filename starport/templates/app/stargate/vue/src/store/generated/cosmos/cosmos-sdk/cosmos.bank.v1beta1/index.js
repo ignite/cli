@@ -130,7 +130,7 @@ export default {
     },
     actions: {
         init({ dispatch, rootGetters }) {
-            console.log('init');
+            console.log('Vuex module: cosmos.bank.v1beta1 initialized!');
             if (rootGetters['common/env/client']) {
                 rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
@@ -158,9 +158,7 @@ export default {
                 return getters['getBalance']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryBalance', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryBalance', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -178,9 +176,7 @@ export default {
                 return getters['getAllBalances']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryAllBalances', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryAllBalances', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -194,9 +190,7 @@ export default {
                 return getters['getTotalSupply']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryTotalSupply', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryTotalSupply', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -210,9 +204,7 @@ export default {
                 return getters['getSupplyOf']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QuerySupplyOf', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QuerySupplyOf', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -226,9 +218,7 @@ export default {
                 return getters['getParams']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -242,9 +232,7 @@ export default {
                 return getters['getDenomMetadata']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDenomMetadata', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDenomMetadata', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -262,29 +250,8 @@ export default {
                 return getters['getDenomsMetadata']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDenomsMetadata', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDenomsMetadata', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
-            }
-        },
-        async sendMsgMultiSend({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgMultiSend(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgMultiSend:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
             }
         },
         async sendMsgSend({ rootGetters }, { value, fee = [], memo = '' }) {
@@ -300,26 +267,24 @@ export default {
                     throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgSend:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
-        async MsgMultiSend({ rootGetters }, { value }) {
+        async sendMsgMultiSend({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
                 const msg = await txClient.msgMultiSend(value);
-                return msg;
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgMultiSend:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgMultiSend:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -334,9 +299,22 @@ export default {
                     throw new SpVuexError('TxClient:MsgSend:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgSend:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgSend:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgMultiSend({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgMultiSend(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgMultiSend:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgMultiSend:Create', 'Could not create message: ' + e.message);
                 }
             }
         },

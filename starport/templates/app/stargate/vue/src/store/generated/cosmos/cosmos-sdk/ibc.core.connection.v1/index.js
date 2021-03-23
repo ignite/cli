@@ -112,7 +112,7 @@ export default {
     },
     actions: {
         init({ dispatch, rootGetters }) {
-            console.log('init');
+            console.log('Vuex module: ibc.core.connection.v1 initialized!');
             if (rootGetters['common/env/client']) {
                 rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
@@ -140,9 +140,7 @@ export default {
                 return getters['getConnection']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryConnection', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryConnection', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -160,9 +158,7 @@ export default {
                 return getters['getConnections']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryConnections', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryConnections', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -176,9 +172,7 @@ export default {
                 return getters['getClientConnections']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryClientConnections', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryClientConnections', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -192,9 +186,7 @@ export default {
                 return getters['getConnectionClientState']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryConnectionClientState', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryConnectionClientState', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -208,29 +200,8 @@ export default {
                 return getters['getConnectionConsensusState']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryConnectionConsensusState', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryConnectionConsensusState', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
-            }
-        },
-        async sendMsgConnectionOpenTry({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgConnectionOpenTry(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgConnectionOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenTry:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
             }
         },
         async sendMsgConnectionOpenInit({ rootGetters }, { value, fee = [], memo = '' }) {
@@ -246,28 +217,7 @@ export default {
                     throw new SpVuexError('TxClient:MsgConnectionOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenInit:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async sendMsgConnectionOpenAck({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgConnectionOpenAck(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenAck:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgConnectionOpenInit:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -284,26 +234,41 @@ export default {
                     throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
-        async MsgConnectionOpenTry({ rootGetters }, { value }) {
+        async sendMsgConnectionOpenTry({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
                 const msg = await txClient.msgConnectionOpenTry(value);
-                return msg;
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgConnectionOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenTry:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgConnectionOpenTry:Send', 'Could not broadcast Tx: ' + e.message);
+                }
+            }
+        },
+        async sendMsgConnectionOpenAck({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgConnectionOpenAck(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -318,26 +283,7 @@ export default {
                     throw new SpVuexError('TxClient:MsgConnectionOpenInit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenInit:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async MsgConnectionOpenAck({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgConnectionOpenAck(value);
-                return msg;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenAck:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgConnectionOpenInit:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
@@ -352,9 +298,37 @@ export default {
                     throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgConnectionOpenConfirm:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgConnectionOpenConfirm:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgConnectionOpenTry({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgConnectionOpenTry(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenTry:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenTry:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgConnectionOpenAck({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgConnectionOpenAck(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgConnectionOpenAck:Create', 'Could not create message: ' + e.message);
                 }
             }
         },

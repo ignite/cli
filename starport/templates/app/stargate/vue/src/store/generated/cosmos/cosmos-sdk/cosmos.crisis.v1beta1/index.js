@@ -64,7 +64,7 @@ export default {
     },
     actions: {
         init({ dispatch, rootGetters }) {
-            console.log('init');
+            console.log('Vuex module: cosmos.crisis.v1beta1 initialized!');
             if (rootGetters['common/env/client']) {
                 rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');

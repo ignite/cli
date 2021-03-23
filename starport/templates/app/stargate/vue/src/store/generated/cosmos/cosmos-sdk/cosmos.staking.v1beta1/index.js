@@ -205,7 +205,7 @@ export default {
     },
     actions: {
         init({ dispatch, rootGetters }) {
-            console.log('init');
+            console.log('Vuex module: cosmos.staking.v1beta1 initialized!');
             if (rootGetters['common/env/client']) {
                 rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
@@ -237,9 +237,7 @@ export default {
                 return getters['getValidators']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryValidators', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryValidators', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -253,9 +251,7 @@ export default {
                 return getters['getValidator']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryValidator', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryValidator', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -273,9 +269,7 @@ export default {
                 return getters['getValidatorDelegations']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryValidatorDelegations', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryValidatorDelegations', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -293,9 +287,7 @@ export default {
                 return getters['getValidatorUnbondingDelegations']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryValidatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryValidatorUnbondingDelegations', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -309,9 +301,7 @@ export default {
                 return getters['getDelegation']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDelegation', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDelegation', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -325,9 +315,7 @@ export default {
                 return getters['getUnbondingDelegation']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryUnbondingDelegation', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryUnbondingDelegation', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -345,9 +333,7 @@ export default {
                 return getters['getDelegatorDelegations']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDelegatorDelegations', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDelegatorDelegations', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -365,9 +351,7 @@ export default {
                 return getters['getDelegatorUnbondingDelegations']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDelegatorUnbondingDelegations', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDelegatorUnbondingDelegations', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -385,9 +369,7 @@ export default {
                 return getters['getRedelegations']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryRedelegations', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryRedelegations', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -405,9 +387,7 @@ export default {
                 return getters['getDelegatorValidators']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDelegatorValidators', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -421,9 +401,7 @@ export default {
                 return getters['getDelegatorValidator']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryDelegatorValidator', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryDelegatorValidator', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -437,9 +415,7 @@ export default {
                 return getters['getHistoricalInfo']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryHistoricalInfo', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryHistoricalInfo', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -453,9 +429,7 @@ export default {
                 return getters['getPool']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryPool', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryPool', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
             }
         },
@@ -469,67 +443,8 @@ export default {
                 return getters['getParams']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                let err = new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.');
-                err.original = e;
-                console.error(err);
+                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message));
                 return {};
-            }
-        },
-        async sendMsgBeginRedelegate({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgBeginRedelegate(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async sendMsgUndelegate({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgUndelegate(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async sendMsgCreateValidator({ rootGetters }, { value, fee = [], memo = '' }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgCreateValidator(value);
-                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
-                }
             }
         },
         async sendMsgEditValidator({ rootGetters }, { value, fee = [], memo = '' }) {
@@ -545,9 +460,24 @@ export default {
                     throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgEditValidator:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgEditValidator:Send', 'Could not broadcast Tx: ' + e.message);
+                }
+            }
+        },
+        async sendMsgBeginRedelegate({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgBeginRedelegate(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -564,60 +494,41 @@ export default {
                     throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgDelegate:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
-        async MsgBeginRedelegate({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgBeginRedelegate(value);
-                return msg;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async MsgUndelegate({ rootGetters }, { value }) {
-            try {
-                const txClient = await initTxClient(rootGetters);
-                const msg = await txClient.msgUndelegate(value);
-                return msg;
-            }
-            catch (e) {
-                if (e == MissingWalletError) {
-                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    let err = new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
-                }
-            }
-        },
-        async MsgCreateValidator({ rootGetters }, { value }) {
+        async sendMsgCreateValidator({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
                 const txClient = await initTxClient(rootGetters);
                 const msg = await txClient.msgCreateValidator(value);
-                return msg;
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
                 if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Send', 'Could not broadcast Tx: ' + e.message);
+                }
+            }
+        },
+        async sendMsgUndelegate({ rootGetters }, { value, fee = [], memo = '' }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgUndelegate(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
@@ -632,9 +543,22 @@ export default {
                     throw new SpVuexError('TxClient:MsgEditValidator:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgEditValidator:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgBeginRedelegate({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgBeginRedelegate(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgBeginRedelegate:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
@@ -649,9 +573,37 @@ export default {
                     throw new SpVuexError('TxClient:MsgDelegate:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    let err = new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message.');
-                    err.original = e;
-                    throw err;
+                    throw new SpVuexError('TxClient:MsgDelegate:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgCreateValidator({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgCreateValidator(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgCreateValidator:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgUndelegate({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgUndelegate(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgUndelegate:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
