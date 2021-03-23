@@ -78,7 +78,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		fmt.Print(string(genesis))
 	case showPeers:
 		// Show the peers in the config.toml format
-		fmt.Printf("persistent_peers = \"%s\"", strings.Join(info.Peers, ","))
+		fmt.Printf(`persistent_peers = "%s"`, strings.Join(info.Peers, ","))
 	default:
 		// No flag, show the chain information and launch information in yaml format
 		chain, err := nb.ShowChain(context.Background(), chainID)
