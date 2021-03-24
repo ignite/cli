@@ -214,6 +214,7 @@ func isForbiddenTypeField(name string) bool {
 	case
 		"id",
 		"index",
+		"appendedValue",
 		"creator":
 		return true
 	}
