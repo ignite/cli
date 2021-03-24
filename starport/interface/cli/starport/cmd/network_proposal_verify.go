@@ -72,18 +72,19 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	err = nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
 	s.Stop()
-	if err != nil {
-		var verificationError networkbuilder.VerificationError
-		if !errors.As(err, &verificationError) {
-			return err
-		}
+	var verificationError networkbuilder.VerificationError
+	if errors.As(err, &verificationError) {
 		fmt.Printf("Proposal(s) %s invalid 🔍❌️\nError: %s️\n",
 			numbers.List(ids, "#"),
 			err.Error(),
 		)
-	} else {
-		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
+		return nil
 	}
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 
 	return nil
 }
