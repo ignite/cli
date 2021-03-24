@@ -3,9 +3,10 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
+	"io/ioutil"
+
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
-	"io/ioutil"
 
 	"github.com/manifoldco/promptui"
 
