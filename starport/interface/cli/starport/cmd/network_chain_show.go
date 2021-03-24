@@ -61,7 +61,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 
 	switch {
 	case showGenesis:
-		if err := generateAndShowGenesis(cmd, nb, chainID, info); err != nil {
+		if err := generateAndShowGenesis(cmd.Context(), nb, chainID, info); err != nil {
 			return err
 		}
 	case showPeers:
@@ -87,7 +87,7 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func generateAndShowGenesis(cmd *cobra.Command, nb *networkbuilder.Builder, chainID string, info spn.LaunchInformation) error {
+func generateAndShowGenesis(ctx context.Context, nb *networkbuilder.Builder, chainID string, info spn.LaunchInformation) error {
 	tmpHome, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
@@ -96,22 +96,18 @@ func generateAndShowGenesis(cmd *cobra.Command, nb *networkbuilder.Builder, chai
 
 	// Initialize the blockchain
 	blockchain, err := nb.Init(
-		cmd.Context(),
+		ctx,
 		chainID,
 		networkbuilder.SourceChainID(),
 		networkbuilder.InitializationHomePath(tmpHome),
 	)
-	if err == context.Canceled {
-		fmt.Println("aborted")
-		return nil
-	}
 	if err != nil {
 		return err
 	}
 	defer blockchain.Cleanup()
 
 	// Generate the genesis in a temporary directory and show the content
-	genesisPath, err := nb.GenerateGenesisWithHome(cmd.Context(), chainID, info, tmpHome)
+	genesisPath, err := nb.GenerateGenesisWithHome(ctx, chainID, info, tmpHome)
 	if err != nil {
 		return err
 	}

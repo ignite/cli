@@ -26,7 +26,25 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 
 // VerifyProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) (bool, error) {
+	// Temporary home to test proposals
+	tmpHome, err := os.MkdirTemp("", "")
+	if err != nil {
+		return false, err
+	}
+	defer os.RemoveAll(tmpHome)
+
+	blockchain, err := b.Init(
+		ctx,
+		chainID,
+		SourceChainID(),
+		InitializationHomePath(tmpHome),
+	)
+	if err != nil {
+		return false, err
+	}
+	defer blockchain.Cleanup()
+
 	// Get the simulated launch information from these proposals
 	simulatedLaunchInfo, err := b.SimulatedLaunchInformation(ctx, chainID, proposals)
 	if err != nil {
@@ -35,14 +53,14 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 
 	// Generate a temporary genesis from the simulated launch information
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
-	_, err = b.GenerateGenesisWithHome(ctx, chainID, simulatedLaunchInfo, homeDir)
+	_, err = b.GenerateGenesisWithHome(ctx, chainID, simulatedLaunchInfo, tmpHome)
 	if err != nil {
 		return false, err
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
 	// set the config with random ports to test the start command
-	addressAPI, err := setSimulationConfig(homeDir)
+	addressAPI, err := setSimulationConfig(tmpHome)
 	if err != nil {
 		return false, err
 	}
@@ -50,7 +68,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
-		chain.HomePath(homeDir),
+		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
