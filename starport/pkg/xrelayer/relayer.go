@@ -51,6 +51,11 @@ func Start(ctx context.Context, paths ...string) error {
 			return err
 		}
 
+		_, _, err = relayer.UpdateLightClients(chains[src], chains[dst])
+		if err != nil {
+			return err
+		}
+
 		// relay packets
 		sp, err := strategy.UnrelayedSequences(chains[src], chains[dst])
 		if err != nil {
