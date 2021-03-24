@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -40,10 +41,32 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	// Temporary home to test proposals
+	tmpHome, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpHome)
+
+	// Initialize the blockchain
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
+	blockchain, err := nb.Init(
+		cmd.Context(),
+		chainID,
+		networkbuilder.SourceChainID(),
+		networkbuilder.InitializationHomePath(tmpHome),
+	)
+	if err == context.Canceled {
+		fmt.Println("aborted")
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	defer blockchain.Cleanup()
 
 	ids, err := numbers.ParseList(proposalList)
 	if err != nil {
@@ -63,13 +86,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		out = os.Stdout
 	}
 
-	// Check if custom home is provided
-	home, _, err := getHomeFlags(cmd)
-	if err != nil {
-		return err
-	}
-
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
+	verified, err := nb.VerifyProposals(cmd.Context(), chainID, tmpHome, ids, out)
 	if err != nil {
 		return err
 	}
