@@ -4,10 +4,11 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"io/ioutil"
 	"os"
+
+	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
 
 	"github.com/manifoldco/promptui"
 

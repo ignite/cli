@@ -3,10 +3,11 @@ package starportcmd
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/spn"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"os"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/spn"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
 
 	"github.com/goccy/go-yaml"
 	"github.com/spf13/cobra"
