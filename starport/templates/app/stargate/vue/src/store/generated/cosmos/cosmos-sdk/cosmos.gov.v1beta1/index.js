@@ -1,4 +1,4 @@
-import { txClient, queryClient } from './module';
+import { txClient, queryClient, MissingWalletError } from './module';
 // @ts-ignore
 import { SpVuexError } from '@starport/vuex';
 import { TextProposal } from "./module/types/cosmos/gov/v1beta1/gov";
@@ -18,6 +18,17 @@ async function initQueryClient(vuexGetters) {
     return await queryClient({
         addr: vuexGetters['common/env/apiCosmos']
     });
+}
+function mergeResults(value, next_values) {
+    for (let prop of Object.keys(next_values)) {
+        if (Array.isArray(next_values[prop])) {
+            value[prop] = [...value[prop], ...next_values[prop]];
+        }
+        else {
+            value[prop] = next_values[prop];
+        }
+    }
+    return value;
 }
 function getStructure(template) {
     let structure = { fields: [] };
@@ -126,7 +137,7 @@ export default {
     },
     actions: {
         init({ dispatch, rootGetters }) {
-            console.log('init');
+            console.log('Vuex module: cosmos.gov.v1beta1 initialized!');
             if (rootGetters['common/env/client']) {
                 rootGetters['common/env/client'].on('newblock', () => {
                     dispatch('StoreUpdate');
@@ -140,36 +151,35 @@ export default {
             commit('UNSUBSCRIBE', subscription);
         },
         async StoreUpdate({ state, dispatch }) {
-            state._Subscriptions.forEach((subscription) => {
-                dispatch(subscription.action, subscription.payload);
+            state._Subscriptions.forEach(async (subscription) => {
+                try {
+                    await dispatch(subscription.action, subscription.payload);
+                }
+                catch (e) {
+                    throw new SpVuexError('Subscriptions: ' + e.message);
+                }
             });
         },
-        async QueryProposal({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryProposal({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryProposal(key.proposal_id, query)).data : (await (await initQueryClient(rootGetters)).queryProposal(key.proposal_id)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryProposal(key.proposal_id)).data;
                 commit('QUERY', { query: 'Proposal', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryProposal', payload: { options: { all }, params: { ...key }, query } });
                 return getters['getProposal']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryProposal', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryProposal', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryProposals({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryProposals({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryProposals(query)).data : (await (await initQueryClient(rootGetters)).queryProposals()).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryProposals(query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
-                    let next_values = (await (await initQueryClient(rootGetters)).queryProposals({ ...query, 'pagination.key': value.pagination.nextKey })).data;
-                    for (let prop of Object.keys(next_values)) {
-                        if (Array.isArray(next_values[prop])) {
-                            value[prop] = [...value[prop], ...next_values[prop]];
-                        }
-                        else {
-                            value[prop] = next_values[prop];
-                        }
-                    }
+                    let next_values = (await queryClient.queryProposals({ ...query, 'pagination.key': value.pagination.nextKey })).data;
+                    value = mergeResults(value, next_values);
                 }
                 commit('QUERY', { query: 'Proposals', key: { params: { ...key }, query }, value });
                 if (subscribe)
@@ -177,36 +187,29 @@ export default {
                 return getters['getProposals']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryProposals', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryProposals', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryVote({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryVote({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryVote(key.proposal_id, key.voter, query)).data : (await (await initQueryClient(rootGetters)).queryVote(key.proposal_id, key.voter)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryVote(key.proposal_id, key.voter)).data;
                 commit('QUERY', { query: 'Vote', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryVote', payload: { options: { all }, params: { ...key }, query } });
                 return getters['getVote']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryVote', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryVote', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryVotes({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryVotes({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryVotes(key.proposal_id, query)).data : (await (await initQueryClient(rootGetters)).queryVotes(key.proposal_id)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryVotes(key.proposal_id, query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
-                    let next_values = (await (await initQueryClient(rootGetters)).queryVotes(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
-                    for (let prop of Object.keys(next_values)) {
-                        if (Array.isArray(next_values[prop])) {
-                            value[prop] = [...value[prop], ...next_values[prop]];
-                        }
-                        else {
-                            value[prop] = next_values[prop];
-                        }
-                    }
+                    let next_values = (await queryClient.queryVotes(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
+                    value = mergeResults(value, next_values);
                 }
                 commit('QUERY', { query: 'Votes', key: { params: { ...key }, query }, value });
                 if (subscribe)
@@ -214,49 +217,42 @@ export default {
                 return getters['getVotes']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryVotes', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryVotes', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryParams({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryParams(key.params_type, query)).data : (await (await initQueryClient(rootGetters)).queryParams(key.params_type)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryParams(key.params_type)).data;
                 commit('QUERY', { query: 'Params', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: { ...key }, query } });
                 return getters['getParams']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryDeposit({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryDeposit({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryDeposit(key.proposal_id, key.depositor, query)).data : (await (await initQueryClient(rootGetters)).queryDeposit(key.proposal_id, key.depositor)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryDeposit(key.proposal_id, key.depositor)).data;
                 commit('QUERY', { query: 'Deposit', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryDeposit', payload: { options: { all }, params: { ...key }, query } });
                 return getters['getDeposit']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryDeposit', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryDeposit', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryDeposits({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryDeposits({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryDeposits(key.proposal_id, query)).data : (await (await initQueryClient(rootGetters)).queryDeposits(key.proposal_id)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryDeposits(key.proposal_id, query)).data;
                 while (all && value.pagination && value.pagination.nextKey != null) {
-                    let next_values = (await (await initQueryClient(rootGetters)).queryDeposits(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
-                    for (let prop of Object.keys(next_values)) {
-                        if (Array.isArray(next_values[prop])) {
-                            value[prop] = [...value[prop], ...next_values[prop]];
-                        }
-                        else {
-                            value[prop] = next_values[prop];
-                        }
-                    }
+                    let next_values = (await queryClient.queryDeposits(key.proposal_id, { ...query, 'pagination.key': value.pagination.nextKey })).data;
+                    value = mergeResults(value, next_values);
                 }
                 commit('QUERY', { query: 'Deposits', key: { params: { ...key }, query }, value });
                 if (subscribe)
@@ -264,110 +260,115 @@ export default {
                 return getters['getDeposits']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryDeposits', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryDeposits', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async QueryTallyResult({ commit, rootGetters, getters }, { options: { subscribe = false, all = false }, params: { ...key }, query = null }) {
+        async QueryTallyResult({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
             try {
-                let value = query ? (await (await initQueryClient(rootGetters)).queryTallyResult(key.proposal_id, query)).data : (await (await initQueryClient(rootGetters)).queryTallyResult(key.proposal_id)).data;
+                const queryClient = await initQueryClient(rootGetters);
+                let value = (await queryClient.queryTallyResult(key.proposal_id)).data;
                 commit('QUERY', { query: 'TallyResult', key: { params: { ...key }, query }, value });
                 if (subscribe)
                     commit('SUBSCRIBE', { action: 'QueryTallyResult', payload: { options: { all }, params: { ...key }, query } });
                 return getters['getTallyResult']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryTallyResult', 'API Node Unavailable. Could not perform query.'));
-                return {};
+                throw new SpVuexError('QueryClient:QueryTallyResult', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
-        async sendMsgSubmitProposal({ rootGetters }, { value, fee, memo }) {
+        async sendMsgDeposit({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgSubmitProposal(value);
-                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgDeposit(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
                         gas: "200000" }, memo });
                 return result;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
-                    throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
-                }
-                else {
-                    throw new SpVuexError('TxClient:MsgSubmitProposal:Send', 'Could not broadcast Tx.');
-                }
-            }
-        },
-        async sendMsgDeposit({ rootGetters }, { value, fee, memo }) {
-            try {
-                const msg = await (await initTxClient(rootGetters)).msgDeposit(value);
-                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
-                        gas: "200000" }, memo });
-                return result;
-            }
-            catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgDeposit:Send', 'Could not broadcast Tx.');
+                    throw new SpVuexError('TxClient:MsgDeposit:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
-        async sendMsgVote({ rootGetters }, { value, fee, memo }) {
+        async sendMsgVote({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgVote(value);
-                const result = await (await initTxClient(rootGetters)).signAndBroadcast([msg], { fee: { amount: fee,
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgVote(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
                         gas: "200000" }, memo });
                 return result;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgVote:Send', 'Could not broadcast Tx.');
+                    throw new SpVuexError('TxClient:MsgVote:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
-        async MsgSubmitProposal({ rootGetters }, { value }) {
+        async sendMsgSubmitProposal({ rootGetters }, { value, fee = [], memo = '' }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgSubmitProposal(value);
-                return msg;
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgSubmitProposal(value);
+                const result = await txClient.signAndBroadcast([msg], { fee: { amount: fee,
+                        gas: "200000" }, memo });
+                return result;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgSubmitProposal:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Send', 'Could not broadcast Tx: ' + e.message);
                 }
             }
         },
         async MsgDeposit({ rootGetters }, { value }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgDeposit(value);
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgDeposit(value);
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgDeposit:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgDeposit:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgDeposit:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
         async MsgVote({ rootGetters }, { value }) {
             try {
-                const msg = await (await initTxClient(rootGetters)).msgVote(value);
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgVote(value);
                 return msg;
             }
             catch (e) {
-                if (e.toString() == 'wallet is required') {
+                if (e == MissingWalletError) {
                     throw new SpVuexError('TxClient:MsgVote:Init', 'Could not initialize signing client. Wallet is required.');
                 }
                 else {
-                    throw new SpVuexError('TxClient:MsgVote:Create', 'Could not create message.');
+                    throw new SpVuexError('TxClient:MsgVote:Create', 'Could not create message: ' + e.message);
+                }
+            }
+        },
+        async MsgSubmitProposal({ rootGetters }, { value }) {
+            try {
+                const txClient = await initTxClient(rootGetters);
+                const msg = await txClient.msgSubmitProposal(value);
+                return msg;
+            }
+            catch (e) {
+                if (e == MissingWalletError) {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Init', 'Could not initialize signing client. Wallet is required.');
+                }
+                else {
+                    throw new SpVuexError('TxClient:MsgSubmitProposal:Create', 'Could not create message: ' + e.message);
                 }
             }
         },
