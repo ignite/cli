@@ -15,8 +15,8 @@ type VerificationError struct {
 	Err error
 }
 
-func (err VerificationError) Error() string {
-	return err.Err.Error()
+func (e VerificationError) Error() string {
+	return e.Err.Error()
 }
 
 type gentxInfo struct {
