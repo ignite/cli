@@ -97,7 +97,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
-	if runner.ValidateGenesis(ctx); err != nil {
+	if err := runner.ValidateGenesis(ctx); err != nil {
 		return VerificationError{
 			fmt.Errorf("genesis is invalid: %s", err.Error()),
 		}
