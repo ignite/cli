@@ -117,72 +117,78 @@ export default {
 			commit('UNSUBSCRIBE', subscription)
 		},
 		async StoreUpdate({ state, dispatch }) {
-			state._Subscriptions.forEach((subscription) => {
-				dispatch(subscription.action, subscription.payload)
+			state._Subscriptions.forEach(async (subscription) => {
+				try {
+					await dispatch(subscription.action, subscription.payload)
+				}catch(e) {
+					throw new SpVuexError('Subscriptions: ' + e.message)
+				}
 			})
 		},
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryDenomTrace({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryDenomTrace( key.hash  )).data
+				let value= (await queryClient.queryDenomTrace( key.hash)).data
 				
-				
+					
 				commit('QUERY', { query: 'DenomTrace', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTrace', payload: { options: { all }, params: {...key},query }})
 				return getters['getDenomTrace']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryDenomTrace', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryDenomTraces({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryDenomTraces( query )).data
+				let value= (await queryClient.queryDenomTraces(query)).data
 				
-				
+					
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryDenomTraces({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					value = mergeResults(value, next_values);
 				}
-				
 				commit('QUERY', { query: 'DenomTraces', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryDenomTraces', payload: { options: { all }, params: {...key},query }})
 				return getters['getDenomTraces']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryDenomTraces', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryParams({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryParams(  )).data
+				let value= (await queryClient.queryParams()).data
 				
-				
+					
 				commit('QUERY', { query: 'Params', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryParams', payload: { options: { all }, params: {...key},query }})
 				return getters['getParams']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryParams', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		

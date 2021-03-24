@@ -99,32 +99,57 @@ export default {
 			commit('UNSUBSCRIBE', subscription)
 		},
 		async StoreUpdate({ state, dispatch }) {
-			state._Subscriptions.forEach((subscription) => {
-				dispatch(subscription.action, subscription.payload)
+			state._Subscriptions.forEach(async (subscription) => {
+				try {
+					await dispatch(subscription.action, subscription.payload)
+				}catch(e) {
+					throw new SpVuexError('Subscriptions: ' + e.message)
+				}
 			})
 		},
 		{{ range .Module.HTTPQueries }}
 		{{ $FullName := .FullName }}
 		{{ $Name := .Name }}
-		{{ range $i,$rule := .Rules}} 
-
-		async {{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
+		{{ range $i,$rule := .Rules}} 		
+		{{ $n := "" }}
+		{{ if (gt $i 0) }}
+		{{ $n = inc $i }}
+		{{ end}}
+		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}}{{ if (gt $j 0)}}, {{ end}} key.{{$a}}{{end}} {{ if $rule.HasQuery }}{{ if $rule.Params }}, {{ end }}query{{ end }}{{ if $rule.HasBody}}{{ if or $rule.HasQuery $rule.Params}},{{ end }}{...key}{{ end }} )).data
+				let value= (await queryClient.{{ camelCase $FullName -}}
+				{{- $n -}}(
+					{{- range $j,$a :=$rule.Params -}}
+						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}
+					{{- end -}}
+				  {{- if $rule.HasQuery -}}
+						{{- if $rule.Params -}}, {{ end -}}
+						query
+					{{- end -}}
+					{{- if $rule.HasBody -}}
+						{{- if or $rule.HasQuery $rule.Params}},{{ end -}}
+							{...key}
+						{{- end -}}
+					 )).data
 				
-				{{ if $rule.HasQuery}}
+					{{ if $rule.HasQuery }}
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
-					let next_values=(await queryClient.{{ camelCase $FullName }}({{ range $j,$a :=$rule.Params}} key.{{$a}}, {{end}}{...query, 'pagination.key':(<any> value).pagination.nextKey}{{if $rule.HasBody}},{...key}{{ end}})).data
+					let next_values=(await queryClient.{{ camelCase $FullName -}}
+					{{- $n -}}(
+						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.nextKey}
+						{{- if $rule.HasBody -}}, {...key}
+						{{- end -}}
+						)).data
 					value = mergeResults(value, next_values);
 				}
-				{{ end }}
+					{{- end }}
 				commit('QUERY', { query: '{{ $Name }}', key: { params: {...key}, query}, value })
-				if (subscribe) commit('SUBSCRIBE', { action: '{{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}', payload: { options: { all }, params: {...key},query }})
+				if (subscribe) commit('SUBSCRIBE', { action: '{{ $FullName }}{{ $n }}', payload: { options: { all }, params: {...key},query }})
 				return getters['get{{ $Name }}']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:{{ $FullName }}{{ if (gt $i 0) }}{{$i}}{{ end}}', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:{{ $FullName }}{{ $n }}', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		{{ end }}

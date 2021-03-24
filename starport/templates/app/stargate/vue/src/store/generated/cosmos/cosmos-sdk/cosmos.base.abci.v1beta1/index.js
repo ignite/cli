@@ -1,4 +1,6 @@
 import { txClient, queryClient } from './module';
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex';
 import { TxResponse } from "./module/types/cosmos/base/abci/v1beta1/abci";
 import { ABCIMessageLog } from "./module/types/cosmos/base/abci/v1beta1/abci";
 import { StringEvent } from "./module/types/cosmos/base/abci/v1beta1/abci";
@@ -97,8 +99,13 @@ export default {
             commit('UNSUBSCRIBE', subscription);
         },
         async StoreUpdate({ state, dispatch }) {
-            state._Subscriptions.forEach((subscription) => {
-                dispatch(subscription.action, subscription.payload);
+            state._Subscriptions.forEach(async (subscription) => {
+                try {
+                    await dispatch(subscription.action, subscription.payload);
+                }
+                catch (e) {
+                    throw new SpVuexError('Subscriptions: ' + e.message);
+                }
             });
         },
     }

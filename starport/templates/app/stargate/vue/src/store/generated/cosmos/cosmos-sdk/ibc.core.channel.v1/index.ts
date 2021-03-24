@@ -195,287 +195,300 @@ export default {
 			commit('UNSUBSCRIBE', subscription)
 		},
 		async StoreUpdate({ state, dispatch }) {
-			state._Subscriptions.forEach((subscription) => {
-				dispatch(subscription.action, subscription.payload)
+			state._Subscriptions.forEach(async (subscription) => {
+				try {
+					await dispatch(subscription.action, subscription.payload)
+				}catch(e) {
+					throw new SpVuexError('Subscriptions: ' + e.message)
+				}
 			})
 		},
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryChannel({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryChannel( key.channel_id,  key.port_id  )).data
+				let value= (await queryClient.queryChannel( key.channel_id,  key.port_id)).data
 				
-				
+					
 				commit('QUERY', { query: 'Channel', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannel', payload: { options: { all }, params: {...key},query }})
 				return getters['getChannel']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryChannel', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryChannel', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryChannels({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryChannels( query )).data
+				let value= (await queryClient.queryChannels(query)).data
 				
-				
+					
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryChannels({...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					value = mergeResults(value, next_values);
 				}
-				
 				commit('QUERY', { query: 'Channels', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannels', payload: { options: { all }, params: {...key},query }})
 				return getters['getChannels']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryChannels', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryChannels', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryConnectionChannels({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryConnectionChannels( key.connection , query )).data
+				let value= (await queryClient.queryConnectionChannels( key.connection, query)).data
 				
-				
+					
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryConnectionChannels( key.connection, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					value = mergeResults(value, next_values);
 				}
-				
 				commit('QUERY', { query: 'ConnectionChannels', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryConnectionChannels', payload: { options: { all }, params: {...key},query }})
 				return getters['getConnectionChannels']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryConnectionChannels', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryConnectionChannels', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryChannelClientState({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryChannelClientState( key.channel_id,  key.port_id  )).data
+				let value= (await queryClient.queryChannelClientState( key.channel_id,  key.port_id)).data
 				
-				
+					
 				commit('QUERY', { query: 'ChannelClientState', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannelClientState', payload: { options: { all }, params: {...key},query }})
 				return getters['getChannelClientState']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryChannelClientState', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryChannelClientState', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryChannelConsensusState({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryChannelConsensusState( key.channel_id,  key.port_id,  key.revision_number,  key.revision_height  )).data
+				let value= (await queryClient.queryChannelConsensusState( key.channel_id,  key.port_id,  key.revision_number,  key.revision_height)).data
 				
-				
+					
 				commit('QUERY', { query: 'ChannelConsensusState', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryChannelConsensusState', payload: { options: { all }, params: {...key},query }})
 				return getters['getChannelConsensusState']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryChannelConsensusState', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryChannelConsensusState', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryPacketCommitment({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryPacketCommitment( key.channel_id,  key.port_id,  key.sequence  )).data
+				let value= (await queryClient.queryPacketCommitment( key.channel_id,  key.port_id,  key.sequence)).data
 				
-				
+					
 				commit('QUERY', { query: 'PacketCommitment', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketCommitment', payload: { options: { all }, params: {...key},query }})
 				return getters['getPacketCommitment']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPacketCommitment', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryPacketCommitment', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryPacketCommitments({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryPacketCommitments( key.channel_id,  key.port_id , query )).data
+				let value= (await queryClient.queryPacketCommitments( key.channel_id,  key.port_id, query)).data
 				
-				
+					
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryPacketCommitments( key.channel_id,  key.port_id, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					value = mergeResults(value, next_values);
 				}
-				
 				commit('QUERY', { query: 'PacketCommitments', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketCommitments', payload: { options: { all }, params: {...key},query }})
 				return getters['getPacketCommitments']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPacketCommitments', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryPacketCommitments', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryPacketReceipt({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryPacketReceipt( key.channel_id,  key.port_id,  key.sequence  )).data
+				let value= (await queryClient.queryPacketReceipt( key.channel_id,  key.port_id,  key.sequence)).data
 				
-				
+					
 				commit('QUERY', { query: 'PacketReceipt', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketReceipt', payload: { options: { all }, params: {...key},query }})
 				return getters['getPacketReceipt']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPacketReceipt', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryPacketReceipt', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryPacketAcknowledgement({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryPacketAcknowledgement( key.channel_id,  key.port_id,  key.sequence  )).data
+				let value= (await queryClient.queryPacketAcknowledgement( key.channel_id,  key.port_id,  key.sequence)).data
 				
-				
+					
 				commit('QUERY', { query: 'PacketAcknowledgement', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketAcknowledgement', payload: { options: { all }, params: {...key},query }})
 				return getters['getPacketAcknowledgement']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPacketAcknowledgement', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryPacketAcknowledgement', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryPacketAcknowledgements({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryPacketAcknowledgements( key.channel_id,  key.port_id , query )).data
+				let value= (await queryClient.queryPacketAcknowledgements( key.channel_id,  key.port_id, query)).data
 				
-				
+					
 				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
 					let next_values=(await queryClient.queryPacketAcknowledgements( key.channel_id,  key.port_id, {...query, 'pagination.key':(<any> value).pagination.nextKey})).data
 					value = mergeResults(value, next_values);
 				}
-				
 				commit('QUERY', { query: 'PacketAcknowledgements', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryPacketAcknowledgements', payload: { options: { all }, params: {...key},query }})
 				return getters['getPacketAcknowledgements']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryPacketAcknowledgements', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryPacketAcknowledgements', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryUnreceivedPackets({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryUnreceivedPackets( key.channel_id,  key.port_id,  key.packet_commitment_sequences  )).data
+				let value= (await queryClient.queryUnreceivedPackets( key.channel_id,  key.port_id,  key.packet_commitment_sequences)).data
 				
-				
+					
 				commit('QUERY', { query: 'UnreceivedPackets', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUnreceivedPackets', payload: { options: { all }, params: {...key},query }})
 				return getters['getUnreceivedPackets']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryUnreceivedPackets', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryUnreceivedPackets', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryUnreceivedAcks({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryUnreceivedAcks( key.channel_id,  key.port_id,  key.packet_ack_sequences  )).data
+				let value= (await queryClient.queryUnreceivedAcks( key.channel_id,  key.port_id,  key.packet_ack_sequences)).data
 				
-				
+					
 				commit('QUERY', { query: 'UnreceivedAcks', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryUnreceivedAcks', payload: { options: { all }, params: {...key},query }})
 				return getters['getUnreceivedAcks']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryUnreceivedAcks', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryUnreceivedAcks', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
 		
 		
 		
-		 
-
+		 		
+		
+		
 		async QueryNextSequenceReceive({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
 			try {
 				const queryClient=await initQueryClient(rootGetters)
-				let value= (await queryClient.queryNextSequenceReceive( key.channel_id,  key.port_id  )).data
+				let value= (await queryClient.queryNextSequenceReceive( key.channel_id,  key.port_id)).data
 				
-				
+					
 				commit('QUERY', { query: 'NextSequenceReceive', key: { params: {...key}, query}, value })
 				if (subscribe) commit('SUBSCRIBE', { action: 'QueryNextSequenceReceive', payload: { options: { all }, params: {...key},query }})
 				return getters['getNextSequenceReceive']( { params: {...key}, query}) ?? {}
 			} catch (e) {
-				console.error(new SpVuexError('QueryClient:QueryNextSequenceReceive', 'API Node Unavailable. Could not perform query: ' + e.message))
-				return {}
+				throw new SpVuexError('QueryClient:QueryNextSequenceReceive', 'API Node Unavailable. Could not perform query: ' + e.message)
+				
 			}
 		},
 		
@@ -495,21 +508,6 @@ export default {
 				}
 			}
 		},
-		async sendMsgRecvPacket({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgRecvPacket(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgTimeout({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -522,6 +520,21 @@ export default {
 					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgTimeout:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
+		async sendMsgChannelCloseConfirm({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgChannelCloseConfirm(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -540,21 +553,6 @@ export default {
 				}
 			}
 		},
-		async sendMsgChannelOpenTry({ rootGetters }, { value, fee = [], memo = '' }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelOpenTry(value)
-				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
-				return result
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenTry:Send', 'Could not broadcast Tx: '+ e.message)
-				}
-			}
-		},
 		async sendMsgChannelOpenAck({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -570,18 +568,18 @@ export default {
 				}
 			}
 		},
-		async sendMsgChannelOpenInit({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgRecvPacket({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelOpenInit(value)
+				const msg = await txClient.msgRecvPacket(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new SpVuexError('TxClient:MsgRecvPacket:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -600,18 +598,33 @@ export default {
 				}
 			}
 		},
-		async sendMsgChannelCloseConfirm({ rootGetters }, { value, fee = [], memo = '' }) {
+		async sendMsgChannelOpenInit({ rootGetters }, { value, fee = [], memo = '' }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelCloseConfirm(value)
+				const msg = await txClient.msgChannelOpenInit(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
   gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Send', 'Could not broadcast Tx: '+ e.message)
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Send', 'Could not broadcast Tx: '+ e.message)
+				}
+			}
+		},
+		async sendMsgChannelOpenTry({ rootGetters }, { value, fee = [], memo = '' }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgChannelOpenTry(value)
+				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
+  gas: "200000" }, memo})
+				return result
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelOpenTry:Send', 'Could not broadcast Tx: '+ e.message)
 				}
 			}
 		},
@@ -645,20 +658,6 @@ export default {
 				}
 			}
 		},
-		async MsgRecvPacket({ rootGetters }, { value }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgRecvPacket(value)
-				return msg
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message: ' + e.message)
-					
-				}
-			}
-		},
 		async MsgTimeout({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -669,6 +668,20 @@ export default {
 					throw new SpVuexError('TxClient:MsgTimeout:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
 					throw new SpVuexError('TxClient:MsgTimeout:Create', 'Could not create message: ' + e.message)
+					
+				}
+			}
+		},
+		async MsgChannelCloseConfirm({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgChannelCloseConfirm(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -687,20 +700,6 @@ export default {
 				}
 			}
 		},
-		async MsgChannelOpenTry({ rootGetters }, { value }) {
-			try {
-				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelOpenTry(value)
-				return msg
-			} catch (e) {
-				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.')
-				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenTry:Create', 'Could not create message: ' + e.message)
-					
-				}
-			}
-		},
 		async MsgChannelOpenAck({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
@@ -715,16 +714,16 @@ export default {
 				}
 			}
 		},
-		async MsgChannelOpenInit({ rootGetters }, { value }) {
+		async MsgRecvPacket({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelOpenInit(value)
+				const msg = await txClient.msgRecvPacket(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgRecvPacket:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgRecvPacket:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}
@@ -743,16 +742,30 @@ export default {
 				}
 			}
 		},
-		async MsgChannelCloseConfirm({ rootGetters }, { value }) {
+		async MsgChannelOpenInit({ rootGetters }, { value }) {
 			try {
 				const txClient=await initTxClient(rootGetters)
-				const msg = await txClient.msgChannelCloseConfirm(value)
+				const msg = await txClient.msgChannelOpenInit(value)
 				return msg
 			} catch (e) {
 				if (e == MissingWalletError) {
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Init', 'Could not initialize signing client. Wallet is required.')
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Init', 'Could not initialize signing client. Wallet is required.')
 				}else{
-					throw new SpVuexError('TxClient:MsgChannelCloseConfirm:Create', 'Could not create message: ' + e.message)
+					throw new SpVuexError('TxClient:MsgChannelOpenInit:Create', 'Could not create message: ' + e.message)
+					
+				}
+			}
+		},
+		async MsgChannelOpenTry({ rootGetters }, { value }) {
+			try {
+				const txClient=await initTxClient(rootGetters)
+				const msg = await txClient.msgChannelOpenTry(value)
+				return msg
+			} catch (e) {
+				if (e == MissingWalletError) {
+					throw new SpVuexError('TxClient:MsgChannelOpenTry:Init', 'Could not initialize signing client. Wallet is required.')
+				}else{
+					throw new SpVuexError('TxClient:MsgChannelOpenTry:Create', 'Could not create message: ' + e.message)
 					
 				}
 			}

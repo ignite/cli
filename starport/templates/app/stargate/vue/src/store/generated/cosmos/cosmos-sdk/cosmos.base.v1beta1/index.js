@@ -1,4 +1,6 @@
 import { txClient, queryClient } from './module';
+// @ts-ignore
+import { SpVuexError } from '@starport/vuex';
 import { Coin } from "./module/types/cosmos/base/v1beta1/coin";
 import { DecCoin } from "./module/types/cosmos/base/v1beta1/coin";
 import { IntProto } from "./module/types/cosmos/base/v1beta1/coin";
@@ -85,8 +87,13 @@ export default {
             commit('UNSUBSCRIBE', subscription);
         },
         async StoreUpdate({ state, dispatch }) {
-            state._Subscriptions.forEach((subscription) => {
-                dispatch(subscription.action, subscription.payload);
+            state._Subscriptions.forEach(async (subscription) => {
+                try {
+                    await dispatch(subscription.action, subscription.payload);
+                }
+                catch (e) {
+                    throw new SpVuexError('Subscriptions: ' + e.message);
+                }
             });
         },
     }

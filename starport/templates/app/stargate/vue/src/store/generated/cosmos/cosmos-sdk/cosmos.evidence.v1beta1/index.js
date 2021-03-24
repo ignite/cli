@@ -95,8 +95,13 @@ export default {
             commit('UNSUBSCRIBE', subscription);
         },
         async StoreUpdate({ state, dispatch }) {
-            state._Subscriptions.forEach((subscription) => {
-                dispatch(subscription.action, subscription.payload);
+            state._Subscriptions.forEach(async (subscription) => {
+                try {
+                    await dispatch(subscription.action, subscription.payload);
+                }
+                catch (e) {
+                    throw new SpVuexError('Subscriptions: ' + e.message);
+                }
             });
         },
         async QueryEvidence({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
@@ -109,8 +114,7 @@ export default {
                 return getters['getEvidence']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query: ' + e.message));
-                return {};
+                throw new SpVuexError('QueryClient:QueryEvidence', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
         async QueryAllEvidence({ commit, rootGetters, getters }, { options: { subscribe, all } = { subscribe: false, all: false }, params: { ...key }, query = null }) {
@@ -127,8 +131,7 @@ export default {
                 return getters['getAllEvidence']({ params: { ...key }, query }) ?? {};
             }
             catch (e) {
-                console.error(new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query: ' + e.message));
-                return {};
+                throw new SpVuexError('QueryClient:QueryAllEvidence', 'API Node Unavailable. Could not perform query: ' + e.message);
             }
         },
         async sendMsgSubmitEvidence({ rootGetters }, { value, fee = [], memo = '' }) {
