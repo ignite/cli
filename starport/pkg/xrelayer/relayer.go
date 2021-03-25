@@ -51,29 +51,29 @@ func Start(ctx context.Context, paths ...string) error {
 			return err
 		}
 
-		sh, err := relayer.NewSyncHeaders(chains[src], chains[dst])
+		_, _, err = relayer.UpdateLightClients(chains[src], chains[dst])
 		if err != nil {
 			return err
 		}
 
 		// relay packets
-		sp, err := strategy.UnrelayedSequences(chains[src], chains[dst], sh)
+		sp, err := strategy.UnrelayedSequences(chains[src], chains[dst])
 		if err != nil {
 			return err
 		}
 		if len(sp.Src) > 0 || len(sp.Dst) > 0 {
-			if err := strategy.RelayPackets(chains[src], chains[dst], sp, sh); err != nil {
+			if err := strategy.RelayPackets(chains[src], chains[dst], sp); err != nil {
 				return err
 			}
 		}
 
 		// relay acknowledgments
-		sp, err = strategy.UnrelayedAcknowledgements(chains[src], chains[dst], sh)
+		sp, err = strategy.UnrelayedAcknowledgements(chains[src], chains[dst])
 		if err != nil {
 			return err
 		}
 		if len(sp.Src) > 0 || len(sp.Dst) > 0 {
-			if err := strategy.RelayAcknowledgements(chains[src], chains[dst], sp, sh); err != nil {
+			if err := strategy.RelayAcknowledgements(chains[src], chains[dst], sp); err != nil {
 				return err
 			}
 		}

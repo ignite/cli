@@ -26,7 +26,7 @@ type gentxInfo struct {
 
 // VerifyProposals if proposals are correct and simulate them with the current launch information
 // Correctness means checks that have to be performed off-chain
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) error {
+func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) error {
 
 	// Check all proposal
 	for _, id := range proposals {
@@ -75,7 +75,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 	}
 
 	// If all proposals are correct, simulate them
-	return b.SimulateProposals(ctx, chainID, homeDir, proposals, commandOut)
+	return b.SimulateProposals(ctx, chainID, proposals, commandOut)
 }
 
 type stargateGentx struct {

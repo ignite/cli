@@ -41,6 +41,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	// Initialize the blockchain
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
@@ -64,13 +65,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		out = os.Stdout
 	}
 
-	// Check if custom home is provided
-	home, _, err := getHomeFlags(cmd)
-	if err != nil {
-		return err
-	}
-
-	err = nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
+	err = nb.VerifyProposals(cmd.Context(), chainID, ids, out)
 	s.Stop()
 	var verificationError networkbuilder.VerificationError
 	if errors.As(err, &verificationError) {
@@ -80,6 +75,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		)
 		return nil
 	}
+
 	if err != nil {
 		return err
 	}

@@ -52,6 +52,9 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			rel = strings.TrimSuffix(rel, ".proto")
 			return rel
 		},
+		"inc": func(i int) int {
+			return i + 1
+		},
 	}
 
 	// render and write the template.

@@ -4,17 +4,18 @@ import { StdFee } from "@cosmjs/launchpad";
 import { SigningStargateClient } from "@cosmjs/stargate";
 import { Registry, OfflineSigner, EncodeObject, DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { Api } from "./rest";
-import { MsgSubmitProposal } from "./types/cosmos/gov/v1beta1/tx";
 import { MsgDeposit } from "./types/cosmos/gov/v1beta1/tx";
 import { MsgVote } from "./types/cosmos/gov/v1beta1/tx";
+import { MsgSubmitProposal } from "./types/cosmos/gov/v1beta1/tx";
 
 
 const types = [
-  ["/cosmos.gov.v1beta1.MsgSubmitProposal", MsgSubmitProposal],
   ["/cosmos.gov.v1beta1.MsgDeposit", MsgDeposit],
   ["/cosmos.gov.v1beta1.MsgVote", MsgVote],
+  ["/cosmos.gov.v1beta1.MsgSubmitProposal", MsgSubmitProposal],
   
 ];
+export const MissingWalletError = new Error("wallet is required");
 
 const registry = new Registry(<any>types);
 
@@ -33,16 +34,16 @@ interface SignAndBroadcastOptions {
 }
 
 const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
-  if (!wallet) throw new Error("wallet is required");
+  if (!wallet) throw MissingWalletError;
 
   const client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
   const { address } = (await wallet.getAccounts())[0];
 
   return {
-    signAndBroadcast: (msgs: EncodeObject[], { fee=defaultFee, memo=null }: SignAndBroadcastOptions) => memo?client.signAndBroadcast(address, msgs, fee,memo):client.signAndBroadcast(address, msgs, fee),
-    msgSubmitProposal: (data: MsgSubmitProposal): EncodeObject => ({ typeUrl: "/cosmos.gov.v1beta1.MsgSubmitProposal", value: data }),
+    signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
     msgDeposit: (data: MsgDeposit): EncodeObject => ({ typeUrl: "/cosmos.gov.v1beta1.MsgDeposit", value: data }),
     msgVote: (data: MsgVote): EncodeObject => ({ typeUrl: "/cosmos.gov.v1beta1.MsgVote", value: data }),
+    msgSubmitProposal: (data: MsgSubmitProposal): EncodeObject => ({ typeUrl: "/cosmos.gov.v1beta1.MsgSubmitProposal", value: data }),
     
   };
 };

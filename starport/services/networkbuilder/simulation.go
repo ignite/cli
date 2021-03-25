@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,7 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/cenkalti/backoff"
-	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -28,11 +26,25 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 
 // SimulateProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) error {
+func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) error {
 	chainInfo, err := b.ShowChain(ctx, chainID)
+	// Temporary home to test proposals
+	tmpHome, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
 	}
+	defer os.RemoveAll(tmpHome)
+
+	blockchain, err := b.Init(
+		ctx,
+		chainID,
+		SourceChainID(),
+		InitializationHomePath(tmpHome),
+	)
+	if err != nil {
+		return err
+	}
+	defer blockchain.Cleanup()
 
 	// Get the simulated launch information from these proposals
 	simulatedLaunchInfo, err := b.SimulatedLaunchInformation(ctx, chainID, proposals)
@@ -40,13 +52,15 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 		return err
 	}
 
-	// create a temporary dir that holds the genesis to test
-	tmpHome, err := ioutil.TempDir("", chainID+"*")
+	// Generate a temporary genesis from the simulated launch information
+	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
+	_, err = b.GenerateGenesisWithHome(ctx, chainID, simulatedLaunchInfo, tmpHome)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(tmpHome)
+	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
+	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
 		chain.HomePath(tmpHome),
@@ -56,21 +70,8 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 	if err != nil {
 		return err
 	}
-
 	commands, err := chainHandler.Commands(ctx)
 	if err != nil {
-		return err
-	}
-
-	// copy the config to the temporary directory
-	originHome := homeDir
-	if originHome == "" {
-		originHome, err = chainHandler.DefaultHome()
-		if err != nil {
-			return err
-		}
-	}
-	if err := copy.Copy(originHome, tmpHome); err != nil {
 		return err
 	}
 
@@ -121,7 +122,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, homeDir
 		// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 		// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
 		// after the execution of gentxs
-		if strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
+		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
 			err = nil
 		}
 		exit <- err
