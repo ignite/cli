@@ -52,14 +52,6 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposa
 		return err
 	}
 
-	// Generate a temporary genesis from the simulated launch information
-	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
-	_, err = b.GenerateGenesisWithHome(ctx, chainID, simulatedLaunchInfo, tmpHome)
-	if err != nil {
-		return err
-	}
-	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
-
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
