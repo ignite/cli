@@ -59,7 +59,9 @@ export interface DescriptorProto {
     reservedName: string[];
 }
 export interface DescriptorProto_ExtensionRange {
+    /** Inclusive. */
     start: number;
+    /** Exclusive. */
     end: number;
     options: ExtensionRangeOptions | undefined;
 }
@@ -122,6 +124,30 @@ export interface FieldDescriptorProto {
      */
     jsonName: string;
     options: FieldOptions | undefined;
+    /**
+     * If true, this is a proto3 "optional". When a proto3 field is optional, it
+     * tracks presence regardless of field type.
+     *
+     * When proto3_optional is true, this field must be belong to a oneof to
+     * signal to old proto3 clients that presence is tracked for this field. This
+     * oneof is known as a "synthetic" oneof, and this field must be its sole
+     * member (each proto3 optional field gets its own synthetic oneof). Synthetic
+     * oneofs exist in the descriptor only, and do not generate any API. Synthetic
+     * oneofs must be ordered after all "real" oneofs.
+     *
+     * For message fields, proto3_optional doesn't create any semantic change,
+     * since non-repeated message fields always track presence. However it still
+     * indicates the semantic detail of whether the user wrote "optional" or not.
+     * This can be useful for round-tripping the .proto file. For consistency we
+     * give message fields a synthetic oneof also, even though it is not required
+     * to track presence. This is especially important because the parser can't
+     * tell if a field is a message or an enum, so it must always create a
+     * synthetic oneof.
+     *
+     * Proto2 optional fields do not set this flag, because they already indicate
+     * optional with `LABEL_OPTIONAL`.
+     */
+    proto3Optional: boolean;
 }
 export declare enum FieldDescriptorProto_Type {
     /**
@@ -344,8 +370,8 @@ export interface FileOptions {
     phpNamespace: string;
     /**
      * Use this option to change the namespace of php generated metadata classes.
-     * Default is empty. When this option is empty, the proto file name will be used
-     * for determining the namespace.
+     * Default is empty. When this option is empty, the proto file name will be
+     * used for determining the namespace.
      */
     phpMetadataNamespace: string;
     /**
@@ -423,7 +449,7 @@ export interface MessageOptions {
      *
      * Implementations may choose not to generate the map_entry=true message, but
      * use a native map in the target language to hold the keys and values.
-     * The reflection APIs in such implementions still need to work as
+     * The reflection APIs in such implementations still need to work as
      * if the field is a repeated message field.
      *
      * NOTE: Do not set the option in .proto files. Always use the maps syntax
@@ -671,7 +697,7 @@ export interface SourceCodeInfo {
      *   beginning of the "extend" block and is shared by all extensions within
      *   the block.
      * - Just because a location's span is a subset of some other location's span
-     *   does not mean that it is a descendent.  For example, a "group" defines
+     *   does not mean that it is a descendant.  For example, a "group" defines
      *   both a type and a field in a single declaration.  Thus, the locations
      *   corresponding to the type and field and their components will overlap.
      * - Code which tries to interpret locations should probably be designed to

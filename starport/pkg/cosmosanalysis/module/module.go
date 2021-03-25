@@ -1,6 +1,7 @@
 package module
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"path/filepath"
@@ -42,8 +43,8 @@ type Module struct {
 	// Msg is a list of sdk.Msg implementation of the module.
 	Msgs []Msg
 
-	// Queries is a list of module queries.
-	Queries []Query
+	// HTTPQueries is a list of module queries.
+	HTTPQueries []HTTPQuery
 
 	// Types is a list of proto types that might be used by module.
 	Types []Type
@@ -62,7 +63,7 @@ type Msg struct {
 }
 
 // Query is an sdk Query.
-type Query struct {
+type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string
 
@@ -70,7 +71,7 @@ type Query struct {
 	FullName string
 
 	// HTTPAnnotations keeps info about http annotations of query.
-	HTTPAnnotations protoanalysis.HTTPAnnotations
+	Rules []protoanalysis.HTTPRule
 }
 
 // Type is a proto type that might be used by module.
@@ -95,7 +96,7 @@ type moduleDiscoverer struct {
 // for a more opinionated check:
 //   - go/types.Implements() might be utilized and as needed.
 //   - instead of just comparing method names, their full signatures can be compared.
-func Discover(sourcePath string) ([]Module, error) {
+func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -108,7 +109,7 @@ func Discover(sourcePath string) ([]Module, error) {
 	}
 
 	// find proto packages that belong to modules under x/.
-	pkgs, err := md.findModuleProtoPkgs()
+	pkgs, err := md.findModuleProtoPkgs(ctx)
 	if err != nil {
 		return nil, err
 	}
@@ -204,13 +205,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	// fill queries.
 	for _, s := range pkg.Services {
 		for _, q := range s.RPCFuncs {
-			if q.HTTPAnnotations == nil {
+			if len(q.HTTPRules) == 0 {
 				continue
 			}
-			m.Queries = append(m.Queries, Query{
-				Name:            q.Name,
-				FullName:        s.Name + q.Name,
-				HTTPAnnotations: *q.HTTPAnnotations,
+			m.HTTPQueries = append(m.HTTPQueries, HTTPQuery{
+				Name:     q.Name,
+				FullName: s.Name + q.Name,
+				Rules:    q.HTTPRules,
 			})
 		}
 	}
@@ -218,9 +219,9 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	return m, nil
 }
 
-func (d *moduleDiscoverer) findModuleProtoPkgs() ([]protoanalysis.Package, error) {
+func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanalysis.Package, error) {
 	// find out all proto packages inside blockchain.
-	allprotopkgs, err := protoanalysis.DiscoverPackages(d.sourcePath)
+	allprotopkgs, err := protoanalysis.Parse(ctx, protoanalysis.PatternRecursive(d.sourcePath))
 	if err != nil {
 		return nil, err
 	}

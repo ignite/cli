@@ -35,7 +35,7 @@ func (g *generator) generateGo() error {
 
 	// discover proto packages in the app.
 	pp := filepath.Join(g.appPath, g.protoDir)
-	pkgs, err := protoanalysis.DiscoverPackages(pp)
+	pkgs, err := protoanalysis.Parse(g.ctx, protoanalysis.PatternRecursive(pp))
 	if err != nil {
 		return err
 	}
