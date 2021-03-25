@@ -1,0 +1,465 @@
+syntax = "proto3";
+package tendermint.liquidity;
+
+import "gogoproto/gogo.proto";
+import "liquidity.proto";
+import "google/api/annotations.proto";
+import "cosmos_proto/pagination.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+option go_package = "github.com/tendermint/liquidity/x/liquidity/types";
+
+// Query defines the gRPC querier service for liquidity module.
+service Query {
+    // Get existing liquidity pools.
+    rpc LiquidityPools (QueryLiquidityPoolsRequest) returns (QueryLiquidityPoolsResponse) {
+        option (google.api.http).get = "/liquidity/pools";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns list of all liquidity pools with pagination result.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = There are no pools present.: key not found","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get specific liquidity pool.
+    rpc LiquidityPool (QueryLiquidityPoolRequest) returns (QueryLiquidityPoolResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the liquidity pool corresponding to the pool_id.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get the pool's current batch.
+    rpc LiquidityPoolBatch (QueryLiquidityPoolBatchRequest) returns (QueryLiquidityPoolBatchResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the current batch of the pool corresponding to the pool_id.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get all swap messages in the pool's current batch.
+    rpc PoolBatchSwapMsgs(QueryPoolBatchSwapMsgsRequest) returns (QueryPoolBatchSwapMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns list of all swap messages in the current batch of the pool with pagination result.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get specific swap message in the pool's current batch.
+    rpc PoolBatchSwapMsg(QueryPoolBatchSwapMsgRequest) returns (QueryPoolBatchSwapMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/swaps/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the swap message corresponding to the msg_index in the pool's current batch";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get all deposit messages in the pool's current batch.
+    rpc PoolBatchDepositMsgs(QueryPoolBatchDepositMsgsRequest) returns (QueryPoolBatchDepositMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns list of all deposit messages in the current batch of the pool with pagination result.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+
+        };
+    }
+
+    // Get specific deposit message in the pool's current batch.
+    rpc PoolBatchDepositMsg(QueryPoolBatchDepositMsgRequest) returns (QueryPoolBatchDepositMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/deposits/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the deposit message corresponding to the msg_index in the pool's current batch.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get all withdraw messages in the pool's current batch.
+    rpc PoolBatchWithdrawMsgs(QueryPoolBatchWithdrawMsgsRequest) returns (QueryPoolBatchWithdrawMsgsResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns list of all withdraw messages in the current batch of the pool with pagination result.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":2,"message":"rpc error: code = NotFound desc = liquidity pool 3 doesn\'t exist: key not found","details":[]}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: pool_id, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+
+        };
+    }
+
+    // Get specific withdraw message in the pool's current batch.
+    rpc PoolBatchWithdrawMsg(QueryPoolBatchWithdrawMsgRequest) returns (QueryPoolBatchWithdrawMsgResponse) {
+        option (google.api.http).get = "/liquidity/pools/{pool_id}/batch/withdraws/{msg_index}";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns the withdraw message corresponding to the msg_index in the pool's current batch.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/doc/client.md";
+                description: "Find out more about the query and error codes";
+            }
+            responses: {
+                key: "500"
+                value: {
+                    description: "Internal Server Error"
+                    examples: {
+                        key: "application/json"
+                        value: '{"root":{"code":2,"details":[],"message":"rpc error: code = NotFound desc = the msg given msg_index 1 doesn\'t exist or deleted: key not found"}}'
+                    }
+                }
+            }
+            responses: {
+                key: "400"
+                value: {
+                    description: "Bad Request"
+                    examples: {
+                        key: "application/json"
+                        value: '{"code":3,"message":"type mismatch, parameter: msg_index, error: strconv.ParseUint: parsing *: invalid syntax","details":[]}'
+                    }
+                }
+            }
+        };
+    }
+
+    // Get all parameters of the liquidity module.
+    rpc Params(QueryParamsRequest) returns (QueryParamsResponse) {
+        option (google.api.http).get = "/liquidity/params";
+        option (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_operation) = {
+            description: "It returns all parameters of the liquidity module.";
+            external_docs: {
+                url: "https://github.com/tendermint/liquidity/blob/develop/x/liquidity/spec/08_params.md";
+                description: "Find out more about the params";
+            }
+        };
+    }
+}
+
+// the request type for the QueryLiquidityPool RPC method. requestable specified pool_id.
+message QueryLiquidityPoolRequest {
+    uint64 pool_id = 1;
+}
+
+// the response type for the QueryLiquidityPoolResponse RPC method. It returns the liquidity pool corresponding to the requested pool_id.
+message QueryLiquidityPoolResponse {
+    Pool pool = 1 [(gogoproto.nullable) = false];
+//    // id of the pool
+//    uint64 id = 1 [(gogoproto.moretags) = "yaml:\"id\"", (gogoproto.jsontag) = "id",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"1\"",
+//            format: "uint64"
+//        }];
+//
+//    // id of the pool type
+//    uint32 type_id = 2 [(gogoproto.moretags) = "yaml:\"type_id\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"1\"",
+//            format: "uint32"
+//        }];
+//
+//    // denoms of reserve coin pair of the pool
+//    repeated string reserve_coin_denoms = 3 [(gogoproto.moretags) = "yaml:\"reserve_coin_denoms\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "[\"denomX\",\"denomY\"]"
+//        }];
+//
+//    // reserve account address of the pool
+//    string reserve_account_address = 4 [(gogoproto.moretags) = "yaml:\"reserve_account_address\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"cosmos16ddqestwukv0jzcyfn3fdfq9h2wrs83cr4rfm3\"",
+//            format: "sdk.AccAddress"
+//        }];
+//
+//    // denom of pool coin of the pool
+//    string pool_coin_denom = 5 [(gogoproto.moretags) = "yaml:\"pool_coin_denom\"",
+//        (grpc.gateway.protoc_gen_openapiv2.options.openapiv2_field) = {
+//            example: "\"poolD35A0CC16EE598F90B044CE296A405BA9C381E38837599D96F2F70C2F02A23A4\"",
+//        }];
+}
+
+// the request type for the QueryLiquidityPoolBatch RPC method. requestable including specified pool_id.
+message QueryLiquidityPoolBatchRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+}
+
+// the response type for the QueryLiquidityPoolBatchResponse RPC method. It returns the liquidity pool batch corresponding to the requested pool_id.
+message QueryLiquidityPoolBatchResponse {
+    PoolBatch batch = 1 [(gogoproto.nullable) = false];
+}
+
+// the request type for the QueryLiquidityPools RPC method. requestable including pagination offset, limit, key.
+message QueryLiquidityPoolsRequest {
+    // pagination defines an optional pagination for the request.
+    cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+// the response type for the QueryLiquidityPoolsResponse RPC method. This includes list of all liquidity pools currently existed and paging results containing next_key and total count.
+message QueryLiquidityPoolsResponse {
+    repeated Pool pools = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response. not working on this version.
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// QueryParamsRequest is request type for the QueryParams RPC method.
+message QueryParamsRequest {}
+
+// the response type for the QueryParamsResponse RPC method. This includes current parameter of the liquidity module.
+message QueryParamsResponse {
+    // params holds all the parameters of this module.
+    Params params = 1 [(gogoproto.nullable) = false];
+}
+
+// the request type for the QueryPoolBatchSwapMsgs RPC method. requestable including specified pool_id and pagination offset, limit, key.
+message QueryPoolBatchSwapMsgsRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// the request type for the QueryPoolBatchSwap RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchSwapMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
+// the response type for the QueryPoolBatchSwapMsgs RPC method. This includes list of all currently existing swap messages of the batch and paging results containing next_key and total count.
+message QueryPoolBatchSwapMsgsResponse {
+    repeated SwapMsgState swaps = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response. not working on this version.
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// the response type for the QueryPoolBatchSwapMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchSwapMsgResponse {
+    SwapMsgState swap = 1 [(gogoproto.nullable) = false];
+}
+
+// the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and pagination offset, limit, key.
+message QueryPoolBatchDepositMsgsRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// the request type for the QueryPoolBatchDeposit RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchDepositMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
+// the response type for the QueryPoolBatchDeposit RPC method. This includes a list of all currently existing deposit messages of the batch and paging results containing next_key and total count.
+message QueryPoolBatchDepositMsgsResponse {
+    repeated DepositMsgState deposits = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response. not working on this version.
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// the response type for the QueryPoolBatchDepositMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchDepositMsgResponse {
+    DepositMsgState deposit = 1 [(gogoproto.nullable) = false];
+}
+
+
+// the request type for the QueryPoolBatchWithdraw RPC method. requestable including specified pool_id and pagination offset, limit, key.
+message QueryPoolBatchWithdrawMsgsRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // pagination defines an optional pagination for the request.
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
+}
+
+// the request type for the QueryPoolBatchWithdraw RPC method. requestable including specified pool_id and msg_index
+message QueryPoolBatchWithdrawMsgRequest {
+    // id of the target pool for query
+    uint64 pool_id = 1;
+    // target msg_index of the pool
+    uint64 msg_index = 2;
+}
+
+// the response type for the QueryPoolBatchWithdraw RPC method. This includes a list of all currently existing withdraw messages of the batch and paging results containing next_key and total count.
+message QueryPoolBatchWithdrawMsgsResponse {
+    repeated WithdrawMsgState withdraws = 1 [(gogoproto.nullable) = false];
+    // pagination defines the pagination in the response. not working on this version.
+    cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+// the response type for the QueryPoolBatchWithdrawMsg RPC method. This includes a batch swap message of the batch
+message QueryPoolBatchWithdrawMsgResponse {
+    WithdrawMsgState withdraw = 1 [(gogoproto.nullable) = false];
+}
