@@ -254,16 +254,17 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain, channelOpts ...ChannelO
 			return "", err
 		}
 
-		db, _, err := rchain.NewLightDB()
+		db, closedb, err := rchain.NewLightDB()
 		if err != nil {
 			return "", err
 		}
 
 		if _, err := rchain.LightClientWithoutTrust(db); err != nil {
-			db.Close()
+			closedb()
 			return "", err
 		}
-		db.Close()
+
+		closedb()
 	}
 
 	return id, nil
