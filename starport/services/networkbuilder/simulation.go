@@ -28,6 +28,10 @@ const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still e
 // The function returns false if the generated genesis is invalid
 func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) error {
 	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return err
+	}
+
 	// Temporary home to test proposals
 	tmpHome, err := os.MkdirTemp("", "")
 	if err != nil {
