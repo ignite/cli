@@ -456,6 +456,36 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	return g.Wait()
 }
 
+// GenerateTemporaryGenesis generates the genesis from the launch information in a given temporary directory and return the genesis path
+func (b *Builder) GenerateGenesisWithHome(
+	ctx context.Context,
+	chainID string,
+	launchInfo spn.LaunchInformation,
+	homeDir string,
+) (string, error) {
+	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return "", err
+	}
+
+	appPath := filepath.Join(sourcePath, chainID)
+	chainHandler, err := chain.New(ctx, appPath,
+		chain.HomePath(homeDir),
+		chain.LogLevel(chain.LogSilent),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// Run the commands to generate genesis
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
+		return "", err
+	}
+
+	return chainHandler.GenesisPath()
+}
+
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
 	commands, err := chainHandler.Commands(ctx)
