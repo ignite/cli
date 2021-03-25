@@ -52,7 +52,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 
 	// find out the list of proto files under the app and generate code for them.
-	files, err := protoanalysis.SearchProto(protoPath)
+	files, err := protoanalysis.SearchRecursive(protoPath)
 	if err != nil {
 		return err
 	}
