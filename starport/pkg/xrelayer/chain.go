@@ -416,7 +416,7 @@ func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
 			AccountPrefix:  "cosmos",
 			GasAdjustment:  1.5,
 			TrustingPeriod: "336h",
-			GasPrices: c.gasPrice,
+			GasPrices:      c.gasPrice,
 		}
 
 		if err := conf.AddChain(rchain); err != nil {

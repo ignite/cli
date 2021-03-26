@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	advancedFlag      = "advanced"
-	sourceRPCFlag     = "source-rpc"
-	targetRPCFlag     = "target-rpc"
-	sourceFaucetFlag  = "source-faucet"
-	targetFaucetFlag  = "target-faucet"
-	sourcePortFlag    = "source-port"
-	sourceVersionFlag = "source-version"
-	targetPortFlag    = "target-port"
-	targetVersionFlag = "target-version"
+	advancedFlag       = "advanced"
+	sourceRPCFlag      = "source-rpc"
+	targetRPCFlag      = "target-rpc"
+	sourceFaucetFlag   = "source-faucet"
+	targetFaucetFlag   = "target-faucet"
+	sourcePortFlag     = "source-port"
+	sourceVersionFlag  = "source-version"
+	targetPortFlag     = "target-port"
+	targetVersionFlag  = "target-version"
 	sourceGasPriceFlag = "source-gasprice"
 	targetGasPriceFlag = "target-gasprice"
-	orderedFlag       = "ordered"
+	orderedFlag        = "ordered"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -74,8 +74,8 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetRPCAddress    string
 		sourceFaucetAddress string
 		targetFaucetAddress string
-		sourceGasPrice string
-		targetGasPrice string
+		sourceGasPrice      string
+		targetGasPrice      string
 	)
 
 	// advanced configuration for the channel
@@ -251,7 +251,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		sourceRPCAddress,
 		sourceFaucetAddress,
 		sourceGasPrice,
-		)
+	)
 	if err != nil {
 		return err
 	}
@@ -263,7 +263,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetRPCAddress,
 		targetFaucetAddress,
 		targetGasPrice,
-		)
+	)
 	if err != nil {
 		return err
 	}
@@ -308,7 +308,7 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 		rpcAddr,
 		xrelayer.WithFaucet(faucetAddr),
 		xrelayer.WithGasPrice(gasPrice),
-		)
+	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
