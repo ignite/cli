@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	linkingTimeout    = time.Second * 10
+	linkingTimeout    = time.Second * 50
 	linkingRetryCount = 2
 	txRelayFrequency  = time.Second
 	maxTxSize         = 2 * relayercmd.MB
