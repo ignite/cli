@@ -154,8 +154,10 @@ func (c *Client) toProposal(proposal launchtypes.Proposal) (Proposal, error) {
 
 	case *launchtypes.Proposal_AddValidatorPayload:
 		p.Validator = &ProposalAddValidator{
-			P2PAddress: payload.AddValidatorPayload.Peer,
-			Gentx:      payload.AddValidatorPayload.GenTx,
+			P2PAddress:       payload.AddValidatorPayload.Peer,
+			Gentx:            payload.AddValidatorPayload.GenTx,
+			ValidatorAddress: payload.AddValidatorPayload.ValidatorAddress.String(),
+			SelfDelegation:   *payload.AddValidatorPayload.SelfDelegation,
 		}
 	}
 
