@@ -42,6 +42,6 @@ To change the prefix manually after the blockchain has been scaffolded, modify t
 
 By default `starport app` creates a Cosmos SDK blockchain using the latest stable version of the SDK.
 
-Starport also supports legacy Cosmos SDK v0.39.2 (Launchpad). This legacy Launchpad version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain. If, however, you do, you can use `--sdk-version` with a value `launchpad`.
+It is possible to use the legacy Cosmos SDK v0.39.2 (Launchpad). This legacy version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain, but if you do, use the `--sdk-version` flag with the value `launchpad`.
 
 starport app github.com/hello/planet --sdk-version launchpad
