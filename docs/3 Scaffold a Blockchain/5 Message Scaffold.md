@@ -20,7 +20,9 @@ The following files and directories are created and modified by scaffolding:
 - **x/module_name/types** 
 
     Message type definitions and keys
-* `x/module_name/client/cli`: CLI for broadcasting a transaction with the message
+- **`x/module_name/client/cli** 
+
+    The CLI used for broadcasting a transaction with the message.
 
 Optional `--desc` flag: description of the CLI command used for broadcasting a transaction with a message.
 
