@@ -34,7 +34,6 @@ All flags are optional.
 
 Comma-separated list (no spaces) of fields that describe the response fields of the message. 
 
-Message scaffolding is similar to type scaffolding, except `type` scaffolds a message for each CRUD action and implements CRUD logic, where `message` scaffolds a single message without any logic.
 
 ## Example
 
