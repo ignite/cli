@@ -1,8 +1,10 @@
 # Message Scaffold
 
-Cosmos SDK messages are used to modify the state of a blockchain. Messages are bundled into transactions, broadcasted transactions are bundled into blocks and blocks make a blockchain.
+Cosmos SDK messages modify the state of a blockchain. Messages are bundled into transactions, broadcasted transactions are bundled into blocks, and blocks make a blockchain.
 
-Starport supports scaffolding Cosmos SDK messages.
+While `type` constructs a message for each CRUD action and implements CRUD logic, message scaffolding constructs a single message without logic.
+
+You can use the `starport message` command to scaffold Cosmos SDK messages. See [Cosmos SDK messages](https://docs.cosmos.network/v0.42/building-modules/messages-and-queries.html).
 
 ```
 starport message [name] [field1] [field2] ... [flags]
