@@ -5,7 +5,7 @@ One of the first things you might want to do is start your blockchain. You can s
 The command does the following:
 
 * Installs dependencies
-* Imports state (if possible)
+* Imports state, if possible
 * Builds protocol buffer files
 * Generates JS, TS and Vuex clients (optional)
 * Builds blockchain's binary
