@@ -26,7 +26,9 @@ Flags for the `starport serve` command determine how your blockchain starts:
 
     Custom configuration file. Using unique configuration files is required to launch two blockchains on the same machine from the same source code. 
 
-Optional `--reset-once` flag: resets state once. By default Starport will try to import existing state and resume the blockchain (state persistence). If that fails or if you want to initialise a blockchain from an empty state, use `--reset-once`.
+- **--reset-once** optional
+
+    Reset the state only once. Use this flag to resume a failed reset or to initialize a blockchain from an empty state. The default state persistence imports the existing state and resumes the blockchain. 
 
 Optional `--force-reset` flag: reset state on every file change, state persistence is turned off and Starport will not try to import state.
 
