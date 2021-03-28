@@ -30,7 +30,9 @@ All flags are optional.
 
     The description of the CLI command that broadcasts a transaction with a message.
 
-Optional `--response` flag: list of comma separated (no spaces) fields that describe reponse fields of the message.
+- **--response** 
+
+Comma-separated list (no spaces) of fields that describe the response fields of the message. 
 
 Message scaffolding is similar to type scaffolding, except `type` scaffolds a message for each CRUD action and implements CRUD logic, where `message` scaffolds a single message without any logic.
 
