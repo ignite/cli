@@ -14,7 +14,9 @@ The following files and directories are created and modified by scaffolding:
 
 - **proto** 
      The message type.
-* `x/module_name/keeper`: gRPC message server
+- **x/module_name/keeper** 
+
+    The gRPC message server.
 * `x/module_name/types`: message type, keys
 * `x/module_name/client/cli`: CLI for broadcasting a transaction with the message
 
