@@ -22,7 +22,7 @@ starport serve
 
 The `serve` command installs dependencies, builds, initializes, and starts the blockchain.
 
-## Add features
+## Add Features
 
 To add a custom type with create, read, update, and delete (CRUD) functionality:
 
