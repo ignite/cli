@@ -2,7 +2,7 @@
 
 The `genesis.json` file for the new blockchain is automatically created from the `config.yml` file.
 
-In development environments, it is useful to test different scenarios after the blockchain is created. The `genesis.json` file for the blockchain is overwritten by the top-level genesis parameter in `config.yml`.
+In development environments, it is useful to test different scenarios after the blockchain is created. The `genesis.json` file for the blockchain is overwritten by the top-level `genesis` parameter in `config.yml`.
 
 To set and test different values, add the `genesis` parameter to `config.yml`.
 

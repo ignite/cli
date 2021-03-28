@@ -1,115 +1,55 @@
 # Type Scaffold Reference
 
-You can scaffold types within Starport by running a command:
-```
-starport type [type-name] [field1:type1] [field2:type2] ...
-```
-<<!-- why do we scaffold types? what is the module string? is this the Cosmos SDK module? and this is how we add modules to a blockchain? I am sure this is explained somewhere, where can I learn? -->
-
-
-## Stargate
-
-A project that is scaffolded with the Stargate version of Cosmos SDK creates the following files: <!-- how does this tie in to types? -->
+The `starport type` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
 
 ```
-.
-├── proto
-│   └── module
-│       └── v1beta
-│           └── {{typeName}}.proto
-└── x
-    └── module
-        ├── client
-        │   ├── cli
-        │   │   ├── query{{TypeName}}.go
-        │   │   └── tx{{TypeName}}.go
-        │   └── rest
-        │       ├── query{{TypeName}}.go
-        │       └── tx{{TypeName}}.go
-        ├── keeper
-        │   ├── grpc_query_{{typeName}}.go
-        │   ├── querier_{{typeName}}.go
-        │   └── {{typeName}}.go
-        ├── types
-        │   ├── MsgCreate{{TypeName}}.go
-        │   └── {{typeName}}.pb.go
-        └── handlerMsgCreate{{TypeName}}.go
+starport type [typeName] [field1] [field2] ... [flags]
 ```
 
-The following existing files are updated:
+**typeName** string
+
+  The name of a new type. Must be unique within a module.
+
+**field1**, **field2**, and so on
+
+  Fields of the type. Define fields with a compact notation colon (:) syntax. For example, for an  `amount` field that accepts an integer, use: `amount:int32`. Supported types: `string`, `bool`, `int32`. By default, fields are `string`.
+
+A type is scaffolded in a module. 
+
+**--module** 
+
+  The name of the custom module in which a type is scaffolded. By default, a type is scaffolded in a module name that matches the project name. 
+
+The following files and directories are created and modified by scaffolding:
+
+* `proto`: services for SDK messages and queries, HTTP endpoints
+* `x/module_name/keeper`: gRPC message server and query handler
+* `x/module_name/types`: message types, keys
+* `x/module_name/client/cli`: CRUD actions on the CLI
+* `x/module_name/client/rest`: legacy HTTP endpoints
+* `vue/src/views`: Vue component, a CRUD form for interacting with the type
+
+CLI commands are created for CRUD interactions with the type. 
+
+For example, if the binary is named `appd`, the module is `blog`, and the type is `post`, then the following transaction commands become available:
 
 ```
-.
-├── proto
-│   └── module
-│       └── v1beta
-│           └── querier.proto
-└── x
-    └── module
-        ├── client
-        │   ├── cli
-        │   │   ├── query.go
-        │   │   └── tx.go
-        │   └── rest
-        │       └── rest.go
-        ├── handler.go
-        ├── keeper
-        │   └── querier.go
-        └── types
-            ├── codec.go
-            ├── keys.go
-            ├── querier.go
-            └── querier.pb.go
+appd tx blog create-post [title] [content]
+appd tx blog delete-post [id]
+appd tx blog update-post [id] [title] [content]
 ```
 
-# Launchpad
-
-A project that is scaffolded with the Launchpad version of Cosmos SDK creates the following files:
+Commands for querying:
 
 ```
-.
-└── x
-    └── module
-        ├── client
-        │   ├── cli
-        │   │   ├── query{{TypeName}}.go
-        │   │   └── tx{{TypeName}}.go
-        │   └── rest
-        │       ├── query{{TypeName}}.go
-        │       └── tx{{TypeName}}.go
-        ├── handlerMsgCreate{{TypeName}}.go
-        ├── handlerMsgDelete{{TypeName}}.go
-        ├── handlerMsgSet{{TypeName}}.go
-        ├── keeper
-        │   └── {{typeName}}.go
-        └── types
-            ├── MsgCreate{{TypeName}}.go
-            ├── MsgDelete{{TypeName}}.go
-            ├── MsgSet{{TypeName}}.go
-            └── Type{{TypeName}}.go
+appd q blog list-post
+appd q blog show-post [id]
 ```
 
-The following existing files are updated:
+## Example
 
 ```
-.
-├── vue
-│   └── src
-│       └── views
-│           └── Index.vue
-└── x
-    └── module
-        ├── client
-        │   ├── cli
-        │   │   ├── query.go
-        │   │   └── tx.go
-        │   └── rest
-        │       └── rest.go
-        ├── handler.go
-        ├── keeper
-        │   └── querier.go
-        └── types
-            ├── codec.go
-            ├── key.go
-            └── querier.go
+starport type post title body comments:bool count:int32 --module blog
 ```
+
+This command creates a `post` type with four fields: `title` and `body` strings, boolean `comments`  and integer `count`. This type is created in a module called blog.
