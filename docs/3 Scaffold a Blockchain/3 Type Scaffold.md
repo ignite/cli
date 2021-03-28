@@ -20,7 +20,7 @@ A type is scaffolded in a module.
 
     The name of the custom module in which a type is scaffolded. By default, a type is scaffolded in a module name that matches the project name. 
 
-Files and directories created and modified by scaffolding:
+The following files and directories are created and modified by scaffolding:
 
 * `proto`: services for SDK messages and queries, HTTP endpoints
 * `x/module_name/keeper`: gRPC message server and query handler
