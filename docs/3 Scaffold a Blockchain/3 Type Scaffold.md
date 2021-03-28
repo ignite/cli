@@ -29,7 +29,9 @@ The following files and directories are created and modified by scaffolding:
 * `x/module_name/client/rest`: legacy HTTP endpoints
 * `vue/src/views`: Vue component, a CRUD form for interacting with the type
 
-CLI commands are created for CRUD interactions with the type. If the binary is named `appd`, the module is `blog` and the type is `post`, then the following transaction commands become available:
+CLI commands are created for CRUD interactions with the type. 
+
+For example, if the binary is named `appd`, the module is `blog`, and the type is `post`, then the following transaction commands become available:
 
 ```
 appd tx blog create-post [title] [content]
