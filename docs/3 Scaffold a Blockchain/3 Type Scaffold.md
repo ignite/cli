@@ -8,7 +8,9 @@ Starport `type` command scaffolds files that implement create, read, update and 
 starport type [typeName] [field1] [field2] ... [flags]
 ```
 
-`typeName` defines the name of a new type, it should be unique within a module.
+- **typeName** string
+
+    The name of a new type. Must be unique within a module.
 
 `field1`, `field2`, etc. define fields of the type. Types of fields can specified with a colon-syntax, for example, for an `amount` field that should be an interger, `amount:int32`. Currently supported types: `string`, `bool`, `int32`. By default fields are `string`.
 
