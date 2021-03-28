@@ -20,7 +20,11 @@ The `starport serve` command performs the following tasks:
 * Watches for file changes and restarts
 * Exports state
 
-Optional `--config` flag: specify a custom configuration file. By default value is `config.yml`. Useful for launching two blockchains on the same machine, from the same source code using two different configuration files.
+Flags for the `starport serve` command determine how your blockchain starts:
+
+- **--config** optional, default is `config.yml`
+
+    Custom configuration file. Using unique configuration files is required to launch two blockchains on the same machine from the same source code. 
 
 Optional `--reset-once` flag: resets state once. By default Starport will try to import existing state and resume the blockchain (state persistence). If that fails or if you want to initialise a blockchain from an empty state, use `--reset-once`.
 
