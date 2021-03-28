@@ -1,6 +1,6 @@
 # Type Scaffold Reference
 
-Starport `type` command scaffolds files that implement create, read, update and delete functionality for a custom new type.
+The `starport type` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
 
 ```
 starport type [typeName] [field1] [field2] ... [flags]
