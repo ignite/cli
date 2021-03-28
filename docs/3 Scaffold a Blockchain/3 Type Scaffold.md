@@ -12,7 +12,9 @@ starport type [typeName] [field1] [field2] ... [flags]
 
     The name of a new type. Must be unique within a module.
 
-`field1`, `field2`, etc. define fields of the type. Types of fields can specified with a colon-syntax, for example, for an `amount` field that should be an interger, `amount:int32`. Currently supported types: `string`, `bool`, `int32`. By default fields are `string`.
+- **field1**, **field2**, and so on
+
+    Fields of the type. Define fields with a compact notation colon (:) syntax. For example, for an  `amount` field that accepts an integer, use: `amount:int32`. Supported types: `string`, `bool`, `int32`. By default, fields are `string`.
 
 A type is scaffolded in a module. Optional `--module` flag specifies the name of the module, in which a type will be scaffolded. By default a type is scaffolded in a module name of which matches the name of the project.
 
