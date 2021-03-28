@@ -14,7 +14,11 @@ starport type [typeName] [field1] [field2] ... [flags]
 
     Fields of the type. Define fields with a compact notation colon (:) syntax. For example, for an  `amount` field that accepts an integer, use: `amount:int32`. Supported types: `string`, `bool`, `int32`. By default, fields are `string`.
 
-A type is scaffolded in a module. Optional `--module` flag specifies the name of the module, in which a type will be scaffolded. By default a type is scaffolded in a module name of which matches the name of the project.
+A type is scaffolded in a module. 
+
+- **--module** 
+
+    The name of the custom module in which a type is scaffolded. By default, a type is scaffolded in a module name that matches the project name. 
 
 Files and directories created and modified by scaffolding:
 
