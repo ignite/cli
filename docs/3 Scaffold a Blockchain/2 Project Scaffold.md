@@ -33,7 +33,7 @@ starport app github.com/hello/planet --address-prefix moonlight
 
 Using this prefix, account addresses on your blockchain look like this: `moonlight12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf`.
 
-To change the prefix manually after the blockchain has been scaffolded, modify the `AccountAddressPrefix` in `app/prefix.go`.
+To change the prefix after the blockchain has been scaffolded, modify the `AccountAddressPrefix` in the `app/prefix.go` file.
 
 1. Change the `AccountAddressPrefix` variable in the `/app/prefix.go` file. Be sure to preserve other variables in the file.
 2. To recognize the new prefix, change the `VUE_APP_ADDRESS_PREFIX` variable in `/vue/.env`.
