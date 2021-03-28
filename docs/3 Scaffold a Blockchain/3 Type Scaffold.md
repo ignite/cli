@@ -1,7 +1,5 @@
 # Type Scaffold Reference
 
-<!-- why do we scaffold types? what is the module string? is this the Cosmos SDK module? and this is how we add modules to a blockchain? I am sure this is explained somewhere, where can I learn? -->
-
 Starport `type` command scaffolds files that implement create, read, update and delete functionality for a custom new type.
 
 ```
