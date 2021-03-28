@@ -1,6 +1,6 @@
 # Start a Blockchain
 
-One of the first things you might want to do is start your blockchain. You can start your blockchain with the `starport serve` command.
+One of your first actions is to start your blockchain. To start your blockchain, use the `starport serve` command.
 
 The command does the following:
 
