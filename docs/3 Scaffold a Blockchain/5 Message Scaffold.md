@@ -10,7 +10,7 @@ You can use the `starport message` command to scaffold Cosmos SDK messages. See 
 starport message [name] [field1] [field2] ... [flags]
 ```
 
-Files and directories created and modified by scaffolding:
+The following files and directories are created and modified by scaffolding:
 
 * `proto`: message type
 * `x/module_name/keeper`: gRPC message server
