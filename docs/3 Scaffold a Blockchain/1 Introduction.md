@@ -12,7 +12,11 @@ To create a blockchain from scratch, run the following command:
 starport app github.com/hello/planet
 ```
 
-This command will create a directory called `planet`, which contains all the files for your project. The `github.com` URL in the argument is a string that will be used for Go module's path. The repository name (`planet`, in this case) will be used as the project's name. A git repository will be initialized locally.
+This command creates a directory called `planet` that contains all of the files for your project. 
+
+- _github.com/hello/planet_ is used for the Go module path. A git repository is initialized locally.
+
+- _planet_ in the string is the repository name that defines the project name.
 
 starport type post title body
 
