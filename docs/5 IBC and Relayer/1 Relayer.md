@@ -1,6 +1,6 @@
 # Relayer
 
-Starport has a built-in IBC relayer that let's you connect local (running on you local machine) and remote blockchains. Starport relayer uses [IBC Go relayer](https://github.com/cosmos/relayer).
+A built-in IBC relayer in Starport lets you connect blockchains that run on your local computer and remote blockchains. The Starport relayer uses [IBC Go relayer](https://github.com/cosmos/relayer).
 
 ## `starport relayer configure`
 
