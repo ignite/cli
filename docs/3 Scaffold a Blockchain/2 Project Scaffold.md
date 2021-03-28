@@ -40,7 +40,7 @@ To change the prefix after the blockchain has been scaffolded, modify the `Accou
 
 ## Cosmos SDK version
 
-By default `starport app` creates a Cosmos SDK blockchain using the latest stable version of the SDK.
+By default, the `starport app` command creates a Cosmos SDK blockchain using the latest stable version of the SDK.
 
 It is possible to use the legacy Cosmos SDK v0.39.2 (Launchpad). This legacy version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain, but if you do, use the `--sdk-version` flag with the value `launchpad`.
 
