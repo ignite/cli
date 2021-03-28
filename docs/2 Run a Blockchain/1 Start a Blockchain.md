@@ -8,7 +8,7 @@ The `starport serve` command performs the following tasks:
 * Imports state, if possible
 * Builds protocol buffer files
 * Optionally generates JavaScript (JS), TypeScript (TS), and Vuex clients
-* Builds blockchain's binary
+* Builds a compiled blockchain binary
 * Creates accounts
 * Initializes a blockchain node
 * Starts the following processes:
