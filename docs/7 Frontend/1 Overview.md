@@ -4,7 +4,7 @@ A Vue frontend app is created in `vue` directory when a blockchain is scaffolded
 
 The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. For  details, see the [monorepo for Starport front-end development](https://github.com/tendermint/vue).
 
-## Client code generation
+## Client Code Generation
 
 Starport automatically generates JavaScript, TypeScript and Vuex clients for your blockchain both for custom and standard Cosmos SDK modules. To enable client code generation add the following to `config.yml`:
 
