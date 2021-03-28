@@ -6,7 +6,7 @@ The project directory of any Cosmos SDK blockchain contains many directories, so
 
 One of the core features of Starport CLI is code scaffolding.
 
-To create an entire blockchain from scratch run the following command:
+To create a blockchain from scratch, run the following command:
 
 ```
 starport app github.com/hello/planet
