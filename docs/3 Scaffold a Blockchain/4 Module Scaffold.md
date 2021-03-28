@@ -12,7 +12,7 @@ starport module create [name] [flags]
 
      The name of a new module. This name must be unique within a project.
 
-Files and directories created and modified by scaffolding:
+The following files and directories are created and modified by scaffolding:
 
 - **proto** 
 
