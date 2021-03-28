@@ -11,7 +11,7 @@ The `starport serve` command performs the following tasks:
 * Builds blockchain's binary
 * Creates accounts
 * Initializes a blockchain node
-* Starts processes
+* Starts the following processes:
   * Tendermint RPC
   * Cosmos SDK API
   * Faucet (optional)
