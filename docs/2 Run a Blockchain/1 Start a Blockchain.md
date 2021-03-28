@@ -30,7 +30,9 @@ Flags for the `starport serve` command determine how your blockchain starts:
 
     Reset the state only once. Use this flag to resume a failed reset or to initialize a blockchain from an empty state. The default state persistence imports the existing state and resumes the blockchain. 
 
-Optional `--force-reset` flag: reset state on every file change, state persistence is turned off and Starport will not try to import state.
+- **--force-reset** optional
+
+    Reset state on every file change. Do not import state and turn off state persistence.
 
 Optional `--rebuild-proto-once` flag: forces Starport to perform code generation from proto files for both custom and third-party modules. Use in combination with `--reset-once`. By default Starport scaffolds files generated from Cosmos SDK standard proto files, instead of generating them on the fly. Useful if you've scaffolded a blockchain with a previous version of Starport or you've upgraded Cosmos SDK version and you want to make sure that code generation is performed for all modules.
 
