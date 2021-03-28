@@ -17,7 +17,6 @@ When you scaffold a packet, the following files and directories are created and 
 * `x/module_name/types`: message types, IBC events
 * `x/module_name/client/cli`: CLI command to broadcast a transaction containing a message with a packet
 
-Packets can only be scaffolded in IBC modules.
 
 ## Example
 
