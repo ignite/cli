@@ -7,7 +7,7 @@ The command does the following:
 * Installs dependencies
 * Imports state, if possible
 * Builds protocol buffer files
-* Generates JS, TS and Vuex clients (optional)
+* Optionally generates JavaScript (JS), TypeScript (TS), and Vuex clients
 * Builds blockchain's binary
 * Creates accounts
 * Initializes a blockchain node
