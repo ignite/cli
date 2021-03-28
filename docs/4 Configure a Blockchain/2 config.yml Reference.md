@@ -53,7 +53,7 @@ accounts:
 
 | Key    | Required | Type   | Description                                                                     |
 | ------ | -------- | ------ | ------------------------------------------------------------------------------- |
-| binary | N        | String | Name of the node binary that Starport builds and uses, typically ends with `d-` |
+| binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 ### Example
 
