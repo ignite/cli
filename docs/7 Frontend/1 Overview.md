@@ -14,6 +14,6 @@ client:
     path: "js"
 ```
 
-Starport will generate a Vuex client inside `js` directory. JS and TS clients are also generated, because they are dependencies of the Vuex client.
+A Vuex client is generated in the `js` directory. JS and TS clients are also generated because they are dependencies of the Vuex client.
 
 By default Starport watches the filesystem and regenerates clients for your custom modules automatically. Clients for standard Cosmos SDK modules are generated once, when you scaffold a blockchain. To regenerate all clients (for both custom and stadard Cosmos SDK modules), run `starport serve --reset-once --rebuild-proto-once`.
