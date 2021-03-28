@@ -2,7 +2,7 @@
 
 One of your first actions is to start your blockchain. To start your blockchain, use the `starport serve` command.
 
-The command does the following:
+The `starport serve` command performs the following tasks:
 
 * Installs dependencies
 * Imports state, if possible
