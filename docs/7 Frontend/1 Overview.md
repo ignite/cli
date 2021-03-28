@@ -1,6 +1,6 @@
 # Frontend Overview
 
-When scaffolding a blockchain, Starport also creates a Vue frontend application in `vue` directory. If this directory exists, `starport serve` automatically runs `npm run serve`.
+A Vue frontend app is created in `vue` directory when a blockchain is scaffolded. If the `vue` directory exists, the `starport serve` command automatically runs `npm run serve`.
 
 The frontend app is built using the `@starport/vue` and `@starport/vuex` packages. More information and documentation can be found in the [`tendermint/vue`](https://github.com/tendermint/vue) monorepo.
 
