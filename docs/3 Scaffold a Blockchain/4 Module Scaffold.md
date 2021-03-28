@@ -8,22 +8,14 @@ Starport supports scaffolding SDK modules.
 starport module create [name] [flags]
 ```
 
-- **name**
+**name**
 
-     The name of a new module. This name must be unique within a project.
+  The name of a new module. This name must be unique within a project.
 
 The following files and directories are created and modified by scaffolding:
 
-- **proto** 
-
-     A directory that contains proto files for query and message services.
-
-- **x**
-
-    Common logic for a module.
-    
-- **app/app.go** 
-
-    Imports and initializes your module. 
+* `proto/`: a directory that contains proto files for query and message services.
+* `x`: common logic for a module.
+* `app/app.go`: imports and initializes your module. 
 
 To scaffold an IBC-enabled module use `--ibc` flag. <!-- Learn more about Starport features related to IBC. -->

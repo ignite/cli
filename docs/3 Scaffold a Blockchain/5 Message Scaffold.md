@@ -12,28 +12,20 @@ starport message [name] [field1] [field2] ... [flags]
 
 The following files and directories are created and modified by scaffolding:
 
-- **proto** 
-     The message type.
-- **x/module_name/keeper** 
-
-    The gRPC message server.
-- **x/module_name/types** 
-
-    Message type definitions and keys
-- **`x/module_name/client/cli** 
-
-    The CLI used for broadcasting a transaction with the message.
+* `proto`: the message type.
+* `x/module_name/keeper`: the gRPC message server.
+* `x/module_name/types`: message type definitions and keys
+- `x/module_name/client/cli`: the CLI used for broadcasting a transaction with the message.
 
 All flags are optional.
 
-- **--desc** 
+**--desc** 
 
-    The description of the CLI command that broadcasts a transaction with a message.
+  The description of the CLI command that broadcasts a transaction with a message.
 
-- **--response** 
+**--response** 
 
-Comma-separated list (no spaces) of fields that describe the response fields of the message. 
-
+  Comma-separated list (no spaces) of fields that describe the response fields of the message. 
 
 ## Example
 
