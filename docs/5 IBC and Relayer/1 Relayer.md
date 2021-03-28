@@ -6,9 +6,9 @@ A built-in IBC relayer in Starport lets you connect blockchains that run on your
 
 The `configure` command configures a connection between two blockchains. You are prompted for the required RPC endpoints and optional faucet endpoints. Accounts used by the relayer are created on both blockchains and faucets are used, if available, to automatically fetch tokens. If the relayer fails to receive tokens from a faucet, you must manually send tokens to addresses. By default, a connection for token transfers is set up for the `ibc-transfer` module.
 
-Optional `--advanced` flag: let's you configure port and version for custom IBC module.
+The optional `--advanced` flag lets you configure port and version for the custom IBC module.
 
-By default configuration is stored in `$HOME/.relayer/`.
+By default, relayer configuration is stored in `$HOME/.relayer/`.
 
 ## Example
 
