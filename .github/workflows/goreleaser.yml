@@ -31,15 +31,12 @@ jobs:
           path: ${{ env.working-directory }}
           fetch-depth: 0
 
-      - name: Build UI
-        working-directory: ${{ env.working-directory }}
-        run:  make ui
-
       - name: Snapcraft Login
         env:
           SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
         run: |
           snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
+
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
         with:

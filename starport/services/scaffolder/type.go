@@ -31,7 +31,7 @@ type AddTypeOption struct {
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, stype string, fields ...string) error {
+func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -54,18 +54,18 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
-	// Ensure the type name is not a Go reserved name, it would generate an incorrect code
-	if isGoReservedWord(stype) {
-		return fmt.Errorf("%s can't be used as a type name", stype)
+	// Ensure the type name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(typeName) {
+		return fmt.Errorf("%s can't be used as a type name", typeName)
 	}
 
-	// Check type is not already created
-	ok, err = isTypeCreated(s.path, moduleName, stype)
+	// Check component name is not already used
+	ok, err = isComponentCreated(s.path, moduleName, typeName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s type is already added", stype)
+		return fmt.Errorf("%s component is already added", typeName)
 	}
 
 	// Parse provided field
@@ -81,7 +81,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, st
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			TypeName:   stype,
+			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
 		}
@@ -208,79 +208,16 @@ func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err er
 	return
 }
 
-// isMsgServerDefined checks if the module uses the MsgServer convention for transactions
-// this is checked by verifying the existence of the tx.proto file
-func isMsgServerDefined(appPath, moduleName string) (bool, error) {
-	txProto, err := filepath.Abs(filepath.Join(appPath, "proto", moduleName, "tx.proto"))
-	if err != nil {
-		return false, err
-	}
-
-	if _, err := os.Stat(txProto); os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
-}
-
 // isForbiddenTypeField returns true if the name is forbidden as a field name
 func isForbiddenTypeField(name string) bool {
 	switch name {
 	case
 		"id",
 		"index",
+		"appendedValue",
 		"creator":
 		return true
 	}
 
 	return isGoReservedWord(name)
-}
-
-func isGoReservedWord(name string) bool {
-	// Check keyword or literal
-	if token.Lookup(name).IsKeyword() {
-		return true
-	}
-
-	// Check with builtin identifier
-	switch name {
-	case
-		"panic",
-		"recover",
-		"append",
-		"bool",
-		"byte",
-		"cap",
-		"close",
-		"complex",
-		"complex64",
-		"complex128",
-		"uint16",
-		"copy",
-		"false",
-		"float32",
-		"float64",
-		"imag",
-		"int",
-		"int8",
-		"int16",
-		"uint32",
-		"int32",
-		"int64",
-		"iota",
-		"len",
-		"make",
-		"new",
-		"nil",
-		"uint64",
-		"print",
-		"println",
-		"real",
-		"string",
-		"true",
-		"uint",
-		"uint8",
-		"uintptr":
-		return true
-	}
-	return false
 }

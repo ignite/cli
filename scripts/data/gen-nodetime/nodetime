@@ -1,0 +1,21 @@
+#!/usr/bin/env node
+
+var mode = process.argv[2];
+process.argv.splice(2, 1);
+
+switch (mode) {
+  case "ts-proto":
+    require("./node_modules/ts-proto/protoc-gen-ts_proto");
+    break;
+
+  case "tsc":
+    require("./node_modules/typescript/bin/tsc");
+    break;
+
+  case "sta":
+    require("./node_modules/swagger-typescript-api/index");
+    break;
+
+  default:
+    console.error("unknown cli command");
+}

@@ -1,18 +1,19 @@
 <template>
-  <div>
-    <div class="sp-container">
-      <sp-sign-in />
-      <sp-bank-balances />
-      <sp-token-send />
-      <!-- this line is used by starport scaffolding # 4 -->
-    </div>
-  </div>
+	<div>
+		<div class="container">
+			<SpTokenSend :address="address" />
+			<SpTransferList :address="address" />
+		</div>
+	</div>
 </template>
 
 <script>
-import * as sp from "@tendermint/vue";
-
 export default {
-  components: { ...sp },
-};
+	name: 'Index',
+	computed: {
+		address() {
+			return this.$store.getters['common/wallet/address']
+		}
+	}
+}
 </script>

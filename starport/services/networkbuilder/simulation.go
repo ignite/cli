@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,7 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/cenkalti/backoff"
-	"github.com/otiai10/copy"
 	"github.com/pelletier/go-toml"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -26,27 +24,39 @@ import (
 
 const ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 
-// VerifyProposals generates a genesis file from the current launch information and proposals to verify
+// SimulateProposals generates a genesis file from the current launch information and proposals to verify
 // The function returns false if the generated genesis is invalid
-func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir string, proposals []int, commandOut io.Writer) (bool, error) {
+func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposals []int, commandOut io.Writer) error {
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
-		return false, err
+		return err
 	}
+
+	// Temporary home to test proposals
+	tmpHome, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(tmpHome)
+
+	blockchain, err := b.Init(
+		ctx,
+		chainID,
+		SourceChainID(),
+		InitializationHomePath(tmpHome),
+	)
+	if err != nil {
+		return err
+	}
+	defer blockchain.Cleanup()
 
 	// Get the simulated launch information from these proposals
 	simulatedLaunchInfo, err := b.SimulatedLaunchInformation(ctx, chainID, proposals)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	// create a temporary dir that holds the genesis to test
-	tmpHome, err := ioutil.TempDir("", chainID+"*")
-	if err != nil {
-		return false, err
-	}
-	defer os.RemoveAll(tmpHome)
-
+	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,
 		chain.HomePath(tmpHome),
@@ -54,38 +64,26 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	)
 	if err != nil {
-		return false, err
+		return err
 	}
-
 	commands, err := chainHandler.Commands(ctx)
 	if err != nil {
-		return false, err
-	}
-
-	// copy the config to the temporary directory
-	originHome := homeDir
-	if originHome == "" {
-		originHome, err = chainHandler.DefaultHome()
-		if err != nil {
-			return false, err
-		}
-	}
-	if err := copy.Copy(originHome, tmpHome); err != nil {
-		return false, err
+		return err
 	}
 
 	// generate the genesis to test
 	b.ev.Send(events.New(events.StatusOngoing, "generating genesis"))
 	if err := generateGenesis(ctx, chainInfo, simulatedLaunchInfo, chainHandler); err != nil {
-		fmt.Fprintf(commandOut, "error generating the genesis: %s\n", err.Error())
-		return false, nil
+		return VerificationError{
+			fmt.Errorf("genesis cannot be generated from launch information: %s", err.Error()),
+		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis generated"))
 
 	// set the config with random ports to test the start command
 	addressAPI, err := setSimulationConfig(tmpHome)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	runner := commands.
@@ -96,8 +94,10 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 
 	// run validate-genesis command on the generated genesis
 	b.ev.Send(events.New(events.StatusOngoing, "validating genesis format"))
-	if runner.ValidateGenesis(ctx); err != nil {
-		return false, nil
+	if err := runner.ValidateGenesis(ctx); err != nil {
+		return VerificationError{
+			fmt.Errorf("genesis is invalid: %s", err.Error()),
+		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "genesis correctly formatted"))
 
@@ -118,18 +118,20 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, homeDir s
 		// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
 		// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
 		// after the execution of gentxs
-		if strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
+		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
 			err = nil
 		}
 		exit <- err
 	}()
 
 	if err := <-exit; err != nil {
-		return false, nil
+		return VerificationError{
+			fmt.Errorf("blockchain cannot start from the generated genesis: %s", err.Error()),
+		}
 	}
 	b.ev.Send(events.New(events.StatusDone, "chain can be started"))
 
-	return true, nil
+	return nil
 }
 
 // setSimulationConfig sets the config for the temporary blockchain with random available port

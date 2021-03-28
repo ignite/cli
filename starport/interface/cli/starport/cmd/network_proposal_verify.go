@@ -1,6 +1,7 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -40,6 +41,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
+	// Initialize the blockchain
 	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
@@ -63,22 +65,22 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 		out = os.Stdout
 	}
 
-	// Check if custom home is provided
-	home, _, err := getHomeFlags(cmd)
+	err = nb.VerifyProposals(cmd.Context(), chainID, ids, out)
+	s.Stop()
+	var verificationError networkbuilder.VerificationError
+	if errors.As(err, &verificationError) {
+		fmt.Printf("Proposal(s) %s invalid 🔍❌️\nError: %s️\n",
+			numbers.List(ids, "#"),
+			err.Error(),
+		)
+		return nil
+	}
+
 	if err != nil {
 		return err
 	}
 
-	verified, err := nb.VerifyProposals(cmd.Context(), chainID, home, ids, out)
-	if err != nil {
-		return err
-	}
-	s.Stop()
-	if verified {
-		fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
-	} else {
-		fmt.Printf("Genesis from proposal(s) %s is invalid 🔍❌️\n", numbers.List(ids, "#"))
-	}
+	fmt.Printf("Proposal(s) %s verified 🔍✅️\n", numbers.List(ids, "#"))
 
 	return nil
 }
