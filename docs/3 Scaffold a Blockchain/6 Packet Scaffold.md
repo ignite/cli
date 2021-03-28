@@ -8,9 +8,9 @@ An IBC packet is a data structure with sequence-related metadata and an opaque v
 starport packet [packetName] [field1] [field2]
 ```
 
-Optional `--ack`: list of comma-separated (no spaces) fields that describe acknowledgement fields.
+Optional `--ack`: comma-separated list (no spaces) of fields that describe the acknowledgement fields.
 
-Files and directories created and modified by scaffolding:
+When you scaffold a packet, the following files and directories are created and modified:
 
 * `proto`: packet data and acknowledgement type and message type
 * `x/module_name/keeper`: IBC hooks, gRPC message server
