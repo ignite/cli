@@ -24,7 +24,11 @@ The following files and directories are created and modified by scaffolding:
 
     The CLI used for broadcasting a transaction with the message.
 
-Optional `--desc` flag: description of the CLI command used for broadcasting a transaction with a message.
+All flags are optional.
+
+- **--desc** 
+
+    The description of the CLI command that broadcasts a transaction with a message.
 
 Optional `--response` flag: list of comma separated (no spaces) fields that describe reponse fields of the message.
 
