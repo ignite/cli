@@ -8,7 +8,7 @@ To create a Cosmos SDK module with IBC logic:
 starport module create ibcdex --ibc
 ```
 
-Creating a custom packet:
+To create a custom packet:
 
 ```
 starport packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
