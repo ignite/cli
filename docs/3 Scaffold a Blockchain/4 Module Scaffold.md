@@ -14,8 +14,16 @@ starport module create [name] [flags]
 
 Files and directories created and modified by scaffolding:
 
-* `proto`: a directory is created that contains placeholders for query and message services
-* `x`: a directory is created that contains common logic for a module
-* `app/app.go`: module is imported and initialized
+- **proto** 
+
+     A directory that contains proto files for query and message services.
+
+- **x**
+
+    Common logic for a module.
+    
+- **app/app.go** 
+
+    Imports and initializes your module. 
 
 To scaffold an IBC-enabled module use `--ibc` flag. <!-- Learn more about Starport features related to IBC. -->
