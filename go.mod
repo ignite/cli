@@ -10,7 +10,7 @@ require (
 	github.com/charmbracelet/glow v1.4.0
 	github.com/cosmos/cosmos-sdk v0.42.0
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/relayer v1.0.0-rc1.0.20210205103857-f4b56856caeb
+	github.com/cosmos/relayer v1.0.0-rc1.0.20210326125444-76eb658fb20a
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0

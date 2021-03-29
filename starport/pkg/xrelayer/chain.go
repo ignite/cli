@@ -40,6 +40,9 @@ type Chain struct {
 
 	// tmclient used to interact with tm apis.
 	tmclient tendermintrpc.Client
+
+	// gasPrice is the gas price used when sending transactions to the chain
+	gasPrice string
 }
 
 // Account represents an account in relayer.
@@ -56,6 +59,13 @@ type Option func(*Chain)
 func WithFaucet(address string) Option {
 	return func(c *Chain) {
 		c.faucetAddress = address
+	}
+}
+
+// WithGasPrice gives the gas price to use to send transactions to the chain
+func WithGasPrice(gasPrice string) Option {
+	return func(c *Chain) {
+		c.gasPrice = gasPrice
 	}
 }
 
@@ -406,6 +416,7 @@ func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
 			AccountPrefix:  "cosmos",
 			GasAdjustment:  1.5,
 			TrustingPeriod: "336h",
+			GasPrices:      c.gasPrice,
 		}
 
 		if err := conf.AddChain(rchain); err != nil {
