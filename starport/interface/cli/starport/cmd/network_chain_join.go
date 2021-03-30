@@ -39,8 +39,8 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
-	c.Flags().String(flagGentx, "", fmt.Sprintf("Path to a gentx file (optional, requires --%s to be provided)", flagGentx))
-	c.Flags().String(flagPeer, "", fmt.Sprintf("Configure peer in node-id@host:port format (optional, requires --%s to be provided)", flagPeer))
+	c.Flags().String(flagGentx, "", fmt.Sprintf("Path to a gentx file (optional, requires --%s to be provided)", flagPeer))
+	c.Flags().String(flagPeer, "", fmt.Sprintf("Configure peer in node-id@host:port format (optional, requires --%s to be provided)", flagGentx))
 	return c
 }
 
@@ -90,7 +90,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	// hold default values and user inputs for target chain to later use these to join to the chain.
 	var (
 		account      chain.Account
-		accountName  = "user1"
+		accountName  = "alice"
 		accountCoins = "1000token,100000000stake"
 		denom        = "stake"
 	)
