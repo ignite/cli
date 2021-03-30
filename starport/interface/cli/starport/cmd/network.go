@@ -31,7 +31,7 @@ const (
 	spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
 
 	spnNodeAddressNightly = "https://rpc.nightly.starport.network:443"
-	spnAPIAddressNightly = "https://rest.nightly.starport.network"
+	spnAPIAddressNightly = "https://api.nightly.starport.network"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 )
 
