@@ -16,7 +16,7 @@ import (
 )
 
 var (
-	nightly			bool
+	nightly bool
 
 	spnNodeAddress   string
 	spnAPIAddress    string
@@ -24,11 +24,11 @@ var (
 )
 
 const (
-	nightlyFlag = "nightly"
+	flagNightlyFlag = "nightly"
 
-	spnNodeAddressFlag   = "spn-node-address"
-	spnAPIAddressFlag    = "spn-api-address"
-	spnFaucetAddressFlag = "spn-faucet-address"
+	flagSPNNodeAddressFlag   = "spn-node-address"
+	flagSPNAPIAddressFlag    = "spn-api-address"
+	flagSPNFaucetAddressFlag = "spn-faucet-address"
 
 	spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
 	spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
@@ -49,10 +49,10 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().BoolVar(&nightly, nightlyFlag, false, "Use nightly SPN network")
-	c.PersistentFlags().StringVar(&spnNodeAddress, spnNodeAddressFlag, spnNodeAddressAlpha, "SPN node address")
-	c.PersistentFlags().StringVar(&spnAPIAddress, spnAPIAddressFlag, spnAPIAddressAlpha, "SPN api address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, spnFaucetAddressFlag, spnFaucetAddressAlpha, "SPN Faucet address")
+	c.PersistentFlags().BoolVar(&nightly, flagNightlyFlag, false, "Use nightly SPN network")
+	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddressFlag, spnNodeAddressAlpha, "SPN node address")
+	c.PersistentFlags().StringVar(&spnAPIAddress, flagSPNAPIAddressFlag, spnAPIAddressAlpha, "SPN api address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddressFlag, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
 	c.AddCommand(NewNetworkAccount())
