@@ -14,7 +14,7 @@ COPY . /starport
 WORKDIR /starport
 
 # INSTALL STARPORT
-RUN bash scripts/install
+RUN make install
 
 # CMD
 ENTRYPOINT ["/go/bin/starport"]
