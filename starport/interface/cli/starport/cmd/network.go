@@ -22,16 +22,16 @@ var (
 )
 
 const (
-	spnNodeAddressFlag = "spn-node-address"
-	spnAPIAddressFlag = "spn-api-address"
+	spnNodeAddressFlag   = "spn-node-address"
+	spnAPIAddressFlag    = "spn-api-address"
 	spnFaucetAddressFlag = "spn-faucet-address"
 
-	spnNodeAddressAlpha = "https://rpc.alpha.starport.network:443"
-	spnAPIAddressAlpha = "https://rest.alpha.starport.network"
-	spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
+	// spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
+	// spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
+	// spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
 
-	spnNodeAddressNightly = "https://rpc.nightly.starport.network:443"
-	spnAPIAddressNightly = "https://api.nightly.starport.network"
+	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
+	spnAPIAddressNightly    = "https://api.nightly.starport.network"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 )
 
