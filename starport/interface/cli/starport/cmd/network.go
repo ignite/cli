@@ -27,7 +27,7 @@ const (
 	spnFaucetAddressFlag = "spn-faucet-address"
 
 	// spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
-	// spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
+	// spnAPIAddressAlpha    = "https://api.alpha.starport.network"
 	// spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
 
 	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
