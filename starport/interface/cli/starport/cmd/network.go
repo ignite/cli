@@ -16,9 +16,27 @@ import (
 )
 
 var (
+	nightly bool
+
 	spnNodeAddress   string
 	spnAPIAddress    string
 	spnFaucetAddress string
+)
+
+const (
+	flagNightlyFlag = "nightly"
+
+	flagSPNNodeAddressFlag   = "spn-node-address"
+	flagSPNAPIAddressFlag    = "spn-api-address"
+	flagSPNFaucetAddressFlag = "spn-faucet-address"
+
+	spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
+	spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
+	spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
+
+	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
+	spnAPIAddressNightly    = "https://api.nightly.starport.network"
+	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -31,9 +49,10 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().StringVar(&spnNodeAddress, "spn-node-address", "https://rpc.alpha.starport.network:443", "SPN node address")
-	c.PersistentFlags().StringVar(&spnAPIAddress, "spn-api-address", "https://rest.alpha.starport.network", "SPN api address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, "spn-faucet-address", "https://faucet.alpha.starport.network", "SPN Faucet address")
+	c.PersistentFlags().BoolVar(&nightly, flagNightlyFlag, false, "Use nightly SPN network")
+	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddressFlag, spnNodeAddressAlpha, "SPN node address")
+	c.PersistentFlags().StringVar(&spnAPIAddress, flagSPNAPIAddressFlag, spnAPIAddressAlpha, "SPN api address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddressFlag, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
 	c.AddCommand(NewNetworkAccount())
@@ -53,6 +72,14 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
 	}
+
+	// check if using nightly spn
+	if nightly {
+		spnNodeAddress = spnNodeAddressNightly
+		spnAPIAddress = spnAPIAddressNightly
+		spnFaucetAddress = spnFaucetAddressNightly
+	}
+
 	// init spnclient only once on start in order to spnclient to
 	// reuse unlocked keyring in the following steps.
 	if spnclient == nil {
