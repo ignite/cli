@@ -16,7 +16,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/pkg/xcobra"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"github.com/tendermint/tendermint/libs/os"
@@ -46,14 +45,6 @@ func NewNetworkChainJoin() *cobra.Command {
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	chainID := args[0]
-
-	manualFlagCheck, err := xcobra.CheckFlagValues(cmd.Flags(), flagGroupManualJoin)
-	if err != nil {
-		return err
-	}
-	if manualFlagCheck == xcobra.FlagsSomeEmpty {
-		return fmt.Errorf("%s flags needs to be provided together", strings.Join(flagGroupManualJoin, ", "))
-	}
 
 	s := clispinner.New()
 	defer s.Stop()
@@ -186,76 +177,58 @@ func createValidatorInfo(
 	publicAddress string,
 	err error,
 ) {
-	var (
-		gentxPath, _ = cmd.Flags().GetString(flagGentx)
-		peer, _      = cmd.Flags().GetString(flagPeer)
-	)
+	publicAddress, _ = cmd.Flags().GetString(flagPeer)
+	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
-	check, err := xcobra.CheckFlagValues(cmd.Flags(), flagGroupManualJoin)
-	if err != nil {
-		return nil, types.Coin{}, "", err
-	}
-
-	if check == xcobra.FlagsAllFilled {
-		if gentx, err = os.ReadFile(gentxPath); err != nil {
-			return nil, types.Coin{}, "", errors.Wrap(err, "cannot open gentx file")
-		}
-
-		info, err := networkbuilder.ParseGentx(gentx)
-		if err != nil {
-			return nil, types.Coin{}, "", err
-		}
-
-		return gentx, info.SelfDelegation, peer, nil
-	}
-
-	// ask to create a validator proposal.
-	fmt.Println()
-	printSection("Validator proposal")
-
+	questions := []cliquiz.Question{}
 	var proposal networkbuilder.Proposal
 
-	questions := []cliquiz.Question{
-		cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount,
-			cliquiz.DefaultAnswer("95000000stake"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Moniker",
-			&proposal.Validator.Moniker,
-			cliquiz.DefaultAnswer("mynode"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Commission rate",
-			&proposal.Validator.CommissionRate,
-			cliquiz.DefaultAnswer("0.10"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Commission max rate",
-			&proposal.Validator.CommissionMaxRate,
-			cliquiz.DefaultAnswer("0.20"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Commission max change rate",
-			&proposal.Validator.CommissionMaxChangeRate,
-			cliquiz.DefaultAnswer("0.01"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Min self delegation",
-			&proposal.Validator.MinSelfDelegation,
-			cliquiz.DefaultAnswer("1"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Gas prices",
-			&proposal.Validator.GasPrices,
-			cliquiz.DefaultAnswer("0.025"+denom),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
-		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
-		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
+	// prepare questions to interactively ask for validator info when gentx isn't provided.
+	if gentxPath == "" {
+		questions = append(questions,
+			cliquiz.NewQuestion("Staking amount", &proposal.Validator.StakingAmount,
+				cliquiz.DefaultAnswer("95000000stake"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Moniker",
+				&proposal.Validator.Moniker,
+				cliquiz.DefaultAnswer("mynode"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Commission rate",
+				&proposal.Validator.CommissionRate,
+				cliquiz.DefaultAnswer("0.10"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Commission max rate",
+				&proposal.Validator.CommissionMaxRate,
+				cliquiz.DefaultAnswer("0.20"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Commission max change rate",
+				&proposal.Validator.CommissionMaxChangeRate,
+				cliquiz.DefaultAnswer("0.01"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Min self delegation",
+				&proposal.Validator.MinSelfDelegation,
+				cliquiz.DefaultAnswer("1"),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Gas prices",
+				&proposal.Validator.GasPrices,
+				cliquiz.DefaultAnswer("0.025"+denom),
+				cliquiz.Required(),
+			),
+			cliquiz.NewQuestion("Website", &proposal.Meta.Website),
+			cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
+			cliquiz.NewQuestion("Details", &proposal.Meta.Details),
+		)
 	}
 
-	if !xchisel.IsEnabled() {
+	// prepare questions to interactively ask for a publicAddress when peer isn't provided
+	// and not running through chisel proxy.
+	if publicAddress == "" && !xchisel.IsEnabled() {
 		opts := []cliquiz.Option{
 			cliquiz.Required(),
 		}
@@ -266,19 +239,40 @@ func createValidatorInfo(
 		questions = append(questions, cliquiz.NewQuestion("Peer's address", &publicAddress, opts...))
 	}
 
-	if err := cliquiz.Ask(questions...); err != nil {
-		return nil, types.Coin{}, "", err
+	// interactively ask validator questions if there is a need to collect extra info.
+	if len(questions) > 0 {
+		fmt.Println()
+		printSection("Validator proposal")
+
+		if err := cliquiz.Ask(questions...); err != nil {
+			return nil, types.Coin{}, "", err
+		}
 	}
 
-	if gentx, err = blockchain.IssueGentx(cmd.Context(), account, proposal); err != nil {
-		return nil, types.Coin{}, "", err
+	// issue gentx and return with validator info when gentx isn't provided manually.
+	if gentxPath == "" {
+		if gentx, err = blockchain.IssueGentx(cmd.Context(), account, proposal); err != nil {
+			return nil, types.Coin{}, "", err
+		}
+
+		if selfDelegation, err = types.ParseCoinNormalized(proposal.Validator.StakingAmount); err != nil {
+			return nil, types.Coin{}, "", err
+		}
+
+		return gentx, selfDelegation, publicAddress, nil
 	}
 
-	if selfDelegation, err = types.ParseCoinNormalized(proposal.Validator.StakingAmount); err != nil {
-		return nil, types.Coin{}, "", err
+	// gentx is provided manually so use it and return with validator info.
+	if gentx, err = os.ReadFile(gentxPath); err != nil {
+		return nil, types.Coin{}, "", errors.Wrap(err, "cannot open gentx file")
 	}
 
-	return gentx, selfDelegation, publicAddress, nil
+	info, err := networkbuilder.ParseGentx(gentx)
+	if err != nil {
+		return nil, types.Coin{}, "", err
+	}
+	return gentx, info.SelfDelegation, publicAddress, nil
+
 }
 
 func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
