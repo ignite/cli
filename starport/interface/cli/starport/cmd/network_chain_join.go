@@ -26,8 +26,6 @@ const (
 	flagPeer  = "peer"
 )
 
-var flagGroupManualJoin = []string{flagGentx, flagPeer}
-
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
