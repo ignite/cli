@@ -3,7 +3,7 @@
 function build {
     echo "building container..."
     docker build -t starport -f - > /dev/null . << EOF
-FROM golang:1.15.2-buster
+FROM golang:1.16.2-buster
 
 WORKDIR /apps
 
@@ -19,7 +19,7 @@ RUN apt update && \
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
-RUN curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.12.1/protoc-3.12.1-linux-x86_64.zip -o protoc.zip && \
+RUN curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip -o protoc.zip && \
     unzip protoc.zip -d /usr/local && \
     rm protoc.zip 
 
@@ -29,7 +29,7 @@ export PATH=\$PATH:\$GOPATH/bin \n\
 alias a="cd /apps" \n\
 alias s="cd \$GOPATH/src/github.com/tendermint/starport" \n\
 alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -rf *) && rm -rf /apps/*" \n\
-alias i="(s && ./scripts/install)"' > ~/.bashrc
+alias i="(s && make install)"' > ~/.bashrc
 EOF
 }
 
