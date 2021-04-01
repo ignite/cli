@@ -22,20 +22,11 @@ jobs:
         with:
           node-version: 14
 
-      - name: Set up Snapcraft
-        run: |
-          sudo apt-get update && sudo apt-get -yq --no-install-suggests --no-install-recommends install snapcraft
       - name: Checkout
         uses: actions/checkout@v2
         with:
           path: ${{ env.working-directory }}
           fetch-depth: 0
-
-      - name: Snapcraft Login
-        env:
-          SNAPCRAFT_LOGIN: ${{ secrets.SNAPCRAFT_LOGIN }}
-        run: |
-          snapcraft login --with <(echo "$SNAPCRAFT_LOGIN")
 
       - name: Run GoReleaser
         uses: goreleaser/goreleaser-action@v2
