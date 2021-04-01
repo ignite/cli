@@ -20,8 +20,8 @@ func (e VerificationError) Error() string {
 }
 
 type GentxInfo struct {
-	ValidatorAddress string
-	SelfDelegation   sdk.Coin
+	DelegatorAddress, ValidatorAddress string
+	SelfDelegation                     sdk.Coin
 }
 
 // VerifyProposals if proposals are correct and simulate them with the current launch information
@@ -81,6 +81,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 type stargateGentx struct {
 	Body struct {
 		Messages []struct {
+			DelegatorAddress string `json:"delegator_address"`
 			ValidatorAddress string `json:"validator_address"`
 			Value            struct {
 				Denom  string `json:"denom"`
@@ -104,6 +105,7 @@ func ParseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
 	if len(stargateGentx.Body.Messages) != 1 {
 		return info, errors.New("add validator gentx must contain 1 message")
 	}
+	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
 	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
