@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -27,6 +29,10 @@ const (
 	flagPeer  = "peer"
 )
 
+const (
+	flagKeyringBackend = "keyring-backend"
+)
+
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
@@ -39,6 +45,7 @@ func NewNetworkChainJoin() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().String(flagGentx, "", fmt.Sprintf("Path to a gentx file (optional, requires --%s to be provided)", flagPeer))
 	c.Flags().String(flagPeer, "", fmt.Sprintf("Configure peer in node-id@host:port format (optional, requires --%s to be provided)", flagGentx))
+	c.Flags().String(flagKeyringBackend, "os", "Keyring backend used for the blockchain account")
 	return c
 }
 
@@ -62,6 +69,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// Get keyring backend
+	keyringBackend, err := cmd.Flags().GetString(flagKeyringBackend)
+	if err != nil {
+		return err
+	}
+	initOptions = append(initOptions, networkbuilder.InitializationKeyringBackend(chaincmd.KeyringBackend(keyringBackend)))
 
 	// init the blockchain.
 	blockchain, err := nb.Init(cmd.Context(), chainID, networkbuilder.SourceChainID(), initOptions...)

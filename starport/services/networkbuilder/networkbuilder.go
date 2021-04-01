@@ -77,6 +77,7 @@ type initOptions struct {
 	mustNotInitializedBefore bool
 	homePath                 string
 	cliHomePath              string
+	keyringBackend           chaincmd.KeyringBackend
 }
 
 // SourceOption sets the source for blockchain.
@@ -149,6 +150,13 @@ func InitializationHomePath(homePath string) InitOption {
 func InitializationCLIHomePath(cliHomePath string) InitOption {
 	return func(o *initOptions) {
 		o.cliHomePath = cliHomePath
+	}
+}
+
+// InitializationKeyringBackend provides the keyring backend to use to initialize the blockchain
+func InitializationKeyringBackend(keyringBackend chaincmd.KeyringBackend) InitOption {
+	return func(o *initOptions) {
+		o.keyringBackend = keyringBackend
 	}
 }
 
@@ -274,6 +282,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		githash.String(),
 		o.homePath,
 		o.cliHomePath,
+		o.keyringBackend,
 		o.mustNotInitializedBefore,
 	)
 }
