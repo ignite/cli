@@ -3,8 +3,9 @@ package starportcmd
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"

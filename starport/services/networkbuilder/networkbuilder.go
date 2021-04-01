@@ -77,7 +77,7 @@ type initOptions struct {
 	mustNotInitializedBefore bool
 	homePath                 string
 	cliHomePath              string
-	keyringBackend			chaincmd.KeyringBackend
+	keyringBackend           chaincmd.KeyringBackend
 }
 
 // SourceOption sets the source for blockchain.

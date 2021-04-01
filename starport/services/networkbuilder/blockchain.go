@@ -78,7 +78,7 @@ func (b *Blockchain) init(
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	} else {
-		// Otherwise use the keyring backend specifed by the user
+		// Otherwise use the keyring backend specified by the user
 		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
