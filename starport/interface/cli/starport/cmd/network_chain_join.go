@@ -268,7 +268,7 @@ func createValidatorInfo(
 		if err == nil {
 			opts = append(opts, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
 		}
-		questions = append(questions, cliquiz.NewQuestion("Peer's address", &calculatedPublicAddress, opts...))
+		questions = append(questions, cliquiz.NewQuestion("Peer's address", &publicAddress, opts...))
 	}
 
 	// interactively ask validator questions if there is a need to collect extra info.
@@ -291,7 +291,7 @@ func createValidatorInfo(
 			return nil, "", types.Coin{}, "", err
 		}
 
-		return gentx, account.Address, selfDelegation, calculatedPublicAddress, nil
+		return gentx, account.Address, selfDelegation, publicAddress, nil
 	}
 
 	// gentx is provided manually so use it and return with validator info.
@@ -303,7 +303,7 @@ func createValidatorInfo(
 	if err != nil {
 		return nil, "", types.Coin{}, "", err
 	}
-	return gentx, info.DelegatorAddress, info.SelfDelegation, calculatedPublicAddress, nil
+	return gentx, info.DelegatorAddress, info.SelfDelegation, publicAddress, nil
 }
 
 func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
