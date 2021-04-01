@@ -16,8 +16,9 @@ import (
 )
 
 const (
-	flagBranch = "branch"
-	flagTag    = "tag"
+	flagBranch  = "branch"
+	flagTag     = "tag"
+	flagGenesis = "genesis"
 )
 
 // NewNetworkChainCreate creates a new chain create command to create
@@ -31,16 +32,18 @@ func NewNetworkChainCreate() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().String(flagBranch, "", "Git branch to use")
 	c.Flags().String(flagTag, "", "Git tag to use")
+	c.Flags().String(flagGenesis, "", "URL to a custom Genesis (optional)")
 	return c
 }
 
 func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 	// collect required values.
 	var (
-		chainID   string
-		source    string
-		branch, _ = cmd.Flags().GetString(flagBranch)
-		tag, _    = cmd.Flags().GetString(flagTag)
+		chainID       string
+		source        string
+		branch, _     = cmd.Flags().GetString(flagBranch)
+		tag, _        = cmd.Flags().GetString(flagTag)
+		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
 	)
 
 	if len(args) >= 1 {
@@ -148,30 +151,38 @@ func networkChainCreateHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// ask to confirm Genesis.
-	prettyGenesis, err := info.Genesis.Pretty()
-	if err != nil {
-		return err
-	}
+	// ask to confirm Genesis if a custom one isn't provided.
+	if genesisURL == "" {
+		prettyGenesis, err := info.Genesis.Pretty()
+		if err != nil {
+			return err
+		}
 
-	fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
+		fmt.Printf("\nGenesis: \n\n%s\n\n", prettyGenesis)
 
-	prompt := promptui.Prompt{
-		Label:     "Proceed with the Genesis configuration above",
-		IsConfirm: true,
-	}
-	if _, err := prompt.Run(); err != nil {
-		fmt.Println("said no")
-		return nil
+		prompt := promptui.Prompt{
+			Label:     "Proceed with the Genesis configuration above",
+			IsConfirm: true,
+		}
+		if _, err := prompt.Run(); err != nil {
+			fmt.Println("said no")
+			return nil
+		}
 	}
 
 	s.SetText("Submitting...")
 	s.Start()
 
 	// create blockchain.
-	if err := blockchain.Create(cmd.Context()); err != nil {
+	var createOptions []networkbuilder.CreateOption
+	if genesisURL != "" {
+		createOptions = append(createOptions, networkbuilder.WithCustomGenesisFromURL(genesisURL))
+	}
+
+	if err := blockchain.Create(cmd.Context(), createOptions...); err != nil {
 		return err
 	}
+
 	s.Stop()
 
 	fmt.Println("\n🌐  Network submitted")

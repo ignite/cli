@@ -67,7 +67,15 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 }
 
 // ChainCreate creates a new chain.
-func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, sourceURL, sourceHash string) error {
+func (c *Client) ChainCreate(
+	ctx context.Context,
+	accountName,
+	chainID,
+	sourceURL,
+	sourceHash,
+	genesisURL,
+	genesisHash string,
+) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
@@ -77,6 +85,8 @@ func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, s
 		clientCtx.GetFromAddress(),
 		sourceURL,
 		sourceHash,
+		genesisURL,
+		genesisHash,
 	))
 }
 
@@ -88,11 +98,13 @@ type GenesisAccount struct {
 
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
-	ChainID   string
-	Creator   string
-	URL       string
-	Hash      string
-	CreatedAt time.Time
+	ChainID     string
+	Creator     string
+	URL         string
+	Hash        string
+	GenesisURL  string
+	GenesisHash string
+	CreatedAt   time.Time
 }
 
 // ShowChain shows chain info.
@@ -116,13 +128,21 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 
 // toChain converts proto chain to Chain type.
 func toChain(chain *launchtypes.Chain) Chain {
-	return Chain{
+	c := Chain{
 		ChainID:   chain.ChainID,
 		Creator:   chain.Creator,
 		URL:       chain.SourceURL,
 		Hash:      chain.SourceHash,
 		CreatedAt: time.Unix(chain.CreatedAt, 0),
 	}
+
+	genesisFromURL := chain.GetInitialGenesis().GetGenesisURL()
+	if genesisFromURL != nil {
+		c.GenesisURL = genesisFromURL.Url
+		c.GenesisHash = genesisFromURL.Hash
+	}
+
+	return c
 }
 
 // LaunchInformation keeps the chain's launch information.
