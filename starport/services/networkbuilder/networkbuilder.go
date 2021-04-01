@@ -517,10 +517,8 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		if hash != chainInfo.GenesisHash {
 			return errors.New("hash mismatch for the downloaded genesis")
 		}
-	} else {
-		if initialGenesis, err = ioutil.ReadFile(initialGenesisPath(home)); err != nil {
-			return err
-		}
+	} else if initialGenesis, err = ioutil.ReadFile(initialGenesisPath(home)); err != nil {
+		return err
 	}
 
 	// overwrite genesis with initial genesis.
