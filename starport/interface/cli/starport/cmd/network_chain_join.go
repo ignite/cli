@@ -43,8 +43,8 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 	c.Flags().AddFlagSet(flagSetHomes())
-	c.Flags().String(flagGentx, "", fmt.Sprintf("Path to a gentx file (optional, requires --%s to be provided)", flagPeer))
-	c.Flags().String(flagPeer, "", fmt.Sprintf("Configure peer in node-id@host:port format (optional, requires --%s to be provided)", flagGentx))
+	c.Flags().String(flagGentx, "", "Path to a gentx file (optional)")
+	c.Flags().String(flagPeer, "", "Configure peer in node-id@host:port format (optional)")
 	c.Flags().String(flagKeyringBackend, "os", "Keyring backend used for the blockchain account")
 	return c
 }
@@ -52,6 +52,7 @@ func NewNetworkChainJoin() *cobra.Command {
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	chainID := args[0]
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
+	publicAddress, _ := cmd.Flags().GetString(flagPeer)
 
 	s := clispinner.New()
 	defer s.Stop()
@@ -143,7 +144,14 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	gentx, validatorAddress, selfDelegation, publicAddress, err := createValidatorInfo(cmd, blockchain, account, denom)
+	gentx, validatorAddress, selfDelegation, publicAddress, err := createValidatorInfo(
+		cmd,
+		blockchain,
+		account,
+		denom,
+		publicAddress,
+		gentxPath,
+	)
 	if err != nil {
 		return err
 	}
@@ -194,17 +202,16 @@ func createValidatorInfo(
 	cmd *cobra.Command,
 	blockchain *networkbuilder.Blockchain,
 	account *chain.Account,
-	denom string,
+	denom,
+	publicAddress,
+	gentxPath string,
 ) (
 	gentx jsondoc.Doc,
 	validatorAddress string,
 	selfDelegation types.Coin,
-	publicAddress string,
+	calculatedPublicAddress string,
 	err error,
 ) {
-	publicAddress, _ = cmd.Flags().GetString(flagPeer)
-	gentxPath, _ := cmd.Flags().GetString(flagGentx)
-
 	questions := []cliquiz.Question{}
 	var proposal networkbuilder.Proposal
 
@@ -261,7 +268,7 @@ func createValidatorInfo(
 		if err == nil {
 			opts = append(opts, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
 		}
-		questions = append(questions, cliquiz.NewQuestion("Peer's address", &publicAddress, opts...))
+		questions = append(questions, cliquiz.NewQuestion("Peer's address", &calculatedPublicAddress, opts...))
 	}
 
 	// interactively ask validator questions if there is a need to collect extra info.
@@ -284,7 +291,7 @@ func createValidatorInfo(
 			return nil, "", types.Coin{}, "", err
 		}
 
-		return gentx, account.Address, selfDelegation, publicAddress, nil
+		return gentx, account.Address, selfDelegation, calculatedPublicAddress, nil
 	}
 
 	// gentx is provided manually so use it and return with validator info.
@@ -296,7 +303,7 @@ func createValidatorInfo(
 	if err != nil {
 		return nil, "", types.Coin{}, "", err
 	}
-	return gentx, info.DelegatorAddress, info.SelfDelegation, publicAddress, nil
+	return gentx, info.DelegatorAddress, info.SelfDelegation, calculatedPublicAddress, nil
 }
 
 func createChainAccount(ctx context.Context, blockchain *networkbuilder.Blockchain, title, defaultAccountName string) (account chain.Account, err error) {
