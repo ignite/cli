@@ -282,6 +282,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		githash.String(),
 		o.homePath,
 		o.cliHomePath,
+		o.keyringBackend,
 		o.mustNotInitializedBefore,
 	)
 }

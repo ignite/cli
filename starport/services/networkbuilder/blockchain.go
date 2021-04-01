@@ -36,6 +36,7 @@ func newBlockchain(
 	hash,
 	home,
 	cliHome string,
+	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) (*Blockchain, error) {
 	bc := &Blockchain{
@@ -44,7 +45,7 @@ func newBlockchain(
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID, home, cliHome, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, cliHome, keyringBackend, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
@@ -54,6 +55,7 @@ func (b *Blockchain) init(
 	chainID,
 	home,
 	cliHome string,
+	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
@@ -75,6 +77,9 @@ func (b *Blockchain) init(
 	// password. This happens because Gitpod uses containers.
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	} else {
+		// Otherwise use the keyring backend specifed by the user
+		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
 	c, err := chain.New(ctx, b.appPath, chainOption...)
