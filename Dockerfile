@@ -17,11 +17,14 @@ RUN curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.13
     rm protoc.zip
 
 # COPY STARPORT SOURCE CODE INTO CONTAINER
-COPY . /starport
+COPY ./docs /starport/docs
+COPY ./starport /starport/starport
+COPY ./go.mod /starport/go.mod
+COPY ./go.sum /starport/go.sum
 WORKDIR /starport
 
 # INSTALL STARPORT
-RUN make install
+RUN go install -mod=readonly ./...
 
 # ENTRYPOINT
 ENTRYPOINT ["/go/bin/starport"]
