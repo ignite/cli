@@ -44,7 +44,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spn v0.0.0-20210323130659-a452e91426bd
+	github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5
 	github.com/tendermint/tendermint v0.34.8
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect
 	golang.org/x/mod v0.4.1
