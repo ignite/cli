@@ -110,10 +110,8 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		accountCoins = strings.Join(acc.Coins, ",")
 	}
 
-	// ask to create an account on target blockchain.
-	shouldCreateAccount := true
-
-	printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
+	// ask to propose an account on target blockchain.
+	shouldProposeAccount := true
 
 	if gentxPath != "" {
 		askAccountProposal := promptui.Prompt{
@@ -121,18 +119,24 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			IsConfirm: true,
 		}
 		_, err := askAccountProposal.Run()
-		shouldCreateAccount = err == nil
-	}
+		shouldProposeAccount = err == nil
+	} else {
+		printSection(fmt.Sprintf("Account on the blockchain %s", chainID))
 
-	if shouldCreateAccount {
 		acc, err := createChainAccount(cmd.Context(), blockchain, fmt.Sprintf("%s blockchain", chainID), accountName)
 		if err != nil {
 			return err
 		}
 		account = &acc
+	}
 
+	if shouldProposeAccount {
 		// ask to create an account proposal.
 		printSection("Account proposal")
+
+		if account == nil {
+			account = &chain.Account{}
+		}
 
 		accQuestions := cliquiz.NewQuestion("Account coins",
 			&account.Coins,
@@ -154,6 +158,9 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	)
 	if err != nil {
 		return err
+	}
+	if shouldProposeAccount && account.Address == "" {
+		account.Address = validatorAddress
 	}
 
 	prettyGentx, err := gentx.Pretty()
