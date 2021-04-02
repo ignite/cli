@@ -883,6 +883,10 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
+github.com/tendermint/spn v0.0.0-20210322152251-92901fe2cab6 h1:hM3JBo91r6plq3mxGtUyF83TcPfUNWgtuqA7g0fjQLM=
+github.com/tendermint/spn v0.0.0-20210322152251-92901fe2cab6/go.mod h1:5FNgGdUl15AtT0qJNt8Hdi9lzBEud6vOtu+Ok+ntCjE=
+github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5 h1:/PvH0TyuSDvv1nfif1fGSxlObnxMAtEPaITgi5wIxWA=
+github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5/go.mod h1:5FNgGdUl15AtT0qJNt8Hdi9lzBEud6vOtu+Ok+ntCjE=
 github.com/tendermint/spn v0.0.0-20210323130659-a452e91426bd h1:rybCp7g8wh70wIL7R1RxkxrzjaEM091v8GtWOMcLqxY=
 github.com/tendermint/spn v0.0.0-20210323130659-a452e91426bd/go.mod h1:WDpmbR59x0fGJPNvU4dg+mVyGj1lORkqOolEgeIxMKQ=
 github.com/tendermint/starport v0.12.0/go.mod h1:iKwUbPpZeAe79FYGZDC85zV5sMLeVGH4zlWb4EiaoBU=

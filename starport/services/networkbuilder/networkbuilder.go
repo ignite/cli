@@ -507,13 +507,22 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		return err
 	}
 
-	// overwrite genesis with initial genesis.
-	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(home))
-	if err != nil {
+	var initialGenesis []byte
+
+	if chainInfo.GenesisURL != "" {
+		var hash string
+		if initialGenesis, hash, err = genesisAndHashFromURL(ctx, chainInfo.GenesisURL); err != nil {
+			return err
+		}
+		if hash != chainInfo.GenesisHash {
+			return errors.New("hash mismatch for the downloaded genesis")
+		}
+	} else if initialGenesis, err = ioutil.ReadFile(initialGenesisPath(home)); err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(home), initialGenesis, 0755)
-	if err != nil {
+
+	// overwrite genesis with initial genesis.
+	if err := ioutil.WriteFile(genesisPath(home), initialGenesis, 0755); err != nil {
 		return err
 	}
 
