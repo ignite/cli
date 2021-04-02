@@ -32,7 +32,7 @@ func NewNetworkChainCreate() *cobra.Command {
 	c.Flags().AddFlagSet(flagSetHomes())
 	c.Flags().String(flagBranch, "", "Git branch to use")
 	c.Flags().String(flagTag, "", "Git tag to use")
-	c.Flags().String(flagGenesis, "", "URL to a custom Genesis (optional)")
+	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
 	return c
 }
 
