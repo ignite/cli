@@ -17,6 +17,7 @@ import (
 
 var (
 	nightly bool
+	local bool
 
 	spnNodeAddress   string
 	spnAPIAddress    string
@@ -24,11 +25,12 @@ var (
 )
 
 const (
-	flagNightlyFlag = "nightly"
+	flagNightly = "nightly"
+	flagLocal = "local"
 
-	flagSPNNodeAddressFlag   = "spn-node-address"
-	flagSPNAPIAddressFlag    = "spn-api-address"
-	flagSPNFaucetAddressFlag = "spn-faucet-address"
+	flagSPNNodeAddress   = "spn-node-address"
+	flagSPNAPIAddress    = "spn-api-address"
+	flagSPNFaucetAddress = "spn-faucet-address"
 
 	spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
 	spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
@@ -37,6 +39,10 @@ const (
 	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
 	spnAPIAddressNightly    = "https://api.nightly.starport.network"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
+
+	spnNodeAddressLocal = "http://0.0.0.0:26657"
+	spnAPIAddressLocal = "http://0.0.0.0:1317"
+	spnFaucetAddressLocal = "http://0.0.0.0:4500"
 )
 
 // NewNetwork creates a new network command that holds some other sub commands
@@ -49,10 +55,11 @@ func NewNetwork() *cobra.Command {
 	}
 
 	// configure flags.
-	c.PersistentFlags().BoolVar(&nightly, flagNightlyFlag, false, "Use nightly SPN network")
-	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddressFlag, spnNodeAddressAlpha, "SPN node address")
-	c.PersistentFlags().StringVar(&spnAPIAddress, flagSPNAPIAddressFlag, spnAPIAddressAlpha, "SPN api address")
-	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddressFlag, spnFaucetAddressAlpha, "SPN Faucet address")
+	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
+	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
+	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressAlpha, "SPN node address")
+	c.PersistentFlags().StringVar(&spnAPIAddress, flagSPNAPIAddress, spnAPIAddressAlpha, "SPN api address")
+	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
 	c.AddCommand(NewNetworkAccount())
@@ -73,7 +80,15 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
 	}
 
-	// check if using nightly spn
+	// check preconfigured networks
+	if nightly && local {
+		return nil, errors.New("local and nightly networks can't be specified in the same command")
+	}
+	if local {
+		spnNodeAddress = spnNodeAddressLocal
+		spnAPIAddress = spnAPIAddressLocal
+		spnFaucetAddress = spnFaucetAddressLocal
+	}
 	if nightly {
 		spnNodeAddress = spnNodeAddressNightly
 		spnAPIAddress = spnAPIAddressNightly
