@@ -293,7 +293,6 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 
 // IssueGentx creates a Genesis transaction for account with proposal.
 func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
-	proposal.Validator.Name = account.Name
 	commands, err := b.chain.Commands(ctx)
 	if err != nil {
 		return nil, err
@@ -325,7 +324,14 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
+func (b *Blockchain) Join(
+	ctx context.Context,
+	account *chain.Account,
+	validatorAddress,
+	publicAddress string,
+	gentx []byte,
+	selfDelegation types.Coin,
+) error {
 	commands, err := b.chain.Commands(ctx)
 	if err != nil {
 		return err
@@ -347,12 +353,19 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 		return err
 	}
 
-	return b.builder.Propose(
-		ctx,
-		chainID,
-		spn.AddAccountProposal(accountAddress, coins),
-		spn.AddValidatorProposal(gentx, accountAddress, selfDelegation, p2pAddress),
-	)
+	var proposalOptions []spn.ProposalOption
+	if account != nil {
+		coins, err := types.ParseCoinsNormalized(account.Coins)
+		if err != nil {
+			return err
+		}
+
+		proposalOptions = append(proposalOptions, spn.AddAccountProposal(account.Address, coins))
+	}
+
+	proposalOptions = append(proposalOptions, spn.AddValidatorProposal(gentx, validatorAddress, selfDelegation, p2pAddress))
+
+	return b.builder.Propose(ctx, chainID, proposalOptions...)
 }
 
 // Cleanup closes the event bus and cleanups everything related to installed blockchain.
