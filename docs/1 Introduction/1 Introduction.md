@@ -20,7 +20,7 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 
 ## Projects building with Starport
 
-* [Sifnode](https://github.com/Sifchain/sifnode)
+* [Sifnode omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
 * [Interchain accounts demo](https://github.com/chainapsis/cosmos-sdk-interchain-account)
 * [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
