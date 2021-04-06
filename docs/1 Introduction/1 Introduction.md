@@ -29,7 +29,7 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
 * [Umee](https://github.com/umee-network/umee)
 * [SPN](https://github.com/tendermint/spn)
-* [Juno](https://github.com/CosmosContracts/Juno)
+* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
 
 ## Cosmos SDK Modules
 
