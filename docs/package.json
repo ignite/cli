@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "serve": "vuepress dev",
+    "serve": "vuepress dev --no-cache",
     "build": "vuepress build"
   },
   "author": "",
