@@ -229,13 +229,10 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 			))
 
 		case proposal.Validator != nil:
-			// Get the validator address
-			validatorAddress := types.ValAddress(proposal.Validator.ValidatorAddress).String()
-
 			// Create the proposal payload
 			payload := launchtypes.NewProposalAddValidatorPayload(
 				proposal.Validator.Gentx,
-				validatorAddress,
+				proposal.Validator.ValidatorAddress,
 				proposal.Validator.SelfDelegation,
 				proposal.Validator.P2PAddress,
 			)
