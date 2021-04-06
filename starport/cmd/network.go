@@ -17,7 +17,7 @@ import (
 
 var (
 	nightly bool
-	local bool
+	local   bool
 
 	spnNodeAddress   string
 	spnAPIAddress    string
@@ -26,7 +26,7 @@ var (
 
 const (
 	flagNightly = "nightly"
-	flagLocal = "local"
+	flagLocal   = "local"
 
 	flagSPNNodeAddress   = "spn-node-address"
 	flagSPNAPIAddress    = "spn-api-address"
@@ -40,8 +40,8 @@ const (
 	spnAPIAddressNightly    = "https://api.nightly.starport.network"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 
-	spnNodeAddressLocal = "http://0.0.0.0:26657"
-	spnAPIAddressLocal = "http://0.0.0.0:1317"
+	spnNodeAddressLocal   = "http://0.0.0.0:26657"
+	spnAPIAddressLocal    = "http://0.0.0.0:1317"
 	spnFaucetAddressLocal = "http://0.0.0.0:4500"
 )
 
