@@ -50,9 +50,9 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		r(&rev)
 
 		if rev.isApproved {
-			msgs = append(msgs, launchtypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+			msgs = append(msgs, launchtypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress().String()))
 		} else {
-			msgs = append(msgs, launchtypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress()))
+			msgs = append(msgs, launchtypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress().String()))
 		}
 	}
 
