@@ -49,13 +49,13 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			}
 
 			// Check validator address
-			if valAddress != gentxInfo.ValidatorAddress {
+			if valAddress != gentxInfo.DelegatorAddress {
 				return VerificationError{
 					fmt.Errorf(
 						"proposal %v contains a validator address %v that doesn't match the one inside the gentx: %v",
 						id,
 						valAddress,
-						gentxInfo.ValidatorAddress,
+						gentxInfo.DelegatorAddress,
 					),
 				}
 			}
