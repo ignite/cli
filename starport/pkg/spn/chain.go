@@ -82,7 +82,7 @@ func (c *Client) ChainCreate(
 	}
 	return c.broadcast(ctx, clientCtx, launchtypes.NewMsgChainCreate(
 		chainID,
-		clientCtx.GetFromAddress(),
+		clientCtx.GetFromAddress().String(),
 		sourceURL,
 		sourceHash,
 		genesisURL,
@@ -92,7 +92,7 @@ func (c *Client) ChainCreate(
 
 // GenesisAccount represents a genesis account inside a chain with its allocated coins.
 type GenesisAccount struct {
-	Address types.AccAddress
+	Address string
 	Coins   types.Coins
 }
 
