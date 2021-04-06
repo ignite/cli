@@ -7,11 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-
-	conf "github.com/tendermint/starport/starport/chainconf"
-
 	"github.com/imdario/mergo"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 )
 

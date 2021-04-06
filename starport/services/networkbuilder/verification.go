@@ -19,9 +19,9 @@ func (e VerificationError) Error() string {
 	return e.Err.Error()
 }
 
-type gentxInfo struct {
-	ValidatorAddress string
-	SelfDelegation   sdk.Coin
+type GentxInfo struct {
+	DelegatorAddress, ValidatorAddress string
+	SelfDelegation                     sdk.Coin
 }
 
 // VerifyProposals if proposals are correct and simulate them with the current launch information
@@ -41,7 +41,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 			selfDelegation := proposal.Validator.SelfDelegation
 
 			// Check values inside the gentx are correct
-			gentxInfo, err := parseGentx(proposal.Validator.Gentx)
+			gentxInfo, err := ParseGentx(proposal.Validator.Gentx)
 			if err != nil {
 				return VerificationError{
 					fmt.Errorf("cannot parse proposal %v gentx: %v", id, err.Error()),
@@ -81,6 +81,7 @@ func (b *Builder) VerifyProposals(ctx context.Context, chainID string, proposals
 type stargateGentx struct {
 	Body struct {
 		Messages []struct {
+			DelegatorAddress string `json:"delegator_address"`
 			ValidatorAddress string `json:"validator_address"`
 			Value            struct {
 				Denom  string `json:"denom"`
@@ -90,7 +91,7 @@ type stargateGentx struct {
 	} `json:"body"`
 }
 
-func parseGentx(gentx jsondoc.Doc) (info gentxInfo, err error) {
+func ParseGentx(gentx jsondoc.Doc) (info GentxInfo, err error) {
 	// Try parsing Stargate gentx
 	var stargateGentx stargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
@@ -104,6 +105,7 @@ func parseGentx(gentx jsondoc.Doc) (info gentxInfo, err error) {
 	if len(stargateGentx.Body.Messages) != 1 {
 		return info, errors.New("add validator gentx must contain 1 message")
 	}
+	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
 	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
