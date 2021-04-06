@@ -1,0 +1,15 @@
+{
+  "name": "starport-docs",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "serve": "vuepress dev",
+    "build": "vuepress build"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "vuepress-theme-cosmos": "^1.0.181"
+  }
+}
