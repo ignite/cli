@@ -24,7 +24,7 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
 * [Interchain accounts demo](https://github.com/chainapsis/cosmos-sdk-interchain-account)
 * [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
-* [Flares](https://github.com/wangfeiping/flares)
+* [Flares payment network](https://github.com/wangfeiping/flares)
 * [Affondra](https://github.com/EG-easy/affondra)
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
 * [Umee](https://github.com/umee-network/umee)
