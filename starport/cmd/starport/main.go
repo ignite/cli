@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	starportcmd "github.com/tendermint/starport/starport/interface/cli/starport/cmd"
+	starportcmd "github.com/tendermint/starport/starport/cmd"
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/gacli"
 )
