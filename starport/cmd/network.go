@@ -88,8 +88,7 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 		spnNodeAddress = spnNodeAddressLocal
 		spnAPIAddress = spnAPIAddressLocal
 		spnFaucetAddress = spnFaucetAddressLocal
-	}
-	if nightly {
+	} else if nightly {
 		spnNodeAddress = spnNodeAddressNightly
 		spnAPIAddress = spnAPIAddressNightly
 		spnFaucetAddress = spnFaucetAddressNightly
