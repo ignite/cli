@@ -72,7 +72,7 @@ export default {
 		}
 	},
 	getters: {
-        {{ range .Module.HTTPQueries }}get{{ .Name }}: (state) => (params = {}) => {
+        {{ range .Module.HTTPQueries }}get{{ .Name }}: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
