@@ -39,6 +39,7 @@ const (
 
 var (
 	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
+	homePath   = filepath.Join(services.StarportConfDir, "spn-chain-homes")
 )
 
 // Builder is network builder.
@@ -169,6 +170,11 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 
 	// set options.
 	o := &initOptions{}
+
+	// set the default home
+	o.homePath = filepath.Join(homePath, chainID)
+
+	// set custom options
 	source(o)
 	for _, option := range options {
 		option(o)
@@ -328,6 +334,11 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
 	// set options
 	o := &initOptions{}
+
+	// set the default home
+	o.homePath = filepath.Join(homePath, chainID)
+
+	// set custom options
 	for _, option := range options {
 		option(o)
 	}
