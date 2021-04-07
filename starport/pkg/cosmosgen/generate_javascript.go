@@ -198,7 +198,13 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 			return err
 		}
 	}
-
+	// generate package.json for Vuex if enabled.
+	if g.g.o.vuexStoreRootPath != "" {
+		err = templatePackageJson.Write(storeDirPath, pp, struct{ Module module.Module }{m})
+		if err != nil {
+			return err
+		}
+	}
 	// generate .js and .d.ts files for all ts files.
 	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
 }
