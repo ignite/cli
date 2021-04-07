@@ -174,16 +174,6 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		option(o)
 	}
 
-	chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
-	if err != nil {
-		return nil, err
-	}
-
-	// verify chain information
-	if err := b.VerifyChain(ctx, chain); err != nil {
-		return nil, err
-	}
-
 	// determine final source configuration.
 	var (
 		url  = o.url
@@ -193,6 +183,16 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	)
 
 	if o.isChainIDSource {
+		chain, err := b.spnclient.ShowChain(ctx, account.Name, chainID)
+		if err != nil {
+			return nil, err
+		}
+
+		// verify chain information
+		if err := b.VerifyChain(ctx, chain); err != nil {
+			return nil, err
+		}
+
 		url = chain.URL
 		hash = chain.Hash
 	}
