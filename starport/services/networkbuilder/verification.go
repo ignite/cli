@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/spn"
 	"io"
+
+	"github.com/tendermint/starport/starport/pkg/spn"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
