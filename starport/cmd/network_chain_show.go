@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	flagPeers   = "peers"
+	flagPeers = "peers"
 )
 
 // NewNetworkChainShow creates a new chain show command to show
