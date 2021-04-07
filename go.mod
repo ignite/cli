@@ -46,7 +46,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5
 	github.com/tendermint/tendermint v0.34.8
-	github.com/tendermint/vue v0.0.0
+	github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect
 	golang.org/x/mod v0.4.1
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
@@ -55,8 +55,6 @@ require (
 )
 
 replace github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
-
-replace github.com/tendermint/vue => ../vue
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.2-alpha.regen.4
 

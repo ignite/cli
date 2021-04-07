@@ -883,12 +883,8 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
-github.com/tendermint/spn v0.0.0-20210322152251-92901fe2cab6 h1:hM3JBo91r6plq3mxGtUyF83TcPfUNWgtuqA7g0fjQLM=
-github.com/tendermint/spn v0.0.0-20210322152251-92901fe2cab6/go.mod h1:5FNgGdUl15AtT0qJNt8Hdi9lzBEud6vOtu+Ok+ntCjE=
 github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5 h1:/PvH0TyuSDvv1nfif1fGSxlObnxMAtEPaITgi5wIxWA=
 github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5/go.mod h1:5FNgGdUl15AtT0qJNt8Hdi9lzBEud6vOtu+Ok+ntCjE=
-github.com/tendermint/spn v0.0.0-20210323130659-a452e91426bd h1:rybCp7g8wh70wIL7R1RxkxrzjaEM091v8GtWOMcLqxY=
-github.com/tendermint/spn v0.0.0-20210323130659-a452e91426bd/go.mod h1:WDpmbR59x0fGJPNvU4dg+mVyGj1lORkqOolEgeIxMKQ=
 github.com/tendermint/starport v0.12.0/go.mod h1:iKwUbPpZeAe79FYGZDC85zV5sMLeVGH4zlWb4EiaoBU=
 github.com/tendermint/starport v0.15.0/go.mod h1:Tuy0bC2vFKIuDTmpMUgS/ammvUw5XSNQHPOw3Pnq5EE=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
@@ -901,6 +897,8 @@ github.com/tendermint/tm-db v0.6.2/go.mod h1:GYtQ67SUvATOcoY8/+x6ylk8Qo02BQyLrAs
 github.com/tendermint/tm-db v0.6.3/go.mod h1:lfA1dL9/Y/Y8wwyPp2NMLyn5P5Ptr/gvDFNWtrCWSf8=
 github.com/tendermint/tm-db v0.6.4 h1:3N2jlnYQkXNQclQwd/eKV/NzlqPlfK21cpRRIx80XXQ=
 github.com/tendermint/tm-db v0.6.4/go.mod h1:dptYhIpJ2M5kUuenLr+Yyf3zQOv1SgBZcl8/BmWlMBw=
+github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18 h1:oVZyTXXr6bqdORxIjwHhzxs7+FIef3fOBWY9xsju5/s=
+github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce h1:fb190+cK2Xz/dvi9Hv8eCYJYvIGUTN2/KLq1pT6CjEc=
