@@ -8,7 +8,7 @@ require (
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
-	github.com/cosmos/cosmos-sdk v0.42.0
+	github.com/cosmos/cosmos-sdk v0.42.2
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/cosmos/relayer v1.0.0-rc1.0.20210326125444-76eb658fb20a
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
@@ -44,7 +44,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spn v0.0.0-20210323090228-7c451f9fe1b5
+	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.8
 	github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect

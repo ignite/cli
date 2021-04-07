@@ -148,7 +148,7 @@ func (c *Client) toProposal(proposal launchtypes.Proposal) (Proposal, error) {
 	switch payload := proposal.Payload.(type) {
 	case *launchtypes.Proposal_AddAccountPayload:
 		p.Account = &ProposalAddAccount{
-			Address: payload.AddAccountPayload.Address.String(),
+			Address: payload.AddAccountPayload.Address,
 			Coins:   payload.AddAccountPayload.Coins,
 		}
 
@@ -156,7 +156,7 @@ func (c *Client) toProposal(proposal launchtypes.Proposal) (Proposal, error) {
 		p.Validator = &ProposalAddValidator{
 			P2PAddress:       payload.AddValidatorPayload.Peer,
 			Gentx:            payload.AddValidatorPayload.GenTx,
-			ValidatorAddress: payload.AddValidatorPayload.ValidatorAddress.String(),
+			ValidatorAddress: payload.AddValidatorPayload.ValidatorAddress,
 			SelfDelegation:   *payload.AddValidatorPayload.SelfDelegation,
 		}
 	}
@@ -216,42 +216,30 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 
 		switch {
 		case proposal.Account != nil:
-			addr, err := types.AccAddressFromBech32(proposal.Account.Address)
-			if err != nil {
-				return err
-			}
-
 			// Create the proposal payload
 			payload := launchtypes.NewProposalAddAccountPayload(
-				addr,
+				proposal.Account.Address,
 				proposal.Account.Coins,
 			)
 
 			msgs = append(msgs, launchtypes.NewMsgProposalAddAccount(
 				chainID,
-				clientCtx.GetFromAddress(),
+				clientCtx.GetFromAddress().String(),
 				payload,
 			))
 
 		case proposal.Validator != nil:
-			// Get the validator address
-			addr, err := types.AccAddressFromBech32(proposal.Validator.ValidatorAddress)
-			if err != nil {
-				return err
-			}
-			validatorAddress := types.ValAddress(addr)
-
 			// Create the proposal payload
 			payload := launchtypes.NewProposalAddValidatorPayload(
 				proposal.Validator.Gentx,
-				validatorAddress,
+				proposal.Validator.ValidatorAddress,
 				proposal.Validator.SelfDelegation,
 				proposal.Validator.P2PAddress,
 			)
 
 			msgs = append(msgs, launchtypes.NewMsgProposalAddValidator(
 				chainID,
-				clientCtx.GetFromAddress(),
+				clientCtx.GetFromAddress().String(),
 				payload,
 			))
 		}
