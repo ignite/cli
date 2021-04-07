@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	ackFlag = "ack"
+	flagAck = "ack"
 )
 
 // NewIBCPacket creates a new packet in the module
@@ -23,8 +23,8 @@ func NewIBCPacket() *cobra.Command {
 		RunE:  createPacketHandler,
 	}
 
-	c.Flags().StringSlice(ackFlag, []string{}, "Custom acknowledgment type (field1,field2,...)")
-	c.Flags().String(moduleFlag, "", "IBC Module to add the packet into")
+	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
+	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 
 	return c
 }
@@ -38,7 +38,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		packetFields = args[1:]
 	)
 
-	module, err := cmd.Flags().GetString(moduleFlag)
+	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
 		return err
 	}
@@ -46,7 +46,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("please specify a module to create the packet into: --module <module_name>")
 	}
 
-	ackFields, err := cmd.Flags().GetStringSlice(ackFlag)
+	ackFields, err := cmd.Flags().GetStringSlice(flagAck)
 	if err != nil {
 		return err
 	}

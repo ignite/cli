@@ -10,8 +10,8 @@ import (
 	"github.com/spf13/cobra"
 )
 
-const statusFlag = "status"
-const typeFlag = "type"
+const flagStatus = "status"
+const flagType = "type"
 
 // NewNetworkProposalList creates a new proposal list command to list
 // proposals for a chain by filtering options.
@@ -22,8 +22,8 @@ func NewNetworkProposalList() *cobra.Command {
 		RunE:  networkProposalListHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().String(statusFlag, "", "Filter proposals by status (pending|approved|rejected)")
-	c.Flags().String(typeFlag, "", "Filter proposals by type (add-account|add-validator)")
+	c.Flags().String(flagStatus, "", "Filter proposals by status (pending|approved|rejected)")
+	c.Flags().String(flagType, "", "Filter proposals by type (add-account|add-validator)")
 	return c
 }
 
@@ -38,11 +38,11 @@ func networkProposalListHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Parse flags
-	status, err := cmd.Flags().GetString(statusFlag)
+	status, err := cmd.Flags().GetString(flagStatus)
 	if err != nil {
 		return err
 	}
-	proposalType, err := cmd.Flags().GetString(typeFlag)
+	proposalType, err := cmd.Flags().GetString(flagType)
 	if err != nil {
 		return err
 	}

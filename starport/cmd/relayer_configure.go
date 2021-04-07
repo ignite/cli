@@ -13,18 +13,18 @@ import (
 )
 
 const (
-	advancedFlag       = "advanced"
-	sourceRPCFlag      = "source-rpc"
-	targetRPCFlag      = "target-rpc"
-	sourceFaucetFlag   = "source-faucet"
-	targetFaucetFlag   = "target-faucet"
-	sourcePortFlag     = "source-port"
-	sourceVersionFlag  = "source-version"
-	targetPortFlag     = "target-port"
-	targetVersionFlag  = "target-version"
-	sourceGasPriceFlag = "source-gasprice"
-	targetGasPriceFlag = "target-gasprice"
-	orderedFlag        = "ordered"
+	flagAdvanced       = "advanced"
+	flagSourceRPC      = "source-rpc"
+	flagTargetRPC      = "target-rpc"
+	flagSourceFaucet   = "source-faucet"
+	flagTargetFaucet   = "target-faucet"
+	flagSourcePort     = "source-port"
+	flagSourceVersion  = "source-version"
+	flagTargetPort     = "target-port"
+	flagTargetVersion  = "target-version"
+	flagSourceGasPrice = "source-gasprice"
+	flagTargetGasPrice = "target-gasprice"
+	flagOrdered        = "ordered"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -46,18 +46,18 @@ func NewRelayerConfigure() *cobra.Command {
 		Aliases: []string{"conf"},
 		RunE:    relayerConfigureHandler,
 	}
-	c.Flags().BoolP(advancedFlag, "a", false, "Advanced configuration options for custom IBC modules")
-	c.Flags().String(sourceRPCFlag, "", "RPC address of the source chain")
-	c.Flags().String(targetRPCFlag, "", "RPC address of the target chain")
-	c.Flags().String(sourceFaucetFlag, "", "Faucet address of the source chain")
-	c.Flags().String(targetFaucetFlag, "", "Faucet address of the target chain")
-	c.Flags().String(sourcePortFlag, "", "IBC port ID on the source chain")
-	c.Flags().String(sourceVersionFlag, "", "Module version on the source chain")
-	c.Flags().String(targetPortFlag, "", "IBC port ID on the target chain")
-	c.Flags().String(targetVersionFlag, "", "Module version on the target chain")
-	c.Flags().String(sourceGasPriceFlag, "", "Gas price used for transactions on source chain")
-	c.Flags().String(targetGasPriceFlag, "", "Gas price used for transactions on target chain")
-	c.Flags().Bool(orderedFlag, false, "Set the channel as ordered")
+	c.Flags().BoolP(flagAdvanced, "a", false, "Advanced configuration options for custom IBC modules")
+	c.Flags().String(flagSourceRPC, "", "RPC address of the source chain")
+	c.Flags().String(flagTargetRPC, "", "RPC address of the target chain")
+	c.Flags().String(flagSourceFaucet, "", "Faucet address of the source chain")
+	c.Flags().String(flagTargetFaucet, "", "Faucet address of the target chain")
+	c.Flags().String(flagSourcePort, "", "IBC port ID on the source chain")
+	c.Flags().String(flagSourceVersion, "", "Module version on the source chain")
+	c.Flags().String(flagTargetPort, "", "IBC port ID on the target chain")
+	c.Flags().String(flagTargetVersion, "", "Module version on the target chain")
+	c.Flags().String(flagSourceGasPrice, "", "Gas price used for transactions on source chain")
+	c.Flags().String(flagTargetGasPrice, "", "Gas price used for transactions on target chain")
+	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
 
 	return c
 }
@@ -147,51 +147,51 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	)
 
 	// Get flags
-	advanced, err := cmd.Flags().GetBool(advancedFlag)
+	advanced, err := cmd.Flags().GetBool(flagAdvanced)
 	if err != nil {
 		return err
 	}
-	sourceRPCAddress, err = cmd.Flags().GetString(sourceRPCFlag)
+	sourceRPCAddress, err = cmd.Flags().GetString(flagSourceRPC)
 	if err != nil {
 		return err
 	}
-	sourceFaucetAddress, err = cmd.Flags().GetString(sourceFaucetFlag)
+	sourceFaucetAddress, err = cmd.Flags().GetString(flagSourceFaucet)
 	if err != nil {
 		return err
 	}
-	targetRPCAddress, err = cmd.Flags().GetString(targetRPCFlag)
+	targetRPCAddress, err = cmd.Flags().GetString(flagTargetRPC)
 	if err != nil {
 		return err
 	}
-	targetFaucetAddress, err = cmd.Flags().GetString(targetFaucetFlag)
+	targetFaucetAddress, err = cmd.Flags().GetString(flagTargetFaucet)
 	if err != nil {
 		return err
 	}
-	sourcePort, err = cmd.Flags().GetString(sourcePortFlag)
+	sourcePort, err = cmd.Flags().GetString(flagSourcePort)
 	if err != nil {
 		return err
 	}
-	sourceVersion, err = cmd.Flags().GetString(sourceVersionFlag)
+	sourceVersion, err = cmd.Flags().GetString(flagSourceVersion)
 	if err != nil {
 		return err
 	}
-	targetPort, err = cmd.Flags().GetString(targetPortFlag)
+	targetPort, err = cmd.Flags().GetString(flagTargetPort)
 	if err != nil {
 		return err
 	}
-	targetVersion, err = cmd.Flags().GetString(targetVersionFlag)
+	targetVersion, err = cmd.Flags().GetString(flagTargetVersion)
 	if err != nil {
 		return err
 	}
-	sourceGasPrice, err = cmd.Flags().GetString(sourceGasPriceFlag)
+	sourceGasPrice, err = cmd.Flags().GetString(flagSourceGasPrice)
 	if err != nil {
 		return err
 	}
-	targetGasPrice, err = cmd.Flags().GetString(targetGasPriceFlag)
+	targetGasPrice, err = cmd.Flags().GetString(flagTargetGasPrice)
 	if err != nil {
 		return err
 	}
-	ordered, err := cmd.Flags().GetBool(orderedFlag)
+	ordered, err := cmd.Flags().GetBool(flagOrdered)
 	if err != nil {
 		return err
 	}

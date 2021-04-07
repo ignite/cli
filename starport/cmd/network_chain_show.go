@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	genesisFlag = "genesis"
-	peersFlag   = "peers"
+	flagPeers   = "peers"
 )
 
 // NewNetworkChainShow creates a new chain show command to show
@@ -27,8 +26,8 @@ func NewNetworkChainShow() *cobra.Command {
 		RunE:  networkChainShowHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().Bool(genesisFlag, false, "Show exclusively the genesis of the chain")
-	c.Flags().Bool(peersFlag, false, "Show exclusively the peers of the chain")
+	c.Flags().Bool(flagGenesis, false, "Show exclusively the genesis of the chain")
+	c.Flags().Bool(flagPeers, false, "Show exclusively the peers of the chain")
 	return c
 }
 
@@ -41,16 +40,16 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get flags
-	showGenesis, err := cmd.Flags().GetBool(genesisFlag)
+	showGenesis, err := cmd.Flags().GetBool(flagGenesis)
 	if err != nil {
 		return err
 	}
-	showPeers, err := cmd.Flags().GetBool(peersFlag)
+	showPeers, err := cmd.Flags().GetBool(flagPeers)
 	if err != nil {
 		return err
 	}
 	if showGenesis && showPeers {
-		return fmt.Errorf("%s and %s flags cannot be used together", genesisFlag, peersFlag)
+		return fmt.Errorf("%s and %s flags cannot be used together", flagGenesis, flagPeers)
 	}
 
 	// Fetch launch information
