@@ -540,7 +540,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	// add the genesis accounts
 	for _, account := range launchInfo.GenesisAccounts {
 		genesisAccount := chain.Account{
-			Address: account.Address.String(),
+			Address: account.Address,
 			Coins:   account.Coins.String(),
 		}
 
