@@ -2,8 +2,9 @@ package typed
 
 import (
 	"embed"
-	templatesutils "github.com/tendermint/starport/starport/templates"
 	"strings"
+
+	templatesutils "github.com/tendermint/starport/starport/templates"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"

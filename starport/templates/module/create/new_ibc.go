@@ -2,8 +2,9 @@ package modulecreate
 
 import (
 	"fmt"
-	templatesutils "github.com/tendermint/starport/starport/templates"
 	"strings"
+
+	templatesutils "github.com/tendermint/starport/starport/templates"
 
 	"github.com/gobuffalo/plush"
 

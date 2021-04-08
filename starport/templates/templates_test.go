@@ -1,8 +1,8 @@
 package templates_test
 
 import (
-	"github.com/tendermint/starport/starport/templates"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/templates"
 	"testing"
 )
 
