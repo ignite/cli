@@ -56,9 +56,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		"inc": func(i int) int {
 			return i + 1
 		},
-		"replace": func(input, from, to string) string {
-			return strings.ReplaceAll(input, from, to)
-		},
+		"replace": strings.ReplaceAll,
 	}
 
 	// render and write the template.
