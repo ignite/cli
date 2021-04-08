@@ -83,10 +83,9 @@ type initOptions struct {
 
 // newInitOptions initializes initOptions
 func newInitOptions(chainID string, options ...InitOption) initOptions {
-	o := initOptions{}
-
-	// set the default home
-	o.homePath = filepath.Join(homePath, chainID)
+	o := initOptions{
+		homePath: filepath.Join(homePath, chainID),
+	}
 
 	// set custom options
 	for _, option := range options {
@@ -184,6 +183,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	}
 
 	o := newInitOptions(chainID, options...)
+	source(&o)
 
 	// determine final source configuration.
 	var (
