@@ -17,7 +17,7 @@ var (
 	templateJSClient    = newTemplateWriter("js")           // js wrapper client.
 	templateVuexRoot    = newTemplateWriter("vuex/root")    // vuex store loader.
 	templateVuexStore   = newTemplateWriter("vuex/store")   // vuex store.
-	templatePackageJson = newTemplateWriter("vuex/package") // vuex package.json.
+	templatePackageJSON = newTemplateWriter("vuex/package") // vuex package.json.
 )
 
 type templateWriter struct {
@@ -57,7 +57,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 			return i + 1
 		},
 		"replace": func(input, from, to string) string {
-			return strings.Replace(input, from, to, -1)
+			return strings.ReplaceAll(input, from, to)
 		},
 	}
 

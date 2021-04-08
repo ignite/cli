@@ -197,10 +197,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		if err != nil {
 			return err
 		}
-	}
-	// generate package.json for Vuex if enabled.
-	if g.g.o.vuexStoreRootPath != "" {
-		err = templatePackageJson.Write(storeDirPath, pp, struct{ Module module.Module }{m})
+		err = templatePackageJSON.Write(storeDirPath, pp, struct{ Module module.Module }{m})
 		if err != nil {
 			return err
 		}
