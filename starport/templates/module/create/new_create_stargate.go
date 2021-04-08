@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	templatesutils "github.com/tendermint/starport/starport/templates"
 	"strings"
 
 	"github.com/tendermint/starport/starport/templates/module"
@@ -30,6 +31,9 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("nodash", func(s string) string {
 		return strings.ReplaceAll(s, "-", "")
 	})
+
+	// Used for proto package name
+	ctx.Set("noNumberPrefix", templatesutils.NoNumberPrefix)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

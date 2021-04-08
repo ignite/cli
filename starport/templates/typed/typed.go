@@ -2,6 +2,7 @@ package typed
 
 import (
 	"embed"
+	templatesutils "github.com/tendermint/starport/starport/templates"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -52,6 +53,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("nodash", func(s string) string {
 		return strings.ReplaceAll(s, "-", "")
 	})
+
+	// Used for proto package name
+	ctx.Set("noNumberPrefix", templatesutils.NoNumberPrefix)
+
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
