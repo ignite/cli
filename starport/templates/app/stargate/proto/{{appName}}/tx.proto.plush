@@ -3,7 +3,7 @@ package <%= nodash(OwnerName) %>.<%= AppName %>.<%= AppName %>;
 
 // this line is used by starport scaffolding # proto/tx/import
 
-option go_package = "<%= ModulePath %>/x/<%= AppName %>/types";
+option go_package = "<%= noNumberPrefix(ModulePath) %>/x/<%= AppName %>/types";
 
 // Msg defines the Msg service.
 service Msg {
