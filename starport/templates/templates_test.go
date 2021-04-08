@@ -6,6 +6,11 @@ import (
 	"testing"
 )
 
+func TestNoDash(t *testing.T) {
+	require.Equal(t, "foo", templates.NoDash("foo"))
+	require.Equal(t, "foo", templates.NoDash("-f-o-o---"))
+}
+
 func TestNoNumberPrefix(t *testing.T) {
 	require.Equal(t, "foo", templates.NoNumberPrefix("foo"))
 	require.Equal(t, "_0foo", templates.NoNumberPrefix("0foo"))
