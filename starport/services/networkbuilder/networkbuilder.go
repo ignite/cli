@@ -39,7 +39,7 @@ const (
 
 var (
 	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
-	homePath   = filepath.Join(services.StarportConfDir, "spn-chain-homes")
+	homePath   = filepath.Join(os.ExpandEnv("$HOME"), ".spn-chain-homes")
 )
 
 // Builder is network builder.
@@ -79,6 +79,16 @@ type initOptions struct {
 	homePath                 string
 	cliHomePath              string
 	keyringBackend           chaincmd.KeyringBackend
+}
+
+// newInitOptions initializes initOptions
+func newInitOptions(chainID string) *initOptions {
+	o := &initOptions{}
+
+	// set the default home
+	o.homePath = filepath.Join(homePath, chainID)
+
+	return o
 }
 
 // SourceOption sets the source for blockchain.
@@ -168,11 +178,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		return nil, err
 	}
 
-	// set options.
-	o := &initOptions{}
-
-	// set the default home
-	o.homePath = filepath.Join(homePath, chainID)
+	o := newInitOptions(chainID)
 
 	// set custom options
 	source(o)
@@ -332,8 +338,7 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
-	// set options
-	o := &initOptions{}
+	o := newInitOptions(chainID)
 
 	// set the default home
 	o.homePath = filepath.Join(homePath, chainID)
