@@ -82,11 +82,16 @@ type initOptions struct {
 }
 
 // newInitOptions initializes initOptions
-func newInitOptions(chainID string) *initOptions {
-	o := &initOptions{}
+func newInitOptions(chainID string, options ...InitOption) initOptions {
+	o := initOptions{}
 
 	// set the default home
 	o.homePath = filepath.Join(homePath, chainID)
+
+	// set custom options
+	for _, option := range options {
+		option(&o)
+	}
 
 	return o
 }
@@ -178,13 +183,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		return nil, err
 	}
 
-	o := newInitOptions(chainID)
-
-	// set custom options
-	source(o)
-	for _, option := range options {
-		option(o)
-	}
+	o := newInitOptions(chainID, options...)
 
 	// determine final source configuration.
 	var (
@@ -338,15 +337,7 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
-	o := newInitOptions(chainID)
-
-	// set the default home
-	o.homePath = filepath.Join(homePath, chainID)
-
-	// set custom options
-	for _, option := range options {
-		option(o)
-	}
+	o := newInitOptions(chainID, options...)
 
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
