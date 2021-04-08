@@ -42,12 +42,8 @@ func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, er
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
 	ctx.Set("title", strings.Title)
 
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
-
 	// Used for proto package name
-	ctx.Set("noNumberPrefix", templatesutils.NoNumberPrefix)
+	ctx.Set("formatOwnerName", templatesutils.FormatOwnerName)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))

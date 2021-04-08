@@ -29,12 +29,8 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
 
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
-
 	// Used for proto package name
-	ctx.Set("noNumberPrefix", templatesutils.NoNumberPrefix)
+	ctx.Set("formatOwnerName", templatesutils.FormatOwnerName)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
