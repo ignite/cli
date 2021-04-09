@@ -198,6 +198,12 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		if err != nil {
 			return nil, err
 		}
+
+		// verify chain information
+		if err := b.VerifyChain(ctx, chain); err != nil {
+			return nil, err
+		}
+
 		url = chain.URL
 		hash = chain.Hash
 	}
