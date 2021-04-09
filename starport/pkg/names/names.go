@@ -1,4 +1,4 @@
-package templateutils
+package names
 
 import (
 	"strings"

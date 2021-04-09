@@ -7,12 +7,11 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/templateutils"
-
 	"github.com/iancoleman/strcase"
 	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/names"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
 	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
@@ -227,7 +226,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 
 		var (
 			fullPath = filepath.Dir(pathrel)
-			fullName = templateutils.FormatUsername(strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_")))
+			fullName = names.FormatUsername(strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_")))
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
