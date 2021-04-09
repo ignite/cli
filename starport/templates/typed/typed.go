@@ -4,13 +4,12 @@ import (
 	"embed"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/names"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
@@ -53,7 +52,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	})
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", names.FormatUsername)
+	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
