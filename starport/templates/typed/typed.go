@@ -2,8 +2,9 @@ package typed
 
 import (
 	"embed"
-	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
