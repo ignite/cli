@@ -2,11 +2,12 @@ package cosmosgen
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 
 	"github.com/iancoleman/strcase"
 	"github.com/mattn/go-zglob"
