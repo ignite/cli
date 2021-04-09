@@ -2,9 +2,8 @@ package typed
 
 import (
 	"embed"
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"strings"
-
-	templatesutils "github.com/tendermint/starport/starport/templates"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
@@ -53,7 +52,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	})
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", templatesutils.FormatOwnerName)
+	ctx.Set("formatOwnerName", templateutils.FormatUsername)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

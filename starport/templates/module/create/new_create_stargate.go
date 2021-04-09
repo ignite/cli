@@ -2,9 +2,8 @@ package modulecreate
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"strings"
-
-	templatesutils "github.com/tendermint/starport/starport/templates"
 
 	"github.com/tendermint/starport/starport/templates/module"
 
@@ -30,7 +29,7 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("title", strings.Title)
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", templatesutils.FormatOwnerName)
+	ctx.Set("formatOwnerName", templateutils.FormatUsername)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

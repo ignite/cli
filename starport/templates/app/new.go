@@ -2,6 +2,7 @@ package app
 
 import (
 	"embed"
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -10,7 +11,6 @@ import (
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
-	templatesutils "github.com/tendermint/starport/starport/templates"
 )
 
 var (
@@ -43,7 +43,7 @@ func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, er
 	ctx.Set("title", strings.Title)
 
 	// Used for proto package name
-	ctx.Set("formatOwnerName", templatesutils.FormatOwnerName)
+	ctx.Set("formatOwnerName", templateutils.FormatUsername)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
