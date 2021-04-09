@@ -9,8 +9,8 @@ import (
 )
 
 const (
-	responseFlag    string = "response"
-	descriptionFlag string = "desc"
+	flagResponse    string = "response"
+	flagDescription string = "desc"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -24,9 +24,9 @@ func NewMessage() *cobra.Command {
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	addSdkVersionFlag(c)
 
-	c.Flags().String(moduleFlag, "", "Module to add the message into. Default: app's main module")
-	c.Flags().StringSliceP(responseFlag, "r", []string{}, "Response fields")
-	c.Flags().StringP(descriptionFlag, "d", "", "Description of the command")
+	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
+	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
 
 	return c
 }
@@ -36,19 +36,19 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(moduleFlag)
+	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
 		return err
 	}
 
 	// Get response fields
-	resFields, err := cmd.Flags().GetStringSlice(responseFlag)
+	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
 	if err != nil {
 		return err
 	}
 
 	// Get description
-	desc, err := cmd.Flags().GetString(descriptionFlag)
+	desc, err := cmd.Flags().GetString(flagDescription)
 	if err != nil {
 		return err
 	}

@@ -1,5 +1,0 @@
-#!/bin/bash
-
-echo "no e2e tests found"
-#npm --prefix e2e install
-#npm --prefix e2e test
