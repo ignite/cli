@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	moduleFlag  string = "module"
-	legacyFlag  string = "legacy"
-	indexedFlag string = "indexed"
+	flagModule  string = "module"
+	flagLegacy  string = "legacy"
+	flagIndexed string = "indexed"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -25,9 +25,9 @@ func NewType() *cobra.Command {
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	addSdkVersionFlag(c)
 
-	c.Flags().String(moduleFlag, "", "Module to add the type into. Default: app's main module")
-	c.Flags().Bool(legacyFlag, false, "Scaffold the type without generating MsgServer service")
-	c.Flags().Bool(indexedFlag, false, "Scaffold an indexed type")
+	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
+	c.Flags().Bool(flagLegacy, false, "Scaffold the type without generating MsgServer service")
+	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
 
 	return c
 }
@@ -37,18 +37,18 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(moduleFlag)
+	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
 		return err
 	}
 
 	// Add type options
 	var opts scaffolder.AddTypeOption
-	opts.Legacy, err = cmd.Flags().GetBool(legacyFlag)
+	opts.Legacy, err = cmd.Flags().GetBool(flagLegacy)
 	if err != nil {
 		return err
 	}
-	opts.Indexed, err = cmd.Flags().GetBool(indexedFlag)
+	opts.Indexed, err = cmd.Flags().GetBool(flagIndexed)
 	if err != nil {
 		return err
 	}

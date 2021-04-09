@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const sdkVersionFlag = "sdk-version"
+const flagSDKVersion = "sdk-version"
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized
 // by the user given options.
@@ -66,11 +66,11 @@ NOTE: add --verbose flag for verbose (detailed) output.
 }
 
 func addSdkVersionFlag(c *cobra.Command) {
-	c.Flags().String(sdkVersionFlag, string(cosmosver.Stargate), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
+	c.Flags().String(flagSDKVersion, string(cosmosver.Stargate), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
 }
 
 func sdkVersion(c *cobra.Command) (cosmosver.MajorVersion, error) {
-	v, _ := c.Flags().GetString(sdkVersionFlag)
+	v, _ := c.Flags().GetString(flagSDKVersion)
 	parsed, err := cosmosver.MajorVersions.Parse(v)
 	if err != nil {
 		return "", fmt.Errorf("%q is an unknown sdk version", v)
