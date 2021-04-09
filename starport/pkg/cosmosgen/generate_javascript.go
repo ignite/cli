@@ -2,6 +2,7 @@ package cosmosgen
 
 import (
 	"context"
+	"github.com/tendermint/starport/starport/pkg/templateutils"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -222,9 +223,10 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		if err != nil {
 			return err
 		}
+
 		var (
 			fullPath = filepath.Dir(pathrel)
-			fullName = strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_"))
+			fullName = templateutils.FormatUsername(strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_")))
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
