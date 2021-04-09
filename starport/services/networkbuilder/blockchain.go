@@ -87,16 +87,16 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
-	c, err := chain.New(ctx, b.appPath, chainOption...)
+	chain, err := chain.New(ctx, b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}
 
-	if v := c.SDKVersion(); v != cosmosver.Stargate {
+	if v := chain.SDKVersion(); v != cosmosver.Stargate {
 		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
 	}
 
-	chainHome, err := c.Home()
+	chainHome, err := chain.Home()
 	if err != nil {
 		return err
 	}
@@ -108,7 +108,7 @@ func (b *Blockchain) init(
 	}
 
 	// cleanup home dir of app if exists.
-	paths, err := c.StoragePaths()
+	paths, err := chain.StoragePaths()
 	if err != nil {
 		return err
 	}
@@ -118,16 +118,16 @@ func (b *Blockchain) init(
 		}
 	}
 
-	if err := c.Build(ctx); err != nil {
+	if err := chain.Build(ctx); err != nil {
 		return err
 	}
-	if err := c.Init(ctx); err != nil {
+	if err := chain.Init(ctx); err != nil {
 		return err
 	}
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
-	genesisPath, err := c.GenesisPath()
+	genesisPath, err := chain.GenesisPath()
 	if err != nil {
 		return err
 	}
@@ -139,7 +139,7 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	b.chain = c
+	b.chain = chain
 	return nil
 }
 
