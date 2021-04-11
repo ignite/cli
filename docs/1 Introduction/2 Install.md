@@ -56,7 +56,7 @@ You can build and install the precompiled `starport` binary into `$GOBIN`.
 
 When building from source, you must set your `$GOPATH` environment variable.
 
-To set `$GOPATH` environment variable:
+To set `$GOPATH` environment variable: 
 
 ```
 mkdir ~/go
