@@ -35,11 +35,11 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
+	spnChainHomes = ".spn-chain-homes"
 )
 
 var (
 	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
-	homePath   = filepath.Join(os.ExpandEnv("$HOME"), ".spn-chain-homes")
 )
 
 // Builder is network builder.
@@ -82,17 +82,19 @@ type initOptions struct {
 }
 
 // newInitOptions initializes initOptions
-func newInitOptions(chainID string, options ...InitOption) initOptions {
-	o := initOptions{
-		homePath: filepath.Join(homePath, chainID),
+func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions, err error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return initOpts, err
 	}
+	initOpts.homePath = filepath.Join(home, spnChainHomes)
 
 	// set custom options
 	for _, option := range options {
-		option(&o)
+		option(&initOpts)
 	}
 
-	return o
+	return initOpts, nil
 }
 
 // SourceOption sets the source for blockchain.
@@ -182,7 +184,10 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		return nil, err
 	}
 
-	o := newInitOptions(chainID, options...)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return nil, err
+	}
 	source(&o)
 
 	// determine final source configuration.
@@ -343,7 +348,10 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
-	o := newInitOptions(chainID, options...)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return err
+	}
 
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
