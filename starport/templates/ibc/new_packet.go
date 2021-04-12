@@ -61,10 +61,6 @@ func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	ctx.Set("ackFields", opts.AckFields)
 	ctx.Set("title", strings.Title)
 
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
-
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName))
