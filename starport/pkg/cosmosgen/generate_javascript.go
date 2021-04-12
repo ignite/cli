@@ -15,6 +15,7 @@ import (
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
 	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -222,9 +223,10 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		if err != nil {
 			return err
 		}
+
 		var (
 			fullPath = filepath.Dir(pathrel)
-			fullName = strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_"))
+			fullName = xstrings.FormatUsername(strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_")))
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
