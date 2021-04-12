@@ -4,14 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/services"
 	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
-
-	"github.com/tendermint/starport/starport/services"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
@@ -35,12 +34,18 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
-	spnChainHomes = ".spn-chain-homes"
+	spnChainHomesDir = ".spn-chain-homes"
+	spnChainSourceDir = "spn-chains"
 )
 
-var (
-	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
-)
+// spnChainSourcePath returns the path used for the chain source used to build spn chains
+func spnChainSourcePath() (string, error) {
+	confPath, err := services.StarportConfPath()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(confPath, spnChainSourceDir), nil
+}
 
 // Builder is network builder.
 type Builder struct {
@@ -87,7 +92,7 @@ func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions
 	if err != nil {
 		return initOpts, err
 	}
-	initOpts.homePath = filepath.Join(home, spnChainHomes)
+	initOpts.homePath = filepath.Join(home, spnChainHomesDir)
 
 	// set custom options
 	for _, option := range options {
@@ -234,6 +239,11 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
+		sourcePath, err := spnChainSourcePath()
+		if err != nil {
+			return nil, err
+		}
+
 		// ensure the path for chain source exists
 		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
 			if !os.IsExist(err) {
@@ -381,6 +391,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	}
 
+	sourcePath, err := spnChainSourcePath()
+	if err != nil {
+		return err
+	}
+
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath, chainOption...)
 	if err != nil {
@@ -494,6 +509,11 @@ func (b *Builder) GenerateGenesisWithHome(
 	homeDir string,
 ) (string, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return "", err
+	}
+
+	sourcePath, err := spnChainSourcePath()
 	if err != nil {
 		return "", err
 	}

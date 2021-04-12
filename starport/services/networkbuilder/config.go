@@ -9,13 +9,17 @@ import (
 )
 
 var (
-	confPath = filepath.Join(services.StarportConfDir, "networkbuilder")
+	confDir = "networkbuilder"
 )
 
-func init() {
-	if err := os.MkdirAll(services.StarportConfDir, 0755); err != nil {
-		panic(err)
+// confPath returns the path of Starport Network configuration
+func confPath() (string, error) {
+	starportConf, err := services.StarportConfPath()
+	if err != nil {
+		return "", err
 	}
+
+	return filepath.Join(starportConf, confDir), nil
 }
 
 // Config holds configuration about network builder's state.
@@ -44,7 +48,12 @@ func (c *Config) MarkFinalized(chainID string) {
 
 // ConfigGet retrieves the current state of Config.
 func ConfigGet() (*Config, error) {
-	cf, err := os.Open(confPath)
+	conf, err := confPath()
+	if err != nil {
+		return &Config{}, nil
+	}
+
+	cf, err := os.Open(conf)
 	if err != nil {
 		return &Config{}, nil
 	}
@@ -55,7 +64,12 @@ func ConfigGet() (*Config, error) {
 
 // ConfigSave saves the current state of Config.
 func ConfigSave(c *Config) error {
-	cf, err := os.OpenFile(confPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	conf, err := confPath()
+	if err != nil {
+		return nil
+	}
+
+	cf, err := os.OpenFile(conf, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}

@@ -9,16 +9,20 @@ import (
 	"golang.org/x/mod/module"
 )
 
-var (
-	globalInclude = []string{
-		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
-		os.ExpandEnv("$HOME/local/include"),
+func globalInclude() ([]string, error) {
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil, err
+	}
 
+	return []string{
+		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
+		filepath.Join(home, "local", "include"),
 		// this one is the suggested installation path for placing default proto by
 		// https://grpc.io/docs/protoc-installation/.
-		os.ExpandEnv("$HOME/.local/include"),
-	}
-)
+		filepath.Join(home, ".local", "include"),
+	}, nil
+}
 
 // Module represents a go module that hosts dependency proto paths.
 type Module struct {
@@ -39,6 +43,11 @@ func NewModule(importPath string, protoPaths ...string) Module {
 // of the go modules that used by the target app.
 // global dependencies are also included to paths.
 func ResolveDependencyPaths(versions []module.Version, modules ...Module) (paths []string, err error) {
+	globalInclude, err := globalInclude()
+	if err != nil {
+		return nil, err
+	}
+
 	paths = append(paths, globalInclude...)
 
 	var importPaths []string

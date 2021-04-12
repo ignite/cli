@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -20,7 +21,7 @@ import (
 )
 
 var spn = "spn"
-var homedir = os.ExpandEnv("$HOME/spnd")
+var homeDir = "spnd"
 
 const (
 	faucetDenom     = "token"
@@ -53,7 +54,14 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 	for _, o := range option {
 		o(opts)
 	}
-	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homedir, os.Stdin)
+
+	home, err := os.UserHomeDir()
+	if err != nil {
+		return nil ,err
+	}
+	homePath := filepath.Join(home, homeDir)
+
+	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homePath, os.Stdin)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +71,7 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		return nil, err
 	}
 	out := &bytes.Buffer{}
-	clientCtx := NewClientCtx(kr, client, out)
+	clientCtx := NewClientCtx(kr, client, out, homePath)
 	factory := NewFactory(clientCtx)
 	return &Client{
 		kr:            kr,

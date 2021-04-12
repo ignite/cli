@@ -33,12 +33,9 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	// ignoredExts holds a list of ignored files from watching.
-	ignoredExts = []string{"pb.go", "pb.gw.go"}
-
+const (
 	// chainSavePath is the place where chain exported genesis are saved
-	chainSavePath = filepath.Join(services.StarportConfDir, "local-chains")
+	chainSaveDir = "local-chains"
 
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
@@ -52,6 +49,19 @@ var (
 	// configChecksum is the file containing the checksum to detect config modification
 	configChecksum = "config_checksum.txt"
 )
+
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+)
+
+func starportSavePath() (string, error) {
+	confPath, err := services.StarportConfPath()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(confPath, chainSaveDir), nil
+}
 
 type serveOptions struct {
 	forceReset bool
@@ -581,18 +591,23 @@ func (c *Chain) importChainState() error {
 // chainSavePath returns the path where the chain state is saved
 // create the path if it doesn't exist
 func (c *Chain) chainSavePath() (string, error) {
+	savePath, err := starportSavePath()
+	if err != nil {
+		return "", err
+	}
+
 	chainID, err := c.ID()
 	if err != nil {
 		return "", err
 	}
-	savePath := filepath.Join(chainSavePath, chainID)
+	chainSavePath := filepath.Join(savePath, chainID)
 
 	// ensure the path exists
 	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
 		return "", err
 	}
 
-	return savePath, nil
+	return chainSavePath, nil
 }
 
 // exportedGenesisPath returns the path of the exported genesis file
