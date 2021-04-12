@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"go/build"
 	"net"
 	"net/http"
@@ -14,6 +13,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 

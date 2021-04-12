@@ -2,9 +2,10 @@ package networkbuilder
 
 import (
 	"encoding/json"
+	"os"
+
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/services"
-	"os"
 )
 
 var (

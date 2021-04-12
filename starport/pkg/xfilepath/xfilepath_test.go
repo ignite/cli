@@ -2,9 +2,9 @@ package xfilepath_test
 
 import (
 	"errors"
-	"os"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
+	"os"
 	"path/filepath"
 	"testing"
 )
@@ -14,7 +14,7 @@ func TestJoin(t *testing.T) {
 		xfilepath.Path("foo"),
 		xfilepath.PathWithError("bar", nil),
 		xfilepath.Path("foobar/barfoo"),
-		)
+	)
 	path, err := retriever()
 	require.NoError(t, err)
 	require.Equal(t, filepath.Join(
@@ -22,7 +22,7 @@ func TestJoin(t *testing.T) {
 		"bar",
 		"foobar",
 		"barfoo",
-		), path)
+	), path)
 
 	retriever = xfilepath.Join(
 		xfilepath.Path("foo"),

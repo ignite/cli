@@ -2,10 +2,11 @@ package xrelayer
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"os"
 	"path/filepath"
 	"time"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"

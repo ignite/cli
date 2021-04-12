@@ -5,11 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"net/http"
 	"os"
 	"strconv"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"

@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	"github.com/tendermint/starport/starport/services"
 
@@ -92,7 +93,7 @@ func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions
 	initOpts.homePath, err = xfilepath.JoinFromHome(
 		xfilepath.Path(spnChainHomesDir),
 		xfilepath.Path(chainID),
-		)()
+	)()
 	if err != nil {
 		return initOpts, err
 	}
