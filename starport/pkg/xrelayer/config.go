@@ -59,7 +59,7 @@ func confFile() (*confile.ConfigFile, error) {
 // config returns the representation of config.yml.
 // it deals with creating and adding default configs if there wasn't a config.yml before.
 func config(_ context.Context, enableLogs bool) (relayercmd.Config, error) {
-	confHome, err := confYamlPath()
+	confHome, err := confHome()
 	if err != nil {
 		return relayercmd.Config{}, err
 	}
