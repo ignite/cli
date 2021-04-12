@@ -16,7 +16,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/templates/app"
+	"github.com/tendermint/vue"
 )
 
 var (
@@ -77,7 +79,13 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	run := genny.WetRunner(context.Background())
 	run.With(g)
 	run.Root = absRoot
-	return run.Run()
+	if err := run.Run(); err != nil {
+		return err
+	}
+
+	// generate the vue app.
+	vuepath := filepath.Join(absRoot, "vue")
+	return localfs.Save(vue.Boilerplate(), vuepath)
 }
 
 func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
