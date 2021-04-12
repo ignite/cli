@@ -20,16 +20,16 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 
 ## Projects building with Starport
 
-* [Sifnode omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
+* [Sifchain: omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
-* [Interchain accounts demo](https://github.com/chainapsis/cosmos-sdk-interchain-account)
+* [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
 * [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
-* [Flares payment network](https://github.com/wangfeiping/flares)
+* [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
+* [Starport Network](https://github.com/tendermint/spn)
+* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
 * [Affondra](https://github.com/EG-easy/affondra)
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
-* [Umee](https://github.com/umee-network/umee)
-* [SPN](https://github.com/tendermint/spn)
-* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
+* [Flares payment network](https://github.com/wangfeiping/flares)
 
 ## Cosmos SDK Modules
 
