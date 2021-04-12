@@ -2,25 +2,20 @@ package networkbuilder
 
 import (
 	"encoding/json"
-	"os"
-	"path/filepath"
-
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/services"
+	"os"
 )
 
 var (
 	confDir = "networkbuilder"
+
+	// confPath returns the path of Starport Network configuration
+	confPath = xfilepath.Join(
+		xfilepath.PathWithError(services.StarportConfPath()),
+		xfilepath.Path(confDir),
+	)
 )
-
-// confPath returns the path of Starport Network configuration
-func confPath() (string, error) {
-	starportConf, err := services.StarportConfPath()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(starportConf, confDir), nil
-}
 
 // Config holds configuration about network builder's state.
 type Config struct {

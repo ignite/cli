@@ -5,9 +5,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"net/http"
 	"os"
-	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -21,7 +21,7 @@ import (
 )
 
 var spn = "spn"
-var homeDir = "spnd"
+var spnHomeDir = "spnd"
 
 const (
 	faucetDenom     = "token"
@@ -55,11 +55,10 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		o(opts)
 	}
 
-	home, err := os.UserHomeDir()
+	homePath, err := xfilepath.JoinFromHome(xfilepath.Path(spnHomeDir))()
 	if err != nil {
 		return nil, err
 	}
-	homePath := filepath.Join(home, homeDir)
 
 	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homePath, os.Stdin)
 	if err != nil {

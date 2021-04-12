@@ -2,6 +2,7 @@ package xrelayer
 
 import (
 	"context"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"os"
 	"path/filepath"
 	"time"
@@ -24,27 +25,18 @@ var (
 		Chains: relayer.Chains{},
 		Paths:  relayer.Paths{},
 	}
+
+	// confHome returns the home path of relayer
+	confHome = xfilepath.JoinFromHome(
+		xfilepath.Path(".relayer"),
+	)
+
+	// confYamlPath returns the path of relayer's config.yaml
+	confYamlPath = xfilepath.Join(
+		confHome,
+		xfilepath.Path(".config/config.yaml"),
+	)
 )
-
-// confHome returns the home path of relayer
-func confHome() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(home, ".relayer"), nil
-}
-
-// confYamlPath returns the path of relayer's config.yaml
-func confYamlPath() (string, error) {
-	confHome, err := confHome()
-	if err != nil {
-		return "", err
-	}
-
-	return filepath.Join(confHome, "config", "config.yaml"), nil
-}
 
 // confFile returns the file used to load relayer's config yaml and overwrite any changes
 func confFile() (*confile.ConfigFile, error) {

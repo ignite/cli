@@ -1,19 +1,14 @@
 package services
 
 import (
-	"os"
-	"path/filepath"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
 const (
 	starportConfDir = ".starport"
 )
 
-// StarportConfPath returns the Starport Configuration directory
-func StarportConfPath() (string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, starportConfDir), nil
-}
+var (
+	// StarportConfPath returns the Starport Configuration directory
+	StarportConfPath = xfilepath.JoinFromHome(xfilepath.Path(starportConfDir))
+)

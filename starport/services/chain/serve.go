@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"go/build"
 	"net"
 	"net/http"
@@ -53,15 +54,12 @@ const (
 var (
 	// ignoredExts holds a list of ignored files from watching.
 	ignoredExts = []string{"pb.go", "pb.gw.go"}
-)
 
-func starportSavePath() (string, error) {
-	confPath, err := services.StarportConfPath()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(confPath, chainSaveDir), nil
-}
+	starportSavePath = xfilepath.Join(
+		xfilepath.PathWithError(services.StarportConfPath()),
+		xfilepath.Path(chainSaveDir),
+	)
+)
 
 type serveOptions struct {
 	forceReset bool

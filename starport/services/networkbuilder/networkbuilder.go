@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"io/ioutil"
 	"math"
 	"os"
@@ -39,14 +40,13 @@ const (
 	spnChainSourceDir = "spn-chains"
 )
 
-// spnChainSourcePath returns the path used for the chain source used to build spn chains
-func spnChainSourcePath() (string, error) {
-	confPath, err := services.StarportConfPath()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(confPath, spnChainSourceDir), nil
-}
+var (
+	// spnChainSourcePath returns the path used for the chain source used to build spn chains
+	spnChainSourcePath = xfilepath.Join(
+		xfilepath.PathWithError(services.StarportConfPath()),
+		xfilepath.Path(spnChainSourceDir),
+	)
+)
 
 // Builder is network builder.
 type Builder struct {
@@ -89,11 +89,13 @@ type initOptions struct {
 
 // newInitOptions initializes initOptions
 func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions, err error) {
-	home, err := os.UserHomeDir()
+	initOpts.homePath, err = xfilepath.JoinFromHome(
+		xfilepath.Path(spnChainHomesDir),
+		xfilepath.Path(chainID),
+		)()
 	if err != nil {
 		return initOpts, err
 	}
-	initOpts.homePath = filepath.Join(home, spnChainHomesDir, chainID)
 
 	// set custom options
 	for _, option := range options {
