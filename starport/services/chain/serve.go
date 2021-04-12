@@ -57,7 +57,7 @@ var (
 	ignoredExts = []string{"pb.go", "pb.gw.go"}
 
 	starportSavePath = xfilepath.Join(
-		xfilepath.PathWithError(services.StarportConfPath()),
+		services.StarportConfPath,
 		xfilepath.Path(chainSaveDir),
 	)
 )

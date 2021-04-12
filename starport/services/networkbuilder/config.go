@@ -13,7 +13,7 @@ var (
 
 	// confPath returns the path of Starport Network configuration
 	confPath = xfilepath.Join(
-		xfilepath.PathWithError(services.StarportConfPath()),
+		services.StarportConfPath,
 		xfilepath.Path(confDir),
 	)
 )

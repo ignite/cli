@@ -44,7 +44,7 @@ const (
 var (
 	// spnChainSourcePath returns the path used for the chain source used to build spn chains
 	spnChainSourcePath = xfilepath.Join(
-		xfilepath.PathWithError(services.StarportConfPath()),
+		services.StarportConfPath,
 		xfilepath.Path(spnChainSourceDir),
 	)
 )
