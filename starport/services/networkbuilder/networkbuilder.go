@@ -4,13 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/services"
 	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
 	"strings"
 	"time"
+
+	"github.com/tendermint/starport/starport/services"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 
@@ -34,7 +35,7 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
-	spnChainHomesDir = ".spn-chain-homes"
+	spnChainHomesDir  = ".spn-chain-homes"
 	spnChainSourceDir = "spn-chains"
 )
 
@@ -92,7 +93,7 @@ func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions
 	if err != nil {
 		return initOpts, err
 	}
-	initOpts.homePath = filepath.Join(home, spnChainHomesDir)
+	initOpts.homePath = filepath.Join(home, spnChainHomesDir, chainID)
 
 	// set custom options
 	for _, option := range options {

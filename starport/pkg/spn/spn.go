@@ -57,7 +57,7 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 
 	home, err := os.UserHomeDir()
 	if err != nil {
-		return nil ,err
+		return nil, err
 	}
 	homePath := filepath.Join(home, homeDir)
 

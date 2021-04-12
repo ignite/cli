@@ -38,7 +38,7 @@ func confHome() (string, error) {
 
 // confYamlPath returns the path of relayer's config.yaml
 func confYamlPath() (string, error) {
-	confHome , err := confHome()
+	confHome, err := confHome()
 	if err != nil {
 		return "", err
 	}
@@ -48,7 +48,7 @@ func confYamlPath() (string, error) {
 
 // confFile returns the file used to load relayer's config yaml and overwrite any changes
 func confFile() (*confile.ConfigFile, error) {
-	confYamlPath , err := confYamlPath()
+	confYamlPath, err := confYamlPath()
 	if err != nil {
 		return nil, err
 	}
