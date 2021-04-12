@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/gobuffalo/plush"
-
-	"github.com/tendermint/starport/starport/templates/module"
-
 	"github.com/gobuffalo/genny"
+	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 // New ...
@@ -36,9 +35,8 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("title", strings.Title)
 
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
+	// Used for proto package name
+	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
