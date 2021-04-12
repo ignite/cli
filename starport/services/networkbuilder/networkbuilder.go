@@ -37,15 +37,17 @@ import (
 
 const (
 	tendermintrpcAddr = "http://localhost:26657"
-	spnChainHomesDir  = ".spn-chain-homes"
-	spnChainSourceDir = "spn-chains"
 )
 
 var (
 	// spnChainSourcePath returns the path used for the chain source used to build spn chains
 	spnChainSourcePath = xfilepath.Join(
 		services.StarportConfPath,
-		xfilepath.Path(spnChainSourceDir),
+		xfilepath.Path("spn-chains"),
+	)
+
+	spnChainHomesDir  = xfilepath.JoinFromHome(
+		xfilepath.Path(".spn-chain-homes"),
 	)
 )
 
@@ -90,8 +92,8 @@ type initOptions struct {
 
 // newInitOptions initializes initOptions
 func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions, err error) {
-	initOpts.homePath, err = xfilepath.JoinFromHome(
-		xfilepath.Path(spnChainHomesDir),
+	initOpts.homePath, err = xfilepath.Join(
+		spnChainHomesDir,
 		xfilepath.Path(chainID),
 	)()
 	if err != nil {

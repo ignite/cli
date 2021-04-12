@@ -16,16 +16,20 @@ func PathWithError(path string, err error) PathRetriever {
 }
 
 func Join(paths ...PathRetriever) PathRetriever {
-	return func() (string, error) {
-		var components []string
-		for _, path := range paths {
-			component, err := path()
-			if err != nil {
-				return "", err
-			}
-			components = append(components, component)
+	var components []string
+	var err error
+	for _, path := range paths {
+		var component string
+		component, err = path()
+		if err != nil {
+			break
 		}
-		return filepath.Join(components...), nil
+		components = append(components, component)
+	}
+	path := filepath.Join(components...)
+
+	return func() (string, error) {
+		return path, err
 	}
 }
 

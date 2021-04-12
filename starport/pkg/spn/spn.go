@@ -21,10 +21,10 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
-var spn = "spn"
-var spnHomeDir = "spnd"
+var spnHomePath = xfilepath.JoinFromHome(xfilepath.Path("spnd"))
 
 const (
+	spn = "spn"
 	faucetDenom     = "token"
 	faucetMinAmount = 100
 )
@@ -56,7 +56,7 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		o(opts)
 	}
 
-	homePath, err := xfilepath.JoinFromHome(xfilepath.Path(spnHomeDir))()
+	homePath, err := spnHomePath()
 	if err != nil {
 		return nil, err
 	}
