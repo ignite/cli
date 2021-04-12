@@ -24,7 +24,7 @@ import (
 var spnHomePath = xfilepath.JoinFromHome(xfilepath.Path("spnd"))
 
 const (
-	spn = "spn"
+	spn             = "spn"
 	faucetDenom     = "token"
 	faucetMinAmount = 100
 )

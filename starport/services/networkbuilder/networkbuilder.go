@@ -46,7 +46,7 @@ var (
 		xfilepath.Path("spn-chains"),
 	)
 
-	spnChainHomesDir  = xfilepath.JoinFromHome(
+	spnChainHomesDir = xfilepath.JoinFromHome(
 		xfilepath.Path(".spn-chain-homes"),
 	)
 )
