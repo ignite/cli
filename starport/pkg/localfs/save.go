@@ -16,6 +16,13 @@ func SaveTemp(f fs.FS) (path string, cleanup func(), err error) {
 	}
 
 	cleanup = func() { os.RemoveAll(path) }
+
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
+
 	err = Save(f, path)
 
 	return
@@ -31,6 +38,12 @@ func SaveBytesTemp(data []byte, perm os.FileMode) (path string, cleanup func(), 
 
 	path = f.Name()
 	cleanup = func() { os.Remove(path) }
+
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
 
 	if _, err = f.Write(data); err != nil {
 		return
