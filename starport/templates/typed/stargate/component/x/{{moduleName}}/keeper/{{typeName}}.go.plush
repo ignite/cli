@@ -46,7 +46,7 @@ func (k Keeper) Append<%= title(TypeName) %>(
     count := k.Get<%= title(TypeName) %>Count(ctx)
 
     // Set the ID of the appended value
-   <%= TypeName %>.Id = count
+    <%= TypeName %>.Id = count
 
     store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
     appendedValue := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
