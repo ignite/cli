@@ -17,7 +17,7 @@ func Path(path string) PathRetriever {
 	return func() (string, error) { return path, nil }
 }
 
-// Path returns a path retriever from the provided path and error
+// PathWithError returns a path retriever from the provided path and error
 func PathWithError(path string, err error) PathRetriever {
 	return func() (string, error) { return path, err }
 }
