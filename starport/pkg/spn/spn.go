@@ -11,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"

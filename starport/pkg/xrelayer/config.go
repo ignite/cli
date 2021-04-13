@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
-
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"
 	"github.com/pkg/errors"

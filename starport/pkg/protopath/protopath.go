@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
-
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 )
