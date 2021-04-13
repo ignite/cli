@@ -9,9 +9,9 @@ import (
 )
 
 const (
-	flagModule  string = "module"
-	flagLegacy  string = "legacy"
-	flagIndexed string = "indexed"
+	flagModule    string = "module"
+	flagLegacy    string = "legacy"
+	flagIndexed   string = "indexed"
 	flagNoMessage string = "no-message"
 )
 
