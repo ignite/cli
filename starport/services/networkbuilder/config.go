@@ -9,12 +9,10 @@ import (
 )
 
 var (
-	confDir = "networkbuilder"
-
 	// confPath returns the path of Starport Network configuration
 	confPath = xfilepath.Join(
 		services.StarportConfPath,
-		xfilepath.Path(confDir),
+		xfilepath.Path("networkbuilder"),
 	)
 )
 

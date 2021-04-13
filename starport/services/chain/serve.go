@@ -36,9 +36,6 @@ import (
 )
 
 const (
-	// chainSavePath is the place where chain exported genesis are saved
-	chainSaveDir = "local-chains"
-
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
@@ -56,9 +53,10 @@ var (
 	// ignoredExts holds a list of ignored files from watching.
 	ignoredExts = []string{"pb.go", "pb.gw.go"}
 
+	// starportSavePath is the place where chain exported genesis are saved
 	starportSavePath = xfilepath.Join(
 		services.StarportConfPath,
-		xfilepath.Path(chainSaveDir),
+		xfilepath.Path("local-chains"),
 	)
 )
 

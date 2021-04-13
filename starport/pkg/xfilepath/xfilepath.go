@@ -1,3 +1,4 @@
+// Package xfilepath defines functions to define path retrievers that support error handling
 package xfilepath
 
 import (
