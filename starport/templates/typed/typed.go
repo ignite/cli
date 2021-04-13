@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
 // these needs to be created in the compiler time, otherwise packr2 won't be
@@ -49,9 +50,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 		}
 		return strconv
 	})
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
+
+	// Used for proto package name
+	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))

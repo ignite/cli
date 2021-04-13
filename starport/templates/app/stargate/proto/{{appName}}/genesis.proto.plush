@@ -1,5 +1,5 @@
 syntax = "proto3";
-package <%= nodash(OwnerName) %>.<%= AppName %>.<%= AppName %>;
+package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= AppName %>;
 
 // this line is used by starport scaffolding # genesis/proto/import
 
