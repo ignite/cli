@@ -24,7 +24,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesQueryModify(opts))
 	g.RunFn(t.keeperQueryModify(opts))
 	g.RunFn(t.clientRestQueryModify(opts))
-	g.RunFn(t.frontendSrcStoreAppModify(opts))
 
 	// Genesis modifications
 	t.genesisModify(opts, g)
@@ -54,6 +53,8 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 			return nil, err
 		}
 	}
+
+	g.RunFn(t.frontendSrcStoreAppModify(opts))
 
 	return g, Box(stargateComponentTemplate, opts, g)
 }

@@ -15,8 +15,11 @@ import (
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
+
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
 
 	//go:embed stargate_legacy/* stargate_legacy/**/*
 	fsStargateLegacy embed.FS
@@ -24,8 +27,8 @@ var (
 	//go:embed launchpad/* launchpad/**/*
 	fsLaunchpad embed.FS
 
-	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/component/")
-	stargateMessagesTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/messages/")
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+	stargateMessagesTemplate  = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 	stargateLegacyTemplate    = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
 	launchpadTemplate         = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 )
