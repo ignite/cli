@@ -111,6 +111,12 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			if !msgServerDefined {
 				opts.Legacy = true
 			}
+
+			// Can't use no message option for legacy types
+			if opts.Legacy && opts.NoMessage {
+				errors.New("legacy types cannot by scaffolded with no message option")
+			}
+
 			g, err = typed.NewStargate(opts)
 		}
 	}

@@ -26,6 +26,9 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.clientRestQueryModify(opts))
 	g.RunFn(t.frontendSrcStoreAppModify(opts))
 
+	// Genesis modifications
+	t.genesisModify(opts, g)
+
 	// Modifications for new messages
 	if !opts.NoMessage {
 		if opts.Legacy {
@@ -40,12 +43,19 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 		g.RunFn(t.clientRestTxModify(opts))
 	}
 
-	t.genesisModify(opts, g)
-
+	// Use legacy type template
 	if opts.Legacy {
 		return g, Box(stargateLegacyTemplate, opts, g)
 	}
-	return g, Box(stargateTemplate, opts, g)
+
+	// Messages template
+	if !opts.NoMessage {
+		if err := Box(stargateMessagesTemplate, opts, g); err != nil {
+			return nil, err
+		}
+	}
+
+	return g, Box(stargateComponentTemplate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(opts *Options) genny.RunFn {
