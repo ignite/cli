@@ -1,4 +1,4 @@
-package fs
+package localfs
 
 import (
 	"sort"
