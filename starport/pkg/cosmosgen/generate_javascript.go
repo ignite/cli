@@ -10,6 +10,7 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
@@ -213,8 +214,11 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 	if err != nil {
 		return err
 	}
-	chainOwner := strings.Split(chainPath.RawPath, "/")[1]
-	chainPackage := chainPath.Package
+
+	chainURL, err := giturl.Parse(chainPath.RawPath)
+	if err != nil {
+		return err
+	}
 
 	type module struct {
 		Name     string
@@ -223,16 +227,15 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		FullPath string
 	}
 
-	type moduleMeta struct {
+	data := struct {
 		Modules []module
 		User    string
 		Repo    string
+	}{
+		User: chainURL.User,
+		Repo: chainURL.Repo,
 	}
-	var moduleData = moduleMeta{
-		User:    chainOwner,
-		Repo:    chainPackage,
-		Modules: []module{},
-	}
+
 	for _, path := range modulePaths {
 		pathrel, err := filepath.Rel(g.g.o.vuexStoreRootPath, path)
 		if err != nil {
@@ -245,7 +248,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
-		moduleData.Modules = append(moduleData.Modules, module{
+		data.Modules = append(data.Modules, module{
 			Name:     name,
 			Path:     path,
 			FullName: fullName,
@@ -255,7 +258,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 
 	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
 
-	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", moduleData); err != nil {
+	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
 		return err
 	}
 
