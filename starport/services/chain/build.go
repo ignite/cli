@@ -174,7 +174,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
-					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
+					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
 				storeRootPath,
 			),

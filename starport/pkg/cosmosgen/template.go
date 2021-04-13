@@ -17,6 +17,7 @@ var (
 	templateJSClient  = newTemplateWriter("js")         // js wrapper client.
 	templateVuexRoot  = newTemplateWriter("vuex/root")  // vuex store loader.
 	templateVuexStore = newTemplateWriter("vuex/store") // vuex store.
+
 )
 
 type templateWriter struct {
@@ -55,6 +56,7 @@ func (t templateWriter) Write(destDir, protoPath string, data interface{}) error
 		"inc": func(i int) int {
 			return i + 1
 		},
+		"replace": strings.ReplaceAll,
 	}
 
 	// render and write the template.

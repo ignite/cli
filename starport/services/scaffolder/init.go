@@ -113,11 +113,13 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
 				func(m module.Module) string {
-					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
+					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
 				storeRootPath,
 			),
