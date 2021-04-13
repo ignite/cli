@@ -14,10 +14,10 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 
-	templateJSClient    = newTemplateWriter("js")           // js wrapper client.
-	templateVuexRoot    = newTemplateWriter("vuex/root")    // vuex store loader.
-	templateVuexStore   = newTemplateWriter("vuex/store")   // vuex store.
-	templatePackageJSON = newTemplateWriter("vuex/package") // vuex package.json.
+	templateJSClient  = newTemplateWriter("js")         // js wrapper client.
+	templateVuexRoot  = newTemplateWriter("vuex/root")  // vuex store loader.
+	templateVuexStore = newTemplateWriter("vuex/store") // vuex store.
+
 )
 
 type templateWriter struct {

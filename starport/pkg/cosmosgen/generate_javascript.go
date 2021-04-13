@@ -11,6 +11,7 @@ import (
 	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
 	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
@@ -197,10 +198,6 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		if err != nil {
 			return err
 		}
-		err = templatePackageJSON.Write(storeDirPath, pp, struct{ Module module.Module }{m})
-		if err != nil {
-			return err
-		}
 	}
 	// generate .js and .d.ts files for all ts files.
 	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
@@ -212,6 +209,13 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
+	chainPath, err := gomodulepath.ParseAt(g.g.appPath)
+	if err != nil {
+		return err
+	}
+	chainOwner := strings.Split(chainPath.RawPath, "/")[1]
+	chainPackage := chainPath.Package
+
 	type module struct {
 		Name     string
 		Path     string
@@ -219,8 +223,16 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		FullPath string
 	}
 
-	var modules []module
-
+	type moduleMeta struct {
+		Modules []module
+		User    string
+		Repo    string
+	}
+	var moduleData = moduleMeta{
+		User:    chainOwner,
+		Repo:    chainPackage,
+		Modules: []module{},
+	}
 	for _, path := range modulePaths {
 		pathrel, err := filepath.Rel(g.g.o.vuexStoreRootPath, path)
 		if err != nil {
@@ -233,7 +245,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
-		modules = append(modules, module{
+		moduleData.Modules = append(moduleData.Modules, module{
 			Name:     name,
 			Path:     path,
 			FullName: fullName,
@@ -243,7 +255,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 
 	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
 
-	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", modules); err != nil {
+	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", moduleData); err != nil {
 		return err
 	}
 
