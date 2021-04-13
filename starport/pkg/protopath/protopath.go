@@ -2,27 +2,23 @@ package protopath
 
 import (
 	"errors"
-	"os"
 	"path/filepath"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 )
 
-func globalInclude() ([]string, error) {
-	home, err := os.UserHomeDir()
-	if err != nil {
-		return nil, err
-	}
-
-	return []string{
+var (
+	globalInclude = xfilepath.List(
 		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
-		filepath.Join(home, "local", "include"),
+		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
 		// this one is the suggested installation path for placing default proto by
 		// https://grpc.io/docs/protoc-installation/.
-		filepath.Join(home, ".local", "include"),
-	}, nil
-}
+		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+	)
+)
 
 // Module represents a go module that hosts dependency proto paths.
 type Module struct {
