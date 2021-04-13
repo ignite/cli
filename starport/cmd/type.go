@@ -12,6 +12,7 @@ const (
 	flagModule  string = "module"
 	flagLegacy  string = "legacy"
 	flagIndexed string = "indexed"
+	flagNoMessage string = "no-message"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -28,6 +29,7 @@ func NewType() *cobra.Command {
 	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
 	c.Flags().Bool(flagLegacy, false, "Scaffold the type without generating MsgServer service")
 	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
+	c.Flags().Bool(flagNoMessage, false, "Disable CRUD interaction message scaffolding")
 
 	return c
 }
@@ -49,6 +51,10 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	opts.Indexed, err = cmd.Flags().GetBool(flagIndexed)
+	if err != nil {
+		return err
+	}
+	opts.NoMessage, err = cmd.Flags().GetBool(flagNoMessage)
 	if err != nil {
 		return err
 	}
