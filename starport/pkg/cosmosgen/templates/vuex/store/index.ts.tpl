@@ -5,6 +5,8 @@ import { SpVuexError } from '@starport/vuex'
 {{ range .Module.Types }}import { {{ .Name }} } from "./module/types/{{ resolveFile .FilePath }}"
 {{ end }}
 
+export { {{ range $i,$type:=.Module.Types }}{{ if (gt $i 0) }}, {{ end }}{{ $type.Name }}{{ end }} };
+
 async function initTxClient(vuexGetters) {
 	return await txClient(vuexGetters['common/wallet/signer'], {
 		addr: vuexGetters['common/env/apiTendermint']
@@ -41,11 +43,11 @@ function getStructure(template) {
 
 const getDefaultState = () => {
 	return {
-        {{ range .Module.HTTPQueries }}{{ .Name }}: {},
-        {{ end }}
-        _Structure: {
-            {{ range .Module.Types }}{{ .Name }}: getStructure({{ .Name }}.fromPartial({})),
-            {{ end }}
+				{{ range .Module.HTTPQueries }}{{ .Name }}: {},
+				{{ end }}
+				_Structure: {
+						{{ range .Module.Types }}{{ .Name }}: getStructure({{ .Name }}.fromPartial({})),
+						{{ end }}
 		},
 		_Subscriptions: new Set(),
 	}
@@ -72,13 +74,13 @@ export default {
 		}
 	},
 	getters: {
-        {{ range .Module.HTTPQueries }}get{{ .Name }}: (state) => (params = {}) => {
+				{{ range .Module.HTTPQueries }}get{{ .Name }}: (state) => (params = { params: {}}) => {
 					if (!(<any> params).query) {
 						(<any> params).query=null
 					}
 			return state.{{ .Name }}[JSON.stringify(params)] ?? {}
 		},
-        {{ end }}
+				{{ end }}
 		getTypeStructure: (state) => (type) => {
 			return state._Structure[type].fields
 		}
@@ -123,7 +125,7 @@ export default {
 					{{- range $j,$a :=$rule.Params -}}
 						{{- if (gt $j 0) -}}, {{ end }} key.{{ $a -}}
 					{{- end -}}
-				  {{- if $rule.HasQuery -}}
+					{{- if $rule.HasQuery -}}
 						{{- if $rule.Params -}}, {{ end -}}
 						query
 					{{- end -}}
@@ -159,7 +161,7 @@ export default {
 				const txClient=await initTxClient(rootGetters)
 				const msg = await txClient.{{ camelCase .Name }}(value)
 				const result = await txClient.signAndBroadcast([msg], {fee: { amount: fee, 
-  gas: "200000" }, memo})
+	gas: "200000" }, memo})
 				return result
 			} catch (e) {
 				if (e == MissingWalletError) {

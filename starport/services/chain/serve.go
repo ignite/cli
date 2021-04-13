@@ -515,6 +515,7 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Host.API)),
 					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Host.RPC)),
 					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Host.RPC)),
+					fmt.Sprintf("VUE_APP_STARPORT_URL=%s", xurl.HTTP(conf.Host.DevUI)),
 				),
 				step.PostExec(postExec),
 			),

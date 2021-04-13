@@ -1,10 +1,10 @@
 // THIS FILE IS GENERATED AUTOMATICALLY. DO NOT MODIFY.
 
-{{ range . }}import {{ .FullName }} from './{{ .FullPath }}'
+{{ range .Modules }}import {{ .FullName }} from './{{ .FullPath }}'
 {{ end }}
 
 export default { 
-  {{ range . }}{{ .FullName }}: load({{ .FullName }}, '{{ .Path }}'),
+  {{ range .Modules }}{{ .FullName }}: load({{ .FullName }}, '{{ .Path }}'),
   {{ end }}
 }
 
