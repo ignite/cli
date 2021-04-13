@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
-	"github.com/tendermint/starport/starport/pkg/fs"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
 const optionGoPkg = "go_package"
@@ -21,7 +21,7 @@ type parser struct {
 func parse(ctx context.Context, pattern string) ([]*pkg, error) {
 	pr := &parser{}
 
-	paths, err := fs.Search(pattern)
+	paths, err := localfs.Search(pattern)
 	if err != nil {
 		return nil, err
 	}

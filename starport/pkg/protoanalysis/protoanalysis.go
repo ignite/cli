@@ -4,7 +4,7 @@ package protoanalysis
 import (
 	"context"
 
-	"github.com/tendermint/starport/starport/pkg/fs"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
 // Parse parses proto packages by finding them with given glob pattern.
@@ -25,7 +25,7 @@ func Parse(ctx context.Context, pattern string) ([]Package, error) {
 
 // SearchRecursive recursively finds all proto files under path.
 func SearchRecursive(dir string) ([]string, error) {
-	return fs.Search(PatternRecursive(dir))
+	return localfs.Search(PatternRecursive(dir))
 }
 
 // PatternRecursive returns a recursive glob search pattern to find all proto files under path.
