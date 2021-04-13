@@ -152,6 +152,21 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("create a type with no interaction message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "nomessage", "email", "--no-message"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating a legacy type with no message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "nomessagelegacy", "--no-message", "--legacy"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
 
