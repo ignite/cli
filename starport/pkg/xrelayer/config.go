@@ -6,12 +6,12 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/cosmos/relayer/relayer"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/tendermintlogger"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
