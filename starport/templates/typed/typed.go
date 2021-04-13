@@ -24,8 +24,8 @@ var (
 	//go:embed launchpad/* launchpad/**/*
 	fsLaunchpad embed.FS
 
-	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/component")
-	stargateMessagesTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/messages")
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/component/")
+	stargateMessagesTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/messages/")
 	stargateLegacyTemplate    = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
 	launchpadTemplate         = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 )

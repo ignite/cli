@@ -29,7 +29,7 @@ func NewType() *cobra.Command {
 	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
 	c.Flags().Bool(flagLegacy, false, "Scaffold the type without generating MsgServer service")
 	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
-	c.Flags().Bool(flagNoMessage, false, "Disable CRUD interaction message scaffolding")
+	c.Flags().Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
 
 	return c
 }
