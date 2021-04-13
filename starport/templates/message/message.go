@@ -32,9 +32,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("ResFields", opts.ResFields)
 	ctx.Set("title", strings.Title)
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName))

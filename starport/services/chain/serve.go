@@ -14,10 +14,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/dirchange"
-
-	"github.com/tendermint/starport/starport/services"
-
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
@@ -25,11 +21,13 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/fswatcher"
+	"github.com/tendermint/starport/starport/pkg/dirchange"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/tendermint/starport/starport/services"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -254,13 +252,13 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 		watchPaths = append(watchPaths, c.ConfigPath())
 	}
 
-	return fswatcher.Watch(
+	return localfs.Watch(
 		ctx,
 		watchPaths,
-		fswatcher.Workdir(c.app.Path),
-		fswatcher.OnChange(c.refreshServe),
-		fswatcher.IgnoreHidden(),
-		fswatcher.IgnoreExt(ignoredExts...),
+		localfs.WatcherWorkdir(c.app.Path),
+		localfs.WatcherOnChange(c.refreshServe),
+		localfs.WatcherIgnoreHidden(),
+		localfs.WatcherIgnoreExt(ignoredExts...),
 	)
 }
 
@@ -511,6 +509,7 @@ func (c *Chain) watchAppFrontend(ctx context.Context) error {
 					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Host.API)),
 					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Host.RPC)),
 					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Host.RPC)),
+					fmt.Sprintf("VUE_APP_STARPORT_URL=%s", xurl.HTTP(conf.Host.DevUI)),
 				),
 				step.PostExec(postExec),
 			),

@@ -898,6 +898,14 @@ github.com/tendermint/tm-db v0.6.2/go.mod h1:GYtQ67SUvATOcoY8/+x6ylk8Qo02BQyLrAs
 github.com/tendermint/tm-db v0.6.3/go.mod h1:lfA1dL9/Y/Y8wwyPp2NMLyn5P5Ptr/gvDFNWtrCWSf8=
 github.com/tendermint/tm-db v0.6.4 h1:3N2jlnYQkXNQclQwd/eKV/NzlqPlfK21cpRRIx80XXQ=
 github.com/tendermint/tm-db v0.6.4/go.mod h1:dptYhIpJ2M5kUuenLr+Yyf3zQOv1SgBZcl8/BmWlMBw=
+github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18 h1:oVZyTXXr6bqdORxIjwHhzxs7+FIef3fOBWY9xsju5/s=
+github.com/tendermint/vue v0.0.0-20210407103210-b92631502f18/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
+github.com/tendermint/vue v0.0.0-20210409081157-e0d6d2d78acf h1:6+4WRRECLm+10uONkQD/ZcrYKHX3voK/3VlolV95NEc=
+github.com/tendermint/vue v0.0.0-20210409081157-e0d6d2d78acf/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
+github.com/tendermint/vue v0.0.0-20210409090150-9b8e55e5cd36 h1:UbnNeUCoWLUfQkCsf+sMojK2vqsGQGGwuwedHvkyHjA=
+github.com/tendermint/vue v0.0.0-20210409090150-9b8e55e5cd36/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
+github.com/tendermint/vue v0.1.44 h1:hxuSWQGP8Mb8z35A4q1n1za+bK83Gpk1cEZqT3Ian74=
+github.com/tendermint/vue v0.1.44/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20170815181823-89b8d40f7ca8/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tmc/grpc-websocket-proxy v0.0.0-20190109142713-0ad062ec5ee5/go.mod h1:ncp9v5uamzpCO7NfCPTXjqaC+bZgJeR0sMTm6dMHP7U=
 github.com/tomasen/realip v0.0.0-20180522021738-f0c99a92ddce h1:fb190+cK2Xz/dvi9Hv8eCYJYvIGUTN2/KLq1pT6CjEc=

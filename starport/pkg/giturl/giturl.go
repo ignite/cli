@@ -1,21 +1,43 @@
 package giturl
 
 import (
+	"errors"
 	"net/url"
 	"strings"
 )
 
-// UserAndRepo returns only the user and repo portion of the git url u.
-func UserAndRepo(u string) string {
+// GitURL represents a Git url.
+type GitURL struct {
+	// Host is a Git host.
+	Host string
+
+	// User is a user or an org.
+	User string
+
+	// Repo is a repo name.
+	Repo string
+}
+
+// UserAndRepo returns the combined string representation of user and repo.
+func (g GitURL) UserAndRepo() string {
+	return strings.Join([]string{g.User, g.Repo}, "/")
+}
+
+// Parse parses a Git url u.
+func Parse(u string) (GitURL, error) {
 	ur, err := url.Parse(u)
 	if err != nil {
-		return u
+		return GitURL{}, err
 	}
 
 	sp := strings.Split(ur.Path, "/")
 	if len(sp) < 3 {
-		return u
+		return GitURL{}, errors.New("invalid url")
 	}
 
-	return strings.Join(sp[1:3], "/")
+	return GitURL{
+		Host: ur.Host,
+		User: sp[1],
+		Repo: sp[2],
+	}, nil
 }

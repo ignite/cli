@@ -10,11 +10,14 @@ import (
 	"github.com/iancoleman/strcase"
 	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
 	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -197,13 +200,22 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 			return err
 		}
 	}
-
 	// generate .js and .d.ts files for all ts files.
 	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
 }
 
 func (g *jsGenerator) generateVuexModuleLoader() error {
 	modulePaths, err := zglob.Glob(filepath.Join(g.g.o.vuexStoreRootPath, "/**/"+vuexRootMarker))
+	if err != nil {
+		return err
+	}
+
+	chainPath, err := gomodulepath.ParseAt(g.g.appPath)
+	if err != nil {
+		return err
+	}
+
+	chainURL, err := giturl.Parse(chainPath.RawPath)
 	if err != nil {
 		return err
 	}
@@ -215,20 +227,28 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		FullPath string
 	}
 
-	var modules []module
+	data := struct {
+		Modules []module
+		User    string
+		Repo    string
+	}{
+		User: chainURL.User,
+		Repo: chainURL.Repo,
+	}
 
 	for _, path := range modulePaths {
 		pathrel, err := filepath.Rel(g.g.o.vuexStoreRootPath, path)
 		if err != nil {
 			return err
 		}
+
 		var (
 			fullPath = filepath.Dir(pathrel)
-			fullName = strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_"))
+			fullName = xstrings.FormatUsername(strcase.ToCamel(strings.ReplaceAll(fullPath, "/", "_")))
 			path     = filepath.Base(fullPath)
 			name     = strcase.ToCamel(path)
 		)
-		modules = append(modules, module{
+		data.Modules = append(data.Modules, module{
 			Name:     name,
 			Path:     path,
 			FullName: fullName,
@@ -238,7 +258,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 
 	loaderPath := filepath.Join(g.g.o.vuexStoreRootPath, "index.ts")
 
-	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", modules); err != nil {
+	if err := templateVuexRoot.Write(g.g.o.vuexStoreRootPath, "", data); err != nil {
 		return err
 	}
 
