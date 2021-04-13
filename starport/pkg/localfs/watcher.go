@@ -1,6 +1,4 @@
-// Package fswatcher provides functionalities to watch changes on the
-// filesystem.
-package fswatcher
+package localfs
 
 import (
 	"context"
@@ -23,39 +21,39 @@ type watcher struct {
 	done         *sync.WaitGroup
 }
 
-// Option used to configure watcher.
-type Option func(*watcher)
+// WatcherOption used to configure watcher.
+type WatcherOption func(*watcher)
 
-// Workdir to set as a root to paths needs to be watched.
-func Workdir(path string) Option {
+// WatcherWorkdir to set as a root to paths needs to be watched.
+func WatcherWorkdir(path string) WatcherOption {
 	return func(w *watcher) {
 		w.workdir = path
 	}
 }
 
-// OnChange sets a hook that executed on every change on filesystem.
-func OnChange(hook func()) Option {
+// WatcherOnChange sets a hook that executed on every change on filesystem.
+func WatcherOnChange(hook func()) WatcherOption {
 	return func(w *watcher) {
 		w.onChange = hook
 	}
 }
 
-// PollingInterval overwrites default polling interval to check filesystem changes.
-func PollingInterval(d time.Duration) Option {
+// WatcherPollingInterval overwrites default polling interval to check filesystem changes.
+func WatcherPollingInterval(d time.Duration) WatcherOption {
 	return func(w *watcher) {
 		w.interval = d
 	}
 }
 
-// IgnoreHidden ignores hidden(dot) files.
-func IgnoreHidden() Option {
+// WatcherIgnoreHidden ignores hidden(dot) files.
+func WatcherIgnoreHidden() WatcherOption {
 	return func(w *watcher) {
 		w.ignoreHidden = true
 	}
 }
 
-// IgnoreExt ignores files with matching file extensions.
-func IgnoreExt(exts ...string) Option {
+// WatcherIgnoreExt ignores files with matching file extensions.
+func WatcherIgnoreExt(exts ...string) WatcherOption {
 	return func(w *watcher) {
 		w.ignoreExts = exts
 	}
@@ -63,7 +61,7 @@ func IgnoreExt(exts ...string) Option {
 
 // Watch starts watching changes on the paths. options are used to configure the
 // behaviour of watch operation.
-func Watch(ctx context.Context, paths []string, options ...Option) error {
+func Watch(ctx context.Context, paths []string, options ...WatcherOption) error {
 	wt := wt.New()
 	wt.SetMaxEvents(1)
 
