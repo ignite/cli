@@ -13,8 +13,6 @@ Local Starport installation requires the follow software be installed and runnin
 
 - [Node.js >=12.19.0](https://nodejs.org/)
 
-- [Protocol Buffer compiler](https://grpc.io/docs/protoc-installation/)
-
 
 ## Installing Starport with cURL
 
@@ -67,7 +65,7 @@ To install the precompiled `starport` binary, run this command:
 
 ```
 git clone https://github.com/tendermint/starport --depth=1
-cd starport && make
+make -C starport install
 ```
 
 ## Summary
