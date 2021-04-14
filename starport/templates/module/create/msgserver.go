@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -17,6 +18,7 @@ func AddMsgServerConvention(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(handlerPatch(opts))
+	g.RunFn(codecPath(opts))
 
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
@@ -51,6 +53,23 @@ func handlerPatch(opts *CreateOptions) genny.RunFn {
 
 		content := strings.Replace(f.String(), old, new, 1)
 
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func codecPath(opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+
+msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)`
+		replacement := fmt.Sprintf(template, module.Placeholder3)
+		content := strings.Replace(f.String(),  module.Placeholder3, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
