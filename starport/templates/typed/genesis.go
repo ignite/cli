@@ -136,8 +136,7 @@ for _, elem := range %[2]vList {
 // PatchGenesisTypeImport patches types/genesis.go content from the issue:
 // https://github.com/tendermint/starport/issues/992
 func PatchGenesisTypeImport(content string) string {
-	patternToCheck := fmt.Sprintf(`import (
-%[1]v`, PlaceholderGenesisTypesImport)
+	patternToCheck := "import ("
 	replacement := fmt.Sprintf(`import (
 %[1]v
 )`, PlaceholderGenesisTypesImport)
