@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	module_create "github.com/tendermint/starport/starport/templates/module/create"
 	"os"
 	"path/filepath"
 	"time"
@@ -65,6 +66,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 }
 
 func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
+	// generate application template
 	g, err := app.New(s.options.sdkVersion, &app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
@@ -82,13 +84,35 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 		return err
 	}
 
+	// generate module template
+	// Launchpad module template is self contained in the application template
+	// so we don't run this part if version is Launchpad
+	if !s.options.sdkVersion.Is(cosmosver.Launchpad) {
+		g, err = module_create.NewCreateStargate(&module_create.CreateOptions{
+			ModuleName:  pathInfo.Package, // App name
+			ModulePath:  pathInfo.RawPath,
+			AppName:     pathInfo.Package,
+			OwnerName:   owner(pathInfo.RawPath),
+			IsIBC:       false,
+		})
+
+		if err != nil {
+			return err
+		}
+		run = genny.WetRunner(context.Background())
+		run.With(g)
+		if err := run.Run(); err != nil {
+			return err
+		}
+	}
+
 	// generate the vue app.
 	vuepath := filepath.Join(absRoot, "vue")
 	return localfs.Save(vue.Boilerplate(), vuepath)
 }
 
 func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
-	if version != cosmosver.Stargate {
+	if !version.Is(cosmosver.Stargate) {
 		return nil
 	}
 
