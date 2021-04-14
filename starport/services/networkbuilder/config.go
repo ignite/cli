@@ -3,20 +3,18 @@ package networkbuilder
 import (
 	"encoding/json"
 	"os"
-	"path/filepath"
 
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/services"
 )
 
 var (
-	confPath = filepath.Join(services.StarportConfDir, "networkbuilder")
+	// confPath returns the path of Starport Network configuration
+	confPath = xfilepath.Join(
+		services.StarportConfPath,
+		xfilepath.Path("networkbuilder"),
+	)
 )
-
-func init() {
-	if err := os.MkdirAll(services.StarportConfDir, 0755); err != nil {
-		panic(err)
-	}
-}
 
 // Config holds configuration about network builder's state.
 type Config struct {
@@ -44,7 +42,12 @@ func (c *Config) MarkFinalized(chainID string) {
 
 // ConfigGet retrieves the current state of Config.
 func ConfigGet() (*Config, error) {
-	cf, err := os.Open(confPath)
+	conf, err := confPath()
+	if err != nil {
+		return &Config{}, nil
+	}
+
+	cf, err := os.Open(conf)
 	if err != nil {
 		return &Config{}, nil
 	}
@@ -55,7 +58,12 @@ func ConfigGet() (*Config, error) {
 
 // ConfigSave saves the current state of Config.
 func ConfigSave(c *Config) error {
-	cf, err := os.OpenFile(confPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
+	conf, err := confPath()
+	if err != nil {
+		return nil
+	}
+
+	cf, err := os.OpenFile(conf, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
 		return err
 	}

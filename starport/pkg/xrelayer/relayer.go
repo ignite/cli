@@ -105,6 +105,11 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 		return nil, nil, err
 	}
 
+	confFile, err := confFile()
+	if err != nil {
+		return nil, nil, err
+	}
+
 	var m sync.Mutex
 
 	link := func(id string) (err error) {
@@ -113,7 +118,7 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 				return
 			}
 			m.Lock()
-			err = cfile.Save(conf)
+			err = confFile.Save(conf)
 			m.Unlock()
 		}()
 

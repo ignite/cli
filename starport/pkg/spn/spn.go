@@ -16,13 +16,14 @@ import (
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
-var spn = "spn"
-var homedir = os.ExpandEnv("$HOME/spnd")
+var spnHomePath = xfilepath.JoinFromHome(xfilepath.Path("spnd"))
 
 const (
+	spn             = "spn"
 	faucetDenom     = "token"
 	faucetMinAmount = 100
 )
@@ -53,7 +54,13 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 	for _, o := range option {
 		o(opts)
 	}
-	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homedir, os.Stdin)
+
+	homePath, err := spnHomePath()
+	if err != nil {
+		return nil, err
+	}
+
+	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homePath, os.Stdin)
 	if err != nil {
 		return nil, err
 	}
@@ -63,7 +70,7 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		return nil, err
 	}
 	out := &bytes.Buffer{}
-	clientCtx := NewClientCtx(kr, client, out)
+	clientCtx := NewClientCtx(kr, client, out, homePath)
 	factory := NewFactory(clientCtx)
 	return &Client{
 		kr:            kr,

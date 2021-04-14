@@ -11,19 +11,11 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/tendermintlogger"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	tmlog "github.com/tendermint/tendermint/libs/log"
 )
 
 var (
-	// confHome is the home path of relayer.
-	confHome = os.ExpandEnv("$HOME/.relayer")
-
-	// confYamlPath is the path of relayer's config.yaml.
-	confYamlPath = filepath.Join(confHome, "config/config.yaml")
-
-	// cfile is used to load relayer's config yaml and overwrite any changes.
-	cfile = confile.New(confile.DefaultYAMLEncodingCreator, confYamlPath)
-
 	// defaultConf is a default configuration for relayer's config.yml.
 	defaultConf = relayercmd.Config{
 		Global: relayercmd.GlobalConfig{
@@ -33,25 +25,59 @@ var (
 		Chains: relayer.Chains{},
 		Paths:  relayer.Paths{},
 	}
+
+	// confHome returns the home path of relayer
+	confHome = xfilepath.JoinFromHome(
+		xfilepath.Path(".relayer"),
+	)
+
+	// confYamlPath returns the path of relayer's config.yaml
+	confYamlPath = xfilepath.Join(
+		confHome,
+		xfilepath.Path(".config/config.yaml"),
+	)
 )
+
+// confFile returns the file used to load relayer's config yaml and overwrite any changes
+func confFile() (*confile.ConfigFile, error) {
+	confYamlPath, err := confYamlPath()
+	if err != nil {
+		return nil, err
+	}
+
+	return confile.New(confile.DefaultYAMLEncodingCreator, confYamlPath), nil
+}
 
 // config returns the representation of config.yml.
 // it deals with creating and adding default configs if there wasn't a config.yml before.
 func config(_ context.Context, enableLogs bool) (relayercmd.Config, error) {
+	confHome, err := confHome()
+	if err != nil {
+		return relayercmd.Config{}, err
+	}
+	confYamlPath, err := confYamlPath()
+	if err != nil {
+		return relayercmd.Config{}, err
+	}
+	confFile, err := confFile()
+	if err != nil {
+		return relayercmd.Config{}, err
+	}
+
 	// ensure that config.yaml exists.
 	if _, err := os.Stat(confYamlPath); os.IsNotExist(err) {
 		if err := os.MkdirAll(filepath.Dir(confYamlPath), os.ModePerm); err != nil {
 			return relayercmd.Config{}, err
 		}
 
-		if err := cfile.Save(defaultConf); err != nil {
+		if err := confFile.Save(defaultConf); err != nil {
 			return relayercmd.Config{}, err
 		}
 	}
 
 	// load config.yaml
 	rconf := relayercmd.Config{}
-	if err := cfile.Load(&rconf); err != nil {
+	if err := confFile.Load(&rconf); err != nil {
 		return relayercmd.Config{}, err
 	}
 

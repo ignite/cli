@@ -22,7 +22,7 @@ const (
 	defaultGasLimit      = 300000
 )
 
-func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer) client.Context {
+func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer, home string) client.Context {
 	encodingConfig := params.MakeEncodingConfig()
 	authtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	cryptocodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
@@ -41,7 +41,7 @@ func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer) client.Con
 		WithOutput(out).
 		WithAccountRetriever(authtypes.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
-		WithHomeDir(homedir).
+		WithHomeDir(home).
 		WithClient(c).
 		WithSkipConfirmation(true)
 }
