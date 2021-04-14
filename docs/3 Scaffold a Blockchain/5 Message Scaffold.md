@@ -19,11 +19,11 @@ The following files and directories are created and modified by scaffolding:
 
 All flags are optional.
 
-**--desc** 
+`--desc`
 
   The description of the CLI command that broadcasts a transaction with a message.
 
-**--response** 
+`--response`
 
   Comma-separated list (no spaces) of fields that describe the response fields of the message. 
 
