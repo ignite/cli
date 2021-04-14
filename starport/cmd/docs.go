@@ -1,8 +1,6 @@
 package starportcmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/docs"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -20,11 +18,11 @@ func NewDocs() *cobra.Command {
 }
 
 func docsHandler(cmd *cobra.Command, args []string) error {
-	path, err := localfs.SaveTemp(docs.Docs)
+	path, cleanup, err := localfs.SaveTemp(docs.Docs)
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(path)
+	defer cleanup()
 
 	return markdownviewer.View(path)
 }

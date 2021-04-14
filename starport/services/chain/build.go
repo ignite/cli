@@ -9,7 +9,6 @@ import (
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
@@ -156,9 +155,6 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	}
 
 	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		if err == cosmosgen.ErrProtocNotInstalled {
-			return starporterrors.ErrStarportRequiresProtoc
-		}
 		return err
 	}
 
