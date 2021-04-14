@@ -6,17 +6,17 @@ The `starport type` command scaffolds files that implement create, read, update,
 starport type [typeName] [field1] [field2] ... [flags]
 ```
 
-**typeName** string
+`typeName` string
 
   The name of a new type. Must be unique within a module.
 
-**field1**, **field2**, and so on
+`field1`, `field2`, and so on
 
-  Fields of the type. Define fields with a compact notation colon (:) syntax. For example, for an  `amount` field that accepts an integer, use: `amount:int32`. Supported types: `string`, `bool`, `int32`. By default, fields are `string`.
+  Fields of the type. Define fields with a compact notation colon (`:`) syntax. For example, for an  `amount` field that accepts an integer, use: `amount:int32`. Supported types: `string`, `bool`, `int32`. By default, fields are `string`.
 
 A type is scaffolded in a module. 
 
-**--module** 
+`--module`
 
   The name of the custom module in which a type is scaffolded. By default, a type is scaffolded in a module name that matches the project name. 
 

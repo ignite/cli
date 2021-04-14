@@ -8,7 +8,7 @@ Starport supports scaffolding SDK modules.
 starport module create [name] [flags]
 ```
 
-**name**
+`name`
 
   The name of a new module. This name must be unique within a project.
 

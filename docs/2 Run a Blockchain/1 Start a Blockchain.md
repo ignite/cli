@@ -24,26 +24,26 @@ The `starport serve` command starts a fully operational blockchain. You can use 
 
 Flags for the `starport serve` command determine how your blockchain starts:
 
-**--config**, default is `config.yml`
+`--config`, default is `config.yml`
 
   Custom configuration file. Using unique configuration files is required to launch two blockchains on the same machine from the same source code. 
 
-**--reset-once**
+`--reset-once`
 
   Reset the state only once. Use this flag to resume a failed reset or to initialize a blockchain from an empty state. The default state persistence imports the existing state and resumes the blockchain. 
 
-**--force-reset**
+`--force-reset`
 
   Reset state on every file change. Do not import state and turn off state persistence.
 
-**--rebuild-proto-once** use with `--reset-once`
+`--rebuild-proto-once` use with `--reset-once`
 
   Force code generation from proto files for custom and third-party modules. By default, Starport statically scaffolds files generated from Cosmos SDK standard proto files, instead of generating them dynamically. Use this flag to perform code generation on all modules if a blockchain was scaffolded on an earlier Starport version or after a Cosmos SDK upgrade.
 
-** `--verbose`
+`--verbose`
   
   Enters verbose (detailed) mode with extensive logging.
 
-**`--home`**
+`--home`
 
   Specify a custom home directory.
