@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	module_create "github.com/tendermint/starport/starport/templates/module/create"
 	"os"
 	"path/filepath"
 	"time"
@@ -18,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/templates/app"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/vue"
 )
 
@@ -88,12 +88,12 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	// Launchpad module template is self contained in the application template
 	// so we don't run this part if version is Launchpad
 	if !s.options.sdkVersion.Is(cosmosver.Launchpad) {
-		g, err = module_create.NewCreateStargate(&module_create.CreateOptions{
-			ModuleName:  pathInfo.Package, // App name
-			ModulePath:  pathInfo.RawPath,
-			AppName:     pathInfo.Package,
-			OwnerName:   owner(pathInfo.RawPath),
-			IsIBC:       false,
+		g, err = modulecreate.NewCreateStargate(&modulecreate.CreateOptions{
+			ModuleName: pathInfo.Package, // App name
+			ModulePath: pathInfo.RawPath,
+			AppName:    pathInfo.Package,
+			OwnerName:  owner(pathInfo.RawPath),
+			IsIBC:      false,
 		})
 
 		if err != nil {
@@ -101,6 +101,7 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 		}
 		run = genny.WetRunner(context.Background())
 		run.With(g)
+		run.Root = absRoot
 		if err := run.Run(); err != nil {
 			return err
 		}

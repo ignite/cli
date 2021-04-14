@@ -4,15 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
-
-	"github.com/tendermint/starport/starport/templates/module"
-
-	module_create "github.com/tendermint/starport/starport/templates/module/create"
-	module_import "github.com/tendermint/starport/starport/templates/module/import"
-
 	"go/parser"
 	"go/token"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,6 +17,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/templates/module"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
 )
 
 var (
@@ -117,7 +114,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	var (
 		g    *genny.Generator
-		opts = &module_create.CreateOptions{
+		opts = &modulecreate.CreateOptions{
 			ModuleName:  moduleName,
 			ModulePath:  path.RawPath,
 			AppName:     path.Package,
@@ -129,9 +126,9 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	// Generator from Cosmos SDK version
 	if majorVersion == cosmosver.Launchpad {
-		g, err = module_create.NewCreateLaunchpad(opts)
+		g, err = modulecreate.NewCreateLaunchpad(opts)
 	} else {
-		g, err = module_create.NewCreateStargate(opts)
+		g, err = modulecreate.NewCreateStargate(opts)
 	}
 	if err != nil {
 		return err
@@ -144,7 +141,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	// Scaffold IBC module
 	if creationOpts.ibc {
-		g, err = module_create.NewIBC(opts)
+		g, err = modulecreate.NewIBC(opts)
 		if err != nil {
 			return err
 		}
@@ -200,12 +197,12 @@ func (s *Scaffolder) ImportModule(name string) error {
 	// run generator
 	var g *genny.Generator
 	if majorVersion == cosmosver.Launchpad {
-		g, err = module_import.NewImportLaunchpad(&module_import.ImportOptions{
+		g, err = moduleimport.NewImportLaunchpad(&moduleimport.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
 		})
 	} else {
-		g, err = module_import.NewImportStargate(&module_import.ImportOptions{
+		g, err = moduleimport.NewImportStargate(&moduleimport.ImportOptions{
 			Feature:          name,
 			AppName:          path.Package,
 			BinaryNamePrefix: path.Root,
