@@ -1,7 +1,0 @@
-package keeper
-
-import (
-	"<%= ModulePath %>/x/<%= AppName %>/types"
-)
-
-var _ types.QueryServer = Keeper{}
