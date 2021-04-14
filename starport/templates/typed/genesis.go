@@ -54,8 +54,10 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 			return err
 		}
 
+		content := PatchGenesisTypeImport(f.String())
+
 		templateTypesImport := `"fmt"`
-		content := strings.Replace(f.String(), PlaceholderGenesisTypesImport, templateTypesImport, 1)
+		content = strings.Replace(content, PlaceholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
@@ -129,4 +131,20 @@ for _, elem := range %[2]vList {
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
+}
+
+// PatchGenesisTypeImport patches types/genesis.go content from the issue:
+// https://github.com/tendermint/starport/issues/992
+func PatchGenesisTypeImport(content string) string {
+	patternToCheck := fmt.Sprintf(`import (
+%[1]v`, PlaceholderGenesisTypesImport)
+	replacement := fmt.Sprintf(`import (
+%[1]v
+)`, PlaceholderGenesisTypesImport)
+
+	if !strings.Contains(content, patternToCheck) {
+		content = strings.Replace(content, PlaceholderGenesisTypesImport, replacement, 1)
+	}
+
+	return content
 }
