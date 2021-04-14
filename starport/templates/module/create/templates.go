@@ -24,5 +24,5 @@ var (
 	launchpadTemplate = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 	stargateTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 	ibcTemplate       = xgenny.NewEmbedWalker(fsIBC, "ibc/")
-	msgServerTemplate = xgenny.NewEmbedWalker(fsIBC, "msgserver/")
+	msgServerTemplate = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/")
 )

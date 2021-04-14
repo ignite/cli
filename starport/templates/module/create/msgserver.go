@@ -2,13 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/typed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 // AddMsgServerConvention add the files and the necessary modifications to an existing module
@@ -24,8 +24,8 @@ func AddMsgServerConvention(opts *CreateOptions) (*genny.Generator, error) {
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName) //
 	ctx.Set("modulePath", opts.ModulePath) //
-	ctx.Set("appName", opts.AppName) //
-	ctx.Set("ownerName", opts.OwnerName) //
+	ctx.Set("appName", opts.AppName)       //
+	ctx.Set("ownerName", opts.OwnerName)   //
 	ctx.Set("title", strings.Title)
 
 	// Used for proto package name

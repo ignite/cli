@@ -20,6 +20,9 @@ func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
+	if err := g.Box(msgServerTemplate); err != nil {
+		return g, err
+	}
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
