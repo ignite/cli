@@ -10,7 +10,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
 	conf "github.com/tendermint/starport/starport/chainconf"
-	"github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -94,9 +93,6 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 	}
 
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
-		if err == cosmosgen.ErrProtocNotInstalled {
-			return errors.ErrStarportRequiresProtoc
-		}
 		return err
 	}
 
@@ -117,11 +113,13 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.Maj
 	// generate Vuex code as well if it is enabled.
 	if conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
+
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				false,
 				func(m module.Module) string {
-					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
+					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
 				storeRootPath,
 			),

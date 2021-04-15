@@ -11,11 +11,6 @@ RUN apt update && \
 RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
-# INSTALL PROTOBUF LIBRARY
-RUN curl -sL https://github.com/protocolbuffers/protobuf/releases/download/v3.13.0/protoc-3.13.0-linux-x86_64.zip -o protoc.zip && \
-    unzip protoc.zip -d /usr/local && \
-    rm protoc.zip
-
 # COPY STARPORT SOURCE CODE INTO CONTAINER
 COPY ./docs /starport/docs
 COPY ./starport /starport/starport

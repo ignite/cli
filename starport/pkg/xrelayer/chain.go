@@ -252,8 +252,13 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain, channelOpts ...ChannelO
 		},
 	}
 
+	confFile, err := confFile()
+	if err != nil {
+		return "", err
+	}
+
 	// save the config.
-	if err := cfile.Save(conf); err != nil {
+	if err := confFile.Save(conf); err != nil {
 		return "", err
 	}
 
@@ -423,7 +428,12 @@ func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
 			return err
 		}
 
-		if err := cfile.Save(conf); err != nil {
+		confFile, err := confFile()
+		if err != nil {
+			return err
+		}
+
+		if err := confFile.Save(conf); err != nil {
 			return err
 		}
 	}

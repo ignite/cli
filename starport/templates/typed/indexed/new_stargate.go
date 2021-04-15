@@ -192,8 +192,10 @@ func genesisTypesModify(opts *typed.Options) genny.RunFn {
 			return err
 		}
 
+		content := typed.PatchGenesisTypeImport(f.String())
+
 		templateTypesImport := `"fmt"`
-		content := strings.Replace(f.String(), typed.PlaceholderGenesisTypesImport, templateTypesImport, 1)
+		content = strings.Replace(content, typed.PlaceholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`

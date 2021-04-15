@@ -9,13 +9,49 @@ import (
 
 // SaveTemp saves file system f to a temporary path in the local file system
 // and returns that path.
-func SaveTemp(f fs.FS) (path string, err error) {
+func SaveTemp(f fs.FS) (path string, cleanup func(), err error) {
 	path, err = os.MkdirTemp("", "")
 	if err != nil {
-		return "", err
+		return
 	}
 
-	return path, Save(f, path)
+	cleanup = func() { os.RemoveAll(path) }
+
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
+
+	err = Save(f, path)
+
+	return
+}
+
+// SaveBytesTemp saves data bytes to a temporary file location at path.
+func SaveBytesTemp(data []byte, perm os.FileMode) (path string, cleanup func(), err error) {
+	f, err := os.CreateTemp("", "")
+	if err != nil {
+		return
+	}
+	defer f.Close()
+
+	path = f.Name()
+	cleanup = func() { os.Remove(path) }
+
+	defer func() {
+		if err != nil {
+			cleanup()
+		}
+	}()
+
+	if _, err = f.Write(data); err != nil {
+		return
+	}
+
+	err = os.Chmod(path, perm)
+
+	return
 }
 
 // Save saves file system f to path in the local file system.

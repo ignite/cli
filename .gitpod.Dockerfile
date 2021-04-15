@@ -7,4 +7,4 @@ RUN wget https://golang.org/dl/go1.16.linux-amd64.tar.gz && \
 
 ENV GONAME go1.15
 
-RUN brew install gh protobuf
+RUN brew install gh

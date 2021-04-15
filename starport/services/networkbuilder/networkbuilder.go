@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
+
 	"github.com/tendermint/starport/starport/services"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -38,8 +40,15 @@ const (
 )
 
 var (
-	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
-	homePath   = filepath.Join(os.ExpandEnv("$HOME"), ".spn-chain-homes")
+	// spnChainSourcePath returns the path used for the chain source used to build spn chains
+	spnChainSourcePath = xfilepath.Join(
+		services.StarportConfPath,
+		xfilepath.Path("spn-chains"),
+	)
+
+	spnChainHomesDir = xfilepath.JoinFromHome(
+		xfilepath.Path(".spn-chain-homes"),
+	)
 )
 
 // Builder is network builder.
@@ -82,17 +91,21 @@ type initOptions struct {
 }
 
 // newInitOptions initializes initOptions
-func newInitOptions(chainID string, options ...InitOption) initOptions {
-	o := initOptions{
-		homePath: filepath.Join(homePath, chainID),
+func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions, err error) {
+	initOpts.homePath, err = xfilepath.Join(
+		spnChainHomesDir,
+		xfilepath.Path(chainID),
+	)()
+	if err != nil {
+		return initOpts, err
 	}
 
 	// set custom options
 	for _, option := range options {
-		option(&o)
+		option(&initOpts)
 	}
 
-	return o
+	return initOpts, nil
 }
 
 // SourceOption sets the source for blockchain.
@@ -182,7 +195,10 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		return nil, err
 	}
 
-	o := newInitOptions(chainID, options...)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return nil, err
+	}
 	source(&o)
 
 	// determine final source configuration.
@@ -229,6 +245,11 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
+		sourcePath, err := spnChainSourcePath()
+		if err != nil {
+			return nil, err
+		}
+
 		// ensure the path for chain source exists
 		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
 			if !os.IsExist(err) {
@@ -343,7 +364,10 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
-	o := newInitOptions(chainID, options...)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return err
+	}
 
 	chainInfo, err := b.ShowChain(ctx, chainID)
 	if err != nil {
@@ -371,6 +395,11 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// password. This happens because Gitpod uses containers.
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
+	sourcePath, err := spnChainSourcePath()
+	if err != nil {
+		return err
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
@@ -486,6 +515,11 @@ func (b *Builder) GenerateGenesisWithHome(
 	homeDir string,
 ) (string, error) {
 	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return "", err
+	}
+
+	sourcePath, err := spnChainSourcePath()
 	if err != nil {
 		return "", err
 	}

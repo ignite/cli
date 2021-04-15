@@ -56,6 +56,11 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposa
 		return err
 	}
 
+	sourcePath, err := spnChainSourcePath()
+	if err != nil {
+		return err
+	}
+
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
 	chainHandler, err := chain.New(ctx, appPath,

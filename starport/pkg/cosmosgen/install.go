@@ -7,18 +7,10 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/xexec"
 )
-
-// ErrProtocNotInstalled is returned when protoc isn't installed on the system.
-var ErrProtocNotInstalled = errors.New("protoc is not installed")
 
 // InstallDependencies installs protoc dependencies needed by Cosmos ecosystem.
 func InstallDependencies(ctx context.Context, appPath string) error {
-	if !xexec.IsCommandAvailable("protoc") {
-		return ErrProtocNotInstalled
-	}
-
 	errb := &bytes.Buffer{}
 	err := cmdrunner.
 		New(
