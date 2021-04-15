@@ -20,8 +20,8 @@ var (
 	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
-// New ...
-func NewImportStargate(opts *ImportOptions) (*genny.Generator, error) {
+// NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
+func NewStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(opts))
 	g.RunFn(rootModifyStargate(opts))
