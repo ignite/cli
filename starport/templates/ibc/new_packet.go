@@ -17,10 +17,17 @@ import (
 )
 
 var (
-	//go:embed packet/* packet/**/*
-	fsPacket embed.FS
+	//go:embed packet/component/* packet/component/**/*
+	fsPacketComponent embed.FS
 
-	ibcTemplate = xgenny.NewEmbedWalker(fsPacket, "packet/")
+	//go:embed packet/messages/* packet/messages/**/*
+	fsPacketMessages embed.FS
+
+	//ibcTemplateComponent is the template to scaffold a new packet in an IBC module
+	ibcTemplateComponent = xgenny.NewEmbedWalker(fsPacketComponent, "packet/component/")
+
+	//ibcTemplateMessages is the template to scaffold send message for a packet
+	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketComponent, "packet/messages/")
 )
 
 // Options ...
@@ -39,19 +46,25 @@ type PacketOptions struct {
 func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	g := genny.New()
 
+	// Add the component
 	g.RunFn(moduleModify(opts))
 	g.RunFn(protoModify(opts))
 	g.RunFn(eventModify(opts))
-
-	// Modification for the new tx
-	g.RunFn(protoTxModify(opts))
-	g.RunFn(handlerTxModify(opts))
-	g.RunFn(clientCliTxModify(opts))
-	g.RunFn(codecModify(opts))
-
-	if err := g.Box(ibcTemplate); err != nil {
+	if err := g.Box(ibcTemplateComponent); err != nil {
 		return g, err
 	}
+
+	// Add the send message
+	if !opts.NoMessage {
+		g.RunFn(protoTxModify(opts))
+		g.RunFn(handlerTxModify(opts))
+		g.RunFn(clientCliTxModify(opts))
+		g.RunFn(codecModify(opts))
+		if err := g.Box(ibcTemplateMessages); err != nil {
+			return g, err
+		}
+	}
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
