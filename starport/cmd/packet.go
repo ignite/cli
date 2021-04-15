@@ -25,7 +25,6 @@ func NewIBCPacket() *cobra.Command {
 
 	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
-	c.Flags().String(flagNoMessage, "", "IBC Module to add the packet into")
 	c.Flags().Bool(flagNoMessage, false, "Disable send message scaffolding")
 
 	return c
