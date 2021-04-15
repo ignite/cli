@@ -4,11 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"os"
 	"path/filepath"
 
-	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+
+	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/message"
 )
@@ -23,6 +25,11 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
+	}
+
+	// Launchpad not supported
+	if majorVersion == cosmosver.Launchpad {
+		return errors.New("message scaffolding not supported on Launchpad")
 	}
 
 	// If no module is provided, we add the type to the app's module
@@ -74,19 +81,18 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 			MsgDesc:    msgDesc,
 		}
 	)
-	// generate depending on the version
-	if majorVersion == cosmosver.Launchpad {
-		return errors.New("message scaffolding not supported on Launchpad")
-	}
-	// check if the msgServer convention is used
-	var msgServerDefined bool
-	msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-	if err != nil {
+
+	// Check and support MsgServer convention
+	if err := supportMsgServer(
+		s.path,
+		&modulecreate.MsgServerOptions{
+			ModuleName: opts.ModuleName,
+			ModulePath: opts.ModulePath,
+			AppName:    opts.AppName,
+			OwnerName:  opts.OwnerName,
+		},
+	); err != nil {
 		return err
-	}
-	if !msgServerDefined {
-		// TODO: Determine if we want to support blockchains not using MsgServer convention
-		return errors.New("the blockchain must use MsgServer convention")
 	}
 
 	// Scaffold

@@ -14,21 +14,20 @@ import (
 
 // AddMsgServerConventionToLegacyModule add the files and the necessary modifications to an existing module that doesn't support MsgServer convention
 // https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
-func AddMsgServerConventionToLegacyModule(opts *CreateOptions) (*genny.Generator, error) {
+func AddMsgServerConventionToLegacyModule(opts *MsgServerOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(handlerPatch(opts))
-	g.RunFn(codecPath(opts))
+	g.RunFn(handlerPatch(opts.ModuleName))
+	g.RunFn(codecPath(opts.ModuleName))
 
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
-	ctx.Set("moduleName", opts.ModuleName) //
-	ctx.Set("modulePath", opts.ModulePath) //
-	ctx.Set("appName", opts.AppName)       //
-	ctx.Set("ownerName", opts.OwnerName)   //
-	ctx.Set("title", strings.Title)
+	ctx.Set("moduleName", opts.ModuleName)
+	ctx.Set("modulePath", opts.ModulePath)
+	ctx.Set("appName", opts.AppName)
+	ctx.Set("ownerName", opts.OwnerName)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
@@ -38,9 +37,9 @@ func AddMsgServerConventionToLegacyModule(opts *CreateOptions) (*genny.Generator
 	return g, nil
 }
 
-func handlerPatch(opts *CreateOptions) genny.RunFn {
+func handlerPatch(moduleName string) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/handler.go", moduleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -58,9 +57,9 @@ func handlerPatch(opts *CreateOptions) genny.RunFn {
 	}
 }
 
-func codecPath(opts *CreateOptions) genny.RunFn {
+func codecPath(moduleName string) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/types/codec.go", moduleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
