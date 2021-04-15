@@ -28,6 +28,7 @@ const (
 type AddTypeOption struct {
 	Legacy  bool
 	Indexed bool
+	NoMessage bool
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
@@ -84,6 +85,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
+			NoMessage: addTypeOptions.NoMessage,
 		}
 	)
 	// generate depending on the version
