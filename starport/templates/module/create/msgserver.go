@@ -2,13 +2,13 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -69,7 +69,7 @@ func codecPath(opts *CreateOptions) genny.RunFn {
 
 msgservice.RegisterMsgServiceDesc(registry, &_Msg_serviceDesc)`
 		replacement := fmt.Sprintf(template, module.Placeholder3)
-		content := strings.Replace(f.String(),  module.Placeholder3, replacement, 1)
+		content := strings.Replace(f.String(), module.Placeholder3, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
