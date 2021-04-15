@@ -27,10 +27,17 @@ var (
 	//go:embed launchpad/* launchpad/**/*
 	fsLaunchpad embed.FS
 
+	// stargateComponentTemplate is the template for a Stargate module type component
 	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-	stargateMessagesTemplate  = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
-	stargateLegacyTemplate    = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
-	launchpadTemplate         = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+
+	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
+	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
+
+	// stargateLegacyTemplate is the template for a Stargate module legacy type (no MsgServer convention)
+	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
+
+	// stargateComponentTemplate is the template for a Launchpad module type
+	launchpadTemplate = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
