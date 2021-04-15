@@ -23,11 +23,11 @@ var (
 	//go:embed packet/messages/* packet/messages/**/*
 	fsPacketMessages embed.FS
 
-	//ibcTemplateComponent is the template to scaffold a new packet in an IBC module
+	// ibcTemplateComponent is the template to scaffold a new packet in an IBC module
 	ibcTemplateComponent = xgenny.NewEmbedWalker(fsPacketComponent, "packet/component/")
 
-	//ibcTemplateMessages is the template to scaffold send message for a packet
-	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketComponent, "packet/messages/")
+	// ibcTemplateMessages is the template to scaffold send message for a packet
+	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketMessages, "packet/messages/")
 )
 
 // Options ...
@@ -39,7 +39,7 @@ type PacketOptions struct {
 	PacketName string
 	Fields     []typed.Field
 	AckFields  []typed.Field
-	NoMessage bool
+	NoMessage  bool
 }
 
 // New ...

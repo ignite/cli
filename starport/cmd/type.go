@@ -9,10 +9,10 @@ import (
 )
 
 const (
-	flagModule  string = "module"
-	flagLegacy  string = "legacy"
-	flagIndexed string = "indexed"
-	flagNoMessage = "no-message"
+	flagModule    string = "module"
+	flagLegacy    string = "legacy"
+	flagIndexed   string = "indexed"
+	flagNoMessage        = "no-message"
 )
 
 // NewType command creates a new type command to scaffold types.

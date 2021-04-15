@@ -27,7 +27,7 @@ func (s *Scaffolder) AddPacket(
 	packetFields []string,
 	ackFields []string,
 	noMessage bool,
-	) error {
+) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -97,7 +97,7 @@ func (s *Scaffolder) AddPacket(
 			PacketName: packetName,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
-			NoMessage: noMessage,
+			NoMessage:  noMessage,
 		}
 	)
 	g, err = ibc.NewPacket(opts)
