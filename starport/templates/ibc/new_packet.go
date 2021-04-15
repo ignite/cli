@@ -32,6 +32,7 @@ type PacketOptions struct {
 	PacketName string
 	Fields     []typed.Field
 	AckFields  []typed.Field
+	NoMessage bool
 }
 
 // New ...
