@@ -12,10 +12,10 @@ import (
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
 
-	stargateIndexedTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	stargateIndexedComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
 )
 
 // New ...
@@ -30,7 +30,7 @@ func NewStargate(opts *typed.Options) (*genny.Generator, error) {
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
 
-	return g, typed.Box(stargateIndexedTemplate, opts, g)
+	return g, typed.Box(stargateIndexedComponentTemplate, opts, g)
 }
 
 func typesKeyModify(opts *typed.Options) genny.RunFn {
