@@ -12,9 +12,9 @@ import (
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
-// AddMsgServerConvention add the files and the necessary modifications to an existing module
-// in order to support MsgServer convention: https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
-func AddMsgServerConvention(opts *CreateOptions) (*genny.Generator, error) {
+// AddMsgServerConventionToLegacyModule add the files and the necessary modifications to an existing module that doesn't support MsgServer convention
+// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
+func AddMsgServerConventionToLegacyModule(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(handlerPatch(opts))
