@@ -4,15 +4,14 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"os"
 	"path/filepath"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/message"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
