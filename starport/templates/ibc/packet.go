@@ -30,7 +30,7 @@ var (
 	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketMessages, "packet/messages/")
 )
 
-// Options ...
+// PacketOptions are options to scaffold a packet in a IBC module
 type PacketOptions struct {
 	AppName    string
 	ModuleName string
@@ -42,7 +42,7 @@ type PacketOptions struct {
 	NoMessage  bool
 }
 
-// New ...
+// NewPacket returns the generator to scaffold a packet in an IBC module
 func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	g := genny.New()
 
