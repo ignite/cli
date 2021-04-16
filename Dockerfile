@@ -38,4 +38,14 @@ FROM base
 
 COPY --from=builder /go/bin/starport /usr/bin
 
+# see docs for exposed ports:
+#   https://docs.starport.network/4%20Configure%20a%20Blockchain/2%20config.yml%20Reference.html#host
+EXPOSE 26657
+EXPOSE 26656
+EXPOSE 6060 
+EXPOSE 9090 
+EXPOSE 1317 
+EXPOSE 8080
+EXPOSE 12345 
+
 ENTRYPOINT ["starport"]
