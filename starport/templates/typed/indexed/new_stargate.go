@@ -22,7 +22,7 @@ var (
 	stargateIndexedComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
 
 	// stargateIndexedMessagesTemplate allows to scaffold indexed type CRUD messages in a Stargate module
-	stargateIndexedMessagesTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/messages/")
+	stargateIndexedMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 // New ...

@@ -26,8 +26,8 @@ const (
 )
 
 type AddTypeOption struct {
-	Legacy  bool
-	Indexed bool
+	Legacy    bool
+	Indexed   bool
 	NoMessage bool
 }
 
@@ -85,7 +85,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
-			NoMessage: addTypeOptions.NoMessage,
+			NoMessage:  addTypeOptions.NoMessage,
 		}
 	)
 	// generate depending on the version
