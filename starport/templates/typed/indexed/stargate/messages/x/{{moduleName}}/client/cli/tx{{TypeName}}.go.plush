@@ -10,8 +10,11 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.Itoa(0)
+
 func CmdCreate<%= title(TypeName) %>() *cobra.Command {
-	cmd := &cobra.Command{
+    cmd := &cobra.Command{
 		Use:   "create-<%= TypeName %> [index]<%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
 		Short: "Create a new <%= TypeName %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
