@@ -15,7 +15,6 @@ type Options struct {
 	OwnerName  string
 	TypeName   string
 	Fields     []Field
-	Legacy     bool
 }
 
 // Validate that options are usuable

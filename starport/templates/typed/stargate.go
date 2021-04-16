@@ -17,15 +17,10 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	t := typedStargate{}
 	g := genny.New()
 
-	if opts.Legacy {
-		g.RunFn(t.handlerModifyLegacy(opts))
-	} else {
-		g.RunFn(t.handlerModify(opts))
-		g.RunFn(t.protoTxImportModify(opts))
-		g.RunFn(t.protoTxRPCModify(opts))
-		g.RunFn(t.protoTxMessageModify(opts))
-	}
-
+	g.RunFn(t.handlerModify(opts))
+	g.RunFn(t.protoTxImportModify(opts))
+	g.RunFn(t.protoTxRPCModify(opts))
+	g.RunFn(t.protoTxMessageModify(opts))
 	g.RunFn(t.typesKeyModify(opts))
 	g.RunFn(t.typesCodecModify(opts))
 	g.RunFn(t.typesCodecImportModify(opts))
@@ -43,9 +38,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 
 	t.genesisModify(opts, g)
 
-	if opts.Legacy {
-		return g, Box(stargateLegacyTemplate, opts, g)
-	}
 	return g, Box(stargateTemplate, opts, g)
 }
 
@@ -488,30 +480,6 @@ func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 			strings.Title(opts.TypeName),
 		)
 		content := strings.Replace(f.String(), Placeholder4, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-// --- Legacy Stargate Types
-
-func (t *typedStargate) handlerModifyLegacy(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := `%[1]v
-case *types.MsgCreate%[2]v:
-	return handleMsgCreate%[2]v(ctx, k, msg)
-case *types.MsgUpdate%[2]v:
-	return handleMsgUpdate%[2]v(ctx, k, msg)
-case *types.MsgDelete%[2]v:
-	return handleMsgDelete%[2]v(ctx, k, msg)
-`
-		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName))
-		content := strings.Replace(f.String(), Placeholder, replacement, 1)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

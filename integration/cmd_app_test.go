@@ -14,7 +14,7 @@ import (
 func TestGenerateAnAppAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(path, "config.yml"))
@@ -26,7 +26,7 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -50,7 +50,7 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",
@@ -74,7 +74,7 @@ func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
 func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",

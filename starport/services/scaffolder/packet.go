@@ -2,13 +2,11 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/templates/ibc"
 
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -20,17 +18,8 @@ const (
 	typesDirectory          = "types"
 )
 
-// AddType adds a new type stype to scaffolded app by using optional type fields.
+// AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetFields []string, ackFields []string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
-	if majorVersion.Is(cosmosver.Launchpad) {
-		return errors.New("launchpad is not supported for IBC")
-	}
-
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -106,7 +95,7 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath); err != nil {
 		return err
 	}
 	return fmtProject(pwd)

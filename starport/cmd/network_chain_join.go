@@ -42,7 +42,7 @@ func NewNetworkChainJoin() *cobra.Command {
 		RunE:  networkChainJoinHandler,
 		Args:  cobra.ExactArgs(1),
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().String(flagGentx, "", "Path to a gentx file (optional)")
 	c.Flags().String(flagPeer, "", "Configure peer in node-id@host:port format (optional)")
 	c.Flags().String(flagKeyringBackend, "os", "Keyring backend used for the blockchain account")
@@ -66,10 +66,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Check if custom home is provided
-	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{})
-	if err != nil {
-		return err
-	}
+	initOptions := initOptionWithHomeFlag(cmd, []networkbuilder.InitOption{})
 
 	// Get keyring backend
 	keyringBackend, err := cmd.Flags().GetString(flagKeyringBackend)

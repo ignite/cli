@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -14,7 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -32,11 +30,6 @@ type AddTypeOption struct {
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -83,50 +76,33 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			OwnerName:  owner(path.RawPath),
 			TypeName:   typeName,
 			Fields:     tFields,
-			Legacy:     addTypeOptions.Legacy,
 		}
 	)
-	// generate depending on the version
-	if majorVersion == cosmosver.Launchpad {
-		if addTypeOptions.Indexed {
-			return errors.New("indexed types not supported on Launchpad")
-		}
 
-		g, err = typed.NewLaunchpad(opts)
+	if addTypeOptions.Indexed {
+		g, err = indexed.NewStargate(opts)
 	} else {
-		// Check if indexed type
-		if addTypeOptions.Indexed {
-			g, err = indexed.NewStargate(opts)
-		} else {
-			// Scaffolding a type with ID
-
-			// check if the msgServer convention is used
-			var msgServerDefined bool
-			msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-			if err != nil {
-				return err
-			}
-			if !msgServerDefined {
-				opts.Legacy = true
-			}
-			g, err = typed.NewStargate(opts)
-		}
+		g, err = typed.NewStargate(opts)
 	}
 	if err != nil {
 		return err
 	}
+
 	run := genny.WetRunner(context.Background())
 	run.With(g)
 	if err := run.Run(); err != nil {
 		return err
 	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+
+	if err := s.protoc(pwd, path.RawPath); err != nil {
 		return err
 	}
+
 	return fmtProject(pwd)
 }
 

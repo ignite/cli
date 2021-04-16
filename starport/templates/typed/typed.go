@@ -12,21 +12,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
-// these needs to be created in the compiler time, otherwise packr2 won't be
-// able to find boxes.
 var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
 
-	//go:embed stargate_legacy/* stargate_legacy/**/*
-	fsStargateLegacy embed.FS
-
-	//go:embed launchpad/* launchpad/**/*
-	fsLaunchpad embed.FS
-
-	stargateTemplate       = xgenny.NewEmbedWalker(fsStargate, "stargate/")
-	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
-	launchpadTemplate      = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {

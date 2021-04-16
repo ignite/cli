@@ -22,8 +22,6 @@ func NewMessage() *cobra.Command {
 		RunE:  messageHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	addSdkVersionFlag(c)
-
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -57,7 +55,10 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		desc = fmt.Sprintf("Broadcast message %s", args[0])
 	}
 
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.AddMessage(module, args[0], desc, args[1:], resFields); err != nil {
 		return err
 	}

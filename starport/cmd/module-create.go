@@ -75,7 +75,10 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
 	}
 
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.CreateModule(name, options...); err != nil {
 
 		// If this is an old scaffolded application that doesn't contain the necessary placeholder

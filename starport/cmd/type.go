@@ -23,8 +23,6 @@ func NewType() *cobra.Command {
 		RunE:  typeHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	addSdkVersionFlag(c)
-
 	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
 	c.Flags().Bool(flagLegacy, false, "Scaffold the type without generating MsgServer service")
 	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
@@ -53,7 +51,10 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.AddType(opts, module, args[0], args[1:]...); err != nil {
 		return err
 	}

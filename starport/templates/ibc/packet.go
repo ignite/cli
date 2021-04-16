@@ -3,17 +3,14 @@ package ibc
 import (
 	"embed"
 	"fmt"
-
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/module"
-
-	"github.com/tendermint/starport/starport/templates/typed"
-
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 var (

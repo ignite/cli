@@ -12,7 +12,6 @@ import (
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -48,7 +47,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	}
 
 	// generate protobuf types
-	if err := s.protoc(absRoot, pathInfo.RawPath, s.options.sdkVersion); err != nil {
+	if err := s.protoc(absRoot, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 
@@ -65,7 +64,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 }
 
 func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
-	g, err := app.New(s.options.sdkVersion, &app.Options{
+	g, err := app.New(&app.Options{
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		OwnerName:        owner(pathInfo.RawPath),
@@ -87,11 +86,7 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	return localfs.Save(vue.Boilerplate(), vuepath)
 }
 
-func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
-	if version != cosmosver.Stargate {
-		return nil
-	}
-
+func (s *Scaffolder) protoc(projectPath, gomodPath string) error {
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}

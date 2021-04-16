@@ -20,7 +20,6 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
@@ -30,11 +29,10 @@ var (
 )
 
 const (
-	wasmImport                 = "github.com/CosmWasm/wasmd"
-	apppkg                     = "app"
-	moduleDir                  = "x"
-	wasmVersionCommitLaunchpad = "b30902fe1fbe5237763775950f729b90bf34d53f"
-	wasmVersionCommitStargate  = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
+	wasmImport                = "github.com/CosmWasm/wasmd"
+	apppkg                    = "app"
+	moduleDir                 = "x"
+	wasmVersionCommitStargate = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
 )
 
 // moduleCreationOptions holds options for creating a new module
@@ -46,7 +44,7 @@ type moduleCreationOptions struct {
 	ibcChannelOrdering string
 }
 
-// Option configures Chain.
+// ModuleCreationOption configures Chain.
 type ModuleCreationOption func(*moduleCreationOptions)
 
 // WithIBC scaffolds a module with IBC enabled
@@ -72,12 +70,6 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOption) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
-
 	// Apply the options
 	var creationOpts moduleCreationOptions
 	for _, apply := range options {
@@ -99,11 +91,6 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	// Check if the IBC module can be scaffolded
 	if creationOpts.ibc {
-		// Cannot scaffold IBC module for Launchpad
-		if majorVersion == cosmosver.Launchpad {
-			return errors.New("launchpad doesn't support IBC")
-		}
-
 		// Old scaffolded apps miss a necessary placeholder, we give instruction for the change
 		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
 		if err != nil {
@@ -127,12 +114,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 		}
 	)
 
-	// Generator from Cosmos SDK version
-	if majorVersion == cosmosver.Launchpad {
-		g, err = module_create.NewLaunchpad(opts)
-	} else {
-		g, err = module_create.NewStargate(opts)
-	}
+	g, err = module_create.NewStargate(opts)
 	if err != nil {
 		return err
 	}
@@ -160,7 +142,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath); err != nil {
 		return err
 	}
 	return fmtProject(pwd)
@@ -173,11 +155,6 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
 	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
@@ -187,8 +164,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 
 	// import a specific version of ComsWasm
-	err = installWasm(version)
-	if err != nil {
+	if err := installWasm(); err != nil {
 		return err
 	}
 
@@ -198,19 +174,11 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 
 	// run generator
-	var g *genny.Generator
-	if majorVersion == cosmosver.Launchpad {
-		g, err = module_import.NewLaunchpad(&module_import.ImportOptions{
-			Feature: name,
-			AppName: path.Package,
-		})
-	} else {
-		g, err = module_import.NewStargate(&module_import.ImportOptions{
-			Feature:          name,
-			AppName:          path.Package,
-			BinaryNamePrefix: path.Root,
-		})
-	}
+	g, err := module_import.NewStargate(&module_import.ImportOptions{
+		Feature:          name,
+		AppName:          path.Package,
+		BinaryNamePrefix: path.Root,
+	})
 
 	if err != nil {
 		return err
@@ -264,39 +232,20 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func installWasm(version cosmosver.Version) error {
-	switch version {
-	case cosmosver.LaunchpadAny:
-		return cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(os.Stderr),
-			).
-			Run(context.Background(),
-				step.New(
-					step.Exec(
-						gocmd.Name(),
-						"get",
-						wasmImport+"@"+wasmVersionCommitLaunchpad,
-					),
+func installWasm() error {
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					gocmd.Name(),
+					"get",
+					wasmImport+"@"+wasmVersionCommitStargate,
 				),
-			)
-	case cosmosver.StargateZeroFourtyAndAbove:
-		return cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(os.Stderr),
-			).
-			Run(context.Background(),
-				step.New(
-					step.Exec(
-						gocmd.Name(),
-						"get",
-						wasmImport+"@"+wasmVersionCommitStargate,
-					),
-				),
-			)
-	default:
-		return errors.New("version not supported")
-	}
+			),
+		)
 }
 
 // checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter

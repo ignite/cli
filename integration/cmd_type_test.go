@@ -11,7 +11,7 @@ import (
 func TestGenerateAnAppWithLaunchpadWithTypeAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a type",
@@ -81,7 +81,7 @@ func TestGenerateAnAppWithLaunchpadWithTypeAndVerify(t *testing.T) {
 func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a type",
@@ -158,7 +158,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 func TestCreateTypeInCustomModuleWithLaunchpad(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",
@@ -212,7 +212,7 @@ func TestCreateTypeInCustomModuleWithLaunchpad(t *testing.T) {
 func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",
@@ -265,7 +265,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 func TestCreateIndexTypeWithStargate(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create an indexed type",

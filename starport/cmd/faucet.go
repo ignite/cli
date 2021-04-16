@@ -18,7 +18,7 @@ func NewFaucet() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  faucetHandler,
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c

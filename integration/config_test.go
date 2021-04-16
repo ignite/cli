@@ -14,19 +14,10 @@ import (
 )
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
-	for _, sdkVersion := range []string{Launchpad, Stargate} {
-		sdkVersion := sdkVersion
-		t.Run(sdkVersion, func(t *testing.T) {
-			testOverwriteSDKConfigsAndChainID(t, sdkVersion)
-		})
-	}
-}
-
-func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 	var (
 		env               = newEnv(t)
 		appname           = randstr.Runes(10)
-		path              = env.Scaffold(appname, sdkVersion)
+		path              = env.Scaffold(appname)
 		servers           = env.RandomizeServerPorts(path, "")
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error
@@ -47,7 +38,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve", path, "", "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	configs := []struct {
@@ -63,7 +54,7 @@ func testOverwriteSDKConfigsAndChainID(t *testing.T, sdkVersion string) {
 
 	for _, c := range configs {
 		var conf map[string]interface{}
-		cf := confile.New(c.ec, filepath.Join(env.AppdHome(appname, sdkVersion), c.relpath))
+		cf := confile.New(c.ec, filepath.Join(env.AppdHome(appname), c.relpath))
 		require.NoError(t, cf.Load(&conf))
 		require.Equal(t, c.expectedVal, conf[c.key])
 	}

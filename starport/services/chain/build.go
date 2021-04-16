@@ -12,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
@@ -134,10 +133,6 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 
 	addInstallStep(binary, filepath.Join(cmdPath, c.app.D()))
 
-	if c.Version.Major().Is(cosmosver.Launchpad) {
-		addInstallStep(c.BinaryCLI(), filepath.Join(cmdPath, c.app.CLI()))
-	}
-
 	return steps, nil
 }
 
@@ -145,10 +140,6 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	conf, err := c.Config()
 	if err != nil {
 		return err
-	}
-
-	if c.Version.Major().Is(cosmosver.Launchpad) {
-		return nil
 	}
 
 	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
