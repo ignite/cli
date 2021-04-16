@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 
@@ -148,9 +147,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return err
 	}
 
-	// If proto dir exists, compile the proto files.
-	protoPath := filepath.Join(c.app.Path, conf.Build.Proto.Path)
-	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
+	if c.Version.Major().Is(cosmosver.Launchpad) {
 		return nil
 	}
 

@@ -12,7 +12,7 @@ import (
 type typedStargate struct {
 }
 
-// New ...
+// NewStargate returns the generator to scaffold a new type in a Stargate module
 func NewStargate(opts *Options) (*genny.Generator, error) {
 	t := typedStargate{}
 	g := genny.New()
