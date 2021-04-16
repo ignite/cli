@@ -15,7 +15,14 @@ var (
 	//go:embed stargate/component/* stargate/component/**/*
 	fsStargateComponent embed.FS
 
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
+
+	// stargateIndexedComponentTemplate allows to scaffold a new indexed type component in a Stargate module
 	stargateIndexedComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+
+	// stargateIndexedMessagesTemplate allows to scaffold indexed type CRUD messages in a Stargate module
+	stargateIndexedMessagesTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/messages/")
 )
 
 // New ...
@@ -29,6 +36,18 @@ func NewStargate(opts *typed.Options) (*genny.Generator, error) {
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(genesisTypesModify(opts))
 	g.RunFn(genesisModuleModify(opts))
+
+	// Modifications for new messages
+	if !opts.NoMessage {
+		g.RunFn(protoTxModify(opts))
+		g.RunFn(handlerModify(opts))
+		g.RunFn(clientCliTxModify(opts))
+		g.RunFn(typesCodecModify(opts))
+
+		if err := typed.Box(stargateIndexedMessagesTemplate, opts, g); err != nil {
+			return nil, err
+		}
+	}
 
 	return g, typed.Box(stargateIndexedComponentTemplate, opts, g)
 }
@@ -263,6 +282,157 @@ for _, elem := range %[2]vList {
 			strings.Title(opts.TypeName),
 		)
 		content = strings.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func protoTxModify(opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Import
+		templateImport := `%s
+import "%s/%s.proto";`
+		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
+			opts.ModuleName,
+			opts.TypeName,
+		)
+		content := strings.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport, 1)
+
+		// RPC service
+		templateRPC := `%[1]v
+  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+  rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
+  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
+			strings.Title(opts.TypeName),
+		)
+		content = strings.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC, 1)
+
+		// Messages
+		var fields string
+		for i, field := range opts.Fields {
+			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
+		}
+
+		templateMessages := `%[1]v
+message MsgCreate%[2]v {
+  string creator = 1;
+  string index = 2;
+%[3]v}
+message MsgCreate%[2]vResponse { }
+
+message MsgUpdate%[2]v {
+  string creator = 1;
+  string index = 2;
+%[3]v}
+message MsgUpdate%[2]vResponse { }
+
+message MsgDelete%[2]v {
+  string creator = 1;
+  string index = 2;
+}
+message MsgDelete%[2]vResponse { }
+`
+		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
+			strings.Title(opts.TypeName),
+			fields,
+		)
+		content = strings.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages, 1)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func handlerModify(opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Set once the MsgServer definition if it is not defined yet
+		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
+		content := strings.Replace(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer, 1)
+
+		templateHandlers := `%[1]v
+		case *types.MsgCreate%[2]v:
+					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgUpdate%[2]v:
+					res, err := msgServer.Update%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+		case *types.MsgDelete%[2]v:
+					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
+					return sdk.WrapServiceResult(ctx, res, err)
+`
+		replacementHandlers := fmt.Sprintf(templateHandlers,
+			typed.Placeholder,
+			strings.Title(opts.TypeName),
+		)
+		content = strings.Replace(content, typed.Placeholder, replacementHandlers, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func clientCliTxModify(opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+		template := `%[1]v
+	cmd.AddCommand(CmdCreate%[2]v())
+	cmd.AddCommand(CmdUpdate%[2]v())
+	cmd.AddCommand(CmdDelete%[2]v())
+`
+		replacement := fmt.Sprintf(template, typed.Placeholder, strings.Title(opts.TypeName))
+		content := strings.Replace(f.String(), typed.Placeholder, replacement, 1)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func typesCodecModify(opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Import
+		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
+		content := strings.Replace(f.String(), typed.Placeholder, replacementImport, 1)
+
+		// Concrete
+		templateConcrete := `%[1]v
+cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
+cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
+`
+		replacementConcrete := fmt.Sprintf(templateConcrete, typed.Placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
+		content = strings.Replace(content, typed.Placeholder2, replacementConcrete, 1)
+
+		// Interface
+		templateInterface := `%[1]v
+registry.RegisterImplementations((*sdk.Msg)(nil),
+	&MsgCreate%[2]v{},
+	&MsgUpdate%[2]v{},
+	&MsgDelete%[2]v{},
+)`
+		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, strings.Title(opts.TypeName))
+		content = strings.Replace(content, typed.Placeholder3, replacementInterface, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
