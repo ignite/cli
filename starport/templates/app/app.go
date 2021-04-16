@@ -28,7 +28,7 @@ var (
 	}
 )
 
-// New ...
+// New returns the generator to scaffold a new Cosmos SDK app
 func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 	if err := g.Box(templates[sdkVersion]); err != nil {

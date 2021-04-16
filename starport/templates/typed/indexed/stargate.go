@@ -18,7 +18,7 @@ var (
 	stargateIndexedTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
-// New ...
+// NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(opts *typed.Options) (*genny.Generator, error) {
 	g := genny.New()
 
