@@ -1,6 +1,6 @@
 package modulecreate
 
-// CreateOptions ...
+// CreateOptions represents the options to scaffold a Cosmos SDK module
 type CreateOptions struct {
 	ModuleName string
 	ModulePath string

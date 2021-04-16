@@ -126,9 +126,9 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	// Generator from Cosmos SDK version
 	if majorVersion == cosmosver.Launchpad {
-		g, err = modulecreate.NewCreateLaunchpad(opts)
+		g, err = modulecreate.NewLaunchpad(opts)
 	} else {
-		g, err = modulecreate.NewCreateStargate(opts)
+		g, err = modulecreate.NewStargate(opts)
 	}
 	if err != nil {
 		return err
@@ -197,12 +197,12 @@ func (s *Scaffolder) ImportModule(name string) error {
 	// run generator
 	var g *genny.Generator
 	if majorVersion == cosmosver.Launchpad {
-		g, err = moduleimport.NewImportLaunchpad(&moduleimport.ImportOptions{
+		g, err = moduleimport.NewLaunchpad(&moduleimport.ImportOptions{
 			Feature: name,
 			AppName: path.Package,
 		})
 	} else {
-		g, err = moduleimport.NewImportStargate(&moduleimport.ImportOptions{
+		g, err = moduleimport.NewStargate(&moduleimport.ImportOptions{
 			Feature:          name,
 			AppName:          path.Package,
 			BinaryNamePrefix: path.Root,

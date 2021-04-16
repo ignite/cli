@@ -7,7 +7,7 @@ import (
 	"github.com/gobuffalo/genny"
 )
 
-// New ...
+// NewStargate returns the generator to scaffold a empty message in a Stargate module
 func NewStargate(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 

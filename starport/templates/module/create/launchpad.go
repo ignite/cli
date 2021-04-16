@@ -11,8 +11,8 @@ import (
 	"github.com/gobuffalo/plushgen"
 )
 
-// New ...
-func NewCreateLaunchpad(opts *CreateOptions) (*genny.Generator, error) {
+// NewLaunchpad returns the generator to scaffold a module inside a Launchpad app
+func NewLaunchpad(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(appModifyLaunchpad(opts))

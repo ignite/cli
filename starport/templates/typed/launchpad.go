@@ -11,7 +11,7 @@ import (
 type typedLaunchpad struct {
 }
 
-// New ...
+// NewLaunchpad returns the generator to scaffold a new type in a Launchpad module
 func NewLaunchpad(opts *Options) (*genny.Generator, error) {
 	t := typedLaunchpad{}
 	g := genny.New()
