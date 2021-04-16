@@ -11,8 +11,8 @@ import (
 	"github.com/gobuffalo/plushgen"
 )
 
-// New ...
-func NewImportLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
+// NewLaunchpad returns the generator to scaffold code to import wasm module inside a Launchpad app
+func NewLaunchpad(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyLaunchpad(opts))
 	g.RunFn(exportModifyLaunchpad(opts))
