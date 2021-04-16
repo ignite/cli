@@ -88,7 +88,7 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	// Launchpad module template is self contained in the application template
 	// so we don't run this part if version is Launchpad
 	if !s.options.sdkVersion.Is(cosmosver.Launchpad) {
-		g, err = modulecreate.NewCreateStargate(&modulecreate.CreateOptions{
+		g, err = modulecreate.NewStargate(&modulecreate.CreateOptions{
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
