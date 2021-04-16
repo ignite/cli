@@ -1,8 +1,10 @@
 package gomodule
 
 import (
+	"errors"
 	"fmt"
 	"go/build"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -11,16 +13,22 @@ import (
 	"golang.org/x/mod/module"
 )
 
+// ErrGoModNotFound returned when go.mod file cannot be found for an app.
+var ErrGoModNotFound = errors.New("go.mod not found")
+
 // ParseAt finds and parses go.mod at app's path.
 func ParseAt(path string) (*modfile.File, error) {
 	gomod, err := ioutil.ReadFile(filepath.Join(path, "go.mod"))
 	if err != nil {
+		if errors.Is(err, fs.ErrNotExist) {
+			return nil, ErrGoModNotFound
+		}
 		return nil, err
 	}
 	return modfile.Parse("", gomod, nil)
 }
 
-// FilterRequire filters dependencies under require section by their paths.
+// FilterVersions filters dependencies under require section by their paths.
 func FilterVersions(dependencies []module.Version, paths ...string) []module.Version {
 	var filtered []module.Version
 

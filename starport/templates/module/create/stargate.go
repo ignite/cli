@@ -11,8 +11,8 @@ import (
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
-// New ...
-func NewCreateStargate(opts *CreateOptions) (*genny.Generator, error) {
+// NewStargate returns the generator to scaffold a module inside a Stargate app
+func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	g.RunFn(appModifyStargate(opts))

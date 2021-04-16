@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
-// New ...
+// NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
 func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
