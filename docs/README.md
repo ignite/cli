@@ -4,11 +4,11 @@
 
 ## Table of Contents 🔎
 
-1. [Introduction](1%20Introduction/1%20Introduction.md)
-2. [Start a Blockchain](2%20Run%20a%20Blockchain/1%20Start%20a%20Blockchain.md)
-3. [Scaffold a Blockchain](3%20Scaffold%20a%20Blockchain/1%20Introduction.md)
-4. [Configure a Blockchain](4%20Configure%20a%20Blockchain/1%20Configuration.md)
-5. [IBC and Relayer](5%20IBC%20and%20Relayer/1%20Relayer.md)
-6. [Protocol Buffer Files](6%20Protocol%20Buffer%20Files/1%20Overview.md)
-7. [Frontend](7%20Frontend/1%20Overview.md)
-8. [Extra](99%20Extra/1%20Adding%20Support%20for%20CosmWasm.md)
+1. [Introduction](1-Introduction/1-Introduction.md)
+2. [Start a Blockchain](2-Run-a-Blockchain/1-Start-a-Blockchain.md)
+3. [Scaffold a Blockchain](3-Scaffold-a-Blockchain/1-Introduction.md)
+4. [Configure a Blockchain](4-Configure-a-Blockchain/1-Configuration.md)
+5. [IBC and Relayer](5-IBC-and-Relayer/1-Relayer.md)
+6. [Protocol Buffer Files](6-Protocol-Buffer-Files/1-Overview.md)
+7. [Frontend](7-Frontend/1-Overview.md)
+8. [Extra](99-Extra/1-Adding-Support-for-CosmWasm.md)

@@ -159,4 +159,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See (3 Genesis Parameters)[./3%20Configure%20a%20Blockchain/3%20Genesis%20Parameters.md].
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [3 Genesis Parameters](./3-Configure-a-Blockchain/3-Genesis-Parameters.html).
