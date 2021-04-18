@@ -13,10 +13,8 @@ tasks:
 
     init: |
       # Install Starport
-      export BIN_PATH=$GOPATH/bin
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
-      mkdir -p $BIN_PATH
       (cd /workspace/starport && go install ./...)
 
     command: |
