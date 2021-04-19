@@ -22,6 +22,9 @@ tasks:
       export CHISEL_ADDR=$(gp url 7575)
       export RPC_ADDRESS=$(gp url 26657):443
       export API_ADDRESS=$(gp url 1317)
+      export VUE_APP_API_COSMOS=$API_ADDRESS
+      export VUE_APP_API_TENDERMINT=$RPC_ADDRESS
+      export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}
       cd ./docs
 
       clear && printf '\e[3J'
