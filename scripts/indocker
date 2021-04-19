@@ -20,12 +20,10 @@ RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
     apt-get install -y nodejs
 
 RUN echo '\n\
-export GOPATH=/go \n\
-export PATH=\$PATH:\$GOPATH/bin \n\
 alias a="cd /apps" \n\
-alias s="cd \$GOPATH/src/github.com/tendermint/starport" \n\
+alias s="cd /src " \n\
 alias c="(cd && GLOBIGNORE='.bashrc:.cache:.config:.npm:.profile'; rm -rf *) && rm -rf /apps/*" \n\
-alias i="(s && make install)"' > ~/.bashrc
+alias i="(s && go install ./...)"' > ~/.bashrc
 EOF
 }
 
@@ -39,7 +37,7 @@ function run {
         -p 8080:8080 \
         -p 26657:26657 \
         -p 1317:1317 \
-        -v $PWD:/go/src/github.com/tendermint/starport \
+        -v $PWD:/src \
         -v $PWD/apps:/apps \
         starport /bin/bash -c "trap : TERM INT; sleep infinity & wait" \
             > /dev/null

@@ -15,8 +15,11 @@ import (
 // these needs to be created in the compiler time, otherwise packr2 won't be
 // able to find boxes.
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
+
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
 
 	//go:embed stargate_legacy/* stargate_legacy/**/*
 	fsStargateLegacy embed.FS
@@ -24,9 +27,17 @@ var (
 	//go:embed launchpad/* launchpad/**/*
 	fsLaunchpad embed.FS
 
-	stargateTemplate       = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	// stargateComponentTemplate is the template for a Stargate module type component
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+
+	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
+	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
+
+	// stargateLegacyTemplate is the template for a Stargate module legacy type (no MsgServer convention)
 	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
-	launchpadTemplate      = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+
+	// stargateComponentTemplate is the template for a Launchpad module type
+	launchpadTemplate = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
