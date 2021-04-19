@@ -25,6 +25,14 @@ tasks:
       export VUE_APP_API_COSMOS=$API_ADDRESS
       export VUE_APP_API_TENDERMINT=$RPC_ADDRESS
       export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}
+      
+      echo "export VUE_APP_CUSTOM_URL=$VUE_APP_CUSTOM_URL" >> ~/.bashrc
+      echo "export CHISEL_ADDR=$CHISEL_ADDR" >> ~/.bashrc
+      echo "export RPC_ADDRESS=$RPC_ADDRESS" >> ~/.bashrc
+      echo "export API_ADDRESS=$API_ADDRESS" >> ~/.bashrc
+      echo "export VUE_APP_API_COSMOS=$VUE_APP_API_COSMOS" >> ~/.bashrc
+      echo "export VUE_APP_API_TENDERMINT=$VUE_APP_API_TENDERMINT" >> ~/.bashrc
+      echo "export VUE_APP_WS_TENDERMINT=$VUE_APP_WS_TENDERMINT" >> ~/.bashrc
       cd ./docs
 
       clear && printf '\e[3J'
