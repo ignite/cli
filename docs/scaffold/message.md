@@ -1,3 +1,8 @@
+---
+order: 5
+description: Generate and modify message files and directories.
+---
+
 # Message Scaffold
 
 Cosmos SDK messages modify the state of a blockchain. Messages are bundled into transactions, broadcasted transactions are bundled into blocks, and blocks make a blockchain.

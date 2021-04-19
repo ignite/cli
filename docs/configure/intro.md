@@ -1,3 +1,8 @@
+---
+order: 1
+description: Overview of configuration for Starport-launched blockchains
+---
+
 # Configuration
 
 For every new blockchain that is launched with Starport, a `config.yml` file is created in the blockchain directory. The `config.yml` file describes the development environment for your blockchain.
@@ -23,7 +28,7 @@ validator:
 
 To bootstrap your blockchain with changes, you can change values for parameters in the generated `config.yml` and add parameters
 
-For parameter details, see (config.yml Reference)[2%20config.yml%20Reference.md].
+For parameter details, see [config.yml Reference](./reference.md).
 
 ## Changes to `config.yml`
 

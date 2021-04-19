@@ -1,3 +1,8 @@
+---
+order: 1
+description: Protocol buffer file support in Starport
+---
+
 # Protocol Buffer Files Overview
 
 Protocol buffer files define the data structures used by Cosmos SDK modules. 
