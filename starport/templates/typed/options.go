@@ -16,6 +16,7 @@ type Options struct {
 	TypeName   string
 	Fields     []Field
 	Legacy     bool
+	NoMessage  bool
 }
 
 // Validate that options are usuable

@@ -19,7 +19,7 @@ starport serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](/docs/README.md). To learn more about how to customize your blockchain see `config.yml` [reference](/docs/2%20Architecture/5%20Configuration.md). To install Starport locally on GNU/Linux or macOS, follow [these steps](/docs/1%20Introduction/2%20Install.md).
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/4%20Configure%20a%20Blockchain/2%20config.yml%20Reference.html). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/1%20Introduction/2%20Install.html).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [`tendermint/vue`](https://github.com/tendermint/vue).
 
