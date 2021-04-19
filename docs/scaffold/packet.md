@@ -1,3 +1,7 @@
+---
+order: 6
+---
+
 # Packet Scaffold
 
 An IBC packet is a data structure with sequence-related metadata and an opaque value field referred to as the packet data. The packet semantics are defined by the application layer, for example, token amount and denomination. Packets are sent through [IBC channels](https://docs.cosmos.network/master/ibc/overview.html) and can only be scaffolded in IBC modules.

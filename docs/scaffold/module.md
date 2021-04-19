@@ -1,3 +1,7 @@
+---
+order: 4
+---
+
 # Module Scaffold
 
 Modules are building blocks of Cosmos SDK blockchains. They encapsulate logic and allow sharing functionality between projects. Learn more about [building modules](https://github.com/cosmos/cosmos-sdk/tree/master/docs/building-modules).

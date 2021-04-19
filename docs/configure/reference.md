@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # config.yml Reference
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain.
@@ -51,8 +55,8 @@ accounts:
 
 ## `build`
 
-| Key    | Required | Type   | Description                                                                     |
-| ------ | -------- | ------ | ------------------------------------------------------------------------------- |
+| Key    | Required | Type   | Description                                                    |
+| ------ | -------- | ------ | -------------------------------------------------------------- |
 | binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 ### Example

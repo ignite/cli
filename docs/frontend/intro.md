@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # Frontend Overview
 
 A Vue frontend app is created in `vue` directory when a blockchain is scaffolded. If the `vue` directory exists, the `starport serve` command automatically runs `npm run serve`.

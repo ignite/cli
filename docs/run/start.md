@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # Start a Blockchain
 
 One of your first actions is to start your blockchain. To start your blockchain, use the `starport serve` command.

@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # IBC Scaffold
 
 Starport supports IBC-specifc scaffolding.

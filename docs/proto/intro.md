@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # Protocol Buffer Files Overview
 
 Protocol buffer files define the data structures used by Cosmos SDK modules. 

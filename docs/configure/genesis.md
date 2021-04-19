@@ -1,3 +1,7 @@
+---
+order: 3
+---
+
 # Genesis overwrites for development
 
 The `genesis.json` file for the new blockchain is automatically created from the `config.yml` file.

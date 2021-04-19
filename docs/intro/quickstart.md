@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # Quickstart
 
 Use these three commands to build, start, and add features to your first blockchain.

@@ -1,3 +1,7 @@
+---
+order: 3
+---
+
 # Install Starport
 
 You can run Starport in a web-based Gitpod IDE or you can install Starport on your local computer.

@@ -1,3 +1,7 @@
+---
+order: 1
+---
+
 # Configuration
 
 For every new blockchain that is launched with Starport, a `config.yml` file is created in the blockchain directory. The `config.yml` file describes the development environment for your blockchain.

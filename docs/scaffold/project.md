@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # Project Scaffold Reference
 
 The `starport app` command scaffolds a new Cosmos SDK blockchain project.
