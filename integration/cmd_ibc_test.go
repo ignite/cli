@@ -105,6 +105,13 @@ func TestCreateIBCPacket(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a packet with no send message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "packet", "nomessage", "foo", "--no-message", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a packet with no field",
 		step.NewSteps(step.New(
 			step.Exec("starport", "packet", "empty", "--module", "foo"),
