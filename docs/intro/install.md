@@ -13,14 +13,10 @@ Local Starport installation requires the follow software be installed and runnin
 
 - [Golang >=1.16](https://golang.org/)
 
-  Make sure that your `$PATH` includes `$HOME/go/bin` with `export PATH=$PATH:$HOME/go/bin`.
-
 - [Node.js >=12.19.0](https://nodejs.org/)
 
 
 ## Installing Starport with cURL
-
-To install Starport with cURL:
 
 ```
 curl https://get.starport.network/starport! | bash
@@ -46,26 +42,11 @@ sudo mv starport /usr/local/bin/
 
 ## Installing Starport on macOS with Homebrew
 
-To install Starport on macOS with Homebrew:
-
 ```
 brew install tendermint/tap/starport
 ```
 
 ## Build from source
-
-You can build and install the precompiled `starport` binary into `$GOBIN`.
-
-When building from source, you must set your `$GOPATH` environment variable.
-
-To set `$GOPATH` environment variable:
-
-```
-mkdir ~/go
-export GOPATH=~/go
-```
-
-To install the precompiled `starport` binary, run this command:
 
 ```
 git clone https://github.com/tendermint/starport --depth=1

@@ -26,8 +26,9 @@ const (
 )
 
 type AddTypeOption struct {
-	Legacy  bool
-	Indexed bool
+	Legacy    bool
+	Indexed   bool
+	NoMessage bool
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
@@ -84,6 +85,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
+			NoMessage:  addTypeOptions.NoMessage,
 		}
 	)
 	// generate depending on the version
@@ -109,6 +111,12 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			if !msgServerDefined {
 				opts.Legacy = true
 			}
+
+			// Can't use no message option for legacy types
+			if opts.Legacy && opts.NoMessage {
+				return errors.New("legacy types cannot by scaffolded with no message option")
+			}
+
 			g, err = typed.NewStargate(opts)
 		}
 	}
