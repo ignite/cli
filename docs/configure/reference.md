@@ -1,3 +1,8 @@
+---
+order: 2
+description: Primary configuration file to describe the development environment for your blockchain.
+---
+
 # config.yml Reference
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain.
@@ -51,8 +56,8 @@ accounts:
 
 ## `build`
 
-| Key    | Required | Type   | Description                                                                     |
-| ------ | -------- | ------ | ------------------------------------------------------------------------------- |
+| Key    | Required | Type   | Description                                                    |
+| ------ | -------- | ------ | -------------------------------------------------------------- |
 | binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 ### Example
@@ -159,4 +164,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See (3 Genesis Parameters)[./3%20Configure%20a%20Blockchain/3%20Genesis%20Parameters.md].
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Parameters](./genesis.md).

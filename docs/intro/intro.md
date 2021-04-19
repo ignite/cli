@@ -1,3 +1,8 @@
+---
+order: 1
+description: Overview of the developer-friendly interface to the Cosmos SDK
+---
+
 # Introduction to Starport
 
 Starport is a developer-friendly interface to the Cosmos SDK.

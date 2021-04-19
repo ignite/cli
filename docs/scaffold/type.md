@@ -1,3 +1,8 @@
+---
+order: 3
+description: Generate the files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
+---
+
 # Type Scaffold Reference
 
 The `starport type` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.

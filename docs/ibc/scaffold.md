@@ -1,3 +1,8 @@
+---
+order: 2
+description: Add inter-blockchain communication (IBC) logic to your blockchain.
+---
+
 # IBC Scaffold
 
 Starport supports IBC-specifc scaffolding.
