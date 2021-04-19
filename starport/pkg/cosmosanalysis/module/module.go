@@ -100,6 +100,9 @@ func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
+		if err == gomodule.ErrGoModNotFound {
+			return []Module{}, nil
+		}
 		return nil, err
 	}
 

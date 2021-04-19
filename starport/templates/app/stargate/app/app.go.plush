@@ -82,9 +82,6 @@ import (
 	tmjson "github.com/tendermint/tendermint/libs/json"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	appparams "<%= ModulePath %>/app/params"
-	"<%= ModulePath + "/x/" + AppName %>"
-	<%= AppName %>keeper "<%= ModulePath %>/x/<%= AppName %>/keeper"
-	<%= AppName %>types "<%= ModulePath %>/x/<%= AppName %>/types"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
@@ -131,7 +128,6 @@ var (
 		evidence.AppModuleBasic{},
 		transfer.AppModuleBasic{},
 		vesting.AppModuleBasic{},
-		<%= AppName %>.AppModuleBasic{},
 		// this line is used by starport scaffolding # stargate/app/moduleBasic
 	)
 
@@ -198,7 +194,6 @@ type App struct {
 	ScopedIBCKeeper      capabilitykeeper.ScopedKeeper
 	ScopedTransferKeeper capabilitykeeper.ScopedKeeper
 
-	<%= AppName %>Keeper <%= AppName %>keeper.Keeper
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
 	// the module manager
@@ -228,7 +223,6 @@ func New(
 		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
 		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
 		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-        <%= AppName %>types.StoreKey,
 		// this line is used by starport scaffolding # stargate/app/storeKey
 	)
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
@@ -319,10 +313,6 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	app.<%= AppName %>Keeper = *<%= AppName %>keeper.NewKeeper(
-        appCodec, keys[<%= AppName %>types.StoreKey], keys[<%= AppName %>types.MemStoreKey],
-	)
-
 	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
     app.GovKeeper = govkeeper.NewKeeper(
@@ -365,7 +355,6 @@ func New(
 		ibc.NewAppModule(app.IBCKeeper),
 		params.NewAppModule(app.ParamsKeeper),
 		transferModule,
-		<%= AppName %>.NewAppModule(appCodec, app.<%= AppName %>Keeper),
 		// this line is used by starport scaffolding # stargate/app/appModule
 	)
 
@@ -399,7 +388,6 @@ func New(
 		genutiltypes.ModuleName,
 		evidencetypes.ModuleName,
 		ibctransfertypes.ModuleName,
-		<%= AppName %>types.ModuleName,
 		// this line is used by starport scaffolding # stargate/app/initGenesis
 	)
 
