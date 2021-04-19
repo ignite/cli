@@ -1,5 +1,6 @@
 ---
 order: 3
+description: Generate the files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
 ---
 
 # Type Scaffold Reference

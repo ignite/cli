@@ -1,5 +1,6 @@
 ---
 order: 2
+description: Overview of a new Cosmos SDK blockchain project built with Starport.
 ---
 
 # Project Scaffold Reference

@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Protocol buffer file support in Starport
 ---
 
 # Protocol Buffer Files Overview

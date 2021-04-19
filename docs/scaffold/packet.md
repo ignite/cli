@@ -1,5 +1,6 @@
 ---
 order: 6
+description: IBC packet data structure and packet semantic reference.
 ---
 
 # Packet Scaffold

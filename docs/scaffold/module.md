@@ -1,5 +1,6 @@
 ---
 order: 4
+description: Generate code for new modules in your blockchain.
 ---
 
 # Module Scaffold

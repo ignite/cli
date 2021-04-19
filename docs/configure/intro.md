@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Overview of configuration for Starport-launched blockchains
 ---
 
 # Configuration

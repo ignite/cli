@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Overview of the developer-friendly interface to the Cosmos SDK
 ---
 
 # Introduction to Starport

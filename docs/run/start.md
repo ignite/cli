@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Use the Starport serve command to start your blockchain.
 ---
 
 # Start a Blockchain

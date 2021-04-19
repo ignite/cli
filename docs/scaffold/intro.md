@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Generate code to create a blockchain from scratch.
 ---
 
 # Scaffold a Blockchain

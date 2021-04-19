@@ -9,7 +9,7 @@
 1. [Introduction](intro/intro.md)
 2. [Start a Blockchain](run/start.md)
 3. [Scaffold a Blockchain](scaffold/intro.md)
-4. [Configure a Blockchain](configure/configuration.md)
+4. [Configure a Blockchain](configure/intro.md)
 5. [IBC and Relayer](ibc/relayer.md)
 6. [Protocol Buffer Files](proto/intro.md)
 7. [Frontend](frontend/intro.md)

@@ -1,5 +1,6 @@
 ---
 order: 1
+description: IBC relayer to connect local and remote blockchains.
 ---
 
 # Relayer

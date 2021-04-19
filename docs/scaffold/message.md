@@ -1,5 +1,6 @@
 ---
 order: 5
+description: Generate and modify message files and directories.
 ---
 
 # Message Scaffold

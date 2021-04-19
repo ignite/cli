@@ -1,5 +1,6 @@
 ---
 order: 2
+description: Use commands to build, start, and add features to your first blockchain.
 ---
 
 # Quickstart

@@ -1,5 +1,6 @@
 ---
 order: 3
+description: Test different scenarios after the blockchain is created.
 ---
 
 # Genesis overwrites for development

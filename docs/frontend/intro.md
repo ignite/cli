@@ -1,5 +1,6 @@
 ---
 order: 1
+description: Details on the Vue frontend app created by Starport.
 ---
 
 # Frontend Overview
