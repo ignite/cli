@@ -28,7 +28,7 @@ validator:
 
 To bootstrap your blockchain with changes, you can change values for parameters in the generated `config.yml` and add parameters
 
-For parameter details, see [config.yml Reference](./2-config.yml-Reference.html).
+For parameter details, see [config.yml Reference](./reference.md).
 
 ## Changes to `config.yml`
 
