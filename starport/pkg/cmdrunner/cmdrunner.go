@@ -2,11 +2,13 @@ package cmdrunner
 
 import (
 	"context"
+	"fmt"
 	"io"
 	"os"
 	"os/exec"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -180,6 +182,7 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Stderr = stderr
 	c.Dir = dir
 	c.Env = append(os.Environ(), s.Env...)
+	c.Env = append(c.Env, os.ExpandEnv(fmt.Sprintf("PATH=$PATH:%s", goenv.GetGOBIN())))
 	w, err := c.StdinPipe()
 	if err != nil {
 		// TODO do not panic
