@@ -42,7 +42,7 @@ func (v MajorVersion) Is(comparedTo MajorVersion) bool {
 	return v == comparedTo
 }
 
-// Version represents a range of Cosmos-SDK versions.
+// Version represents a range of Cosmos SDK versions.
 type Version int
 
 func (v Version) Is(comparedTo Version) bool {
@@ -62,7 +62,7 @@ func (v Version) Major() MajorVersion {
 func (v Version) String() string {
 	switch v {
 	case StargateZeroFourtyAndAbove:
-		return "Stargate v0.40.0 (or above)"
+		return "Stargate v0.40.0 (or later)"
 
 	case StargateBelowZeroFourty:
 		return "Stargate v0.40.0 (pre-release)"
