@@ -284,7 +284,7 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create an indexed type with no message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email", "--indexed", "--no-message"),
+			step.Exec("starport", "type", "nomessage", "email", "--indexed", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
