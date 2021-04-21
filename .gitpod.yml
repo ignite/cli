@@ -16,6 +16,7 @@ tasks:
       ## install Starport
       go install /workspace/starport/...
 
+    command: |
       ##
       # configure env vars.
       echo "
@@ -31,9 +32,12 @@ tasks:
       export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}
       " >> ~/.bashrc && source ~/.bashrc
 
-    command: |
+      ## 
+      # open docs.
       cd ./docs
 
+      ##
+      # print a welcome message.
       clear && printf '\e[3J'
       echo -e "
 
