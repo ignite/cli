@@ -12,7 +12,7 @@ starport serve
 
 ## Configure
 
-Your blockchain in development can be configured with `config.yml`. To learn more, see the [Starport docs](https://github.com/tendermint/starport#documentation).
+Your blockchain in development can be configured with `config.yml`. To learn more, see the [Starport docs](https://docs.starport.network).
 
 ## Launch
 
