@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -64,8 +65,14 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 			return Account{}, err
 		}
 	} else {
+
+
 		// note that, launchpad prints account output from stderr.
-		if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.AddKeyCommand(name)); err != nil {
+		if err := r.run(ctx, runOptions{
+			stdout: b, // io.MultiWriter(b, os.Stdout),
+			stderr: os.Stderr, // io.MultiWriter(b, os.Stderr),
+			stdin: os.Stdin,
+		}, r.cc.AddKeyCommand(name)); err != nil {
 			return Account{}, err
 		}
 		if err := json.NewDecoder(b).Decode(&account); err != nil {
