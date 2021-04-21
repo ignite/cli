@@ -11,7 +11,7 @@ The `starport app` command scaffolds a new Cosmos SDK blockchain project.
 
 To build the planet application:
 
-```go
+```bash
 starport app github.com/hello/planet
 ```
 
