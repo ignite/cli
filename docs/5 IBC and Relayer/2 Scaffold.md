@@ -1,6 +1,6 @@
 # IBC Scaffold
 
-Starport supports IBC-specifc scaffolding.
+Starport supports IBC-specific scaffolding.
 
 To create a Cosmos SDK module with IBC logic:
 
