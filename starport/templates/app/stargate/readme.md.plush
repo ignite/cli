@@ -20,7 +20,8 @@ To launch your blockchain live on multiple nodes, use `starport network` command
 
 ## Learn more
 
-- [Starport](https://docs.cosmos.starport)
+- [Starport](https://github.com/tendermint/starport)
+- [Starport Docs](https://docs.starport.network)
 - [Cosmos SDK documentation](https://docs.cosmos.network)
 - [Cosmos SDK Tutorials](https://tutorials.cosmos.network)
 - [Discord](https://discord.gg/W8trcGV)
