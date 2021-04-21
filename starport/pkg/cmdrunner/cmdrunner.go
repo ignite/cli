@@ -210,15 +210,18 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Env = append(os.Environ(), s.Env...)
 	c.Env = append(c.Env, os.ExpandEnv(fmt.Sprintf("PATH=$PATH:%s", goenv.GetGOBIN())))
 
-	if r.stdin != nil {
-		c.Stdin = os.Stdin
-		return &cmdSignalNoWriter{c}
-	} else {
-		w, err := c.StdinPipe()
-		if err != nil {
-			// TODO do not panic
-			panic(err)
-		}
-		return &cmdSignal{c, w}
-	}
+	c.Stdin = os.Stdin
+	return &cmdSignalNoWriter{c}
+
+	//if r.stdin != nil {
+	//	c.Stdin = r.stdin
+	//	return &cmdSignalNoWriter{c}
+	//} else {
+	//	w, err := c.StdinPipe()
+	//	if err != nil {
+	//		// TODO do not panic
+	//		panic(err)
+	//	}
+	//	return &cmdSignal{c, w}
+	//}
 }
