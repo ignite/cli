@@ -12,34 +12,48 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
+// Runner is an object to run commands
 type Runner struct {
 	endSignal   os.Signal
 	stdout      io.Writer
 	stderr      io.Writer
+	stdin 		io.Reader
 	workdir     string
 	runParallel bool
 }
 
+// Option defines option to run commands
 type Option func(*Runner)
 
-func DefaultStdout(w io.Writer) Option {
+// DefaultStdout provides the default stdout for the commands to run
+func DefaultStdout(writer io.Writer) Option {
 	return func(r *Runner) {
-		r.stdout = w
+		r.stdout = writer
 	}
 }
 
-func DefaultStderr(w io.Writer) Option {
+// DefaultStderr provides the default stderr for the commands to run
+func DefaultStderr(writer io.Writer) Option {
 	return func(r *Runner) {
-		r.stderr = w
+		r.stderr = writer
 	}
 }
 
+// DefaultStdin provides the default stdin for the commands to run
+func DefaultStdin(reader io.Reader) Option {
+	return func(r *Runner) {
+		r.stdin = reader
+	}
+}
+
+// DefaultWorkdir provides the default working directory for the commands to run
 func DefaultWorkdir(path string) Option {
 	return func(r *Runner) {
 		r.workdir = path
 	}
 }
 
+// RunParallel allows the commands to run concurrently
 func RunParallel() Option {
 	return func(r *Runner) {
 		r.runParallel = true
@@ -53,6 +67,7 @@ func EndSignal(s os.Signal) Option {
 	}
 }
 
+// New returns a new commands runner
 func New(options ...Option) *Runner {
 	r := &Runner{
 		endSignal: os.Interrupt,
@@ -130,6 +145,7 @@ func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	return g.Wait()
 }
 
+// Executor is a command to execute
 type Executor interface {
 	Wait() error
 	Start() error
@@ -159,6 +175,16 @@ func (c *cmdSignal) Write(data []byte) (n int, err error) {
 	return c.w.Write(data)
 }
 
+type cmdSignalNoWriter struct {
+	*exec.Cmd
+}
+
+func (c *cmdSignalNoWriter) Signal(s os.Signal) { c.Cmd.Process.Signal(s) }
+
+func (c *cmdSignalNoWriter) Write(data []byte) (n int, err error) { return 0, nil }
+
+
+// newCommand returns a new command to execute
 func (r *Runner) newCommand(s *step.Step) Executor {
 	if s.Exec.Command == "" {
 		return &dummyExecutor{}
@@ -183,10 +209,16 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Dir = dir
 	c.Env = append(os.Environ(), s.Env...)
 	c.Env = append(c.Env, os.ExpandEnv(fmt.Sprintf("PATH=$PATH:%s", goenv.GetGOBIN())))
-	w, err := c.StdinPipe()
-	if err != nil {
-		// TODO do not panic
-		panic(err)
+
+	if r.stdin != nil {
+		c.Stdin = os.Stdin
+		return &cmdSignalNoWriter{c}
+	} else {
+		w, err := c.StdinPipe()
+		if err != nil {
+			// TODO do not panic
+			panic(err)
+		}
+		return &cmdSignal{c, w}
 	}
-	return &cmdSignal{c, w}
 }

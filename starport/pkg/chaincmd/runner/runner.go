@@ -102,6 +102,9 @@ type runOptions struct {
 
 	// stdout and stderr used to collect a copy of command's outputs.
 	stdout, stderr io.Writer
+
+	// stdin defines input for the command
+	stdin io.Reader
 }
 
 // run executes a command.
@@ -117,6 +120,7 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 		stderr io.Writer = lineprefixer.NewWriter(r.stderr, func() string { return r.cliLogPrefix })
 	)
 
+	// Set standard outputs
 	if roptions.stdout != nil {
 		stdout = io.MultiWriter(stdout, roptions.stdout)
 	}
@@ -129,6 +133,11 @@ func (r Runner) run(ctx context.Context, roptions runOptions, soptions ...step.O
 	rnoptions := []cmdrunner.Option{
 		cmdrunner.DefaultStdout(stdout),
 		cmdrunner.DefaultStderr(stderr),
+	}
+
+	// Set standard input if defined
+	if roptions.stdin != nil {
+		rnoptions = append(rnoptions, cmdrunner.DefaultStdin(roptions.stdin))
 	}
 
 	err := cmdrunner.
