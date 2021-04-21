@@ -25,3 +25,11 @@ The following files and directories are created and modified by scaffolding a mo
 The Inter-Blockchain Communication protocol (IBC) is an important part of the Cosmos SDK ecosystem.
 
 To include all the logic for the scaffolded IBC modules, use `--ibc` flag.
+
+## Create Module Example
+
+This example command scaffolds an -IBC-enable module named blog.
+
+```bash
+starport module create blog --ibc
+```
