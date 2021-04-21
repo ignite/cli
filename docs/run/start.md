@@ -27,6 +27,7 @@ The `starport serve` command performs the following tasks:
   - Web scaffold, optional
 
 - Watches for file changes and restarts
+
 - Exports state
 
 The `starport serve` command starts a fully operational blockchain. You can use flags to configure how the blockchain runs. All flags are optional.
