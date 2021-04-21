@@ -16,7 +16,7 @@ func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *typ
     // Check if the value already exists
     _, isFound := k.Get<%= title(TypeName) %>(ctx, msg.Index)
     if isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("index %d already set", msg.Index))
+        return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, fmt.Sprintf("index %v already set", msg.Index))
     }
 
     var <%= TypeName %> = types.<%= title(TypeName) %>{
@@ -38,7 +38,7 @@ func (k msgServer) Update<%= title(TypeName) %>(goCtx context.Context,  msg *typ
     // Check if the value exists
     valFound, isFound := k.Get<%= title(TypeName) %>(ctx, msg.Index)
     if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %d not set", msg.Index))
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %v not set", msg.Index))
     }
 
     // Checks if the the msg sender is the same as the current owner
@@ -63,7 +63,7 @@ func (k msgServer) Delete<%= title(TypeName) %>(goCtx context.Context,  msg *typ
     // Check if the value exists
     valFound, isFound := k.Get<%= title(TypeName) %>(ctx, msg.Index)
     if !isFound {
-        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %d not set", msg.Index))
+        return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("index %v not set", msg.Index))
     }
 
     // Checks if the the msg sender is the same as the current owner
