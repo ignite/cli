@@ -152,6 +152,13 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("create a type with no interaction message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "nomessage", "email", "--no-message"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
 
@@ -274,6 +281,14 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 			step.Workdir(path),
 		)),
 	))
+
+	env.Must(env.Exec("create an indexed type with no message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "nomessage", "email", "--indexed", "--no-message"),
+			step.Workdir(path),
+		)),
+	))
+
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(

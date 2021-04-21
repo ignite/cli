@@ -38,3 +38,4 @@ This example command scaffolds an -IBC-enable module named blog.
 ```bash
 starport module create blog --ibc
 ```
+

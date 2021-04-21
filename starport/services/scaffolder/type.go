@@ -11,12 +11,12 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/templates/typed/indexed"
-
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/tendermint/starport/starport/templates/typed/indexed"
 )
 
 const (
@@ -26,8 +26,9 @@ const (
 )
 
 type AddTypeOption struct {
-	Legacy  bool
-	Indexed bool
+	Legacy    bool
+	Indexed   bool
+	NoMessage bool
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
@@ -84,6 +85,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			TypeName:   typeName,
 			Fields:     tFields,
 			Legacy:     addTypeOptions.Legacy,
+			NoMessage:  addTypeOptions.NoMessage,
 		}
 	)
 	// generate depending on the version
@@ -94,21 +96,24 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 
 		g, err = typed.NewLaunchpad(opts)
 	} else {
+		// Check and support MsgServer convention
+		if err := supportMsgServer(
+			s.path,
+			&modulecreate.MsgServerOptions{
+				ModuleName: opts.ModuleName,
+				ModulePath: opts.ModulePath,
+				AppName:    opts.AppName,
+				OwnerName:  opts.OwnerName,
+			},
+		); err != nil {
+			return err
+		}
+
 		// Check if indexed type
 		if addTypeOptions.Indexed {
 			g, err = indexed.NewStargate(opts)
 		} else {
 			// Scaffolding a type with ID
-
-			// check if the msgServer convention is used
-			var msgServerDefined bool
-			msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-			if err != nil {
-				return err
-			}
-			if !msgServerDefined {
-				opts.Legacy = true
-			}
 			g, err = typed.NewStargate(opts)
 		}
 	}

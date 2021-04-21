@@ -1,8 +1,6 @@
 ---
 order: 2
-description: >-
-  Primary configuration file to describe the development environment for your
-  blockchain.
+description: Primary configuration file to describe the development environment for your blockchain.
 ---
 
 # config.yml Reference
@@ -11,15 +9,17 @@ The `config.yml` file generated in your blockchain folder uses key-value pairs t
 
 Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
 
+
 ## `accounts`
 
 A list of user accounts created during genesis of the blockc
 
-Key     | Required | Type            | Description
-------- | -------- | --------------- | --------------------------------------------------------------------------------------------------------------------------
-name    | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched.
-coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"
-address | N        | String          | Account address in Bech32 address format
+=======
+| Key     | Required | Type            | Description                                                                                                                |
+| ------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| name    | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched. |
+| coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
+| address | N        | String          | Account address in Bech32 address format                                                                                   |
 
 **accounts example**
 

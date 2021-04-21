@@ -64,3 +64,4 @@ This example command creates a `post` type with four fields: `title` and `body` 
 ```
 starport type post title body comments:bool count:int32 --module blog
 ```
+

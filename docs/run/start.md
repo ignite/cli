@@ -34,6 +34,7 @@ The `starport serve` command starts a fully operational blockchain. You can use 
 
 ## Define how your blockchain starts
 
+
 Flags for the `starport serve` command determine how your blockchain starts:
 
 `--config`, default is `config.yml`
@@ -54,7 +55,7 @@ Force code generation from proto files for custom and third-party modules. By de
 
 `--verbose`
 
-Enters verbose (detailed) mode with extensive logging.
+Enters verbose detailed mode with extensive logging.
 
 `--home`
 

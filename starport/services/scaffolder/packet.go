@@ -21,7 +21,13 @@ const (
 )
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetFields []string, ackFields []string) error {
+func (s *Scaffolder) AddPacket(
+	moduleName string,
+	packetName string,
+	packetFields []string,
+	ackFields []string,
+	noMessage bool,
+) error {
 	version, err := s.version()
 	if err != nil {
 		return err
@@ -91,6 +97,7 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 			PacketName: packetName,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
+			NoMessage:  noMessage,
 		}
 	)
 	g, err = ibc.NewPacket(opts)

@@ -37,4 +37,5 @@ Starport CLI has replaced the deprecated `scaffold` program.
 
 ## Step-by-Step Learning
 
-For learn new skills by using step-by-step processes, head over to the [Cosmos SDK Tutorials](https://tutorials.cosmos.network/). These tutorials get you started with Starport and the Cosmos SDK.
+To learn new skills by using step-by-step processes, head over to the [Cosmos SDK Tutorials](https://tutorials.cosmos.network/). These tutorials get you started with Starport and the Cosmos SDK.
+
