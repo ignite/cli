@@ -1,6 +1,8 @@
 ---
 order: 2
-description: Primary configuration file to describe the development environment for your blockchain.
+description: >-
+  Primary configuration file to describe the development environment for your
+  blockchain.
 ---
 
 # config.yml Reference
@@ -32,15 +34,9 @@ accounts:
 
 ## `build`
 
-<<<<<<< HEAD:docs/4 Configure a Blockchain/2 config.yml Reference.md
 Key    | Required | Type   | Description
 ------ | -------- | ------ | --------------------------------------------------------------
 binary | N        | String | Name of the node binary that is built, typically ends with `d`
-=======
-| Key    | Required | Type   | Description                                                    |
-| ------ | -------- | ------ | -------------------------------------------------------------- |
-| binary | N        | String | Name of the node binary that is built, typically ends with `d` |
->>>>>>> 6f2e1632b3c88b8c9fb12dfc4369b7dcb9de0a90:docs/configure/reference.md
 
 **build example**
 
@@ -146,8 +142,4 @@ host:
 
 ## `genesis`
 
-<<<<<<< HEAD:docs/4 Configure a Blockchain/2 config.yml Reference.md
 Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/configure/genesis.html).
-=======
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Parameters](./genesis.md).
->>>>>>> 6f2e1632b3c88b8c9fb12dfc4369b7dcb9de0a90:docs/configure/reference.md
