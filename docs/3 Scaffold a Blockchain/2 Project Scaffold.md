@@ -47,7 +47,7 @@ Account addresses on Cosmos SDK-based blockchains have string prefixes. For exam
 
 When creating a new blockchain, pass a prefix as a value to the `--address-prefix` flag:
 
-```go
+```bash
 starport app github.com/hello/planet --address-prefix moonlight
 ```
 
