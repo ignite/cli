@@ -54,8 +54,8 @@ appd q blog show-post [id]
 
 ## Create Type Example
 
+This example command creates a `post` type with four fields: `title` and `body` strings, boolean `comments` and integer `count`. This type is created in a module called blog.
+
 ```
 starport type post title body comments:bool count:int32 --module blog
 ```
-
-This command creates a `post` type with four fields: `title` and `body` strings, boolean `comments` and integer `count`. This type is created in a module called blog.
