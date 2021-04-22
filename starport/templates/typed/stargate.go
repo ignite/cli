@@ -28,17 +28,15 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	// Genesis modifications
 	t.genesisModify(opts, g)
 
-	// Modifications for new messages
 	if !opts.NoMessage {
+		// Modifications for new messages
 		g.RunFn(t.handlerModify(opts))
 		g.RunFn(t.protoTxModify(opts))
 		g.RunFn(t.typesCodecModify(opts))
 		g.RunFn(t.clientCliTxModify(opts))
 		g.RunFn(t.clientRestTxModify(opts))
-	}
 
-	// Messages template
-	if !opts.NoMessage {
+		// Messages template
 		if err := Box(stargateMessagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
