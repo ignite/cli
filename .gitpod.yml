@@ -29,7 +29,7 @@ tasks:
       echo "
       export VUE_APP_API_COSMOS=${API_ADDRESS}
       export VUE_APP_API_TENDERMINT=${RPC_ADDRESS}
-      export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}
+      export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}/websocket
       " >> ~/.bashrc && source ~/.bashrc
 
       ## 
