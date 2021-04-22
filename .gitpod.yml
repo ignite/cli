@@ -14,12 +14,12 @@ tasks:
     init: |
       ##
       ## install Starport
-      go install /workspace/starport/...
-      npm install -g npm@7.10.0
-      
+      go install /workspace/starport/...      
+
     command: |
       ##
       # configure env vars.
+      npm install -g npm@7.10.0
       echo "
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
