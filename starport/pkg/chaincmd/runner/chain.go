@@ -76,7 +76,6 @@ func (runner Runner) Gentx(
 ) (gentxPath string, err error) {
 	b := &bytes.Buffer{}
 
-	// note: launchpad outputs from stderr.
 	if err := runner.run(ctx, runOptions{
 		stdout: io.MultiWriter(b, os.Stdout),
 		stderr: io.MultiWriter(b, os.Stderr),

@@ -66,8 +66,6 @@ func (runner Runner) AddAccount(ctx context.Context, name, mnemonic string) (Acc
 			return Account{}, err
 		}
 	} else {
-
-		// note that, launchpad prints account output from stderr.
 		if err := runner.run(ctx, runOptions{
 			stdout: io.MultiWriter(b, os.Stdout),
 			stderr: os.Stderr,
