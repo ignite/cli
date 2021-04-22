@@ -1,5 +1,4 @@
 #!/bin/bash
-npm install -g npm@7.10.0
 cd /workspace && starport app github.com/chain/vuetest
 cd /workspace && git clone https://github.com/tendermint/vue
 cd /workspace/vue && git checkout $1

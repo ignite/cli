@@ -15,7 +15,8 @@ tasks:
       ##
       ## install Starport
       go install /workspace/starport/...
-
+      npm install -g npm@7.10.0
+      
     command: |
       ##
       # configure env vars.
