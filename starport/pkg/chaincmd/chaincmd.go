@@ -72,21 +72,21 @@ type ChainCmd struct {
 
 // New creates a new ChainCmd to launch command with the chain app
 func New(appCmd string, options ...Option) ChainCmd {
-	c := ChainCmd{
+	chainCmd := ChainCmd{
 		appCmd:     appCmd,
 		sdkVersion: cosmosver.Versions.Latest(),
 	}
 
-	applyOptions(&c, options)
+	applyOptions(&chainCmd, options)
 
-	return c
+	return chainCmd
 }
 
 // Copy makes a copy of ChainCmd by overwriting its options with given options.
-func (c ChainCmd) Copy(options ...Option) ChainCmd {
-	applyOptions(&c, options)
+func (chainCmd ChainCmd) Copy(options ...Option) ChainCmd {
+	applyOptions(&chainCmd, options)
 
-	return c
+	return chainCmd
 }
 
 // Option configures ChainCmd.
@@ -174,25 +174,25 @@ func WithLegacySendCommand() Option {
 }
 
 // StartCommand returns the command to start the daemon of the chain
-func (c ChainCmd) StartCommand(options ...string) step.Option {
+func (chainCmd ChainCmd) StartCommand(options ...string) step.Option {
 	command := append([]string{
 		commandStart,
 	}, options...)
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // InitCommand returns the command to initialize the chain
-func (c ChainCmd) InitCommand(moniker string) step.Option {
+func (chainCmd ChainCmd) InitCommand(moniker string) step.Option {
 	command := []string{
 		commandInit,
 		moniker,
 	}
-	command = c.attachChainID(command)
-	return c.daemonCommand(command)
+	command = chainCmd.attachChainID(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
-func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
+func (chainCmd ChainCmd) AddKeyCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -200,59 +200,59 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 		optionOutput,
 		constJSON,
 	}
-	command = c.attachKeyringBackend(command)
+	command = chainCmd.attachKeyringBackend(command)
 
-	return c.cliCommand(command)
+	return chainCmd.cliCommand(command)
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
-func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
+func (chainCmd ChainCmd) ImportKeyCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
 		accountName,
 		optionRecover,
 	}
-	command = c.attachKeyringBackend(command)
+	command = chainCmd.attachKeyringBackend(command)
 
-	return c.cliCommand(command)
+	return chainCmd.cliCommand(command)
 }
 
 // ShowKeyAddressCommand returns the command to print the address of a key in the chain keyring
-func (c ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
+func (chainCmd ChainCmd) ShowKeyAddressCommand(accountName string) step.Option {
 	command := []string{
 		commandKeys,
 		"show",
 		accountName,
 		optionAddress,
 	}
-	command = c.attachKeyringBackend(command)
+	command = chainCmd.attachKeyringBackend(command)
 
-	return c.cliCommand(command)
+	return chainCmd.cliCommand(command)
 }
 
 // ListKeysCommand returns the command to print the list of a keys in the chain keyring
-func (c ChainCmd) ListKeysCommand() step.Option {
+func (chainCmd ChainCmd) ListKeysCommand() step.Option {
 	command := []string{
 		commandKeys,
 		"list",
 		optionOutput,
 		constJSON,
 	}
-	command = c.attachKeyringBackend(command)
+	command = chainCmd.attachKeyringBackend(command)
 
-	return c.cliCommand(command)
+	return chainCmd.cliCommand(command)
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
-func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Option {
+func (chainCmd ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Option {
 	command := []string{
 		commandAddGenesisAccount,
 		address,
 		coins,
 	}
 
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // GentxOption for the GentxCommand
@@ -318,16 +318,16 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	}
 }
 
-func (c ChainCmd) IsAutoChainIDDetectionEnabled() bool {
-	return c.isAutoChainIDDetectionEnabled
+func (chainCmd ChainCmd) IsAutoChainIDDetectionEnabled() bool {
+	return chainCmd.isAutoChainIDDetectionEnabled
 }
 
-func (c ChainCmd) SDKVersion() cosmosver.Version {
-	return c.sdkVersion
+func (chainCmd ChainCmd) SDKVersion() cosmosver.Version {
+	return chainCmd.sdkVersion
 }
 
 // GentxCommand returns the command to generate a gentx for the chain
-func (c ChainCmd) GentxCommand(
+func (chainCmd ChainCmd) GentxCommand(
 	validatorName string,
 	selfDelegation string,
 	options ...GentxOption,
@@ -336,14 +336,14 @@ func (c ChainCmd) GentxCommand(
 		commandGentx,
 	}
 
-	if c.sdkVersion.Is(cosmosver.StargateZeroFourtyAndAbove) {
+	if chainCmd.sdkVersion.Is(cosmosver.StargateZeroFourtyAndAbove) {
 		command = append(command,
 			validatorName,
 			selfDelegation,
 		)
 	}
 
-	if c.sdkVersion.Is(cosmosver.StargateBelowZeroFourty) {
+	if chainCmd.sdkVersion.Is(cosmosver.StargateBelowZeroFourty) {
 		command = append(command,
 			validatorName,
 			optionAmount,
@@ -351,7 +351,7 @@ func (c ChainCmd) GentxCommand(
 		)
 	}
 
-	if c.sdkVersion.Is(cosmosver.LaunchpadAny) {
+	if chainCmd.sdkVersion.Is(cosmosver.LaunchpadAny) {
 		command = append(command,
 			optionName,
 			validatorName,
@@ -360,8 +360,8 @@ func (c ChainCmd) GentxCommand(
 		)
 
 		// Attach home client option
-		if c.cliHome != "" {
-			command = append(command, []string{optionHomeClient, c.cliHome}...)
+		if chainCmd.cliHome != "" {
+			command = append(command, []string{optionHomeClient, chainCmd.cliHome}...)
 		}
 	}
 
@@ -371,63 +371,63 @@ func (c ChainCmd) GentxCommand(
 	}
 
 	// Add necessary flags
-	if c.sdkVersion.Major().Is(cosmosver.Stargate) {
-		command = c.attachChainID(command)
+	if chainCmd.sdkVersion.Major().Is(cosmosver.Stargate) {
+		command = chainCmd.attachChainID(command)
 	}
 
-	command = c.attachKeyringBackend(command)
+	command = chainCmd.attachKeyringBackend(command)
 
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // CollectGentxsCommand returns the command to gather the gentxs in /gentx dir into the genesis file of the chain
-func (c ChainCmd) CollectGentxsCommand() step.Option {
+func (chainCmd ChainCmd) CollectGentxsCommand() step.Option {
 	command := []string{
 		commandCollectGentxs,
 	}
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // ValidateGenesisCommand returns the command to check the validity of the chain genesis
-func (c ChainCmd) ValidateGenesisCommand() step.Option {
+func (chainCmd ChainCmd) ValidateGenesisCommand() step.Option {
 	command := []string{
 		commandValidateGenesis,
 	}
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // ShowNodeIDCommand returns the command to print the node ID of the node for the chain
-func (c ChainCmd) ShowNodeIDCommand() step.Option {
+func (chainCmd ChainCmd) ShowNodeIDCommand() step.Option {
 	command := []string{
 		constTendermint,
 		commandShowNodeID,
 	}
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // UnsafeResetCommand returns the command to reset the blockchain database
-func (c ChainCmd) UnsafeResetCommand() step.Option {
+func (chainCmd ChainCmd) UnsafeResetCommand() step.Option {
 	command := []string{
 		commandUnsafeReset,
 	}
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // ExportCommand returns the command to export the state of the blockchain into a genesis file
-func (c ChainCmd) ExportCommand() step.Option {
+func (chainCmd ChainCmd) ExportCommand() step.Option {
 	command := []string{
 		commandExport,
 	}
-	return c.daemonCommand(command)
+	return chainCmd.daemonCommand(command)
 }
 
 // BankSendCommand returns the command for transferring tokens.
-func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Option {
+func (chainCmd ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Option {
 	command := []string{
 		commandTx,
 	}
 
-	if c.sdkVersion.Major().Is(cosmosver.Stargate) && !c.legacySend {
+	if chainCmd.sdkVersion.Major().Is(cosmosver.Stargate) && !chainCmd.legacySend {
 		command = append(command,
 			"bank",
 		)
@@ -441,19 +441,19 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		optionYes,
 	)
 
-	command = c.attachChainID(command)
-	command = c.attachKeyringBackend(command)
-	command = c.attachNode(command)
+	command = chainCmd.attachChainID(command)
+	command = chainCmd.attachKeyringBackend(command)
+	command = chainCmd.attachNode(command)
 
-	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+	if chainCmd.sdkVersion.Major().Is(cosmosver.Launchpad) {
 		command = append(command, optionOutput, constJSON)
 	}
 
-	return c.cliCommand(command)
+	return chainCmd.cliCommand(command)
 }
 
 // QueryTxEventsCommand returns the command to query events.
-func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
+func (chainCmd ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{
 		commandQuery,
 		"txs",
@@ -463,104 +463,104 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 		"--limit", "1000",
 	}
 
-	if c.sdkVersion.Major().Is(cosmosver.Launchpad) {
+	if chainCmd.sdkVersion.Major().Is(cosmosver.Launchpad) {
 		command = append(command,
 			"--trust-node",
 		)
 	}
 
-	command = c.attachNode(command)
-	return c.cliCommand(command)
+	command = chainCmd.attachNode(command)
+	return chainCmd.cliCommand(command)
 }
 
 // LaunchpadSetConfigCommand returns the command to set config value
-func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
+func (chainCmd ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
 	// Check version
-	if c.isStargate() {
+	if chainCmd.isStargate() {
 		panic("config command doesn't exist for Stargate")
 	}
-	return c.launchpadSetConfigCommand(name, value)
+	return chainCmd.launchpadSetConfigCommand(name, value)
 }
 
 // LaunchpadRestServerCommand returns the command to start the CLI REST server
-func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
+func (chainCmd ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
 	// Check version
-	if c.isStargate() {
+	if chainCmd.isStargate() {
 		panic("rest-server command doesn't exist for Stargate")
 	}
-	return c.launchpadRestServerCommand(apiAddress, rpcAddress)
+	return chainCmd.launchpadRestServerCommand(apiAddress, rpcAddress)
 }
 
 // StatusCommand returns the command that fetches node's status.
-func (c ChainCmd) StatusCommand() step.Option {
+func (chainCmd ChainCmd) StatusCommand() step.Option {
 	command := []string{
 		commandStatus,
 	}
 
-	command = c.attachNode(command)
-	return c.cliCommand(command)
+	command = chainCmd.attachNode(command)
+	return chainCmd.cliCommand(command)
 }
 
 // KeyringBackend returns the underlying keyring backend.
-func (c ChainCmd) KeyringBackend() KeyringBackend {
-	return c.keyringBackend
+func (chainCmd ChainCmd) KeyringBackend() KeyringBackend {
+	return chainCmd.keyringBackend
 }
 
 // KeyringPassword returns the underlying keyring password.
-func (c ChainCmd) KeyringPassword() string {
-	return c.keyringPassword
+func (chainCmd ChainCmd) KeyringPassword() string {
+	return chainCmd.keyringPassword
 }
 
 // attachChainID appends the chain ID flag to the provided command
-func (c ChainCmd) attachChainID(command []string) []string {
-	if c.chainID != "" {
-		command = append(command, []string{optionChainID, c.chainID}...)
+func (chainCmd ChainCmd) attachChainID(command []string) []string {
+	if chainCmd.chainID != "" {
+		command = append(command, []string{optionChainID, chainCmd.chainID}...)
 	}
 	return command
 }
 
 // attachKeyringBackend appends the keyring backend flag to the provided command
-func (c ChainCmd) attachKeyringBackend(command []string) []string {
-	if c.keyringBackend != "" {
-		command = append(command, []string{optionKeyringBackend, string(c.keyringBackend)}...)
+func (chainCmd ChainCmd) attachKeyringBackend(command []string) []string {
+	if chainCmd.keyringBackend != "" {
+		command = append(command, []string{optionKeyringBackend, string(chainCmd.keyringBackend)}...)
 	}
 	return command
 }
 
 // attachHome appends the home flag to the provided command
-func (c ChainCmd) attachHome(command []string) []string {
-	if c.homeDir != "" {
-		command = append(command, []string{optionHome, c.homeDir}...)
+func (chainCmd ChainCmd) attachHome(command []string) []string {
+	if chainCmd.homeDir != "" {
+		command = append(command, []string{optionHome, chainCmd.homeDir}...)
 	}
 	return command
 }
 
 // attachNode appends the node flag to the provided command
-func (c ChainCmd) attachNode(command []string) []string {
-	if c.nodeAddress != "" {
-		command = append(command, []string{optionNode, c.nodeAddress}...)
+func (chainCmd ChainCmd) attachNode(command []string) []string {
+	if chainCmd.nodeAddress != "" {
+		command = append(command, []string{optionNode, chainCmd.nodeAddress}...)
 	}
 	return command
 }
 
 // isStargate checks if the version for commands is Stargate
-func (c ChainCmd) isStargate() bool {
-	return c.sdkVersion.Major() == cosmosver.Stargate
+func (chainCmd ChainCmd) isStargate() bool {
+	return chainCmd.sdkVersion.Major() == cosmosver.Stargate
 }
 
 // daemonCommand returns the daemon command from the provided command
-func (c ChainCmd) daemonCommand(command []string) step.Option {
-	return step.Exec(c.appCmd, c.attachHome(command)...)
+func (chainCmd ChainCmd) daemonCommand(command []string) step.Option {
+	return step.Exec(chainCmd.appCmd, chainCmd.attachHome(command)...)
 }
 
 // cliCommand returns the cli command from the provided command
 // cli is the daemon for Stargate
-func (c ChainCmd) cliCommand(command []string) step.Option {
+func (chainCmd ChainCmd) cliCommand(command []string) step.Option {
 	// Check version
-	if c.isStargate() {
-		return step.Exec(c.appCmd, c.attachHome(command)...)
+	if chainCmd.isStargate() {
+		return step.Exec(chainCmd.appCmd, chainCmd.attachHome(command)...)
 	}
-	return step.Exec(c.cliCmd, c.attachCLIHome(command)...)
+	return step.Exec(chainCmd.cliCmd, chainCmd.attachCLIHome(command)...)
 }
 
 // KeyringBackendFromString returns the keyring backend from its string
