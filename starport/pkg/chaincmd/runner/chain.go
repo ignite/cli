@@ -77,7 +77,7 @@ func (runner Runner) Gentx(
 	b := &bytes.Buffer{}
 
 	if err := runner.run(ctx, runOptions{
-		stdout: io.MultiWriter(b, os.Stdout),
+		stdout: b,
 		stderr: io.MultiWriter(b, os.Stderr),
 		stdin:  os.Stdin,
 	}, runner.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {

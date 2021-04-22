@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
@@ -67,7 +66,7 @@ func (runner Runner) AddAccount(ctx context.Context, name, mnemonic string) (Acc
 		}
 	} else {
 		if err := runner.run(ctx, runOptions{
-			stdout: io.MultiWriter(b, os.Stdout),
+			stdout: b,
 			stderr: os.Stderr,
 			stdin:  os.Stdin,
 		}, runner.chainCmd.AddKeyCommand(name)); err != nil {
@@ -81,21 +80,26 @@ func (runner Runner) AddAccount(ctx context.Context, name, mnemonic string) (Acc
 	}
 
 	// get full details of the account.
-	opt := []step.Option{
+	runOptions := runOptions{
+		stdout: b,
+		stderr: os.Stderr,
+	}
+
+	stepOptions := []step.Option{
 		runner.chainCmd.ShowKeyAddressCommand(name),
 	}
 
 	if runner.chainCmd.KeyringPassword() != "" {
+		// If keyring password is defined, we write it into the command input
 		input := &bytes.Buffer{}
 		fmt.Fprintln(input, runner.chainCmd.KeyringPassword())
-		opt = append(opt, step.Write(input.Bytes())) // TODO: stdin if not present
+		stepOptions = append(stepOptions, step.Write(input.Bytes()))
+	} else {
+		// Otherwise we provide os stdin to the command
+		runOptions.stdin = os.Stdin
 	}
 
-	if err := runner.run(ctx, runOptions{
-		stdout: io.MultiWriter(b, os.Stdout),
-		stderr: os.Stderr,
-		stdin:  os.Stdin,
-	}, opt...); err != nil {
+	if err := runner.run(ctx, runOptions, stepOptions...); err != nil {
 		return Account{}, err
 	}
 	account.Address = strings.TrimSpace(b.String())
