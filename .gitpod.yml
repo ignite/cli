@@ -12,18 +12,32 @@ tasks:
       go1.15 download
 
     init: |
-      # Install Starport
-      export VUE_APP_CUSTOM_URL=$(gp url)
-      export CHISEL_ADDR=$(gp url 7575)
-      (cd /workspace/starport && go install ./...)
+      ##
+      ## install Starport
+      go install /workspace/starport/...
 
     command: |
+      ##
+      # configure env vars.
+      echo "
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)
       export RPC_ADDRESS=$(gp url 26657):443
       export API_ADDRESS=$(gp url 1317)
+      " >> ~/.bashrc && source ~/.bashrc
+
+      echo "
+      export VUE_APP_API_COSMOS=${API_ADDRESS}
+      export VUE_APP_API_TENDERMINT=${RPC_ADDRESS}
+      export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}
+      " >> ~/.bashrc && source ~/.bashrc
+
+      ## 
+      # open docs.
       cd ./docs
 
+      ##
+      # print a welcome message.
       clear && printf '\e[3J'
       echo -e "
 

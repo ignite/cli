@@ -1,16 +1,9 @@
 # Starport Documentation
 
-[Starport](https://github.com/tendermint/starport) is the easiest way to build a blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
+The Starport tool is the easiest way to create blockchains. This documentation helps you use Starport to:
 
-**Quickstart:** Try [Starport in a web-based IDE](https://gitpod.io/#https://github.com/tendermint/starport/). It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
+1. Create a blockchain
+2. Launch a blockchain
+3. Create a client-side app you can interact with in a web browser
 
-## Table of Contents 🔎
-
-1. [Introduction](intro/intro.md)
-2. [Start a Blockchain](run/start.md)
-3. [Scaffold a Blockchain](scaffold/intro.md)
-4. [Configure a Blockchain](configure/intro.md)
-5. [IBC and Relayer](ibc/relayer.md)
-6. [Protocol Buffer Files](proto/intro.md)
-7. [Frontend](frontend/intro.md)
-8. [Extra](extra/cosmwasm.md)
+To learn how to use Cosmos SDK to build application-specific blockchains with Starport, check out our step-by-step [Cosmos SDK Tutorials](https://tutorials.cosmos.network/).
