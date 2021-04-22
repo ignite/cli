@@ -96,7 +96,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	if err := r.run(ctx, runOptions{
 		stdout: io.MultiWriter(b, os.Stdout),
 		stderr: os.Stderr,
-		stdin: os.Stdin,
+		stdin:  os.Stdin,
 	}, opt...); err != nil {
 		return Account{}, err
 	}

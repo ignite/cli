@@ -63,7 +63,7 @@ func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string,
 	if err := r.run(ctx, runOptions{
 		stdout: io.MultiWriter(b, os.Stdout),
 		stderr: io.MultiWriter(b, os.Stderr),
-		stdin: os.Stdin,
+		stdin:  os.Stdin,
 	}, r.cc.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
 	}

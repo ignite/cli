@@ -212,12 +212,12 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	if r.stdin != nil {
 		c.Stdin = r.stdin
 		return &cmdSignalNoWriter{c}
-	} else {
-		w, err := c.StdinPipe()
-		if err != nil {
-			// TODO do not panic
-			panic(err)
-		}
-		return &cmdSignal{c, w}
 	}
+
+	w, err := c.StdinPipe()
+	if err != nil {
+		// TODO do not panic
+		panic(err)
+	}
+	return &cmdSignal{c, w}
 }
