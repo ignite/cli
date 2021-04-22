@@ -16,6 +16,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/templates/app"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/vue"
 )
 
@@ -65,6 +66,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 
 func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
 	g, err := app.New(&app.Options{
+		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		OwnerName:        owner(pathInfo.RawPath),
@@ -75,6 +77,25 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 		return err
 	}
 	run := genny.WetRunner(context.Background())
+	run.With(g)
+	run.Root = absRoot
+	if err := run.Run(); err != nil {
+		return err
+	}
+
+	// generate module template
+	g, err = modulecreate.NewStargate(&modulecreate.CreateOptions{
+		ModuleName: pathInfo.Package, // App name
+		ModulePath: pathInfo.RawPath,
+		AppName:    pathInfo.Package,
+		OwnerName:  owner(pathInfo.RawPath),
+		IsIBC:      false,
+	})
+
+	if err != nil {
+		return err
+	}
+	run = genny.WetRunner(context.Background())
 	run.With(g)
 	run.Root = absRoot
 	if err := run.Run(); err != nil {

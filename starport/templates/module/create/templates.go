@@ -13,6 +13,10 @@ var (
 	//go:embed ibc/* ibc/**/*
 	fsIBC embed.FS
 
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
-	ibcTemplate      = xgenny.NewEmbedWalker(fsIBC, "ibc/")
+	//go:embed msgserver/* msgserver/**/*
+	fsMsgServer embed.FS
+
+	stargateTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	ibcTemplate       = xgenny.NewEmbedWalker(fsIBC, "ibc/")
+	msgServerTemplate = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/")
 )

@@ -4,15 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
-
-	"github.com/tendermint/starport/starport/templates/module"
-
-	module_create "github.com/tendermint/starport/starport/templates/module/create"
-	module_import "github.com/tendermint/starport/starport/templates/module/import"
-
 	"go/parser"
 	"go/token"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -22,6 +16,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/templates/module"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
 )
 
 var (
@@ -104,7 +101,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	var (
 		g    *genny.Generator
-		opts = &module_create.CreateOptions{
+		opts = &modulecreate.CreateOptions{
 			ModuleName:  moduleName,
 			ModulePath:  path.RawPath,
 			AppName:     path.Package,
@@ -114,7 +111,8 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 		}
 	)
 
-	g, err = module_create.NewStargate(opts)
+	// Generator from Cosmos SDK version
+	g, err = modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
@@ -126,7 +124,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 
 	// Scaffold IBC module
 	if creationOpts.ibc {
-		g, err = module_create.NewIBC(opts)
+		g, err = modulecreate.NewIBC(opts)
 		if err != nil {
 			return err
 		}
@@ -174,7 +172,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 
 	// run generator
-	g, err := module_import.NewStargate(&module_import.ImportOptions{
+	g, err := moduleimport.NewStargate(&moduleimport.ImportOptions{
 		Feature:          name,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,

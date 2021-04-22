@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,6 +9,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/message"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 // AddMessage adds a new type stype to scaffolded app by using optional type fields.
@@ -68,15 +68,18 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 			MsgDesc:    msgDesc,
 		}
 	)
-	// check if the msgServer convention is used
-	var msgServerDefined bool
-	msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
-	if err != nil {
+
+	// Check and support MsgServer convention
+	if err := supportMsgServer(
+		s.path,
+		&modulecreate.MsgServerOptions{
+			ModuleName: opts.ModuleName,
+			ModulePath: opts.ModulePath,
+			AppName:    opts.AppName,
+			OwnerName:  opts.OwnerName,
+		},
+	); err != nil {
 		return err
-	}
-	if !msgServerDefined {
-		// TODO: Determine if we want to support blockchains not using MsgServer convention
-		return errors.New("the blockchain must use MsgServer convention")
 	}
 
 	// Scaffold

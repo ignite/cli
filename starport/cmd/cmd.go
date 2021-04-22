@@ -4,15 +4,13 @@ import (
 	"fmt"
 	"path/filepath"
 
-	"github.com/tendermint/starport/starport/services/networkbuilder"
-
-	flag "github.com/spf13/pflag"
-
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
+	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
 const (
