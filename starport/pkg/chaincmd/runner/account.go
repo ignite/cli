@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"os"
 	"strings"
 
@@ -66,12 +67,11 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 		}
 	} else {
 
-
 		// note that, launchpad prints account output from stderr.
 		if err := r.run(ctx, runOptions{
-			stdout: b, // io.MultiWriter(b, os.Stdout),
-			stderr: os.Stderr, // io.MultiWriter(b, os.Stderr),
-			stdin: os.Stdin,
+			stdout: io.MultiWriter(b, os.Stdout),
+			stderr: os.Stderr,
+			stdin:  os.Stdin,
 		}, r.cc.AddKeyCommand(name)); err != nil {
 			return Account{}, err
 		}
@@ -90,10 +90,14 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	if r.cc.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
 		fmt.Fprintln(input, r.cc.KeyringPassword())
-		opt = append(opt, step.Write(input.Bytes()))
+		opt = append(opt, step.Write(input.Bytes())) // TODO: stdin if not present
 	}
 
-	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
+	if err := r.run(ctx, runOptions{
+		stdout: io.MultiWriter(b, os.Stdout),
+		stderr: os.Stderr,
+		stdin: os.Stdin,
+	}, opt...); err != nil {
 		return Account{}, err
 	}
 	account.Address = strings.TrimSpace(b.String())

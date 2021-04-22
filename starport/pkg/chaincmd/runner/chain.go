@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 
@@ -58,7 +60,11 @@ func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string,
 	b := &bytes.Buffer{}
 
 	// note: launchpad outputs from stderr.
-	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
+	if err := r.run(ctx, runOptions{
+		stdout: io.MultiWriter(b, os.Stdout),
+		stderr: io.MultiWriter(b, os.Stderr),
+		stdin: os.Stdin,
+	}, r.cc.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
 	}
 

@@ -17,7 +17,7 @@ type Runner struct {
 	endSignal   os.Signal
 	stdout      io.Writer
 	stderr      io.Writer
-	stdin 		io.Reader
+	stdin       io.Reader
 	workdir     string
 	runParallel bool
 }
@@ -183,7 +183,6 @@ func (c *cmdSignalNoWriter) Signal(s os.Signal) { c.Cmd.Process.Signal(s) }
 
 func (c *cmdSignalNoWriter) Write(data []byte) (n int, err error) { return 0, nil }
 
-
 // newCommand returns a new command to execute
 func (r *Runner) newCommand(s *step.Step) Executor {
 	if s.Exec.Command == "" {
@@ -210,18 +209,15 @@ func (r *Runner) newCommand(s *step.Step) Executor {
 	c.Env = append(os.Environ(), s.Env...)
 	c.Env = append(c.Env, os.ExpandEnv(fmt.Sprintf("PATH=$PATH:%s", goenv.GetGOBIN())))
 
-	c.Stdin = os.Stdin
-	return &cmdSignalNoWriter{c}
-
-	//if r.stdin != nil {
-	//	c.Stdin = r.stdin
-	//	return &cmdSignalNoWriter{c}
-	//} else {
-	//	w, err := c.StdinPipe()
-	//	if err != nil {
-	//		// TODO do not panic
-	//		panic(err)
-	//	}
-	//	return &cmdSignal{c, w}
-	//}
+	if r.stdin != nil {
+		c.Stdin = r.stdin
+		return &cmdSignalNoWriter{c}
+	} else {
+		w, err := c.StdinPipe()
+		if err != nil {
+			// TODO do not panic
+			panic(err)
+		}
+		return &cmdSignal{c, w}
+	}
 }
