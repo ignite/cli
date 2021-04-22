@@ -1,6 +1,6 @@
 # Starport Documentation
 
-The Starport tool is the easiest way to create blockchains. This documentation helps you use Starport to:
+The Starport tool is the easiest way to create blockchains using the Cosmos SDK. The [Starport documentation](https://docs.starport.network/) helps you use Starport to:
 
 1. Create a blockchain
 2. Launch a blockchain
