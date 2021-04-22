@@ -13,14 +13,17 @@ import (
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
+
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
 
 	// stargateComponentTemplate is the template for a Stargate module type component
-	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/component/")
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
 
 	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
-	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/messages/")
+	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
