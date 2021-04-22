@@ -47,30 +47,6 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog")
-	)
-
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating an existing module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.EnsureAppIsSteady(path)
-}
-
 func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
