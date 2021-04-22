@@ -51,13 +51,6 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
-	env.Must(env.Exec("create a type with legacy scaffold",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "participant", "email", "--legacy"),
-			step.Workdir(path),
-		)),
-	))
-
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -112,13 +105,6 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a type with legacy scaffold",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "participant", "email", "--legacy", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
 	env.Must(env.Exec("create a type in the app's module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -164,7 +150,6 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 			step.Workdir(path),
 		)),
 	))
-
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
