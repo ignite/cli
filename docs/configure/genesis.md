@@ -36,7 +36,7 @@ genesis:
 
 For genesis file details and field definitions, see [Using Tendermint > Genesis](https://docs.tendermint.com/master/tendermint-core/using-tendermint.html#genesis).
 
-## Summary
+## Genesis Block Summary
 
 - The genesis block is the first block of a blockchain.
 

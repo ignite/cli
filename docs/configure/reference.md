@@ -7,31 +7,8 @@ description: Primary configuration file to describe the development environment 
 
 The `config.yml` file generated in your blockchain folder uses key-value pairs to describe the development environment for your blockchain.
 
-<!-- TOC depthFrom:2 depthTo:2 withLinks:1 updateOnSave:1 orderedList:0 -->
+Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
 
-- [config.yml Reference](#configyml-reference)
-  - [`accounts`](#accounts)
-    - [Example](#example)
-  - [`build`](#build)
-    - [Example](#example-1)
-  - [`build.proto`](#buildproto)
-  - [`faucet`](#faucet)
-    - [Example](#example-2)
-  - [`validator`](#validator)
-    - [Example](#example-3)
-  - [`init.home`](#inithome)
-    - [Example](#example-4)
-  - [`init.config`](#initconfig)
-  - [`init.app`](#initapp)
-  - [`init.keyring-backend`](#initkeyring-backend)
-    - [Example](#example-5)
-  - [`host`](#host)
-  - [Example](#example-6)
-  - [`genesis`](#genesis)
-
-<!-- /TOC -->
-
- You can add these parameters to the config.yaml file to configure your blockchain.
 
 ## `accounts`
 
@@ -43,7 +20,7 @@ A list of user accounts created during genesis of the blockc
 | coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
 | address | N        | String          | Account address in Bech32 address format                                                                                   |
 
-### Example
+**accounts example**
 
 ```yaml
 accounts:
@@ -56,11 +33,11 @@ accounts:
 
 ## `build`
 
-| Key    | Required | Type   | Description                                                    |
-| ------ | -------- | ------ | -------------------------------------------------------------- |
-| binary | N        | String | Name of the node binary that is built, typically ends with `d` |
+Key    | Required | Type   | Description
+------ | -------- | ------ | --------------------------------------------------------------
+binary | N        | String | Name of the node binary that is built, typically ends with `d`
 
-### Example
+**build example**
 
 ```yaml
 build:
@@ -69,23 +46,23 @@ build:
 
 ## `build.proto`
 
-| Key               | Required | Type            | Description                                                                                |
-| ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
-| path              | N        | String          | Path to protocol buffer files. Default: `"proto"`                                          |
-| third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]` |
+Key               | Required | Type            | Description
+----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------
+path              | N        | String          | Path to protocol buffer files. Default: `"proto"`
+third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]`
 
 ## `faucet`
 
 The faucet service sends tokens to addresses. The default address for the web user interface is <http://localhost:4500>.
 
-| Key       | Required | Type            | Description                                                 |
-| --------- | -------- | --------------- | ----------------------------------------------------------- |
-| name      | Y        | String          | Name of a key pair. `name` must be in `accounts`            |
-| coins     | Y        | List of Strings | One or more coins with denominations sent per request       |
-| coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address |
-| host      | N        | String          | Host and port number. Default: `:4500`                      |
+Key       | Required | Type            | Description
+--------- | -------- | --------------- | -----------------------------------------------------------
+name      | Y        | String          | Name of a key pair. `name` must be in `accounts`
+coins     | Y        | List of Strings | One or more coins with denominations sent per request
+coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address
+host      | N        | String          | Host and port number. Default: `:4500`
 
-### Example
+**faucet example**
 
 ```yaml
 faucet:
@@ -99,12 +76,12 @@ faucet:
 
 A blockchain requires one or more validators.
 
-| Key    | Required | Type   | Description                                                                                     |
-| ------ | -------- | ------ | ----------------------------------------------------------------------------------------------- |
-| name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts` |
-| staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account       |
+Key    | Required | Type   | Description
+------ | -------- | ------ | -----------------------------------------------------------------------------------------------
+name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts`
+staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account
 
-### Example
+**validator example**
 
 ```yaml
 accounts:
@@ -119,7 +96,7 @@ validator:
 
 The path to the data directory that stores blockchain data and blockchain configuration.
 
-### Example
+**init example**
 
 ```yaml
 init:
@@ -138,7 +115,7 @@ Overwrites properties in `config/app.toml` in the data directory.
 
 The [keyring backend](https://docs.cosmos.network/master/run-node/keyring.html) to store the private key. Default value is `test`.
 
-### Example
+**init.keyring-backend example**
 
 ```yaml
 init:
@@ -149,7 +126,7 @@ init:
 
 Configuration of host names and ports for processes started by Starport:
 
-## Example
+**host example**
 
 ```
 host:
@@ -164,4 +141,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Parameters](./genesis.md).
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/configure/genesis.html).

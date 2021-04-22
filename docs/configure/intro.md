@@ -5,7 +5,7 @@ description: Overview of configuration for Starport-launched blockchains
 
 # Configuration
 
-For every new blockchain that is launched with Starport, a `config.yml` file is created in the blockchain directory. The `config.yml` file describes the development environment for your blockchain.
+A `config.yml` file is created in the blockchain directory for every new blockchain that is launched with Starport. The `config.yml` file describes the development environment for your blockchain.
 
 The generated `config.yml` defines the accounts and a validator of the blockchain.
 
@@ -24,11 +24,11 @@ validator:
  staked: "100000000stake"
 ```
 
-## Bootstrap your blockchain with changes
+## Bootstrap your Blockchain with Changes
 
-To bootstrap your blockchain with changes, you can change values for parameters in the generated `config.yml` and add parameters
+To bootstrap your blockchain with changes, you can change values for existing parameters in the generated `config.yml` and add parameters that are not provided by default.
 
-For parameter details, see [config.yml Reference](./reference.md).
+For parameter details, see [config.yml Reference](https://docs.starport.network/configure/reference.html).
 
 ## Changes to `config.yml`
 
