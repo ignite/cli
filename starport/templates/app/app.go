@@ -5,10 +5,8 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
@@ -17,21 +15,13 @@ var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
 
-	//go:embed launchpad/* launchpad/**/*
-	fsLaunchpad embed.FS
-
-	// these needs to be created in the compiler time, otherwise packr2 won't be
-	// able to find boxes.
-	templates = map[cosmosver.MajorVersion]packd.Walker{
-		cosmosver.Stargate:  xgenny.NewEmbedWalker(fsStargate, "stargate/"),
-		cosmosver.Launchpad: xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/"),
-	}
+	tpl = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 // New returns the generator to scaffold a new Cosmos SDK app
-func New(sdkVersion cosmosver.MajorVersion, opts *Options) (*genny.Generator, error) {
+func New(opts *Options) (*genny.Generator, error) {
 	g := genny.New()
-	if err := g.Box(templates[sdkVersion]); err != nil {
+	if err := g.Box(tpl); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()

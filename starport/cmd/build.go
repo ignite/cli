@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -21,7 +20,7 @@ func NewBuild() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  buildHandler,
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
@@ -52,12 +51,7 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	binaries, err := c.Binaries()
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(strings.Join(binaries, ", ")))
+	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(c.Binary()))
 
 	return nil
 }

@@ -14,8 +14,7 @@ import (
 )
 
 const (
-	flagHome    = "home"
-	flagCLIHome = "cli-home"
+	flagHome = "home"
 )
 
 var (
@@ -66,36 +65,24 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 	}
 }
 
-func flagSetHomes() *flag.FlagSet {
+func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "Home directory used for blockchains")
-	fs.String(flagCLIHome, "", "CLI home directory used for launchpad blockchains")
 	return fs
 }
 
-func getHomeFlags(cmd *cobra.Command) (home string, cliHome string, err error) {
-	home, err = cmd.Flags().GetString(flagHome)
-	if err != nil {
-		return home, cliHome, err
-	}
-	cliHome, err = cmd.Flags().GetString(flagCLIHome)
-	return home, cliHome, err
+func getHomeFlag(cmd *cobra.Command) (home string) {
+	home, _ = cmd.Flags().GetString(flagHome)
+	return
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
-	home, cliHome, err := getHomeFlags(cmd)
-	if err != nil {
-		return nil, err
-	}
-	if home != "" {
+	if home := getHomeFlag(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
-	if cliHome != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
-	}
 
-	appPath, err = filepath.Abs(appPath)
+	appPath, err := filepath.Abs(appPath)
 	if err != nil {
 		return nil, err
 	}
@@ -103,18 +90,11 @@ func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...ch
 	return chain.New(cmd.Context(), appPath, chainOption...)
 }
 
-func initOptionWithHomeFlags(cmd *cobra.Command, initOptions []networkbuilder.InitOption) ([]networkbuilder.InitOption, error) {
+func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
 	// Check if custom home is provided
-	home, cliHome, err := getHomeFlags(cmd)
-	if err != nil {
-		return initOptions, err
-	}
-	if home != "" {
+	if home := getHomeFlag(cmd); home != "" {
 		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
 	}
-	if cliHome != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationCLIHomePath(cliHome))
-	}
 
-	return initOptions, nil
+	return initOptions
 }

@@ -26,7 +26,10 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	name := args[0]
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.ImportModule(name); err != nil {
 		return err
 	}

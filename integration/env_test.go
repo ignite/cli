@@ -146,12 +146,11 @@ func (e env) Exec(msg string, steps step.Steps, options ...execOption) (ok bool)
 }
 
 const (
-	Launchpad = "launchpad"
-	Stargate  = "stargate"
+	Stargate = "stargate"
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
+func (e env) Scaffold(appName string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
@@ -159,8 +158,6 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 				"starport",
 				"app",
 				fmt.Sprintf("github.com/test/%s", appName),
-				"--sdk-version",
-				sdkVersion,
 			),
 			step.Workdir(root),
 		)),
@@ -168,13 +165,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 
 	// Cleanup the home directory of the app
 	e.t.Cleanup(func() {
-		switch sdkVersion {
-		case Stargate:
-			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
-		case Launchpad:
-			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%sd", appName)))
-			os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%scli", appName)))
-		}
+		os.RemoveAll(filepath.Join(e.Home(), fmt.Sprintf(".%s", appName)))
 	})
 
 	return filepath.Join(root, appName)
@@ -183,7 +174,7 @@ func (e env) Scaffold(appName, sdkVersion string) (appPath string) {
 // Serve serves an application lives under path with options where msg describes the
 // expection from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg, path, home, clihome, configPath string, options ...execOption) (ok bool) {
+func (e env) Serve(msg, path, home, configPath string, options ...execOption) (ok bool) {
 	serveCommand := []string{
 		"serve",
 		"-v",
@@ -191,9 +182,6 @@ func (e env) Serve(msg, path, home, clihome, configPath string, options ...execO
 
 	if home != "" {
 		serveCommand = append(serveCommand, "--home", home)
-	}
-	if clihome != "" {
-		serveCommand = append(serveCommand, "--cli-home", clihome)
 	}
 	if configPath != "" {
 		serveCommand = append(serveCommand, "--config", configPath)
@@ -297,7 +285,6 @@ func (e env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Init.Home = e.TmpDir()
-	conf.Init.CLIHome = e.TmpDir()
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
@@ -320,12 +307,6 @@ func (e env) Home() string {
 }
 
 // AppHome returns appd's home dir.
-func (e env) AppdHome(name, sdkVersion string) string {
-	switch sdkVersion {
-	case Stargate:
-		return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
-	case Launchpad:
-		return filepath.Join(e.Home(), fmt.Sprintf(".%sd", name))
-	}
-	return ""
+func (e env) AppdHome(name string) string {
+	return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
 }

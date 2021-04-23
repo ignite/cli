@@ -37,19 +37,9 @@ func (a App) D() string {
 	return a.Name + "d"
 }
 
-// CLI return appcli name.
-func (a App) CLI() string {
-	return a.Name + "cli"
-}
-
 // ND returns no-dash appd name.
 func (a App) ND() string {
 	return a.N() + "d"
-}
-
-// NCLI returns no-dash appcli name.
-func (a App) NCLI() string {
-	return a.N() + "cli"
 }
 
 // Root returns the root path of app.

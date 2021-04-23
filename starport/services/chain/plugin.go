@@ -5,7 +5,6 @@ import (
 
 	starportconf "github.com/tendermint/starport/starport/chainconf"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )
 
 // TODO omit -cli log messages for Stargate.
@@ -31,23 +30,8 @@ type Plugin interface {
 
 	// Home returns the blockchain node's home dir.
 	Home() string
-
-	// CLIHome returns the cli blockchain node's home dir.
-	CLIHome() string
-
-	// Version of the plugin.
-	Version() cosmosver.MajorVersion
-
-	// SupportsIBC reports if app support IBC.
-	SupportsIBC() bool
 }
 
 func (c *Chain) pickPlugin() Plugin {
-	switch c.Version.Major() {
-	case cosmosver.Launchpad:
-		return newLaunchpadPlugin(c.app)
-	case cosmosver.Stargate:
-		return newStargatePlugin(c.app)
-	}
-	panic("unknown cosmos version")
+	return newStargatePlugin(c.app)
 }
