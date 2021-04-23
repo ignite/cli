@@ -14,6 +14,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -162,7 +163,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 	}
 
 	// import a specific version of ComsWasm
-	if err := installWasm(); err != nil {
+	if err := s.installWasm(); err != nil {
 		return err
 	}
 
@@ -230,20 +231,25 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func installWasm() error {
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultStderr(os.Stderr),
-		).
-		Run(context.Background(),
-			step.New(
-				step.Exec(
-					gocmd.Name(),
-					"get",
-					wasmImport+"@"+wasmVersionCommitStargate,
+func (s *Scaffolder) installWasm() error {
+	switch s.version {
+	case cosmosver.StargateZeroFourtyAndAbove:
+		return cmdrunner.
+			New(
+				cmdrunner.DefaultStderr(os.Stderr),
+			).
+			Run(context.Background(),
+				step.New(
+					step.Exec(
+						gocmd.Name(),
+						"get",
+						wasmImport+"@"+wasmVersionCommitStargate,
+					),
 				),
-			),
-		)
+			)
+	default:
+		return errors.New("version not supported")
+	}
 }
 
 // checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter

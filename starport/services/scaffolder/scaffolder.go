@@ -23,6 +23,9 @@ type Scaffolder struct {
 
 	// options to configure scaffolding.
 	options *scaffoldingOptions
+
+	// version of the chain
+	version cosmosver.Version
 }
 
 // New initializes a new Scaffolder for app at path.
@@ -32,24 +35,17 @@ func New(path string, options ...Option) (*Scaffolder, error) {
 		options: newOptions(options...),
 	}
 
-	version, err := s.version()
+	// determine the chain version.
+	var err error
+	s.version, err = cosmosver.Detect(path)
 	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 		return nil, err
 	}
-
-	if err == nil && !version.Major().Is(cosmosver.Stargate) {
+	if err == nil && !s.version.Major().Is(cosmosver.Stargate) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
 	return s, nil
-}
-
-func (s *Scaffolder) version() (cosmosver.Version, error) {
-	v, err := cosmosver.Detect(s.path)
-	if err != nil {
-		return 0, err
-	}
-	return v, nil
 }
 
 func owner(modulePath string) string {
