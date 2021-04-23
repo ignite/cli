@@ -5,11 +5,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
-
-const flagSDKVersion = "sdk-version"
 
 // NewApp creates new command named `app` to create Cosmos scaffolds customized
 // by the user given options.
@@ -21,7 +18,6 @@ func NewApp() *cobra.Command {
 		RunE:  appHandler,
 	}
 	c.Flags().String("address-prefix", "cosmos", "Address prefix")
-	addSdkVersionFlag(c)
 	return c
 }
 
@@ -34,15 +30,12 @@ func appHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix, _ = cmd.Flags().GetString("address-prefix")
 	)
 
-	version, err := sdkVersion(cmd)
+	sc, err := scaffolder.New("",
+		scaffolder.AddressPrefix(addressPrefix),
+	)
 	if err != nil {
 		return err
 	}
-
-	sc := scaffolder.New("",
-		scaffolder.AddressPrefix(addressPrefix),
-		scaffolder.SdkVersion(version),
-	)
 
 	appdir, err := sc.Init(name)
 	if err != nil {
@@ -63,17 +56,4 @@ NOTE: add --verbose flag for verbose (detailed) output.
 	fmt.Printf(message, appdir)
 
 	return nil
-}
-
-func addSdkVersionFlag(c *cobra.Command) {
-	c.Flags().String(flagSDKVersion, string(cosmosver.Stargate), fmt.Sprintf("Target Cosmos-SDK Version %s", cosmosver.MajorVersions))
-}
-
-func sdkVersion(c *cobra.Command) (cosmosver.MajorVersion, error) {
-	v, _ := c.Flags().GetString(flagSDKVersion)
-	parsed, err := cosmosver.MajorVersions.Parse(v)
-	if err != nil {
-		return "", fmt.Errorf("%q is an unknown sdk version", v)
-	}
-	return parsed, nil
 }

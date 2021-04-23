@@ -22,7 +22,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
 		env         = newEnv(t)
 		appname     = randstr.Runes(10)
-		path        = env.Scaffold(appname, Stargate)
+		path        = env.Scaffold(appname)
 		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -148,7 +148,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()

@@ -20,7 +20,7 @@ func NewServe() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  serveHandler,
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")

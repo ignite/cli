@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -12,7 +11,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -26,18 +24,12 @@ const (
 )
 
 type AddTypeOption struct {
-	Legacy    bool
 	Indexed   bool
 	NoMessage bool
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -84,38 +76,28 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			OwnerName:  owner(path.RawPath),
 			TypeName:   typeName,
 			Fields:     tFields,
-			Legacy:     addTypeOptions.Legacy,
 			NoMessage:  addTypeOptions.NoMessage,
 		}
 	)
-	// generate depending on the version
-	if majorVersion == cosmosver.Launchpad {
-		if addTypeOptions.Indexed {
-			return errors.New("indexed types not supported on Launchpad")
-		}
+	// Check and support MsgServer convention
+	if err := supportMsgServer(
+		s.path,
+		&modulecreate.MsgServerOptions{
+			ModuleName: opts.ModuleName,
+			ModulePath: opts.ModulePath,
+			AppName:    opts.AppName,
+			OwnerName:  opts.OwnerName,
+		},
+	); err != nil {
+		return err
+	}
 
-		g, err = typed.NewLaunchpad(opts)
+	// Check if indexed type
+	if addTypeOptions.Indexed {
+		g, err = indexed.NewStargate(opts)
 	} else {
-		// Check and support MsgServer convention
-		if err := supportMsgServer(
-			s.path,
-			&modulecreate.MsgServerOptions{
-				ModuleName: opts.ModuleName,
-				ModulePath: opts.ModulePath,
-				AppName:    opts.AppName,
-				OwnerName:  opts.OwnerName,
-			},
-		); err != nil {
-			return err
-		}
-
-		// Check if indexed type
-		if addTypeOptions.Indexed {
-			g, err = indexed.NewStargate(opts)
-		} else {
-			// Scaffolding a type with ID
-			g, err = typed.NewStargate(opts)
-		}
+		// Scaffolding a type with ID
+		g, err = typed.NewStargate(opts)
 	}
 	if err != nil {
 		return err
@@ -129,7 +111,7 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath); err != nil {
 		return err
 	}
 	return fmtProject(pwd)

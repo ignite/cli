@@ -86,7 +86,6 @@ type initOptions struct {
 	path                     string
 	mustNotInitializedBefore bool
 	homePath                 string
-	cliHomePath              string
 	keyringBackend           chaincmd.KeyringBackend
 }
 
@@ -171,13 +170,6 @@ func MustNotInitializedBefore() InitOption {
 func InitializationHomePath(homePath string) InitOption {
 	return func(o *initOptions) {
 		o.homePath = homePath
-	}
-}
-
-// InitializationCLIHomePath provides a specific cli home path for the blockchain for the initialization
-func InitializationCLIHomePath(cliHomePath string) InitOption {
-	return func(o *initOptions) {
-		o.cliHomePath = cliHomePath
 	}
 }
 
@@ -319,7 +311,6 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		url,
 		githash.String(),
 		o.homePath,
-		o.cliHomePath,
 		o.keyringBackend,
 		o.mustNotInitializedBefore,
 	)
@@ -386,9 +377,6 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	// Custom home paths
 	if o.homePath != "" {
 		chainOption = append(chainOption, chain.HomePath(o.homePath))
-	}
-	if o.cliHomePath != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
