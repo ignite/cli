@@ -18,8 +18,7 @@ tasks:
 
     command: |
       ##
-      # configure env vars.
-      npm install -g npm@7.10.0
+      # configure env vars.      
       echo "
       export VUE_APP_CUSTOM_URL=$(gp url)
       export CHISEL_ADDR=$(gp url 7575)

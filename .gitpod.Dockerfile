@@ -8,3 +8,5 @@ RUN wget https://golang.org/dl/go1.16.linux-amd64.tar.gz && \
 ENV GONAME go1.15
 
 RUN brew install gh
+
+RUN npm install -g npm@7.10.0
