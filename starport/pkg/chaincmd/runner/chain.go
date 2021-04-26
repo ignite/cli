@@ -234,7 +234,7 @@ type EventAttribute struct {
 }
 
 // r queries tx events by event selectors.
-func (runner Runner) QueryTxEvents(
+func (r Runner) QueryTxEvents(
 	ctx context.Context,
 	selector EventSelector,
 	moreSelectors ...EventSelector,
@@ -253,7 +253,7 @@ func (runner Runner) QueryTxEvents(
 	// execute the commnd and parse the output.
 	b := &bytes.Buffer{}
 
-	if err := runner.run(ctx, runOptions{stdout: b}, runner.chainCmd.QueryTxEventsCommand(query)); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
 		return nil, err
 	}
 

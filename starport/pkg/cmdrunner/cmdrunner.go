@@ -187,7 +187,7 @@ func (exec *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
 }
 
 // newCommand returns a new command to execute
-func (runner *Runner) newCommand(step *step.Step) Executor {
+func (r *Runner) newCommand(step *step.Step) Executor {
 	// Return a dummy executor in case of an empty command
 	if step.Exec.Command == "" {
 		return &dummyExecutor{}
@@ -201,16 +201,16 @@ func (runner *Runner) newCommand(step *step.Step) Executor {
 
 	// Define standard input and outputs
 	if stdout == nil {
-		stdout = runner.stdout
+		stdout = r.stdout
 	}
 	if stderr == nil {
-		stderr = runner.stderr
+		stderr = r.stderr
 	}
 	if stdin == nil {
-		stdin = runner.stdin
+		stdin = r.stdin
 	}
 	if dir == "" {
-		dir = runner.workdir
+		dir = r.workdir
 	}
 
 	// Initialize command
