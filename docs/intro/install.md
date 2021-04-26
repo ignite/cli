@@ -51,7 +51,7 @@ If you get errors related to `protoc`, make sure that you followed the [Install 
 $ unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
 ```
 
-3. Update your environment’s path variable to include the path to the protoc executable. For example:
+3. Update your environment’s `PATH` variable to include the path to the protoc executable. For example:
 
 ```
 $ export PATH="$PATH:$HOME/.local/bin"
