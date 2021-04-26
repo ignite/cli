@@ -6,7 +6,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"os"
 	"regexp"
 	"strings"
 
@@ -17,17 +19,25 @@ import (
 
 // Start starts the blockchain.
 func (r Runner) Start(ctx context.Context, args ...string) error {
-	return r.run(ctx, runOptions{wrappedStdErrMaxLen: 50000}, r.cc.StartCommand(args...))
+	return r.run(
+		ctx,
+		runOptions{wrappedStdErrMaxLen: 50000},
+		r.chainCmd.StartCommand(args...),
+	)
 }
 
 // LaunchpadStartRestServer start launchpad rest server.
 func (r Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
-	return r.run(ctx, runOptions{wrappedStdErrMaxLen: 50000}, r.cc.LaunchpadRestServerCommand(apiAddress, rpcAddress))
+	return r.run(
+		ctx,
+		runOptions{wrappedStdErrMaxLen: 50000},
+		r.chainCmd.LaunchpadRestServerCommand(apiAddress, rpcAddress),
+	)
 }
 
 // Init inits the blockchain.
 func (r Runner) Init(ctx context.Context, moniker string) error {
-	return r.run(ctx, runOptions{}, r.cc.InitCommand(moniker))
+	return r.run(ctx, runOptions{}, r.chainCmd.InitCommand(moniker))
 }
 
 // KV holds a key, value pair.
@@ -44,7 +54,11 @@ func NewKV(key, value string) KV {
 // LaunchpadSetConfigs updates configurations for a launchpad app.
 func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
 	for _, kv := range kvs {
-		if err := r.run(ctx, runOptions{}, r.cc.LaunchpadSetConfigCommand(kv.key, kv.value)); err != nil {
+		if err := r.run(
+			ctx,
+			runOptions{},
+			r.chainCmd.LaunchpadSetConfigCommand(kv.key, kv.value),
+		); err != nil {
 			return err
 		}
 	}
@@ -54,11 +68,19 @@ func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
 // Gentx generates a genesis tx carrying a self delegation.
-func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string, options ...chaincmd.GentxOption) (gentxPath string, err error) {
+func (r Runner) Gentx(
+	ctx context.Context,
+	validatorName,
+	selfDelegation string,
+	options ...chaincmd.GentxOption,
+) (gentxPath string, err error) {
 	b := &bytes.Buffer{}
 
-	// note: launchpad outputs from stderr.
-	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
+	if err := r.run(ctx, runOptions{
+		stdout: b,
+		stderr: io.MultiWriter(b, os.Stderr),
+		stdin:  os.Stdin,
+	}, r.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
 	}
 
@@ -67,23 +89,23 @@ func (r Runner) Gentx(ctx context.Context, validatorName, selfDelegation string,
 
 // CollectGentxs collects gentxs.
 func (r Runner) CollectGentxs(ctx context.Context) error {
-	return r.run(ctx, runOptions{}, r.cc.CollectGentxsCommand())
+	return r.run(ctx, runOptions{}, r.chainCmd.CollectGentxsCommand())
 }
 
 // ValidateGenesis validates genesis.
 func (r Runner) ValidateGenesis(ctx context.Context) error {
-	return r.run(ctx, runOptions{}, r.cc.ValidateGenesisCommand())
+	return r.run(ctx, runOptions{}, r.chainCmd.ValidateGenesisCommand())
 }
 
 // UnsafeReset resets the blockchain database.
 func (r Runner) UnsafeReset(ctx context.Context) error {
-	return r.run(ctx, runOptions{}, r.cc.UnsafeResetCommand())
+	return r.run(ctx, runOptions{}, r.chainCmd.UnsafeResetCommand())
 }
 
 // ShowNodeID shows node id.
 func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
 	b := &bytes.Buffer{}
-	err = r.run(ctx, runOptions{stdout: b}, r.cc.ShowNodeIDCommand())
+	err = r.run(ctx, runOptions{stdout: b}, r.chainCmd.ShowNodeIDCommand())
 	nodeID = strings.TrimSpace(b.String())
 	return
 }
@@ -97,13 +119,13 @@ type NodeStatus struct {
 func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 	b := &bytes.Buffer{}
 
-	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.StatusCommand()); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.chainCmd.StatusCommand()); err != nil {
 		return NodeStatus{}, err
 	}
 
 	var chainID string
 
-	switch r.cc.SDKVersion() {
+	switch r.chainCmd.SDKVersion() {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		out := struct {
 			NodeInfo struct {
@@ -139,14 +161,14 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
 	b := &bytes.Buffer{}
 	opt := []step.Option{
-		r.cc.BankSendCommand(fromAccount, toAccount, amount),
+		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
 	}
 
-	if r.cc.KeyringPassword() != "" {
+	if r.chainCmd.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword())
-		fmt.Fprintln(input, r.cc.KeyringPassword())
-		fmt.Fprintln(input, r.cc.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
@@ -179,7 +201,7 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 // Export exports the state of the chain into the specified file
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	exportedState := &bytes.Buffer{}
-	if err := r.run(ctx, runOptions{stdout: exportedState}, r.cc.ExportCommand()); err != nil {
+	if err := r.run(ctx, runOptions{stdout: exportedState}, r.chainCmd.ExportCommand()); err != nil {
 		return err
 	}
 
@@ -211,8 +233,12 @@ type EventAttribute struct {
 	Value string
 }
 
-// QueryTxEvents queries tx events by event selectors.
-func (r Runner) QueryTxEvents(ctx context.Context, selector EventSelector, moreSelectors ...EventSelector) ([]Event, error) {
+// r queries tx events by event selectors.
+func (r Runner) QueryTxEvents(
+	ctx context.Context,
+	selector EventSelector,
+	moreSelectors ...EventSelector,
+) ([]Event, error) {
 	// prepare the slector.
 	var list []string
 
@@ -227,7 +253,7 @@ func (r Runner) QueryTxEvents(ctx context.Context, selector EventSelector, moreS
 	// execute the commnd and parse the output.
 	b := &bytes.Buffer{}
 
-	if err := r.run(ctx, runOptions{stdout: b}, r.cc.QueryTxEventsCommand(query)); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
 		return nil, err
 	}
 

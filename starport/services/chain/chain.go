@@ -351,7 +351,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	ccoptions := []chaincmd.Option{
+	chainCommandOptions := []chaincmd.Option{
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
@@ -360,7 +360,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	// use keyring backend if specified
 	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+		chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
 	} else {
 		// check if keyring backend is specified in config
 		if config.Init.KeyringBackend != "" {
@@ -368,14 +368,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 			if err != nil {
 				return chaincmdrunner.Runner{}, err
 			}
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(configKeyringBackend))
 		} else {
 			// default keyring backend used is OS
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
+			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
 		}
 	}
 
-	cc := chaincmd.New(binary, ccoptions...)
+	cc := chaincmd.New(binary, chainCommandOptions...)
 
 	ccroptions := []chaincmdrunner.Option{}
 	if c.logLevel == LogVerbose {
