@@ -83,15 +83,15 @@ func applyOptions(r *Runner, options []Option) {
 }
 
 // Copy makes a copy of runner by overwriting its options with given options.
-func (runner Runner) Copy(options ...Option) Runner {
-	applyOptions(&runner, options)
+func (r Runner) Copy(options ...Option) Runner {
+	applyOptions(&r, options)
 
-	return runner
+	return r
 }
 
 // Cmd returns underlying chain cmd.
-func (runner Runner) Cmd() chaincmd.ChainCmd {
-	return runner.chainCmd
+func (r Runner) Cmd() chaincmd.ChainCmd {
+	return r.chainCmd
 }
 
 type runOptions struct {
@@ -108,7 +108,7 @@ type runOptions struct {
 }
 
 // run executes a command.
-func (runner Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...step.Option) error {
+func (r Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...step.Option) error {
 	var (
 		// we use a truncated buffer to prevent memory leak
 		// this is because Stargate app currently send logs to StdErr
@@ -116,11 +116,11 @@ func (runner Runner) run(ctx context.Context, runOptions runOptions, stepOptions
 		errb = truncatedbuffer.NewTruncatedBuffer(runOptions.wrappedStdErrMaxLen)
 
 		// add optional prefixes to output streams.
-		stdout io.Writer = lineprefixer.NewWriter(runner.stdout,
-			func() string { return runner.daemonLogPrefix },
+		stdout io.Writer = lineprefixer.NewWriter(r.stdout,
+			func() string { return r.daemonLogPrefix },
 		)
-		stderr io.Writer = lineprefixer.NewWriter(runner.stderr,
-			func() string { return runner.cliLogPrefix },
+		stderr io.Writer = lineprefixer.NewWriter(r.stderr,
+			func() string { return r.cliLogPrefix },
 		)
 	)
 

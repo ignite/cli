@@ -79,7 +79,7 @@ func New(options ...Option) *Runner {
 }
 
 // Run blocks until all steps have completed their executions.
-func (runner *Runner) Run(ctx context.Context, steps ...*step.Step) error {
+func (r *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 	if len(steps) == 0 {
 		return nil
 	}
@@ -114,7 +114,7 @@ func (runner *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 			}
 			return err
 		}
-		command := runner.newCommand(step)
+		command := r.newCommand(step)
 		startErr := command.Start()
 		if startErr != nil {
 			if err := runPostExecs(startErr); err != nil {
@@ -124,7 +124,7 @@ func (runner *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 		}
 		go func() {
 			<-ctx.Done()
-			command.Signal(runner.endSignal)
+			command.Signal(r.endSignal)
 		}()
 		if err := step.InExec(); err != nil {
 			return err
@@ -134,7 +134,7 @@ func (runner *Runner) Run(ctx context.Context, steps ...*step.Step) error {
 				return err
 			}
 		}
-		if runner.runParallel {
+		if r.runParallel {
 			g.Go(func() error {
 				return runPostExecs(command.Wait())
 			})

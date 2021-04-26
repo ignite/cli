@@ -13,18 +13,18 @@ const (
 )
 
 // launchpadSetConfigCommand
-func (chainCmd ChainCmd) launchpadSetConfigCommand(name string, value string) step.Option {
+func (c ChainCmd) launchpadSetConfigCommand(name string, value string) step.Option {
 	command := []string{
 		commandConfig,
 		name,
 		value,
 	}
 
-	return chainCmd.cliCommand(command)
+	return c.cliCommand(command)
 }
 
 // launchpadRestServerCommand
-func (chainCmd ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
+func (c ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
 	command := []string{
 		commandRestServer,
 		optionUnsafeCors,
@@ -33,13 +33,13 @@ func (chainCmd ChainCmd) launchpadRestServerCommand(apiAddress string, rpcAddres
 		optionRPCAddress,
 		rpcAddress,
 	}
-	return chainCmd.cliCommand(command)
+	return c.cliCommand(command)
 }
 
 // attachCLIHome appends the home flag to the provided CLI command
-func (chainCmd ChainCmd) attachCLIHome(command []string) []string {
-	if chainCmd.cliHome != "" {
-		command = append(command, []string{optionHome, chainCmd.cliHome}...)
+func (c ChainCmd) attachCLIHome(command []string) []string {
+	if c.cliHome != "" {
+		command = append(command, []string{optionHome, c.cliHome}...)
 	}
 	return command
 }

@@ -18,26 +18,26 @@ import (
 )
 
 // Start starts the blockchain.
-func (runner Runner) Start(ctx context.Context, args ...string) error {
-	return runner.run(
+func (r Runner) Start(ctx context.Context, args ...string) error {
+	return r.run(
 		ctx,
 		runOptions{wrappedStdErrMaxLen: 50000},
-		runner.chainCmd.StartCommand(args...),
+		r.chainCmd.StartCommand(args...),
 	)
 }
 
 // LaunchpadStartRestServer start launchpad rest server.
-func (runner Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
-	return runner.run(
+func (r Runner) LaunchpadStartRestServer(ctx context.Context, apiAddress, rpcAddress string) error {
+	return r.run(
 		ctx,
 		runOptions{wrappedStdErrMaxLen: 50000},
-		runner.chainCmd.LaunchpadRestServerCommand(apiAddress, rpcAddress),
+		r.chainCmd.LaunchpadRestServerCommand(apiAddress, rpcAddress),
 	)
 }
 
 // Init inits the blockchain.
-func (runner Runner) Init(ctx context.Context, moniker string) error {
-	return runner.run(ctx, runOptions{}, runner.chainCmd.InitCommand(moniker))
+func (r Runner) Init(ctx context.Context, moniker string) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.InitCommand(moniker))
 }
 
 // KV holds a key, value pair.
@@ -52,12 +52,12 @@ func NewKV(key, value string) KV {
 }
 
 // LaunchpadSetConfigs updates configurations for a launchpad app.
-func (runner Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
+func (r Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
 	for _, kv := range kvs {
-		if err := runner.run(
+		if err := r.run(
 			ctx,
 			runOptions{},
-			runner.chainCmd.LaunchpadSetConfigCommand(kv.key, kv.value),
+			r.chainCmd.LaunchpadSetConfigCommand(kv.key, kv.value),
 		); err != nil {
 			return err
 		}
@@ -68,7 +68,7 @@ func (runner Runner) LaunchpadSetConfigs(ctx context.Context, kvs ...KV) error {
 var gentxRe = regexp.MustCompile(`(?m)"(.+?)"`)
 
 // Gentx generates a genesis tx carrying a self delegation.
-func (runner Runner) Gentx(
+func (r Runner) Gentx(
 	ctx context.Context,
 	validatorName,
 	selfDelegation string,
@@ -76,11 +76,11 @@ func (runner Runner) Gentx(
 ) (gentxPath string, err error) {
 	b := &bytes.Buffer{}
 
-	if err := runner.run(ctx, runOptions{
+	if err := r.run(ctx, runOptions{
 		stdout: b,
 		stderr: io.MultiWriter(b, os.Stderr),
 		stdin:  os.Stdin,
-	}, runner.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
+	}, r.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
 	}
 
@@ -88,24 +88,24 @@ func (runner Runner) Gentx(
 }
 
 // CollectGentxs collects gentxs.
-func (runner Runner) CollectGentxs(ctx context.Context) error {
-	return runner.run(ctx, runOptions{}, runner.chainCmd.CollectGentxsCommand())
+func (r Runner) CollectGentxs(ctx context.Context) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.CollectGentxsCommand())
 }
 
 // ValidateGenesis validates genesis.
-func (runner Runner) ValidateGenesis(ctx context.Context) error {
-	return runner.run(ctx, runOptions{}, runner.chainCmd.ValidateGenesisCommand())
+func (r Runner) ValidateGenesis(ctx context.Context) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.ValidateGenesisCommand())
 }
 
 // UnsafeReset resets the blockchain database.
-func (runner Runner) UnsafeReset(ctx context.Context) error {
-	return runner.run(ctx, runOptions{}, runner.chainCmd.UnsafeResetCommand())
+func (r Runner) UnsafeReset(ctx context.Context) error {
+	return r.run(ctx, runOptions{}, r.chainCmd.UnsafeResetCommand())
 }
 
 // ShowNodeID shows node id.
-func (runner Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
+func (r Runner) ShowNodeID(ctx context.Context) (nodeID string, err error) {
 	b := &bytes.Buffer{}
-	err = runner.run(ctx, runOptions{stdout: b}, runner.chainCmd.ShowNodeIDCommand())
+	err = r.run(ctx, runOptions{stdout: b}, r.chainCmd.ShowNodeIDCommand())
 	nodeID = strings.TrimSpace(b.String())
 	return
 }
@@ -116,16 +116,16 @@ type NodeStatus struct {
 }
 
 // Status returns the node's status.
-func (runner Runner) Status(ctx context.Context) (NodeStatus, error) {
+func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 	b := &bytes.Buffer{}
 
-	if err := runner.run(ctx, runOptions{stdout: b, stderr: b}, runner.chainCmd.StatusCommand()); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.chainCmd.StatusCommand()); err != nil {
 		return NodeStatus{}, err
 	}
 
 	var chainID string
 
-	switch runner.chainCmd.SDKVersion() {
+	switch r.chainCmd.SDKVersion() {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		out := struct {
 			NodeInfo struct {
@@ -158,21 +158,21 @@ func (runner Runner) Status(ctx context.Context) (NodeStatus, error) {
 }
 
 // BankSend sends amount from fromAccount to toAccount.
-func (runner Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
+func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
 	b := &bytes.Buffer{}
 	opt := []step.Option{
-		runner.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
+		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
 	}
 
-	if runner.chainCmd.KeyringPassword() != "" {
+	if r.chainCmd.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, runner.chainCmd.KeyringPassword())
-		fmt.Fprintln(input, runner.chainCmd.KeyringPassword())
-		fmt.Fprintln(input, runner.chainCmd.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
-	if err := runner.run(ctx, runOptions{stdout: b}, opt...); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
 		if strings.Contains(err.Error(), "key not found") || // stargate
 			strings.Contains(err.Error(), "unknown address") || // launchpad
 			strings.Contains(b.String(), "item could not be found") { // launchpad
@@ -199,9 +199,9 @@ func (runner Runner) BankSend(ctx context.Context, fromAccount, toAccount, amoun
 }
 
 // Export exports the state of the chain into the specified file
-func (runner Runner) Export(ctx context.Context, exportedFile string) error {
+func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	exportedState := &bytes.Buffer{}
-	if err := runner.run(ctx, runOptions{stdout: exportedState}, runner.chainCmd.ExportCommand()); err != nil {
+	if err := r.run(ctx, runOptions{stdout: exportedState}, r.chainCmd.ExportCommand()); err != nil {
 		return err
 	}
 
@@ -233,7 +233,7 @@ type EventAttribute struct {
 	Value string
 }
 
-// QueryTxEvents queries tx events by event selectors.
+// r queries tx events by event selectors.
 func (runner Runner) QueryTxEvents(
 	ctx context.Context,
 	selector EventSelector,
