@@ -13,80 +13,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestServeLaunchpadAppWithWasm(t *testing.T) {
-	var (
-		env     = newEnv(t)
-		apath   = env.Scaffold("blog", Launchpad)
-		servers = env.RandomizeServerPorts(apath, "")
-	)
-
-	env.Must(env.Exec("add Wasm module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "module", "import", "wasm"),
-			step.Workdir(apath),
-		)),
-	))
-
-	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
-		isBackendAliveErr error
-	)
-	go func() {
-		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
-	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "", "", "", ExecCtx(ctx)))
-
-	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
-}
-
-func TestServeLaunchpadAppWithCustomHomes(t *testing.T) {
-	var (
-		env     = newEnv(t)
-		apath   = env.Scaffold("blog2", Launchpad)
-		servers = env.RandomizeServerPorts(apath, "")
-	)
-
-	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
-		isBackendAliveErr error
-	)
-	go func() {
-		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
-	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "./home", "./clihome", "", ExecCtx(ctx)))
-
-	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
-}
-
-func TestServeLaunchpadAppWithConfigHomes(t *testing.T) {
-	var (
-		env     = newEnv(t)
-		apath   = env.Scaffold("blog3", Launchpad)
-		servers = env.RandomizeServerPorts(apath, "")
-	)
-
-	// Set config homes
-	env.SetRandomHomeConfig(apath, "")
-
-	var (
-		ctx, cancel       = context.WithTimeout(env.Ctx(), serveTimeout)
-		isBackendAliveErr error
-	)
-	go func() {
-		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
-	}()
-	env.Must(env.Serve("should serve with Wasm", apath, "", "", "", ExecCtx(ctx)))
-
-	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
-}
-
 func TestServeStargateWithWasm(t *testing.T) {
 	var (
 		env     = newEnv(t)
-		apath   = env.Scaffold("sgblog", Stargate)
+		apath   = env.Scaffold("sgblog")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -105,7 +35,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -113,7 +43,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
 		env     = newEnv(t)
-		apath   = env.Scaffold("sgblog2", Stargate)
+		apath   = env.Scaffold("sgblog2")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -125,7 +55,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -133,7 +63,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 func TestServeStargateWithConfigHome(t *testing.T) {
 	var (
 		env     = newEnv(t)
-		apath   = env.Scaffold("sgblog3", Stargate)
+		apath   = env.Scaffold("sgblog3")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
 
@@ -148,7 +78,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", "", ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -160,7 +90,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 
 	var (
 		env   = newEnv(t)
-		apath = env.Scaffold("sgblog4", Stargate)
+		apath = env.Scaffold("sgblog4")
 	)
 	// Move config
 	newConfig := "new_config.yml"
@@ -181,7 +111,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", newConfigPath, ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, "", newConfigPath, ExecCtx(ctx)))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

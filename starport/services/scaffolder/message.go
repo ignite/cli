@@ -2,33 +2,21 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
-// AddType adds a new type stype to scaffolded app by using optional type fields.
+// AddMessage adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resField []string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
-	}
-
-	// Launchpad not supported
-	if majorVersion == cosmosver.Launchpad {
-		return errors.New("message scaffolding not supported on Launchpad")
 	}
 
 	// If no module is provided, we add the type to the app's module
@@ -108,7 +96,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+	if err := s.protoc(pwd, path.RawPath); err != nil {
 		return err
 	}
 	return fmtProject(pwd)

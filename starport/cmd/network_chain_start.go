@@ -15,16 +15,13 @@ func NewNetworkChainStart() *cobra.Command {
 		RunE:  networkChainStartHandler,
 		Args:  cobra.MinimumNArgs(1),
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	return c
 }
 
 func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 	// Check if custom home is provided
-	initOptions, err := initOptionWithHomeFlags(cmd, []networkbuilder.InitOption{})
-	if err != nil {
-		return err
-	}
+	initOptions := initOptionWithHomeFlag(cmd, []networkbuilder.InitOption{})
 
 	nb, err := newNetworkBuilder()
 	if err != nil {

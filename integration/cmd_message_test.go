@@ -11,7 +11,7 @@ import (
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a message",

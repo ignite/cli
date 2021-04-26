@@ -5,7 +5,6 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
-	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -14,6 +13,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	conf "github.com/tendermint/starport/starport/chainconf"
+	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -39,8 +39,7 @@ func newBlockchain(
 	appPath,
 	url,
 	hash,
-	home,
-	cliHome string,
+	home string,
 	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) (*Blockchain, error) {
@@ -50,7 +49,7 @@ func newBlockchain(
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID, home, cliHome, keyringBackend, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, keyringBackend, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
@@ -58,8 +57,7 @@ func newBlockchain(
 func (b *Blockchain) init(
 	ctx context.Context,
 	chainID,
-	home,
-	cliHome string,
+	home string,
 	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) error {
@@ -73,9 +71,6 @@ func (b *Blockchain) init(
 	// Custom home directories
 	if home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
-	}
-	if cliHome != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
 	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
@@ -92,10 +87,9 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	if v := chain.SDKVersion(); v != cosmosver.Stargate {
-		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
+	if !chain.Version.Major().Is(cosmosver.Stargate) {
+		return sperrors.ErrOnlyStargateSupported
 	}
-
 	chainHome, err := chain.Home()
 	if err != nil {
 		return err
@@ -108,14 +102,8 @@ func (b *Blockchain) init(
 	}
 
 	// cleanup home dir of app if exists.
-	paths, err := chain.StoragePaths()
-	if err != nil {
+	if err := xos.RemoveAllUnderHome(chainHome); err != nil {
 		return err
-	}
-	for _, path := range paths {
-		if err := xos.RemoveAllUnderHome(path); err != nil {
-			return err
-		}
 	}
 
 	if err := chain.Build(ctx); err != nil {

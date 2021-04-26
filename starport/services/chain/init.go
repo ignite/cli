@@ -37,13 +37,6 @@ func (c *Chain) Init(ctx context.Context) error {
 	if err := os.RemoveAll(home); err != nil {
 		return err
 	}
-	cliHome, err := c.CLIHome()
-	if err != nil {
-		return err
-	}
-	if err := os.RemoveAll(cliHome); err != nil {
-		return err
-	}
 
 	commands, err := c.Commands(ctx)
 	if err != nil {

@@ -30,7 +30,7 @@ func NewNetworkProposalApprove() *cobra.Command {
 		RunE:    networkProposalApproveHandler,
 		Args:    cobra.ExactArgs(2),
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().Bool(flagNoVerification, false, "approve the proposals without verifying them")
 	return c
 }

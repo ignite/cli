@@ -12,7 +12,6 @@ import (
 	conf "github.com/tendermint/starport/starport/chainconf"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -49,7 +48,7 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	}
 
 	// generate protobuf types
-	if err := s.protoc(absRoot, pathInfo.RawPath, s.options.sdkVersion); err != nil {
+	if err := s.protoc(absRoot, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 
@@ -66,8 +65,8 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 }
 
 func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
-	// generate application template
-	g, err := app.New(s.options.sdkVersion, &app.Options{
+	g, err := app.New(&app.Options{
+		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		OwnerName:        owner(pathInfo.RawPath),
@@ -85,26 +84,22 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	}
 
 	// generate module template
-	// Launchpad module template is self contained in the application template
-	// so we don't run this part if version is Launchpad
-	if !s.options.sdkVersion.Is(cosmosver.Launchpad) {
-		g, err = modulecreate.NewStargate(&modulecreate.CreateOptions{
-			ModuleName: pathInfo.Package, // App name
-			ModulePath: pathInfo.RawPath,
-			AppName:    pathInfo.Package,
-			OwnerName:  owner(pathInfo.RawPath),
-			IsIBC:      false,
-		})
+	g, err = modulecreate.NewStargate(&modulecreate.CreateOptions{
+		ModuleName: pathInfo.Package, // App name
+		ModulePath: pathInfo.RawPath,
+		AppName:    pathInfo.Package,
+		OwnerName:  owner(pathInfo.RawPath),
+		IsIBC:      false,
+	})
 
-		if err != nil {
-			return err
-		}
-		run = genny.WetRunner(context.Background())
-		run.With(g)
-		run.Root = absRoot
-		if err := run.Run(); err != nil {
-			return err
-		}
+	if err != nil {
+		return err
+	}
+	run = genny.WetRunner(context.Background())
+	run.With(g)
+	run.Root = absRoot
+	if err := run.Run(); err != nil {
+		return err
 	}
 
 	// generate the vue app.
@@ -112,11 +107,7 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	return localfs.Save(vue.Boilerplate(), vuepath)
 }
 
-func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
-	if !version.Is(cosmosver.Stargate) {
-		return nil
-	}
-
+func (s *Scaffolder) protoc(projectPath, gomodPath string) error {
 	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}

@@ -7,7 +7,7 @@ Starport is the easiest way to build a blockchain. It is a developer-friendly in
 
 ## Quick start
 
-Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](/docs/1%20Introduction/2%20Install.md). Then:
+Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/intro/install). Then:
 
 ```
 starport app github.com/foo/mychain
@@ -19,7 +19,7 @@ starport serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/4%20Configure%20a%20Blockchain/2%20config.yml%20Reference.html). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/1%20Introduction/2%20Install.html).
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/configure/reference). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/intro/install).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [`tendermint/vue`](https://github.com/tendermint/vue).
 

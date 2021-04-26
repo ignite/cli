@@ -9,10 +9,9 @@ import (
 )
 
 const (
-	flagModule    string = "module"
-	flagLegacy    string = "legacy"
-	flagIndexed   string = "indexed"
-	flagNoMessage string = "no-message"
+	flagModule    = "module"
+	flagIndexed   = "indexed"
+	flagNoMessage = "no-message"
 )
 
 // NewType command creates a new type command to scaffold types.
@@ -24,10 +23,7 @@ func NewType() *cobra.Command {
 		RunE:  typeHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	addSdkVersionFlag(c)
-
 	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
-	c.Flags().Bool(flagLegacy, false, "Scaffold the type without generating MsgServer service")
 	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
 	c.Flags().Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
 
@@ -39,27 +35,17 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
+	module, _ := cmd.Flags().GetString(flagModule)
 
 	// Add type options
 	var opts scaffolder.AddTypeOption
-	opts.Legacy, err = cmd.Flags().GetBool(flagLegacy)
-	if err != nil {
-		return err
-	}
-	opts.Indexed, err = cmd.Flags().GetBool(flagIndexed)
-	if err != nil {
-		return err
-	}
-	opts.NoMessage, err = cmd.Flags().GetBool(flagNoMessage)
-	if err != nil {
-		return err
-	}
+	opts.Indexed, _ = cmd.Flags().GetBool(flagIndexed)
+	opts.NoMessage, _ = cmd.Flags().GetBool(flagNoMessage)
 
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.AddType(opts, module, args[0], args[1:]...); err != nil {
 		return err
 	}

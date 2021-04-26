@@ -24,7 +24,7 @@ func NewNetworkProposalVerify() *cobra.Command {
 		RunE:  networkProposalVerifyHandler,
 		Args:  cobra.ExactArgs(2),
 	}
-	c.Flags().AddFlagSet(flagSetHomes())
+	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().Bool(flagDebug, false, "show output of verification command in the console")
 	return c
 }

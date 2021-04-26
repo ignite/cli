@@ -4,14 +4,16 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
 	"os"
 	"strings"
 
+	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/gocmd"
-
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
+	"github.com/tendermint/starport/starport/pkg/gomodule"
 )
 
 // Scaffolder is Starport app scaffolder.
@@ -21,22 +23,29 @@ type Scaffolder struct {
 
 	// options to configure scaffolding.
 	options *scaffoldingOptions
+
+	// version of the chain
+	version cosmosver.Version
 }
 
 // New initializes a new Scaffolder for app at path.
-func New(path string, options ...Option) *Scaffolder {
-	return &Scaffolder{
+func New(path string, options ...Option) (*Scaffolder, error) {
+	s := &Scaffolder{
 		path:    path,
 		options: newOptions(options...),
 	}
-}
 
-func (s *Scaffolder) version() (cosmosver.Version, error) {
-	v, err := cosmosver.Detect(s.path)
-	if err != nil {
-		return 0, err
+	// determine the chain version.
+	var err error
+	s.version, err = cosmosver.Detect(path)
+	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
+		return nil, err
 	}
-	return v, nil
+	if err == nil && !s.version.Major().Is(cosmosver.Stargate) {
+		return nil, sperrors.ErrOnlyStargateSupported
+	}
+
+	return s, nil
 }
 
 func owner(modulePath string) string {

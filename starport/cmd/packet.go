@@ -57,7 +57,10 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc := scaffolder.New(appPath)
+	sc, err := scaffolder.New(appPath)
+	if err != nil {
+		return err
+	}
 	if err := sc.AddPacket(module, packet, packetFields, ackFields, noMessage); err != nil {
 		return err
 	}
