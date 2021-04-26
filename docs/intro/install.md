@@ -43,7 +43,7 @@ sudo mv starport /usr/local/bin/
 
 If you get errors related to `protoc`, make sure that you followed the [Install pre-compiled binaries (any OS)](https://grpc.io/docs/protoc-installation/#install-pre-compiled-binaries-any-os) instructions:
 
-1. Manually download from github.com/google/protobuf/releases the zip file corresponding to your operating system and computer architecture (`protoc-<version>-<os><arch>.zip`).
+1. From [github.com/google/protobuf/releases](https://github.com/google/protobuf/releases), manually download the zip file that corresponds to your operating system and computer architecture (`protoc-<version>-<os><arch>.zip`).
 
 2. Unzip the file under $HOME/.local or a directory of your choice. For example:
 
