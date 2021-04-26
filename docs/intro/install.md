@@ -45,7 +45,7 @@ If you get errors related to `protoc`, make sure that you followed the [Install 
 
 1. From [github.com/google/protobuf/releases](https://github.com/google/protobuf/releases), manually download the zip file that corresponds to your operating system and computer architecture (`protoc-<version>-<os><arch>.zip`).
 
-2. Unzip the file under $HOME/.local or a directory of your choice. For example:
+2. Unzip the file under `$HOME/.local` or a directory of your choice. For example:
 
 ```
 $ unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
