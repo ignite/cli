@@ -27,43 +27,43 @@ type Option func(*Runner)
 
 // DefaultStdout provides the default stdout for the commands to run
 func DefaultStdout(writer io.Writer) Option {
-	return func(runner *Runner) {
-		runner.stdout = writer
+	return func(r *Runner) {
+		r.stdout = writer
 	}
 }
 
 // DefaultStderr provides the default stderr for the commands to run
 func DefaultStderr(writer io.Writer) Option {
-	return func(runner *Runner) {
-		runner.stderr = writer
+	return func(r *Runner) {
+		r.stderr = writer
 	}
 }
 
 // DefaultStdin provides the default stdin for the commands to run
 func DefaultStdin(reader io.Reader) Option {
-	return func(runner *Runner) {
-		runner.stdin = reader
+	return func(r *Runner) {
+		r.stdin = reader
 	}
 }
 
 // DefaultWorkdir provides the default working directory for the commands to run
 func DefaultWorkdir(path string) Option {
-	return func(runner *Runner) {
-		runner.workdir = path
+	return func(r *Runner) {
+		r.workdir = path
 	}
 }
 
 // RunParallel allows the commands to run concurrently
 func RunParallel() Option {
-	return func(runner *Runner) {
-		runner.runParallel = true
+	return func(r *Runner) {
+		r.runParallel = true
 	}
 }
 
 // EndSignal configures s to be signaled to the processes to end them.
 func EndSignal(s os.Signal) Option {
-	return func(runner *Runner) {
-		runner.endSignal = s
+	return func(r *Runner) {
+		r.endSignal = s
 	}
 }
 
@@ -72,8 +72,8 @@ func New(options ...Option) *Runner {
 	runner := &Runner{
 		endSignal: os.Interrupt,
 	}
-	for _, option := range options {
-		option(runner)
+	for _, apply := range options {
+		apply(runner)
 	}
 	return runner
 }
@@ -156,22 +156,22 @@ type Executor interface {
 // dummyExecutor is an executor that does nothing
 type dummyExecutor struct{}
 
-func (exec *dummyExecutor) Start() error { return nil }
+func (e *dummyExecutor) Start() error { return nil }
 
-func (exec *dummyExecutor) Wait() error { return nil }
+func (e *dummyExecutor) Wait() error { return nil }
 
-func (exec *dummyExecutor) Signal(os.Signal) {}
+func (e *dummyExecutor) Signal(os.Signal) {}
 
-func (exec *dummyExecutor) Write([]byte) (int, error) { return 0, nil }
+func (e *dummyExecutor) Write([]byte) (int, error) { return 0, nil }
 
 // cmdSignal is an executor with signal processing
 type cmdSignal struct {
 	*exec.Cmd
 }
 
-func (exec *cmdSignal) Signal(s os.Signal) { exec.Cmd.Process.Signal(s) }
+func (e *cmdSignal) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
 
-func (exec *cmdSignal) Write(data []byte) (n int, err error) { return 0, nil }
+func (e *cmdSignal) Write(data []byte) (n int, err error) { return 0, nil }
 
 // cmdSignalWithWriter is an executor with signal processing and that can write into stdin
 type cmdSignalWithWriter struct {
@@ -179,11 +179,11 @@ type cmdSignalWithWriter struct {
 	w io.WriteCloser
 }
 
-func (exec *cmdSignalWithWriter) Signal(s os.Signal) { exec.Cmd.Process.Signal(s) }
+func (e *cmdSignalWithWriter) Signal(s os.Signal) { e.Cmd.Process.Signal(s) }
 
-func (exec *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
-	defer exec.w.Close()
-	return exec.w.Write(data)
+func (e *cmdSignalWithWriter) Write(data []byte) (n int, err error) {
+	defer e.w.Close()
+	return e.w.Write(data)
 }
 
 // newCommand returns a new command to execute
