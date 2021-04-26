@@ -41,7 +41,7 @@ sudo mv starport /usr/local/bin/
 
 ### Error while running command `protoc`
 
-If you get errors related to `protoc`, please, make sure that you followed [the instructions](https://grpc.io/docs/protoc-installation/#install-pre-compiled-binaries-any-os):
+If you get errors related to `protoc`, make sure that you followed the [Install pre-compiled binaries (any OS)](https://grpc.io/docs/protoc-installation/#install-pre-compiled-binaries-any-os) instructions:
 
 1. Manually download from github.com/google/protobuf/releases the zip file corresponding to your operating system and computer architecture (`protoc-<version>-<os><arch>.zip`).
 
