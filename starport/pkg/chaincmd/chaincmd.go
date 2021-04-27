@@ -72,14 +72,14 @@ type ChainCmd struct {
 
 // New creates a new ChainCmd to launch command with the chain app
 func New(appCmd string, options ...Option) ChainCmd {
-	c := ChainCmd{
+	chainCmd := ChainCmd{
 		appCmd:     appCmd,
 		sdkVersion: cosmosver.Versions.Latest(),
 	}
 
-	applyOptions(&c, options)
+	applyOptions(&chainCmd, options)
 
-	return c
+	return chainCmd
 }
 
 // Copy makes a copy of ChainCmd by overwriting its options with given options.

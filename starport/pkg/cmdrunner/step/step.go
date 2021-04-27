@@ -11,6 +11,7 @@ type Step struct {
 	PostExecs []func(error) error
 	Stdout    io.Writer
 	Stderr    io.Writer
+	Stdin     io.Reader
 	Workdir   string
 	Env       []string
 	WriteData []byte
@@ -79,6 +80,12 @@ func Stdout(w io.Writer) Option {
 func Stderr(w io.Writer) Option {
 	return func(s *Step) {
 		s.Stderr = w
+	}
+}
+
+func Stdin(r io.Reader) Option {
+	return func(s *Step) {
+		s.Stdin = r
 	}
 }
 
