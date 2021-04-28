@@ -37,8 +37,8 @@ type jsGenerator struct {
 	g *generator
 }
 
-func newJSGenerator(g *generator) jsGenerator {
-	return jsGenerator{
+func newJSGenerator(g *generator) *jsGenerator {
+	return &jsGenerator{
 		g: g,
 	}
 }

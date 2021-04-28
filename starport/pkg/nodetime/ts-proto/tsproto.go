@@ -25,6 +25,8 @@ var (
 // will be protoc-gen-ts_proto.
 // see why: https://github.com/stephenh/ts-proto/blob/7f76c05/README.markdown#quickstart.
 func BinaryPath() (path string, cleanup func(), err error) {
+	cleanup = func() {}
+
 	once.Do(func() {
 		var command []string
 
