@@ -37,17 +37,14 @@ type jsGenerator struct {
 	g *generator
 }
 
-func newJSGenerator(g *generator) (jsGenerator, error) {
+func newJSGenerator(g *generator) jsGenerator {
 	return jsGenerator{
 		g: g,
-	}, nil
+	}
 }
 
 func (g *generator) generateJS() error {
-	jsg, err := newJSGenerator(g)
-	if err != nil {
-		return err
-	}
+	jsg := newJSGenerator(g)
 
 	if err := jsg.generateModules(); err != nil {
 		return err
