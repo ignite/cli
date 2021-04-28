@@ -8,30 +8,29 @@ import (
 	"bytes"
 	"compress/gzip"
 	"io"
-	"os"
-	"path/filepath"
 	"sync"
-)
 
-// BinaryPath is the path where nodetime binary is located in the fs.
-const BinaryPath = "/tmp/nodetime"
+	"github.com/tendermint/starport/starport/pkg/localfs"
+)
 
 // the list of CLIs included.
 const (
 	// CommandTSProto is https://github.com/stephenh/ts-proto.
-	CommandTSProto = "ts-proto"
+	CommandTSProto CommandName = "ts-proto"
 
 	// CommandTSC is https://github.com/microsoft/TypeScript.
-	CommandTSC = "tsc"
+	CommandTSC CommandName = "tsc"
 
 	// CommandSTA is https://github.com/acacode/swagger-typescript-api.
-	CommandSTA = "sta"
+	CommandSTA CommandName = "sta"
 )
 
+// CommandName represents a high level command under nodetime.
+type CommandName string
+
 var (
-	onceBinary      sync.Once
-	oncePlaceBinary sync.Once
-	binary          []byte
+	onceBinary sync.Once
+	binary     []byte
 )
 
 // Binary returns the binary bytes of the executable.
@@ -58,26 +57,15 @@ func Binary() []byte {
 	return binary
 }
 
-// PlaceBinary places the binary to BinaryPath.
-func PlaceBinary() error {
-	var err error
-
-	oncePlaceBinary.Do(func() {
-		// make sure that parent dir of the binary exists.
-		if err = os.MkdirAll(filepath.Dir(BinaryPath), os.ModePerm); err != nil {
-			return
-		}
-
-		// place the binary to BinaryPath.
-		var f *os.File
-
-		if f, err = os.OpenFile(BinaryPath, os.O_RDWR|os.O_CREATE, 0755); err != nil {
-			return
-		}
-		defer f.Close()
-
-		_, err = io.Copy(f, bytes.NewReader(Binary()))
-	})
-
-	return err
+// Command setups the nodetime binary and returns the command needed to execute c.
+func Command(c CommandName) (command []string, cleanup func(), err error) {
+	path, cleanup, err := localfs.SaveBytesTemp(Binary(), 0755)
+	if err != nil {
+		return nil, nil, err
+	}
+	command = []string{
+		path,
+		string(c),
+	}
+	return command, cleanup, nil
 }

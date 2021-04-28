@@ -34,19 +34,12 @@ var (
 )
 
 type jsGenerator struct {
-	g                 *generator
-	tsprotoPluginPath string
+	g *generator
 }
 
 func newJSGenerator(g *generator) (jsGenerator, error) {
-	tsprotoPluginPath, err := tsproto.BinaryPath()
-	if err != nil {
-		return jsGenerator{}, err
-	}
-
 	return jsGenerator{
-		g:                 g,
-		tsprotoPluginPath: tsprotoPluginPath,
+		g: g,
 	}, nil
 }
 
@@ -115,7 +108,7 @@ func (g *jsGenerator) generateModules() error {
 			for _, m := range modules {
 				m := m
 
-				gg.Go(func() error { return g.generateModule(ctx, g.tsprotoPluginPath, sourcePath, m) })
+				gg.Go(func() error { return g.generateModule(ctx, sourcePath, m) })
 			}
 
 			return gg.Wait()
@@ -126,7 +119,7 @@ func (g *jsGenerator) generateModules() error {
 }
 
 // generateModule generates generates JS code for a module.
-func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, appPath string, m module.Module) error {
+func (g *jsGenerator) generateModule(ctx context.Context, appPath string, m module.Module) error {
 	var (
 		out          = g.g.o.jsOut(m)
 		storeDirPath = filepath.Dir(out)
@@ -145,6 +138,12 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	if err := os.MkdirAll(typesOut, 0755); err != nil {
 		return err
 	}
+
+	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
+	}
+	defer cleanup()
 
 	// generate ts-proto types.
 	err = protoc.Generate(
