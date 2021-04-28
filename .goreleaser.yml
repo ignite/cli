@@ -4,10 +4,6 @@ builds:
       - -s -w -X github.com/tendermint/starport/starport/internal/version.Version={{.Tag}} -X github.com/tendermint/starport/starport/internal/version.Date={{.Date}}
     goarch:
       - amd64
-      - arm64
-    ignore:
-      - goos: darwin
-        goarch: arm64
 
 brews:
   - name: "starport"
