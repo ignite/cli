@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	relayercmd "github.com/cosmos/relayer/cmd"
 	"github.com/spf13/cobra"
 )
 
@@ -11,11 +10,8 @@ func NewRelayer() *cobra.Command {
 		Short: "Connects blockchains via IBC protocol",
 	}
 
-	rlyCmd := relayercmd.NewRootCmd()
-	rlyCmd.Short = "Low-level commands from github.com/cosmos/relayer"
-
 	c.AddCommand(NewRelayerConfigure())
 	c.AddCommand(NewRelayerConnect())
-	c.AddCommand(rlyCmd)
+	c.AddCommand(NewRelayerLowLevel())
 	return c
 }
