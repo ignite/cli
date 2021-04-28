@@ -28,8 +28,6 @@ var (
 		"third_party",
 	}
 
-	vuePath = "vue"
-
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
 )
