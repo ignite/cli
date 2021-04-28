@@ -9,8 +9,8 @@ cd ./scripts/data/gen-nodetime
 npm i 
 npm run build
 
-tar -czvf nodetime-linux-x64.tar.gz nodetime-linux-x64
-tar -czvf nodetime-darwin-x64.tar.gz nodetime-macos-x64
+tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux
+tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos
 
-cp nodetime-linux-x64.tar.gz ../../../starport/pkg/nodetime/ 
-cp nodetime-darwin-x64.tar.gz ../../../starport/pkg/nodetime/
+cp nodetime-linux-amd64.tar.gz ../../../starport/pkg/nodetime/ 
+cp nodetime-darwin-amd64.tar.gz ../../../starport/pkg/nodetime/
