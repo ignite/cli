@@ -1,10 +1,8 @@
 package chain
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
@@ -17,7 +15,6 @@ import (
 	conf "github.com/tendermint/starport/starport/chainconf"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -108,11 +105,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
-
-	// routine to watch front-end
-	g.Go(func() error {
-		return c.watchAppFrontend(ctx)
-	})
 
 	// development server routine
 	g.Go(func() error {
@@ -465,49 +457,6 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
-}
-
-func (c *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := c.Config()
-	if err != nil {
-		return err
-	}
-	vueFullPath := filepath.Join(c.app.Path, vuePath)
-	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
-		return nil
-	}
-	frontendErr := &bytes.Buffer{}
-	postExec := func(err error) error {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
-			fmt.Fprintf(c.stdLog(logStarport).err, "%s\n%s",
-				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
-		}
-		return nil // ignore errors.
-	}
-	host, port, err := net.SplitHostPort(conf.Host.Frontend)
-	if err != nil {
-		return err
-	}
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultWorkdir(vueFullPath),
-			cmdrunner.DefaultStderr(frontendErr),
-		).
-		Run(ctx,
-			step.New(
-				step.Exec("npm", "i"),
-				step.PostExec(postExec),
-			),
-			step.New(
-				step.Exec("npm", "run", "serve"),
-				step.Env(
-					fmt.Sprintf("HOST=%s", host),
-					fmt.Sprintf("PORT=%s", port),
-				),
-				step.PostExec(postExec),
-			),
-		)
 }
 
 func (c *Chain) runDevServer(ctx context.Context) error {
