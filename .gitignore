@@ -1,4 +1,4 @@
-nodetime-*
+scripts/**/nodetime-*
 node_modules
 .DS_Store
 apps/
