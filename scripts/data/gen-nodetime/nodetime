@@ -16,6 +16,14 @@ switch (mode) {
     require("./node_modules/swagger-typescript-api/index");
     break;
 
+  case "ibc-setup":
+    require("./node_modules/@confio/relayer/build/binary/ibc-setup/index");
+    break;
+
+  case "ibc-relayer":
+    require("./node_modules/@confio/relayer/build/binary/ibc-relayer/index");
+    break;
+
   default:
     console.error("unknown cli command");
 }
