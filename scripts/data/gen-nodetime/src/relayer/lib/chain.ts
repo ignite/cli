@@ -1,4 +1,4 @@
-export const ensureChainSetupMethod = "ensureChainSetupMethod"
+export const ensureChainSetupMethod = "ensureChainSetup"
 export const createPathMethod = "createPath"
 export const getPathMethod = "getPath"
 export const listPathsMethod = "listPaths"

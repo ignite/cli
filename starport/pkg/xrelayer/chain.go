@@ -307,7 +307,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	var reply struct {
 		ID string `json:"id"`
 	}
-	err := tsrelayer.Call(ctx, "ensureSetupChain", c.rpcAddress, &reply)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", c.rpcAddress, &reply)
 	c.ID = reply.ID
 	return err
 }
