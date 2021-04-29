@@ -249,58 +249,61 @@ func TestCreateAndJoin(t *testing.T) {
 	}, launchInfo.GenesisAccounts[1])
 }
 
-//func TestRejectProposals(t *testing.T) {
-//	ctx := context.Background()
-//
-//	nb, err := initializeNetworkBuilder()
-//	require.NoError(t, err)
-//	chainID := "venus"
-//	blockchain, err := initializeGaia(ctx, t, nb, chainID, false)
-//	require.NoError(t, err)
-//
-//	// can reject proposals
-//	err = nb.AccountUse(spnValidator1)
-//	require.NoError(t, err)
-//
-//	account, err := blockchain.CreateAccount(ctx, chain.Account{Name: "bob"})
-//	require.NoError(t, err)
-//	account.Coins = "1000token,1000000000stake"
-//
-//	proposal := proposalMock("bob")
-//	gentx, err := blockchain.IssueGentx(ctx, account, proposal)
-//	require.NoError(t, err)
-//
-//	err = blockchain.Join(
-//		ctx,
-//		&account,
-//		account.Address,
-//		peerMock(),
-//		gentx,
-//		sdk.NewCoin("stake", sdk.NewInt(100000000)),
-//	)
-//	require.NoError(t, err)
-//
-//	err = nb.AccountUse(spnCoordinator)
-//	require.NoError(t, err)
-//	_, broadcast, err := nb.SubmitReviewals(
-//		ctx,
-//		chainID,
-//		spn.ApproveProposal(2),
-//		spn.ApproveProposal(3),
-//	)
-//	require.NoError(t, err)
-//	err = broadcast()
-//	require.NoError(t, err)
-//
-//	// check rejected proposals
-//	proposals, err := nb.ProposalList(
-//		ctx,
-//		chainID,
-//		spn.ProposalListStatus(spn.ProposalStatusRejected),
-//		spn.ProposalListType(spn.ProposalTypeAll),
-//	)
-//	require.Len(t, proposals, 2)
-//}
+func TestRejectProposals(t *testing.T) {
+	ctx := context.Background()
+
+	nb, err := initializeNetworkBuilder()
+	require.NoError(t, err)
+	chainID := "venus"
+	blockchain, err := initializeGaia(ctx, t, nb, chainID, false)
+	require.NoError(t, err)
+
+	err = blockchain.Create(ctx)
+	require.NoError(t, err)
+
+	// can reject proposals
+	err = nb.AccountUse(spnValidator1)
+	require.NoError(t, err)
+
+	account, err := blockchain.CreateAccount(ctx, chain.Account{Name: "alice"})
+	require.NoError(t, err)
+	account.Coins = "1000token,1000000000stake"
+
+	proposal := proposalMock("alice")
+	gentx, err := blockchain.IssueGentx(ctx, account, proposal)
+	require.NoError(t, err)
+
+	err = blockchain.Join(
+		ctx,
+		&account,
+		account.Address,
+		peerMock(),
+		gentx,
+		sdk.NewCoin("stake", sdk.NewInt(100000000)),
+	)
+	require.NoError(t, err)
+
+	err = nb.AccountUse(spnCoordinator)
+	require.NoError(t, err)
+	_, broadcast, err := nb.SubmitReviewals(
+		ctx,
+		chainID,
+		spn.RejectProposal(0),
+		spn.RejectProposal(1),
+	)
+	require.NoError(t, err)
+	err = broadcast()
+	require.NoError(t, err)
+
+	// check rejected proposals
+	proposals, err := nb.ProposalList(
+		ctx,
+		chainID,
+		spn.ProposalListStatus(spn.ProposalStatusRejected),
+		spn.ProposalListType(spn.ProposalTypeAll),
+	)
+	require.Len(t, proposals, 2)
+}
 
 func proposalMock(name string) networkbuilder.Proposal {
 	return networkbuilder.Proposal{
