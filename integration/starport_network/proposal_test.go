@@ -1,4 +1,4 @@
-package integration_test
+package starport_network_test
 
 import (
 	"context"
@@ -303,6 +303,10 @@ func TestRejectProposals(t *testing.T) {
 		spn.ProposalListType(spn.ProposalTypeAll),
 	)
 	require.Len(t, proposals, 2)
+}
+
+func TestInvalidProposal(t *testing.T) {
+
 }
 
 func proposalMock(name string) networkbuilder.Proposal {

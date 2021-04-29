@@ -1,6 +1,6 @@
 // +build !relayer
 
-package integration_test
+package starport_cli_test
 
 import (
 	"bytes"

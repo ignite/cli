@@ -1,6 +1,6 @@
 // +build !relayer
 
-package integration_test
+package starport_cli_test
 
 import (
 	"context"
@@ -35,7 +35,13 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve(
+		"should serve with Stargate version",
+		apath,
+		"",
+		"",
+		ExecCtx(ctx),
+		))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -55,7 +61,13 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", ExecCtx(ctx)))
+	env.Must(env.Serve(
+		"should serve with Stargate version",
+		apath,
+		"./home",
+		"",
+		ExecCtx(ctx),
+		))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

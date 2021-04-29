@@ -27,6 +27,6 @@ jobs:
           go1.15 download	
 
       - name: Run Integration Tests
-        run: ./scripts/test-integration 
+        run: ./scripts/test-integration-cli
         env:
           GONAME: "go1.15"

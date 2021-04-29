@@ -1,12 +1,10 @@
-// Package integration_test integration test Starport and scaffolded apps.
-package integration_test
+// Package starport_network_test integration test Starport Network.
+package starport_network_test
 
 import (
-	"context"
 	"errors"
 	"flag"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/localspn"
 	"os"
 	"testing"
 
@@ -23,18 +21,18 @@ func TestMain(m *testing.M) {
 	}
 
 	// setup SPN for Starport Network integration test
-	ctx, cancel := context.WithCancel(context.Background())
-	cleanup, err := localspn.SetupSPN(ctx, localspn.WithBranch("develop"))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	//ctx, cancel := context.WithCancel(context.Background())
+	//cleanup, err := localspn.SetupSPN(ctx, localspn.WithBranch("develop"))
+	//if err != nil {
+	//	fmt.Println(err)
+	//	os.Exit(1)
+	//}
 
 	// Run tests
 	errCode := m.Run()
 
-	cancel()
-	cleanup()
+	//cancel()
+	//cleanup()
 	os.Exit(errCode)
 }
 
