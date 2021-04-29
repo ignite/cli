@@ -195,19 +195,16 @@ func Ordered() ChannelOption {
 
 // Connect connects dst chain to c chain and creates a path in between in offline mode.
 // it returns the path id on success otherwise, returns with a non-nil error.
-func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOption) (pathID string, err error) {
+func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOption) (Path, error) {
 	channelOptions := newChannelOptions()
 
 	for _, apply := range options {
 		apply(&channelOptions)
 	}
 
-	var reply struct {
-		ID string `json:"id"`
-	}
-	err = tsrelayer.Call(ctx, "connectChains", []interface{}{c.ID, dst.ID, channelOptions}, &reply)
-	pathID = reply.ID
-	return
+	var path Path
+	err := tsrelayer.Call(ctx, "createPath", []interface{}{c.ID, dst.ID, channelOptions}, &path)
+	return path, err
 }
 
 // findFaucetURL finds faucet address by returning the address if given by the user

@@ -2,6 +2,7 @@ export const startMethod = "start"
 
 interface Response {}
 
-export default function(paths: string[]): Response {
+// start starts relaying ibc packets for requested paths.
+export function start(paths: string[]): Response {
   return {};
 }
