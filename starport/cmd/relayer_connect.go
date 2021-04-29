@@ -75,12 +75,10 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 		s.Stop()
 
-		rpath := path.Path
-
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.TabIndent)
 		fmt.Fprintf(w, "%s:\n", path.ID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Src.ChainID, rpath.Src.PortID, rpath.Src.ChannelID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Dst.ChainID, rpath.Dst.PortID, rpath.Dst.ChannelID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Src.ChainID, path.Src.PortID, path.Src.ChannelID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Dst.ChainID, path.Dst.PortID, path.Dst.ChannelID)
 		fmt.Fprintln(w)
 		w.Flush()
 	}

@@ -29,6 +29,9 @@ const (
 
 	// CommandIBCRelayer is https://github.com/confio/ts-relayer/blob/main/spec/ibc-relayer.md.
 	CommandIBCRelayer = "ibc-relayer"
+
+	// CommandXRelayer is a relayer wrapper for Starport made using the confio relayer.
+	CommandXRelayer = "xrelayer"
 )
 
 // CommandName represents a high level command under nodetime.
