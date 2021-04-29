@@ -67,7 +67,7 @@ brew install tendermint/tap/starport
 
 ```
 git clone https://github.com/tendermint/starport --depth=1
-make -C starport install
+cd starport && make install
 ```
 
 ## Summary
