@@ -187,7 +187,66 @@ func TestCreateAndJoin(t *testing.T) {
 		),
 	}, launchInfo.GenesisAccounts[0])
 
+	// can let a second validator joining
+	err = nb.AccountUse(spnValidator2)
+	require.NoError(t, err)
+	blockchain, err = initializeGaia(ctx, t, nb, chainID, true)
+	require.NoError(t, err)
 
+	account, err = blockchain.CreateAccount(ctx, chain.Account{Name: "alice"})
+	require.NoError(t, err)
+	account.Coins = "1000token,1000000000stake"
+
+	proposal = proposalMock("alice")
+	gentx, err = blockchain.IssueGentx(ctx, account, proposal)
+	require.NoError(t, err)
+
+	peer = peerMock()
+	err = blockchain.Join(
+		ctx,
+		&account,
+		account.Address,
+		peer,
+		gentx,
+		sdk.NewCoin("stake", sdk.NewInt(100000000)),
+	)
+	require.NoError(t, err)
+
+	err = nb.AccountUse(spnCoordinator)
+	require.NoError(t, err)
+	_, broadcast, err = nb.SubmitReviewals(
+		ctx,
+		chainID,
+		spn.ApproveProposal(2),
+		spn.ApproveProposal(3),
+	)
+	require.NoError(t, err)
+	err = broadcast()
+	require.NoError(t, err)
+
+	// check new approved proposals
+	proposals, err = nb.ProposalList(
+		ctx,
+		chainID,
+		spn.ProposalListStatus(spn.ProposalStatusApproved),
+		spn.ProposalListType(spn.ProposalTypeAll),
+	)
+	require.Len(t, proposals, 4)
+
+	launchInfo, err = nb.LaunchInformation(ctx, chainID)
+	require.NoError(t, err)
+	require.Len(t, launchInfo.Peers, 2)
+	require.Len(t, launchInfo.GenTxs, 2)
+	require.Len(t, launchInfo.GenesisAccounts, 2)
+	require.Contains(t, launchInfo.Peers[1], peer)
+	require.Equal(t, gentx, launchInfo.GenTxs[1])
+	require.Equal(t, spn.GenesisAccount{
+		account.Address,
+		sdk.NewCoins(
+			sdk.NewCoin("token", sdk.NewInt(1000)),
+			sdk.NewCoin("stake", sdk.NewInt(1000000000)),
+		),
+	}, launchInfo.GenesisAccounts[1])
 }
 
 //func TestRejectProposals(t *testing.T) {
