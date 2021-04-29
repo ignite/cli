@@ -6,6 +6,7 @@
     "nodetime": "./nodetime"
   },
   "scripts": {
+    "prebuild": "rm -rf dist && tsc",
     "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
   },
   "dependencies": {
@@ -14,12 +15,12 @@
     "@cosmjs/proto-signing": "^0.24.0-alpha.26",
     "@cosmjs/stargate": "^0.25.0-alpha.2",
     "@types/node": "^13.13.45",
+    "json-rpc-2.0": "^0.2.16",
     "long": "^4.0.0",
     "pkg": "^4.4.9",
     "protobufjs": "^6.10.2",
     "swagger-typescript-api": "^5.1.7",
-    "ts-proto": "^1.68.0",
-    "typescript": "^4.2.2"
+    "ts-proto": "^1.68.0"
   },
   "pkg": {
     "assets": [
@@ -29,5 +30,8 @@
       "./node_modules/@types/**/*",
       "./node_modules/@cosmjs/**/*"
     ]
+  },
+  "devDependencies": {
+    "typescript": "^4.2.4"
   }
 }

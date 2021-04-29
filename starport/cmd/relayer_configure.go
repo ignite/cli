@@ -286,14 +286,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the connection configuration
-	connectionID, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
+	path, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(connectionID))
+	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(path.ID))
 
 	return nil
 }
