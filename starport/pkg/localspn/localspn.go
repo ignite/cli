@@ -3,6 +3,7 @@ package localspn
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
 	"time"
 
@@ -19,7 +20,7 @@ const (
 	repoURL        = "https://github.com/tendermint/spn"
 	defaultBranch  = "master"
 	defaultAPIHost = "127.0.0.1:1317"
-	defaultTimeout = 60 * time.Second
+	defaultTimeout = 30 * time.Second
 )
 
 type spnOptions struct {
@@ -101,6 +102,8 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 	serveStep := step.NewSteps(step.New(
 		step.Exec("starport", "serve", "--home", spnHome),
 		step.Workdir(spnPath),
+		step.Stderr(os.Stderr),
+		step.Stderr(os.Stdout),
 	))
 	spnChan := make(chan error, 1)
 
@@ -139,6 +142,7 @@ func spnServed(ctx context.Context) error {
 		if err == nil && !ok {
 			err = errors.New("spn is not online")
 		}
+		fmt.Println(err.Error())
 		return err
 	}
 
