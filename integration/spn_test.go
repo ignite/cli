@@ -44,6 +44,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	chainSource := "https://github.com/cosmos/gaia"
 	chainHome, err := os.MkdirTemp("", "spn-chain-home")
 	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(chainHome) })
 
 	// initialize the chain for spn
 	sourceOption := networkbuilder.SourceRemote(chainSource)
@@ -53,7 +54,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	}
 	blockchain, err := nb.Init(context.TODO(), chainID, sourceOption, initOptions...)
 	require.NoError(t, err)
-	defer blockchain.Cleanup()
+	t.Cleanup(func() { blockchain.Cleanup() })
 
 	// can create the chain
 	err = blockchain.Create(context.TODO())
