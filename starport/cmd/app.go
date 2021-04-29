@@ -13,7 +13,8 @@ import (
 func NewApp() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "app [github.com/org/repo]",
-		Short: "Generates an empty application",
+		Short: "Scaffold a new blockchain",
+		Long: "Scaffold a new Cosmos SDK blockchain with a default directory structure",
 		Args:  cobra.ExactArgs(1),
 		RunE:  appHandler,
 	}
@@ -45,13 +46,13 @@ func appHandler(cmd *cobra.Command, args []string) error {
 	s.Stop()
 
 	message := `
-⭐️ Successfully created a Cosmos app '%[1]v'.
+⭐️ Successfully created a new blockchain '%[1]v'.
 👉 Get started with the following commands:
 
  %% cd %[1]v
  %% starport serve
 
-NOTE: add --verbose flag for verbose (detailed) output.
+Documentation: https://docs.starport.network
 `
 	fmt.Printf(message, appdir)
 

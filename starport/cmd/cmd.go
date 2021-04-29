@@ -25,7 +25,7 @@ var (
 func New() *cobra.Command {
 	c := &cobra.Command{
 		Use:           "starport",
-		Short:         "A tool for scaffolding out Cosmos applications",
+		Short:         "A developer tool for building Cosmos SDK blockchains",
 		SilenceUsage:  true,
 		SilenceErrors: true,
 	}
@@ -41,7 +41,6 @@ func New() *cobra.Command {
 	c.AddCommand(NewNetwork())
 	c.AddCommand(NewIBCPacket())
 	c.AddCommand(NewMessage())
-	c.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	return c
 }
 
