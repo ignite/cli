@@ -12,8 +12,8 @@ import (
 func NewModuleImport() *cobra.Command {
 	c := &cobra.Command{
 		Use:       "import [feature]",
-		Short:     "Imports a new module to app.",
-		Long:      "Use starport add wasm to add support for webassembly smart contracts to your blockchain.",
+		Short:     "Import a new module to app.",
+		Long:      "Add support for WebAssembly smart contracts to your blockchain.",
 		Args:      cobra.MinimumNArgs(1),
 		ValidArgs: []string{"wasm"},
 		RunE:      importModuleHandler,

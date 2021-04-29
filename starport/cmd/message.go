@@ -17,7 +17,7 @@ const (
 func NewMessage() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "message [name] [field1] [field2] ...",
-		Short: "Generates an empty message",
+		Short: "Scaffold a Cosmos SDK message",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  messageHandler,
 	}
