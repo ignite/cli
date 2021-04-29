@@ -2,14 +2,12 @@ package integration_test
 
 import (
 	"context"
-	"fmt"
 	"io/ioutil"
 	"os"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/rdegges/go-ipify"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/spn"
@@ -18,6 +16,7 @@ import (
 )
 
 var (
+	gaiaSource = "https://github.com/cosmos/gaia"
 	spnCoordinator = "coordinator"
 	spnValidator1  = "validator1"
 	spnValidator2  = "validator2"
@@ -59,8 +58,8 @@ func initializeGaia(
 	t *testing.T,
 	nb *networkbuilder.Builder,
 	chainID string,
+	alreadyCreated bool,
 ) (*networkbuilder.Blockchain, error) {
-	chainSource := "https://github.com/cosmos/gaia"
 	chainHome, err := os.MkdirTemp("", "spn-chain-home")
 	if err != nil {
 		return nil, err
@@ -68,7 +67,15 @@ func initializeGaia(
 	t.Cleanup(func() { os.RemoveAll(chainHome) })
 
 	// initialize the chain for spn
-	sourceOption := networkbuilder.SourceRemote(chainSource)
+	var sourceOption networkbuilder.SourceOption
+
+	// if the chain is already created we can fetch it from the chain ID
+	if alreadyCreated {
+		sourceOption = networkbuilder.SourceChainID()
+	} else {
+		sourceOption = networkbuilder.SourceRemote(gaiaSource)
+	}
+
 	initOptions := []networkbuilder.InitOption{
 		networkbuilder.InitializationHomePath(chainHome),
 		networkbuilder.InitializationKeyringBackend(chaincmd.KeyringBackendTest),
@@ -82,14 +89,14 @@ func initializeGaia(
 	return blockchain, nil
 }
 
-func TestApproveProposals(t *testing.T) {
+func TestCreateAndJoin(t *testing.T) {
 	ctx := context.Background()
 
 	nb, err := initializeNetworkBuilder()
 	require.NoError(t, err)
 
 	chainID := "mars"
-	blockchain, err := initializeGaia(ctx, t, nb, chainID)
+	blockchain, err := initializeGaia(ctx, t, nb, chainID, false)
 	require.NoError(t, err)
 
 	// can create the chain
@@ -114,14 +121,11 @@ func TestApproveProposals(t *testing.T) {
 	require.NoError(t, err)
 	account.Coins = "1000token,1000000000stake"
 
-	ip, err := ipify.GetIp()
-	require.NoError(t, err)
-	peer := fmt.Sprintf("%s:26656", ip)
-
 	proposal := proposalMock("alice")
 	gentx, err := blockchain.IssueGentx(ctx, account, proposal)
 	require.NoError(t, err)
 
+	peer := peerMock()
 	err = blockchain.Join(
 		ctx,
 		&account,
@@ -183,49 +187,61 @@ func TestApproveProposals(t *testing.T) {
 		),
 	}, launchInfo.GenesisAccounts[0])
 
-	// can reject proposals
-	err = nb.AccountUse(spnValidator2)
-	require.NoError(t, err)
 
-	account, err = blockchain.CreateAccount(ctx, chain.Account{Name: "bob"})
-	require.NoError(t, err)
-	account.Coins = "1000token,1000000000stake"
-
-	proposal = proposalMock("bob")
-	gentx, err = blockchain.IssueGentx(ctx, account, proposal)
-	require.NoError(t, err)
-
-	err = blockchain.Join(
-		ctx,
-		&account,
-		account.Address,
-		peer,
-		gentx,
-		sdk.NewCoin("stake", sdk.NewInt(100000000)),
-	)
-	require.NoError(t, err)
-
-	err = nb.AccountUse(spnCoordinator)
-	require.NoError(t, err)
-	_, broadcast, err = nb.SubmitReviewals(
-		ctx,
-		chainID,
-		spn.ApproveProposal(2),
-		spn.ApproveProposal(3),
-	)
-	require.NoError(t, err)
-	err = broadcast()
-	require.NoError(t, err)
-
-	// check rejected proposals
-	proposals, err = nb.ProposalList(
-		ctx,
-		chainID,
-		spn.ProposalListStatus(spn.ProposalStatusRejected),
-		spn.ProposalListType(spn.ProposalTypeAll),
-	)
-	require.Len(t, proposals, 2)
 }
+
+//func TestRejectProposals(t *testing.T) {
+//	ctx := context.Background()
+//
+//	nb, err := initializeNetworkBuilder()
+//	require.NoError(t, err)
+//	chainID := "venus"
+//	blockchain, err := initializeGaia(ctx, t, nb, chainID, false)
+//	require.NoError(t, err)
+//
+//	// can reject proposals
+//	err = nb.AccountUse(spnValidator1)
+//	require.NoError(t, err)
+//
+//	account, err := blockchain.CreateAccount(ctx, chain.Account{Name: "bob"})
+//	require.NoError(t, err)
+//	account.Coins = "1000token,1000000000stake"
+//
+//	proposal := proposalMock("bob")
+//	gentx, err := blockchain.IssueGentx(ctx, account, proposal)
+//	require.NoError(t, err)
+//
+//	err = blockchain.Join(
+//		ctx,
+//		&account,
+//		account.Address,
+//		peerMock(),
+//		gentx,
+//		sdk.NewCoin("stake", sdk.NewInt(100000000)),
+//	)
+//	require.NoError(t, err)
+//
+//	err = nb.AccountUse(spnCoordinator)
+//	require.NoError(t, err)
+//	_, broadcast, err := nb.SubmitReviewals(
+//		ctx,
+//		chainID,
+//		spn.ApproveProposal(2),
+//		spn.ApproveProposal(3),
+//	)
+//	require.NoError(t, err)
+//	err = broadcast()
+//	require.NoError(t, err)
+//
+//	// check rejected proposals
+//	proposals, err := nb.ProposalList(
+//		ctx,
+//		chainID,
+//		spn.ProposalListStatus(spn.ProposalStatusRejected),
+//		spn.ProposalListType(spn.ProposalTypeAll),
+//	)
+//	require.Len(t, proposals, 2)
+//}
 
 func proposalMock(name string) networkbuilder.Proposal {
 	return networkbuilder.Proposal{
@@ -245,4 +261,8 @@ func proposalMock(name string) networkbuilder.Proposal {
 			Details:  "foo",
 		},
 	}
+}
+
+func peerMock() string {
+	return "127.0.0.1:26656"
 }
