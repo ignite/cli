@@ -19,8 +19,8 @@ import (
 
 var (
 	spnCoordinator = "coordinator"
-	spnValidator1   = "validator1"
-	spnValidator2   = "validator2"
+	spnValidator1  = "validator1"
+	spnValidator2  = "validator2"
 )
 
 func initializeNetworkBuilder() (*networkbuilder.Builder, error) {
@@ -54,14 +54,17 @@ func initializeNetworkBuilder() (*networkbuilder.Builder, error) {
 	return nb, nil
 }
 
-func TestChainCreateAndJoin(t *testing.T) {
-	nb, err := initializeNetworkBuilder()
-	require.NoError(t, err)
-
-	chainID := "mars"
+func initializeGaia(
+	ctx context.Context,
+	t *testing.T,
+	nb *networkbuilder.Builder,
+	chainID string,
+) (*networkbuilder.Blockchain, error) {
 	chainSource := "https://github.com/cosmos/gaia"
 	chainHome, err := os.MkdirTemp("", "spn-chain-home")
-	require.NoError(t, err)
+	if err != nil {
+		return nil, err
+	}
 	t.Cleanup(func() { os.RemoveAll(chainHome) })
 
 	// initialize the chain for spn
@@ -70,19 +73,34 @@ func TestChainCreateAndJoin(t *testing.T) {
 		networkbuilder.InitializationHomePath(chainHome),
 		networkbuilder.InitializationKeyringBackend(chaincmd.KeyringBackendTest),
 	}
-	blockchain, err := nb.Init(context.TODO(), chainID, sourceOption, initOptions...)
-	require.NoError(t, err)
+	blockchain, err := nb.Init(ctx, chainID, sourceOption, initOptions...)
+	if err != nil {
+		return nil, err
+	}
 	t.Cleanup(func() { blockchain.Cleanup() })
 
+	return blockchain, nil
+}
+
+func TestApproveProposals(t *testing.T) {
+	ctx := context.Background()
+
+	nb, err := initializeNetworkBuilder()
+	require.NoError(t, err)
+
+	chainID := "mars"
+	blockchain, err := initializeGaia(ctx, t, nb, chainID)
+	require.NoError(t, err)
+
 	// can create the chain
-	err = blockchain.Create(context.TODO())
+	err = blockchain.Create(ctx)
 	require.NoError(t, err)
 
 	// fetch the chain launch information
-	chainInfo, err := nb.ShowChain(context.TODO(), chainID)
+	chainInfo, err := nb.ShowChain(ctx, chainID)
 	require.NoError(t, err)
 	require.Equal(t, chainID, chainInfo.ChainID)
-	launchInfo, err := nb.LaunchInformation(context.TODO(), chainID)
+	launchInfo, err := nb.LaunchInformation(ctx, chainID)
 	require.NoError(t, err)
 	require.Empty(t, launchInfo.Peers)
 	require.Empty(t, launchInfo.GenTxs)
@@ -92,7 +110,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	err = nb.AccountUse(spnValidator1)
 	require.NoError(t, err)
 
-	account, err := blockchain.CreateAccount(context.TODO(), chain.Account{Name: "alice"})
+	account, err := blockchain.CreateAccount(ctx, chain.Account{Name: "alice"})
 	require.NoError(t, err)
 	account.Coins = "1000token,1000000000stake"
 
@@ -101,11 +119,11 @@ func TestChainCreateAndJoin(t *testing.T) {
 	peer := fmt.Sprintf("%s:26656", ip)
 
 	proposal := proposalMock("alice")
-	gentx, err := blockchain.IssueGentx(context.TODO(), account, proposal)
+	gentx, err := blockchain.IssueGentx(ctx, account, proposal)
 	require.NoError(t, err)
 
 	err = blockchain.Join(
-		context.TODO(),
+		ctx,
 		&account,
 		account.Address,
 		peer,
@@ -116,7 +134,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 
 	// check pending proposals
 	proposals, err := nb.ProposalList(
-		context.TODO(),
+		ctx,
 		chainID,
 		spn.ProposalListStatus(spn.ProposalStatusPending),
 		spn.ProposalListType(spn.ProposalTypeAll),
@@ -126,12 +144,12 @@ func TestChainCreateAndJoin(t *testing.T) {
 	// can verify the proposals
 	err = nb.AccountUse(spnCoordinator)
 	require.NoError(t, err)
-	err = nb.VerifyProposals(context.TODO(), chainID, []int{0, 1}, ioutil.Discard)
+	err = nb.VerifyProposals(ctx, chainID, []int{0, 1}, ioutil.Discard)
 	require.NoError(t, err)
 
 	// can approve the proposals
 	_, broadcast, err := nb.SubmitReviewals(
-		context.TODO(),
+		ctx,
 		chainID,
 		spn.ApproveProposal(0),
 		spn.ApproveProposal(1),
@@ -142,7 +160,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 
 	// check approved proposals
 	proposals, err = nb.ProposalList(
-		context.TODO(),
+		ctx,
 		chainID,
 		spn.ProposalListStatus(spn.ProposalStatusApproved),
 		spn.ProposalListType(spn.ProposalTypeAll),
@@ -150,7 +168,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	require.Len(t, proposals, 2)
 
 	// check launch information
-	launchInfo, err = nb.LaunchInformation(context.TODO(), chainID)
+	launchInfo, err = nb.LaunchInformation(ctx, chainID)
 	require.NoError(t, err)
 	require.Len(t, launchInfo.Peers, 1)
 	require.Len(t, launchInfo.GenTxs, 1)
@@ -169,16 +187,16 @@ func TestChainCreateAndJoin(t *testing.T) {
 	err = nb.AccountUse(spnValidator2)
 	require.NoError(t, err)
 
-	account, err = blockchain.CreateAccount(context.TODO(), chain.Account{Name: "bob"})
+	account, err = blockchain.CreateAccount(ctx, chain.Account{Name: "bob"})
 	require.NoError(t, err)
 	account.Coins = "1000token,1000000000stake"
 
 	proposal = proposalMock("bob")
-	gentx, err = blockchain.IssueGentx(context.TODO(), account, proposal)
+	gentx, err = blockchain.IssueGentx(ctx, account, proposal)
 	require.NoError(t, err)
 
 	err = blockchain.Join(
-		context.TODO(),
+		ctx,
 		&account,
 		account.Address,
 		peer,
@@ -190,7 +208,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	err = nb.AccountUse(spnCoordinator)
 	require.NoError(t, err)
 	_, broadcast, err = nb.SubmitReviewals(
-		context.TODO(),
+		ctx,
 		chainID,
 		spn.ApproveProposal(2),
 		spn.ApproveProposal(3),
@@ -201,7 +219,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 
 	// check rejected proposals
 	proposals, err = nb.ProposalList(
-		context.TODO(),
+		ctx,
 		chainID,
 		spn.ProposalListStatus(spn.ProposalStatusRejected),
 		spn.ProposalListType(spn.ProposalTypeAll),

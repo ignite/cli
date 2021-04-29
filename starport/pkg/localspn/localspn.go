@@ -105,7 +105,7 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 	spnChan := make(chan error, 1)
 
 	// SPN must be served before the timeout
-	go func () {
+	go func() {
 		// SPN execution routine
 		err := cmdrunner.New().Run(ctx, serveStep...)
 		if err == nil {
@@ -113,18 +113,18 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 		}
 		spnChan <- err
 	}()
-	go func () {
+	go func() {
 		// Timeout routine
 		time.Sleep(defaultTimeout)
 		spnChan <- errors.New("spn server failed to start")
 	}()
-	go func () {
+	go func() {
 		// Check SPN readiness
 		spnChan <- spnServed(ctx)
 	}()
 
 	// Wait for the first routine to complete
-	spnError := <- spnChan
+	spnError := <-spnChan
 	if spnError != nil {
 		return spnError
 	}
