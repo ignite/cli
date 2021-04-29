@@ -7,7 +7,7 @@ import "github.com/spf13/cobra"
 func NewModule() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "module",
-		Short: "Manage cosmos modules for your app",
+		Short: "Manage Cosmos SDK modules for your blockchain",
 	}
 	c.AddCommand(
 		NewModuleImport(),
