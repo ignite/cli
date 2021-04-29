@@ -50,7 +50,7 @@ const (
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "network",
-		Short: "Create and start blockchains collaboratively",
+		Short: "Launch a blockchain network in a decentralized way",
 		Args:  cobra.ExactArgs(1),
 	}
 

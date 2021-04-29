@@ -42,8 +42,8 @@ app.IBCKeeper.SetRouter(ibcRouter)`),
 func NewModuleCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name]",
-		Short: "Creates a new empty module to app.",
-		Long:  "Use starport module create to create a new empty module to your blockchain.",
+		Short: "Scaffold a Cosmos SDK module",
+		Long:  "Scaffold a new Cosmos SDK module in the `x` directory",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createModuleHandler,
 	}

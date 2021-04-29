@@ -11,7 +11,7 @@ import (
 func NewVersion() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "version",
-		Short: "Version will output the current build information",
+		Short: "Print the current build information",
 		Run: func(_ *cobra.Command, _ []string) {
 			fmt.Println(version.Long())
 		},

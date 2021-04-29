@@ -16,9 +16,9 @@ const (
 // NewIBCPacket creates a new packet in the module
 func NewIBCPacket() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "packet [packetName] [field1] [field2] ... --module [module_name]",
-		Short: "Creates a new interpretable IBC packet.",
-		Long:  "Use starport ibc packet to create a new packet in your IBC module.",
+		Use:   "packet [packetName] [field1] [field2] ... --module [moduleName]",
+		Short: "Scaffold an IBC packet",
+		Long:  "Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createPacketHandler,
 	}
