@@ -106,7 +106,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	// install the app.
 	steps.Add(step.New(
 		step.PreExec(func() error {
-			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the app...")
+			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the blockchain...")
 			return nil
 		}),
 	))

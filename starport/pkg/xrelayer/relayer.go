@@ -147,7 +147,7 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 			return err
 		}
 
-		if _, err := chains[src].CreateClients(chains[dst]); err != nil {
+		if _, err := chains[src].CreateClients(chains[dst], true, true, false); err != nil {
 			return err
 		}
 		if _, err := chains[src].CreateOpenConnections(chains[dst], linkingRetryCount, linkingTimeout); err != nil {

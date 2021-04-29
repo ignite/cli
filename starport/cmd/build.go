@@ -16,7 +16,7 @@ const (
 func NewBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
-		Short: "Builds and installs an app and its dependencies",
+		Short: "Build and install a blockchain and its dependencies",
 		Args:  cobra.ExactArgs(0),
 		RunE:  buildHandler,
 	}
