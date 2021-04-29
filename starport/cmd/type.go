@@ -19,7 +19,7 @@ func NewType() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "type [typeName] [field1] [field2] ...",
 		Short: "Scaffold a type with CRUD operations",
-		Long: "Scaffold a type with create, read, update and delete operations",
+		Long:  "Scaffold a type with create, read, update and delete operations",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  typeHandler,
 	}

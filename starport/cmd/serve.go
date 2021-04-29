@@ -17,7 +17,7 @@ func NewServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",
 		Short: "Start a blockchain node in development",
-		Long: "Start a blockchain node with automatic reloading",
+		Long:  "Start a blockchain node with automatic reloading",
 		Args:  cobra.ExactArgs(0),
 		RunE:  serveHandler,
 	}
