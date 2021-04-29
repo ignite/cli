@@ -5,6 +5,6 @@ import (
 	"testing"
 )
 
-func TestStartSPN(t *testing.T) {
-	StartSPN(context.TODO(), WithBranch("develop"))
+func TestSetupSPN(t *testing.T) {
+	SetupSPN(context.TODO(), WithBranch("develop"))
 }

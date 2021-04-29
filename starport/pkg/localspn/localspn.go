@@ -4,7 +4,9 @@ import (
 	"context"
 	"errors"
 	"os"
+	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -17,6 +19,7 @@ const (
 	repoURL        = "https://github.com/tendermint/spn"
 	defaultBranch  = "master"
 	defaultAPIPort = "1317"
+	defaultTimeout = 15 * time.Second
 )
 
 type spnOptions struct {
@@ -61,12 +64,12 @@ func SetupSPN(ctx context.Context, options ...SPNOption) (cleanup func(), err er
 
 	// Clone SPN
 	spnOptions := newSPNOptions(options...)
-	gitoptions := &git.CloneOptions{
+	gitOptions := &git.CloneOptions{
 		URL:           repoURL,
 		ReferenceName: spnOptions.ref,
 		SingleBranch:  true,
 	}
-	_, err = git.PlainCloneContext(ctx, spnPath, false, gitoptions)
+	_, err = git.PlainCloneContext(ctx, spnPath, false, gitOptions)
 	if err != nil {
 		return nil, err
 	}
@@ -95,12 +98,42 @@ func SetupSPN(ctx context.Context, options ...SPNOption) (cleanup func(), err er
 
 // startSPN starts a local instance of SPN
 func startSPN(ctx context.Context, spnPath, spnHome string) error {
-	runStep := step.NewSteps(step.New(
+	serveStep := step.NewSteps(step.New(
 		step.Exec("starport", "serve", "--home", spnHome),
 		step.Workdir(spnPath),
 	))
-	cmdrunner.New().Run(ctx, runStep...)
+	spnChan := make(chan error, 1)
 
+	// SPN must be served before the timeout
+	go func () {
+		// SPN execution routine
+		err := cmdrunner.New().Run(ctx, serveStep...)
+		if err == nil {
+			err = errors.New("spn server stopped")
+		}
+		spnChan <- err
+	}()
+	go func () {
+		// Timeout routine
+		time.Sleep(defaultTimeout)
+		spnChan <- errors.New("spn server failed to start")
+	}()
+	go func () {
+		// Check SPN readiness
+		spnChan <- spnServed(ctx)
+	}()
+
+	// Wait for the first routine to complete
+	spnError := <- spnChan
+	if spnError != nil {
+		return spnError
+	}
+
+	return nil
+}
+
+// spnServed returns once spn server is served
+func spnServed(ctx context.Context) error {
 	checkReadiness := func() error {
 		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(defaultAPIPort)+"/node_info")
 		if err == nil && !ok {
@@ -109,5 +142,5 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 		return err
 	}
 
-	return nil
+	return backoff.Retry(checkReadiness, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
