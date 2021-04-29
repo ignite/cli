@@ -2,9 +2,11 @@
 package integration_test
 
 import (
+	"context"
 	"errors"
 	"flag"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/localspn"
 	"os"
 	"testing"
 
@@ -13,11 +15,27 @@ import (
 
 func TestMain(m *testing.M) {
 	flag.Parse()
+
+	// check requirements
 	if err := checkSystemRequirements(); err != nil {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	os.Exit(m.Run())
+
+	// setup SPN for Starport Network integration test
+	ctx, cancel := context.WithCancel(context.Background())
+	cleanup, err := localspn.SetupSPN(ctx, localspn.WithBranch("develop"))
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	// Run tests
+	errCode := m.Run()
+
+	cancel()
+	cleanup()
+	os.Exit(errCode)
 }
 
 func checkSystemRequirements() error {

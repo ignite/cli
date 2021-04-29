@@ -19,10 +19,11 @@ import (
 
 var (
 	spnCoordinator = "coordinator"
-	spnValidator   = "validator"
+	spnValidator1   = "validator1"
+	spnValidator2   = "validator2"
 )
 
-func TestChainCreateAndJoin(t *testing.T) {
+func initializeNetworkBuilder() (*networkbuilder.Builder, error) {
 	spnClient, err := spn.New(
 		"http://0.0.0.0:26657",
 		"http://0.0.0.0:1317",
@@ -32,12 +33,29 @@ func TestChainCreateAndJoin(t *testing.T) {
 
 	// initialize network builder and create accounts
 	nb, err := networkbuilder.New(spnClient)
-	require.NoError(t, err)
-	_, err = nb.AccountCreate(spnCoordinator, "")
-	require.NoError(t, err)
-	_, err = nb.AccountCreate(spnValidator, "")
-	require.NoError(t, err)
-	err = nb.AccountUse(spnCoordinator)
+	if err != nil {
+		return nil, err
+	}
+
+	// create some accounts
+	if _, err = nb.AccountCreate(spnCoordinator, ""); err != nil {
+		return nil, err
+	}
+	if _, err = nb.AccountCreate(spnValidator1, ""); err != nil {
+		return nil, err
+	}
+	if _, err = nb.AccountCreate(spnValidator2, ""); err != nil {
+		return nil, err
+	}
+	if err = nb.AccountUse(spnCoordinator); err != nil {
+		return nil, err
+	}
+
+	return nb, nil
+}
+
+func TestChainCreateAndJoin(t *testing.T) {
+	nb, err := initializeNetworkBuilder()
 	require.NoError(t, err)
 
 	chainID := "mars"
@@ -71,7 +89,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	require.Empty(t, launchInfo.GenesisAccounts)
 
 	// can join a chain
-	err = nb.AccountUse(spnValidator)
+	err = nb.AccountUse(spnValidator1)
 	require.NoError(t, err)
 
 	account, err := blockchain.CreateAccount(context.TODO(), chain.Account{Name: "alice"})
@@ -82,23 +100,7 @@ func TestChainCreateAndJoin(t *testing.T) {
 	require.NoError(t, err)
 	peer := fmt.Sprintf("%s:26656", ip)
 
-	proposal := networkbuilder.Proposal{
-		Validator: chain.Validator{
-			Name:                    "alice",
-			Moniker:                 "alice",
-			StakingAmount:           "100000000stake",
-			CommissionRate:          "0.10",
-			CommissionMaxRate:       "0.20",
-			CommissionMaxChangeRate: "0.01",
-			MinSelfDelegation:       "1",
-			GasPrices:               "0.025stake",
-		},
-		Meta: networkbuilder.ProposalMeta{
-			Website:  "https://cosmos.network",
-			Identity: "alice",
-			Details:  "foo",
-		},
-	}
+	proposal := proposalMock("alice")
 	gentx, err := blockchain.IssueGentx(context.TODO(), account, proposal)
 	require.NoError(t, err)
 
@@ -162,4 +164,67 @@ func TestChainCreateAndJoin(t *testing.T) {
 			sdk.NewCoin("stake", sdk.NewInt(1000000000)),
 		),
 	}, launchInfo.GenesisAccounts[0])
+
+	// can reject proposals
+	err = nb.AccountUse(spnValidator2)
+	require.NoError(t, err)
+
+	account, err = blockchain.CreateAccount(context.TODO(), chain.Account{Name: "bob"})
+	require.NoError(t, err)
+	account.Coins = "1000token,1000000000stake"
+
+	proposal = proposalMock("bob")
+	gentx, err = blockchain.IssueGentx(context.TODO(), account, proposal)
+	require.NoError(t, err)
+
+	err = blockchain.Join(
+		context.TODO(),
+		&account,
+		account.Address,
+		peer,
+		gentx,
+		sdk.NewCoin("stake", sdk.NewInt(100000000)),
+	)
+	require.NoError(t, err)
+
+	err = nb.AccountUse(spnCoordinator)
+	require.NoError(t, err)
+	_, broadcast, err = nb.SubmitReviewals(
+		context.TODO(),
+		chainID,
+		spn.ApproveProposal(2),
+		spn.ApproveProposal(3),
+	)
+	require.NoError(t, err)
+	err = broadcast()
+	require.NoError(t, err)
+
+	// check rejected proposals
+	proposals, err = nb.ProposalList(
+		context.TODO(),
+		chainID,
+		spn.ProposalListStatus(spn.ProposalStatusRejected),
+		spn.ProposalListType(spn.ProposalTypeAll),
+	)
+	require.Len(t, proposals, 2)
+}
+
+func proposalMock(name string) networkbuilder.Proposal {
+	return networkbuilder.Proposal{
+		Validator: chain.Validator{
+			Name:                    name,
+			Moniker:                 name,
+			StakingAmount:           "100000000stake",
+			CommissionRate:          "0.10",
+			CommissionMaxRate:       "0.20",
+			CommissionMaxChangeRate: "0.01",
+			MinSelfDelegation:       "1",
+			GasPrices:               "0.025stake",
+		},
+		Meta: networkbuilder.ProposalMeta{
+			Website:  "https://cosmos.network",
+			Identity: name,
+			Details:  "foo",
+		},
+	}
 }

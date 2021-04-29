@@ -18,8 +18,8 @@ import (
 const (
 	repoURL        = "https://github.com/tendermint/spn"
 	defaultBranch  = "master"
-	defaultAPIPort = "1317"
-	defaultTimeout = 15 * time.Second
+	defaultAPIHost = "127.0.0.1:1317"
+	defaultTimeout = 30 * time.Second
 )
 
 type spnOptions struct {
@@ -135,9 +135,9 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 // spnServed returns once spn server is served
 func spnServed(ctx context.Context) error {
 	checkReadiness := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(defaultAPIPort)+"/node_info")
+		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(defaultAPIHost)+"/node_info")
 		if err == nil && !ok {
-			err = errors.New("app is not online")
+			err = errors.New("spn is not online")
 		}
 		return err
 	}
