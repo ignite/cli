@@ -3,7 +3,7 @@ image:
 
 checkoutLocation: "starport"
 
-workspaceLocation: "./starport/gitpod"
+workspaceLocation: "./starport/.gitpod"
 
 tasks:
   - name: Setup 
@@ -39,8 +39,6 @@ tasks:
       echo -e "
 
       Welcome to Starport! 💫 The friendly CLI that makes building blockchains easy.
-
-      In the sidebar you can see a list of guides that will help you get started.
 
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
