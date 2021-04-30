@@ -3,7 +3,7 @@ image:
 
 checkoutLocation: "starport"
 
-workspaceLocation: "./starport/docs"
+workspaceLocation: "./starport/gitpod"
 
 tasks:
   - name: Setup 
@@ -29,9 +29,9 @@ tasks:
       export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}/websocket
       " >> ~/.bashrc && source ~/.bashrc
 
-      ## 
-      # open docs.
-      cd ./docs
+      ##
+      # open docs in preview.
+      gp preview https://docs.starport.network/
 
       ##
       # print a welcome message.
