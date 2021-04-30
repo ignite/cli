@@ -38,8 +38,13 @@ FROM base
 
 COPY --from=builder /go/bin/starport /usr/bin
 
+RUN useradd -ms /bin/bash tendermint
+USER tendermint
+
+WORKDIR /apps
+
 # see docs for exposed ports:
-#   https://docs.starport.network/4%20Configure%20a%20Blockchain/2%20config.yml%20Reference.html#host
+#   https://docs.starport.network/configure/reference.html#host 
 EXPOSE 26657
 EXPOSE 26656
 EXPOSE 6060 
