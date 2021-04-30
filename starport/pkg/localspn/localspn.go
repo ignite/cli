@@ -18,7 +18,7 @@ import (
 const (
 	repoURL        = "https://github.com/tendermint/spn"
 	defaultBranch  = "master"
-	defaultAPIHost = "127.0.0.1:1317"
+	defaultAPIHost = "0.0.0.0:1317"
 	defaultTimeout = 30 * time.Second
 )
 
