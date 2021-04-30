@@ -3,7 +3,6 @@ package localspn
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"time"
 
@@ -102,8 +101,8 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 	serveStep := step.NewSteps(step.New(
 		step.Exec("starport", "serve", "--home", spnHome),
 		step.Workdir(spnPath),
-		step.Stderr(os.Stderr),
-		step.Stdout(os.Stdout),
+		//step.Stderr(os.Stderr),
+		//step.Stdout(os.Stdout),
 	))
 	spnChan := make(chan error, 1)
 
@@ -142,7 +141,7 @@ func spnServed(ctx context.Context) error {
 		if err == nil && !ok {
 			err = errors.New("spn is not online")
 		}
-		fmt.Println(err.Error())
+		//fmt.Println(err.Error())
 		return err
 	}
 
