@@ -10,8 +10,5 @@ interface Response {
 
 // link connects src and dst chains by their paths on chain with ibc txs.
 export function link(paths: string[]): Response {
-  return {
-    linkedPaths: [],
-    alreadyLinkedPaths: [],
-  }
+  throw new Error("link() not implemented");
 }
