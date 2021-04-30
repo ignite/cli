@@ -87,4 +87,18 @@ func TestVerifyProposals(t *testing.T) {
 	err = nb.VerifyProposals(ctx, chainID, []int{4, 5}, ioutil.Discard)
 	require.Error(t, err)
 	require.ErrorAs(t, err, &verificationError)
+
+	// can't verify a proposal with an invalid validator address
+	err = blockchain.Join(
+		ctx,
+		&account,
+		"cosmos1pmxhse92uugjm3dsltr6p0cfmweprt70q8qykq",
+		peer,
+		gentx,
+		sdk.NewCoin("stake", sdk.NewInt(100000000)),
+	)
+	require.NoError(t, err)
+	err = nb.VerifyProposals(ctx, chainID, []int{6, 7}, ioutil.Discard)
+	require.Error(t, err)
+	require.ErrorAs(t, err, &verificationError)
 }
