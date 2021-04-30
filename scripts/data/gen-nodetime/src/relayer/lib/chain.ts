@@ -12,7 +12,7 @@ class EnsureChainSetupResponse {
 
 // ensureChainSetup sets up a chain by its rpc address only if it is not set up already.
 export function ensureChainSetup([rpcAddr]: [string]): EnsureChainSetupResponse {
-  return new EnsureChainSetupResponse;
+  throw new Error("ensureChainSetup() not implemented");
 }
 
 interface ConnectOptions {
@@ -27,9 +27,9 @@ interface ConnectOptions {
 // it returns a unique path id that represents the connection between these chains.
 //
 // createPath should only record the intention of connecting source and destion chains together
-// and should not send any txs to these chains. this will later be done by linkChains().
+// and should not send any txs to these chains. this will later be done by link().
 export function createPath([srcID, dstID, options]: [string, string, ConnectOptions]): Path {
-  return new Path;
+  throw new Error("createPath() not implemented");
 }
 
 // Path represents the connection between two chaons.
@@ -56,12 +56,12 @@ class PathEnd {
 
 // getPath gets connection info between chains by path id.
 export function getPath([id]: [string]): Path {
-  return new Path;
+  throw new Error("getPath() not implemented");
 }
 
 // listPaths list all connections.
-export function listPaths(): Path[] {
-  return [new Path];
+export async function listPaths(): Promise<Path[]> {
+  throw new Error("listPaths() not implemented");
 }
 
 class Account {
@@ -70,7 +70,7 @@ class Account {
 
 // getDefaultAccount gets the default account on chain by chain id.
 export function getDefaultAccount([chainID]: [string]): Account {
-  return new Account;
+  throw new Error("getDefaultAccount() not implemented");
 }
 
 class Coin {
@@ -80,5 +80,5 @@ class Coin {
 
 // getDefaultAccountBalance gets the balance of default account on chain by chain id.
 export function getDefaultAccountBalance([chainID]: [string]): Coin[] {
-  return [new Coin];
+  throw new Error("getDefaultAccountBalance() not implemented");
 }

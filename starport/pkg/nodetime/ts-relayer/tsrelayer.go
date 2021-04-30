@@ -6,11 +6,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"io"
 
 	"github.com/gorilla/rpc/v2/json2"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/nodetime"
+	"golang.org/x/sync/errgroup"
 )
 
 // Call calls a method in the ts relayer wrapper lib with args and fills reply from the returned value.
@@ -26,23 +28,25 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 		return err
 	}
 
-	res := &bytes.Buffer{}
+	resr, resw := io.Pipe()
 
-	err = cmdrunner.New().Run(
-		ctx,
-		step.New(
-			step.Exec(command[0], command[1:]...),
-			step.Write(req),
-			step.Stdout(res),
-		),
-	)
-	if err != nil {
-		return err
-	}
+	g := errgroup.Group{}
+	g.Go(func() error {
+		defer resw.Close()
+
+		return cmdrunner.New().Run(
+			ctx,
+			step.New(
+				step.Exec(command[0], command[1:]...),
+				step.Write(req),
+				step.Stdout(resw),
+			),
+		)
+	})
 
 	// regular logs can be printed to the stdout by the other process before a jsonrpc response is emitted.
 	// differentiate both kinds and simulate printing regular logs if there are any.
-	sc := bufio.NewScanner(res)
+	sc := bufio.NewScanner(resr)
 	for sc.Scan() {
 		err = json2.DecodeClientResponse(bytes.NewReader(sc.Bytes()), reply)
 
@@ -56,5 +60,9 @@ func Call(ctx context.Context, method string, args, reply interface{}) error {
 		}
 	}
 
-	return sc.Err()
+	if err := sc.Err(); err != nil {
+		return err
+	}
+
+	return g.Wait()
 }
