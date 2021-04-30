@@ -19,7 +19,7 @@ const (
 	repoURL        = "https://github.com/tendermint/spn"
 	defaultBranch  = "master"
 	defaultAPIHost = "0.0.0.0:1317"
-	defaultTimeout = 30 * time.Second
+	defaultTimeout = 60 * time.Second
 )
 
 type spnOptions struct {
@@ -41,7 +41,7 @@ func newSPNOptions(options ...SPNOption) *spnOptions {
 	spnOptions := &spnOptions{
 		ref: plumbing.NewBranchReferenceName(defaultBranch),
 	}
-
+ß
 	for _, option := range options {
 		option(spnOptions)
 	}
