@@ -41,7 +41,7 @@ func newSPNOptions(options ...SPNOption) *spnOptions {
 	spnOptions := &spnOptions{
 		ref: plumbing.NewBranchReferenceName(defaultBranch),
 	}
-ß
+
 	for _, option := range options {
 		option(spnOptions)
 	}
