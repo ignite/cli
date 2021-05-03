@@ -375,7 +375,6 @@ func (t *typedStargate) keeperQueryModify(opts *Options) genny.RunFn {
 	}
 }
 
-
 func (t *typedStargate) frontendSrcStoreAppModify(opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "vue/src/views/Types.vue"
