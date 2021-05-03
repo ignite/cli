@@ -2,7 +2,6 @@
 package starport_network_test
 
 import (
-	"context"
 	"errors"
 	"flag"
 	"fmt"
@@ -10,8 +9,6 @@ import (
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/xexec"
-	"github.com/tendermint/starport/starport/pkg/localspn"
-
 )
 
 func TestMain(m *testing.M) {
@@ -23,19 +20,21 @@ func TestMain(m *testing.M) {
 		os.Exit(1)
 	}
 
+	// TODO: Implement localspn package
 	// setup SPN for Starport Network integration test
-	ctx, cancel := context.WithCancel(context.Background())
-	cleanup, err := localspn.SetupSPN(ctx, localspn.WithBranch("develop"))
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
+	//ctx, cancel := context.WithCancel(context.Background())
+	//cleanup, err := localspn.SetupSPN(ctx, localspn.WithBranch("develop"))
+	//if err != nil {
+	//	fmt.Println(err)
+	//	os.Exit(1)
+	//}
 
 	// Run tests
 	errCode := m.Run()
 
-	cancel()
-	cleanup()
+	// TODO: Implement localspn package
+	//cancel()
+	//cleanup()
 	os.Exit(errCode)
 }
 
