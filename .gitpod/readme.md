@@ -22,7 +22,7 @@ starport serve
 
 🧑‍🏫 **[Tutorials](https://tutorials.cosmos.network)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
-📕 **[Starport Documentation](https://docs.starport.network)**: explore features of Starport.
+📕 **[Starport Documentation](https://docs.starport.network)**: Explore the features of Starport.
 
 📚 [Cosmos SDK Documentation](https://docs.cosmos.network): learn more about the framework.
 
