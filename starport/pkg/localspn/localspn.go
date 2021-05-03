@@ -101,8 +101,8 @@ func startSPN(ctx context.Context, spnPath, spnHome string) error {
 	serveStep := step.NewSteps(step.New(
 		step.Exec("starport", "serve", "--home", spnHome),
 		step.Workdir(spnPath),
-		step.Stderr(os.Stderr),
-		step.Stdout(os.Stdout),
+		//step.Stderr(os.Stderr),
+		//step.Stdout(os.Stdout),
 	))
 	spnChan := make(chan error, 1)
 
