@@ -30,7 +30,7 @@ starport serve
 
 ## Starport features
 
-* Scaffold modules, messages, types with CRUD operations, IBC packets and more
+* Scaffold modules, messages, types with CRUD operations, IBC packets, and more
 * Start a blockchain node in development with hot-reloading
 * Connect to other blockchains with a built-in IBC relayer
 * Use automatically generated TypeScript/Vuex clients to interact with your blockchain
