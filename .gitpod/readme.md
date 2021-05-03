@@ -24,7 +24,7 @@ starport serve
 
 📕 **[Starport Documentation](https://docs.starport.network)**: Explore the features of Starport.
 
-📚 [Cosmos SDK Documentation](https://docs.cosmos.network): learn more about the framework.
+📚 [Cosmos SDK Documentation](https://docs.cosmos.network): Learn about the framework for building application-specific blockchains.
 
 ⭐️ [Starport on Github](https://github.com/tendermint/starport): submit an issue or contribute to the source code.
 
