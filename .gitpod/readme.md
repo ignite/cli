@@ -31,7 +31,7 @@ starport serve
 ## Starport features
 
 * Scaffold modules, messages, types with CRUD operations, IBC packets, and more
-* Start a blockchain node in development with hot-reloading
+* Start a blockchain node in development with live reloading
 * Connect to other blockchains with a built-in IBC relayer
 * Use automatically generated TypeScript/Vuex clients to interact with your blockchain
 * Use the Vue.js web app template with a set of components and Vuex modules
