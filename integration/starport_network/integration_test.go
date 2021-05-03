@@ -11,6 +11,7 @@ import (
 
 	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/localspn"
+
 )
 
 func TestMain(m *testing.M) {
