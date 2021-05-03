@@ -6,7 +6,7 @@ In this browser-based development environment, the terminal window is in the low
 
 ## Quick start
 
-Create a new blockchain and start a node in development:
+To create a blockchain and start a node in development:
 
 ```
 starport app github.com/user/hello
