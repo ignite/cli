@@ -2,7 +2,7 @@
 
 Starport is an easy-to-use CLI tool for creating sovereign blockchains. Blockchains created with Starport use Cosmos SDK, the world's most widely used blockchain application framework.
 
-In front of you is a browser-based development environment. At the bottom of the screen you can see a terminal window, it has `starport` binary pre-installed.
+In this browser-based development environment, the terminal window is in the lower part of the window. The `starport` binary is pre-installed and ready to use on the command line.
 
 ## Quick start
 
