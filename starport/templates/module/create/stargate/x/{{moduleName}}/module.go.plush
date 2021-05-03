@@ -19,7 +19,6 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	"<%= modulePath %>/x/<%= moduleName %>/client/rest"
 	// this line is used by starport scaffolding # ibc/module/import
 )
 
@@ -76,7 +75,6 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONMarshaler, config client.TxE
 
 // RegisterRESTRoutes registers the capability module's REST service handlers.
 func (AppModuleBasic) RegisterRESTRoutes(clientCtx client.Context, rtr *mux.Router) {
-	rest.RegisterRoutes(clientCtx, rtr)
 }
 
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
