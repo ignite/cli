@@ -34,7 +34,7 @@ starport serve
 * Start a blockchain node in development with hot-reloading
 * Connect to other blockchains with a built-in IBC relayer
 * Use automatically generated TypeScript/Vuex clients to interact with your blockchain
-* Vue.js web app template with a set of components and Vuex modules
+* Use the Vue.js web app template with a set of components and Vuex modules
 
 ## Install Starport locally
 
