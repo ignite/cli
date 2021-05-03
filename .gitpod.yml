@@ -30,8 +30,8 @@ tasks:
       " >> ~/.bashrc && source ~/.bashrc
 
       ##
-      # open docs in preview.
-      gp preview https://docs.starport.network/
+      # cd into the .gitpod dir.
+      cd .gitpod
 
       ##
       # print a welcome message.
