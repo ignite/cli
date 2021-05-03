@@ -18,7 +18,7 @@ starport serve
 
 ## Next steps
 
-📺 **[Introduction](https://www.youtube.com/watch?v=5RqAIE0b8Kw)**: watch a quick introduction to Starport.
+📺 **[Introduction to Starport](https://www.youtube.com/watch?v=5RqAIE0b8Kw)**: watch an introductory video to learn about Starport.
 
 🧑‍🏫 **[Tutorials](https://tutorials.cosmos.network)**: learn by building a simple IBC-enabled module, nameservice or a decentralized exchange (DEX).
 
