@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/gertd/go-pluralize"
 	"github.com/gobuffalo/genny"
 )
 
@@ -22,8 +21,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.typesKeyModify(opts))
 	g.RunFn(t.clientCliQueryModify(opts))
 	g.RunFn(t.typesQueryModify(opts))
-	g.RunFn(t.keeperQueryModify(opts))
-	g.RunFn(t.clientRestQueryModify(opts))
 
 	// Genesis modifications
 	t.genesisModify(opts, g)
@@ -34,7 +31,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 		g.RunFn(t.protoTxModify(opts))
 		g.RunFn(t.typesCodecModify(opts))
 		g.RunFn(t.clientCliTxModify(opts))
-		g.RunFn(t.clientRestTxModify(opts))
 
 		// Messages template
 		if err := Box(stargateMessagesTemplate, opts, g); err != nil {
@@ -343,89 +339,6 @@ const (
 )
 `
 		content := f.String() + fmt.Sprintf(template, opts.TypeName, strings.Title(opts.TypeName))
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func (t *typedStargate) keeperQueryModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/query.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := `"%[1]v/x/%[2]v/types"`
-		template2 := `%[1]v
-"%[2]v/x/%[3]v/types"
-`
-		template3 := `%[1]v
-	case types.QueryGet%[2]v:
-		return get%[2]v(ctx, path[1], k, legacyQuerierCdc)
-
-	case types.QueryList%[2]v:
-		return list%[2]v(ctx, k, legacyQuerierCdc)
-`
-		replacement := fmt.Sprintf(template, opts.ModulePath, opts.ModuleName)
-		replacement2 := fmt.Sprintf(template2, Placeholder, opts.ModulePath, opts.ModuleName)
-		replacement3 := fmt.Sprintf(template3, Placeholder2, strings.Title(opts.TypeName))
-		content := f.String()
-		content = strings.Replace(content, replacement, "", 1)
-		content = strings.Replace(content, Placeholder, replacement2, 1)
-		content = strings.Replace(content, Placeholder2, replacement3, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func (t *typedStargate) clientRestTxModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		template := `%s
-	registerTxHandlers(clientCtx, r)
-`
-		replacement := fmt.Sprintf(template, Placeholder2)
-		content := strings.Replace(f.String(), Placeholder2, replacement, 1)
-
-		template = `%[1]v
-    r.HandleFunc("/%[2]v/%[3]v", create%[4]vHandler(clientCtx)).Methods("POST")
-    r.HandleFunc("/%[2]v/%[3]v/{id}", update%[4]vHandler(clientCtx)).Methods("POST")
-    r.HandleFunc("/%[2]v/%[3]v/{id}", delete%[4]vHandler(clientCtx)).Methods("POST")
-`
-		replacement = fmt.Sprintf(template, Placeholder44, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
-		content = strings.Replace(content, Placeholder44, replacement, 1)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func (t *typedStargate) clientRestQueryModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/rest/rest.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		template := `%s
-	registerQueryRoutes(clientCtx, r)
-`
-		replacement := fmt.Sprintf(template, Placeholder2)
-		content := strings.Replace(f.String(), Placeholder2, replacement, 1)
-
-		template = `%[1]v
-    r.HandleFunc("/%[2]v/%[3]v/{id}", get%[4]vHandler(clientCtx)).Methods("GET")
-    r.HandleFunc("/%[2]v/%[3]v", list%[4]vHandler(clientCtx)).Methods("GET")
-`
-		replacement = fmt.Sprintf(template, Placeholder3, opts.ModuleName, pluralize.NewClient().Plural(opts.TypeName), strings.Title(opts.TypeName))
-		content = strings.Replace(content, Placeholder3, replacement, 1)
-
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
