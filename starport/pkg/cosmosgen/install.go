@@ -23,15 +23,15 @@ func InstallDependencies(ctx context.Context, appPath string) error {
 					"go",
 					"get",
 					// installs the gocosmos plugin.
-					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos@v0.3.1",
+					"github.com/regen-network/cosmos-proto/protoc-gen-gocosmos",
 
 					// install Go code generation plugin.
-					"github.com/golang/protobuf/protoc-gen-go@v1.4.3",
+					"github.com/golang/protobuf/protoc-gen-go",
 
 					// install grpc-gateway plugins.
-					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway@v1.16.0",
-					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger@v1.16.0",
-					"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2@v2.2.0",
+					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-grpc-gateway",
+					"github.com/grpc-ecosystem/grpc-gateway/protoc-gen-swagger",
+					"github.com/grpc-ecosystem/grpc-gateway/v2/protoc-gen-openapiv2",
 				),
 			),
 		)
