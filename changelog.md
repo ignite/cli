@@ -11,7 +11,7 @@
 - Keplr extension is supported on web apps created with Starport
 - IBC relayer support is available on web apps created with Starport
 - New types without CRUD operations can be added with the `--no-message` flag in the `type` command
-- Added ability to scaffold a packet without messages with `--no-message` in the `packet` command
+- New packet without messages can be added with the `--no-message` flag in the `packet` command
 - Added `docs` command to read Starport documentation on the CLI
 - Published documentation on https://docs.starport.network
 
