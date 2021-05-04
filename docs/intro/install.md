@@ -7,13 +7,11 @@ description: Steps to install Starport on your local computer.
 
 You can run Starport in a web-based Gitpod IDE or you can install Starport on your local computer.
 
-## Prerequisites
+## Prerequisite
 
-Local Starport installation requires the follow software be installed and running:
+Starport is written in the Go programming language. To use Starport on a local installation, Go must be installed and running:
 
 - [Golang >=1.16](https://golang.org/)
-- [Node.js >=12.19.0](https://nodejs.org/)
-- [protoc](https://grpc.io/docs/protoc-installation)
 
 ## Installing Starport with cURL
 
@@ -51,7 +49,7 @@ If you get errors related to `protoc`, make sure that you followed the [Install 
 $ unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
 ```
 
-3. Update your environment’s `PATH` variable to include the path to the protoc executable. For example:
+1. Update your environment's `PATH` variable to include the path to the protoc executable. For example:
 
 ```
 $ export PATH="$PATH:$HOME/.local/bin"
