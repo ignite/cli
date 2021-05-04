@@ -1,5 +1,20 @@
 # Changelog
 
+## `v0.16.0`
+
+### Features:
+
+- Added ability to pass a genesis file and peer address to `starport network chain join`
+- Added ability to show genesis or peer list with a flag in `starport network chain show`
+- `protoc` is now bundled with Starport CLI
+- Starport is now published automatically on the Docker Hub
+- Added Keplr extension support to the web app
+- Added IBC relayer support to the web app
+- Added to scaffold a type without CRUD operations with `--no-message` in the `type` command
+- Added ability to scaffold a packet without messages with `--no-message` in the `packet` command
+- Added `docs` command to read Starport documentation on the CLI
+- Published documentation on https://docs.starport.network
+
 ## `v0.15.0`
 
 ### Features:
