@@ -8,7 +8,7 @@
 - Added ability to show genesis or peer list with a flag in `starport network chain show`
 - `protoc` is now bundled with Starport CLI
 - Starport is now published automatically on the Docker Hub
-- Added Keplr extension support to the web app
+- Keplr extension is supported on web apps created with Starport
 - Added IBC relayer support to the web app
 - Added to scaffold a type without CRUD operations with `--no-message` in the `type` command
 - Added ability to scaffold a packet without messages with `--no-message` in the `packet` command
