@@ -15,6 +15,10 @@
 - Added `docs` command to read Starport documentation on the CLI
 - Published documentation on https://docs.starport.network
 
+### Changes:
+
+- `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
+
 ## `v0.15.0`
 
 ### Features:
