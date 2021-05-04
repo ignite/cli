@@ -9,7 +9,7 @@
 - `protoc` is now bundled with Starport CLI
 - Starport is now published automatically on the Docker Hub
 - Keplr extension is supported on web apps created with Starport
-- Added IBC relayer support to the web app
+- IBC relayer support is available on web apps created with Starport
 - Added to scaffold a type without CRUD operations with `--no-message` in the `type` command
 - Added ability to scaffold a packet without messages with `--no-message` in the `packet` command
 - Added `docs` command to read Starport documentation on the CLI
