@@ -4,7 +4,7 @@
 
 ### Features:
 
-- Added ability to pass a genesis file and peer address to `starport network chain join`
+- Added the ability to pass a genesis file and peer address to `starport network chain join`
 - Added ability to show genesis or peer list with a flag in `starport network chain show`
 - `protoc` is now bundled with Starport CLI
 - Starport is now published automatically on the Docker Hub
