@@ -37,24 +37,6 @@ Then run this command to move the `starport` executable to `/usr/local/bin/`:
 sudo mv starport /usr/local/bin/
 ```
 
-### Error while running command `protoc`
-
-If you get errors related to `protoc`, make sure that you followed the [Install pre-compiled binaries (any OS)](https://grpc.io/docs/protoc-installation/#install-pre-compiled-binaries-any-os) instructions:
-
-1. From [github.com/google/protobuf/releases](https://github.com/google/protobuf/releases), manually download the zip file that corresponds to your operating system and computer architecture (`protoc-<version>-<os><arch>.zip`).
-
-2. Unzip the file under `$HOME/.local` or a directory of your choice. For example:
-
-```
-$ unzip protoc-3.15.5-linux-x86_64.zip -d $HOME/.local
-```
-
-1. Update your environment's `PATH` variable to include the path to the protoc executable. For example:
-
-```
-$ export PATH="$PATH:$HOME/.local/bin"
-```
-
 ## Installing Starport on macOS with Homebrew
 
 ```
