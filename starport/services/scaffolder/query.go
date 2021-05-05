@@ -72,7 +72,7 @@ func (s *Scaffolder) AddQuery(
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
 			Description: description,
-			Paginated: paginated,
+			Paginated:   paginated,
 		}
 	)
 
