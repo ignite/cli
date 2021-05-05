@@ -2,12 +2,13 @@ package query
 
 import (
 	"embed"
+	"strings"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"strings"
 )
 
 var (

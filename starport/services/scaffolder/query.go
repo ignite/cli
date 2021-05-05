@@ -8,8 +8,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/templates/message"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/tendermint/starport/starport/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app
@@ -57,7 +56,7 @@ func (s *Scaffolder) AddQuery(moduleName string, queryName string, description s
 
 	var (
 		g    *genny.Generator
-		opts = &message.Options{
+		opts = &query.Options{
 			AppName:     path.Package,
 			ModulePath:  path.RawPath,
 			ModuleName:  moduleName,
@@ -70,7 +69,7 @@ func (s *Scaffolder) AddQuery(moduleName string, queryName string, description s
 	)
 
 	// Scaffold
-	g, err = message.NewStargate(opts)
+	g, err = query.NewStargate(opts)
 	if err != nil {
 		return err
 	}
@@ -89,14 +88,14 @@ func (s *Scaffolder) AddQuery(moduleName string, queryName string, description s
 	return fmtProject(pwd)
 }
 
-// isQueryCreated checks if the message is already scaffolded TODO
-func isQueryCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
+// isQueryCreated checks if the message is already scaffolded
+func isQueryCreated(appPath, moduleName, queryName string) (isCreated bool, err error) {
 	absPath, err := filepath.Abs(filepath.Join(
 		appPath,
 		moduleDir,
 		moduleName,
 		typesDirectory,
-		"message_"+msgName+".go",
+		"grpc_query_"+queryName+".go",
 	))
 	if err != nil {
 		return false, err
@@ -104,7 +103,7 @@ func isQueryCreated(appPath, moduleName, msgName string) (isCreated bool, err er
 
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
-		// Message doesn't exist
+		// Query doesn't exist
 		return false, nil
 	}
 
