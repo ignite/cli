@@ -22,6 +22,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		env         = chaintest.New(t)
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname)
+		homePath    = env.TmpDir()
 		host        = env.RandomizeServerPorts(path, "")
 		ctx, cancel = context.WithCancel(env.Ctx())
 	)
@@ -53,6 +54,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 			"list",
 			"--keyring-backend", "test",
 			"--output", "json",
+			"--home", homePath,
 		),
 		step.PreExec(func() error {
 			output.Reset()
@@ -96,6 +98,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					"--keyring-backend", "test",
 					"--chain-id", appname,
 					"--node", xurl.TCP(host.RPC),
+					"--home", homePath,
 					"--yes",
 				),
 				step.PreExec(func() error {
@@ -147,7 +150,11 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, chaintest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
+	env.Must(env.Serve("should serve",
+		path,
+		chaintest.ServeWithHome(homePath),
+		chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))),
+	)
 	env.Must(isTxBodyRetrieved)
 
 	require.Len(t, txBody.Tx.Body.Messages, 1)
