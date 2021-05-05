@@ -5,13 +5,13 @@ package integration_test
 import (
 	"testing"
 
+	"github.com/tendermint/starport/starport/pkg/chaintest"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
-
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("ibcblog")
 	)
 
@@ -56,7 +56,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 func TestCreateIBCPacket(t *testing.T) {
 
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("ibcblog2")
 	)
 
@@ -79,7 +79,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "packet", "bar", "text"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a packet in a non existent module",
@@ -87,7 +87,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "packet", "bar", "text", "--module", "nomodule"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing packet",
@@ -95,7 +95,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "packet", "bar", "post", "--module", "foo"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a packet with custom type fields",
@@ -131,7 +131,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "packet", "foo", "text", "--module", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)

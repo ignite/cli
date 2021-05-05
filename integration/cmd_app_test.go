@@ -8,12 +8,13 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/chaintest"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppAndVerify(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -25,7 +26,7 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 
 func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -41,7 +42,7 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 			step.Exec("starport", "module", "import", "wasm"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
@@ -49,7 +50,7 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 
 func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -65,7 +66,7 @@ func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 			step.Exec("starport", "module", "create", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)

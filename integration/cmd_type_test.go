@@ -5,12 +5,13 @@ package integration_test
 import (
 	"testing"
 
+	"github.com/tendermint/starport/starport/pkg/chaintest"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -40,7 +41,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "company", "name", "name"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
@@ -48,7 +49,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "employee", "level:itn"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
@@ -56,7 +57,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "user", "email"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
@@ -64,7 +65,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "map", "size:int"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
@@ -72,7 +73,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 			step.Exec("starport", "type", "document", "type:int"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a type with no interaction message",
@@ -87,7 +88,7 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 
 func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -117,7 +118,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 			step.Exec("starport", "type", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing type",
@@ -125,7 +126,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
@@ -133,7 +134,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 
 func TestCreateIndexTypeWithStargate(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -170,7 +171,7 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 			step.Exec("starport", "type", "user", "email", "--indexed", "--module", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create an indexed type in a custom module",

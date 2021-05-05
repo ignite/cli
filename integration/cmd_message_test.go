@@ -5,12 +5,13 @@ package integration_test
 import (
 	"testing"
 
+	"github.com/tendermint/starport/starport/pkg/chaintest"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = chaintest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -26,7 +27,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 			step.Exec("starport", "message", "foo", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		chaintest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a module",

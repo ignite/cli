@@ -12,6 +12,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/chaintest"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/randstr"
@@ -20,7 +21,7 @@ import (
 
 func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
-		env         = newEnv(t)
+		env         = chaintest.New(t)
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname)
 		host        = env.RandomizeServerPorts(path, "")
@@ -145,10 +146,10 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
+		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, chaintest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", chaintest.ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
