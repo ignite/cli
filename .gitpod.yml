@@ -3,15 +3,15 @@ image:
 
 checkoutLocation: "starport"
 
-workspaceLocation: "./starport/docs"
+workspaceLocation: "./starport/.gitpod"
 
 tasks:
-  - name: Setup 
+  - name: Setup
 
     init: |
       ##
       ## install Starport
-      go install /workspace/starport/...      
+      go install /workspace/starport/...
 
     command: |
       ##
@@ -29,26 +29,21 @@ tasks:
       export VUE_APP_WS_TENDERMINT=${RPC_ADDRESS/https/wss}/websocket
       " >> ~/.bashrc && source ~/.bashrc
 
-      ## 
-      # open docs.
-      cd ./docs
+      ##
+      # cd into the .gitpod dir.
+      cd .gitpod
 
       ##
       # print a welcome message.
       clear && printf '\e[3J'
       echo -e "
-
-      Welcome to Starport! 💫 The friendly CLI that makes building blockchains easy.
-
-      In the sidebar you can see a list of guides that will help you get started.
-
       This terminal has the \033[1mstarport\033[0m binary already installed and ready to go.
 
       "
-      
+
 ports:
   - port: 1317
   - port: 26657
   - port: 8080
-  - port: 7575 
-  - port: 4500 
+  - port: 7575
+  - port: 4500

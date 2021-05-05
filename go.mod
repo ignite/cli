@@ -14,7 +14,6 @@ require (
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
-	github.com/gertd/go-pluralize v0.1.7
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
@@ -48,7 +47,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.9
-	github.com/tendermint/vue v0.1.44
+	github.com/tendermint/vue v0.1.48
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
