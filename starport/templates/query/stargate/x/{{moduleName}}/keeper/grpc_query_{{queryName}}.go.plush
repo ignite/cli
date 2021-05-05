@@ -1,0 +1,22 @@
+package keeper
+
+import (
+	"context"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/grpc/status"
+)
+
+func (k msgServer) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(MsgName) %>Request) (*types.Query<%= title(MsgName) %>Response, error) {
+	if req == nil {
+        return nil, status.Error(codes.InvalidArgument, "invalid request")
+    }
+
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+    // TODO: Process the query
+    _ = ctx
+
+	return &types.Query<%= title(QueryName) %>Response{}, nil
+}
