@@ -15,7 +15,7 @@ const (
 // NewType command creates a new type command to scaffold queries
 func NewQuery() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "query [name] [response_field1] [response_field2] ...",
+		Use:   "query [name] [request_field1] [request_field2] ...",
 		Short: "Scaffold a Cosmos SDK query",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  queryHandler,
