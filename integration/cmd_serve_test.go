@@ -34,29 +34,39 @@ func TestServeStargateWithWasm(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", chaintest.ExecCtx(ctx)))
+	env.Must(env.Serve("should serve with Stargate version", apath, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
 
 func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
-		env     = chaintest.New(t)
-		apath   = env.Scaffold("sgblog2")
-		servers = env.RandomizeServerPorts(apath, "")
+		env      = chaintest.New(t)
+		apath    = env.Scaffold("sgblog2")
+		servers  = env.RandomizeServerPorts(apath, "")
+		homePath = env.TmpDir()
 	)
 
 	var (
 		ctx, cancel       = context.WithTimeout(env.Ctx(), chaintest.ServeTimeout)
 		isBackendAliveErr error
 	)
+
 	go func() {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "./home", "", chaintest.ExecCtx(ctx)))
+
+	env.Must(env.Serve("should serve with Stargate version",
+		apath,
+		chaintest.ServeWithHome(homePath),
+		chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))),
+	)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
+
+	_, err := os.Stat(filepath.Join(homePath, "config/genesis.json"))
+	require.True(t, os.IsNotExist(err))
 }
 
 func TestServeStargateWithConfigHome(t *testing.T) {
@@ -73,11 +83,13 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 		ctx, cancel       = context.WithTimeout(env.Ctx(), chaintest.ServeTimeout)
 		isBackendAliveErr error
 	)
+
 	go func() {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", "", chaintest.ExecCtx(ctx)))
+
+	env.Must(env.Serve("should serve with Stargate version", apath, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }
@@ -106,11 +118,17 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 		ctx, cancel       = context.WithTimeout(env.Ctx(), chaintest.ServeTimeout)
 		isBackendAliveErr error
 	)
+
 	go func() {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve with Stargate version", apath, "", newConfigPath, chaintest.ExecCtx(ctx)))
+
+	env.Must(env.Serve("should serve with Stargate version",
+		apath,
+		chaintest.ServeWithConfig(newConfigPath),
+		chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))),
+	)
 
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 }

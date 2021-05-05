@@ -187,28 +187,54 @@ func (e Env) Pull(gitAddr, commitHash string) (appPath string) {
 	return path
 }
 
+type serveOptions struct {
+	execOptions []ExecOption
+	homePath    string
+	configPath  string
+}
+type ServeOption func(*serveOptions)
+
+func ServeWithExecOption(o ExecOption) ServeOption {
+	return func(opt *serveOptions) {
+		opt.execOptions = append(opt.execOptions, o)
+	}
+}
+
+func ServeWithHome(path string) ServeOption {
+	return func(opt *serveOptions) {
+		opt.homePath = path
+	}
+}
+
+func ServeWithConfig(path string) ServeOption {
+	return func(opt *serveOptions) {
+		opt.configPath = path
+	}
+}
+
 // Serve serves an application lives under path with options where msg describes the
 // expectation from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e Env) Serve(msg, path, home, configPath string, options ...ExecOption) (ok bool) {
+func (e Env) Serve(msg, path string, options ...ServeOption) (ok bool) {
+	o := serveOptions{
+		homePath: e.TmpDir(),
+	}
+
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	e.t.Cleanup(func() { os.RemoveAll(o.homePath) })
+
 	serveCommand := []string{
 		"serve",
 		"-v",
 	}
 
-	// always set a home so we can clear it up later. otherwise, we cannot know the
-	// path to the default home dir of the chain.
-	if home == "" {
-		home = e.TmpDir()
-	}
+	serveCommand = append(serveCommand, "--home", o.homePath)
 
-	// cleanup the home directory of the app.
-	defer os.RemoveAll(home)
-
-	serveCommand = append(serveCommand, "--home", home)
-
-	if configPath != "" {
-		serveCommand = append(serveCommand, "--config", configPath)
+	if o.configPath != "" {
+		serveCommand = append(serveCommand, "--config", o.configPath)
 	}
 
 	return e.Exec(msg,
@@ -216,7 +242,7 @@ func (e Env) Serve(msg, path, home, configPath string, options ...ExecOption) (o
 			step.Exec("starport", serveCommand...),
 			step.Workdir(path),
 		)),
-		options...,
+		o.execOptions...,
 	)
 }
 
@@ -328,9 +354,4 @@ func (e Env) Home() string {
 	home, err := os.UserHomeDir()
 	require.NoError(e.t, err)
 	return home
-}
-
-// AppHome returns appd's home dir.
-func (e Env) AppdHome(name string) string {
-	return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
 }

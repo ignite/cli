@@ -147,11 +147,8 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, chaintest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", chaintest.ExecCtx(ctx)))
-
-	if !isTxBodyRetrieved {
-		t.FailNow()
-	}
+	env.Must(env.Serve("should serve", path, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
+	env.Must(isTxBodyRetrieved)
 
 	require.Len(t, txBody.Tx.Body.Messages, 1)
 	require.Len(t, txBody.Tx.Body.Messages[0].Amount, 1)

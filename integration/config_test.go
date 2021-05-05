@@ -17,6 +17,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		env               = chaintest.New(t)
 		appname           = randstr.Runes(10)
 		path              = env.Scaffold(appname)
+		homePath          = env.TmpDir()
 		servers           = env.RandomizeServerPorts(path, "")
 		ctx, cancel       = context.WithCancel(env.Ctx())
 		isBackendAliveErr error
@@ -37,7 +38,13 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve", path, "", "", chaintest.ExecCtx(ctx)))
+
+	env.Must(env.Serve("should serve",
+		path,
+		chaintest.ServeWithHome(homePath),
+		chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))),
+	)
+
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	configs := []struct {
@@ -53,7 +60,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 
 	for _, c := range configs {
 		var conf map[string]interface{}
-		cf := confile.New(c.ec, filepath.Join(env.AppdHome(appname), c.relpath))
+		cf := confile.New(c.ec, filepath.Join(homePath, c.relpath))
 		require.NoError(t, cf.Load(&conf))
 		require.Equal(t, c.expectedVal, conf[c.key])
 	}
