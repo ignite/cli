@@ -38,7 +38,6 @@ func Parse(rawpath string) (Path, error) {
 	// package name cannot contain "-" so gracefully remove them
 	// if they present.
 	packageName := stripNonAlphaNumeric(rootName)
-	fmt.Printf("rootName: %s | packageName: %s\n", rootName, packageName)
 	if err := validatePackageName(packageName); err != nil {
 		return Path{}, err
 	}
