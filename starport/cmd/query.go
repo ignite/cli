@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	flagRequest    string = "request"
+	flagRequest string = "request"
 )
 
 // NewType command creates a new type command to scaffold queries

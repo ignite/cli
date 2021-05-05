@@ -58,14 +58,14 @@ func (s *Scaffolder) AddQuery(moduleName string, queryName string, description s
 	var (
 		g    *genny.Generator
 		opts = &message.Options{
-			AppName:    path.Package,
-			ModulePath: path.RawPath,
-			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
-			QueryName:    queryName,
-			ReqFields:  parsedReqFields,
-			ResFields:  parsedResFields,
-			Description:    description,
+			AppName:     path.Package,
+			ModulePath:  path.RawPath,
+			ModuleName:  moduleName,
+			OwnerName:   owner(path.RawPath),
+			QueryName:   queryName,
+			ReqFields:   parsedReqFields,
+			ResFields:   parsedResFields,
+			Description: description,
 		}
 	)
 
