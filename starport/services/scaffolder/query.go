@@ -12,8 +12,8 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
-// AddMessage adds a new message to scaffolded app
-func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resFields []string) error {
+// AddQuery adds a new query to scaffolded app
+func (s *Scaffolder) AddQuery(moduleName string, queryName string, description string, resFields []string, reqFields []string) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -32,21 +32,21 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(msgName) {
-		return fmt.Errorf("%s can't be used as a message name", msgName)
+	if isForbiddenComponentName(queryName) {
+		return fmt.Errorf("%s can't be used as a message name", queryName)
 	}
 
 	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, msgName)
+	ok, err = isComponentCreated(s.path, moduleName, queryName)
 	if err != nil {
 		return err
 	}
 	if ok {
-		return fmt.Errorf("%s component is already added", msgName)
+		return fmt.Errorf("%s component is already added", queryName)
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields, isForbiddenMessageField)
+	parsedReqFields, err := parseFields(reqFields, isGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -62,25 +62,12 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			MsgName:    msgName,
-			Fields:     parsedMsgFields,
+			QueryName:    queryName,
+			ReqFields:  parsedReqFields,
 			ResFields:  parsedResFields,
-			MsgDesc:    msgDesc,
+			Description:    description,
 		}
 	)
-
-	// Check and support MsgServer convention
-	if err := supportMsgServer(
-		s.path,
-		&modulecreate.MsgServerOptions{
-			ModuleName: opts.ModuleName,
-			ModulePath: opts.ModulePath,
-			AppName:    opts.AppName,
-			OwnerName:  opts.OwnerName,
-		},
-	); err != nil {
-		return err
-	}
 
 	// Scaffold
 	g, err = message.NewStargate(opts)
@@ -102,8 +89,8 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	return fmtProject(pwd)
 }
 
-// isMsgCreated checks if the message is already scaffolded
-func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
+// isQueryCreated checks if the message is already scaffolded TODO
+func isQueryCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
 	absPath, err := filepath.Abs(filepath.Join(
 		appPath,
 		moduleDir,
@@ -122,13 +109,4 @@ func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err erro
 	}
 
 	return true, err
-}
-
-// isForbiddenTypeField returns true if the name is forbidden as a message name
-func isForbiddenMessageField(name string) bool {
-	if name == "creator" {
-		return true
-	}
-
-	return isGoReservedWord(name)
 }
