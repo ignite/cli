@@ -6,7 +6,6 @@ import (
 
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/tx"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -18,7 +17,7 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in ReqFields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(req[<%= i %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
+      <%= for (i, field) in ReqFields { %>req<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
       <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -38,7 +37,7 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
             }
             params.Pagination = pageReq<% } %>
 
-			res, err := queryClient.<%= title(QueryName) %>(context.Background(), params)
+			res, err := queryClient.<%= title(QueryName) %>(cmd.Context(), params)
             if err != nil {
                 return err
             }

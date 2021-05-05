@@ -5,10 +5,11 @@ import (
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
 
-func (k msgServer) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(QueryName) %>Request) (*types.Query<%= title(QueryName) %>Response, error) {
+func (k Keeper) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(QueryName) %>Request) (*types.Query<%= title(QueryName) %>Response, error) {
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
     }
