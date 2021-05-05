@@ -52,12 +52,3 @@ func TestParse(t *testing.T) {
 		})
 	}
 }
-
-func TestDummy(t *testing.T) {
-	path, err := Parse("github.com/a/bC")
-	if err != nil {
-		fmt.Println("ERROR: ", err)
-		return
-	}
-	fmt.Println(path)
-}
