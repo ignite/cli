@@ -66,7 +66,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	_, err := os.Stat(filepath.Join(homePath, "config/genesis.json"))
-	require.True(t, os.IsNotExist(err))
+	require.False(t, os.IsNotExist(err))
 }
 
 func TestServeStargateWithConfigHome(t *testing.T) {
