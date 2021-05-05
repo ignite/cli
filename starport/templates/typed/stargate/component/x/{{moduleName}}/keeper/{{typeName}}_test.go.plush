@@ -1,0 +1,45 @@
+package keeper
+
+import "<%= ModulePath %>/x/<%= ModuleName %>/types"
+
+func (s *KeeperSuite) createN<%= title(TypeName) %>(n int) []types.<%= title(TypeName) %> {
+	items := make([]types.<%= title(TypeName) %>, n)
+	for i := range items {
+		items[i].Creator = "any"
+		items[i].Id = s.Keeper.Append<%= title(TypeName) %>(s.SDKContext, items[i])
+	}
+	return items
+}
+
+func (s *KeeperSuite) Test<%= title(TypeName) %>Get() {
+	items := s.createN<%= title(TypeName) %>(10)
+	for _, item := range items {
+		s.Equal(item, s.Keeper.Get<%= title(TypeName) %>(s.SDKContext, item.Id))
+	}
+}
+
+func (s *KeeperSuite) Test<%= title(TypeName) %>Exist() {
+	items := s.createN<%= title(TypeName) %>(10)
+	for _, item := range items {
+		s.True(s.Keeper.Has<%= title(TypeName) %>(s.SDKContext, item.Id))
+	}
+}
+
+func (s *KeeperSuite) Test<%= title(TypeName) %>Remove() {
+	items := s.createN<%= title(TypeName) %>(10)
+	for _, item := range items {
+		s.Keeper.Remove<%= title(TypeName) %>(s.SDKContext, item.Id)
+		s.False(s.Keeper.Has<%= title(TypeName) %>(s.SDKContext, item.Id))
+	}
+}
+
+func (s *KeeperSuite) Test<%= title(TypeName) %>GetAll() {
+	items := s.createN<%= title(TypeName) %>(10)
+	s.Equal(items, s.Keeper.GetAll<%= title(TypeName) %>(s.SDKContext))
+}
+
+func (s *KeeperSuite) Test<%= title(TypeName) %>Count() {
+	items := s.createN<%= title(TypeName) %>(10)
+	count := uint64(len(items))
+	s.Equal(count, s.Keeper.Get<%= title(TypeName) %>Count(s.SDKContext))
+}

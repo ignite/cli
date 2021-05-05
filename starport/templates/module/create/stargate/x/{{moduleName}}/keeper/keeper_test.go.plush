@@ -1,0 +1,44 @@
+package keeper
+
+import (
+	"testing"
+
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
+	"github.com/cosmos/cosmos-sdk/store"
+	storetypes "github.com/cosmos/cosmos-sdk/store/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/suite"
+	"github.com/tendermint/tendermint/libs/log"
+	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
+	tmdb "github.com/tendermint/tm-db"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+)
+
+func TestKeeper(t *testing.T) {
+	suite.Run(t, new(KeeperSuite))
+}
+
+type KeeperSuite struct {
+	suite.Suite
+
+	Keeper     *Keeper
+	SDKContext sdk.Context
+
+	stateStore storetypes.CommitMultiStore
+}
+
+func (s *KeeperSuite) SetupTest() {
+	storeKey := sdk.NewKVStoreKey(types.StoreKey)
+	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
+
+	db := tmdb.NewMemDB()
+	s.stateStore = store.NewCommitMultiStore(db)
+	s.stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+	s.stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	s.Require().NoError(s.stateStore.LoadLatestVersion())
+
+	registry := codectypes.NewInterfaceRegistry()
+	s.Keeper = NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey)
+	s.SDKContext = sdk.NewContext(s.stateStore, tmproto.Header{}, false, log.NewNopLogger())
+}
