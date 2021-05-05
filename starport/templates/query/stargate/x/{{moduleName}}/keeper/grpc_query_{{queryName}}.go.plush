@@ -8,7 +8,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k msgServer) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(MsgName) %>Request) (*types.Query<%= title(MsgName) %>Response, error) {
+func (k msgServer) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(QueryName) %>Request) (*types.Query<%= title(QueryName) %>Response, error) {
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
     }
