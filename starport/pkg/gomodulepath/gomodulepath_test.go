@@ -34,6 +34,12 @@ func TestParse(t *testing.T) {
 		{"with version",
 			"github.com/a/b/v2", Path{"github.com/a/b/v2", "b", "b"}, nil,
 		},
+		{"with underscore",
+			"github.com/a/b_c", Path{"github.com/a/b_c", "b_c", "bc"}, nil,
+		},
+		{"with mixed case",
+			"github.com/a/bC", Path{"github.com/a/bC", "bC", "bc"}, nil,
+		},
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
@@ -45,4 +51,13 @@ func TestParse(t *testing.T) {
 			require.Equal(t, tt.path, path)
 		})
 	}
+}
+
+func TestDummy(t *testing.T) {
+	path, err := Parse("github.com/a/bC")
+	if err != nil {
+		fmt.Println("ERROR: ", err)
+		return
+	}
+	fmt.Println(path)
 }
