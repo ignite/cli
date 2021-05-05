@@ -1,0 +1,47 @@
+package cli
+
+import (
+    "strconv"
+	"github.com/spf13/cobra"
+
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+var _ = strconv.Itoa(0)
+
+func Cmd<%= title(QueryName) %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "<%= QueryName %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
+		Short: "<%= Description %>",
+		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
+		RunE: func(cmd *cobra.Command, args []string) error {
+      <%= for (i, field) in ReqFields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(req[<%= i %>]<%= if (field.DatatypeName == "int") {%>, 10, 64<%}%>)
+      <% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			queryClient := types.NewQueryClient(clientCtx)
+
+			params := &types.Query<%= title(QueryName) %>Request{
+                <%= for (i, field) in ReqFields { %>
+                <%= title(field.Name) %>: req<%= title(field.Name) %>,<% } %>
+            }
+
+			res, err := queryClient.<%= title(QueryName) %>(context.Background(), params)
+            if err != nil {
+                return err
+            }
+
+            return clientCtx.PrintProto(res)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+    return cmd
+}
