@@ -32,6 +32,12 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
                 <%= title(field.Name) %>: req<%= title(field.Name) %>,<% } %>
             }
 
+            <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())
+            if err != nil {
+                return err
+            }
+            params.Pagination = pageReq<% } %>
+
 			res, err := queryClient.<%= title(QueryName) %>(context.Background(), params)
             if err != nil {
                 return err

@@ -31,6 +31,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("ReqFields", opts.ReqFields)
 	ctx.Set("ResFields", opts.ResFields)
+	ctx.Set("Paginated", opts.Paginated)
 	ctx.Set("title", strings.Title)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

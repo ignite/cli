@@ -12,4 +12,5 @@ type Options struct {
 	Description string
 	ResFields   []typed.Field
 	ReqFields   []typed.Field
+	Paginated	bool
 }

@@ -12,7 +12,14 @@ import (
 )
 
 // AddQuery adds a new query to scaffolded app
-func (s *Scaffolder) AddQuery(moduleName string, queryName string, description string, resFields []string, reqFields []string) error {
+func (s *Scaffolder) AddQuery(
+	moduleName string,
+	queryName string,
+	description string,
+	reqFields []string,
+	resFields []string,
+	paginated bool,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -65,6 +72,7 @@ func (s *Scaffolder) AddQuery(moduleName string, queryName string, description s
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
 			Description: description,
+			Paginated: paginated,
 		}
 	)
 

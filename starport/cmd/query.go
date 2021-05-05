@@ -9,7 +9,7 @@ import (
 )
 
 const (
-	flagRequest string = "request"
+	flagPaginated = "paginated"
 )
 
 // NewType command creates a new type command to scaffold queries
@@ -22,8 +22,9 @@ func NewQuery() *cobra.Command {
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
-	c.Flags().StringSliceP(flagRequest, "r", []string{}, "Request fields")
+	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
+	c.Flags().Bool(flagPaginated, false, "Define if the request can be paginated")
 
 	return c
 }
@@ -39,7 +40,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get request fields
-	reqFields, err := cmd.Flags().GetStringSlice(flagRequest)
+	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
 	if err != nil {
 		return err
 	}
@@ -54,11 +55,16 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		desc = fmt.Sprintf("Query %s", args[0])
 	}
 
+	paginated, err := cmd.Flags().GetBool(flagPaginated)
+	if err != nil {
+		return err
+	}
+
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
-	if err := sc.AddQuery(module, args[0], desc, args[1:], reqFields); err != nil {
+	if err := sc.AddQuery(module, args[0], desc, args[1:], resFields, paginated); err != nil {
 		return err
 	}
 
