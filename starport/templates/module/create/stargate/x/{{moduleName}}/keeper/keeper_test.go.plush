@@ -8,39 +8,26 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/suite"
+	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
 	tmdb "github.com/tendermint/tm-db"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func TestKeeper(t *testing.T) {
-	suite.Run(t, new(KeeperSuite))
-}
-
-type KeeperSuite struct {
-	suite.Suite
-
-	Keeper     *Keeper
-	SDKContext sdk.Context
-
-	stateStore storetypes.CommitMultiStore
-}
-
-func (s *KeeperSuite) SetupTest() {
+func setupKeeper(t testing.TB) (*Keeper, sdk.Context) {
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
 	db := tmdb.NewMemDB()
-	s.stateStore = store.NewCommitMultiStore(db)
-	s.stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
-	s.stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
-	s.Require().NoError(s.stateStore.LoadLatestVersion())
+	stateStore := store.NewCommitMultiStore(db)
+	stateStore.MountStoreWithDB(storeKey, sdk.StoreTypeIAVL, db)
+	stateStore.MountStoreWithDB(memStoreKey, sdk.StoreTypeMemory, nil)
+	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
-	s.Keeper = NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey, 
-	// this line is used by starport scaffolding # ibc/keeper/testsetup
-	)
-	s.SDKContext = sdk.NewContext(s.stateStore, tmproto.Header{}, false, log.NewNopLogger())
+	keeper := NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey) // this line is used by starport scaffolding # ibc/keeper/testsetup
+
+	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
+	return keeper, ctx
 }

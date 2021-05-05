@@ -1,45 +1,56 @@
 package keeper
 
-import "<%= ModulePath %>/x/<%= ModuleName %>/types"
+import (
+	"testing"
 
-func (s *KeeperSuite) createN<%= title(TypeName) %>(n int) []types.<%= title(TypeName) %> {
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func createN<%= title(TypeName) %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= title(TypeName) %> {
 	items := make([]types.<%= title(TypeName) %>, n)
 	for i := range items {
 		items[i].Creator = "any"
-		items[i].Id = s.Keeper.Append<%= title(TypeName) %>(s.SDKContext, items[i])
+		items[i].Id = keeper.Append<%= title(TypeName) %>(ctx, items[i])
 	}
 	return items
 }
 
-func (s *KeeperSuite) Test<%= title(TypeName) %>Get() {
-	items := s.createN<%= title(TypeName) %>(10)
+func Test<%= title(TypeName) %>Get(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
 	for _, item := range items {
-		s.Equal(item, s.Keeper.Get<%= title(TypeName) %>(s.SDKContext, item.Id))
+		assert.Equal(t, item, keeper.Get<%= title(TypeName) %>(ctx, item.Id))
 	}
 }
 
-func (s *KeeperSuite) Test<%= title(TypeName) %>Exist() {
-	items := s.createN<%= title(TypeName) %>(10)
+func Test<%= title(TypeName) %>Exist(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
 	for _, item := range items {
-		s.True(s.Keeper.Has<%= title(TypeName) %>(s.SDKContext, item.Id))
+		assert.True(t, keeper.Has<%= title(TypeName) %>(ctx, item.Id))
 	}
 }
 
-func (s *KeeperSuite) Test<%= title(TypeName) %>Remove() {
-	items := s.createN<%= title(TypeName) %>(10)
+func Test<%= title(TypeName) %>Remove(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
 	for _, item := range items {
-		s.Keeper.Remove<%= title(TypeName) %>(s.SDKContext, item.Id)
-		s.False(s.Keeper.Has<%= title(TypeName) %>(s.SDKContext, item.Id))
+		keeper.Remove<%= title(TypeName) %>(ctx, item.Id)
+		assert.False(t, keeper.Has<%= title(TypeName) %>(ctx, item.Id))
 	}
 }
 
-func (s *KeeperSuite) Test<%= title(TypeName) %>GetAll() {
-	items := s.createN<%= title(TypeName) %>(10)
-	s.Equal(items, s.Keeper.GetAll<%= title(TypeName) %>(s.SDKContext))
+func Test<%= title(TypeName) %>GetAll(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
+	assert.Equal(t, items, keeper.GetAll<%= title(TypeName) %>(ctx))
 }
 
-func (s *KeeperSuite) Test<%= title(TypeName) %>Count() {
-	items := s.createN<%= title(TypeName) %>(10)
+func Test<%= title(TypeName) %>Count(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
 	count := uint64(len(items))
-	s.Equal(count, s.Keeper.Get<%= title(TypeName) %>Count(s.SDKContext))
+	assert.Equal(t, count, keeper.Get<%= title(TypeName) %>Count(ctx))
 }
