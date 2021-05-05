@@ -39,6 +39,8 @@ func (s *KeeperSuite) SetupTest() {
 	s.Require().NoError(s.stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
-	s.Keeper = NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey)
+	s.Keeper = NewKeeper(codec.NewProtoCodec(registry), storeKey, memStoreKey, 
+	// this line is used by starport scaffolding # ibc/keeper/testsetup
+	)
 	s.SDKContext = sdk.NewContext(s.stateStore, tmproto.Header{}, false, log.NewNopLogger())
 }
