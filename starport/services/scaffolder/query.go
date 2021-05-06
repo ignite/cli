@@ -13,10 +13,10 @@ import (
 
 // AddQuery adds a new query to scaffolded app
 func (s *Scaffolder) AddQuery(
-	moduleName string,
-	queryName string,
+	moduleName,
+	queryName,
 	description string,
-	reqFields []string,
+	reqFields,
 	resFields []string,
 	paginated bool,
 ) error {
