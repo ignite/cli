@@ -31,10 +31,6 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
                 <%= title(field.Name) %>: <%= field.Datatype %>(req<%= title(field.Name) %>),<% } %>
             }
 
-
-			<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
-
-
             <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())
             if err != nil {
                 return err
