@@ -15,6 +15,11 @@
 - Added `docs` command to read Starport documentation on the CLI
 - Published documentation on https://docs.starport.network
 
+### Fixes:
+
+- `starport network chain join` hanging issue when creating an account
+- Error when scaffolding a chain with an underscore in the repo name
+
 ### Changes:
 
 - `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
