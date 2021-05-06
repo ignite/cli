@@ -33,9 +33,9 @@ accounts:
 
 ## `build`
 
-Key    | Required | Type   | Description
------- | -------- | ------ | --------------------------------------------------------------
-binary | N        | String | Name of the node binary that is built, typically ends with `d`
+| Key    | Required | Type   | Description                                                    |
+| ------ | -------- | ------ | -------------------------------------------------------------- |
+| binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 **build example**
 
@@ -46,21 +46,33 @@ build:
 
 ## `build.proto`
 
-Key               | Required | Type            | Description
------------------ | -------- | --------------- | ------------------------------------------------------------------------------------------
-path              | N        | String          | Path to protocol buffer files. Default: `"proto"`
-third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]`
+| Key               | Required | Type            | Description                                                                                |
+| ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
+| path              | N        | String          | Path to protocol buffer files. Default: `"proto"`                                          |
+| third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]` |
+
+## `client`
+
+Configures client code generation.
+
+```
+client:
+  vuex:
+    path: "vue/src/store"
+```
+
+Generates TypeScript/Vuex client for the blockchain in `path` on `serve` and `build` commands. Remove `client` property to prevent Starport from regenerating the client.
 
 ## `faucet`
 
 The faucet service sends tokens to addresses. The default address for the web user interface is <http://localhost:4500>.
 
-Key       | Required | Type            | Description
---------- | -------- | --------------- | -----------------------------------------------------------
-name      | Y        | String          | Name of a key pair. `name` must be in `accounts`
-coins     | Y        | List of Strings | One or more coins with denominations sent per request
-coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address
-host      | N        | String          | Host and port number. Default: `:4500`
+| Key       | Required | Type            | Description                                                 |
+| --------- | -------- | --------------- | ----------------------------------------------------------- |
+| name      | Y        | String          | Name of a key pair. `name` must be in `accounts`            |
+| coins     | Y        | List of Strings | One or more coins with denominations sent per request       |
+| coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address |
+| host      | N        | String          | Host and port number. Default: `:4500`                      |
 
 **faucet example**
 
@@ -76,10 +88,10 @@ faucet:
 
 A blockchain requires one or more validators.
 
-Key    | Required | Type   | Description
------- | -------- | ------ | -----------------------------------------------------------------------------------------------
-name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts`
-staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account
+| Key    | Required | Type   | Description                                                                                     |
+| ------ | -------- | ------ | ----------------------------------------------------------------------------------------------- |
+| name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts` |
+| staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account       |
 
 **validator example**
 
