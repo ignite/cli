@@ -23,6 +23,7 @@
 ### Changes:
 
 - `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
+- Default scaffold no longer includes legacy REST API endpoints
 
 ## `v0.15.0`
 
