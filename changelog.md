@@ -16,9 +16,15 @@
 - Published documentation on https://docs.starport.network
 - Added `mnemonic` property to account in the `accounts` list to generate a key from a mnemonic
 
+### Fixes:
+
+- `starport network chain join` hanging issue when creating an account
+- Error when scaffolding a chain with an underscore in the repo name
+
 ### Changes:
 
 - `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
+- Default scaffold no longer includes legacy REST API endpoints
 
 ## `v0.15.0`
 
