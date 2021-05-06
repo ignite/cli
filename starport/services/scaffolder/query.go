@@ -102,7 +102,7 @@ func isQueryCreated(appPath, moduleName, queryName string) (isCreated bool, err 
 		appPath,
 		moduleDir,
 		moduleName,
-		typesDirectory,
+		keeperDirectory,
 		"grpc_query_"+queryName+".go",
 	))
 	if err != nil {
