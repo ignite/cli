@@ -14,11 +14,13 @@ Only a default set of parameters is provided. If more nuanced configuration is r
 
 A list of user accounts created during genesis of the blockc
 
-| Key     | Required | Type            | Description                                                                                                                |
-| ------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| name    | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched. |
-| coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
-| address | N        | String          | Account address in Bech32 address format                                                                                   |
+| Key      | Required | Type            | Description                                                                                                                |
+| -------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| name     | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched. |
+| coins    | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
+| address  | N        | String          | Account address in Bech32 address format                                                                                   |
+| mnemonic | N        | String          | Mnemonic used to generate an account (ignored, if `address` is specified)                                                  |
+
 
 **accounts example**
 
