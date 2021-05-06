@@ -9,6 +9,7 @@
 - `protoc` is now bundled with Starport CLI
 - Starport is now published automatically on the Docker Hub
 - Keplr extension is supported on web apps created with Starport
+- Added tests to the scaffold
 - IBC relayer support is available on web apps created with Starport
 - New types without CRUD operations can be added with the `--no-message` flag in the `type` command
 - New packet without messages can be added with the `--no-message` flag in the `packet` command
@@ -19,7 +20,7 @@
 ### Fixes:
 
 - `starport network chain join` hanging issue when creating an account
-- Error when scaffolding a chain with an underscore in the repo name
+- Error when scaffolding a chain with an underscore in the repo name (thanks @bensooraj!)
 
 ### Changes:
 
