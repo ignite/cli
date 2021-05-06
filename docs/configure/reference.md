@@ -1,6 +1,8 @@
 ---
 order: 2
-description: Primary configuration file to describe the development environment for your blockchain.
+description: >-
+  Primary configuration file to describe the development environment for your
+  blockchain.
 ---
 
 # config.yml Reference
@@ -9,18 +11,16 @@ The `config.yml` file generated in your blockchain folder uses key-value pairs t
 
 Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
 
-
 ## `accounts`
 
 A list of user accounts created during genesis of the blockc
 
-| Key      | Required | Type            | Description                                                                                                                |
-| -------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| name     | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched. |
-| coins    | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
-| address  | N        | String          | Account address in Bech32 address format                                                                                   |
-| mnemonic | N        | String          | Mnemonic used to generate an account (ignored, if `address` is specified)                                                  |
-
+Key      | Required | Type            | Description
+-------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------
+name     | Y        | String          | Local name of a key pair. An account name must be listed to gain access to the account tokens after the blockchain is launched.
+coins    | Y        | List of Strings | Initial coins with denominations. For example, "1000token"
+address  | N        | String          | Account address in Bech32 address format
+mnemonic | N        | String          | Mnemonic used to generate an account. This field is ignored if `address` is specified
 
 **accounts example**
 
@@ -35,9 +35,9 @@ accounts:
 
 ## `build`
 
-| Key    | Required | Type   | Description                                                    |
-| ------ | -------- | ------ | -------------------------------------------------------------- |
-| binary | N        | String | Name of the node binary that is built, typically ends with `d` |
+Key    | Required | Type   | Description
+------ | -------- | ------ | --------------------------------------------------------------
+binary | N        | String | Name of the node binary that is built, typically ends with `d`
 
 **build example**
 
@@ -48,14 +48,14 @@ build:
 
 ## `build.proto`
 
-| Key               | Required | Type            | Description                                                                                |
-| ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
-| path              | N        | String          | Path to protocol buffer files. Default: `"proto"`                                          |
-| third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]` |
+Key               | Required | Type            | Description
+----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------
+path              | N        | String          | Path to protocol buffer files. Default: `"proto"`
+third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]`
 
 ## `client`
 
-Configures client code generation.
+Configures and enables client code generation. To prevent Starport from regenerating the client, remove the `client` property.
 
 ```
 client:
@@ -63,18 +63,18 @@ client:
     path: "vue/src/store"
 ```
 
-Generates TypeScript/Vuex client for the blockchain in `path` on `serve` and `build` commands. Remove `client` property to prevent Starport from regenerating the client.
+Generates TypeScript/Vuex client for the blockchain in `path` on `serve` and `build` commands.
 
 ## `faucet`
 
 The faucet service sends tokens to addresses. The default address for the web user interface is <http://localhost:4500>.
 
-| Key       | Required | Type            | Description                                                 |
-| --------- | -------- | --------------- | ----------------------------------------------------------- |
-| name      | Y        | String          | Name of a key pair. `name` must be in `accounts`            |
-| coins     | Y        | List of Strings | One or more coins with denominations sent per request       |
-| coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address |
-| host      | N        | String          | Host and port number. Default: `:4500`                      |
+Key       | Required | Type            | Description
+--------- | -------- | --------------- | -----------------------------------------------------------
+name      | Y        | String          | Name of a key pair. `name` must be in `accounts`
+coins     | Y        | List of Strings | One or more coins with denominations sent per request
+coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address
+host      | N        | String          | Host and port number. Default: `:4500`
 
 **faucet example**
 
@@ -90,10 +90,10 @@ faucet:
 
 A blockchain requires one or more validators.
 
-| Key    | Required | Type   | Description                                                                                     |
-| ------ | -------- | ------ | ----------------------------------------------------------------------------------------------- |
-| name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts` |
-| staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account       |
+Key    | Required | Type   | Description
+------ | -------- | ------ | -----------------------------------------------------------------------------------------------
+name   | Y        | String | The account that is used to initialize the validator. The `name` key pair must be in `accounts`
+staked | Y        | String | Amount of coins to bond. Must be less than or equal to the amount of coins in the account
 
 **validator example**
 
