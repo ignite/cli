@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
@@ -36,7 +37,7 @@ func Parse(rawpath string) (Path, error) {
 	rootName := root(rawpath)
 	// package name cannot contain "-" so gracefully remove them
 	// if they present.
-	packageName := strings.ReplaceAll(rootName, "-", "")
+	packageName := stripNonAlphaNumeric(rootName)
 	if err := validatePackageName(packageName); err != nil {
 		return Path{}, err
 	}
@@ -82,4 +83,9 @@ func root(path string) string {
 		name = sp[len(sp)-2]
 	}
 	return name
+}
+
+func stripNonAlphaNumeric(name string) string {
+	reg := regexp.MustCompile(`[^a-zA-Z0-9]+`)
+	return strings.ToLower(reg.ReplaceAllString(name, ""))
 }
