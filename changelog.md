@@ -14,6 +14,7 @@
 - New packet without messages can be added with the `--no-message` flag in the `packet` command
 - Added `docs` command to read Starport documentation on the CLI
 - Published documentation on https://docs.starport.network
+- Added `mnemonic` property to account in the `accounts` list to generate a key from a mnemonic
 
 ### Changes:
 
