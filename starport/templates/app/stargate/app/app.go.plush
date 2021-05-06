@@ -85,7 +85,7 @@ import (
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 )
 
-const Name = "<%= AppName %>"
+const Name = "<%= BinaryNamePrefix %>d"
 
 // this line is used by starport scaffolding # stargate/wasm/app/enabledProposals
 
