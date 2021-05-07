@@ -1,0 +1,101 @@
+package keeper
+
+import (
+	"fmt"
+	"testing"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func Test<%= title(TypeName) %>MsgServerCreate(t *testing.T) {
+	srv, ctx := setupMsgServer(t)
+	creator := "A"
+	for i := 0; i < 5; i++ {
+		idx := fmt.Sprintf("%d", i)
+		_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: idx})
+		require.NoError(t, err)
+	}
+}
+
+func Test<%= title(TypeName) %>MsgServerUpdate(t *testing.T) {
+	creator := "A"
+	index := "any"
+
+	for _, tc := range []struct {
+		desc    string
+		request *types.MsgUpdate<%= title(TypeName) %>
+		err     error
+	}{
+		{
+			desc:    "Completed",
+			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: creator, Index: index},
+		},
+		{
+			desc:    "Unauthorized",
+			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: "B", Index: index},
+			err:     sdkerrors.ErrUnauthorized,
+		},
+		{
+			desc:    "KeyNotFound",
+			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: creator, Index: "missing"},
+			err:     sdkerrors.ErrKeyNotFound,
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			srv, ctx := setupMsgServer(t)
+			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index})
+			require.NoError(t, err)
+
+			_, err = srv.Update<%= title(TypeName) %>(ctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func Test<%= title(TypeName) %>MsgServerDelete(t *testing.T) {
+	creator := "A"
+	index := "any"
+
+	for _, tc := range []struct {
+		desc    string
+		request *types.MsgDelete<%= title(TypeName) %>
+		err     error
+	}{
+		{
+			desc:    "Completed",
+			request: &types.MsgDelete<%= title(TypeName) %>{Creator: creator, Index: index},
+		},
+		{
+			desc:    "Unauthorized",
+			request: &types.MsgDelete<%= title(TypeName) %>{Creator: "B", Index: index},
+			err:     sdkerrors.ErrUnauthorized,
+		},
+		{
+			desc:    "KeyNotFound",
+			request: &types.MsgDelete<%= title(TypeName) %>{Creator: creator, Index: "missing"},
+			err:     sdkerrors.ErrKeyNotFound,
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			srv, ctx := setupMsgServer(t)
+
+			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index})
+			require.NoError(t, err)
+			_, err = srv.Delete<%= title(TypeName) %>(ctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
