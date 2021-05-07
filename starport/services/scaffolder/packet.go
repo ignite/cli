@@ -7,9 +7,8 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/templates/ibc"
-
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
 const (
