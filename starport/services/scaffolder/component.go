@@ -151,12 +151,14 @@ func isGoReservedWord(name string) bool {
 	return false
 }
 
+// ErrComponentAlreadyCreated is the error returned when a specific component is already created
 type ErrComponentAlreadyCreated struct {
 	name          string
 	checkedType   string
 	componentType string
 }
 
+// NewErrComponentAlreadyCreated returns a new ErrComponentAlreadyCreated error
 func NewErrComponentAlreadyCreated(name, checkedType, componentType string) *ErrComponentAlreadyCreated {
 	return &ErrComponentAlreadyCreated{
 		name,
@@ -170,7 +172,7 @@ func (e *ErrComponentAlreadyCreated) Error() string {
 		e.componentType, e.name, e.checkedType)
 }
 
-// isComponentCreated checks if the component has been already created with Starport in the project
+// checkComponentCreated checks if the component has been already created with Starport in the project
 func checkComponentCreated(appPath, moduleName, compName string) (err error) {
 	compNameTitle := strings.Title(compName)
 
