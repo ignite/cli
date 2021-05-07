@@ -12,10 +12,10 @@ import (
 
 // AddMessage adds a new message to scaffolded app
 func (s *Scaffolder) AddMessage(
-	moduleName string,
-	msgName string,
+	moduleName,
+	msgName,
 	msgDesc string,
-	fields []string,
+	fields,
 	resFields []string,
 ) error {
 	path, err := gomodulepath.ParseAt(s.path)

@@ -17,9 +17,9 @@ const (
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(
-	moduleName string,
+	moduleName,
 	packetName string,
-	packetFields []string,
+	packetFields,
 	ackFields []string,
 	noMessage bool,
 ) error {
