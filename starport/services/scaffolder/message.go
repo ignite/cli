@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -12,7 +11,13 @@ import (
 )
 
 // AddMessage adds a new message to scaffolded app
-func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resFields []string) error {
+func (s *Scaffolder) AddMessage(
+	moduleName string,
+	msgName string,
+	msgDesc string,
+	fields []string,
+	resFields []string,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -22,26 +27,9 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
 
-	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(msgName) {
-		return fmt.Errorf("%s can't be used as a message name", msgName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, msgName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, msgName); err != nil {
 		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", msgName)
 	}
 
 	// Parse provided fields

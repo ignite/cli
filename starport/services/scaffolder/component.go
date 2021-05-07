@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"context"
 	"errors"
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -51,6 +52,33 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 		return false, nil
 	}
 	return true, err
+}
+
+// checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
+func checkComponentValidity(appPath, moduleName, compName string) error {
+	ok, err := moduleExists(appPath, moduleName)
+	if err != nil {
+		return err
+	}
+	if !ok {
+		return fmt.Errorf("the module %s doesn't exist", moduleName)
+	}
+
+	// Ensure the name is valid, otherwise it would generate an incorrect code
+	if isForbiddenComponentName(compName) {
+		return fmt.Errorf("%s can't be used as a component name", compName)
+	}
+
+	// Check component name is not already used
+	ok, err = isComponentCreated(appPath, moduleName, compName)
+	if err != nil {
+		return err
+	}
+	if ok {
+		return fmt.Errorf("%s component is already added in %s", compName, moduleName)
+	}
+
+	return nil
 }
 
 // isForbiddenComponentName returns true if the name is forbidden as a component name

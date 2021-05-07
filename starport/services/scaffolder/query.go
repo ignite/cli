@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -28,26 +27,8 @@ func (s *Scaffolder) AddQuery(
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
-
-	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(queryName) {
-		return fmt.Errorf("%s can't be used as a message name", queryName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, queryName)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", queryName)
 	}
 
 	// Parse provided fields

@@ -25,7 +25,12 @@ type AddTypeOption struct {
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
+func (s *Scaffolder) AddType(
+	addTypeOptions AddTypeOption,
+	moduleName string,
+	typeName string,
+	fields ...string,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -35,26 +40,8 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, typeName); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
-
-	// Ensure the type name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(typeName) {
-		return fmt.Errorf("%s can't be used as a type name", typeName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, typeName)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", typeName)
 	}
 
 	// Parse provided field
