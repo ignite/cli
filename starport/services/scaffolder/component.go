@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -13,6 +12,13 @@ import (
 
 	"github.com/gobuffalo/genny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+)
+
+const (
+	componentType    = "type"
+	componentMessage = "message"
+	componentQuery   = "query"
+	componentPacket  = "packet"
 )
 
 // supportMsgServer checks if the module supports the MsgServer convention
@@ -70,12 +76,9 @@ func checkComponentValidity(appPath, moduleName, compName string) error {
 	}
 
 	// Check component name is not already used
-	ok, err = isComponentCreated(appPath, moduleName, compName)
+	err = checkComponentCreated(appPath, moduleName, compName)
 	if err != nil {
 		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added in %s", compName, moduleName)
 	}
 
 	return nil
@@ -148,42 +151,54 @@ func isGoReservedWord(name string) bool {
 	return false
 }
 
-// isComponentCreated checks if the component has been already created with Starport in the project
-func isComponentCreated(appPath, moduleName, compName string) (bool, error) {
-	compNameTitle := strings.Title(compName)
-	typesToCheck := []string{
-		compNameTitle,
-		"MsgCreate" + compNameTitle,
-		"MsgUpdate" + compNameTitle,
-		"MsgDelete" + compNameTitle,
-		"Msg" + compNameTitle,
-		"Query" + compNameTitle + "Request",
-		"Query" + compNameTitle + "Response",
-		"QueryAll" + compNameTitle + "Request",
-		"QueryAll" + compNameTitle + "Response",
-		"QueryGet" + compNameTitle + "Request",
-		"QueryGet" + compNameTitle + "Response",
-		"MsgSend" + compNameTitle,
-		compNameTitle + "PacketData",
-	}
-
-	return checkTypesDefined(appPath, moduleName, typesToCheck)
+type ErrComponentAlreadyCreated struct {
+	name          string
+	checkedType   string
+	componentType string
 }
 
-// checkTypesDefined returns true if at least one of the provided type is defined in the type package of the module
-func checkTypesDefined(appPath, moduleName string, typeNames []string) (exist bool, err error) {
-	if len(typeNames) == 0 {
-		return false, errors.New("no type names provided")
+func NewErrComponentAlreadyCreated(name, checkedType, componentType string) *ErrComponentAlreadyCreated {
+	return &ErrComponentAlreadyCreated{
+		name,
+		checkedType,
+		componentType,
+	}
+}
+
+func (e *ErrComponentAlreadyCreated) Error() string {
+	return fmt.Sprintf("component %s with name %s is already created (type %s exists)",
+		e.componentType, e.name, e.checkedType)
+}
+
+// isComponentCreated checks if the component has been already created with Starport in the project
+func checkComponentCreated(appPath, moduleName, compName string) (err error) {
+	compNameTitle := strings.Title(compName)
+
+	// associate the type to check with the component that scaffold this type
+	typesToCheck := map[string]string{
+		compNameTitle:                           componentType,
+		"MsgCreate" + compNameTitle:             componentType,
+		"MsgUpdate" + compNameTitle:             componentType,
+		"MsgDelete" + compNameTitle:             componentType,
+		"QueryAll" + compNameTitle + "Request":  componentType,
+		"QueryAll" + compNameTitle + "Response": componentType,
+		"QueryGet" + compNameTitle + "Request":  componentType,
+		"QueryGet" + compNameTitle + "Response": componentType,
+		"Msg" + compNameTitle:                   componentMessage,
+		"Query" + compNameTitle + "Request":     componentQuery,
+		"Query" + compNameTitle + "Response":    componentQuery,
+		"MsgSend" + compNameTitle:               componentPacket,
+		compNameTitle + "PacketData":            componentPacket,
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
 	if err != nil {
-		return false, err
+		return err
 	}
 	fileSet := token.NewFileSet()
 	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
 	if err != nil {
-		return false, err
+		return err
 	}
 
 	for _, pkg := range all {
@@ -198,19 +213,18 @@ func checkTypesDefined(appPath, moduleName string, typeNames []string) (exist bo
 					return true
 				}
 
-				// check from the provided list
-				for _, typeName := range typeNames {
-					if typeName == typeSpec.Name.Name {
-						exist = true
-						return false
-					}
+				// Check if the parsed type is from a scaffolded component with the name
+				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
+					err = NewErrComponentAlreadyCreated(compName, typeSpec.Name.Name, compType)
+					return false
 				}
+
 				return true
 			})
-			if exist {
+			if err != nil {
 				return
 			}
 		}
 	}
-	return exist, nil
+	return err
 }
