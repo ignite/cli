@@ -30,7 +30,8 @@ import "%[2]v/%[3]v.proto";`
 		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
 
 		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v; %[5]v`
+		repeated %[2]v %[3]vList = %[4]v; %[5]v
+		uint64 %[3]vCount = %[6]v; %[5]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			PlaceholderGenesisProtoState,
@@ -38,6 +39,7 @@ import "%[2]v/%[3]v.proto";`
 			opts.TypeName,
 			fieldNumber,
 			PlaceholderGenesisProtoStateField,
+			fieldNumber+1,
 		)
 		content = strings.Replace(content, PlaceholderGenesisProtoState, replacementProtoState, 1)
 
@@ -60,8 +62,13 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 		content = strings.Replace(content, PlaceholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v
-%[2]vList: []*%[2]v{},`
-		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, PlaceholderGenesisTypesDefault, strings.Title(opts.TypeName))
+%[2]vList: []*%[2]v{},
+%[2]vCount: 0,`
+		replacementTypesDefault := fmt.Sprintf(
+			templateTypesDefault,
+			PlaceholderGenesisTypesDefault,
+			strings.Title(opts.TypeName),
+		)
 		content = strings.Replace(content, PlaceholderGenesisTypesDefault, replacementTypesDefault, 1)
 
 		templateTypesValidate := `%[1]v
@@ -102,7 +109,7 @@ for _, elem := range genState.%[3]vList {
 }
 
 // Set %[2]v count
-k.Set%[3]vCount(ctx, uint64(len(genState.%[3]vList)))
+k.Set%[3]vCount(ctx, genState.%[3]vCount)
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
@@ -119,6 +126,9 @@ for _, elem := range %[2]vList {
 	elem := elem
 	genesis.%[3]vList = append(genesis.%[3]vList, &elem)
 }
+
+// Set the current count
+genesis.%[3]vCount = k.Get%[3]vCount(ctx)
 `
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
