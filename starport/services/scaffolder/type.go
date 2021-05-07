@@ -3,11 +3,7 @@ package scaffolder
 import (
 	"context"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -161,38 +157,6 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 	}
 
 	return tFields, nil
-}
-
-func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
-	if err != nil {
-		return false, err
-	}
-	fset := token.NewFileSet()
-	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ParseComments)
-	if err != nil {
-		return false, err
-	}
-	// To check if the file is created, we check if the message MsgCreate[TypeName] or Msg[TypeName] is defined
-	for _, pkg := range all {
-		for _, f := range pkg.Files {
-			ast.Inspect(f, func(x ast.Node) bool {
-				typeSpec, ok := x.(*ast.TypeSpec)
-				if !ok {
-					return true
-				}
-				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
-					return true
-				}
-				if ("MsgCreate"+strings.Title(typeName) != typeSpec.Name.Name) && ("Msg"+strings.Title(typeName) != typeSpec.Name.Name) {
-					return true
-				}
-				isCreated = true
-				return false
-			})
-		}
-	}
-	return
 }
 
 // isForbiddenTypeField returns true if the name is forbidden as a field name

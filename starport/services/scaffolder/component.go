@@ -2,40 +2,17 @@ package scaffolder
 
 import (
 	"context"
+	"errors"
+	"go/ast"
+	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
-
-// isComponentCreated checks if the component has been already created with Starport in the project
-func isComponentCreated(appPath, moduleName, compName string) (bool, error) {
-	// Check for type, packet or message creation
-	created, err := isTypeCreated(appPath, moduleName, compName)
-	if err != nil {
-		return false, err
-	}
-	if created {
-		return created, nil
-	}
-	created, err = isPacketCreated(appPath, moduleName, compName)
-	if err != nil {
-		return false, err
-	}
-	if created {
-		return created, nil
-	}
-	created, err = isQueryCreated(appPath, moduleName, compName)
-	if err != nil {
-		return false, err
-	}
-	if created {
-		return created, nil
-	}
-	return isMsgCreated(appPath, moduleName, compName)
-}
 
 // supportMsgServer checks if the module supports the MsgServer convention
 // if not, the module codebase is modified to support it
@@ -141,4 +118,73 @@ func isGoReservedWord(name string) bool {
 		return true
 	}
 	return false
+}
+
+// isComponentCreated checks if the component has been already created with Starport in the project
+func isComponentCreated(appPath, moduleName, compName string) (bool, error) {
+	compNameTitle := strings.Title(compName)
+	typesToCheck := []string{
+		compNameTitle,
+		"MsgCreate" + compNameTitle,
+		"MsgUpdate" + compNameTitle,
+		"MsgDelete" + compNameTitle,
+		"Msg" + compNameTitle,
+		"Query" + compNameTitle + "Request",
+		"Query" + compNameTitle + "Response",
+		"QueryAll" + compNameTitle + "Request",
+		"QueryAll" + compNameTitle + "Response",
+		"QueryGet" + compNameTitle + "Request",
+		"QueryGet" + compNameTitle + "Response",
+		"MsgSend" + compNameTitle,
+		compNameTitle + "PacketData",
+	}
+
+	return checkTypesDefined(appPath, moduleName, typesToCheck)
+}
+
+// checkTypesDefined returns true if at least one of the provided type is defined in the type package of the module
+func checkTypesDefined(appPath, moduleName string, typeNames []string) (exist bool, err error) {
+	if len(typeNames) == 0 {
+		return false, errors.New("no type names provided")
+	}
+
+	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
+	if err != nil {
+		return false, err
+	}
+	fileSet := token.NewFileSet()
+	all, err := parser.ParseDir(fileSet, absPath, func(os.FileInfo) bool { return true }, parser.ParseComments)
+	if err != nil {
+		return false, err
+	}
+
+	for _, pkg := range all {
+		for _, f := range pkg.Files {
+			ast.Inspect(f, func(x ast.Node) bool {
+				// check if it is a type
+				typeSpec, ok := x.(*ast.TypeSpec)
+				if !ok {
+					return true
+				}
+
+				// check if it is a struct
+				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
+					return true
+				}
+
+				// check from the provided list
+				for _, typeName := range typeNames {
+					if typeName == typeSpec.Name.Name {
+						exist = true
+						return false
+					}
+				}
+				return true
+			})
+			if exist {
+				return
+			}
+		}
+	}
+	return exist, nil
 }

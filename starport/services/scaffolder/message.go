@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -100,28 +99,6 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 		return err
 	}
 	return fmtProject(pwd)
-}
-
-// isMsgCreated checks if the message is already scaffolded
-func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
-	absPath, err := filepath.Abs(filepath.Join(
-		appPath,
-		moduleDir,
-		moduleName,
-		typesDirectory,
-		"message_"+msgName+".go",
-	))
-	if err != nil {
-		return false, err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		// Message doesn't exist
-		return false, nil
-	}
-
-	return true, err
 }
 
 // isForbiddenTypeField returns true if the name is forbidden as a message name

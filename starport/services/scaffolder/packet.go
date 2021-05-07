@@ -14,8 +14,6 @@ import (
 
 const (
 	ibcModuleImplementation = "module_ibc.go"
-	keeperDirectory         = "keeper"
-	typesDirectory          = "types"
 )
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
@@ -119,23 +117,6 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 	_, err = os.Stat(absPath)
 	if os.IsNotExist(err) {
 		// Not an IBC module
-		return false, nil
-	}
-
-	return true, err
-}
-
-// isPacketCreated returns true if the provided packet already exists in the module
-// we naively check the existence of keeper/<packetName>.go for this check
-func isPacketCreated(appPath, moduleName, packetName string) (isCreated bool, err error) {
-	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, keeperDirectory, packetName+".go"))
-	if err != nil {
-		return false, err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		// Packet doesn't exist
 		return false, nil
 	}
 
