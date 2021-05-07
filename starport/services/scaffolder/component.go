@@ -27,6 +27,13 @@ func isComponentCreated(appPath, moduleName, compName string) (bool, error) {
 	if created {
 		return created, nil
 	}
+	created, err = isQueryCreated(appPath, moduleName, compName)
+	if err != nil {
+		return false, err
+	}
+	if created {
+		return created, nil
+	}
 	return isMsgCreated(appPath, moduleName, compName)
 }
 
