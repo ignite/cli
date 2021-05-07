@@ -189,13 +189,11 @@ func checkTypesDefined(appPath, moduleName string, typeNames []string) (exist bo
 	for _, pkg := range all {
 		for _, f := range pkg.Files {
 			ast.Inspect(f, func(x ast.Node) bool {
-				// check if it is a type
 				typeSpec, ok := x.(*ast.TypeSpec)
 				if !ok {
 					return true
 				}
 
-				// check if it is a struct
 				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
 					return true
 				}
