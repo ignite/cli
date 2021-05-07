@@ -57,4 +57,3 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.EnsureAppIsSteady(path)
 }
-
