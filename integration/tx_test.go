@@ -58,7 +58,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 		),
 		step.PreExec(func() error {
 			output.Reset()
-			return env.IsAppServed(ctx, host)
+			return env.IsAppServed(ctx, host.Host)
 		}),
 		step.PostExec(func(execErr error) error {
 			if execErr != nil {
@@ -97,7 +97,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 					"10token",
 					"--keyring-backend", "test",
 					"--chain-id", appname,
-					"--node", xurl.TCP(host.RPC),
+					"--node", xurl.TCP(host.Host.RPC),
 					"--home", homePath,
 					"--yes",
 				),
@@ -117,7 +117,7 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 						return err
 					}
 
-					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.API), tx.Hash)
+					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.Host.API), tx.Hash)
 					req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
 					if err != nil {
 						return errors.Wrap(err, "call to get tx via gRPC gateway")

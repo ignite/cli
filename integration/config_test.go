@@ -36,7 +36,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.Host)
 	}()
 
 	env.Must(env.Serve("should serve",

@@ -32,7 +32,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 	)
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.Host)
 	}()
 	env.Must(env.Serve("should serve with Stargate version", apath, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
 
@@ -54,7 +54,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.Host)
 	}()
 
 	env.Must(env.Serve("should serve with Stargate version",
@@ -86,7 +86,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.Host)
 	}()
 
 	env.Must(env.Serve("should serve with Stargate version", apath, chaintest.ServeWithExecOption(chaintest.ExecCtx(ctx))))
@@ -121,7 +121,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 
 	go func() {
 		defer cancel()
-		isBackendAliveErr = env.IsAppServed(ctx, servers)
+		isBackendAliveErr = env.IsAppServed(ctx, servers.Host)
 	}()
 
 	env.Must(env.Serve("should serve with Stargate version",

@@ -176,7 +176,7 @@ func (e Env) Pull(gitAddr, commitHash string) (appPath string) {
 	wt, err := repo.Worktree()
 	require.NoError(e.t, err)
 
-	h, err := repo.ResolveRevision(plumbing.Revision(gitAddr))
+	h, err := repo.ResolveRevision(plumbing.Revision(commitHash))
 	require.NoError(e.t, err)
 
 	err = wt.Checkout(&git.CheckoutOptions{
@@ -280,27 +280,17 @@ func (e Env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e Env) RandomizeServerPorts(path string, configFile string) starportconf.Host {
+func (e Env) RandomizeServerPorts(path string, configFile string) starportconf.Config {
 	if configFile == "" {
 		configFile = "config.yml"
 	}
 
 	// generate random server ports and servers list.
-	ports, err := availableport.Find(7)
+	ports, err := availableport.Find(8)
 	require.NoError(e.t, err)
 
 	genAddr := func(port int) string {
 		return fmt.Sprintf("localhost:%d", port)
-	}
-
-	servers := starportconf.Host{
-		RPC:      genAddr(ports[0]),
-		P2P:      genAddr(ports[1]),
-		Prof:     genAddr(ports[2]),
-		GRPC:     genAddr(ports[3]),
-		API:      genAddr(ports[4]),
-		Frontend: genAddr(ports[5]),
-		DevUI:    genAddr(ports[6]),
 	}
 
 	// update config.yml with the generated servers list.
@@ -311,13 +301,23 @@ func (e Env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	var conf starportconf.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
-	conf.Host = servers
+	conf.Host = starportconf.Host{
+		RPC:      genAddr(ports[0]),
+		P2P:      genAddr(ports[1]),
+		Prof:     genAddr(ports[2]),
+		GRPC:     genAddr(ports[3]),
+		API:      genAddr(ports[4]),
+		Frontend: genAddr(ports[5]),
+		DevUI:    genAddr(ports[6]),
+	}
+	conf.Faucet.Host = genAddr(ports[7])
 	require.NoError(e.t, configyml.Truncate(0))
+
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 
-	return servers
+	return conf
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
