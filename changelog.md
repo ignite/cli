@@ -5,11 +5,12 @@
 ### Features:
 
 - Added the ability to pass a genesis file and peer address to `starport network chain join`
-- Added ability to show genesis or peer list with a flag in `starport network chain show`
+- Added the ability to show genesis or peer list with a flag in `starport network chain show`
 - `protoc` is now bundled with Starport CLI
 - Starport is now published automatically on the Docker Hub
 - Keplr extension is supported on web apps created with Starport
 - Added tests to the scaffold
+- Added the ability to scaffold Cosmos SDK queries
 - IBC relayer support is available on web apps created with Starport
 - New types without CRUD operations can be added with the `--no-message` flag in the `type` command
 - New packet without messages can be added with the `--no-message` flag in the `packet` command
