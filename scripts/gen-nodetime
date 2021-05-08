@@ -2,10 +2,6 @@
 
 # generates static Go files to embed node cli programs into Starport for linux and darwin.
 
-# when building for arm to upload binaries to the repository, comment out either mac or linux.  :/.
-
-# the x64 binaries "just work" and are downloaded from nodetime
-
 set -e
 
 cd ./scripts/data/gen-nodetime
@@ -13,12 +9,12 @@ cd ./scripts/data/gen-nodetime
 npm i 
 npm run build
 
-# tar -czvf nodetime-linux-arm64.tar.gz nodetime-linux-arm64
+tar -czvf nodetime-linux-arm64.tar.gz nodetime-linux-arm64
 tar -czvf nodetime-linux-x64.tar.gz nodetime-linux-x64
 tar -czvf nodetime-darwin-x64.tar.gz nodetime-macos-x64
 tar -czvf nodetime-darwin-arm64.tar.gz nodetime-macos-arm64
 
-# cp nodetime-linux-arm64.tar.gz ../../../starport/pkg/nodetime/
+cp nodetime-linux-arm64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-linux-x64.tar.gz ../../../starport/pkg/nodetime/ 
 cp nodetime-darwin-x64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-darwin-arm64.tar.gz ../../../starport/pkg/nodetime/
