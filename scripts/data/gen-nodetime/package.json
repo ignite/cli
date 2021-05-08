@@ -1,6 +1,6 @@
 {
   "name": "nodetime",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Starport's Swiss knife",
   "bin": {
     "nodetime": "./nodetime"
@@ -14,7 +14,7 @@
     "@cosmjs/stargate": "^0.24.0-alpha.26",
     "@types/node": "^13.13.45",
     "long": "^4.0.0",
-    "pkg": "^4.4.9",
+    "pkg": "^5.1.0",
     "protobufjs": "^6.10.2",
     "swagger-typescript-api": "^5.1.7",
     "ts-proto": "^1.68.0",
