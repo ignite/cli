@@ -6,7 +6,7 @@
     "nodetime": "./nodetime"
   },
   "scripts": {
-    "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64,node14-linux-arm64 -o nodetime ."
+    "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64,node14-darwin-arm64 -o nodetime ."
   },
   "dependencies": {
     "@cosmjs/launchpad": "^0.23.2",
@@ -14,7 +14,7 @@
     "@cosmjs/stargate": "^0.24.0-alpha.26",
     "@types/node": "^13.13.45",
     "long": "^4.0.0",
-    "pkg": "^4.4.9",
+    "pkg": "^5.1.0",
     "protobufjs": "^6.10.2",
     "swagger-typescript-api": "^5.1.7",
     "ts-proto": "^1.68.0",
