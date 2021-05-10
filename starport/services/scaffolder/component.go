@@ -76,12 +76,7 @@ func checkComponentValidity(appPath, moduleName, compName string) error {
 	}
 
 	// Check component name is not already used
-	err = checkComponentCreated(appPath, moduleName, compName)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return checkComponentCreated(appPath, moduleName, compName)
 }
 
 // isForbiddenComponentName returns true if the name is forbidden as a component name
