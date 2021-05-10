@@ -22,7 +22,6 @@ func NewIBC(opts *CreateOptions) (*genny.Generator, error) {
 	g.RunFn(genesisProtoModify(opts))
 	g.RunFn(keysModify(opts))
 	g.RunFn(keeperModify(opts))
-	g.RunFn(keeperTestSetupModify(opts))
 	g.RunFn(appModify(opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
@@ -221,19 +220,6 @@ scopedKeeper:  scopedKeeper,`
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
-	}
-}
-
-func keeperTestSetupModify(opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/keeper_test.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		content := strings.Replace(f.String(), module.PlaceholderIBCTestKeeperSetup,
-			"nil, nil, nil,", 1)
-		return r.File(genny.NewFileS(path, content))
 	}
 }
 
