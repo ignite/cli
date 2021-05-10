@@ -20,7 +20,6 @@ func NewStargate(opts *Options) (*genny.Generator, error) {
 	g.RunFn(t.moduleGRPCGatewayModify(opts))
 	g.RunFn(t.typesKeyModify(opts))
 	g.RunFn(t.clientCliQueryModify(opts))
-	g.RunFn(t.typesQueryModify(opts))
 
 	// Genesis modifications
 	t.genesisModify(opts, g)
@@ -320,25 +319,6 @@ func (t *typedStargate) clientCliQueryModify(opts *Options) genny.RunFn {
 			strings.Title(opts.TypeName),
 		)
 		content := strings.Replace(f.String(), Placeholder, replacement, 1)
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func (t *typedStargate) typesQueryModify(opts *Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/query.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-		template := `
-const (
-	QueryGet%[2]v  = "get-%[1]v"
-	QueryList%[2]v = "list-%[1]v"
-)
-`
-		content := f.String() + fmt.Sprintf(template, opts.TypeName, strings.Title(opts.TypeName))
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
