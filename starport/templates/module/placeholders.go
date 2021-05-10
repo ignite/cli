@@ -62,5 +62,4 @@ const (
 	PlaceholderIBCAppScopedKeeperDefinition  = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/definition"
 	PlaceholderIBCAppKeeperArgument          = "// this line is used by starport scaffolding # ibc/app/keeper/argument"
 	PlaceholderIBCAppRouter                  = "// this line is used by starport scaffolding # ibc/app/router"
-	PlaceholderIBCTestKeeperSetup            = "// this line is used by starport scaffolding # ibc/keeper/testsetup"
 )
