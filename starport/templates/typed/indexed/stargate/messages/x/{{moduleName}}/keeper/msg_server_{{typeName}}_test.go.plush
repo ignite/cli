@@ -4,19 +4,27 @@ import (
 	"fmt"
 	"testing"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func Test<%= title(TypeName) %>MsgServerCreate(t *testing.T) {
-	srv, ctx := setupMsgServer(t)
+	keeper, ctx := setupKeeper(t)
+	srv := NewMsgServerImpl(*keeper)
+	wctx := sdk.WrapSDKContext(ctx)
 	creator := "A"
 	for i := 0; i < 5; i++ {
 		idx := fmt.Sprintf("%d", i)
-		_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: idx})
+		expected := &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: idx}
+		_, err := srv.Create<%= title(TypeName) %>(wctx, expected)
 		require.NoError(t, err)
+		rst, found := keeper.Get<%= title(TypeName) %>(ctx, expected.Index)
+		require.True(t, found)
+		assert.Equal(t, expected.Creator, rst.Creator)
 	}
 }
 
@@ -46,15 +54,21 @@ func Test<%= title(TypeName) %>MsgServerUpdate(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			srv, ctx := setupMsgServer(t)
-			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index})
+			keeper, ctx := setupKeeper(t)
+			srv := NewMsgServerImpl(*keeper)
+			wctx := sdk.WrapSDKContext(ctx)
+			expected := &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index}
+			_, err := srv.Create<%= title(TypeName) %>(wctx, expected)
 			require.NoError(t, err)
 
-			_, err = srv.Update<%= title(TypeName) %>(ctx, tc.request)
+			_, err = srv.Update<%= title(TypeName) %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
+				rst, found := keeper.Get<%= title(TypeName) %>(ctx, expected.Index)
+				require.True(t, found)
+				assert.Equal(t, expected.Creator, rst.Creator)
 			}
 		})
 	}
@@ -86,15 +100,19 @@ func Test<%= title(TypeName) %>MsgServerDelete(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			srv, ctx := setupMsgServer(t)
+			keeper, ctx := setupKeeper(t)
+			srv := NewMsgServerImpl(*keeper)
+			wctx := sdk.WrapSDKContext(ctx)
 
-			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index})
+			_, err := srv.Create<%= title(TypeName) %>(wctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator, Index: index})
 			require.NoError(t, err)
-			_, err = srv.Delete<%= title(TypeName) %>(ctx, tc.request)
+			_, err = srv.Delete<%= title(TypeName) %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
+				_, found := keeper.Get<%= title(TypeName) %>(ctx, tc.request.Index)
+				require.False(t, found)
 			}
 		})
 	}
