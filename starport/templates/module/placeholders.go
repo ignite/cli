@@ -41,6 +41,9 @@ const (
 
 	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
 
+	// Placeholders in Stargate simapp.go
+	PlaceholderSgSimAppArgument = "// this line is used by starport scaffolding # stargate/simapp/appArgument"
+
 	// Placeholders IBC
 	PlaceholderIBCModuleImport               = "// this line is used by starport scaffolding # ibc/module/import"
 	PlaceholderIBCModuleInterface            = "// this line is used by starport scaffolding # ibc/module/interface"
