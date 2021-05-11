@@ -147,27 +147,6 @@ func checkGoReservedWord(name string) error {
 	return nil
 }
 
-// ErrComponentAlreadyCreated is the error returned when a specific component is already created
-type ErrComponentAlreadyCreated struct {
-	name          string
-	checkedType   string
-	componentType string
-}
-
-// NewErrComponentAlreadyCreated returns a new ErrComponentAlreadyCreated error
-func NewErrComponentAlreadyCreated(name, checkedType, componentType string) *ErrComponentAlreadyCreated {
-	return &ErrComponentAlreadyCreated{
-		name,
-		checkedType,
-		componentType,
-	}
-}
-
-func (e *ErrComponentAlreadyCreated) Error() string {
-	return fmt.Sprintf("component %s with name %s is already created (type %s exists)",
-		e.componentType, e.name, e.checkedType)
-}
-
 // checkComponentCreated checks if the component has been already created with Starport in the project
 func checkComponentCreated(appPath, moduleName, compName string) (err error) {
 	compNameTitle := strings.Title(compName)
@@ -213,7 +192,11 @@ func checkComponentCreated(appPath, moduleName, compName string) (err error) {
 
 				// Check if the parsed type is from a scaffolded component with the name
 				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
-					err = NewErrComponentAlreadyCreated(compName, typeSpec.Name.Name, compType)
+					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
+						compName,
+						typeSpec.Name.Name,
+						compType,
+					)
 					return false
 				}
 
