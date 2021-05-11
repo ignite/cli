@@ -193,9 +193,9 @@ func checkComponentCreated(appPath, moduleName, compName string) (err error) {
 				// Check if the parsed type is from a scaffolded component with the name
 				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
 					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
+						compType,
 						compName,
 						typeSpec.Name.Name,
-						compType,
 					)
 					return false
 				}
