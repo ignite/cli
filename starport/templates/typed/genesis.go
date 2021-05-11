@@ -62,8 +62,7 @@ func (t *typedStargate) genesisTypesModify(opts *Options) genny.RunFn {
 		content = strings.Replace(content, PlaceholderGenesisTypesImport, templateTypesImport, 1)
 
 		templateTypesDefault := `%[1]v
-%[2]vList: []*%[2]v{},
-%[2]vCount: 0,`
+%[2]vList: []*%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			PlaceholderGenesisTypesDefault,
