@@ -12,7 +12,7 @@ You can run Starport in a web-based Gitpod IDE or you can install Starport on yo
 Local Starport installation requires the follow software be installed and running:
 
 - [Golang >=1.16](https://golang.org/)
-- [Node.js >=12.19.0](https://nodejs.org/)
+- [Node.js >=14.16.1](https://nodejs.org/)
 - [protoc](https://grpc.io/docs/protoc-installation)
 
 ## Installing Starport with cURL
