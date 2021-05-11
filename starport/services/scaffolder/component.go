@@ -71,16 +71,17 @@ func checkComponentValidity(appPath, moduleName, compName string) error {
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(compName) {
-		return fmt.Errorf("%s can't be used as a component name", compName)
+	if err := checkForbiddenComponentName(compName); err != nil {
+		return fmt.Errorf("%s can't be used as a component name: %s", compName, err.Error())
 	}
 
 	// Check component name is not already used
 	return checkComponentCreated(appPath, moduleName, compName)
 }
 
-// isForbiddenComponentName returns true if the name is forbidden as a component name
-func isForbiddenComponentName(name string) bool {
+// checkForbiddenComponentName returns true if the name is forbidden as a component name
+func checkForbiddenComponentName(name string) error {
+	// Check with names already used from the scaffolded code
 	switch name {
 	case
 		"logger",
@@ -89,17 +90,17 @@ func isForbiddenComponentName(name string) bool {
 		"genesis",
 		"types",
 		"tx":
-		return true
+		return fmt.Errorf("%s is used by Starport scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }
 
-// isGoReservedWord checks if the name can't be used because it is a go reserved keyword
-func isGoReservedWord(name string) bool {
+// checkGoReservedWord checks if the name can't be used because it is a go reserved keyword
+func checkGoReservedWord(name string) error {
 	// Check keyword or literal
 	if token.Lookup(name).IsKeyword() {
-		return true
+		return fmt.Errorf("%s is a Go keyword", name)
 	}
 
 	// Check with builtin identifier
@@ -141,9 +142,9 @@ func isGoReservedWord(name string) bool {
 		"uint",
 		"uint8",
 		"uintptr":
-		return true
+		return fmt.Errorf("%s is a Go built-in identifier", name)
 	}
-	return false
+	return nil
 }
 
 // ErrComponentAlreadyCreated is the error returned when a specific component is already created

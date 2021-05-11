@@ -46,7 +46,7 @@ func (s *Scaffolder) AddType(
 	}
 
 	// Parse provided field
-	tFields, err := parseFields(fields, isForbiddenTypeField)
+	tFields, err := parseFields(fields, checkForbiddenTypeField)
 	if err != nil {
 		return err
 	}
@@ -102,7 +102,7 @@ func (s *Scaffolder) AddType(
 }
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.Field, error) {
+func parseFields(fields []string, isForbiddenField func(string) error) ([]typed.Field, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
@@ -112,8 +112,8 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 		name := fs[0]
 
 		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if isForbiddenField(name) {
-			return tFields, fmt.Errorf("%s can't be used as a field name", name)
+		if err := isForbiddenField(name); err != nil {
+			return tFields, fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
 		}
 
 		// Ensure the field is not duplicated
@@ -148,16 +148,16 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 	return tFields, nil
 }
 
-// isForbiddenTypeField returns true if the name is forbidden as a field name
-func isForbiddenTypeField(name string) bool {
+// checkForbiddenTypeField returns true if the name is forbidden as a field name
+func checkForbiddenTypeField(name string) error {
 	switch name {
 	case
 		"id",
 		"index",
 		"appendedValue",
 		"creator":
-		return true
+		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }

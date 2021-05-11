@@ -42,13 +42,13 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields, isForbiddenPacketField)
+	parsedPacketFields, err := parseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields, isGoReservedWord)
+	parsedAcksFields, err := parseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -103,15 +103,15 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 	return true, err
 }
 
-// isForbiddenPacketField returns true if the name is forbidden as a packet name
-func isForbiddenPacketField(name string) bool {
+// checkForbiddenPacketField returns true if the name is forbidden as a packet name
+func checkForbiddenPacketField(name string) error {
 	switch name {
 	case
 		"sender",
 		"port",
 		"channelID":
-		return true
+		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }

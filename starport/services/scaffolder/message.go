@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"context"
+	"fmt"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -33,11 +34,11 @@ func (s *Scaffolder) AddMessage(
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields, isForbiddenMessageField)
+	parsedMsgFields, err := parseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resFields, isGoReservedWord)
+	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -89,11 +90,11 @@ func (s *Scaffolder) AddMessage(
 	return fmtProject(pwd)
 }
 
-// isForbiddenTypeField returns true if the name is forbidden as a message name
-func isForbiddenMessageField(name string) bool {
+// checkForbiddenMessageField returns true if the name is forbidden as a message name
+func checkForbiddenMessageField(name string) error {
 	if name == "creator" {
-		return true
+		return fmt.Errorf("%s is used by the message scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }
