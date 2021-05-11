@@ -1,7 +1,6 @@
 package simapp
 
 import (
-	"testing"
 	"time"
 
 	"github.com/cosmos/cosmos-sdk/std"
@@ -16,7 +15,7 @@ import (
 )
 
 // NewSimApp creates application instance with in-memory database and disabled logging.
-func NewSimApp(tmpdir string) *app.App {
+func NewSimApp(dir string) *app.App {
 	db := tmdb.NewMemDB()
 	logger := log.NewNopLogger()
 
@@ -26,7 +25,7 @@ func NewSimApp(tmpdir string) *app.App {
 	app.ModuleBasics.RegisterLegacyAminoCodec(encoding.Amino)
 	app.ModuleBasics.RegisterInterfaces(encoding.InterfaceRegistry)
 
-	a := app.New(logger, db, nil, true, map[int64]bool{}, tmpdir, 0, encoding, emptyOptions{})
+	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding, emptyOptions{})
 	// InitChain updates deliverState which is required when app.NewContext is called
 	a.InitChain(abci.RequestInitChain{
 		ConsensusParams: defaultConsensusParams,
