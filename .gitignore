@@ -6,3 +6,4 @@ apps/
 .idea
 .vscode
 docs/.vuepress/dist
+build/
