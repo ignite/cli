@@ -39,6 +39,12 @@ type Chain struct {
 	// tmclient used to interact with tm apis.
 	tmclient tendermintrpc.Client
 
+	// options are used to set up the chain.
+	options chainOptions
+}
+
+// chainOptions holds options to be used setting up the chain.
+type chainOptions struct {
 	// gasPrice is the gas price used when sending transactions to the chain
 	gasPrice string
 }
@@ -63,7 +69,7 @@ func WithFaucet(address string) Option {
 // WithGasPrice gives the gas price to use to send transactions to the chain
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
-		c.gasPrice = gasPrice
+		c.options.gasPrice = gasPrice
 	}
 }
 
@@ -307,7 +313,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	var reply struct {
 		ID string `json:"id"`
 	}
-	err := tsrelayer.Call(ctx, "ensureChainSetup", c.rpcAddress, &reply)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.options}, &reply)
 	c.ID = reply.ID
 	return err
 }
