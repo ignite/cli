@@ -21,6 +21,7 @@ const (
 	TypeString = "string"
 	TypeBool   = "bool"
 	TypeInt32  = "int32"
+	TypeUint64 = "uint64"
 )
 
 type AddTypeOption struct {
@@ -143,6 +144,7 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 			"string": TypeString,
 			"bool":   TypeBool,
 			"int":    TypeInt32,
+			"uint":   TypeUint64,
 		}
 		isTypeSpecified := len(fs) == 2
 		if isTypeSpecified {
