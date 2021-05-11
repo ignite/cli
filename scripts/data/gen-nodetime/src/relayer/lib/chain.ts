@@ -5,13 +5,17 @@ export const listPathsMethod = "listPaths"
 export const getDefaultAccountMethod = "getDefaultAccount"
 export const getDefaultAccountBalanceMethod = "getDefaultAccountBalance"
 
+interface ChainSetupOptions {
+  gasPrice: string
+}
+
 class EnsureChainSetupResponse {
   // id is the chain id of chain.
   id: string
 }
 
 // ensureChainSetup sets up a chain by its rpc address only if it is not set up already.
-export function ensureChainSetup([rpcAddr]: [string]): EnsureChainSetupResponse {
+export function ensureChainSetup([rpcAddr, options]: [string, ChainSetupOptions]): EnsureChainSetupResponse {
   throw new Error("ensureChainSetup() not implemented");
 }
 
