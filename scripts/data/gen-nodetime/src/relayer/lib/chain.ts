@@ -124,9 +124,25 @@ interface PathEnd {
 	chainID: string;
 	portID: string;
 }
-
+export interface FullPath {
+	path: Path;
+	options: ConnectOptions;
+}
 // getPath gets connection info between chains by path id.
 export function getPath([id]: [string]): Path {
+	const config = readOrCreateConfig();
+	if (config.paths) {
+		let path = config.paths.find((x) => x.path.id == id);
+		if (path) {
+			return path.path;
+		} else {
+			throw new Error("Path does not exist");
+		}
+	} else {
+		throw new Error("Path does not exist");
+	}
+}
+export function getFullPath(id: string): FullPath {
 	const config = readOrCreateConfig();
 	if (config.paths) {
 		let path = config.paths.find((x) => x.path.id == id);
@@ -139,7 +155,6 @@ export function getPath([id]: [string]): Path {
 		throw new Error("Path does not exist");
 	}
 }
-
 // listPaths list all connections.
 export function listPaths(): Path[] {
 	const config = readOrCreateConfig();
