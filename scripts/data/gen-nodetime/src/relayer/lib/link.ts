@@ -55,7 +55,8 @@ async function createLink({ path, options }: FullPath) {
 		throw new Error(
 			"Not enough balance available on '" +
 				path.src.chainID +
-				"'. You need more " +
+				"'. You need at least " +
+				chainAGP.amount.toFloatApproximation() * 2256000 +
 				chainAGP.denom
 		);
 	}
@@ -63,7 +64,39 @@ async function createLink({ path, options }: FullPath) {
 		throw new Error(
 			"Not enough balance available on '" +
 				path.dst.chainID +
-				"'. You need more " +
+				"'. You need at least " +
+				chainBGP.amount.toFloatApproximation() * 2256000 +
+				chainBGP.denom
+		);
+	}
+
+	if (
+		chainABalances.find(
+			(x) =>
+				x.denom == chainAGP.denom &&
+				parseInt(x.amount) < chainAGP.amount.toFloatApproximation() * 2256000
+		)
+	) {
+		throw new Error(
+			"Not enough balance available on '" +
+				path.src.chainID +
+				"'. You need at least " +
+				chainAGP.amount.toFloatApproximation() * 2256000 +
+				chainAGP.denom
+		);
+	}
+	if (
+		chainBBalances.find(
+			(x) =>
+				x.denom == chainBGP.denom &&
+				parseInt(x.amount) < chainBGP.amount.toFloatApproximation() * 2256000
+		)
+	) {
+		throw new Error(
+			"Not enough balance available on '" +
+				path.dst.chainID +
+				"'. You need at least " +
+				chainBGP.amount.toFloatApproximation() * 2256000 +
 				chainBGP.denom
 		);
 	}
