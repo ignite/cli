@@ -5,12 +5,11 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/module"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 var (
@@ -92,12 +91,26 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppModuleBasic, replacementModuleBasic, 1)
 
 		templateKeeperDeclaration := `%[1]v
-		wasmKeeper wasm.Keeper`
+		wasmKeeper       wasm.Keeper
+		scopedWasmKeeper capabilitykeeper.ScopedKeeper
+		`
 		replacementKeeperDeclaration := fmt.Sprintf(templateKeeperDeclaration, module.PlaceholderSgAppKeeperDeclaration)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacementKeeperDeclaration, 1)
 
+		templateDeclaration := `%[1]v
+		scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
+		`
+		replacementDeclaration := fmt.Sprintf(templateDeclaration, module.PlaceholderSgAppScopedKeeper)
+		content = strings.Replace(content, module.PlaceholderSgAppScopedKeeper, replacementDeclaration, 1)
+
+		templateDeclaration = `%[1]v
+		app.scopedWasmKeeper = scopedWasmKeeper
+		`
+		replacementDeclaration = fmt.Sprintf(templateDeclaration, module.PlaceholderSgAppBeforeInitReturn)
+		content = strings.Replace(content, module.PlaceholderSgAppBeforeInitReturn, replacementDeclaration, 1)
+
 		templateEnabledProposalsArgument := `%[1]v
-		enabledProposals []wasm.ProposalType,`
+		enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,`
 		replacementEnabledProposalsArgument := fmt.Sprintf(templateEnabledProposalsArgument, module.PlaceholderSgAppNewArgument)
 		content = strings.Replace(content, module.PlaceholderSgAppNewArgument, replacementEnabledProposalsArgument, 1)
 
@@ -107,7 +120,6 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppStoreKey, replacementStoreKey, 1)
 
 		templateKeeperDefinition := `%[1]v
-		var wasmRouter = bApp.Router()
 		wasmDir := filepath.Join(homePath, "wasm")
 	
 		wasmConfig, err := wasm.ReadWasmConfig(appOpts)
@@ -119,19 +131,23 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		// if we want to allow any custom callbacks
 		supportedFeatures := "staking"
 		app.wasmKeeper = wasm.NewKeeper(
-			appCodec,
-			keys[wasm.StoreKey],
-			app.GetSubspace(wasm.ModuleName),
-			app.AccountKeeper,
-			app.BankKeeper,
-			app.StakingKeeper,
-			app.DistrKeeper,
-			wasmRouter,
-			wasmDir,
-			wasmConfig,
-			supportedFeatures,
-			nil,
-			nil,
+				appCodec,
+				keys[wasm.StoreKey],
+				app.GetSubspace(wasm.ModuleName),
+				app.AccountKeeper,
+				app.BankKeeper,
+				app.StakingKeeper,
+				app.DistrKeeper,
+				app.IBCKeeper.ChannelKeeper,
+				&app.IBCKeeper.PortKeeper,
+				scopedWasmKeeper,
+				app.TransferKeeper,
+				app.Router(),
+				app.GRPCQueryRouter(),
+				wasmDir,
+				wasmConfig,
+				supportedFeatures,
+				wasmOpts...,
 		)
 	
 		// The gov proposal types can be individually enabled
@@ -142,7 +158,7 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacementKeeperDefinition, 1)
 
 		templateAppModule := `%[1]v
-		wasm.NewAppModule(&app.wasmKeeper, app.StakingKeeper),`
+		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper),`
 		replacementAppModule := fmt.Sprintf(templateAppModule, module.PlaceholderSgAppAppModule)
 		content = strings.Replace(content, module.PlaceholderSgAppAppModule, replacementAppModule, 1)
 
@@ -171,7 +187,9 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 		}
 
 		templateImport := `%[1]v
-		"github.com/CosmWasm/wasmd/x/wasm"`
+		"github.com/CosmWasm/wasmd/x/wasm"
+		"github.com/prometheus/client_golang/prometheus"
+		wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgRootImport)
 		content := strings.Replace(f.String(), module.PlaceholderSgRootImport, replacementImport, 1)
 
@@ -185,16 +203,28 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 		replacementInitFlags := fmt.Sprintf(templateInitFlags, module.PlaceholderSgRootInitFlags)
 		content = strings.Replace(content, module.PlaceholderSgRootInitFlags, replacementInitFlags, 1)
 
-		templateenabledProposals := `%[1]v
-		app.GetEnabledProposals(),`
-		replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootAppArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootAppArgument, replacementAppArgument, 1)
+		template := `%[1]v
+		var wasmOpts []wasm.Option
+		if cast.ToBool(appOpts.Get("telemetry.enabled")) {
+			   wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
+		}`
+		replacement := fmt.Sprintf(template, module.PlaceholderSgRootAppBeforeInit)
+		content = strings.Replace(content, module.PlaceholderSgRootAppBeforeInit, replacement, 1)
 
-		replacementExportArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootExportArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootExportArgument, replacementExportArgument, 1)
+		template = `%[1]v
+		app.GetEnabledProposals(),
+		wasmOpts,`
+		replacement = fmt.Sprintf(template, module.PlaceholderSgRootAppArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootAppArgument, replacement, 1)
 
-		replacementNoHeightExportArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgRootNoHeightExportArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootNoHeightExportArgument, replacementNoHeightExportArgument, 1)
+		template = `%[1]v
+		app.GetEnabledProposals(),
+		nil,`
+		replacement = fmt.Sprintf(template, module.PlaceholderSgRootExportArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootExportArgument, replacement, 1)
+
+		replacement = fmt.Sprintf(template, module.PlaceholderSgRootNoHeightExportArgument)
+		content = strings.Replace(content, module.PlaceholderSgRootNoHeightExportArgument, replacement, 1)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
