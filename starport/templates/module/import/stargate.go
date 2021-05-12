@@ -241,7 +241,8 @@ func simAppModifyStargate(opts *ImportOptions) genny.RunFn {
 		}
 
 		templateenabledProposals := `%[1]v
-		app.GetEnabledProposals(),`
+		app.GetEnabledProposals(),
+		nil,`
 		replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgSimAppArgument)
 		content := strings.Replace(f.String(), module.PlaceholderSgSimAppArgument, replacementAppArgument, 1)
 
