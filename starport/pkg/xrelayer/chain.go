@@ -41,6 +41,9 @@ type Chain struct {
 
 	// gasPrice is the gas price used when sending transactions to the chain
 	gasPrice string
+
+	// addrPrefix is the address prefix of the chain
+	addrPrefix string
 }
 
 // Account represents an account in relayer.
@@ -64,6 +67,11 @@ func WithFaucet(address string) Option {
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
 		c.gasPrice = gasPrice
+	}
+}
+func WithAddrPrefix(addrPrefix string) Option {
+	return func(c *Chain) {
+		c.addrPrefix = addrPrefix
 	}
 }
 
@@ -307,7 +315,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	var reply struct {
 		ID string `json:"id"`
 	}
-	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.gasPrice, "cosmos"}, &reply)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.gasPrice, c.addrPrefix}, &reply)
 	c.ID = reply.ID
 	return err
 }
