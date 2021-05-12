@@ -3,7 +3,7 @@ import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { GasPrice } from "@cosmjs/stargate";
 import { stringToPath } from "@cosmjs/crypto";
 import { Link, IbcClient } from "@confio/relayer/build";
-import { getFullPath, FullPath } from "./chain";
+import { getFullPath, FullPath, getDefaultAccountBalance } from "./chain";
 import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
 export const linkMethod = "link";
@@ -47,6 +47,26 @@ async function createLink({ path, options }: FullPath) {
 	const config = readOrCreateConfig();
 	let chainA = config.chains.find((x) => x.chainId == path.src.chainID);
 	let chainB = config.chains.find((x) => x.chainId == path.dst.chainID);
+	let chainABalances = await getDefaultAccountBalance([path.src.chainID]);
+	let chainBBalances = await getDefaultAccountBalance([path.dst.chainID]);
+	let chainAGP = GasPrice.fromString(chainA.gasPrice);
+	let chainBGP = GasPrice.fromString(chainB.gasPrice);
+	if (!chainABalances.find((x) => x.denom == chainAGP.denom)) {
+		throw new Error(
+			"Not enough balance available on '" +
+				path.src.chainID +
+				"'. You need more " +
+				chainAGP.denom
+		);
+	}
+	if (!chainBBalances.find((x) => x.denom == chainBGP.denom)) {
+		throw new Error(
+			"Not enough balance available on '" +
+				path.dst.chainID +
+				"'. You need more " +
+				chainBGP.denom
+		);
+	}
 	let signerA = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
 		hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
 		prefix: chainA.addrPrefix,
