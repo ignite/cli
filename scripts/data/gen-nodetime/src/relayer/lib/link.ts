@@ -1,10 +1,8 @@
 import { readOrCreateConfig, writeConfig } from "./persistence";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { GasPrice } from "@cosmjs/stargate";
-import { Tendermint34Client } from "@cosmjs/tendermint-rpc";
 import { stringToPath } from "@cosmjs/crypto";
 import { Link, IbcClient } from "@confio/relayer/build";
-import { Coin } from "@cosmjs/stargate";
 import { getFullPath, FullPath } from "./chain";
 import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
 
@@ -91,9 +89,60 @@ async function createLink({ path, options }: FullPath) {
 		orderFromJSON(options.ordering),
 		options.targetVersion
 	);
-	let configPath = config.paths.find((x) => x.path.id == path.id).path;
-	configPath.src.channelID = channels.src.channelId;
-	configPath.dst.channelID = channels.dest.channelId;
-	configPath.isLinked = true;
+	let configPath = config.paths.find((x) => x.path.id == path.id);
+	configPath.path.src.channelID = channels.src.channelId;
+	configPath.path.dst.channelID = channels.dest.channelId;
+	configPath.path.isLinked = true;
+	configPath.connections = {
+		srcConnection: link.endA.connectionID,
+		destConnection: link.endB.connectionID,
+	};
+	configPath.relayerData = null;
 	writeConfig(config);
+}
+export async function getLink({ path, connections }: FullPath) {
+	const config = readOrCreateConfig();
+	let chainA = config.chains.find((x) => x.id == path.src.chainID);
+	let chainB = config.chains.find((x) => x.id == path.dst.chainID);
+	let signerA = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
+		hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+		prefix: chainA.addrPrefix,
+	});
+	// Create a signer from chain B config
+	let signerB = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
+		hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
+		prefix: chainB.addrPrefix,
+	});
+	// get addresses
+	const [accountA] = await signerA.getAccounts();
+	const [accountB] = await signerB.getAccounts();
+	// Create IBC Client for chain A
+
+	const clientA = await IbcClient.connectWithSigner(
+		chainA.rpcAddr,
+		signerA,
+		accountA.address,
+		{
+			prefix: chainA.addrPrefix,
+			gasPrice: GasPrice.fromString(chainA.gasPrice),
+		}
+	);
+	// Create IBC Client for chain B
+
+	const clientB = await IbcClient.connectWithSigner(
+		chainB.rpcAddr,
+		signerB,
+		accountB.address,
+		{
+			prefix: chainB.addrPrefix,
+			gasPrice: GasPrice.fromString(chainB.gasPrice),
+		}
+	);
+	const link = Link.createWithExistingConnections(
+		clientA,
+		clientB,
+		connections.srcConnection,
+		connections.destConnection
+	);
+	return link;
 }

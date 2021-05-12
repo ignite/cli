@@ -127,6 +127,16 @@ interface PathEnd {
 export interface FullPath {
 	path: Path;
 	options: ConnectOptions;
+	connections?: {
+		srcConnection: string;
+		destConnection: string;
+	};
+	relayerData?: {
+		packetHeightA?: number;
+		packetHeightB?: number;
+		ackHeightA?: number;
+		ackHeightB?: number;
+	} | null;
 }
 // getPath gets connection info between chains by path id.
 export function getPath([id]: [string]): Path {

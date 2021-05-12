@@ -22,7 +22,7 @@ export function createConfigFolder() {
 export function readOrCreateConfig() {
 	createConfigFolder();
 	try {
-		if (!fs.existsSync(homedir + "/.ts-relayer/config.yaml")) {
+		if (fs.existsSync(homedir + "/.ts-relayer/config.yaml")) {
 			let configFile = fs.readFileSync(
 				homedir + "/.ts-relayer/config.yaml",
 				"utf8"
@@ -32,7 +32,7 @@ export function readOrCreateConfig() {
 			let config = {
 				mnemonic: Bip39.encode(Random.getBytes(32)).toString(),
 			};
-			let configFile = yaml.safeDump(config);
+			let configFile = yaml.dump(config);
 			fs.writeFileSync(
 				homedir + "/.ts-relayer/config.yaml",
 				configFile,
@@ -46,7 +46,7 @@ export function readOrCreateConfig() {
 }
 export function writeConfig(config) {
 	try {
-		let configFile = yaml.safeDump(config);
+		let configFile = yaml.dump(config);
 		fs.writeFileSync(homedir + "/.ts-relayer/config.yaml", configFile, "utf8");
 	} catch (e) {
 		throw new Error("Failed writing  config: " + e);
