@@ -153,6 +153,53 @@ async function createLink({ path, options }: FullPath) {
 	configPath.relayerData = null;
 	writeConfig(config);
 }
+
+export type LogMethod = (
+	/* The string to be logged */
+	message: string,
+	/* Optional object to be JSON-stringified by the logger */
+	meta?: Record<string, unknown>
+) => Logger;
+
+// Logger interface with a subset of methods from https://github.com/winstonjs/winston/blob/v3.3.3/index.d.ts#L107-L115
+export interface Logger {
+	error: LogMethod;
+	warn: LogMethod;
+	info: LogMethod;
+	verbose: LogMethod;
+	debug: LogMethod;
+}
+
+export class ConsoleLogger {
+	public readonly error: LogMethod;
+	public readonly warn: LogMethod;
+	public readonly info: LogMethod;
+	public readonly verbose: LogMethod;
+	public readonly debug: LogMethod;
+
+	constructor() {
+		this.error = (msg) => {
+			console.log(msg);
+			return this;
+		};
+		this.warn = (msg) => {
+			console.log(msg);
+			return this;
+		};
+		this.info = (msg) => {
+			console.log(msg);
+			return this;
+		};
+		this.verbose = (msg) => {
+			console.log(msg);
+			return this;
+		};
+		this.debug = (msg) => {
+			console.log(msg);
+			return this;
+		};
+	}
+}
 export async function getLink({ path, connections }: FullPath) {
 	const config = readOrCreateConfig();
 	let chainA = config.chains.find((x) => x.chainId == path.src.chainID);
@@ -191,11 +238,14 @@ export async function getLink({ path, connections }: FullPath) {
 			gasPrice: GasPrice.fromString(chainB.gasPrice),
 		}
 	);
+
+	const transientLog = new ConsoleLogger();
 	const link = Link.createWithExistingConnections(
 		clientA,
 		clientB,
 		connections.srcConnection,
-		connections.destConnection
+		connections.destConnection,
+		transientLog
 	);
 	return link;
 }
