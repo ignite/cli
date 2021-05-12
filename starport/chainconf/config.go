@@ -28,7 +28,6 @@ var (
 			GRPC:     "0.0.0.0:9090",
 			API:      "0.0.0.0:1317",
 			Frontend: "0.0.0.0:8080",
-			DevUI:    "0.0.0.0:12345",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -155,7 +154,6 @@ type Host struct {
 	GRPC     string `yaml:"grpc"`
 	API      string `yaml:"api"`
 	Frontend string `yaml:"frontend"`
-	DevUI    string `yaml:"dev-ui"`
 }
 
 // Parse parses config.yml into UserConfig.
