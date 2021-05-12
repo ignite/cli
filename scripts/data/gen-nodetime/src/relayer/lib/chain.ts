@@ -139,7 +139,7 @@ export interface FullPath {
 	} | null;
 }
 // getPath gets connection info between chains by path id.
-export function getPath([id]: [string]): Path {
+export function getPath(id: [string]): Path {
 	const config = readOrCreateConfig();
 	if (config.paths) {
 		let path = config.paths.find((x) => x.path.id == id);
@@ -181,9 +181,9 @@ interface Account {
 }
 
 // getDefaultAccount gets the default account on chain by chain id.
-export async function getDefaultAccount([chainID]: [string]): Promise<Account> {
+export async function getDefaultAccount([chainID]: string[]): Promise<Account> {
 	const config = readOrCreateConfig();
-	const chain = config.chains.find((x) => x.id == chainID);
+	const chain = config.chains.find((x) => x.chainId == chainID);
 	if (chain) {
 		let signer = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
 			hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
@@ -194,16 +194,16 @@ export async function getDefaultAccount([chainID]: [string]): Promise<Account> {
 			address: account.address,
 		};
 	} else {
-		throw new Error("Chain not found");
+		throw new Error("Chain not found: " + chainID);
 	}
 }
 
 // getDefaultAccountBalance gets the balance of default account on chain by chain id.
-export async function getDefaultAccountBalance([chainID]: [string]): Promise<
+export async function getDefaultAccountBalance([chainID]: string[]): Promise<
 	Coin[]
 > {
 	const config = readOrCreateConfig();
-	const chain = config.chains.find((x) => x.id == chainID);
+	const chain = config.chains.find((x) => x.chainId == chainID);
 	if (chain) {
 		let signer = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
 			hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
@@ -222,6 +222,6 @@ export async function getDefaultAccountBalance([chainID]: [string]): Promise<
 		);
 		return await client.query.bank.allBalances(account.address);
 	} else {
-		throw new Error("Chain not found");
+		throw new Error("Chain not found: " + chainID);
 	}
 }

@@ -21,8 +21,8 @@ const faucetTimeout = time.Second * 20
 const (
 	TransferPort      = "transfer"
 	TransferVersion   = "ics20-1"
-	OrderingUnordered = "unordered"
-	OrderingOrdered   = "ordered"
+	OrderingUnordered = "ORDER_UNORDERED"
+	OrderingOrdered   = "ORDER_ORDERED"
 )
 
 // Chain represents a chain in relayer.
@@ -85,7 +85,7 @@ func NewChain(ctx context.Context, rpcAddress string, options ...Option) (*Chain
 // Account retrieves the default account on chain.
 func (c *Chain) Account(ctx context.Context) (Account, error) {
 	var account Account
-	err := tsrelayer.Call(ctx, "getDefaultAccount", c.ID, &account)
+	err := tsrelayer.Call(ctx, "getDefaultAccount", []interface{}{c.ID}, &account)
 	return account, err
 }
 
@@ -131,7 +131,7 @@ func (c *Chain) TryFaucet(ctx context.Context) error {
 // Balance returns the balance for default account in the chain.
 func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
 	var coins sdk.Coins
-	err := tsrelayer.Call(ctx, "getDefaultAccountBalance", c.ID, &coins)
+	err := tsrelayer.Call(ctx, "getDefaultAccountBalance", []interface{}{c.ID}, &coins)
 	return coins, err
 }
 
@@ -307,7 +307,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	var reply struct {
 		ID string `json:"id"`
 	}
-	err := tsrelayer.Call(ctx, "ensureChainSetup", c.rpcAddress, &reply)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, "0.025stake", "cosmos"}, &reply)
 	c.ID = reply.ID
 	return err
 }

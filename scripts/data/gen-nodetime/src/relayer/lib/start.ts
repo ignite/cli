@@ -17,8 +17,12 @@ export async function start(paths: string[]): Promise<Response> {
 				relayers.set(
 					pathName,
 					setInterval(async () => {
-						let relayerData = await relayPackets(link, path.relayerData);
-						path.relayerData = relayerData;
+						let heights = config.paths.find((x) => x.path.id == pathName)
+							.relayerData;
+						let newHeights = await relayPackets(link, heights);
+						config.paths.find(
+							(x) => x.path.id == pathName
+						).relayerData = newHeights;
 						writeConfig(config);
 					}, 5000)
 				);
@@ -38,7 +42,11 @@ async function relayPackets(
 	options = { maxAgeDest: 86400, maxAgeSrc: 86400 }
 ) {
 	try {
-		const heights = await link.checkAndRelayPacketsAndAcks(relayHeights, 2, 6);
+		const heights = await link.checkAndRelayPacketsAndAcks(
+			relayHeights ?? {},
+			2,
+			6
+		);
 		await link.updateClientIfStale("A", options.maxAgeDest);
 		await link.updateClientIfStale("B", options.maxAgeSrc);
 		return heights;

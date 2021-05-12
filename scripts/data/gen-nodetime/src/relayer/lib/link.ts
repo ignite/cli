@@ -33,7 +33,7 @@ export async function link(paths: string[]): Promise<Response> {
 					await createLink(path);
 					response.linkedPaths.push(pathName);
 				} catch (e) {
-					throw new Error("Could not link path: " + pathName);
+					throw new Error("Could not link path: " + pathName + ": " + e);
 				}
 			}
 		}
@@ -45,8 +45,8 @@ export async function link(paths: string[]): Promise<Response> {
 
 async function createLink({ path, options }: FullPath) {
 	const config = readOrCreateConfig();
-	let chainA = config.chains.find((x) => x.id == path.src.chainID);
-	let chainB = config.chains.find((x) => x.id == path.dst.chainID);
+	let chainA = config.chains.find((x) => x.chainId == path.src.chainID);
+	let chainB = config.chains.find((x) => x.chainId == path.dst.chainID);
 	let signerA = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
 		hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
 		prefix: chainA.addrPrefix,
@@ -102,8 +102,8 @@ async function createLink({ path, options }: FullPath) {
 }
 export async function getLink({ path, connections }: FullPath) {
 	const config = readOrCreateConfig();
-	let chainA = config.chains.find((x) => x.id == path.src.chainID);
-	let chainB = config.chains.find((x) => x.id == path.dst.chainID);
+	let chainA = config.chains.find((x) => x.chainId == path.src.chainID);
+	let chainB = config.chains.find((x) => x.chainId == path.dst.chainID);
 	let signerA = await DirectSecp256k1HdWallet.fromMnemonic(config.mnemonic, {
 		hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
 		prefix: chainA.addrPrefix,

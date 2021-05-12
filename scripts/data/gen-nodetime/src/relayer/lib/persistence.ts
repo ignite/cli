@@ -27,7 +27,7 @@ export function readOrCreateConfig() {
 				homedir + "/.ts-relayer/config.yaml",
 				"utf8"
 			);
-			return yaml.safeLoad(configFile);
+			return yaml.load(configFile);
 		} else {
 			let config = {
 				mnemonic: Bip39.encode(Random.getBytes(32)).toString(),
