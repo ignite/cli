@@ -11,9 +11,6 @@ RUN apt update && \
         ca-certificates \
         curl
 
-RUN curl -sL https://deb.nodesource.com/setup_14.x | bash - && \
-    apt-get install -y nodejs
-
 # enable faster module downloading.
 ENV GOPROXY https://proxy.golang.org
 
@@ -50,6 +47,5 @@ EXPOSE 26656
 EXPOSE 6060 
 EXPOSE 9090 
 EXPOSE 1317 
-EXPOSE 8080
 
 ENTRYPOINT ["starport"]
