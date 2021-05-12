@@ -24,7 +24,7 @@ func NewStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(opts))
 	g.RunFn(rootModifyStargate(opts))
-	g.RunFn(simAppModifyStargate(opts))
+	g.RunFn(testutilAppModifyStargate(opts))
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
@@ -231,22 +231,28 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 	}
 }
 
-// simapp.go modification on Stargate when importing wasm
-func simAppModifyStargate(opts *ImportOptions) genny.RunFn {
+// app.NewApp modification in testutil module on Stargate when importing wasm
+func testutilAppModifyStargate(opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "simapp/simapp.go"
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
+		for _, path := range []string{
+			"testutil/simapp/simapp.go",
+			"testutil/network/network.go",
+		} {
+			f, err := r.Disk.Find(path)
+			if err != nil {
+				return err
+			}
+
+			templateenabledProposals := `%[1]v
+			app.GetEnabledProposals(),`
+			replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgTestutilAppArgument)
+			content := strings.Replace(f.String(), module.PlaceholderSgTestutilAppArgument, replacementAppArgument, 1)
+
+			newFile := genny.NewFileS(path, content)
+			if err := r.File(newFile); err != nil {
+				return err
+			}
 		}
-
-		templateenabledProposals := `%[1]v
-		app.GetEnabledProposals(),
-		nil,`
-		replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgSimAppArgument)
-		content := strings.Replace(f.String(), module.PlaceholderSgSimAppArgument, replacementAppArgument, 1)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
+		return nil
 	}
 }
