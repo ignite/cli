@@ -43,13 +43,22 @@ export async function ensureChainSetup([rpcAddr, gasPrice, addrPrefix]: [
 			writeConfig(config);
 			return { id: chain.chainId };
 		}
+
+		if (
+			config.chains &&
+			config.chains.find(
+				(x) => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr
+			)
+		) {
+			throw new Error("RPC endpoint already exists with a different chain id");
+		}
 		if (
 			config.chains &&
 			config.chains.find(
 				(x) => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr
 			)
 		) {
-			throw new Error("chain already exists");
+			return { id: chain.chainId };
 		} else {
 			config.chains.push(chain);
 			writeConfig(config);
