@@ -29,9 +29,9 @@ docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps starport/cli:develop 
 
 Be patient, this command takes a minute or two to run because it does everything for you:
 
-- Creates a container that runs from the `starport/cli` image.
-- Executes the Starport binary inside the image. In this example, the `starport/cli:develop` image is on the `develop` branch so you can experiment with the next version.
-- Uses `-v $HOME/sdh:/home/tendermint` to map the `$HOME/sdh` directory in your local computer (the host machine) to the `/home/tendermint` directory inside the container.
+- Creates a container that runs from the `starport/cli:0.16.0` image.
+- Executes the Starport binary inside the image. 
+- Uses `-v $HOME/sdh:/home/tendermint` to map the `$HOME/sdh` directory in your local computer (the host machine) to the home directory (`/home/tendermint`) inside the container. Starport and the chains you serve with Starport persist some files.
 
 ## Starting a Blockchain
 
