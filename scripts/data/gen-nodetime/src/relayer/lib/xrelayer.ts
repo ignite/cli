@@ -18,67 +18,67 @@ export const getDefaultAccountBalanceMethod = "getDefaultAccountBalance";
 export const linkMethod = "link";
 export const startMethod = "start";
 
-export type EnsureChainSetupResponse = {
+type EnsureChainSetupResponse = {
 	// id is the chain id of chain.
 	id: string;
 };
-export type Account = {
+type Account = {
 	address: string;
 };
-export type ChainConfig = {
+type ChainConfig = {
 	chainId: string;
 	rpcAddr: string;
 	addrPrefix: string;
 	gasPrice: string;
 };
-export type ConnectOptions = {
+type ConnectOptions = {
 	sourcePort: string;
 	sourceVersion: string;
 	targetPort: string;
 	targetVersion: string;
 	ordering: "ORDER_UNORDERED" | "ORDER_ORDERED";
 };
-export type Connections = {
+type Connections = {
 	srcConnection: string;
 	destConnection: string;
 };
-export type Endpoint = {
+type Endpoint = {
 	channelID?: string;
 	chainID: string;
 	portID: string;
 };
-export type Path = {
+type Path = {
 	id: string;
 	isLinked: boolean;
 	src: Endpoint;
 	dst: Endpoint;
 };
-export type LinkResponse = {
+type LinkResponse = {
 	linkedPaths: string[];
 	alreadyLinkedPaths: string[];
 };
-export type StartResponse = {};
-export type PacketHeights = {
+type StartResponse = {};
+type PacketHeights = {
 	packetHeightA: number;
 	packetHeightB: number;
 	ackHeightA: number;
 	ackHeightB: number;
 };
-export type PathConfig = {
+type PathConfig = {
 	path: Path;
 	options?: ConnectOptions;
 	connections?: Connections;
 	relayerData?: PacketHeights;
 };
-export type RelayerConfig = {
+type RelayerConfig = {
 	mnemonic: string;
 	chains?: Array<ChainConfig>;
 	paths?: Array<PathConfig>;
 };
 
-export type LogMethod = (message: string) => Logger;
+type LogMethod = (message: string) => Logger;
 
-export interface Logger {
+interface Logger {
 	error: LogMethod;
 	warn: LogMethod;
 	info: LogMethod;
@@ -86,7 +86,7 @@ export interface Logger {
 	debug: LogMethod;
 }
 
-export class ConsoleLogger {
+class ConsoleLogger {
 	public readonly error: LogMethod;
 	public readonly warn: LogMethod;
 	public readonly info: LogMethod;
@@ -116,7 +116,7 @@ export class ConsoleLogger {
 		};
 	}
 }
-class ProxiedConfig {}
+
 export default class XRelayer {
 	private _config: RelayerConfig;
 	public config: RelayerConfig;
