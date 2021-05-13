@@ -51,7 +51,7 @@ type PathEnd struct {
 // GetPath returns a path by its id.
 func GetPath(ctx context.Context, id string) (Path, error) {
 	var path Path
-	err := tsrelayer.Call(ctx, "getPath", id, &path)
+	err := tsrelayer.Call(ctx, "getPath", []interface{}{id}, &path)
 	return path, err
 }
 
