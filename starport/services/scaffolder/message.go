@@ -12,8 +12,8 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
-// AddMessage adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resField []string) error {
+// AddMessage adds a new message to scaffolded app
+func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resFields []string) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -50,7 +50,7 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resField, isGoReservedWord)
+	parsedResFields, err := parseFields(resFields, isGoReservedWord)
 	if err != nil {
 		return err
 	}
