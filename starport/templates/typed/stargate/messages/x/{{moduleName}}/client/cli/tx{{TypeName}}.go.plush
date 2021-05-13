@@ -3,6 +3,7 @@ package cli
 import (
     "strconv"
 	"github.com/spf13/cobra"
+	"github.com/spf13/cast"
 
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -16,14 +17,17 @@ func CmdCreate<%= title(TypeName) %>() *cobra.Command {
 		Short: "Create a new <%= TypeName %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+	  	<%= for (i, field) in Fields { %> args<%= title(field.Name) %>, err := <%= castArgs(field.DatatypeName, i) %>
+			if err != nil {
+				return err
+			}
+		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgCreate<%= title(TypeName) %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgCreate<%= title(TypeName) %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -47,14 +51,18 @@ func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
                 return err
             }
 
-      <%= for (i, field) in Fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i + 1 %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+	    <%= for (i, field) in Fields { %>
+	  		args<%= title(field.Name) %>, err := <%= castArgs(field.DatatypeName, i) %>
+			if err != nil {
+				return err
+			}
+        <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgUpdate<%= title(TypeName) %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsgUpdate<%= title(TypeName) %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -69,7 +77,7 @@ func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
 
 func CmdDelete<%= title(TypeName) %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName %> [id]<%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Use:   "delete-<%= TypeName %> [id]",
 		Short: "Delete a <%= TypeName %> by id",
 		Args:  cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
