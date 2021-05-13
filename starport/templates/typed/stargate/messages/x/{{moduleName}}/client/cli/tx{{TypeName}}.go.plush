@@ -2,8 +2,11 @@ package cli
 
 import (
     "strconv"
+
 	"github.com/spf13/cobra"
+<%= if (len(Fields) > 0) { %> 
 	"github.com/spf13/cast"
+<% } %>
 
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -17,7 +20,7 @@ func CmdCreate<%= title(TypeName) %>() *cobra.Command {
 		Short: "Create a new <%= TypeName %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-	  	<%= for (i, field) in Fields { %> args<%= title(field.Name) %>, err := <%= castArgs(field.DatatypeName, i) %>
+	  	<%= for (i, field) in Fields { %> args<%= title(field.Name) %>, err := <%= castArgs(field.Datatype, i) %>
 			if err != nil {
 				return err
 			}
@@ -52,7 +55,7 @@ func CmdUpdate<%= title(TypeName) %>() *cobra.Command {
             }
 
 	    <%= for (i, field) in Fields { %>
-	  		args<%= title(field.Name) %>, err := <%= castArgs(field.DatatypeName, i) %>
+	  		args<%= title(field.Name) %>, err := <%= castArgs(field.Datatype, i+1) %>
 			if err != nil {
 				return err
 			}
