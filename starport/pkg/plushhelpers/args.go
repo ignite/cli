@@ -24,6 +24,8 @@ func GenerateValidArg(typ string) string {
 		return "111"
 	case "int":
 		return "111"
+	case "bool":
+		return "true"
 	default:
 		panic(fmt.Sprintf("unknown type %s", typ))
 	}

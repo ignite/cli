@@ -116,12 +116,16 @@ func TestDelete<%= title(TypeName) %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-	args := []string{
+	fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 	}
+    args := []string{}
+	args = append(args, fields...)
+	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= title(TypeName) %>(), args)
 	require.NoError(t, err)
 
@@ -135,12 +139,12 @@ func TestDelete<%= title(TypeName) %>(t *testing.T) {
 		{
 			desc: "valid",
 			id:   "0",
-			args: args,
+			args: common,
 		},
 		{
 			desc: "key not found",
 			id:   "1",
-			args: args,
+			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
 		},
 	} {
