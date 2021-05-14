@@ -9,6 +9,7 @@ import { stringToPath } from "@cosmjs/crypto";
 import { Coin } from "@cosmjs/stargate";
 import { Link, IbcClient } from "@confio/relayer/build";
 import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
+import { QueryConnectionRequest } from "@cosmjs/stargate/build/codec/ibc/core/connection/v1/query";
 export const ensureChainSetupMethod = "ensureChainSetup";
 export const createPathMethod = "createPath";
 export const getPathMethod = "getPath";
@@ -17,6 +18,8 @@ export const getDefaultAccountMethod = "getDefaultAccount";
 export const getDefaultAccountBalanceMethod = "getDefaultAccountBalance";
 export const linkMethod = "link";
 export const startMethod = "start";
+const IBCSetupGas = 2256000;
+const defaultMaxAge = 86400;
 
 type EnsureChainSetupResponse = {
 	// id is the chain id of chain.
@@ -117,20 +120,21 @@ class ConsoleLogger {
 	}
 }
 
-export default class XRelayer {
-	private _config: RelayerConfig;
+export default class Relayer {
 	public config: RelayerConfig;
 	public homedir: string;
+	public configFile: string;
 	private relayers: Map<string, ReturnType<typeof setInterval>>;
 
-	constructor() {
+	constructor(configFile: string = "config.yaml") {
 		this.homedir = os.homedir();
+		this.configFile = configFile;
 		this.relayers = new Map();
-		this._config = this.readOrCreateConfig();
+		this.config = this.readOrCreateConfig();
 		const nestedProxy = {
 			set: (target, prop, value) => {
 				target[prop] = value;
-				this.writeConfig(this._config);
+				this.writeConfig(this.config);
 				return true;
 			},
 			get: (target, prop) => {
@@ -141,39 +145,36 @@ export default class XRelayer {
 				}
 			},
 		};
-		this.config = new Proxy(this._config, nestedProxy);
+		this.config = new Proxy(this.config, nestedProxy);
 	}
 	createConfigFolder() {
-		const configPath = this.homedir + "/.ts-relayer";
 		try {
-			if (!fs.existsSync(configPath)) {
-				fs.mkdirSync(configPath);
+			if (!fs.existsSync(this.getConfigFolder())) {
+				fs.mkdirSync(this.getConfigFolder());
 			}
 		} catch (e) {
 			throw new Error("Could not create config folder: " + e);
 		}
 	}
+	getConfigFolder() {
+		return this.homedir + "/.ts-relayer";
+	}
+	getConfigPath() {
+		return this.getConfigFolder() + this.configFile;
+	}
 	readOrCreateConfig() {
 		this.createConfigFolder();
 		try {
-			if (fs.existsSync(this.homedir + "/.ts-relayer/config.yaml")) {
-				let configFile = fs.readFileSync(
-					this.homedir + "/.ts-relayer/config.yaml",
-					"utf8"
-				);
+			if (fs.existsSync(this.getConfigPath())) {
+				let configFile = fs.readFileSync(this.getConfigPath(), "utf8");
 				return yaml.load(configFile);
-			} else {
-				let config = {
-					mnemonic: Bip39.encode(Random.getBytes(32)).toString(),
-				};
-				let configFile = yaml.dump(config);
-				fs.writeFileSync(
-					this.homedir + "/.ts-relayer/config.yaml",
-					configFile,
-					"utf8"
-				);
-				return config;
 			}
+			let config = {
+				mnemonic: Bip39.encode(Random.getBytes(32)).toString(),
+			};
+			let configFile = yaml.dump(config);
+			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
+			return config;
 		} catch (e) {
 			throw new Error("Failed reading config: " + e);
 		}
@@ -181,11 +182,7 @@ export default class XRelayer {
 	writeConfig(config) {
 		try {
 			let configFile = yaml.dump(config);
-			fs.writeFileSync(
-				this.homedir + "/.ts-relayer/config.yaml",
-				configFile,
-				"utf8"
-			);
+			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
 		} catch (e) {
 			throw new Error("Failed writing config: " + e);
 		}
@@ -210,27 +207,24 @@ export default class XRelayer {
 				this.config.chains = [chain];
 				return { id: chain.chainId };
 			}
-			if (
+			const endpointExistsWithDifferentChainID =
 				this.config.chains &&
 				this.config.chains.find(
 					(x) => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr
-				)
-			) {
+				);
+			if (endpointExistsWithDifferentChainID)
 				throw new Error(
 					"RPC endpoint already exists with a different chain id"
 				);
-			}
-			if (
+
+			const chainExistsWithSameEndpoint =
 				this.config.chains &&
 				this.config.chains.find(
 					(x) => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr
-				)
-			) {
-				return { id: chain.chainId };
-			} else {
-				this.config.chains.push(chain);
-				return { id: chain.chainId };
-			}
+				);
+			if (chainExistsWithSameEndpoint) return { id: chain.chainId };
+			this.config.chains.push(chain);
+			return { id: chain.chainId };
 		} catch (e) {
 			throw new Error("Could not setup chain: " + e);
 		}
@@ -265,22 +259,16 @@ export default class XRelayer {
 	public getPath([id]: [string]): Path {
 		if (this.config.paths) {
 			let path = this.config.paths.find((x) => x.path.id == id);
-			if (path) {
-				return path.path;
-			} else {
-				throw new Error("Path does not exist");
-			}
-		} else {
-			throw new Error("Path does not exist");
+			if (path) return path.path;
 		}
+		throw new Error("Path does not exist");
 	}
 	public listPaths(): Path[] {
 		if (this.config.paths) {
 			let paths = this.config.paths.map((x) => x.path);
 			return paths;
-		} else {
-			throw new Error("No paths defined");
 		}
+		throw new Error("No paths defined");
 	}
 	public async getDefaultAccount([chainID]: string[]): Promise<Account> {
 		const chain = this.chainById(chainID);
@@ -289,18 +277,16 @@ export default class XRelayer {
 			return {
 				address: client.senderAddress,
 			};
-		} else {
-			throw new Error("Chain not found: " + chainID);
 		}
+		throw new Error("Chain not found: " + chainID);
 	}
 	public async getDefaultAccountBalance([chainID]: string[]): Promise<Coin[]> {
 		const chain = this.chainById(chainID);
 		if (chain) {
 			let client = await this.getIBCClient(chain);
 			return await client.query.bank.allBalances(client.senderAddress);
-		} else {
-			throw new Error("Chain not found: " + chainID);
 		}
+		throw new Error("Chain not found: " + chainID);
 	}
 	public async link(paths: string[]): Promise<LinkResponse> {
 		if (this.config.paths) {
@@ -312,19 +298,18 @@ export default class XRelayer {
 				const path = this.pathById(pathName);
 				if (path?.path.isLinked) {
 					response.alreadyLinkedPaths.push(pathName);
-				} else {
-					try {
-						await this.createLink(path);
-						response.linkedPaths.push(pathName);
-					} catch (e) {
-						throw new Error("Could not link path: " + pathName + ": " + e);
-					}
+					continue;
+				}
+				try {
+					await this.createLink(path);
+					response.linkedPaths.push(pathName);
+				} catch (e) {
+					throw new Error("Could not link path: " + pathName + ": " + e);
 				}
 			}
 			return response;
-		} else {
-			throw new Error("No paths defined");
 		}
+		throw new Error("No paths defined");
 	}
 	public async start(paths: string[]): Promise<StartResponse> {
 		if (this.config.paths) {
@@ -340,14 +325,13 @@ export default class XRelayer {
 							this.pathById(pathName).relayerData = newHeights;
 						}, 5000)
 					);
-				} else {
-					throw new Error("Path: " + pathName + " is not linked.");
+					continue;
 				}
+				throw new Error("Path: " + pathName + " is not linked.");
 			}
 			return {};
-		} else {
-			throw new Error("No paths defined");
 		}
+		throw new Error("No paths defined");
 	}
 	// Helper functions
 	protected chainById(chainID: string): ChainConfig {
@@ -364,19 +348,22 @@ export default class XRelayer {
 	protected async balanceCheck(chain: ChainConfig): Promise<boolean> {
 		let chainBalances = await this.getDefaultAccountBalance([chain.chainId]);
 		let chainGP = GasPrice.fromString(chain.gasPrice);
-		if (!chainBalances.find((x) => x.denom == chainGP.denom)) {
-			return false;
-		}
-		if (
-			chainBalances.find(
-				(x) =>
-					x.denom == chainGP.denom &&
-					parseInt(x.amount) < chainGP.amount.toFloatApproximation() * 2256000
-			)
-		) {
-			return false;
-		}
-		return true;
+		if (!chainBalances.find((x) => x.denom == chainGP.denom)) return false;
+
+		return !chainBalances.find(
+			(x) =>
+				x.denom == chainGP.denom &&
+				parseInt(x.amount) < chainGP.amount.toFloatApproximation() * IBCSetupGas
+		);
+	}
+	protected notEnoughBalanceError(chain_id, amount, denom) {
+		return (
+			"Not enough balance available on '" +
+			chain_id +
+			"'. You need at least " +
+			amount +
+			denom
+		);
 	}
 	protected async createLink({ path, options }: PathConfig): Promise<void> {
 		let chainA = this.chainById(path.src.chainID);
@@ -385,20 +372,20 @@ export default class XRelayer {
 		let chainBGP = GasPrice.fromString(chainA.gasPrice);
 		if (!(await this.balanceCheck(chainA))) {
 			throw new Error(
-				"Not enough balance available on '" +
-					chainA.chainId +
-					"'. You need at least " +
-					chainAGP.amount.toFloatApproximation() * 2256000 +
+				this.notEnoughBalanceError(
+					chainA.chainId,
+					chainAGP.amount.toFloatApproximation() * IBCSetupGas,
 					chainAGP.denom
+				)
 			);
 		}
 		if (!(await this.balanceCheck(chainB))) {
 			throw new Error(
-				"Not enough balance available on '" +
-					chainB.chainId +
-					"'. You need at least " +
-					chainBGP.amount.toFloatApproximation() * 2256000 +
+				this.notEnoughBalanceError(
+					chainB.chainId,
+					chainBGP.amount.toFloatApproximation() * IBCSetupGas,
 					chainBGP.denom
+				)
 			);
 		}
 		// Create IBC Client for chain A
@@ -472,7 +459,7 @@ export default class XRelayer {
 	protected async relayPackets(
 		link,
 		relayHeights,
-		options = { maxAgeDest: 86400, maxAgeSrc: 86400 }
+		options = { maxAgeDest: defaultMaxAge, maxAgeSrc: defaultMaxAge }
 	) {
 		try {
 			const heights = await link.checkAndRelayPacketsAndAcks(
