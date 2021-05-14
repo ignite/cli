@@ -41,6 +41,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewNetwork())
 	c.AddCommand(NewIBCPacket())
 	c.AddCommand(NewMessage())
+	c.AddCommand(NewQuery())
 	return c
 }
 
