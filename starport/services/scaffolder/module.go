@@ -27,10 +27,10 @@ var (
 )
 
 const (
-	wasmImport                = "github.com/CosmWasm/wasmd"
-	apppkg                    = "app"
-	moduleDir                 = "x"
-	wasmVersionCommitStargate = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
+	wasmImport  = "github.com/CosmWasm/wasmd"
+	apppkg      = "app"
+	moduleDir   = "x"
+	wasmVersion = "v0.16.0"
 )
 
 // moduleCreationOptions holds options for creating a new module
@@ -243,7 +243,7 @@ func (s *Scaffolder) installWasm() error {
 					step.Exec(
 						gocmd.Name(),
 						"get",
-						wasmImport+"@"+wasmVersionCommitStargate,
+						wasmImport+"@"+wasmVersion,
 					),
 				),
 			)
