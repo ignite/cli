@@ -37,7 +37,7 @@ type Account = {
 type ChainConfig = {
 	chainId: string;
 	rpcAddr: string;
-	keyPrefix: string;
+	addressPrefix: string;
 	gasPrice: string;
 };
 
@@ -88,20 +88,28 @@ type RelayerConfig = {
 };
 
 interface ChainSetupOptions {
-	gasPrice: string
-	keyPrefix: string
+	gasPrice: string;
+	addressPrefix: string;
 }
 
 type EnsureChainSetupResponse = {
 	// id is chain id.
 	id: string;
 };
-
+type LinkError = {
+	pathName: string;
+	error: string;
+};
 type LinkResponse = {
 	linkedPaths: string[];
 	alreadyLinkedPaths: string[];
+	failedToLinkPaths: LinkError[];
 };
-
+type LinkStatus = {
+	status: boolean;
+	pathName: string;
+	error?: string;
+};
 type StartResponse = {};
 
 export default class Relayer {
@@ -152,7 +160,7 @@ export default class Relayer {
 	}
 
 	getConfigPath() {
-		return join(this.getConfigFolder(),  this.configFile);
+		return join(this.getConfigFolder(), this.configFile);
 	}
 
 	readOrCreateConfig() {
@@ -187,9 +195,9 @@ export default class Relayer {
 	}
 
 	// ensureChainSetup is an RPC shim func to be executed by the Go API.
-	public async ensureChainSetup([rpcAddr, { keyPrefix, gasPrice }]: [
+	public async ensureChainSetup([rpcAddr, { addressPrefix, gasPrice }]: [
 		string,
-		ChainSetupOptions,
+		ChainSetupOptions
 	]): Promise<EnsureChainSetupResponse> {
 		try {
 			const tmClient = await Tendermint34Client.connect(rpcAddr);
@@ -198,7 +206,7 @@ export default class Relayer {
 			const chain = {
 				chainId: status.nodeInfo.network,
 				rpcAddr,
-				keyPrefix,
+				addressPrefix,
 				gasPrice,
 			};
 
@@ -209,17 +217,20 @@ export default class Relayer {
 
 			const endpointExistsWithDifferentChainID =
 				this.config.chains &&
-				this.config.chains.find(x => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr);
+				this.config.chains.find(
+					(x) => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr
+				);
 
 			const chainExistsWithSameEndpoint =
 				this.config.chains &&
-				this.config.chains.find(x => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr);
+				this.config.chains.find(
+					(x) => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr
+				);
 
 			if (endpointExistsWithDifferentChainID)
 				throw Errors.EndpointExistsWithDifferentChainID;
 
-			if (chainExistsWithSameEndpoint)
-				return { id: chain.chainId };
+			if (chainExistsWithSameEndpoint) return { id: chain.chainId };
 
 			this.config.chains.push(chain);
 
@@ -249,8 +260,7 @@ export default class Relayer {
 				},
 			};
 
-			if (!this.config.paths)
-				this.config.paths = [];
+			if (!this.config.paths) this.config.paths = [];
 
 			this.config.paths.push({ path, options });
 
@@ -306,8 +316,9 @@ export default class Relayer {
 			let response: LinkResponse = {
 				linkedPaths: [],
 				alreadyLinkedPaths: [],
+				failedToLinkPaths: [],
 			};
-
+			const links = [];
 			for (let pathName of paths) {
 				const path = this.pathById(pathName);
 
@@ -315,15 +326,19 @@ export default class Relayer {
 					response.alreadyLinkedPaths.push(pathName);
 					continue;
 				}
-
-				try {
-					await this.createLink(path);
-					response.linkedPaths.push(pathName);
-				} catch (e) {
-					throw Errors.PathLinkFailed(`${pathName}: ${e}`);
+				links.push(this.createLink(path));
+			}
+			const results = await Promise.all(links);
+			for (let result of results) {
+				if (result.status) {
+					response.linkedPaths.push(result.pathName);
+				} else {
+					response.failedToLinkPaths.push({
+						pathName: result.pathName,
+						error: result.error,
+					});
 				}
 			}
-
 			return response;
 		}
 
@@ -390,41 +405,63 @@ export default class Relayer {
 		return Errors.NotEnoughBalance(`${calcAmount} ${denom} (${chainId})`);
 	}
 
-	protected async createLink({ path, options }: PathConfig): Promise<void> {
+	protected async createLink({
+		path,
+		options,
+	}: PathConfig): Promise<LinkStatus> {
 		let chainA = this.chainById(path.src.chainID);
 		let chainB = this.chainById(path.dst.chainID);
 		let chainAGP = GasPrice.fromString(chainA.gasPrice);
 		let chainBGP = GasPrice.fromString(chainA.gasPrice);
 
 		if (!(await this.balanceCheck(chainA)))
-			throw this.notEnoughBalanceError(chainA, chainAGP);
+			return {
+				status: false,
+				pathName: path.id,
+				error: this.notEnoughBalanceError(chainA, chainAGP).message,
+			};
 
 		if (!(await this.balanceCheck(chainB)))
-			throw this.notEnoughBalanceError(chainB, chainBGP);
+			return {
+				status: false,
+				pathName: path.id,
+				error: this.notEnoughBalanceError(chainB, chainBGP).message,
+			};
 
 		// create IBC clients.
 		const clientA = await this.getIBCClient(chainA);
 		const clientB = await this.getIBCClient(chainB);
+		try {
+			const link = await Link.createWithNewConnections(clientA, clientB);
 
-		const link = await Link.createWithNewConnections(clientA, clientB);
+			const channels = await link.createChannel(
+				"A",
+				options.sourcePort,
+				options.targetPort,
+				orderFromJSON(options.ordering),
+				options.targetVersion
+			);
 
-		const channels = await link.createChannel(
-			"A",
-			options.sourcePort,
-			options.targetPort,
-			orderFromJSON(options.ordering),
-			options.targetVersion
-		);
-
-		let configPath = this.pathById(path.id);
-		configPath.path.src.channelID = channels.src.channelId;
-		configPath.path.dst.channelID = channels.dest.channelId;
-		configPath.path.isLinked = true;
-		configPath.connections = {
-			srcConnection: link.endA.connectionID,
-			destConnection: link.endB.connectionID,
-		};
-		configPath.relayerData = null;
+			let configPath = this.pathById(path.id);
+			configPath.path.src.channelID = channels.src.channelId;
+			configPath.path.dst.channelID = channels.dest.channelId;
+			configPath.path.isLinked = true;
+			configPath.connections = {
+				srcConnection: link.endA.connectionID,
+				destConnection: link.endB.connectionID,
+			};
+			configPath.relayerData = null;
+			return {
+				status: true,
+				pathName: path.id,
+			};
+		} catch (e) {
+			return {
+				status: false,
+				pathName: path.id,
+				error: e,
+			};
+		}
 	}
 
 	protected async getLink({ path, connections }: PathConfig): Promise<Link> {
@@ -440,19 +477,19 @@ export default class Relayer {
 			clientB,
 			connections.srcConnection,
 			connections.destConnection,
-			new ConsoleLogger(),
+			new ConsoleLogger()
 		);
 
 		return link;
 	}
-	
+
 	protected async getIBCClient(chain: ChainConfig): Promise<IbcClient> {
 		let chainGP = GasPrice.fromString(chain.gasPrice);
 		let signer = await DirectSecp256k1HdWallet.fromMnemonic(
 			this.config.mnemonic,
 			{
 				hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-				prefix: chain.keyPrefix,
+				prefix: chain.addressPrefix,
 			}
 		);
 
@@ -463,7 +500,7 @@ export default class Relayer {
 			signer,
 			account.address,
 			{
-				prefix: chain.keyPrefix,
+				prefix: chain.addressPrefix,
 				gasPrice: chainGP,
 			}
 		);

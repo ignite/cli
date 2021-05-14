@@ -13,20 +13,20 @@ import (
 )
 
 const (
-	flagAdvanced        = "advanced"
-	flagSourceRPC       = "source-rpc"
-	flagTargetRPC       = "target-rpc"
-	flagSourceFaucet    = "source-faucet"
-	flagTargetFaucet    = "target-faucet"
-	flagSourcePort      = "source-port"
-	flagSourceVersion   = "source-version"
-	flagTargetPort      = "target-port"
-	flagTargetVersion   = "target-version"
-	flagSourceGasPrice  = "source-gasprice"
-	flagTargetGasPrice  = "target-gasprice"
-	flagSourceKeyPrefix = "source-prefix"
-	flagTargetKeyPrefix = "target-prefix"
-	flagOrdered         = "ordered"
+	flagAdvanced            = "advanced"
+	flagSourceRPC           = "source-rpc"
+	flagTargetRPC           = "target-rpc"
+	flagSourceFaucet        = "source-faucet"
+	flagTargetFaucet        = "target-faucet"
+	flagSourcePort          = "source-port"
+	flagSourceVersion       = "source-version"
+	flagTargetPort          = "target-port"
+	flagTargetVersion       = "target-version"
+	flagSourceGasPrice      = "source-gasprice"
+	flagTargetGasPrice      = "target-gasprice"
+	flagSourceAddressPrefix = "source-prefix"
+	flagTargetAddressPrefix = "target-prefix"
+	flagOrdered             = "ordered"
 
 	relayerSource = "source"
 	relayerTarget = "target"
@@ -34,10 +34,10 @@ const (
 	defaultSourceRPCAddress = "http://localhost:26657"
 	defaultTargetRPCAddress = "https://rpc.cosmos.network:443"
 
-	defautSourceGasPrice  = "0.025stake"
-	defautTargetGasPrice  = "0.025uatom"
-	defautSourceKeyPrefix = "cosmos"
-	defautTargetKeyPrefix = "cosmos"
+	defautSourceGasPrice      = "0.025stake"
+	defautTargetGasPrice      = "0.025uatom"
+	defautSourceAddressPrefix = "cosmos"
+	defautTargetAddressPrefix = "cosmos"
 )
 
 // NewRelayerConfigure returns a new relayer configure command.
@@ -61,8 +61,8 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagTargetVersion, "", "Module version on the target chain")
 	c.Flags().String(flagSourceGasPrice, "", "Gas price used for transactions on source chain")
 	c.Flags().String(flagTargetGasPrice, "", "Gas price used for transactions on target chain")
-	c.Flags().String(flagSourceKeyPrefix, "", "Address prefix of the source chain")
-	c.Flags().String(flagTargetKeyPrefix, "", "Address prefix of the target chain")
+	c.Flags().String(flagSourceAddressPrefix, "", "Address prefix of the source chain")
+	c.Flags().String(flagTargetAddressPrefix, "", "Address prefix of the target chain")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
 
 	return c
@@ -82,8 +82,8 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetFaucetAddress string
 		sourceGasPrice      string
 		targetGasPrice      string
-		sourceKeyPrefix     string
-		targetKeyPrefix     string
+		sourceAddressPrefix string
+		targetAddressPrefix string
 	)
 
 	// advanced configuration for the channel
@@ -152,16 +152,16 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 			cliquiz.DefaultAnswer(defautTargetGasPrice),
 			cliquiz.Required(),
 		)
-		questionSourceKeyPrefix = cliquiz.NewQuestion(
+		questionSourceAddressPrefix = cliquiz.NewQuestion(
 			"Source Address Prefix",
-			&sourceKeyPrefix,
-			cliquiz.DefaultAnswer(defautSourceKeyPrefix),
+			&sourceAddressPrefix,
+			cliquiz.DefaultAnswer(defautSourceAddressPrefix),
 			cliquiz.Required(),
 		)
-		questionTargetKeyPrefix = cliquiz.NewQuestion(
+		questionTargetAddressPrefix = cliquiz.NewQuestion(
 			"Target Address Prefix",
-			&targetKeyPrefix,
-			cliquiz.DefaultAnswer(defautTargetKeyPrefix),
+			&targetAddressPrefix,
+			cliquiz.DefaultAnswer(defautTargetAddressPrefix),
 			cliquiz.Required(),
 		)
 	)
@@ -211,11 +211,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	sourceKeyPrefix, err = cmd.Flags().GetString(flagSourceKeyPrefix)
+	sourceAddressPrefix, err = cmd.Flags().GetString(flagSourceAddressPrefix)
 	if err != nil {
 		return err
 	}
-	targetKeyPrefix, err = cmd.Flags().GetString(flagTargetKeyPrefix)
+	targetAddressPrefix, err = cmd.Flags().GetString(flagTargetAddressPrefix)
 	if err != nil {
 		return err
 	}
@@ -245,11 +245,11 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	if targetGasPrice == "" {
 		questions = append(questions, questionTargetGasPrice)
 	}
-	if sourceKeyPrefix == "" {
-		questions = append(questions, questionSourceKeyPrefix)
+	if sourceAddressPrefix == "" {
+		questions = append(questions, questionSourceAddressPrefix)
 	}
-	if targetKeyPrefix == "" {
-		questions = append(questions, questionTargetKeyPrefix)
+	if targetAddressPrefix == "" {
+		questions = append(questions, questionTargetAddressPrefix)
 	}
 	// advanced information
 	if advanced {
@@ -284,7 +284,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		sourceRPCAddress,
 		sourceFaucetAddress,
 		sourceGasPrice,
-		sourceKeyPrefix,
+		sourceAddressPrefix,
 	)
 	if err != nil {
 		return err
@@ -297,7 +297,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetRPCAddress,
 		targetFaucetAddress,
 		targetGasPrice,
-		targetKeyPrefix,
+		targetAddressPrefix,
 	)
 	if err != nil {
 		return err
@@ -334,7 +334,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 }
 
 // initChain initializes chain information for the relayer connection
-func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetAddr, gasPrice, keyPrefix string) (*xrelayer.Chain, error) {
+func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetAddr, gasPrice, addressPrefix string) (*xrelayer.Chain, error) {
 	defer s.Stop()
 	s.SetText("Initializing chain...").Start()
 
@@ -343,7 +343,7 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 		rpcAddr,
 		xrelayer.WithFaucet(faucetAddr),
 		xrelayer.WithGasPrice(gasPrice),
-		xrelayer.WithKeyPrefix(keyPrefix),
+		xrelayer.WithAddressPrefix(addressPrefix),
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)

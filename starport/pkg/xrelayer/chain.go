@@ -48,8 +48,8 @@ type chainOptions struct {
 	// gasPrice is the gas price used when sending transactions to the chain
 	GasPrice string `json:"gasPrice"`
 
-	// keyPrefix is the address prefix of the chain.
-	KeyPrefix string `json:"keyPrefix"`
+	// addressPrefix is the address prefix of the chain.
+	AddressPrefix string `json:"addressPrefix"`
 }
 
 // Account represents an account in relayer.
@@ -76,10 +76,10 @@ func WithGasPrice(gasPrice string) Option {
 	}
 }
 
-// WithKeyPrefix configures the account key prefix used on the chain.
-func WithKeyPrefix(keyPrefix string) Option {
+// WithAddressPrefix configures the account key prefix used on the chain.
+func WithAddressPrefix(addressPrefix string) Option {
 	return func(c *Chain) {
-		c.options.KeyPrefix = keyPrefix
+		c.options.AddressPrefix = addressPrefix
 	}
 }
 
