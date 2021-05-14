@@ -68,3 +68,15 @@ func ListPaths(ctx context.Context) ([]Path, error) {
 	err := tsrelayer.Call(ctx, "listPaths", nil, &paths)
 	return paths, err
 }
+
+// StateInfo holds information about state of relayer.
+type StateInfo struct {
+	ConfigPath string `json:"configPath"`
+}
+
+// Info shows information about the state of relayer.
+func Info(ctx context.Context) (StateInfo, error) {
+	var info StateInfo
+	err := tsrelayer.Call(ctx, "info", nil, &info)
+	return info, err
+}

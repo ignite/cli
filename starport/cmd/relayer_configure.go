@@ -328,7 +328,15 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
+	info, err := xrelayer.Info(cmd.Context())
+	if err != nil {
+		return err
+	}
+
 	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(path.ID))
+	fmt.Printf(`Note: mnemonics for relayer accounts are stored in %s unencrypted.
+This may change in the future. Until then, use them only for small amounts of tokens.
+`, info.ConfigPath)
 
 	return nil
 }

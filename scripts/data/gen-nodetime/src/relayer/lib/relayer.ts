@@ -24,6 +24,7 @@ export const getDefaultAccountMethod = "getDefaultAccount";
 export const getDefaultAccountBalanceMethod = "getDefaultAccountBalance";
 export const linkMethod = "link";
 export const startMethod = "start";
+export const infoMethod = "info";
 
 const IBCSetupGas = 2256000;
 const defaultMaxAge = 86400;
@@ -111,6 +112,10 @@ type LinkStatus = {
 	error?: string;
 };
 type StartResponse = {};
+
+type InfoResponse = {
+	configPath: string;
+};
 
 export default class Relayer {
 	public config: RelayerConfig;
@@ -372,6 +377,11 @@ export default class Relayer {
 		}
 
 		throw Errors.PathsNotDefined;
+	}
+
+	// info is an RPC shim func to be executed by the Go API.
+	public async info(): Promise<InfoResponse> {
+		return { configPath: this.getConfigPath() };
 	}
 
 	protected chainById(chainID: string): ChainConfig {
