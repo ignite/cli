@@ -47,7 +47,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	s.SetText("Linking paths between chains...")
 
-	linkedPaths, alreadyLinkedPaths, err := xrelayer.Link(cmd.Context(), pathsToUse...)
+	linkedPaths, alreadyLinkedPaths, failedToLinkPaths, err := xrelayer.Link(cmd.Context(), pathsToUse...)
 	if err != nil {
 		return err
 	}
@@ -60,6 +60,10 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	if len(linkedPaths) != 0 {
 		fmt.Printf("🔌  Linked chains with %d paths.\n", len(linkedPaths))
+	}
+
+	if len(failedToLinkPaths) != 0 {
+		fmt.Printf("🔌  Failed to linked chains with %d paths.\n", len(failedToLinkPaths))
 	}
 
 	fmt.Println()
