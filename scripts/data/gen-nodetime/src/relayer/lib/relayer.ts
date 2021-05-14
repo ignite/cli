@@ -86,10 +86,12 @@ export default class Relayer {
 	public config: RelayerConfig;
 	public homedir: string;
 	public configFile: string;
+	private pollTime: number;
 	private relayers: Map<string, ReturnType<typeof setInterval>>;
 
-	constructor(configFile: string = "config.yaml") {
+	constructor(configFile: string = "config.yaml", pollTime = 5000) {
 		this.homedir = os.homedir();
+		this.pollTime = pollTime;
 		this.configFile = configFile;
 		this.relayers = new Map();
 		this.config = this.readOrCreateConfig();
@@ -283,7 +285,7 @@ export default class Relayer {
 							let heights = this.pathById(pathName).relayerData;
 							let newHeights = await this.relayPackets(link, heights);
 							this.pathById(pathName).relayerData = newHeights;
-						}, 5000)
+						}, this.pollTime)
 					);
 					continue;
 				}
