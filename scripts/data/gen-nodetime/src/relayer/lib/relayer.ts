@@ -1,6 +1,9 @@
 import os from "os";
-import yaml from "js-yaml";
 import fs from "fs";
+import { join } from "path";
+
+import yaml from "js-yaml";
+
 import { Bip39, Random } from "@cosmjs/crypto";
 import { DirectSecp256k1HdWallet } from "@cosmjs/proto-signing";
 import { GasPrice } from "@cosmjs/stargate";
@@ -9,6 +12,7 @@ import { stringToPath } from "@cosmjs/crypto";
 import { Coin } from "@cosmjs/stargate";
 import { Link, IbcClient } from "@confio/relayer/build";
 import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
+
 import Errors from "./errors";
 import ConsoleLogger from "./logger";
 
@@ -23,20 +27,20 @@ export const startMethod = "start";
 
 const IBCSetupGas = 2256000;
 const defaultMaxAge = 86400;
+const configDir = ".starport/relayer";
+const configName = "config.yaml";
 
-type EnsureChainSetupResponse = {
-	// id is the chain id of chain.
-	id: string;
-};
 type Account = {
 	address: string;
 };
+
 type ChainConfig = {
 	chainId: string;
 	rpcAddr: string;
-	addrPrefix: string;
+	keyPrefix: string;
 	gasPrice: string;
 };
+
 type ConnectOptions = {
 	sourcePort: string;
 	sourceVersion: string;
@@ -44,43 +48,61 @@ type ConnectOptions = {
 	targetVersion: string;
 	ordering: "ORDER_UNORDERED" | "ORDER_ORDERED";
 };
+
 type Connections = {
 	srcConnection: string;
 	destConnection: string;
 };
+
 type Endpoint = {
 	channelID?: string;
 	chainID: string;
 	portID: string;
 };
+
 type Path = {
 	id: string;
 	isLinked: boolean;
 	src: Endpoint;
 	dst: Endpoint;
 };
-type LinkResponse = {
-	linkedPaths: string[];
-	alreadyLinkedPaths: string[];
-};
-type StartResponse = {};
+
 type PacketHeights = {
 	packetHeightA: number;
 	packetHeightB: number;
 	ackHeightA: number;
 	ackHeightB: number;
 };
+
 type PathConfig = {
 	path: Path;
 	options?: ConnectOptions;
 	connections?: Connections;
 	relayerData?: PacketHeights;
 };
+
 type RelayerConfig = {
 	mnemonic: string;
 	chains?: Array<ChainConfig>;
 	paths?: Array<PathConfig>;
 };
+
+interface ChainSetupOptions {
+	gasPrice: string
+	keyPrefix: string
+}
+
+type EnsureChainSetupResponse = {
+	// id is chain id.
+	id: string;
+};
+
+type LinkResponse = {
+	linkedPaths: string[];
+	alreadyLinkedPaths: string[];
+};
+
+type StartResponse = {};
 
 export default class Relayer {
 	public config: RelayerConfig;
@@ -89,18 +111,20 @@ export default class Relayer {
 	private pollTime: number;
 	private relayers: Map<string, ReturnType<typeof setInterval>>;
 
-	constructor(configFile: string = "config.yaml", pollTime = 5000) {
+	constructor(configFile: string = configName, pollTime = 5000) {
 		this.homedir = os.homedir();
 		this.pollTime = pollTime;
 		this.configFile = configFile;
 		this.relayers = new Map();
 		this.config = this.readOrCreateConfig();
+
 		const nestedProxy = {
 			set: (target, prop, value) => {
 				target[prop] = value;
 				this.writeConfig(this.config);
 				return true;
 			},
+
 			get: (target, prop) => {
 				if (typeof target[prop] === "object" && target[prop] !== null) {
 					return new Proxy(target[prop], nestedProxy);
@@ -109,88 +133,103 @@ export default class Relayer {
 				}
 			},
 		};
+
 		this.config = new Proxy(this.config, nestedProxy);
 	}
-	createConfigFolder() {
+
+	ensureConfigDirCreated() {
 		try {
 			if (!fs.existsSync(this.getConfigFolder())) {
-				fs.mkdirSync(this.getConfigFolder());
+				fs.mkdirSync(this.getConfigFolder(), { recursive: true });
 			}
 		} catch (e) {
-			throw new Error(Errors.configFolderFailed + e);
+			throw Errors.ConfigFolderFailed(e);
 		}
 	}
+
 	getConfigFolder() {
-		return this.homedir + "/.ts-relayer";
+		return join(this.homedir, configDir);
 	}
+
 	getConfigPath() {
-		return this.getConfigFolder() + "/" + this.configFile;
+		return join(this.getConfigFolder(),  this.configFile);
 	}
+
 	readOrCreateConfig() {
-		this.createConfigFolder();
+		this.ensureConfigDirCreated();
+
 		try {
 			if (fs.existsSync(this.getConfigPath())) {
 				let configFile = fs.readFileSync(this.getConfigPath(), "utf8");
 				return yaml.load(configFile);
 			}
+
 			let config = {
 				mnemonic: Bip39.encode(Random.getBytes(32)).toString(),
 			};
+
 			let configFile = yaml.dump(config);
 			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
+
 			return config;
 		} catch (e) {
-			throw new Error(Errors.configReadFailed + e);
+			throw Errors.ConfigReadFailed(e);
 		}
 	}
+
 	writeConfig(config) {
 		try {
 			let configFile = yaml.dump(config);
 			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
 		} catch (e) {
-			throw new Error(Errors.configWriteFailed + e);
+			throw Errors.ConfigWriteFailed(e);
 		}
 	}
 
-	// RPC Handlers
-	public async ensureChainSetup([rpcAddr, gasPrice, addrPrefix]: [
+	// ensureChainSetup is an RPC shim func to be executed by the Go API.
+	public async ensureChainSetup([rpcAddr, { keyPrefix, gasPrice }]: [
 		string,
-		string,
-		string
+		ChainSetupOptions,
 	]): Promise<EnsureChainSetupResponse> {
 		try {
 			const tmClient = await Tendermint34Client.connect(rpcAddr);
-			let status = await tmClient.status();
+			const status = await tmClient.status();
+
 			const chain = {
 				chainId: status.nodeInfo.network,
 				rpcAddr,
-				addrPrefix,
+				keyPrefix,
 				gasPrice,
 			};
+
 			if (!this.config.chains) {
 				this.config.chains = [chain];
 				return { id: chain.chainId };
 			}
+
 			const endpointExistsWithDifferentChainID =
 				this.config.chains &&
-				this.config.chains.find(
-					(x) => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr
-				);
-			if (endpointExistsWithDifferentChainID)
-				throw new Error(Errors.endpointExistsWithDifferentChainID);
+				this.config.chains.find(x => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr);
 
 			const chainExistsWithSameEndpoint =
 				this.config.chains &&
-				this.config.chains.find(
-					(x) => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr
-				);
-			if (chainExistsWithSameEndpoint) return { id: chain.chainId };
+				this.config.chains.find(x => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr);
+
+			if (endpointExistsWithDifferentChainID)
+				throw Errors.EndpointExistsWithDifferentChainID;
+
+			if (chainExistsWithSameEndpoint)
+				return { id: chain.chainId };
+
 			this.config.chains.push(chain);
+
 			return { id: chain.chainId };
 		} catch (e) {
-			throw new Error(Errors.chainSetupFailed + e);
+			throw Errors.ChainSetupFailed(e);
 		}
 	}
+
+	// createPath is an RPC shim func to be executed by the Go API.
 	public createPath([srcID, dstID, options]: [
 		string,
 		string,
@@ -198,7 +237,7 @@ export default class Relayer {
 	]): Path {
 		try {
 			let path = {
-				id: srcID + "-" + dstID,
+				id: `${srcID}-${dstID}`,
 				isLinked: false,
 				src: {
 					chainID: srcID,
@@ -209,30 +248,38 @@ export default class Relayer {
 					portID: options.targetPort,
 				},
 			};
-			if (!this.config.paths) {
+
+			if (!this.config.paths)
 				this.config.paths = [];
-			}
+
 			this.config.paths.push({ path, options });
+
 			return path;
 		} catch (e) {
-			throw new Error(Errors.pathSetupFailed + e);
+			throw Errors.PathSetupFailed(e);
 		}
 	}
+
+	// getPath is an RPC shim func to be executed by the Go API.
 	public getPath([id]: [string]): Path {
 		if (this.config.paths) {
 			let path = this.config.paths.find((x) => x.path.id == id);
 			if (path) return path.path;
 		}
-		throw new Error(Errors.pathNotExists);
+		throw Errors.PathNotExists;
 	}
+
+	// listPaths is an RPC shim func to be executed by the Go API.
 	public listPaths(): Path[] {
 		if (this.config.paths) {
 			let paths = this.config.paths.map((x) => x.path);
 			return paths;
 		}
-		throw new Error(Errors.pathsNotDefined);
+		throw Errors.PathsNotDefined;
 	}
-	public async getDefaultAccount([chainID]: string[]): Promise<Account> {
+
+	// getDefaultAccount is an RPC shim func to be executed by the Go API.
+	public async getDefaultAccount([chainID]: [string]): Promise<Account> {
 		const chain = this.chainById(chainID);
 		if (chain) {
 			let client = await this.getIBCClient(chain);
@@ -240,43 +287,55 @@ export default class Relayer {
 				address: client.senderAddress,
 			};
 		}
-		throw new Error(Errors.chainNotFound + chainID);
+		throw Errors.ChainNotFound(chainID);
 	}
-	public async getDefaultAccountBalance([chainID]: string[]): Promise<Coin[]> {
+
+	// getDefaultAccountBalance is an RPC shim func to be executed by the Go API.
+	public async getDefaultAccountBalance([chainID]: [string]): Promise<Coin[]> {
 		const chain = this.chainById(chainID);
 		if (chain) {
 			let client = await this.getIBCClient(chain);
 			return await client.query.bank.allBalances(client.senderAddress);
 		}
-		throw new Error(Errors.chainNotFound + chainID);
+		throw Errors.ChainNotFound(chainID);
 	}
-	public async link(paths: string[]): Promise<LinkResponse> {
+
+	// link is an RPC shim func to be executed by the Go API.
+	public async link([paths]: [string[]]): Promise<LinkResponse> {
 		if (this.config.paths) {
 			let response: LinkResponse = {
 				linkedPaths: [],
 				alreadyLinkedPaths: [],
 			};
+
 			for (let pathName of paths) {
 				const path = this.pathById(pathName);
+
 				if (path?.path.isLinked) {
 					response.alreadyLinkedPaths.push(pathName);
 					continue;
 				}
+
 				try {
 					await this.createLink(path);
 					response.linkedPaths.push(pathName);
 				} catch (e) {
-					throw new Error(Errors.pathLinkFailed + pathName + ": " + e);
+					throw Errors.PathLinkFailed(`${pathName}: ${e}`);
 				}
 			}
+
 			return response;
 		}
-		throw new Error(Errors.pathsNotDefined);
+
+		throw Errors.PathsNotDefined;
 	}
-	public async start(paths: string[]): Promise<StartResponse> {
+
+	// start is an RPC shim func to be executed by the Go API.
+	public async start([paths]: [string[]]): Promise<StartResponse> {
 		if (this.config.paths) {
 			for (let pathName of paths) {
 				const path = this.pathById(pathName);
+
 				if (path?.path.isLinked) {
 					const link = await this.getLink(path);
 					this.relayers.set(
@@ -287,15 +346,19 @@ export default class Relayer {
 							this.pathById(pathName).relayerData = newHeights;
 						}, this.pollTime)
 					);
+
 					continue;
 				}
-				throw new Error(Errors.pathNotLinked);
+
+				throw Errors.PathNotLinked;
 			}
+
 			return {};
 		}
-		throw new Error(Errors.pathsNotDefined);
+
+		throw Errors.PathsNotDefined;
 	}
-	// Helper functions
+
 	protected chainById(chainID: string): ChainConfig {
 		return this.config.chains
 			? this.config.chains.find((x) => x.chainId == chainID)
@@ -318,40 +381,33 @@ export default class Relayer {
 				parseInt(x.amount) < chainGP.amount.toFloatApproximation() * IBCSetupGas
 		);
 	}
-	protected notEnoughBalanceError(chain_id, amount, denom) {
-		return Errors.notEnoughBalance + amount + denom + "(" + chain_id + ")";
+
+	protected notEnoughBalanceError(chain, gasPrice) {
+		const { chainId } = chain;
+		const { amount, denom } = gasPrice;
+		const calcAmount = amount.toFloatApproximation() * IBCSetupGas;
+
+		return Errors.NotEnoughBalance(`${calcAmount} ${denom} (${chainId})`);
 	}
+
 	protected async createLink({ path, options }: PathConfig): Promise<void> {
 		let chainA = this.chainById(path.src.chainID);
 		let chainB = this.chainById(path.dst.chainID);
 		let chainAGP = GasPrice.fromString(chainA.gasPrice);
 		let chainBGP = GasPrice.fromString(chainA.gasPrice);
-		if (!(await this.balanceCheck(chainA))) {
-			throw new Error(
-				this.notEnoughBalanceError(
-					chainA.chainId,
-					chainAGP.amount.toFloatApproximation() * IBCSetupGas,
-					chainAGP.denom
-				)
-			);
-		}
-		if (!(await this.balanceCheck(chainB))) {
-			throw new Error(
-				this.notEnoughBalanceError(
-					chainB.chainId,
-					chainBGP.amount.toFloatApproximation() * IBCSetupGas,
-					chainBGP.denom
-				)
-			);
-		}
-		// Create IBC Client for chain A
 
+		if (!(await this.balanceCheck(chainA)))
+			throw this.notEnoughBalanceError(chainA, chainAGP);
+
+		if (!(await this.balanceCheck(chainB)))
+			throw this.notEnoughBalanceError(chainB, chainBGP);
+
+		// create IBC clients.
 		const clientA = await this.getIBCClient(chainA);
-		// Create IBC Client for chain B
-
 		const clientB = await this.getIBCClient(chainB);
 
 		const link = await Link.createWithNewConnections(clientA, clientB);
+
 		const channels = await link.createChannel(
 			"A",
 			options.sourcePort,
@@ -359,6 +415,7 @@ export default class Relayer {
 			orderFromJSON(options.ordering),
 			options.targetVersion
 		);
+
 		let configPath = this.pathById(path.id);
 		configPath.path.src.channelID = channels.src.channelId;
 		configPath.path.dst.channelID = channels.dest.channelId;
@@ -369,35 +426,36 @@ export default class Relayer {
 		};
 		configPath.relayerData = null;
 	}
+
 	protected async getLink({ path, connections }: PathConfig): Promise<Link> {
 		let chainA = this.chainById(path.src.chainID);
 		let chainB = this.chainById(path.dst.chainID);
-		// Create IBC Client for chain A
 
+		// create IBC clients.
 		const clientA = await this.getIBCClient(chainA);
-		// Create IBC Client for chain B
-
 		const clientB = await this.getIBCClient(chainB);
 
-		const logger = new ConsoleLogger();
 		const link = Link.createWithExistingConnections(
 			clientA,
 			clientB,
 			connections.srcConnection,
 			connections.destConnection,
-			logger
+			new ConsoleLogger(),
 		);
+
 		return link;
 	}
+	
 	protected async getIBCClient(chain: ChainConfig): Promise<IbcClient> {
 		let chainGP = GasPrice.fromString(chain.gasPrice);
 		let signer = await DirectSecp256k1HdWallet.fromMnemonic(
 			this.config.mnemonic,
 			{
 				hdPaths: [stringToPath("m/44'/118'/0'/0/0")],
-				prefix: chain.addrPrefix,
+				prefix: chain.keyPrefix,
 			}
 		);
+
 		const [account] = await signer.getAccounts();
 
 		const client = await IbcClient.connectWithSigner(
@@ -405,10 +463,11 @@ export default class Relayer {
 			signer,
 			account.address,
 			{
-				prefix: chain.addrPrefix,
+				prefix: chain.keyPrefix,
 				gasPrice: chainGP,
 			}
 		);
+
 		return client;
 	}
 
@@ -423,11 +482,13 @@ export default class Relayer {
 				2,
 				6
 			);
+
 			await link.updateClientIfStale("A", options.maxAgeDest);
 			await link.updateClientIfStale("B", options.maxAgeSrc);
+
 			return heights;
 		} catch (e) {
-			throw new Error(Errors.relayPacketError);
+			throw Errors.RelayPacketError;
 		}
 	}
 }
