@@ -39,11 +39,17 @@ type Chain struct {
 	// tmclient used to interact with tm apis.
 	tmclient tendermintrpc.Client
 
-	// gasPrice is the gas price used when sending transactions to the chain
-	gasPrice string
+	// options are used to set up the chain.
+	options chainOptions
+}
 
-	// addrPrefix is the address prefix of the chain
-	addrPrefix string
+// chainOptions holds options to be used setting up the chain.
+type chainOptions struct {
+	// gasPrice is the gas price used when sending transactions to the chain
+	GasPrice string `json:"gasPrice"`
+
+	// keyPrefix is the address prefix of the chain.
+	KeyPrefix string `json:"keyPrefix"`
 }
 
 // Account represents an account in relayer.
@@ -63,15 +69,17 @@ func WithFaucet(address string) Option {
 	}
 }
 
-// WithGasPrice gives the gas price to use to send transactions to the chain
+// WithGasPrice gives the gas price to use to send ibc transactions to the chain.
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
-		c.gasPrice = gasPrice
+		c.options.GasPrice = gasPrice
 	}
 }
-func WithAddrPrefix(addrPrefix string) Option {
+
+// WithKeyPrefix configures the account key prefix used on the chain.
+func WithKeyPrefix(keyPrefix string) Option {
 	return func(c *Chain) {
-		c.addrPrefix = addrPrefix
+		c.options.KeyPrefix = keyPrefix
 	}
 }
 
@@ -315,7 +323,7 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	var reply struct {
 		ID string `json:"id"`
 	}
-	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.gasPrice, c.addrPrefix}, &reply)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.options}, &reply)
 	c.ID = reply.ID
 	return err
 }

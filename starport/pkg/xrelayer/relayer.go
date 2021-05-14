@@ -14,7 +14,7 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 		LinkedPaths        []string `json:"linkedPaths"`
 		AlreadyLinkedPaths []string `json:"alreadyLinkedPaths"`
 	}
-	err = tsrelayer.Call(ctx, "link", paths, &reply)
+	err = tsrelayer.Call(ctx, "link", []interface{}{paths}, &reply)
 	linkedPaths = reply.LinkedPaths
 	alreadyLinkedPaths = reply.AlreadyLinkedPaths
 	return
@@ -23,7 +23,7 @@ func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths
 // Start relays tx packets for paths until ctx is canceled.
 func Start(ctx context.Context, paths ...string) error {
 	var reply interface{}
-	return tsrelayer.Call(ctx, "start", paths, &reply)
+	return tsrelayer.Call(ctx, "start", []interface{}{paths}, &reply)
 }
 
 // Path represents a path between two chains.
