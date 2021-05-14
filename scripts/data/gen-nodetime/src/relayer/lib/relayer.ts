@@ -9,7 +9,9 @@ import { stringToPath } from "@cosmjs/crypto";
 import { Coin } from "@cosmjs/stargate";
 import { Link, IbcClient } from "@confio/relayer/build";
 import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/channel";
-import { QueryConnectionRequest } from "@cosmjs/stargate/build/codec/ibc/core/connection/v1/query";
+import Errors from "./errors";
+import ConsoleLogger from "./logger";
+
 export const ensureChainSetupMethod = "ensureChainSetup";
 export const createPathMethod = "createPath";
 export const getPathMethod = "getPath";
@@ -18,6 +20,7 @@ export const getDefaultAccountMethod = "getDefaultAccount";
 export const getDefaultAccountBalanceMethod = "getDefaultAccountBalance";
 export const linkMethod = "link";
 export const startMethod = "start";
+
 const IBCSetupGas = 2256000;
 const defaultMaxAge = 86400;
 
@@ -79,47 +82,6 @@ type RelayerConfig = {
 	paths?: Array<PathConfig>;
 };
 
-type LogMethod = (message: string) => Logger;
-
-interface Logger {
-	error: LogMethod;
-	warn: LogMethod;
-	info: LogMethod;
-	verbose: LogMethod;
-	debug: LogMethod;
-}
-
-class ConsoleLogger {
-	public readonly error: LogMethod;
-	public readonly warn: LogMethod;
-	public readonly info: LogMethod;
-	public readonly verbose: LogMethod;
-	public readonly debug: LogMethod;
-
-	constructor() {
-		this.error = (msg) => {
-			console.log(msg);
-			return this;
-		};
-		this.warn = (msg) => {
-			console.log(msg);
-			return this;
-		};
-		this.info = (msg) => {
-			console.log(msg);
-			return this;
-		};
-		this.verbose = (msg) => {
-			console.log(msg);
-			return this;
-		};
-		this.debug = (msg) => {
-			console.log(msg);
-			return this;
-		};
-	}
-}
-
 export default class Relayer {
 	public config: RelayerConfig;
 	public homedir: string;
@@ -153,14 +115,14 @@ export default class Relayer {
 				fs.mkdirSync(this.getConfigFolder());
 			}
 		} catch (e) {
-			throw new Error("Could not create config folder: " + e);
+			throw new Error(Errors.configFolderFailed + e);
 		}
 	}
 	getConfigFolder() {
 		return this.homedir + "/.ts-relayer";
 	}
 	getConfigPath() {
-		return this.getConfigFolder() + this.configFile;
+		return this.getConfigFolder() + "/" + this.configFile;
 	}
 	readOrCreateConfig() {
 		this.createConfigFolder();
@@ -176,7 +138,7 @@ export default class Relayer {
 			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
 			return config;
 		} catch (e) {
-			throw new Error("Failed reading config: " + e);
+			throw new Error(Errors.configReadFailed + e);
 		}
 	}
 	writeConfig(config) {
@@ -184,7 +146,7 @@ export default class Relayer {
 			let configFile = yaml.dump(config);
 			fs.writeFileSync(this.getConfigPath(), configFile, "utf8");
 		} catch (e) {
-			throw new Error("Failed writing config: " + e);
+			throw new Error(Errors.configWriteFailed + e);
 		}
 	}
 
@@ -213,9 +175,7 @@ export default class Relayer {
 					(x) => x.chainId != chain.chainId && x.rpcAddr == chain.rpcAddr
 				);
 			if (endpointExistsWithDifferentChainID)
-				throw new Error(
-					"RPC endpoint already exists with a different chain id"
-				);
+				throw new Error(Errors.endpointExistsWithDifferentChainID);
 
 			const chainExistsWithSameEndpoint =
 				this.config.chains &&
@@ -226,7 +186,7 @@ export default class Relayer {
 			this.config.chains.push(chain);
 			return { id: chain.chainId };
 		} catch (e) {
-			throw new Error("Could not setup chain: " + e);
+			throw new Error(Errors.chainSetupFailed + e);
 		}
 	}
 	public createPath([srcID, dstID, options]: [
@@ -253,7 +213,7 @@ export default class Relayer {
 			this.config.paths.push({ path, options });
 			return path;
 		} catch (e) {
-			throw new Error("Could not create path:" + e);
+			throw new Error(Errors.pathSetupFailed + e);
 		}
 	}
 	public getPath([id]: [string]): Path {
@@ -261,14 +221,14 @@ export default class Relayer {
 			let path = this.config.paths.find((x) => x.path.id == id);
 			if (path) return path.path;
 		}
-		throw new Error("Path does not exist");
+		throw new Error(Errors.pathNotExists);
 	}
 	public listPaths(): Path[] {
 		if (this.config.paths) {
 			let paths = this.config.paths.map((x) => x.path);
 			return paths;
 		}
-		throw new Error("No paths defined");
+		throw new Error(Errors.pathsNotDefined);
 	}
 	public async getDefaultAccount([chainID]: string[]): Promise<Account> {
 		const chain = this.chainById(chainID);
@@ -278,7 +238,7 @@ export default class Relayer {
 				address: client.senderAddress,
 			};
 		}
-		throw new Error("Chain not found: " + chainID);
+		throw new Error(Errors.chainNotFound + chainID);
 	}
 	public async getDefaultAccountBalance([chainID]: string[]): Promise<Coin[]> {
 		const chain = this.chainById(chainID);
@@ -286,7 +246,7 @@ export default class Relayer {
 			let client = await this.getIBCClient(chain);
 			return await client.query.bank.allBalances(client.senderAddress);
 		}
-		throw new Error("Chain not found: " + chainID);
+		throw new Error(Errors.chainNotFound + chainID);
 	}
 	public async link(paths: string[]): Promise<LinkResponse> {
 		if (this.config.paths) {
@@ -304,12 +264,12 @@ export default class Relayer {
 					await this.createLink(path);
 					response.linkedPaths.push(pathName);
 				} catch (e) {
-					throw new Error("Could not link path: " + pathName + ": " + e);
+					throw new Error(Errors.pathLinkFailed + pathName + ": " + e);
 				}
 			}
 			return response;
 		}
-		throw new Error("No paths defined");
+		throw new Error(Errors.pathsNotDefined);
 	}
 	public async start(paths: string[]): Promise<StartResponse> {
 		if (this.config.paths) {
@@ -327,11 +287,11 @@ export default class Relayer {
 					);
 					continue;
 				}
-				throw new Error("Path: " + pathName + " is not linked.");
+				throw new Error(Errors.pathNotLinked);
 			}
 			return {};
 		}
-		throw new Error("No paths defined");
+		throw new Error(Errors.pathsNotDefined);
 	}
 	// Helper functions
 	protected chainById(chainID: string): ChainConfig {
@@ -357,13 +317,7 @@ export default class Relayer {
 		);
 	}
 	protected notEnoughBalanceError(chain_id, amount, denom) {
-		return (
-			"Not enough balance available on '" +
-			chain_id +
-			"'. You need at least " +
-			amount +
-			denom
-		);
+		return Errors.notEnoughBalance + amount + denom + "(" + chain_id + ")";
 	}
 	protected async createLink({ path, options }: PathConfig): Promise<void> {
 		let chainA = this.chainById(path.src.chainID);
@@ -471,7 +425,7 @@ export default class Relayer {
 			await link.updateClientIfStale("B", options.maxAgeSrc);
 			return heights;
 		} catch (e) {
-			throw new Error("Error relaying packets");
+			throw new Error(Errors.relayPacketError);
 		}
 	}
 }
