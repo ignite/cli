@@ -21,7 +21,7 @@ func testutilAppModifyStargate() genny.RunFn {
 			}
 
 			templateenabledProposals := `%[1]v
-			app.GetEnabledProposals(),`
+			app.GetEnabledProposals(), nil,`
 			replacementAppArgument := fmt.Sprintf(templateenabledProposals, placeholderSgTestutilAppArgument)
 			content := strings.Replace(f.String(), placeholderSgTestutilAppArgument, replacementAppArgument, 1)
 
