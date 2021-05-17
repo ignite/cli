@@ -331,7 +331,7 @@ export default class Relayer {
 				alreadyLinkedPaths: [],
 				failedToLinkPaths: [],
 			};
-			const links = [];
+			const results = [];
 			for (let pathName of paths) {
 				const path = this.pathById(pathName);
 
@@ -339,9 +339,8 @@ export default class Relayer {
 					response.alreadyLinkedPaths.push(pathName);
 					continue;
 				}
-				links.push(this.createLink(path));
+				results.push(await this.createLink(path));
 			}
-			const results = await Promise.all(links);
 			for (let result of results) {
 				if (result.status) {
 					response.linkedPaths.push(result.pathName);
