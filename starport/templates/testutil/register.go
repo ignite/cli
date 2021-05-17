@@ -20,6 +20,7 @@ var (
 
 // Register testutil template using existing generator.
 // Register is meant to be used by modules that depend on this module.
+//nolint:interfacer
 func Register(ctx *plush.Context, gen *genny.Generator) error {
 	if !ctx.Has(modulePathKey) {
 		return fmt.Errorf("ctx is missing value for the ket %s", modulePathKey)
