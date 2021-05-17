@@ -54,16 +54,30 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
+	fmt.Println()
+	printSection("Linking chains")
+
 	if len(alreadyLinkedPaths) != 0 {
 		fmt.Printf("⛓  %d paths already created to link chains.\n", len(alreadyLinkedPaths))
+		for _, id := range alreadyLinkedPaths {
+			fmt.Printf("  - %s\n", id)
+		}
 	}
 
 	if len(linkedPaths) != 0 {
-		fmt.Printf("🔌  Linked chains with %d paths.\n", len(linkedPaths))
+		fmt.Printf("🔌  Linked chains with %d path(s).\n", len(linkedPaths))
+		for _, id := range linkedPaths {
+			fmt.Printf("  - %s\n", id)
+		}
 	}
 
 	if len(failedToLinkPaths) != 0 {
-		fmt.Printf("🔌  Failed to linked chains with %d paths.\n", len(failedToLinkPaths))
+		fmt.Printf("X  Failed to link chains in %d path(s).\n", len(failedToLinkPaths))
+		for _, failed := range failedToLinkPaths {
+			fmt.Printf("  - %s failed with error: %s\n", failed.ID, failed.ErrorMsg)
+		}
+		fmt.Println()
+		fmt.Printf("Continuing with %d path(s).\n", len(alreadyLinkedPaths)+len(linkedPaths))
 	}
 
 	fmt.Println()
@@ -89,5 +103,5 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	printSection("Listening and relaying packets between chains...")
 
-	return xrelayer.Start(cmd.Context(), pathsToUse...)
+	return xrelayer.Start(cmd.Context(), append(linkedPaths, alreadyLinkedPaths...)...)
 }

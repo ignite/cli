@@ -469,7 +469,7 @@ export default class Relayer {
 			return {
 				status: false,
 				pathName: path.id,
-				error: e,
+				error: e.toString(),
 			};
 		}
 	}
