@@ -235,7 +235,15 @@ export default class Relayer {
 			if (endpointExistsWithDifferentChainID)
 				throw Errors.EndpointExistsWithDifferentChainID;
 
-			if (chainExistsWithSameEndpoint) return { id: chain.chainId };
+			if (chainExistsWithSameEndpoint) {
+				Object.assign(
+					this.config.chains.find(
+						(x) => x.chainId == chain.chainId && x.rpcAddr == chain.rpcAddr
+					),
+					chain
+				);
+				return { id: chain.chainId };
+			}
 
 			this.config.chains.push(chain);
 
