@@ -3,7 +3,7 @@ package simapp
 import (
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/std"
+	"github.com/cosmos/cosmos-sdk/simapp"
 	abci "github.com/tendermint/tendermint/abci/types"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -11,35 +11,24 @@ import (
 	tmdb "github.com/tendermint/tm-db"
 
 	"<%= ModulePath %>/app"
-	"<%= ModulePath %>/app/params"
 )
 
-// NewSimApp creates application instance with in-memory database and disabled logging.
-func NewSimApp(dir string) *app.App {
+// New creates application instance with in-memory database and disabled logging.
+func New(dir string) *app.App {
 	db := tmdb.NewMemDB()
 	logger := log.NewNopLogger()
 
-	encoding := params.MakeEncodingConfig()
-	std.RegisterLegacyAminoCodec(encoding.Amino)
-	std.RegisterInterfaces(encoding.InterfaceRegistry)
-	app.ModuleBasics.RegisterLegacyAminoCodec(encoding.Amino)
-	app.ModuleBasics.RegisterInterfaces(encoding.InterfaceRegistry)
+	encoding := app.MakeEncodingConfig()
 
-	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding, 
-		// this line is used by starport scaffolding # stargate/simapp/appArgument
-		emptyOptions{})
+	a := app.New(logger, db, nil, true, map[int64]bool{}, dir, 0, encoding,
+		// this line is used by starport scaffolding # stargate/testutil/appArgument
+		simapp.EmptyAppOptions{})
 	// InitChain updates deliverState which is required when app.NewContext is called
 	a.InitChain(abci.RequestInitChain{
 		ConsensusParams: defaultConsensusParams,
 		AppStateBytes:   []byte("{}"),
 	})
 	return a
-}
-
-type emptyOptions struct{}
-
-func (ao emptyOptions) Get(o string) interface{} {
-	return nil
 }
 
 var defaultConsensusParams = &abci.ConsensusParams{
