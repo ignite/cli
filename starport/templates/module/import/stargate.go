@@ -10,6 +10,7 @@ import (
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -24,13 +25,15 @@ func NewStargate(opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(opts))
 	g.RunFn(rootModifyStargate(opts))
-	g.RunFn(testutilAppModifyStargate(opts))
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)
+
+	testutil.WASMRegister(ctx, g)
+
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 	return g, nil
@@ -228,31 +231,5 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
-	}
-}
-
-// app.NewApp modification in testutil module on Stargate when importing wasm
-func testutilAppModifyStargate(opts *ImportOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		for _, path := range []string{
-			"testutil/simapp/simapp.go",
-			"testutil/network/network.go",
-		} {
-			f, err := r.Disk.Find(path)
-			if err != nil {
-				return err
-			}
-
-			templateenabledProposals := `%[1]v
-			app.GetEnabledProposals(),`
-			replacementAppArgument := fmt.Sprintf(templateenabledProposals, module.PlaceholderSgTestutilAppArgument)
-			content := strings.Replace(f.String(), module.PlaceholderSgTestutilAppArgument, replacementAppArgument, 1)
-
-			newFile := genny.NewFileS(path, content)
-			if err := r.File(newFile); err != nil {
-				return err
-			}
-		}
-		return nil
 	}
 }

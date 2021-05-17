@@ -44,9 +44,6 @@ const (
 
 	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
 
-	// Placeholders in Stargate testutil module.
-	PlaceholderSgTestutilAppArgument = "// this line is used by starport scaffolding # stargate/testutil/appArgument"
-
 	// Placeholders IBC
 	PlaceholderIBCModuleImport               = "// this line is used by starport scaffolding # ibc/module/import"
 	PlaceholderIBCModuleInterface            = "// this line is used by starport scaffolding # ibc/module/interface"
