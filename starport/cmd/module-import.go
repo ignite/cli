@@ -1,10 +1,13 @@
 package starportcmd
 
 import (
+	"context"
+	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -18,6 +21,7 @@ func NewModuleImport() *cobra.Command {
 		ValidArgs: []string{"wasm"},
 		RunE:      importModuleHandler,
 	}
+	RegisterValidationFlags(c)
 	return c
 }
 
@@ -30,7 +34,12 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.ImportModule(name); err != nil {
+	ctx := WithValidation(context.Background(), cmd)
+	if err := sc.ImportModule(ctx, name); err != nil {
+		var valerr validation.Error
+		if errors.As(err, &valerr) {
+			return errors.New(valerr.ValidationInfo())
+		}
 		return err
 	}
 

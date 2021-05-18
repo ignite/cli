@@ -1,6 +1,7 @@
 package moduleimport
 
 import (
+	"context"
 	"embed"
 	"fmt"
 	"strings"
@@ -8,6 +9,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/testutil"
@@ -21,26 +23,26 @@ var (
 )
 
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
-func NewStargate(opts *ImportOptions) (*genny.Generator, error) {
+func NewStargate(ctx context.Context, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(appModifyStargate(opts))
-	g.RunFn(rootModifyStargate(opts))
+	g.RunFn(appModifyStargate(ctx))
+	g.RunFn(rootModifyStargate(ctx, opts))
 	if err := g.Box(stargateTemplate); err != nil {
 		return g, err
 	}
-	ctx := plush.NewContext()
-	ctx.Set("AppName", opts.AppName)
-	ctx.Set("title", strings.Title)
+	pctx := plush.NewContext()
+	pctx.Set("AppName", opts.AppName)
+	pctx.Set("title", strings.Title)
 
-	testutil.WASMRegister(ctx, g)
+	testutil.WASMRegister(ctx, pctx, g)
 
-	g.Transformer(plushgen.Transformer(ctx))
+	g.Transformer(plushgen.Transformer(pctx))
 	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 	return g, nil
 }
 
 // app.go modification on Stargate when importing wasm
-func appModifyStargate(opts *ImportOptions) genny.RunFn {
+func appModifyStargate(ctx context.Context) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		f, err := r.Disk.Find(path)
@@ -53,7 +55,7 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 		"github.com/CosmWasm/wasmd/x/wasm"
 		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgAppModuleImport)
-		content := strings.Replace(f.String(), module.PlaceholderSgAppModuleImport, replacementImport, 1)
+		content := placeholder.Replace(ctx, f.String(), module.PlaceholderSgAppModuleImport, replacementImport)
 
 		templateEnabledProposals := `var (
 			// If EnabledSpecificProposals is "", and this is "true", then enable all x/wasm proposals.
@@ -81,46 +83,46 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 			}
 			return proposals
 		}`
-		content = strings.Replace(content, module.PlaceholderSgWasmAppEnabledProposals, templateEnabledProposals, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgWasmAppEnabledProposals, templateEnabledProposals)
 
 		templateGovProposalHandlers := `%[1]v
 		govProposalHandlers = wasmclient.ProposalHandlers`
 		replacementProposalHandlers := fmt.Sprintf(templateGovProposalHandlers, module.PlaceholderSgAppGovProposalHandlers)
-		content = strings.Replace(content, module.PlaceholderSgAppGovProposalHandlers, replacementProposalHandlers, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppGovProposalHandlers, replacementProposalHandlers)
 
 		templateModuleBasic := `%[1]v
 		wasm.AppModuleBasic{},`
 		replacementModuleBasic := fmt.Sprintf(templateModuleBasic, module.PlaceholderSgAppModuleBasic)
-		content = strings.Replace(content, module.PlaceholderSgAppModuleBasic, replacementModuleBasic, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppModuleBasic, replacementModuleBasic)
 
 		templateKeeperDeclaration := `%[1]v
 		wasmKeeper       wasm.Keeper
 		scopedWasmKeeper capabilitykeeper.ScopedKeeper
 		`
 		replacementKeeperDeclaration := fmt.Sprintf(templateKeeperDeclaration, module.PlaceholderSgAppKeeperDeclaration)
-		content = strings.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacementKeeperDeclaration, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppKeeperDeclaration, replacementKeeperDeclaration)
 
 		templateDeclaration := `%[1]v
 		scopedWasmKeeper := app.CapabilityKeeper.ScopeToModule(wasm.ModuleName)
 		`
 		replacementDeclaration := fmt.Sprintf(templateDeclaration, module.PlaceholderSgAppScopedKeeper)
-		content = strings.Replace(content, module.PlaceholderSgAppScopedKeeper, replacementDeclaration, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppScopedKeeper, replacementDeclaration)
 
 		templateDeclaration = `%[1]v
 		app.scopedWasmKeeper = scopedWasmKeeper
 		`
 		replacementDeclaration = fmt.Sprintf(templateDeclaration, module.PlaceholderSgAppBeforeInitReturn)
-		content = strings.Replace(content, module.PlaceholderSgAppBeforeInitReturn, replacementDeclaration, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppBeforeInitReturn, replacementDeclaration)
 
 		templateEnabledProposalsArgument := `%[1]v
 		enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,`
 		replacementEnabledProposalsArgument := fmt.Sprintf(templateEnabledProposalsArgument, module.PlaceholderSgAppNewArgument)
-		content = strings.Replace(content, module.PlaceholderSgAppNewArgument, replacementEnabledProposalsArgument, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppNewArgument, replacementEnabledProposalsArgument)
 
 		templateStoreKey := `%[1]v
 		wasm.StoreKey,`
 		replacementStoreKey := fmt.Sprintf(templateStoreKey, module.PlaceholderSgAppStoreKey)
-		content = strings.Replace(content, module.PlaceholderSgAppStoreKey, replacementStoreKey, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppStoreKey, replacementStoreKey)
 
 		templateKeeperDefinition := `%[1]v
 		wasmDir := filepath.Join(homePath, "wasm")
@@ -158,22 +160,22 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 			govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
 		}`
 		replacementKeeperDefinition := fmt.Sprintf(templateKeeperDefinition, module.PlaceholderSgAppKeeperDefinition)
-		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacementKeeperDefinition, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppKeeperDefinition, replacementKeeperDefinition)
 
 		templateAppModule := `%[1]v
 		wasm.NewAppModule(appCodec, &app.wasmKeeper, app.StakingKeeper),`
 		replacementAppModule := fmt.Sprintf(templateAppModule, module.PlaceholderSgAppAppModule)
-		content = strings.Replace(content, module.PlaceholderSgAppAppModule, replacementAppModule, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppAppModule, replacementAppModule)
 
 		templateInitGenesis := `%[1]v
 		wasm.ModuleName,`
 		replacementInitGenesis := fmt.Sprintf(templateInitGenesis, module.PlaceholderSgAppInitGenesis)
-		content = strings.Replace(content, module.PlaceholderSgAppInitGenesis, replacementInitGenesis, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppInitGenesis, replacementInitGenesis)
 
 		templateParamSubspace := `%[1]v
 		paramsKeeper.Subspace(wasm.ModuleName)`
 		replacementParamSubspace := fmt.Sprintf(templateParamSubspace, module.PlaceholderSgAppParamSubspace)
-		content = strings.Replace(content, module.PlaceholderSgAppParamSubspace, replacementParamSubspace, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgAppParamSubspace, replacementParamSubspace)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -181,7 +183,7 @@ func appModifyStargate(opts *ImportOptions) genny.RunFn {
 }
 
 // app.go modification on Stargate when importing wasm
-func rootModifyStargate(opts *ImportOptions) genny.RunFn {
+func rootModifyStargate(ctx context.Context, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "cmd/" + opts.BinaryNamePrefix + "d/cmd/root.go"
 		f, err := r.Disk.Find(path)
@@ -194,17 +196,17 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 		"github.com/prometheus/client_golang/prometheus"
 		wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgRootImport)
-		content := strings.Replace(f.String(), module.PlaceholderSgRootImport, replacementImport, 1)
+		content := placeholder.Replace(ctx, f.String(), module.PlaceholderSgRootImport, replacementImport)
 
 		templateCommand := `%[1]v
 		AddGenesisWasmMsgCmd(app.DefaultNodeHome),`
 		replacementCommand := fmt.Sprintf(templateCommand, module.PlaceholderSgRootCommands)
-		content = strings.Replace(content, module.PlaceholderSgRootCommands, replacementCommand, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootCommands, replacementCommand)
 
 		templateInitFlags := `%[1]v
 		wasm.AddModuleInitFlags(startCmd)`
 		replacementInitFlags := fmt.Sprintf(templateInitFlags, module.PlaceholderSgRootInitFlags)
-		content = strings.Replace(content, module.PlaceholderSgRootInitFlags, replacementInitFlags, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootInitFlags, replacementInitFlags)
 
 		template := `%[1]v
 		var wasmOpts []wasm.Option
@@ -212,22 +214,22 @@ func rootModifyStargate(opts *ImportOptions) genny.RunFn {
 			   wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
 		}`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgRootAppBeforeInit)
-		content = strings.Replace(content, module.PlaceholderSgRootAppBeforeInit, replacement, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootAppBeforeInit, replacement)
 
 		template = `%[1]v
 		app.GetEnabledProposals(),
 		wasmOpts,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgRootAppArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootAppArgument, replacement, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootAppArgument, replacement)
 
 		template = `%[1]v
 		app.GetEnabledProposals(),
 		nil,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgRootExportArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootExportArgument, replacement, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootExportArgument, replacement)
 
 		replacement = fmt.Sprintf(template, module.PlaceholderSgRootNoHeightExportArgument)
-		content = strings.Replace(content, module.PlaceholderSgRootNoHeightExportArgument, replacement, 1)
+		content = placeholder.Replace(ctx, content, module.PlaceholderSgRootNoHeightExportArgument, replacement)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

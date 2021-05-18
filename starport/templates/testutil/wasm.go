@@ -1,15 +1,16 @@
 package testutil
 
 import (
+	"context"
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
 // app.NewApp modification in testutil module on Stargate when importing wasm
-func testutilAppModifyStargate() genny.RunFn {
+func testutilAppModifyStargate(ctx context.Context) genny.RunFn {
 	return func(r *genny.Runner) error {
 		for _, path := range []string{
 			"testutil/simapp/simapp.go",
@@ -23,7 +24,7 @@ func testutilAppModifyStargate() genny.RunFn {
 			templateenabledProposals := `%[1]v
 			app.GetEnabledProposals(), nil,`
 			replacementAppArgument := fmt.Sprintf(templateenabledProposals, placeholderSgTestutilAppArgument)
-			content := strings.Replace(f.String(), placeholderSgTestutilAppArgument, replacementAppArgument, 1)
+			content := placeholder.Replace(ctx, f.String(), placeholderSgTestutilAppArgument, replacementAppArgument)
 
 			newFile := genny.NewFileS(path, content)
 			if err := r.File(newFile); err != nil {
@@ -35,7 +36,7 @@ func testutilAppModifyStargate() genny.RunFn {
 }
 
 // WASMRegister register testutil modifiers that should be applied when wasm is imported.
-func WASMRegister(_ *plush.Context, gen *genny.Generator) error {
-	gen.RunFn(testutilAppModifyStargate())
+func WASMRegister(ctx context.Context, _ *plush.Context, gen *genny.Generator) error {
+	gen.RunFn(testutilAppModifyStargate(ctx))
 	return nil
 }
