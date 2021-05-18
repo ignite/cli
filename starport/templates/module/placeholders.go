@@ -27,6 +27,8 @@ const (
 	PlaceholderSgAppGovProposalHandlers = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
 	PlaceholderSgAppGovProposalHandler  = "// this line is used by starport scaffolding # stargate/app/govProposalHandler"
 	PlaceholderSgAppNewArgument         = "// this line is used by starport scaffolding # stargate/app/newArgument"
+	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
+	PlaceholderSgAppBeforeInitReturn    = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
 
 	// Placeholders in Stargate app.go for wasm
 	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
@@ -35,14 +37,12 @@ const (
 	PlaceholderSgRootImport                 = "// this line is used by starport scaffolding # stargate/root/import"
 	PlaceholderSgRootCommands               = "// this line is used by starport scaffolding # stargate/root/commands"
 	PlaceholderSgRootInitFlags              = "// this line is used by starport scaffolding # stargate/root/initFlags"
+	PlaceholderSgRootAppBeforeInit          = "// this line is used by starport scaffolding # stargate/root/appBeforeInit"
 	PlaceholderSgRootAppArgument            = "// this line is used by starport scaffolding # stargate/root/appArgument"
 	PlaceholderSgRootExportArgument         = "// this line is used by starport scaffolding # stargate/root/exportArgument"
 	PlaceholderSgRootNoHeightExportArgument = "// this line is used by starport scaffolding # stargate/root/noHeightExportArgument"
 
 	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
-
-	// Placeholders in Stargate simapp.go
-	PlaceholderSgSimAppArgument = "// this line is used by starport scaffolding # stargate/simapp/appArgument"
 
 	// Placeholders IBC
 	PlaceholderIBCModuleImport               = "// this line is used by starport scaffolding # ibc/module/import"
