@@ -259,9 +259,20 @@ export default class Relayer {
 		string,
 		ConnectOptions
 	]): Path {
+		let pathName = `${srcID}-${dstID}`;
+		let suffix = "";
+		let i = 2;
+		try {
+			while (this.getPath([pathName + suffix])) {
+				suffix = `-${i}`;
+				i++;
+			}
+		} catch (e) {
+			pathName = pathName + suffix;
+		}
 		try {
 			let path = {
-				id: `${srcID}-${dstID}`,
+				id: pathName,
 				isLinked: false,
 				src: {
 					chainID: srcID,
