@@ -17,23 +17,21 @@ export default class ConsoleLogger {
 
 	constructor() {
 		this.error = (msg) => {
-			console.log(msg);
 			return this;
 		};
 		this.warn = (msg) => {
-			console.log(msg);
 			return this;
 		};
 		this.info = (msg) => {
-			console.log(msg);
+			if (msg.indexOf("Relay") == 0 && msg.indexOf("Relay 0") == -1) {
+				console.log(msg);
+			}
 			return this;
 		};
 		this.verbose = (msg) => {
-			console.log(msg);
 			return this;
 		};
 		this.debug = (msg) => {
-			console.log(msg);
 			return this;
 		};
 	}
