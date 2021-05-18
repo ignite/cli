@@ -273,47 +273,45 @@ export default class Relayer {
 	}
 
 	public async link([paths]: [string[]]): Promise<LinkResponse> {
-		if (this.config.paths) {
-			let response: LinkResponse = {
-				linkedPaths: [],
-				alreadyLinkedPaths: [],
-				failedToLinkPaths: [],
-			};
+		if (!this.config.paths)
+			throw Errors.PathsNotDefined;
 
-			const results = [];
+		let response: LinkResponse = {
+			linkedPaths: [],
+			alreadyLinkedPaths: [],
+			failedToLinkPaths: [],
+		};
 
-			for (let pathName of paths) {
-				const path = this.pathById(pathName);
+		const results = [];
 
-				if (path?.path.isLinked) {
-					response.alreadyLinkedPaths.push(pathName);
-					continue;
-				}
+		for (let pathName of paths) {
+			const path = this.pathById(pathName);
 
-				results.push(await this.createLink(path));
+			if (path?.path.isLinked) {
+				response.alreadyLinkedPaths.push(pathName);
+				continue;
 			}
 
-			for (let result of results) {
-				if (result.status) {
-					response.linkedPaths.push(result.pathName);
-				} else {
-					response.failedToLinkPaths.push({
-						pathName: result.pathName,
-						error: result.error,
-					});
-				}
-			}
-
-			return response;
+			results.push(await this.createLink(path));
 		}
 
-		throw Errors.PathsNotDefined;
+		for (let result of results) {
+			if (result.status) {
+				response.linkedPaths.push(result.pathName);
+			} else {
+				response.failedToLinkPaths.push({
+					pathName: result.pathName,
+					error: result.error,
+				});
+			}
+		}
+
+		return response;
 	}
 
 	public async start([paths]: [string[]]): Promise<StartResponse> {
-		if (!this.config.paths) {
+		if (!this.config.paths)
 			throw Errors.PathsNotDefined;
-		}
 
 		for (let pathName of paths) {
 			const path = this.pathById(pathName);
