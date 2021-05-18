@@ -27,7 +27,7 @@ var (
 	}
 
 	openAPIOut = []string{
-		"--openapiv2_out=logtostderr=true,allow_merge=true:.",
+		"--openapiv2_out=logtostderr=true,allow_merge=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 	}
 
 	vuexRootMarker = "vuex-root"
