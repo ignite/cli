@@ -9,21 +9,28 @@ import (
 // Link links all chains that has a path to each other.
 // paths are optional and acts as a filter to only link some chains.
 // calling Link multiple times for the same paths does not have any side effects.
-func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, err error) {
+type LinkStatus struct {
+	ID       string `json:"pathName"`
+	ErrorMsg string `json:"error"`
+}
+
+func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, failedToLinkPaths []LinkStatus, err error) {
 	var reply struct {
-		LinkedPaths        []string `json:"linkedPaths"`
-		AlreadyLinkedPaths []string `json:"alreadyLinkedPaths"`
+		LinkedPaths        []string     `json:"linkedPaths"`
+		AlreadyLinkedPaths []string     `json:"alreadyLinkedPaths"`
+		FailedToLinkPaths  []LinkStatus `json:"failedToLinkPaths"`
 	}
-	err = tsrelayer.Call(ctx, "link", paths, &reply)
+	err = tsrelayer.Call(ctx, "link", []interface{}{paths}, &reply)
 	linkedPaths = reply.LinkedPaths
 	alreadyLinkedPaths = reply.AlreadyLinkedPaths
+	failedToLinkPaths = reply.FailedToLinkPaths
 	return
 }
 
 // Start relays tx packets for paths until ctx is canceled.
 func Start(ctx context.Context, paths ...string) error {
 	var reply interface{}
-	return tsrelayer.Call(ctx, "start", paths, &reply)
+	return tsrelayer.Call(ctx, "start", []interface{}{paths}, &reply)
 }
 
 // Path represents a path between two chains.
@@ -51,7 +58,7 @@ type PathEnd struct {
 // GetPath returns a path by its id.
 func GetPath(ctx context.Context, id string) (Path, error) {
 	var path Path
-	err := tsrelayer.Call(ctx, "getPath", id, &path)
+	err := tsrelayer.Call(ctx, "getPath", []interface{}{id}, &path)
 	return path, err
 }
 
@@ -60,4 +67,16 @@ func ListPaths(ctx context.Context) ([]Path, error) {
 	var paths []Path
 	err := tsrelayer.Call(ctx, "listPaths", nil, &paths)
 	return paths, err
+}
+
+// StateInfo holds information about state of relayer.
+type StateInfo struct {
+	ConfigPath string `json:"configPath"`
+}
+
+// Info shows information about the state of relayer.
+func Info(ctx context.Context) (StateInfo, error) {
+	var info StateInfo
+	err := tsrelayer.Call(ctx, "info", nil, &info)
+	return info, err
 }

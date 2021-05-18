@@ -1,21 +1,28 @@
-import run from "./jsonrpc"
+import run from "./jsonrpc";
 
-import { link, linkMethod } from "./lib/link";
-import { start, startMethod } from "./lib/start";
-import { ensureChainSetup, ensureChainSetupMethod } from "./lib/chain";
-import { createPath, createPathMethod } from "./lib/chain";
-import { getPath, getPathMethod } from "./lib/chain";
-import { listPaths, listPathsMethod } from "./lib/chain";
-import { getDefaultAccount, getDefaultAccountMethod } from "./lib/chain";
-import { getDefaultAccountBalance, getDefaultAccountBalanceMethod } from "./lib/chain";
+import {
+	linkMethod,
+	startMethod,
+	ensureChainSetupMethod,
+	createPathMethod,
+	getPathMethod,
+	listPathsMethod,
+	getDefaultAccountMethod,
+	getDefaultAccountBalanceMethod,
+	infoMethod,
+} from "./lib/relayer";
+import Relayer from "./lib/relayer";
+
+const relayer = new Relayer();
 
 run([
-  [linkMethod, link],
-  [startMethod, start],
-  [ensureChainSetupMethod, ensureChainSetup],
-  [createPathMethod, createPath],
-  [getPathMethod, getPath],
-  [listPathsMethod, listPaths],
-  [getDefaultAccountMethod, getDefaultAccount],
-  [getDefaultAccountBalanceMethod, getDefaultAccountBalance],
+	[linkMethod, relayer.link.bind(relayer)],
+	[startMethod, relayer.start.bind(relayer)],
+	[ensureChainSetupMethod, relayer.ensureChainSetup.bind(relayer)],
+	[createPathMethod, relayer.createPath.bind(relayer)],
+	[getPathMethod, relayer.getPath.bind(relayer)],
+	[listPathsMethod, relayer.listPaths.bind(relayer)],
+	[getDefaultAccountMethod, relayer.getDefaultAccount.bind(relayer)],
+	[getDefaultAccountBalanceMethod, relayer.getDefaultAccountBalance.bind(relayer)],
+	[infoMethod, relayer.info.bind(relayer)],
 ]);

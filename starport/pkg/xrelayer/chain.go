@@ -21,8 +21,8 @@ const faucetTimeout = time.Second * 20
 const (
 	TransferPort      = "transfer"
 	TransferVersion   = "ics20-1"
-	OrderingUnordered = "unordered"
-	OrderingOrdered   = "ordered"
+	OrderingUnordered = "ORDER_UNORDERED"
+	OrderingOrdered   = "ORDER_ORDERED"
 )
 
 // Chain represents a chain in relayer.
@@ -46,7 +46,10 @@ type Chain struct {
 // chainOptions holds options to be used setting up the chain.
 type chainOptions struct {
 	// gasPrice is the gas price used when sending transactions to the chain
-	gasPrice string
+	GasPrice string `json:"gasPrice"`
+
+	// addressPrefix is the address prefix of the chain.
+	AddressPrefix string `json:"addressPrefix"`
 }
 
 // Account represents an account in relayer.
@@ -66,10 +69,17 @@ func WithFaucet(address string) Option {
 	}
 }
 
-// WithGasPrice gives the gas price to use to send transactions to the chain
+// WithGasPrice gives the gas price to use to send ibc transactions to the chain.
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
-		c.options.gasPrice = gasPrice
+		c.options.GasPrice = gasPrice
+	}
+}
+
+// WithAddressPrefix configures the account key prefix used on the chain.
+func WithAddressPrefix(addressPrefix string) Option {
+	return func(c *Chain) {
+		c.options.AddressPrefix = addressPrefix
 	}
 }
 
@@ -91,7 +101,7 @@ func NewChain(ctx context.Context, rpcAddress string, options ...Option) (*Chain
 // Account retrieves the default account on chain.
 func (c *Chain) Account(ctx context.Context) (Account, error) {
 	var account Account
-	err := tsrelayer.Call(ctx, "getDefaultAccount", c.ID, &account)
+	err := tsrelayer.Call(ctx, "getDefaultAccount", []interface{}{c.ID}, &account)
 	return account, err
 }
 
@@ -137,7 +147,7 @@ func (c *Chain) TryFaucet(ctx context.Context) error {
 // Balance returns the balance for default account in the chain.
 func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
 	var coins sdk.Coins
-	err := tsrelayer.Call(ctx, "getDefaultAccountBalance", c.ID, &coins)
+	err := tsrelayer.Call(ctx, "getDefaultAccountBalance", []interface{}{c.ID}, &coins)
 	return coins, err
 }
 

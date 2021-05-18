@@ -1,37 +1,40 @@
 {
-  "name": "nodetime",
-  "version": "1.0.0",
-  "description": "Starport's Swiss knife",
-  "bin": {
-    "nodetime": "./nodetime"
-  },
-  "scripts": {
-    "prebuild": "rm -rf dist && tsc",
-    "build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
-  },
-  "dependencies": {
-    "@confio/relayer": "^0.1.3",
-    "@cosmjs/launchpad": "^0.23.2",
-    "@cosmjs/proto-signing": "^0.24.0-alpha.26",
-    "@cosmjs/stargate": "^0.25.0-alpha.2",
-    "@types/node": "^13.13.45",
-    "json-rpc-2.0": "^0.2.16",
-    "long": "^4.0.0",
-    "pkg": "^4.4.9",
-    "protobufjs": "^6.10.2",
-    "swagger-typescript-api": "^5.1.7",
-    "ts-proto": "^1.68.0"
-  },
-  "pkg": {
-    "assets": [
-      "./node_modules/typescript/lib/**/*.ts",
-      "./node_modules/protobufjs/**/*",
-      "./node_modules/long/**/*",
-      "./node_modules/@types/**/*",
-      "./node_modules/@cosmjs/**/*"
-    ]
-  },
-  "devDependencies": {
-    "typescript": "^4.2.4"
-  }
+	"name": "nodetime",
+	"version": "1.0.0",
+	"description": "Starport's Swiss knife",
+	"bin": {
+		"nodetime": "./nodetime"
+	},
+	"scripts": {
+		"prebuild": "rm -rf dist && tsc",
+		"build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
+	},
+	"dependencies": {
+		"@confio/relayer": "0.1.4",
+		"@cosmjs/crypto": "0.25.0",
+		"@cosmjs/launchpad": "0.25.0",
+		"@cosmjs/proto-signing": "0.25.0",
+		"@cosmjs/stargate": "0.25.0",
+		"@cosmjs/tendermint-rpc": "0.25.0",
+		"js-yaml": "^4.0.0",
+		"json-rpc-2.0": "^0.2.16",
+		"long": "^4.0.0",
+		"pkg": "^4.4.9",
+		"protobufjs": "^6.10.2",
+		"swagger-typescript-api": "^5.1.7",
+		"ts-proto": "^1.68.0"
+	},
+	"pkg": {
+		"assets": [
+			"./node_modules/typescript/lib/**/*.ts",
+			"./node_modules/protobufjs/**/*",
+			"./node_modules/long/**/*",
+			"./node_modules/@types/**/*",
+			"./node_modules/@cosmjs/**/*"
+		]
+	},
+	"devDependencies": {
+		"@types/node": "^13.13.45",
+		"typescript": "^4.2.4"
+	}
 }
