@@ -58,26 +58,28 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 	printSection("Linking chains")
 
 	if len(alreadyLinkedPaths) != 0 {
-		fmt.Printf("⛓  %d paths already created to link chains.\n", len(alreadyLinkedPaths))
+		fmt.Printf("✓ %d paths already created to link chains.\n", len(alreadyLinkedPaths))
 		for _, id := range alreadyLinkedPaths {
 			fmt.Printf("  - %s\n", id)
 		}
+		fmt.Println()
 	}
 
 	if len(linkedPaths) != 0 {
-		fmt.Printf("🔌  Linked chains with %d path(s).\n", len(linkedPaths))
+		fmt.Printf("✓ Linked chains with %d paths.\n", len(linkedPaths))
 		for _, id := range linkedPaths {
 			fmt.Printf("  - %s\n", id)
 		}
+		fmt.Println()
 	}
 
 	if len(failedToLinkPaths) != 0 {
-		fmt.Printf("X  Failed to link chains in %d path(s).\n", len(failedToLinkPaths))
+		fmt.Printf("x Failed to link chains in %d paths.\n", len(failedToLinkPaths))
 		for _, failed := range failedToLinkPaths {
 			fmt.Printf("  - %s failed with error: %s\n", failed.ID, failed.ErrorMsg)
 		}
 		fmt.Println()
-		fmt.Printf("Continuing with %d path(s).\n", len(alreadyLinkedPaths)+len(linkedPaths))
+		fmt.Printf("Continuing with %d paths...\n", len(alreadyLinkedPaths)+len(linkedPaths))
 	}
 
 	fmt.Println()
