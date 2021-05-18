@@ -341,12 +341,10 @@ export default class Relayer {
 
 
 	private initConfigProxy() {
-		const configData = this.readOrCreateConfig();
-
 		const nestedProxy = {
 			set: (target, prop, value) => {
 				target[prop] = value;
-				this.writeConfig(configData);
+				this.writeConfig(this.config);
 				return true;
 			},
 
@@ -357,7 +355,7 @@ export default class Relayer {
 			},
 		};
 
-		this.config = new Proxy(configData, nestedProxy);
+		this.config = new Proxy(this.readOrCreateConfig(), nestedProxy);
 	}
 
 	private getConfigDirPath() {

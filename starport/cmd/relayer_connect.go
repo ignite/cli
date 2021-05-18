@@ -73,19 +73,26 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 	}
 
+	pathsToConnect := append(linkedPaths, alreadyLinkedPaths...)
+
 	if len(failedToLinkPaths) != 0 {
 		fmt.Printf("x Failed to link chains in %d paths.\n", len(failedToLinkPaths))
 		for _, failed := range failedToLinkPaths {
 			fmt.Printf("  - %s failed with error: %s\n", failed.ID, failed.ErrorMsg)
 		}
 		fmt.Println()
-		fmt.Printf("Continuing with %d paths...\n", len(alreadyLinkedPaths)+len(linkedPaths))
 	}
 
-	fmt.Println()
+	if len(pathsToConnect) == 0 {
+		fmt.Println("No paths to connect.")
+		return nil
+	}
+
+	fmt.Printf("Continuing with %d paths...\n\n", len(pathsToConnect))
+
 	printSection("Chains by paths")
 
-	for _, id := range append(linkedPaths, alreadyLinkedPaths...) {
+	for _, id := range pathsToConnect {
 		s.SetText("Loading...").Start()
 
 		path, err := xrelayer.GetPath(cmd.Context(), id)
