@@ -34,7 +34,7 @@ func testutilAppModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 	}
 }
 
-// WASMRegister register testutil modifiers that should be applied when wasm is imported.
+// WASMRegister registers testutil modifiers that should be applied once wasm is imported.
 func WASMRegister(replacer placeholder.Replacer, _ *plush.Context, gen *genny.Generator) error {
 	gen.RunFn(testutilAppModifyStargate(replacer))
 	return nil
