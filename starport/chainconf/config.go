@@ -21,13 +21,12 @@ var (
 	// DefaultConf holds default configuration.
 	DefaultConf = Config{
 		Host: Host{
-			RPC:      ":26657",
-			P2P:      ":26656",
-			Prof:     ":6060",
-			GRPC:     ":9090",
-			API:      ":1317",
-			Frontend: ":8080",
-			DevUI:    ":12345",
+			// when in Docker on MacOS, it only works with 0.0.0.0.
+			RPC:  "0.0.0.0:26657",
+			P2P:  "0.0.0.0:26656",
+			Prof: "0.0.0.0:6060",
+			GRPC: "0.0.0.0:9090",
+			API:  "0.0.0.0:1317",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -39,7 +38,7 @@ var (
 			},
 		},
 		Faucet: Faucet{
-			Host: ":4500",
+			Host: "0.0.0.0:4500",
 		},
 	}
 )
@@ -148,13 +147,11 @@ type Init struct {
 
 // Host keeps configuration related to started servers.
 type Host struct {
-	RPC      string `yaml:"rpc"`
-	P2P      string `yaml:"p2p"`
-	Prof     string `yaml:"prof"`
-	GRPC     string `yaml:"grpc"`
-	API      string `yaml:"api"`
-	Frontend string `yaml:"frontend"`
-	DevUI    string `yaml:"dev-ui"`
+	RPC  string `yaml:"rpc"`
+	P2P  string `yaml:"p2p"`
+	Prof string `yaml:"prof"`
+	GRPC string `yaml:"grpc"`
+	API  string `yaml:"api"`
 }
 
 // Parse parses config.yml into UserConfig.

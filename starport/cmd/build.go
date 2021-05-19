@@ -51,7 +51,11 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(c.Binary()))
+	binaryName, err := c.Binary()
+	if err != nil {
+		return err
+	}
+	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
 
 	return nil
 }
