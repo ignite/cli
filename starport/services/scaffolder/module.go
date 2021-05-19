@@ -184,7 +184,7 @@ func (s *Scaffolder) ImportModule(tr *placeholder.Tracer, name string) error {
 	if err := run(genny.DryRunner(context.Background())); err != nil {
 		return err
 	}
-	if err := tr.Validate(); err != nil {
+	if err := tr.Err(); err != nil {
 		return err
 	}
 	if err := run(genny.WetRunner(context.Background())); err != nil {

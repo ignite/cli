@@ -22,16 +22,16 @@ func (set iterableStringSet) Add(item string) {
 	set[item] = struct{}{}
 }
 
-var _ validation.Error = (*ErrMissingPlaceholders)(nil)
+var _ validation.Error = (*MissingPlaceholdersError)(nil)
 
-type ErrMissingPlaceholders struct {
+type MissingPlaceholdersError struct {
 	missing        iterableStringSet
 	additionalInfo string
 }
 
 // Is true if both errors have the same list of missing placeholders.
-func (e *ErrMissingPlaceholders) Is(err error) bool {
-	other, ok := err.(*ErrMissingPlaceholders)
+func (e *MissingPlaceholdersError) Is(err error) bool {
+	other, ok := err.(*MissingPlaceholdersError)
 	if !ok {
 		return false
 	}
@@ -46,7 +46,7 @@ func (e *ErrMissingPlaceholders) Is(err error) bool {
 	return true
 }
 
-func (e *ErrMissingPlaceholders) Error() string {
+func (e *MissingPlaceholdersError) Error() string {
 	var b strings.Builder
 	b.WriteString("missing placeholders: ")
 	e.missing.Iterate(func(i int, element string) bool {
@@ -59,7 +59,7 @@ func (e *ErrMissingPlaceholders) Error() string {
 	return b.String()
 }
 
-func (e *ErrMissingPlaceholders) ValidationInfo() string {
+func (e *MissingPlaceholdersError) ValidationInfo() string {
 	var b strings.Builder
 	b.WriteString("Missing placeholders:\n\n")
 	e.missing.Iterate(func(i int, element string) bool {
@@ -116,14 +116,14 @@ func (t *Tracer) Replace(content, placeholder, replacement string) string {
 	return strings.Replace(content, placeholder, replacement, 1)
 }
 
-// Validate if any of the placeholders were missing during execution.
-func (t *Tracer) Validate() error {
+// Err if any of the placeholders were missing during execution.
+func (t *Tracer) Err() error {
 	if len(t.missing) > 0 {
 		missing := iterableStringSet{}
 		for key := range t.missing {
 			missing.Add(key)
 		}
-		return &ErrMissingPlaceholders{missing: missing, additionalInfo: t.additionalInfo}
+		return &MissingPlaceholdersError{missing: missing, additionalInfo: t.additionalInfo}
 	}
 	return nil
 }

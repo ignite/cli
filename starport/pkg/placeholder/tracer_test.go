@@ -6,8 +6,8 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func newErrMissingPlaceholderFromSlice(missing []string) *ErrMissingPlaceholders {
-	err := &ErrMissingPlaceholders{missing: iterableStringSet{}}
+func newErrMissingPlaceholderFromSlice(missing []string) *MissingPlaceholdersError {
+	err := &MissingPlaceholdersError{missing: iterableStringSet{}}
 	for _, placeholder := range missing {
 		err.missing[placeholder] = struct{}{}
 	}
@@ -46,7 +46,7 @@ func TestReplace(t *testing.T) {
 			for _, placeholder := range tc.replace {
 				content = tr.Replace(content, placeholder, "")
 			}
-			err := tr.Validate()
+			err := tr.Err()
 			if err != nil {
 				require.ErrorIs(t, err, newErrMissingPlaceholderFromSlice(tc.missing))
 			} else {
