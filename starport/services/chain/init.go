@@ -112,7 +112,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 		// If the account doesn't provide an address, we create one
 		if accountAddress == "" {
-			generatedAccount, err = commands.AddAccount(ctx, account.Name, "")
+			generatedAccount, err = commands.AddAccount(ctx, account.Name, account.Mnemonic)
 			if err != nil {
 				return err
 			}

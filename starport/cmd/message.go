@@ -13,7 +13,7 @@ const (
 	flagDescription string = "desc"
 )
 
-// NewType command creates a new type command to scaffold types.
+// NewType command creates a new type command to scaffold messages
 func NewMessage() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "message [name] [field1] [field2] ...",

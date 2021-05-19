@@ -200,20 +200,16 @@ func keeperModify(opts *CreateOptions) genny.RunFn {
 			return err
 		}
 
-		// Import
-		templateImport := `capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"`
-		content := strings.Replace(f.String(), module.PlaceholderIBCKeeperImport, templateImport, 1)
-
 		// Keeper new attributes
 		templateAttribute := `channelKeeper types.ChannelKeeper
 portKeeper    types.PortKeeper
-scopedKeeper  capabilitykeeper.ScopedKeeper`
-		content = strings.Replace(content, module.PlaceholderIBCKeeperAttribute, templateAttribute, 1)
+scopedKeeper  types.ScopedKeeper`
+		content := strings.Replace(f.String(), module.PlaceholderIBCKeeperAttribute, templateAttribute, 1)
 
 		// New parameter for the constructor
 		templateParameter := `channelKeeper types.ChannelKeeper,
 portKeeper types.PortKeeper,
-scopedKeeper capabilitykeeper.ScopedKeeper,`
+scopedKeeper types.ScopedKeeper,`
 		content = strings.Replace(content, module.PlaceholderIBCKeeperParameter, templateParameter, 1)
 
 		// New return values for the constructor

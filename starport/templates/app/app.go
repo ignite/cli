@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -34,6 +35,8 @@ func New(opts *Options) (*genny.Generator, error) {
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+
+	testutil.Register(ctx, g)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))
