@@ -42,7 +42,7 @@ The `type` command scaffolds functionality a custom type.
 
 ## Learn more
 
-- [Configure a Blockchain](../configure/intro.md)
+- [Configure a Blockchain](../configure/index.md)
 - [Run a Blockchain](../run/start.md)
 - [Starport repo in GitHub](https://github.com/tendermint/starport)
 - [Cosmos SDK Documentation](https://docs.cosmos.network)
