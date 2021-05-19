@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -40,23 +41,23 @@ type PacketOptions struct {
 }
 
 // NewPacket returns the generator to scaffold a packet in an IBC module
-func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
+func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
 	g := genny.New()
 
 	// Add the component
-	g.RunFn(moduleModify(opts))
-	g.RunFn(protoModify(opts))
-	g.RunFn(eventModify(opts))
+	g.RunFn(moduleModify(replacer, opts))
+	g.RunFn(protoModify(replacer, opts))
+	g.RunFn(eventModify(replacer, opts))
 	if err := g.Box(ibcTemplateComponent); err != nil {
 		return g, err
 	}
 
 	// Add the send message
 	if !opts.NoMessage {
-		g.RunFn(protoTxModify(opts))
-		g.RunFn(handlerTxModify(opts))
-		g.RunFn(clientCliTxModify(opts))
-		g.RunFn(codecModify(opts))
+		g.RunFn(protoTxModify(replacer, opts))
+		g.RunFn(handlerTxModify(replacer, opts))
+		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(codecModify(replacer, opts))
 		if err := g.Box(ibcTemplateMessages); err != nil {
 			return g, err
 		}
@@ -78,7 +79,7 @@ func NewPacket(opts *PacketOptions) (*genny.Generator, error) {
 	return g, nil
 }
 
-func moduleModify(opts *PacketOptions) genny.RunFn {
+func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -113,7 +114,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			strings.Title(opts.ModuleName),
 			strings.Title(opts.PacketName),
 		)
-		content := strings.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv, 1)
+		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
 		templateAck := `%[1]v
@@ -129,7 +130,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			strings.Title(opts.ModuleName),
 			strings.Title(opts.PacketName),
 		)
-		content = strings.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck, 1)
+		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
 
 		// Timeout packet dispatch
 		templateTimeout := `%[1]v
@@ -144,14 +145,14 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			strings.Title(opts.ModuleName),
 			strings.Title(opts.PacketName),
 		)
-		content = strings.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout, 1)
+		content = replacer.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func protoModify(opts *PacketOptions) genny.RunFn {
+func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/packet.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -173,7 +174,7 @@ func protoModify(opts *PacketOptions) genny.RunFn {
 			fieldCount+2,
 			PlaceholderIBCPacketProtoFieldNumber,
 		)
-		content = strings.Replace(content, PlaceholderIBCPacketProtoField, replacementField, 1)
+		content = replacer.Replace(content, PlaceholderIBCPacketProtoField, replacementField)
 
 		// Add the message definition for packet and acknowledgment
 		var packetFields string
@@ -202,14 +203,14 @@ message %[2]vPacketAck {
 			packetFields,
 			ackFields,
 		)
-		content = strings.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage, 1)
+		content = replacer.Replace(content, PlaceholderIBCPacketProtoMessage, replacementMessage)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func eventModify(opts *PacketOptions) genny.RunFn {
+func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -226,14 +227,14 @@ EventType%[2]vPacket       = "%[3]v_packet"
 			strings.Title(opts.PacketName),
 			opts.PacketName,
 		)
-		content := strings.Replace(f.String(), PlaceholderIBCPacketEvent, replacement, 1)
+		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func protoTxModify(opts *PacketOptions) genny.RunFn {
+func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -250,7 +251,7 @@ import "%s/%s.proto";`
 			opts.ModuleName,
 			opts.PacketName,
 		)
-		content := strings.Replace(f.String(), PlaceholderProtoTxImport, replacementImport, 1)
+		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
 
 		// RPC
 		templateRPC := `%[1]v
@@ -260,7 +261,7 @@ import "%s/%s.proto";`
 			PlaceholderProtoTxRPC,
 			strings.Title(opts.PacketName),
 		)
-		content = strings.Replace(content, PlaceholderProtoTxRPC, replacementRPC, 1)
+		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
 
 		var sendFields string
 		for i, field := range opts.Fields {
@@ -288,14 +289,14 @@ message MsgSend%[2]vResponse {
 			strings.Title(opts.PacketName),
 			sendFields,
 		)
-		content = strings.Replace(content, PlaceholderProtoTxMessage, replacementMessage, 1)
+		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func handlerTxModify(opts *PacketOptions) genny.RunFn {
+func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -305,7 +306,7 @@ func handlerTxModify(opts *PacketOptions) genny.RunFn {
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := strings.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer, 1)
+		content := replacer.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.MsgSend%[2]v:
@@ -316,13 +317,13 @@ func handlerTxModify(opts *PacketOptions) genny.RunFn {
 			Placeholder,
 			strings.Title(opts.PacketName),
 		)
-		content = strings.Replace(content, Placeholder, replacementHandlers, 1)
+		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func clientCliTxModify(opts *PacketOptions) genny.RunFn {
+func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -333,13 +334,13 @@ func clientCliTxModify(opts *PacketOptions) genny.RunFn {
 	cmd.AddCommand(CmdSend%[2]v())
 `
 		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.PacketName))
-		content := strings.Replace(f.String(), Placeholder, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func codecModify(opts *PacketOptions) genny.RunFn {
+func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -349,14 +350,14 @@ func codecModify(opts *PacketOptions) genny.RunFn {
 
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := strings.Replace(f.String(), module.Placeholder, replacement, 1)
+		content := replacer.Replace(f.String(), module.Placeholder, replacement)
 
 		// Register the module packet
 		templateRegistry := `%[1]v
 cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
 `
 		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2, strings.Title(opts.PacketName), opts.ModuleName)
-		content = strings.Replace(content, module.Placeholder2, replacementRegistry, 1)
+		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `%[1]v
@@ -364,7 +365,7 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},
 )`
 		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, strings.Title(opts.PacketName))
-		content = strings.Replace(content, module.Placeholder3, replacementInterface, 1)
+		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

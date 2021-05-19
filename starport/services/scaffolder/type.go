@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -62,9 +61,11 @@ func (s *Scaffolder) AddType(
 			Fields:     tFields,
 			NoMessage:  addTypeOptions.NoMessage,
 		}
+		gens []*genny.Generator
 	)
 	// Check and support MsgServer convention
-	if err := supportMsgServer(
+	g, err = supportMsgServer(
+		s.tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -72,23 +73,26 @@ func (s *Scaffolder) AddType(
 			AppName:    opts.AppName,
 			OwnerName:  opts.OwnerName,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return err
+	}
+	if g != nil {
+		gens = append(gens, g)
 	}
 
 	// Check if indexed type
 	if addTypeOptions.Indexed {
-		g, err = indexed.NewStargate(opts)
+		g, err = indexed.NewStargate(s.tracer, opts)
 	} else {
 		// Scaffolding a type with ID
-		g, err = typed.NewStargate(opts)
+		g, err = typed.NewStargate(s.tracer, opts)
 	}
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	gens = append(gens, g)
+	if err := runWithValidation(s.tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

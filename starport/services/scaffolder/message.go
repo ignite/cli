@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"os"
 
@@ -58,7 +57,9 @@ func (s *Scaffolder) AddMessage(
 	)
 
 	// Check and support MsgServer convention
-	if err := supportMsgServer(
+	var gens []*genny.Generator
+	g, err = supportMsgServer(
+		s.tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -66,18 +67,21 @@ func (s *Scaffolder) AddMessage(
 			AppName:    opts.AppName,
 			OwnerName:  opts.OwnerName,
 		},
-	); err != nil {
-		return err
-	}
-
-	// Scaffold
-	g, err = message.NewStargate(opts)
+	)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	if g != nil {
+		gens = append(gens, g)
+	}
+
+	// Scaffold
+	g, err = message.NewStargate(s.tracer, opts)
+	if err != nil {
+		return err
+	}
+	gens = append(gens, g)
+	if err := runWithValidation(s.tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

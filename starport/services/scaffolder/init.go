@@ -76,29 +76,28 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	run.Root = absRoot
-	if err := run.Run(); err != nil {
+
+	run := func(runner *genny.Runner, gen *genny.Generator) error {
+		runner.With(gen)
+		runner.Root = absRoot
+		return runner.Run()
+	}
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
 		return err
 	}
 
 	// generate module template
-	g, err = modulecreate.NewStargate(&modulecreate.CreateOptions{
+	g, err = modulecreate.NewStargate(s.tracer, &modulecreate.CreateOptions{
 		ModuleName: pathInfo.Package, // App name
 		ModulePath: pathInfo.RawPath,
 		AppName:    pathInfo.Package,
 		OwnerName:  owner(pathInfo.RawPath),
 		IsIBC:      false,
 	})
-
 	if err != nil {
 		return err
 	}
-	run = genny.WetRunner(context.Background())
-	run.With(g)
-	run.Root = absRoot
-	if err := run.Run(); err != nil {
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
 		return err
 	}
 

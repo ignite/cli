@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -67,13 +66,11 @@ func (s *Scaffolder) AddPacket(
 			NoMessage:  noMessage,
 		}
 	)
-	g, err = ibc.NewPacket(opts)
+	g, err = ibc.NewPacket(s.tracer, opts)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	if err := runWithValidation(s.tracer, g); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
