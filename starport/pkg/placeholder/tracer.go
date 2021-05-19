@@ -1,7 +1,6 @@
 package placeholder
 
 import (
-	"context"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/validation"
@@ -19,10 +18,15 @@ func (set iterableStringSet) Iterate(f func(i int, element string) bool) {
 	}
 }
 
+func (set iterableStringSet) Add(item string) {
+	set[item] = struct{}{}
+}
+
 var _ validation.Error = (*ErrMissingPlaceholders)(nil)
 
 type ErrMissingPlaceholders struct {
-	missing iterableStringSet
+	missing        iterableStringSet
+	additionalInfo string
 }
 
 // Is true if both errors have the same list of missing placeholders.
@@ -65,61 +69,61 @@ func (e *ErrMissingPlaceholders) ValidationInfo() string {
 		b.WriteString(element)
 		return true
 	})
-	b.WriteString("\n\n")
-	b.WriteString("Visit https://docs.starport.network/troubleshooting/placeholders.html.")
+	if e.additionalInfo != "" {
+		b.WriteString("\n\n")
+		b.WriteString(e.additionalInfo)
+	}
 	return b.String()
 }
 
-type contextKey struct {
-	string
-}
+// Option for configuring session.
+type Option func(*Tracer)
 
-func (c contextKey) String() string {
-	return c.string
-}
-
-type tracer struct {
-	placeholders iterableStringSet
-}
-
-func (t *tracer) add(placeholder string) {
-	t.placeholders[placeholder] = struct{}{}
-}
-
-var missingPlaceholdersKey = contextKey{"missing placeholders"}
-
-// EnableTracing will enable placeholder tracing when Replace is used.
-func EnableTracing(ctx context.Context) context.Context {
-	return context.WithValue(ctx, missingPlaceholdersKey, &tracer{placeholders: iterableStringSet{}})
-}
-
-func traceIfEnabled(ctx context.Context, placeholder string) {
-	tc, ok := ctx.Value(missingPlaceholdersKey).(*tracer)
-	if !ok {
-		return
+// WithAdditionalInfo will append info to the validation error.
+func WithAdditionalInfo(info string) Option {
+	return func(s *Tracer) {
+		s.additionalInfo = info
 	}
-	tc.add(placeholder)
+}
+
+// New instantiates Session with provided options.
+func New(opts ...Option) *Tracer {
+	s := &Tracer{missing: iterableStringSet{}}
+	for _, opt := range opts {
+		opt(s)
+	}
+	return s
+}
+
+type Replacer interface {
+	Replace(content, placeholder, replacement string) string
+}
+
+// Tracer keeps track of missing placeholders.
+type Tracer struct {
+	missing        iterableStringSet
+	additionalInfo string
 }
 
 // Replace placeholder in content with replacement string once.
-func Replace(ctx context.Context, content, placeholder, replacement string) string {
+func (t *Tracer) Replace(content, placeholder, replacement string) string {
 	// NOTE(dshulyak) we will count twice. once here and second time in strings.Replace
 	// if it turns out to be an issue, copy the code from strings.Replace.
 	if strings.Count(content, placeholder) == 0 {
-		traceIfEnabled(ctx, placeholder)
+		t.missing.Add(placeholder)
 		return content
 	}
 	return strings.Replace(content, placeholder, replacement, 1)
 }
 
 // Validate if any of the placeholders were missing during execution.
-func Validate(ctx context.Context) error {
-	tc, ok := ctx.Value(missingPlaceholdersKey).(*tracer)
-	if !ok {
-		return nil
-	}
-	if len(tc.placeholders) > 0 {
-		return &ErrMissingPlaceholders{missing: tc.placeholders}
+func (t *Tracer) Validate() error {
+	if len(t.missing) > 0 {
+		missing := iterableStringSet{}
+		for key := range t.missing {
+			missing.Add(key)
+		}
+		return &ErrMissingPlaceholders{missing: missing, additionalInfo: t.additionalInfo}
 	}
 	return nil
 }

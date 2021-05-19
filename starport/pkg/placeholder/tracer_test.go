@@ -1,7 +1,6 @@
 package placeholder
 
 import (
-	"context"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -42,12 +41,12 @@ func TestReplace(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			ctx := EnableTracing(context.Background())
+			tr := New()
 			content := tc.content
 			for _, placeholder := range tc.replace {
-				content = Replace(ctx, content, placeholder, "")
+				content = tr.Replace(content, placeholder, "")
 			}
-			err := Validate(ctx)
+			err := tr.Validate()
 			if err != nil {
 				require.ErrorIs(t, err, newErrMissingPlaceholderFromSlice(tc.missing))
 			} else {
@@ -55,10 +54,4 @@ func TestReplace(t *testing.T) {
 			}
 		})
 	}
-}
-
-func TestReplaceDisabled(t *testing.T) {
-	ctx := context.Background()
-	_ = Replace(ctx, "", "#one", "")
-	require.NoError(t, Validate(ctx))
 }
