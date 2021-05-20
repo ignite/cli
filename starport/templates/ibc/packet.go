@@ -242,17 +242,6 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 			return err
 		}
 
-		// Imports
-		templateImport := `%s
-import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(
-			templateImport,
-			PlaceholderProtoTxImport,
-			opts.ModuleName,
-			opts.PacketName,
-		)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
-
 		// RPC
 		templateRPC := `%[1]v
   rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);`
@@ -261,7 +250,7 @@ import "%s/%s.proto";`
 			PlaceholderProtoTxRPC,
 			strings.Title(opts.PacketName),
 		)
-		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
+		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacementRPC)
 
 		var sendFields string
 		for i, field := range opts.Fields {

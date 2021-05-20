@@ -13,7 +13,6 @@ const (
 	PlaceholderIBCPacketModuleTimeout    = "// this line is used by starport scaffolding # ibc/packet/module/timeout"
 
 	// Placeholders for messages
-	PlaceholderProtoTxImport    = "// this line is used by starport scaffolding # tx/proto/import"
 	PlaceholderProtoTxRPC       = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage   = "// this line is used by starport scaffolding # proto/tx/message"
 	PlaceholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
