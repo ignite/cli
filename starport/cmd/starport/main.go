@@ -47,9 +47,9 @@ func main() {
 		return
 	}
 	if err != nil {
-		var valerr validation.Error
-		if errors.As(err, &valerr) {
-			panic(valerr.ValidationInfo())
+		var validationErr validation.Error
+		if errors.As(err, &validationErr) {
+			panic(validationErr.ValidationInfo())
 		} else {
 			panic(err)
 		}
