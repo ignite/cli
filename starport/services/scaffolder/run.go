@@ -16,11 +16,9 @@ func runWithValidation(tracer *placeholder.Tracer, gens ...*genny.Generator) err
 		if err := run(genny.DryRunner(context.Background()), gen); err != nil {
 			return err
 		}
-	}
-	if err := tracer.Err(); err != nil {
-		return err
-	}
-	for _, gen := range gens {
+		if err := tracer.Err(); err != nil {
+			return err
+		}
 		if err := run(genny.WetRunner(context.Background()), gen); err != nil {
 			return err
 		}

@@ -7,7 +7,7 @@ const (
 	Placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
 	Placeholder44 = "// this line is used by starport scaffolding # 4"
 
-	PlaceholderProtoTxImport  = "// this line is used by starport scaffolding # tx/proto/import"
+	PlaceholderProtoTxImport  = "// this line is used by starport scaffolding # proto/tx/import"
 	PlaceholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
