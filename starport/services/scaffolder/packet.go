@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/ibc"
 )
@@ -17,6 +18,7 @@ const (
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(
+	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
 	packetFields,
@@ -67,11 +69,11 @@ func (s *Scaffolder) AddPacket(
 			NoMessage:  noMessage,
 		}
 	)
-	g, err = ibc.NewPacket(s.tracer, opts)
+	g, err = ibc.NewPacket(tracer, opts)
 	if err != nil {
 		return err
 	}
-	if err := xgenny.RunWithValidation(s.tracer, g); err != nil {
+	if err := xgenny.RunWithValidation(tracer, g); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

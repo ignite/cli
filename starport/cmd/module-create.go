@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
 )
@@ -79,7 +80,7 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.CreateModule(name, options...); err != nil {
+	if err := sc.CreateModule(placeholder.New(), name, options...); err != nil {
 
 		// If this is an old scaffolded application that doesn't contain the necessary placeholder
 		// We give instruction to the user to modify the application

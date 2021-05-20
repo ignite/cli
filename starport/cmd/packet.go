@@ -6,6 +6,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -61,7 +62,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.AddPacket(module, packet, packetFields, ackFields, noMessage); err != nil {
+	if err := sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, noMessage); err != nil {
 		return err
 	}
 

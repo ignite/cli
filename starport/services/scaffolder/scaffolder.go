@@ -14,7 +14,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
 // Scaffolder is Starport app scaffolder.
@@ -22,7 +21,6 @@ type Scaffolder struct {
 	// path is app's path on the filesystem.
 	path string
 
-	tracer *placeholder.Tracer
 	// options to configure scaffolding.
 	options *scaffoldingOptions
 
@@ -34,7 +32,6 @@ type Scaffolder struct {
 func New(path string, options ...Option) (*Scaffolder, error) {
 	s := &Scaffolder{
 		path:    path,
-		tracer:  placeholder.New(),
 		options: newOptions(options...),
 	}
 

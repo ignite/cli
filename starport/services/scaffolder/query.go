@@ -5,12 +5,14 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app
 func (s *Scaffolder) AddQuery(
+	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
 	description string,
@@ -57,11 +59,11 @@ func (s *Scaffolder) AddQuery(
 	)
 
 	// Scaffold
-	g, err = query.NewStargate(s.tracer, opts)
+	g, err = query.NewStargate(tracer, opts)
 	if err != nil {
 		return err
 	}
-	if err := xgenny.RunWithValidation(s.tracer, g); err != nil {
+	if err := xgenny.RunWithValidation(tracer, g); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
