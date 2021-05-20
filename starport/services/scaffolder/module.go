@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
@@ -148,7 +149,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(name string) error {
+func (s *Scaffolder) ImportModule(tr *placeholder.Tracer, name string) error {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return errors.New("module cannot be imported. Supported module: wasm")
@@ -162,31 +163,40 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return errors.New("wasm is already imported")
 	}
 
-	// import a specific version of ComsWasm
-	if err := s.installWasm(); err != nil {
-		return err
-	}
-
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(&moduleimport.ImportOptions{
+	g, err := moduleimport.NewStargate(tr, &moduleimport.ImportOptions{
 		Feature:          name,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,
 	})
-
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	run := func(runner *genny.Runner) error {
+		runner.With(g)
+		return runner.Run()
+	}
+	if err := run(genny.DryRunner(context.Background())); err != nil {
 		return err
 	}
+	if err := tr.Err(); err != nil {
+		return err
+	}
+	if err := run(genny.WetRunner(context.Background())); err != nil {
+		return err
+	}
+
+	// import a specific version of ComsWasm
+	// NOTE(dshulyak) it must be installed after validation
+	if err := s.installWasm(); err != nil {
+		return err
+	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
