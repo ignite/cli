@@ -21,18 +21,22 @@ Docker must be installed. See [Get Started with Docker](https://www.docker.com/g
 
 When Docker is installed, you can build a blockchain with a single command.
 
-To scaffold a blockchain `planet` in a new directory, run this command in a terminal window:
+To scaffold a blockchain `planet` in the `/apps` directory in the container, run this command in a terminal window:
 
 ```
-docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps starport/cli:0.16.0 app github.com/hello/planet
+docker run -ti -w /app -v $HOME/sdh:/home/tendermint -v $PWD:/app starport/cli:0.16.0 app github.com/hello/planet
 ```
 
 Be patient, this command takes a minute or two to run because it does everything for you:
 
 - Creates a container that runs from the `starport/cli:0.16.0` image.
 - Executes the Starport binary inside the image.
-- Uses `-v $HOME/sdh:/home/tendermint` to map the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. Starport, and the chains you serve with Starport, persist some files.
-- Uses `-v $PWD:/apps` to persist the scaffolded app in the container to the host machine at current working directory.
+- `-w /apps` sets the current directory in the container to `/app`
+- `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. Starport, and the chains you serve with Starport, persist some files.
+- `-v $PWD:/app` maps the current directory in the terminal window on the host machine to the `/app` directory in the container. You can optionally specify an absolute path instead of `$PWD`.
+
+**Note:** The directory name for `-w` and `-v` can be a name other then `/app`, but must be the same directory specified for both the `-w` and `-v` flags. If you omit `-w` and `-v`, the changes are made in the container only and are lost when that container is shut down.
+
 
 ## Starting a Blockchain
 
@@ -47,8 +51,8 @@ This command does the following:
 - `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container.
 - `-v $PWD:/apps` persists the scaffolded app in the container to the host machine at current working directory.
 - `serve -p planet` specifies to use the `planet` directory that contains the source code of the blockchain.
-- `-p 26657:26657` maps RPC server port 26657 (tendermint) on the host machine to port 26657 in Docker. This mapping exposes ports from the container to the host machine.
-- `-p 1317:1317` maps the API server port (cosmos-sdk) to the host machine
+- `-p 26657:26657` maps RPC server port 26657 (tendermint) on the host machine to port 26657 in Docker. 
+- `-p 1317:1317` maps the API server port (cosmos-sdk) to the host machine to forward port 1317 listening inside the container to port 1317 on the host machine.
 - After the blockchain is started, open `http://localhost:26657` to see the Tendermint API.
 - The `-v` flag specifies for the container to access the application's source code from the host machine so it can build and run it.
 
