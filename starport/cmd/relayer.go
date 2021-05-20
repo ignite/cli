@@ -5,6 +5,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// NewRelayer returns a new relayer command.
 func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "relayer",
@@ -16,6 +17,8 @@ func NewRelayer() *cobra.Command {
 
 	c.AddCommand(NewRelayerConfigure())
 	c.AddCommand(NewRelayerConnect())
+	c.AddCommand(NewRelayerLowLevel())
 	c.AddCommand(rlyCmd)
+
 	return c
 }

@@ -3,19 +3,17 @@
 var mode = process.argv[2];
 process.argv.splice(2, 1);
 
-switch (mode) {
-  case "ts-proto":
-    require("./node_modules/ts-proto/protoc-gen-ts_proto");
-    break;
+main();
 
-  case "tsc":
-    require("./node_modules/typescript/bin/tsc");
-    break;
+function main() {
+  switch (mode) {
+    case "ts-proto":      require("ts-proto/protoc-gen-ts_proto");                    return;
+    case "tsc":           require("typescript/bin/tsc");                              return;
+    case "sta":           require("swagger-typescript-api/index");                    return;
+    case "ibc-setup":     require("@confio/relayer/build/binary/ibc-setup/index");    return;
+    case "ibc-relayer":   require("@confio/relayer/build/binary/ibc-relayer/index");  return;
+    case "xrelayer":      require("./dist/relayer");                                  return;
+  }
 
-  case "sta":
-    require("./node_modules/swagger-typescript-api/index");
-    break;
-
-  default:
-    console.error("unknown cli command");
+  console.error("unknown cli command");
 }

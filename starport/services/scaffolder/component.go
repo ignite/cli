@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -11,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
@@ -25,25 +25,20 @@ const (
 // if not, the module codebase is modified to support it
 // https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
 func supportMsgServer(
+	replacer placeholder.Replacer,
 	appPath string,
 	opts *modulecreate.MsgServerOptions,
-) error {
+) (*genny.Generator, error) {
 	// Check if convention used
 	msgServerDefined, err := isMsgServerDefined(appPath, opts.ModuleName)
 	if err != nil {
-		return err
+		return nil, err
 	}
 	if !msgServerDefined {
 		// Patch the module to support the convention
-		g, err := modulecreate.AddMsgServerConventionToLegacyModule(opts)
-		if err != nil {
-			return err
-		}
-		run := genny.WetRunner(context.Background())
-		run.With(g)
-		return run.Run()
+		return modulecreate.AddMsgServerConventionToLegacyModule(replacer, opts)
 	}
-	return nil
+	return nil, nil
 }
 
 // isMsgServerDefined checks if the module uses the MsgServer convention for transactions

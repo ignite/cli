@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -38,7 +39,7 @@ func appHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appdir, err := sc.Init(name)
+	appdir, err := sc.Init(placeholder.New(), name)
 	if err != nil {
 		return err
 	}

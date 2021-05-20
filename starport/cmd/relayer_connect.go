@@ -47,25 +47,52 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	s.SetText("Linking paths between chains...")
 
-	linkedPaths, alreadyLinkedPaths, err := xrelayer.Link(cmd.Context(), pathsToUse...)
+	linkedPaths, alreadyLinkedPaths, failedToLinkPaths, err := xrelayer.Link(cmd.Context(), pathsToUse...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Println()
+	printSection("Linking chains")
+
 	if len(alreadyLinkedPaths) != 0 {
-		fmt.Printf("⛓  %d paths already created to link chains.\n", len(alreadyLinkedPaths))
+		fmt.Printf("✓ %d paths already created to link chains.\n", len(alreadyLinkedPaths))
+		for _, id := range alreadyLinkedPaths {
+			fmt.Printf("  - %s\n", id)
+		}
+		fmt.Println()
 	}
 
 	if len(linkedPaths) != 0 {
-		fmt.Printf("🔌  Linked chains with %d paths.\n", len(linkedPaths))
+		fmt.Printf("✓ Linked chains with %d paths.\n", len(linkedPaths))
+		for _, id := range linkedPaths {
+			fmt.Printf("  - %s\n", id)
+		}
+		fmt.Println()
 	}
 
-	fmt.Println()
+	pathsToConnect := append(linkedPaths, alreadyLinkedPaths...)
+
+	if len(failedToLinkPaths) != 0 {
+		fmt.Printf("x Failed to link chains in %d paths.\n", len(failedToLinkPaths))
+		for _, failed := range failedToLinkPaths {
+			fmt.Printf("  - %s failed with error: %s\n", failed.ID, failed.ErrorMsg)
+		}
+		fmt.Println()
+	}
+
+	if len(pathsToConnect) == 0 {
+		fmt.Println("No paths to connect.")
+		return nil
+	}
+
+	fmt.Printf("Continuing with %d paths...\n\n", len(pathsToConnect))
+
 	printSection("Chains by paths")
 
-	for _, id := range append(linkedPaths, alreadyLinkedPaths...) {
+	for _, id := range pathsToConnect {
 		s.SetText("Loading...").Start()
 
 		path, err := xrelayer.GetPath(cmd.Context(), id)
@@ -75,17 +102,15 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 		s.Stop()
 
-		rpath := path.Path
-
 		w := tabwriter.NewWriter(os.Stdout, 0, 0, 1, ' ', tabwriter.TabIndent)
 		fmt.Fprintf(w, "%s:\n", path.ID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Src.ChainID, rpath.Src.PortID, rpath.Src.ChannelID)
-		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", rpath.Dst.ChainID, rpath.Dst.PortID, rpath.Dst.ChannelID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Src.ChainID, path.Src.PortID, path.Src.ChannelID)
+		fmt.Fprintf(w, "   \t%s\t>\t(port: %s)\t(channel: %s)\n", path.Dst.ChainID, path.Dst.PortID, path.Dst.ChannelID)
 		fmt.Fprintln(w)
 		w.Flush()
 	}
 
 	printSection("Listening and relaying packets between chains...")
 
-	return xrelayer.Start(cmd.Context(), pathsToUse...)
+	return xrelayer.Start(cmd.Context(), append(linkedPaths, alreadyLinkedPaths...)...)
 }

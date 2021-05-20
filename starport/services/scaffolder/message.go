@@ -1,18 +1,20 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 // AddMessage adds a new message to scaffolded app
 func (s *Scaffolder) AddMessage(
+	tracer *placeholder.Tracer,
 	moduleName,
 	msgName,
 	msgDesc string,
@@ -58,7 +60,9 @@ func (s *Scaffolder) AddMessage(
 	)
 
 	// Check and support MsgServer convention
-	if err := supportMsgServer(
+	var gens []*genny.Generator
+	g, err = supportMsgServer(
+		tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -66,18 +70,21 @@ func (s *Scaffolder) AddMessage(
 			AppName:    opts.AppName,
 			OwnerName:  opts.OwnerName,
 		},
-	); err != nil {
-		return err
-	}
-
-	// Scaffold
-	g, err = message.NewStargate(opts)
+	)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	if g != nil {
+		gens = append(gens, g)
+	}
+
+	// Scaffold
+	g, err = message.NewStargate(tracer, opts)
+	if err != nil {
+		return err
+	}
+	gens = append(gens, g)
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
