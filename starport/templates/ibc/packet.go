@@ -295,7 +295,7 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.MsgSend%[2]v:
@@ -339,7 +339,7 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 
 		// Set import if not set yet
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.Replace(f.String(), module.Placeholder, replacement)
+		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
 
 		// Register the module packet
 		templateRegistry := `%[1]v

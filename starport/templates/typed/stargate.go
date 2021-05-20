@@ -53,7 +53,7 @@ func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Optio
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.MsgCreate%[2]v:

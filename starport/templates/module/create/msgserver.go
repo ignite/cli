@@ -51,7 +51,7 @@ func handlerPatch(replacer placeholder.Replacer, moduleName string) genny.RunFn 
 		old := "func NewHandler(k keeper.Keeper) sdk.Handler {"
 		new := fmt.Sprintf(`%v
 %v`, old, typed.PlaceholderHandlerMsgServer)
-		content := replacer.Replace(f.String(), old, new)
+		content := replacer.ReplaceOnce(f.String(), old, new)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
