@@ -142,9 +142,11 @@ func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options)
 			return err
 		}
 		replacement := `"context"`
-		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
+		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacement)
+
 		replacement = `types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))`
-		content = replacer.Replace(content, typed.Placeholder2, replacement)
+		content = replacer.ReplaceOnce(content, typed.Placeholder2, replacement)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -214,10 +216,9 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
-		templateTypesImport := fmt.Sprintf(`"fmt" %s`, typed.PlaceholderGenesisTypesImport)
-		if !strings.Contains(content, templateTypesImport) {
-			content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
-		}
+		templateTypesImport := `"fmt"`
+		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
+
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, typed.PlaceholderGenesisTypesDefault, strings.Title(opts.TypeName))
@@ -363,7 +364,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.Replace(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.MsgCreate%[2]v:
@@ -413,9 +414,11 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 			return err
 		}
 
+		content := f.String()
+
 		// Import
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
+		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
 
 		// Concrete
 		templateConcrete := `%[1]v

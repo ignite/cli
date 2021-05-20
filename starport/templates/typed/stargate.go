@@ -222,9 +222,9 @@ func (t *typedStargate) moduleGRPCGatewayModify(replacer placeholder.Replacer, o
 			return err
 		}
 		replacement := `"context"`
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
 		replacement = `types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))`
-		content = replacer.Replace(content, Placeholder2, replacement)
+		content = replacer.ReplaceOnce(content, Placeholder2, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -258,7 +258,7 @@ func (t *typedStargate) typesCodecModify(replacer placeholder.Replacer, opts *Op
 
 		// Import
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.Replace(f.String(), Placeholder, replacementImport)
+		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
 
 		// Concrete
 		templateConcrete := `%[1]v

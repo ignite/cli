@@ -59,10 +59,9 @@ func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *
 
 		content := PatchGenesisTypeImport(replacer, f.String())
 
-		templateTypesImport := fmt.Sprintf(`"fmt" %s`, PlaceholderGenesisTypesImport)
-		if !strings.Contains(content, templateTypesImport) {
-			content = replacer.Replace(content, PlaceholderGenesisTypesImport, templateTypesImport)
-		}
+		templateTypesImport := `"fmt"`
+		content = replacer.ReplaceOnce(content, PlaceholderGenesisTypesImport, templateTypesImport)
+
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(

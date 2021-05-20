@@ -97,6 +97,7 @@ func New(opts ...Option) *Tracer {
 
 type Replacer interface {
 	Replace(content, placeholder, replacement string) string
+	ReplaceOnce(content, placeholder, replacement string) string
 }
 
 // Tracer keeps track of missing placeholders.
@@ -114,6 +115,14 @@ func (t *Tracer) Replace(content, placeholder, replacement string) string {
 		return content
 	}
 	return strings.Replace(content, placeholder, replacement, 1)
+}
+
+// ReplaceOnce will replace placeholder in content only if replacement is not already found in content.
+func (t *Tracer) ReplaceOnce(content, placeholder, replacement string) string {
+	if !strings.Contains(content, replacement) {
+		return t.Replace(content, placeholder, replacement)
+	}
+	return content
 }
 
 // Err if any of the placeholders were missing during execution.
