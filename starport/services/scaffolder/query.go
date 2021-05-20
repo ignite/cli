@@ -5,6 +5,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/query"
 )
 
@@ -60,7 +61,7 @@ func (s *Scaffolder) AddQuery(
 	if err != nil {
 		return err
 	}
-	if err := runWithValidation(s.tracer, g); err != nil {
+	if err := xgenny.RunWithValidation(s.tracer, g); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

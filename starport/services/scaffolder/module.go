@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
@@ -127,7 +128,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 		}
 		gens = append(gens, g)
 	}
-	if err := runWithValidation(s.tracer, gens...); err != nil {
+	if err := xgenny.RunWithValidation(s.tracer, gens...); err != nil {
 		return err
 	}
 
@@ -172,7 +173,7 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return err
 	}
 
-	if err := runWithValidation(s.tracer, g); err != nil {
+	if err := xgenny.RunWithValidation(s.tracer, g); err != nil {
 		return err
 	}
 

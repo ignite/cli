@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
@@ -92,7 +93,7 @@ func (s *Scaffolder) AddType(
 		return err
 	}
 	gens = append(gens, g)
-	if err := runWithValidation(s.tracer, gens...); err != nil {
+	if err := xgenny.RunWithValidation(s.tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

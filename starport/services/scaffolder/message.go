@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -81,7 +82,7 @@ func (s *Scaffolder) AddMessage(
 		return err
 	}
 	gens = append(gens, g)
-	if err := runWithValidation(s.tracer, gens...); err != nil {
+	if err := xgenny.RunWithValidation(s.tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
