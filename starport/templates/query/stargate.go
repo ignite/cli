@@ -5,19 +5,20 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
-func NewStargate(opts *Options) (*genny.Generator, error) {
+func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(protoQueryModify(opts))
-	g.RunFn(cliQueryModify(opts))
+	g.RunFn(protoQueryModify(replacer, opts))
+	g.RunFn(cliQueryModify(replacer, opts))
 
 	return g, Box(stargateTemplate, opts, g)
 }
 
-func protoQueryModify(opts *Options) genny.RunFn {
+func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -40,7 +41,7 @@ func protoQueryModify(opts *Options) genny.RunFn {
 			opts.AppName,
 			opts.ModuleName,
 		)
-		content := strings.Replace(f.String(), Placeholder2, replacementRPC, 1)
+		content := replacer.Replace(f.String(), Placeholder2, replacementRPC)
 
 		// Fields for request
 		var reqFields string
@@ -75,14 +76,14 @@ message Query%[2]vResponse {
 			reqFields,
 			resFields,
 		)
-		content = strings.Replace(content, Placeholder3, replacementMessages, 1)
+		content = replacer.Replace(content, Placeholder3, replacementMessages)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func cliQueryModify(opts *Options) genny.RunFn {
+func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -99,7 +100,7 @@ func cliQueryModify(opts *Options) genny.RunFn {
 			Placeholder,
 			strings.Title(opts.QueryName),
 		)
-		content := strings.Replace(f.String(), Placeholder, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder, replacement)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

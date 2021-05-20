@@ -17,6 +17,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
@@ -67,7 +69,7 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOption) error {
+func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string, options ...ModuleCreationOption) error {
 	// Apply the options
 	var creationOpts moduleCreationOptions
 	for _, apply := range options {
@@ -113,27 +115,22 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	)
 
 	// Generator from Cosmos SDK version
-	g, err = modulecreate.NewStargate(opts)
+	g, err = modulecreate.NewStargate(tracer, opts)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
-		return err
-	}
+	gens := []*genny.Generator{g}
 
 	// Scaffold IBC module
 	if creationOpts.ibc {
-		g, err = modulecreate.NewIBC(opts)
+		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
 			return err
 		}
-		run := genny.WetRunner(context.Background())
-		run.With(g)
-		if err := run.Run(); err != nil {
-			return err
-		}
+		gens = append(gens, g)
+	}
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
+		return err
 	}
 
 	// Generate proto and format the source
@@ -148,7 +145,7 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(name string) error {
+func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) error {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return errors.New("module cannot be imported. Supported module: wasm")
@@ -162,31 +159,31 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return errors.New("wasm is already imported")
 	}
 
-	// import a specific version of ComsWasm
-	if err := s.installWasm(); err != nil {
-		return err
-	}
-
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
 
 	// run generator
-	g, err := moduleimport.NewStargate(&moduleimport.ImportOptions{
+	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
 		Feature:          name,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,
 	})
-
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+
+	if err := xgenny.RunWithValidation(tracer, g); err != nil {
 		return err
 	}
+
+	// import a specific version of ComsWasm
+	// NOTE(dshulyak) it must be installed after validation
+	if err := s.installWasm(); err != nil {
+		return err
+	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err

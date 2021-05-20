@@ -1,13 +1,14 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
@@ -27,6 +28,7 @@ type AddTypeOption struct {
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddType(
+	tracer *placeholder.Tracer,
 	addTypeOptions AddTypeOption,
 	moduleName,
 	typeName string,
@@ -62,9 +64,11 @@ func (s *Scaffolder) AddType(
 			Fields:     tFields,
 			NoMessage:  addTypeOptions.NoMessage,
 		}
+		gens []*genny.Generator
 	)
 	// Check and support MsgServer convention
-	if err := supportMsgServer(
+	g, err = supportMsgServer(
+		tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -72,23 +76,26 @@ func (s *Scaffolder) AddType(
 			AppName:    opts.AppName,
 			OwnerName:  opts.OwnerName,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return err
+	}
+	if g != nil {
+		gens = append(gens, g)
 	}
 
 	// Check if indexed type
 	if addTypeOptions.Indexed {
-		g, err = indexed.NewStargate(opts)
+		g, err = indexed.NewStargate(tracer, opts)
 	} else {
 		// Scaffolding a type with ID
-		g, err = typed.NewStargate(opts)
+		g, err = typed.NewStargate(tracer, opts)
 	}
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	gens = append(gens, g)
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()

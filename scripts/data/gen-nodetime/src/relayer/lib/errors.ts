@@ -1,0 +1,15 @@
+export default {
+	PathNotExists 						: new Error("path does not exist"),
+	PathsNotDefined 					: new Error("no paths are defined"),
+	EndpointExistsWithDifferentChainID	: new Error("rpc endpoint already exists with a different chain id"),
+	ConfigFolderFailed 					: m =>  new Error(`could not create config folder: ${m}`),
+	ConfigWriteFailed 					: m => new Error(`failed writing config: ${m}`),
+	ConfigReadFailed 					: m => new Error(`failed reading config: ${m}`),
+	ChainSetupFailed 					: m => new Error(`could not setup chain: ${m}`),
+	ChainNotFound 						: m => new Error(`chain not found: ${m}`),
+	PathSetupFailed 					: m => new Error(`could not create path: ${m}`),
+	PathNotLinked 						: m => new Error(`path is not linked: ${m}`),
+	PathLinkFailed 						: m => new Error(`could not link path: ${m}`),
+	NotEnoughBalance 					: m => new Error(`not enough balance. you need at least: ${m}`),
+	RelayPacketError 					: m => new Error(`error relaying packets: ${m}`),
+}
