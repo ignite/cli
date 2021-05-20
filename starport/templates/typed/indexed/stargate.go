@@ -212,11 +212,12 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := typed.PatchGenesisTypeImport(f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
-		templateTypesImport := `"fmt"`
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
-
+		templateTypesImport := fmt.Sprintf(`"fmt" %s`, typed.PlaceholderGenesisTypesImport)
+		if !strings.Contains(content, templateTypesImport) {
+			content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
+		}
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, typed.PlaceholderGenesisTypesDefault, strings.Title(opts.TypeName))

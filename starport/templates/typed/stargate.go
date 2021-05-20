@@ -23,7 +23,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(t.clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
-	t.genesisModify(opts, g)
+	t.genesisModify(replacer, opts, g)
 
 	if !opts.NoMessage {
 		// Modifications for new messages
