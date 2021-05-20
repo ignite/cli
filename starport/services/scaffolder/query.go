@@ -2,9 +2,7 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -29,34 +27,16 @@ func (s *Scaffolder) AddQuery(
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
-
-	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(queryName) {
-		return fmt.Errorf("%s can't be used as a message name", queryName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, queryName)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", queryName)
 	}
 
 	// Parse provided fields
-	parsedReqFields, err := parseFields(reqFields, isGoReservedWord)
+	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resFields, isGoReservedWord)
+	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -94,26 +74,4 @@ func (s *Scaffolder) AddQuery(
 		return err
 	}
 	return fmtProject(pwd)
-}
-
-// isQueryCreated checks if the message is already scaffolded
-func isQueryCreated(appPath, moduleName, queryName string) (isCreated bool, err error) {
-	absPath, err := filepath.Abs(filepath.Join(
-		appPath,
-		moduleDir,
-		moduleName,
-		keeperDirectory,
-		"grpc_query_"+queryName+".go",
-	))
-	if err != nil {
-		return false, err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		// Query doesn't exist
-		return false, nil
-	}
-
-	return true, err
 }

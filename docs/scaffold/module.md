@@ -5,7 +5,7 @@ description: Generate code for new modules in your blockchain.
 
 # Module Scaffold
 
-Modules are the building blocks of Cosmos SDK blockchains. Modules encapsulate logic and allow sharing functionality between projects. To learn about building modules, see the [Introduction to SDK Modules](https://docs.cosmos.network/master/building-modules/intro.html).
+Modules are the building blocks of Cosmos SDK blockchains. Modules encapsulate logic and allow sharing functionality between projects. To learn about building modules, see the [Introduction to SDK Modules](https://docs.cosmos.network/master/building-modules/index.html).
 
 ## Create Modules
 

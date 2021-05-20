@@ -70,12 +70,13 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		}
 		template = `%[1]v
 		%[3]v
-		%[2]vKeeper %[2]vkeeper.Keeper`
+		%[4]vKeeper %[2]vkeeper.Keeper`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDeclaration,
 			opts.ModuleName,
 			scopedKeeperDeclaration,
+			strings.Title(opts.ModuleName),
 		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement, 1)
 
@@ -96,19 +97,20 @@ func appModifyStargate(opts *CreateOptions) genny.RunFn {
 		}
 		template = `%[1]v
 		%[3]v
-		app.%[2]vKeeper = *%[2]vkeeper.NewKeeper(
+		app.%[5]vKeeper = *%[2]vkeeper.NewKeeper(
 			appCodec,
 			keys[%[2]vtypes.StoreKey],
 			keys[%[2]vtypes.MemStoreKey],
 			%[4]v
 		)
-		%[2]vModule := %[2]v.NewAppModule(appCodec, app.%[2]vKeeper)`
+		%[2]vModule := %[2]v.NewAppModule(appCodec, app.%[5]vKeeper)`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDefinition,
 			opts.ModuleName,
 			scopedKeeperDefinition,
 			ibcKeeperArgument,
+			strings.Title(opts.ModuleName),
 		)
 		content = strings.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement, 1)
 
