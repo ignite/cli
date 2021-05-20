@@ -5,6 +5,7 @@ import (
 
 	"github.com/gorilla/mux"
 	"github.com/rs/cors"
+	"github.com/tendermint/starport/starport/pkg/openapiconsole"
 )
 
 // ServeHTTP implements http.Handler to expose the functionality of Faucet.Transfer() via HTTP.
@@ -18,7 +19,7 @@ func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router.Handle("/info", cors.Default().Handler(http.HandlerFunc(f.faucetInfoHandler))).
 		Methods(http.MethodGet)
 
-	router.HandleFunc("/", f.openAPIIndexHandler).
+	router.HandleFunc("/", openapiconsole.Handler("Faucet", "openapi.yml")).
 		Methods(http.MethodGet)
 
 	router.HandleFunc("/openapi.yml", f.openAPISpecHandler).

@@ -24,6 +24,9 @@ const (
 	// CommandSTA is https://github.com/acacode/swagger-typescript-api.
 	CommandSTA CommandName = "sta"
 
+	// CommandSwaggerCombine is https://www.npmjs.com/package/swagger-combine.
+	CommandSwaggerCombine CommandName = "swagger-combine"
+
 	// CommandIBCSetup is https://github.com/confio/ts-relayer/blob/main/spec/ibc-setup.md.
 	CommandIBCSetup = "ibc-setup"
 
