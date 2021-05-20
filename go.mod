@@ -17,6 +17,7 @@ require (
 	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
+	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/packd v1.0.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
@@ -28,12 +29,10 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.11
-	github.com/improbable-eng/grpc-web v0.13.0
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.1.0
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
-	github.com/mwitkow/grpc-proxy v0.0.0-20181017164139-0f1106ef9c76
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.4.2
 	github.com/pelletier/go-toml v1.8.1
@@ -53,7 +52,6 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
-	google.golang.org/grpc v1.35.0
 )
 
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1

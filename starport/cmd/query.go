@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -64,7 +65,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.AddQuery(module, args[0], desc, args[1:], resFields, paginated); err != nil {
+	if err := sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated); err != nil {
 		return err
 	}
 

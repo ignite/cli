@@ -1,13 +1,11 @@
 package starportcmd
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -34,10 +32,6 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if err := sc.ImportModule(placeholder.New(), name); err != nil {
-		var valerr validation.Error
-		if errors.As(err, &valerr) {
-			return errors.New(valerr.ValidationInfo())
-		}
 		return err
 	}
 

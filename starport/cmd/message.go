@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -59,7 +60,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.AddMessage(module, args[0], desc, args[1:], resFields); err != nil {
+	if err := sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields); err != nil {
 		return err
 	}
 

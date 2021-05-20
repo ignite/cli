@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -47,7 +48,7 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.AddType(opts, module, args[0], args[1:]...); err != nil {
+	if err := sc.AddType(placeholder.New(), opts, module, args[0], args[1:]...); err != nil {
 		return err
 	}
 
