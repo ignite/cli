@@ -34,7 +34,7 @@ const (
 	defaultSourceRPCAddress = "http://localhost:26657"
 	defaultTargetRPCAddress = "https://rpc.cosmos.network:443"
 
-	defautSourceGasPrice      = "0.025stake"
+	defautSourceGasPrice      = "0.00025stake"
 	defautTargetGasPrice      = "0.025uatom"
 	defautSourceAddressPrefix = "cosmos"
 	defautTargetAddressPrefix = "cosmos"
