@@ -22,8 +22,11 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.8.0
+	github.com/google/go-cmp v0.5.5 // indirect
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
+	github.com/gorilla/rpc v1.2.0
+	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.11
 	github.com/jpillora/chisel v1.7.3
@@ -45,8 +48,9 @@ require (
 	github.com/tendermint/tendermint v0.34.9
 	github.com/tendermint/vue v0.1.48
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect
-	golang.org/x/mod v0.4.1
+	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
+	golang.org/x/sys v0.0.0-20210319071255-635bc2c9138d // indirect
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 )
 

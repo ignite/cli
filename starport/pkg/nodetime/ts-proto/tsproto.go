@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 	"sync"
 
 	"github.com/tendermint/starport/starport/pkg/nodetime"
@@ -23,9 +24,14 @@ var (
 // protoc is very picky about binary names of its plugins. for ts-proto, binary name
 // will be protoc-gen-ts_proto.
 // see why: https://github.com/stephenh/ts-proto/blob/7f76c05/README.markdown#quickstart.
-func BinaryPath() (path string, err error) {
+func BinaryPath() (path string, cleanup func(), err error) {
+	cleanup = func() {}
+
 	once.Do(func() {
-		if err = nodetime.PlaceBinary(); err != nil {
+		var command []string
+
+		command, cleanup, err = nodetime.Command(nodetime.CommandTSProto)
+		if err != nil {
 			return
 		}
 
@@ -34,11 +40,11 @@ func BinaryPath() (path string, err error) {
 
 		// comforting protoc by giving protoc-gen-ts_proto name to the plugin's binary.
 		script := fmt.Sprintf(`#!/bin/bash
-%s ts-proto "$@"
-`, nodetime.BinaryPath)
+%s "$@"
+`, strings.Join(command, " "))
 
 		err = os.WriteFile(binaryPath, []byte(script), 0755)
 	})
 
-	return binaryPath, err
+	return binaryPath, cleanup, err
 }
