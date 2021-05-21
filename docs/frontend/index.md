@@ -14,7 +14,9 @@ The frontend app is built using the `@starport/vue` and `@starport/vuex` package
 
 ## Client Code Generation
 
-JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules. To enable client code generation, add the `client` entries to `config.yml`:
+JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules. 
+
+To enable client code generation, add the `client` entries to `config.yml`:
 
 ```yaml
 client:
@@ -26,6 +28,8 @@ A Vuex client is generated in the `js` directory. JS and TS clients are also gen
 
 ## Client Code Regeneration
 
-By default, the filesystem is watched and the clients are regenerated automatically. Clients for standard Cosmos SDK modules are generated once when you scaffold a blockchain.
+By default, the filesystem is watched and the clients are regenerated automatically. Clients for standard Cosmos SDK modules are generated after you scaffold a blockchain.
 
-To regenerate all clients for custom and standard Cosmos SDK modules, run the `starport serve --reset-once --rebuild-proto-once` command.
+To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
+
+`starport serve --reset-once --rebuild-proto-once` 
