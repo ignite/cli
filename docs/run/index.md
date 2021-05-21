@@ -10,7 +10,7 @@ parent:
 
 One of your first actions is to start your blockchain. To start your blockchain, use the `starport serve` command.
 
-## The magic of `starport serve`
+## The Magic of `starport serve`
 
 The `starport serve` command performs the following tasks:
 
@@ -33,7 +33,7 @@ The `starport serve` command performs the following tasks:
 
 The `starport serve` command starts a fully operational blockchain. You can use flags to configure how the blockchain runs. All flags are optional.
 
-## Define how your blockchain starts
+## Define How Your Blockchain Starts
 
 
 Flags for the `starport serve` command determine how your blockchain starts:
