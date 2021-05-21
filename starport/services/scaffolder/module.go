@@ -125,6 +125,7 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
+
 	runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {

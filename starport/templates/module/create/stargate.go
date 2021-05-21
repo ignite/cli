@@ -40,6 +40,9 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
 	g := genny.New()
 	g.RunFn(appModifyStargate(replacer, opts))
+	if opts.IsIBC {
+		g.RunFn(appIBCModify(replacer, opts))
+	}
 	return g
 }
 

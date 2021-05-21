@@ -55,14 +55,14 @@ func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),

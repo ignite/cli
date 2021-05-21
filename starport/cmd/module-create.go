@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	flagIBC         = "ibc"
-	flagIBCOrdering = "ordering"
+	flagIBC                 = "ibc"
+	flagIBCOrdering         = "ordering"
+	flagRequireRegistration = "require-registration"
 )
 
 var ibcRouterPlaceholderInstruction = fmt.Sprintf(`
@@ -54,6 +55,7 @@ func NewModuleCreate() *cobra.Command {
 	}
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
+	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
 	return c
 }
 
@@ -71,6 +73,10 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	ibcOrdering, err := cmd.Flags().GetString(flagIBCOrdering)
+	if err != nil {
+		return err
+	}
+	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
 	if err != nil {
 		return err
 	}
@@ -93,7 +99,7 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 			fmt.Print(ibcRouterPlaceholderInstruction)
 		}
 		var validationErr validation.Error
-		if errors.As(err, &validationErr) {
+		if !requireRegistration && errors.As(err, &validationErr) {
 			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)
 			fmt.Fprintln(&msg, validationErr.ValidationInfo())
 		} else {
