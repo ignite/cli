@@ -23,7 +23,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(keysModify(replacer, opts))
 	g.RunFn(keeperModify(replacer, opts))
-	g.RunFn(appModify(replacer, opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -224,7 +223,7 @@ scopedKeeper:  scopedKeeper,`
 	}
 }
 
-func appModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := module.PathAppGo
 		f, err := r.Disk.Find(path)

@@ -43,7 +43,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo"),
+			step.Exec("starport", "module", "create", "foo", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

@@ -93,7 +93,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -153,7 +153,7 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

@@ -18,6 +18,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
@@ -70,12 +71,6 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string, options ...ModuleCreationOption) error {
-	// Apply the options
-	var creationOpts moduleCreationOptions
-	for _, apply := range options {
-		apply(&creationOpts)
-	}
-
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -84,45 +79,43 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if ok {
 		return fmt.Errorf("the module %v already exists", moduleName)
 	}
+
+	// Apply the options
+	var creationOpts moduleCreationOptions
+	for _, apply := range options {
+		apply(&creationOpts)
+	}
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
-
-	// Check if the IBC module can be scaffolded
-	if creationOpts.ibc {
-		// Old scaffolded apps miss a necessary placeholder, we give instruction for the change
+	opts := &modulecreate.CreateOptions{
+		ModuleName:  moduleName,
+		ModulePath:  path.RawPath,
+		AppName:     path.Package,
+		OwnerName:   owner(path.RawPath),
+		IsIBC:       creationOpts.ibc,
+		IBCOrdering: creationOpts.ibcChannelOrdering,
+	}
+	if opts.IsIBC {
 		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
 		if err != nil {
 			return err
 		}
-
 		if !ibcPlaceholder {
 			return ErrNoIBCRouterPlaceholder
 		}
 	}
 
-	var (
-		g    *genny.Generator
-		opts = &modulecreate.CreateOptions{
-			ModuleName:  moduleName,
-			ModulePath:  path.RawPath,
-			AppName:     path.Package,
-			OwnerName:   owner(path.RawPath),
-			IsIBC:       creationOpts.ibc,
-			IBCOrdering: creationOpts.ibcChannelOrdering,
-		}
-	)
-
 	// Generator from Cosmos SDK version
-	g, err = modulecreate.NewStargate(tracer, opts)
+	g, err := modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
 	gens := []*genny.Generator{g}
 
 	// Scaffold IBC module
-	if creationOpts.ibc {
+	if opts.IsIBC {
 		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
 			return err
@@ -133,12 +126,21 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 		return err
 	}
 
+	runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	var validationErr validation.Error
+	if runErr != nil && !errors.As(runErr, &validationErr) {
+		return runErr
+	}
+
 	// Generate proto and format the source
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	return s.finish(pwd, path.RawPath)
+	if err := s.finish(pwd, path.RawPath); err != nil {
+		return err
+	}
+	return runErr
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
