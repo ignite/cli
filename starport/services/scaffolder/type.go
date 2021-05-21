@@ -102,10 +102,7 @@ func (s *Scaffolder) AddType(
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field

@@ -91,10 +91,7 @@ func (s *Scaffolder) AddMessage(
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
