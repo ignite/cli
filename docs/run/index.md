@@ -26,8 +26,6 @@ The `starport serve` command performs the following tasks:
   - Tendermint RPC
   - Cosmos SDK API
   - Faucet, optional
-  - Welcome screen
-  - Web scaffold, optional
 
 - Watches for file changes and restarts
 
