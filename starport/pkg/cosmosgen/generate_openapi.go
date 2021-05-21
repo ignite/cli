@@ -56,6 +56,9 @@ func generateOpenAPISpec(g *generator) error {
 			include,
 			openAPIOut,
 		)
+		if err != nil {
+			return err
+		}
 
 		specDirs = append(specDirs, dir)
 
