@@ -28,6 +28,7 @@ require (
 	github.com/gorilla/rpc v1.2.0
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/iancoleman/strcase v0.1.3
+	github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9 // indirect
 	github.com/imdario/mergo v0.3.11
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.1.0

@@ -103,11 +103,19 @@ type Proto struct {
 type Client struct {
 	// Vuex configures code generation for Vuex.
 	Vuex Vuex `yaml:"vuex"`
+
+	// OpenAPI configures OpenAPI spec generation for API.
+	OpenAPI OpenAPI `yaml:"openapi"`
 }
 
 // Vuex configures code generation for Vuex.
 type Vuex struct {
 	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
+}
+
+// OpenAPI configures OpenAPI spec generation for API.
+type OpenAPI struct {
 	Path string `yaml:"path"`
 }
 

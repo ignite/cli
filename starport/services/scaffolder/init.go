@@ -142,6 +142,9 @@ func (s *Scaffolder) protoc(projectPath, gomodPath string) error {
 			),
 		)
 	}
+	if conf.Client.OpenAPI.Path != "" {
+		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+	}
 
 	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
 }

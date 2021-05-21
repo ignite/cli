@@ -89,9 +89,13 @@ import "%s/%s.proto";`
 
 		// Add the service
 		templateService := `%[1]v
+
+	// Queries a %[3]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{index}";
 	}
+
+	// Queries a list of %[3]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}

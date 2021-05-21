@@ -169,6 +169,9 @@ func (c *Chain) buildProto(ctx context.Context) error {
 			),
 		)
 	}
+	if conf.Client.OpenAPI.Path != "" {
+		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+	}
 
 	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
