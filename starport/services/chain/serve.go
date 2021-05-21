@@ -442,11 +442,11 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at %s\n", xurl.HTTP(conf.FaucetHost(config)))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
 	}
 
 	return g.Wait()
