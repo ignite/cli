@@ -1,11 +1,15 @@
 package starportcmd
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
 )
@@ -80,19 +84,19 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	var msg bytes.Buffer
+	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 	if err := sc.CreateModule(placeholder.New(), name, options...); err != nil {
-
-		// If this is an old scaffolded application that doesn't contain the necessary placeholder
-		// We give instruction to the user to modify the application
-		if err == scaffolder.ErrNoIBCRouterPlaceholder {
-			fmt.Print(ibcRouterPlaceholderInstruction)
+		var validationErr validation.Error
+		if errors.As(err, &validationErr) {
+			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)
+			fmt.Fprintln(&msg, validationErr.ValidationInfo())
+		} else {
+			return err
 		}
-
-		return err
 	}
-
 	s.Stop()
 
-	fmt.Printf("\n🎉 Module created %s.\n\n", name)
+	_, _ = io.Copy(cmd.OutOrStdout(), &msg)
 	return nil
 }

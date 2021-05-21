@@ -79,16 +79,21 @@ func (s *Scaffolder) generate(tracer *placeholder.Tracer, pathInfo gomodulepath.
 	}
 
 	// generate module template
-	g, err = modulecreate.NewStargate(tracer, &modulecreate.CreateOptions{
+	opts := &modulecreate.CreateOptions{
 		ModuleName: pathInfo.Package, // App name
 		ModulePath: pathInfo.RawPath,
 		AppName:    pathInfo.Package,
 		OwnerName:  owner(pathInfo.RawPath),
 		IsIBC:      false,
-	})
+	}
+	g, err = modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
+		return err
+	}
+	g = modulecreate.NewStargateAppModify(tracer, opts)
 	if err := run(genny.WetRunner(context.Background()), g); err != nil {
 		return err
 	}

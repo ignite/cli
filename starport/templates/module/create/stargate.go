@@ -13,11 +13,8 @@ import (
 )
 
 // NewStargate returns the generator to scaffold a module inside a Stargate app
-func NewStargate(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
+func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
-
-	g.RunFn(appModifyStargate(replacer, opts))
-
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}
@@ -37,6 +34,13 @@ func NewStargate(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gen
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
+}
+
+// NewStargateAppModify returns generator with modifications required to register a module in the app.
+func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *genny.Generator {
+	g := genny.New()
+	g.RunFn(appModifyStargate(replacer, opts))
+	return g
 }
 
 // app.go modification on Stargate when creating a module

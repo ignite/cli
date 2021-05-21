@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -19,13 +18,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
-	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
-)
-
-var (
-	ErrNoIBCRouterPlaceholder = errors.New("app.go doesn't contain the necessary placeholder to generate an IBC module")
 )
 
 const (
@@ -70,12 +64,6 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 
 // CreateModule creates a new empty module in the scaffolded app
 func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string, options ...ModuleCreationOption) error {
-	// Apply the options
-	var creationOpts moduleCreationOptions
-	for _, apply := range options {
-		apply(&creationOpts)
-	}
-
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -84,45 +72,34 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if ok {
 		return fmt.Errorf("the module %v already exists", moduleName)
 	}
+
+	// Apply the options
+	var creationOpts moduleCreationOptions
+	for _, apply := range options {
+		apply(&creationOpts)
+	}
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
-
-	// Check if the IBC module can be scaffolded
-	if creationOpts.ibc {
-		// Old scaffolded apps miss a necessary placeholder, we give instruction for the change
-		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
-		if err != nil {
-			return err
-		}
-
-		if !ibcPlaceholder {
-			return ErrNoIBCRouterPlaceholder
-		}
+	opts := &modulecreate.CreateOptions{
+		ModuleName:  moduleName,
+		ModulePath:  path.RawPath,
+		AppName:     path.Package,
+		OwnerName:   owner(path.RawPath),
+		IsIBC:       creationOpts.ibc,
+		IBCOrdering: creationOpts.ibcChannelOrdering,
 	}
 
-	var (
-		g    *genny.Generator
-		opts = &modulecreate.CreateOptions{
-			ModuleName:  moduleName,
-			ModulePath:  path.RawPath,
-			AppName:     path.Package,
-			OwnerName:   owner(path.RawPath),
-			IsIBC:       creationOpts.ibc,
-			IBCOrdering: creationOpts.ibcChannelOrdering,
-		}
-	)
-
 	// Generator from Cosmos SDK version
-	g, err = modulecreate.NewStargate(tracer, opts)
+	g, err := modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
 	gens := []*genny.Generator{g}
 
 	// Scaffold IBC module
-	if creationOpts.ibc {
+	if opts.IsIBC {
 		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
 			return err
@@ -132,13 +109,17 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
+	err1 := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
 
 	// Generate proto and format the source
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	return s.finish(pwd, path.RawPath)
+	if err := s.finish(pwd, path.RawPath); err != nil {
+		return err
+	}
+	return err1
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -244,21 +225,4 @@ func (s *Scaffolder) installWasm() error {
 	default:
 		return errors.New("version not supported")
 	}
-}
-
-// checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter
-// this placeholder is necessary to scaffold a new IBC module
-// if it doesn't exist, we give instruction to add it to the user
-func checkIBCRouterPlaceholder(appPath string) (bool, error) {
-	appGo, err := filepath.Abs(filepath.Join(appPath, module.PathAppGo))
-	if err != nil {
-		return false, err
-	}
-
-	content, err := ioutil.ReadFile(appGo)
-	if err != nil {
-		return false, err
-	}
-
-	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
 }
