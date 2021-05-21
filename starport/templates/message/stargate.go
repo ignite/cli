@@ -5,24 +5,25 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
 // NewStargate returns the generator to scaffold a empty message in a Stargate module
-func NewStargate(opts *Options) (*genny.Generator, error) {
+func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(handlerModify(opts))
-	g.RunFn(protoTxRPCModify(opts))
-	g.RunFn(protoTxMessageModify(opts))
-	g.RunFn(typesCodecModify(opts))
-	g.RunFn(typesCodecImportModify(opts))
-	g.RunFn(typesCodecInterfaceModify(opts))
-	g.RunFn(clientCliTxModify(opts))
+	g.RunFn(handlerModify(replacer, opts))
+	g.RunFn(protoTxRPCModify(replacer, opts))
+	g.RunFn(protoTxMessageModify(replacer, opts))
+	g.RunFn(typesCodecModify(replacer, opts))
+	g.RunFn(typesCodecImportModify(replacer, opts))
+	g.RunFn(typesCodecInterfaceModify(replacer, opts))
+	g.RunFn(clientCliTxModify(replacer, opts))
 
 	return g, Box(stargateTemplate, opts, g)
 }
 
-func handlerModify(opts *Options) genny.RunFn {
+func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -32,7 +33,7 @@ func handlerModify(opts *Options) genny.RunFn {
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := strings.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer, 1)
+		content := replacer.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.Msg%[2]v:
@@ -43,13 +44,13 @@ func handlerModify(opts *Options) genny.RunFn {
 			Placeholder,
 			strings.Title(opts.MsgName),
 		)
-		content = strings.Replace(content, Placeholder, replacementHandlers, 1)
+		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func protoTxRPCModify(opts *Options) genny.RunFn {
+func protoTxRPCModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -61,13 +62,13 @@ func protoTxRPCModify(opts *Options) genny.RunFn {
 		replacement := fmt.Sprintf(template, PlaceholderProtoTxRPC,
 			strings.Title(opts.MsgName),
 		)
-		content := strings.Replace(f.String(), PlaceholderProtoTxRPC, replacement, 1)
+		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func protoTxMessageModify(opts *Options) genny.RunFn {
+func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -97,13 +98,13 @@ message Msg%[2]vResponse {
 			msgFields,
 			resFields,
 		)
-		content := strings.Replace(f.String(), PlaceholderProtoTxMessage, replacement, 1)
+		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func typesCodecImportModify(opts *Options) genny.RunFn {
+func typesCodecImportModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -111,13 +112,13 @@ func typesCodecImportModify(opts *Options) genny.RunFn {
 			return err
 		}
 		replacement := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := strings.Replace(f.String(), Placeholder, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func typesCodecModify(opts *Options) genny.RunFn {
+func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -128,13 +129,13 @@ func typesCodecModify(opts *Options) genny.RunFn {
 cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
 `
 		replacement := fmt.Sprintf(template, Placeholder2, strings.Title(opts.MsgName), opts.ModuleName)
-		content := strings.Replace(f.String(), Placeholder2, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder2, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func typesCodecInterfaceModify(opts *Options) genny.RunFn {
+func typesCodecInterfaceModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -146,13 +147,13 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]v{},
 )`
 		replacement := fmt.Sprintf(template, Placeholder3, strings.Title(opts.MsgName))
-		content := strings.Replace(f.String(), Placeholder3, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder3, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func clientCliTxModify(opts *Options) genny.RunFn {
+func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -163,7 +164,7 @@ func clientCliTxModify(opts *Options) genny.RunFn {
 	cmd.AddCommand(Cmd%[2]v())
 `
 		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.MsgName))
-		content := strings.Replace(f.String(), Placeholder, replacement, 1)
+		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
