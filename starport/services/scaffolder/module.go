@@ -18,6 +18,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
@@ -124,7 +125,11 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
-	err1 := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	var validationErr validation.Error
+	if runErr != nil && !errors.As(runErr, &validationErr) {
+		return runErr
+	}
 
 	// Generate proto and format the source
 	pwd, err := os.Getwd()
@@ -134,7 +139,7 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if err := s.finish(pwd, path.RawPath); err != nil {
 		return err
 	}
-	return err1
+	return runErr
 }
 
 // ImportModule imports specified module with name to the scaffolded app.

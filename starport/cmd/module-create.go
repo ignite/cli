@@ -102,6 +102,6 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 	s.Stop()
 
-	_, _ = io.Copy(cmd.OutOrStdout(), &msg)
+	io.Copy(cmd.OutOrStdout(), &msg)
 	return nil
 }
