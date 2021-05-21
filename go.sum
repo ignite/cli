@@ -474,6 +474,8 @@ github.com/hudl/fargo v1.3.0/go.mod h1:y3CKSmjA+wD2gak7sUSXTAoopbhU08POFhmITJgmK
 github.com/iancoleman/strcase v0.1.3 h1:dJBk1m2/qjL1twPLf68JND55vvivMupZ4wIzE8CTdBw=
 github.com/iancoleman/strcase v0.1.3/go.mod h1:SK73tn/9oHe+/Y0h39VT4UCxmurVJkR5NA7kMEAOgSE=
 github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible/go.mod h1:36xDpOWfOEZLx5a4Qra2Ntu7by75m/qwZZx9/YrPrtY=
+github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9 h1:ZDSezyPtsgJdIlGFqmH4QEITF9MUyqwd/foAtNMBVdU=
+github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9/go.mod h1:Cs2TNeb8t3Txy1Ro0eRtH62q6rmyyQ/+mnJ/DDgU3sY=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/imdario/mergo v0.3.11 h1:3tnifQM4i+fbajXKBHXWEH+KvNHqojZ778UH75j3bGA=
 github.com/imdario/mergo v0.3.11/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
