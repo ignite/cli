@@ -80,10 +80,7 @@ func (s *Scaffolder) AddPacket(
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

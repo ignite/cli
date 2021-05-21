@@ -138,10 +138,7 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -188,7 +185,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) error
 	if err != nil {
 		return err
 	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {
