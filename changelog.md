@@ -6,7 +6,7 @@
 
 - Added the ability to pass a genesis file and peer address to `starport network chain join`
 - Added the ability to show genesis or peer list with a flag in `starport network chain show`
-- `protoc` is now bundled with Starport CLI
+- `protoc` is now bundled with Starport CLI so installing Starport is easier
 - Starport is now published automatically on the Docker Hub
 - Keplr extension is supported on web apps created with Starport
 - Added tests to the scaffold
