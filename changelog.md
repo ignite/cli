@@ -8,8 +8,11 @@
 - The new `show` flag adds the ability to show `--genesis` and `--peers` list with `starport network chain show`
 - `protoc` is now bundled with Starport CLI so installing Starport is easier
 - Starport is now published automatically on the Docker Hub
+- `starport relayer` `configure` and `connect` commands now use the TypeScript relayer
 - Keplr extension is supported on web apps created with Starport
 - Added tests to the scaffold
+- Improved reliability of scaffolding by detecting placeholders
+- Added ability to scaffold modules in chains not created with Starport
 - Added the ability to scaffold Cosmos SDK queries
 - IBC relayer support is available on web apps created with Starport
 - New types without CRUD operations can be added with the `--no-message` flag in the `type` command
@@ -27,6 +30,7 @@
 
 - `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
 - Default scaffold no longer includes legacy REST API endpoints (thanks @bensooraj!)
+- Removed support for Cosmos SDK v0.39 Launchpad
 
 ## `v0.15.0`
 
