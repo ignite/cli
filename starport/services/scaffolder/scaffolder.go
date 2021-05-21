@@ -164,3 +164,20 @@ func fmtProject(path string) error {
 			),
 		)
 }
+
+func goModTidy(path string) error {
+	return cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(os.Stderr),
+			cmdrunner.DefaultWorkdir(path),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					gocmd.Name(),
+					"mod",
+					"tidy",
+				),
+			),
+		)
+}
