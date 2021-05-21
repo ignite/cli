@@ -2,11 +2,24 @@ package xgenny
 
 import (
 	"context"
+	"errors"
+	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
 )
+
+var _ validation.Error = (*dryRunError)(nil)
+
+type dryRunError struct {
+	error
+}
+
+func (d *dryRunError) ValidationInfo() string {
+	return d.Error()
+}
 
 func DryRunner(ctx context.Context) *genny.Runner {
 	runner := genny.DryRunner(context.Background())
@@ -21,6 +34,9 @@ func RunWithValidation(tracer *placeholder.Tracer, gens ...*genny.Generator) err
 	}
 	for _, gen := range gens {
 		if err := run(DryRunner(context.Background()), gen); err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				return &dryRunError{err}
+			}
 			return err
 		}
 		if err := tracer.Err(); err != nil {

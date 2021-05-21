@@ -35,8 +35,42 @@ func (g *generator) setup() (err error) {
 	}
 
 	g.deps, err = gomodule.ResolveDependencies(modfile)
+	if err != nil {
+		return err
+	}
 
-	return
+	// this is for user's app itself. it may contain custom modules. it is the first place to look for.
+	g.appModules, err = g.discoverModules(g.appPath)
+	if err != nil {
+		return err
+	}
+
+	// go through the Go dependencies (inside go.mod) of the user's app, some of them might be hosting
+	// Cosmos SDK modules that could be in use by user's blockchain.
+	//
+	// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
+	// SDK as well during this process.
+	//
+	// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
+	// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
+	// not use generated modules.
+	// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
+	//
+	// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
+	// at some point, it is a nice to have.
+	for _, dep := range g.deps {
+		path, err := gomodule.LocatePath(g.ctx, g.appPath, dep)
+		if err != nil {
+			return err
+		}
+		modules, err := g.discoverModules(path)
+		if err != nil {
+			return err
+		}
+		g.thirdModules[path] = append(g.thirdModules[path], modules...)
+	}
+
+	return nil
 }
 
 func (g *generator) resolveInclude(path string) (paths []string, err error) {
@@ -45,7 +79,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 		paths = append(paths, filepath.Join(path, p))
 	}
 
-	includePaths, err := protopath.ResolveDependencyPaths(g.deps,
+	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.appPath, g.deps,
 		protopath.NewModule(sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
 	if err != nil {
 		return nil, err

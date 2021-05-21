@@ -9,7 +9,7 @@ on:
 
 jobs:
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
 
     steps:
       - uses: actions/checkout@v2
@@ -19,14 +19,5 @@ jobs:
       - name: Install Starport
         run: go install ./...
 
-      # integration tests should run on Go 1.15 until following issue has solved:
-      # https://github.com/golang/go/issues/44129
-      - name: "Get Go 1.15"	
-        run: |	
-          go get golang.org/dl/go1.15	
-          go1.15 download	
-
       - name: Run Integration Tests
         run: ./scripts/test-integration 
-        env:
-          GONAME: "go1.15"
