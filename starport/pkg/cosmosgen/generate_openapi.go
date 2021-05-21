@@ -1,7 +1,6 @@
 package cosmosgen
 
 import (
-	"fmt"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -25,7 +24,7 @@ func generateOpenAPISpec(g *generator) error {
 		conf     = swaggercombine.Config{
 			Swagger: "2.0",
 			Info: swaggercombine.Info{
-				Title: fmt.Sprintf("API Console for %s", g.o.specName),
+				Title: "HTTP API Console",
 			},
 		}
 	)

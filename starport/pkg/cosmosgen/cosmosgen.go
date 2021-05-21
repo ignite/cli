@@ -13,7 +13,6 @@ type generateOptions struct {
 	gomodPath           string
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
-	specName            string
 	specOut             string
 	vuexStoreRootPath   string
 }
@@ -53,9 +52,8 @@ func WithGoGeneration(gomodPath string) Option {
 }
 
 // WithOpenAPIGeneration adds OpenAPI spec generation.
-func WithOpenAPIGeneration(name, out string) Option {
+func WithOpenAPIGeneration(out string) Option {
 	return func(o *generateOptions) {
-		o.specName = name
 		o.specOut = out
 	}
 }
