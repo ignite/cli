@@ -34,7 +34,6 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 			step.Exec("starport", "message", "bar", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a module",
