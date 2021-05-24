@@ -1,6 +1,8 @@
 ---
 order: 2
-description: Primary configuration file to describe the development environment for your blockchain.
+description: >-
+  Primary configuration file to describe the development environment for your
+  blockchain.
 ---
 
 # config.yml Reference
@@ -9,16 +11,16 @@ The `config.yml` file generated in your blockchain folder uses key-value pairs t
 
 Only a default set of parameters is provided. If more nuanced configuration is required, you can add these parameters to the `config.yml` file.
 
-
 ## `accounts`
 
 A list of user accounts created during genesis of the blockc
 
-| Key     | Required | Type            | Description                                                                                                                |
-| ------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| name    | Y        | String          | Local name of a key pair. An account names must be listed to have access to their tokens after the blockchain is launched. |
-| coins   | Y        | List of Strings | Initial coins with denominations. For example, "1000token"                                                                 |
-| address | N        | String          | Account address in Bech32 address format                                                                                   |
+Key      | Required | Type            | Description
+-------- | -------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------
+name     | Y        | String          | Local name of a key pair. An account name must be listed to gain access to the account tokens after the blockchain is launched.
+coins    | Y        | List of Strings | Initial coins with denominations. For example, "1000token"
+address  | N        | String          | Account address in Bech32 address format
+mnemonic | N        | String          | Mnemonic used to generate an account. This field is ignored if `address` is specified
 
 **accounts example**
 
@@ -50,6 +52,18 @@ Key               | Required | Type            | Description
 ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------
 path              | N        | String          | Path to protocol buffer files. Default: `"proto"`
 third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]`
+
+## `client`
+
+Configures and enables client code generation. To prevent Starport from regenerating the client, remove the `client` property.
+
+```
+client:
+  vuex:
+    path: "vue/src/store"
+```
+
+Generates TypeScript/Vuex client for the blockchain in `path` on `serve` and `build` commands.
 
 ## `faucet`
 
