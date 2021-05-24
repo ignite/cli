@@ -2,3 +2,6 @@
 
 # Primary repo maintainers
 *       @fadeev @ilgooz @lubtd @dshulyak
+
+# Docs
+*.md    @barriebyron
