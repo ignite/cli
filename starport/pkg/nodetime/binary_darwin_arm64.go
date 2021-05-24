@@ -1,4 +1,4 @@
-// +build darwin amd64
+// +build darwin arm64
 
 package nodetime
 
