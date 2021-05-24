@@ -16,5 +16,5 @@ jobs:
         with:
           go-version: 1.16
       - run: |
-          ./scripts/gen-nodetime
+          make install
           ./scripts/test-unit 
