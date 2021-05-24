@@ -1,14 +1,18 @@
 package gomodule
 
 import (
+	"bytes"
+	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
-	"go/build"
+	"io"
 	"io/fs"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 )
@@ -69,8 +73,44 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 }
 
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.
-func LocatePath(pkg module.Version) (path string, err error) {
-	path = filepath.Join(build.Default.GOPATH, "pkg/mod", fmt.Sprintf("%s@%s", pkg.Path, pkg.Version))
-	_, err = os.Stat(path)
-	return
+func LocatePath(ctx context.Context, src string, pkg module.Version) (path string, err error) {
+	// can be a local package.
+	if pkg.Version == "" { // indicates that this is a local package.
+		if filepath.IsAbs(pkg.Path) {
+			return pkg.Path, nil
+		}
+		return filepath.Join(src, pkg.Path), nil
+	}
+
+	// otherwise, it is hosted.
+	out := &bytes.Buffer{}
+
+	if err := cmdrunner.
+		New().
+		Run(ctx, step.New(
+			step.Exec("go", "mod", "download", "-json"),
+			step.Workdir(src),
+			step.Stdout(out),
+		)); err != nil {
+		return "", err
+	}
+
+	d := json.NewDecoder(out)
+
+	for {
+		var module struct {
+			Path, Version, Dir string
+		}
+		if err := d.Decode(&module); err != nil {
+			if err == io.EOF {
+				break
+			}
+			return "", err
+		}
+		if module.Path == pkg.Path && module.Version == pkg.Version {
+			return module.Dir, nil
+		}
+	}
+
+	return "", fmt.Errorf("module %q not found", pkg.Path)
 }

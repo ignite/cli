@@ -33,8 +33,6 @@ function run {
     docker run \
         --name starport \
         -d \
-        -p 12345:12345 \
-        -p 8080:8080 \
         -p 26657:26657 \
         -p 1317:1317 \
         -v $PWD:/src \

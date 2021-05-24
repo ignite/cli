@@ -236,7 +236,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	}
 
 	// generate random server ports and servers list.
-	ports, err := availableport.Find(7)
+	ports, err := availableport.Find(5)
 	require.NoError(e.t, err)
 
 	genAddr := func(port int) string {
@@ -244,13 +244,11 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	}
 
 	servers := starportconf.Host{
-		RPC:      genAddr(ports[0]),
-		P2P:      genAddr(ports[1]),
-		Prof:     genAddr(ports[2]),
-		GRPC:     genAddr(ports[3]),
-		API:      genAddr(ports[4]),
-		Frontend: genAddr(ports[5]),
-		DevUI:    genAddr(ports[6]),
+		RPC:  genAddr(ports[0]),
+		P2P:  genAddr(ports[1]),
+		Prof: genAddr(ports[2]),
+		GRPC: genAddr(ports[3]),
+		API:  genAddr(ports[4]),
 	}
 
 	// update config.yml with the generated servers list.

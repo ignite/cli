@@ -1,17 +1,14 @@
 package scaffolder
 
 import (
-	"context"
 	"fmt"
-	"go/ast"
-	"go/parser"
-	"go/token"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
@@ -21,6 +18,7 @@ const (
 	TypeString = "string"
 	TypeBool   = "bool"
 	TypeInt32  = "int32"
+	TypeUint64 = "uint64"
 )
 
 type AddTypeOption struct {
@@ -29,7 +27,13 @@ type AddTypeOption struct {
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, typeName string, fields ...string) error {
+func (s *Scaffolder) AddType(
+	tracer *placeholder.Tracer,
+	addTypeOptions AddTypeOption,
+	moduleName,
+	typeName string,
+	fields ...string,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -39,30 +43,12 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, typeName); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
-
-	// Ensure the type name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(typeName) {
-		return fmt.Errorf("%s can't be used as a type name", typeName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, typeName)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", typeName)
 	}
 
 	// Parse provided field
-	tFields, err := parseFields(fields, isForbiddenTypeField)
+	tFields, err := parseFields(fields, checkForbiddenTypeField)
 	if err != nil {
 		return err
 	}
@@ -78,9 +64,11 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			Fields:     tFields,
 			NoMessage:  addTypeOptions.NoMessage,
 		}
+		gens []*genny.Generator
 	)
 	// Check and support MsgServer convention
-	if err := supportMsgServer(
+	g, err = supportMsgServer(
+		tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
@@ -88,37 +76,37 @@ func (s *Scaffolder) AddType(addTypeOptions AddTypeOption, moduleName string, ty
 			AppName:    opts.AppName,
 			OwnerName:  opts.OwnerName,
 		},
-	); err != nil {
+	)
+	if err != nil {
 		return err
+	}
+	if g != nil {
+		gens = append(gens, g)
 	}
 
 	// Check if indexed type
 	if addTypeOptions.Indexed {
-		g, err = indexed.NewStargate(opts)
+		g, err = indexed.NewStargate(tracer, opts)
 	} else {
 		// Scaffolding a type with ID
-		g, err = typed.NewStargate(opts)
+		g, err = typed.NewStargate(tracer, opts)
 	}
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	gens = append(gens, g)
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.Field, error) {
+func parseFields(fields []string, isForbiddenField func(string) error) ([]typed.Field, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
@@ -128,8 +116,8 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 		name := fs[0]
 
 		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if isForbiddenField(name) {
-			return tFields, fmt.Errorf("%s can't be used as a field name", name)
+		if err := isForbiddenField(name); err != nil {
+			return tFields, fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
 		}
 
 		// Ensure the field is not duplicated
@@ -143,6 +131,7 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 			"string": TypeString,
 			"bool":   TypeBool,
 			"int":    TypeInt32,
+			"uint":   TypeUint64,
 		}
 		isTypeSpecified := len(fs) == 2
 		if isTypeSpecified {
@@ -163,48 +152,16 @@ func parseFields(fields []string, isForbiddenField func(string) bool) ([]typed.F
 	return tFields, nil
 }
 
-func isTypeCreated(appPath, moduleName, typeName string) (isCreated bool, err error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
-	if err != nil {
-		return false, err
-	}
-	fset := token.NewFileSet()
-	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ParseComments)
-	if err != nil {
-		return false, err
-	}
-	// To check if the file is created, we check if the message MsgCreate[TypeName] or Msg[TypeName] is defined
-	for _, pkg := range all {
-		for _, f := range pkg.Files {
-			ast.Inspect(f, func(x ast.Node) bool {
-				typeSpec, ok := x.(*ast.TypeSpec)
-				if !ok {
-					return true
-				}
-				if _, ok := typeSpec.Type.(*ast.StructType); !ok {
-					return true
-				}
-				if ("MsgCreate"+strings.Title(typeName) != typeSpec.Name.Name) && ("Msg"+strings.Title(typeName) != typeSpec.Name.Name) {
-					return true
-				}
-				isCreated = true
-				return false
-			})
-		}
-	}
-	return
-}
-
-// isForbiddenTypeField returns true if the name is forbidden as a field name
-func isForbiddenTypeField(name string) bool {
+// checkForbiddenTypeField returns true if the name is forbidden as a field name
+func checkForbiddenTypeField(name string) error {
 	switch name {
 	case
 		"id",
 		"index",
 		"appendedValue",
 		"creator":
-		return true
+		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }

@@ -4,7 +4,6 @@ import (
 	"context"
 	"os"
 	"path/filepath"
-	"sync"
 
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
@@ -47,17 +46,13 @@ type CompilerOptions struct {
 	SkipLibCheck     bool     `json:"skipLibCheck"`
 }
 
-var placeOnce sync.Once
-
 // Generate transpiles TS into JS by given TS config.
 func Generate(ctx context.Context, config Config) error {
-	var err error
-
-	placeOnce.Do(func() { err = nodetime.PlaceBinary() })
-
+	command, cleanup, err := nodetime.Command(nodetime.CommandTSC)
 	if err != nil {
 		return err
 	}
+	defer cleanup()
 
 	dconfig := defaultConfig()
 
@@ -81,12 +76,10 @@ func Generate(ctx context.Context, config Config) error {
 	}
 
 	// command constructs the tsc command.
-	command := []string{
-		nodetime.BinaryPath,
-		nodetime.CommandTSC,
+	command = append(command, []string{
 		"-b",
 		path,
-	}
+	}...)
 
 	// execute the command.
 	return exec.Exec(ctx, command, exec.IncludeStdLogsToError())

@@ -29,9 +29,16 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("create a second message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "message", "bar", "bar"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo"),
+			step.Exec("starport", "module", "create", "foo", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

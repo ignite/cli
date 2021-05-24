@@ -1,17 +1,23 @@
 package starportcmd
 
 import (
+	"bytes"
+	"errors"
 	"fmt"
+	"io"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
 const (
-	flagIBC         = "ibc"
-	flagIBCOrdering = "ordering"
+	flagIBC                 = "ibc"
+	flagIBCOrdering         = "ordering"
+	flagRequireRegistration = "require-registration"
 )
 
 var ibcRouterPlaceholderInstruction = fmt.Sprintf(`
@@ -24,8 +30,8 @@ var ibcRouterPlaceholderInstruction = fmt.Sprintf(`
 %s
 
 💬 Finally, add this block of code below:
-
 %s
+
 `,
 	infoColor(`ibcRouter := porttypes.NewRouter()
 ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
@@ -49,6 +55,7 @@ func NewModuleCreate() *cobra.Command {
 	}
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
+	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
 	return c
 }
 
@@ -69,6 +76,10 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
+	if err != nil {
+		return err
+	}
 
 	// Check if the module must be an IBC module
 	if ibcModule {
@@ -79,19 +90,24 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.CreateModule(name, options...); err != nil {
-
+	var msg bytes.Buffer
+	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
+	if err := sc.CreateModule(placeholder.New(), name, options...); err != nil {
 		// If this is an old scaffolded application that doesn't contain the necessary placeholder
 		// We give instruction to the user to modify the application
 		if err == scaffolder.ErrNoIBCRouterPlaceholder {
 			fmt.Print(ibcRouterPlaceholderInstruction)
 		}
-
-		return err
+		var validationErr validation.Error
+		if !requireRegistration && errors.As(err, &validationErr) {
+			fmt.Fprintf(&msg, "Can't register module '%s'.\n", name)
+			fmt.Fprintln(&msg, validationErr.ValidationInfo())
+		} else {
+			return err
+		}
 	}
-
 	s.Stop()
 
-	fmt.Printf("\n🎉 Module created %s.\n\n", name)
+	io.Copy(cmd.OutOrStdout(), &msg)
 	return nil
 }

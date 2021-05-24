@@ -106,11 +106,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
 
-	// development server routine
-	g.Go(func() error {
-		return c.runDevServer(ctx)
-	})
-
 	// blockchain node routine
 	g.Go(func() error {
 		c.refreshServe()
@@ -447,41 +442,14 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at %s\n", xurl.HTTP(conf.FaucetHost(config)))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
 	}
-
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
-}
-
-func (c *Chain) runDevServer(ctx context.Context) error {
-	config, err := c.Config()
-	if err != nil {
-		return err
-	}
-
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Host.GRPC)
-	if err != nil {
-		return err
-	}
-	defer grpcconn.Close()
-
-	conf := Config{
-		SdkVersion:      c.plugin.Name(),
-		EngineAddr:      xurl.HTTP(config.Host.RPC),
-		AppBackendAddr:  xurl.HTTP(config.Host.API),
-		AppFrontendAddr: xurl.HTTP(config.Host.Frontend),
-	} // TODO get vals from const
-
-	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.Host.DevUI,
-		Handler: newDevHandler(c.app, conf, grpcHandler),
-	})
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {

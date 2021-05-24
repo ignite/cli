@@ -11,7 +11,6 @@ import (
 	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/giturl"
-	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
 	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
@@ -26,35 +25,25 @@ var (
 		"--ts_proto_out=.",
 	}
 
-	openAPIOut = []string{
-		"--openapiv2_out=logtostderr=true,allow_merge=true:.",
+	jsOpenAPIOut = []string{
+		"--openapiv2_out=logtostderr=true,allow_merge=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 	}
 
 	vuexRootMarker = "vuex-root"
 )
 
 type jsGenerator struct {
-	g                 *generator
-	tsprotoPluginPath string
+	g *generator
 }
 
-func newJSGenerator(g *generator) (jsGenerator, error) {
-	tsprotoPluginPath, err := tsproto.BinaryPath()
-	if err != nil {
-		return jsGenerator{}, err
+func newJSGenerator(g *generator) *jsGenerator {
+	return &jsGenerator{
+		g: g,
 	}
-
-	return jsGenerator{
-		g:                 g,
-		tsprotoPluginPath: tsprotoPluginPath,
-	}, nil
 }
 
 func (g *generator) generateJS() error {
-	jsg, err := newJSGenerator(g)
-	if err != nil {
-		return err
-	}
+	jsg := newJSGenerator(g)
 
 	if err := jsg.generateModules(); err != nil {
 		return err
@@ -68,61 +57,30 @@ func (g *generator) generateJS() error {
 }
 
 func (g *jsGenerator) generateModules() error {
-	// sourcePaths keeps a list of root paths of Go projects (source codes) that might contain
-	// Cosmos SDK modules inside.
-	sourcePaths := []string{
-		g.g.appPath, // user's blockchain. may contain internal modules. it is the first place to look for.
+	tsprotoPluginPath, cleanup, err := tsproto.BinaryPath()
+	if err != nil {
+		return err
 	}
+	defer cleanup()
 
-	if g.g.o.jsIncludeThirdParty {
-		// go through the Go dependencies (inside go.mod) of each source path, some of them might be hosting
-		// Cosmos SDK modules that could be in use by user's blockchain.
-		//
-		// Cosmos SDK is a dependency of all blockchains, so it's absolute that we'll be discovering all modules of the
-		// SDK as well during this process.
-		//
-		// even if a dependency contains some SDK modules, not all of these modules could be used by user's blockchain.
-		// this is fine, we can still generate JS clients for those non modules, it is up to user to use (import in JS)
-		// not use generated modules.
-		// not used ones will never get resolved inside JS environment and will not ship to production, JS bundlers will avoid.
-		//
-		// TODO(ilgooz): we can still implement some sort of smart filtering to detect non used modules by the user's blockchain
-		// at some point, it is a nice to have.
-		for _, dep := range g.g.deps {
-			deppath, err := gomodule.LocatePath(dep)
-			if err != nil {
-				return err
-			}
-			sourcePaths = append(sourcePaths, deppath)
+	gg := &errgroup.Group{}
+
+	add := func(sourcePath string, modules []module.Module) {
+		for _, m := range modules {
+			m := m
+			gg.Go(func() error { return g.generateModule(g.g.ctx, tsprotoPluginPath, sourcePath, m) })
 		}
 	}
 
-	gs := &errgroup.Group{}
+	add(g.g.appPath, g.g.appModules)
 
-	// try to discover SDK modules in all source paths.
-	for _, sourcePath := range sourcePaths {
-		sourcePath := sourcePath
-
-		gs.Go(func() error {
-			modules, err := g.g.discoverModules(sourcePath)
-			if err != nil {
-				return err
-			}
-
-			gg, ctx := errgroup.WithContext(g.g.ctx)
-
-			// do code generation for each found module.
-			for _, m := range modules {
-				m := m
-
-				gg.Go(func() error { return g.generateModule(ctx, g.tsprotoPluginPath, sourcePath, m) })
-			}
-
-			return gg.Wait()
-		})
+	if g.g.o.jsIncludeThirdParty {
+		for sourcePath, modules := range g.g.thirdModules {
+			add(sourcePath, modules)
+		}
 	}
 
-	return gs.Wait()
+	return gg.Wait()
 }
 
 // generateModule generates generates JS code for a module.
@@ -160,7 +118,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	}
 
 	// generate OpenAPI spec.
-	oaitemp, err := ioutil.TempDir("", "")
+	oaitemp, err := ioutil.TempDir("", "gen-js-openapi-module-spec")
 	if err != nil {
 		return err
 	}
@@ -171,7 +129,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		oaitemp,
 		m.Pkg.Path,
 		includePaths,
-		openAPIOut,
+		jsOpenAPIOut,
 	)
 	if err != nil {
 		return err
