@@ -22,6 +22,8 @@ jobs:
             **/**.go
             go.mod
             go.sum
+      - name: gen-nodetime
+        run: scripts/gen-nodetime
       - uses: golangci/golangci-lint-action@master
         with:
           # Required: the version of golangci-lint is required and must be specified without patch version: we always use the latest patch version.
