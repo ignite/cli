@@ -44,7 +44,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.9
-	github.com/tendermint/vue v0.1.48
+	github.com/tendermint/vue v0.1.49
 	golang.org/x/crypto v0.0.0-20210317152858-513c2a44f670 // indirect
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
