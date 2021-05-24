@@ -8,23 +8,21 @@ import (
 	"strings"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/relayer/relayer"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
+	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/ts-relayer"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
-const (
-	// faucetTimeout used to set a timeout while transferring coins from a faucet.
-	faucetTimeout = time.Second * 20
+// faucetTimeout used to set a timeout while transferring coins from a faucet.
+const faucetTimeout = time.Second * 20
 
+const (
 	TransferPort      = "transfer"
 	TransferVersion   = "ics20-1"
-	OrderingUnordered = "unordered"
-	OrderingOrdered   = "ordered"
+	OrderingUnordered = "ORDER_UNORDERED"
+	OrderingOrdered   = "ORDER_ORDERED"
 )
 
 // Chain represents a chain in relayer.
@@ -40,12 +38,24 @@ type Chain struct {
 
 	// tmclient used to interact with tm apis.
 	tmclient tendermintrpc.Client
+
+	// options are used to set up the chain.
+	options chainOptions
+}
+
+// chainOptions holds options to be used setting up the chain.
+type chainOptions struct {
+	// gasPrice is the gas price used when sending transactions to the chain
+	GasPrice string `json:"gasPrice"`
+
+	// addressPrefix is the address prefix of the chain.
+	AddressPrefix string `json:"addressPrefix"`
 }
 
 // Account represents an account in relayer.
 type Account struct {
 	// Address of the account.
-	Address string
+	Address string `json:"address"`
 }
 
 // Option is used to configure Chain.
@@ -56,6 +66,20 @@ type Option func(*Chain)
 func WithFaucet(address string) Option {
 	return func(c *Chain) {
 		c.faucetAddress = address
+	}
+}
+
+// WithGasPrice gives the gas price to use to send ibc transactions to the chain.
+func WithGasPrice(gasPrice string) Option {
+	return func(c *Chain) {
+		c.options.GasPrice = gasPrice
+	}
+}
+
+// WithAddressPrefix configures the account key prefix used on the chain.
+func WithAddressPrefix(addressPrefix string) Option {
+	return func(c *Chain) {
+		c.options.AddressPrefix = addressPrefix
 	}
 }
 
@@ -71,29 +95,14 @@ func NewChain(ctx context.Context, rpcAddress string, options ...Option) (*Chain
 		o(c)
 	}
 
-	return c, c.setupChain(ctx)
+	return c, c.ensureChainSetup(ctx)
 }
 
 // Account retrieves the default account on chain.
 func (c *Chain) Account(ctx context.Context) (Account, error) {
-	conf, err := config(ctx, false)
-	if err != nil {
-		return Account{}, err
-	}
-
-	rchain, err := conf.Chains.Get(c.ID)
-	if err != nil {
-		return Account{}, err
-	}
-
-	key, err := rchain.Keybase.Key(defaultAccountKey)
-	if err != nil {
-		return Account{}, err
-	}
-
-	return Account{
-		Address: key.GetAddress().String(),
-	}, nil
+	var account Account
+	err := tsrelayer.Call(ctx, "getDefaultAccount", []interface{}{c.ID}, &account)
+	return account, err
 }
 
 // TryFaucet tries to receive tokens from the faucet. user given faucet address is
@@ -135,38 +144,30 @@ func (c *Chain) TryFaucet(ctx context.Context) error {
 	return nil
 }
 
-// Balance returns the balance for default key in chain
+// Balance returns the balance for default account in the chain.
 func (c *Chain) Balance(ctx context.Context) (sdk.Coins, error) {
-	conf, err := config(ctx, false)
-	if err != nil {
-		return nil, err
-	}
-
-	rchain, err := conf.Chains.Get(c.ID)
-	if err != nil {
-		return nil, err
-	}
-
-	return rchain.QueryBalance(rchain.Key)
+	var coins sdk.Coins
+	err := tsrelayer.Call(ctx, "getDefaultAccountBalance", []interface{}{c.ID}, &coins)
+	return coins, err
 }
 
 // channelOptions represents options for configuring the IBC channel between two chains
 type channelOptions struct {
-	sourcePort    string
-	sourceVersion string
-	targetPort    string
-	targetVersion string
-	ordering      string
+	SourcePort    string `json:"sourcePort"`
+	SourceVersion string `json:"sourceVersion"`
+	TargetPort    string `json:"targetPort"`
+	TargetVersion string `json:"targetVersion"`
+	Ordering      string `json:"ordering"`
 }
 
 // newChannelOptions returns default channel options
 func newChannelOptions() channelOptions {
 	return channelOptions{
-		sourcePort:    TransferPort,
-		sourceVersion: TransferVersion,
-		targetPort:    TransferPort,
-		targetVersion: TransferVersion,
-		ordering:      OrderingUnordered,
+		SourcePort:    TransferPort,
+		SourceVersion: TransferVersion,
+		TargetPort:    TransferPort,
+		TargetVersion: TransferVersion,
+		Ordering:      OrderingUnordered,
 	}
 }
 
@@ -176,97 +177,50 @@ type ChannelOption func(*channelOptions)
 // SourcePort configures the source port of the new channel
 func SourcePort(port string) ChannelOption {
 	return func(c *channelOptions) {
-		c.sourcePort = port
+		c.SourcePort = port
 	}
 }
 
 // TargetPort configures the target port of the new channel
 func TargetPort(port string) ChannelOption {
 	return func(c *channelOptions) {
-		c.targetPort = port
+		c.TargetPort = port
 	}
 }
 
 // SourceVersion configures the source version of the new channel
 func SourceVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
-		c.sourceVersion = version
+		c.SourceVersion = version
 	}
 }
 
 // TargetVersion configures the target version of the new channel
 func TargetVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
-		c.targetVersion = version
+		c.TargetVersion = version
 	}
 }
 
 // Ordered sets the new channel as ordered
 func Ordered() ChannelOption {
 	return func(c *channelOptions) {
-		c.ordering = OrderingOrdered
+		c.Ordering = OrderingOrdered
 	}
 }
 
-// Connect connects dst chain to c chain. it returns the path id on success otherwise,
-// returns with a non-nil error.
-func (c *Chain) Connect(ctx context.Context, dst *Chain, channelOpts ...ChannelOption) (id string, err error) {
+// Connect connects dst chain to c chain and creates a path in between in offline mode.
+// it returns the path id on success otherwise, returns with a non-nil error.
+func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOption) (Path, error) {
 	channelOptions := newChannelOptions()
 
-	// apply channel options
-	for _, o := range channelOpts {
-		o(&channelOptions)
+	for _, apply := range options {
+		apply(&channelOptions)
 	}
 
-	id = fmt.Sprintf("%s-%s", c.ID, dst.ID)
-
-	conf, err := config(ctx, false)
-	if err != nil {
-		return "", err
-	}
-
-	// construct and add path to paths array.
-	conf.Paths[id] = &relayer.Path{
-		Strategy: relayer.NewNaiveStrategy(),
-		Src: &relayer.PathEnd{
-			ChainID: c.ID,
-			PortID:  channelOptions.sourcePort,
-			Order:   channelOptions.ordering,
-			Version: channelOptions.sourceVersion,
-		},
-		Dst: &relayer.PathEnd{
-			ChainID: dst.ID,
-			PortID:  channelOptions.targetPort,
-			Order:   channelOptions.ordering,
-			Version: channelOptions.targetVersion,
-		},
-	}
-
-	// save the config.
-	if err := cfile.Save(conf); err != nil {
-		return "", err
-	}
-
-	// init light clients.
-	for _, c := range []*Chain{c, dst} {
-		rchain, err := conf.Chains.Get(c.ID)
-		if err != nil {
-			return "", err
-		}
-
-		db, _, err := rchain.NewLightDB()
-		if err != nil {
-			return "", err
-		}
-
-		if _, err := rchain.LightClientWithoutTrust(db); err != nil {
-			db.Close()
-			return "", err
-		}
-		db.Close()
-	}
-
-	return id, nil
+	var path Path
+	err := tsrelayer.Call(ctx, "createPath", []interface{}{c.ID, dst.ID, channelOptions}, &path)
+	return path, err
 }
 
 // findFaucetURL finds faucet address by returning the address if given by the user
@@ -364,95 +318,12 @@ func (c *Chain) guessFaucetURLs() ([]*url.URL, error) {
 	return guessedURLs, nil
 }
 
-// setupChain sets up the new or existing chain.
-func (c *Chain) setupChain(ctx context.Context) error {
-	if err := c.determineAndSetID(ctx); err != nil {
-		return err
+// ensureChainSetup sets up the new or existing chain.
+func (c *Chain) ensureChainSetup(ctx context.Context) error {
+	var reply struct {
+		ID string `json:"id"`
 	}
-	if err := c.ensureAddedToRelayer(ctx); err != nil {
-		return err
-	}
-	if err := c.determineAndSetAccount(ctx); err != nil {
-		return err
-	}
-	return nil
-}
-
-// determineAndSetID determines chain's id and uses it.
-func (c *Chain) determineAndSetID(ctx context.Context) error {
-	info, err := c.tmclient.Status(ctx)
-	if err != nil {
-		return errors.Wrap(err, "cannot fetch chain info")
-	}
-	c.ID = info.Network
-	return nil
-}
-
-// ensureAddedToRelayer ensures that chain added to relayer's database.
-func (c *Chain) ensureAddedToRelayer(ctx context.Context) error {
-	conf, err := config(ctx, false)
-	if err != nil {
-		return err
-	}
-
-	addr := xurl.CleanPath(xurl.HTTPEnsurePort(c.rpcAddress))
-
-	if _, err := conf.Chains.Get(c.ID); err != nil { // not configured err
-		rchain := &relayer.Chain{
-			Key:            "testkey",
-			ChainID:        c.ID,
-			RPCAddr:        addr,
-			AccountPrefix:  "cosmos",
-			GasAdjustment:  1.5,
-			TrustingPeriod: "336h",
-		}
-
-		if err := conf.AddChain(rchain); err != nil {
-			return err
-		}
-
-		if err := cfile.Save(conf); err != nil {
-			return err
-		}
-	}
-
-	return nil
-}
-
-const (
-	defaultAccountKey        = "testkey"
-	defaultCoinType   uint32 = 118
-)
-
-// determineAndSetAccount determines and sets the default account for relayer if
-// it wasn't exists.
-func (c *Chain) determineAndSetAccount(ctx context.Context) error {
-	conf, err := config(ctx, false)
-	if err != nil {
-		return err
-	}
-
-	rchain, err := conf.Chains.Get(c.ID)
-	if err != nil {
-		return err
-	}
-
-	keys, err := rchain.Keybase.List()
-	if err != nil {
-		return err
-	}
-
-	for _, key := range keys {
-		if key.GetName() == defaultAccountKey {
-			return nil
-		}
-	}
-
-	mnemonic, err := relayer.CreateMnemonic()
-	if err != nil {
-		return err
-	}
-
-	_, err = rchain.Keybase.NewAccount(defaultAccountKey, mnemonic, "", hd.CreateHDPath(defaultCoinType, 0, 0).String(), hd.Secp256k1)
+	err := tsrelayer.Call(ctx, "ensureChainSetup", []interface{}{c.rpcAddress, c.options}, &reply)
+	c.ID = reply.ID
 	return err
 }

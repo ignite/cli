@@ -1,29 +1,51 @@
-# Alpine provides the same multiplatform support as arch.
-FROM alpine
+# syntax = docker/dockerfile:1.2
+# WARNING! Use `DOCKER_BUILDKIT=1` with `docker build` to enable --mount feature.
 
-# GOPATH AND GOBIN ON PATH
-ENV GOPATH=/go
-ENV PATH=$PATH:/go/bin
+## prep the base image.
+#
+FROM golang:1.16.2-buster as base
 
-# INSTALL DEPENDENCIES
-RUN apk add --no-cache go npm make git bash which protoc && \
-	mkdir /go
+RUN apt update && \
+    apt-get install -y \
+        build-essential \
+        ca-certificates \
+        curl
 
-# COPY STARPORT SOURCE CODE INTO CONTAINER
-COPY . /starport
+# enable faster module downloading.
+ENV GOPROXY https://proxy.golang.org
+
+## builder stage.
+#
+FROM base as builder
+
 WORKDIR /starport
 
-# INSTALL STARPORT
-RUN PATH=$PATH:/go/bin && \
-		bash scripts/install
+# cache dependencies.
+COPY ./go.mod . 
+COPY ./go.sum . 
+RUN go mod download
 
-# CMD
-CMD ["/go/bin/starport"]
+COPY . .
 
-# EXPOSE PORTS
-EXPOSE 12345
-EXPOSE 8080
-EXPOSE 1317
-EXPOSE 26656
+RUN --mount=type=cache,target=/root/.cache/go-build go install -v ./...
+
+## prep the final image.
+#
+FROM base
+
+COPY --from=builder /go/bin/starport /usr/bin
+
+RUN useradd -ms /bin/bash tendermint
+USER tendermint
+
+WORKDIR /apps
+
+# see docs for exposed ports:
+#   https://docs.starport.network/configure/reference.html#host 
 EXPOSE 26657
+EXPOSE 26656
+EXPOSE 6060 
+EXPOSE 9090 
+EXPOSE 1317 
 
+ENTRYPOINT ["starport"]

@@ -1,38 +1,39 @@
-# The Starport Documentation
+# Introduction to Starport
 
-**Quickstart:** Try <a href="https://gitpod.io/#https://github.com/tendermint/starport/" target="_blank">Starport in a web-based IDE</a>. It's the fastest way to get started. The latest version of Starport and its prerequisites are installed, just start hacking!
+Starport offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
 
-## Table of Contents 🔎
+## What is Starport?
 
-1. Introduction  
-   1. [Introduction](1%20Introduction/1%20Introduction.md)  
-   2. [Install](1%20Introduction/2%20Install.md)
-   3. [Quickstart](1%20Introduction/3%20Quickstart.md)
-   4. [Configuration](1%20Introduction/4%20Configuration.md)  
-   5. [Genesis File](1%20Introduction/5%20Genesis%20File.md)  
-   6. [Starport IBC](1%20Introduction/6%20Starport%20IBC.md)
-2. Architecture
-    1. [Introduction](2%20Architecture/1%20Introduction.md)  
-    2. [Directory Structure](2%20Architecture/2%20Directory%20Structure.md)  
-    3. [Standard Modules](2%20Architecture/3%20Standard%20Modules.md)
-    4. [Writing Custom Modules](2%20Architecture/4%20Writing%20Custom%20Modules.md)
-3. Tutorials  
-    1. [Introduction](3%20Starport/1%20Introduction.md)
-    2. [Poll](https://github.com/cosmos/sdk-tutorials/blob/master/voter/index.md)
-    3. [Blog](https://github.com/cosmos/sdk-tutorials/blob/master/blog/tutorial/01-index.md)
-    4. [Scavenge](https://github.com/cosmos/sdk-tutorials/blob/master/scavenge/tutorial/01-background.md)
-    5. [Nameservice](https://github.com/cosmos/sdk-tutorials/blob/master/nameservice/tutorial/00-intro.md)
-4. EVM Smart Contracts  
-    1. [Introduction](4%20EVM%20smart%20contracts/1%20Introduction.md)  
-    2. [ERC20](4%20EVM%20smart%20contracts/2%20ERC20.md)  
-    3. [NFT](4%20EVM%20smart%20contracts/3%20NFT.md)  
-5. Wasm Smart Contracts
-    1. [Introduction](5%20Wasm%20Smart%20Contracts/1%20Introduction.md)
-    2. [Adding support for CosmWasm](5%20Wasm%20Smart%20Contracts/2%20Adding%20Support%20for%20CosmWasm.md)
-    3. [Deploying your first contract](5%20Wasm%20Smart%20Contracts/3%20Deploying%20your%20first%20contract.md)  
-6. Extra
-    1. [Raspberry Pi](6%20Extra/RaspberryPi.md)
+Starport is an easy-to-use CLI tool for creating sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
 
-## Other Tutorials
+With just a few commands, you can use Starport to:
 
-- [Smart contract tutorial](https://www.notion.so/Smart-contracts-with-CosmWasm-c6fbcd584b78437a843e738b922dc108): add smart contracts to your app with CosmWasm: build, upload, instantiate and run a smart contract
+* Create a modular blockchain written in Go
+* Scaffold modules, messages, types with CRUD operations, IBC packets, and more
+* Start a blockchain node in development with live reloading
+* Connect to other blockchains with a built-in IBC relayer
+* Use automatically generated TypeScript/Vuex clients to interact with your blockchain
+* Use the Vue.js web app template with a set of components and Vuex modules
+
+## Projects using Tendermint and Cosmos SDK
+
+Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+
+## Projects building with Starport
+
+* [Sifchain: omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
+* [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
+* [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
+* [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
+* [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
+* [Starport Network](https://github.com/tendermint/spn)
+* [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
+* [Affondra](https://github.com/EG-easy/affondra)
+* [Finding Imposter](https://github.com/chantmk/Finding-imposter)
+* [Flares payment network](https://github.com/wangfeiping/flares)
+
+## Summary
+
+- Starport lets you create, develop, and build a blockchain.
+- Starport and Cosmos SDK modules are written in Go.
+- Create Cosmos SDK modules to implement custom functionality.

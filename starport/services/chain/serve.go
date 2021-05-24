@@ -1,45 +1,32 @@
 package chain
 
 import (
-	"bytes"
 	"context"
 	"fmt"
-	"go/build"
-	"net"
 	"net/http"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"regexp"
 	"strings"
-
-	"github.com/tendermint/starport/starport/pkg/dirchange"
-
-	"github.com/tendermint/starport/starport/services"
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/fswatcher"
+	"github.com/tendermint/starport/starport/pkg/dirchange"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/xexec"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/pkg/xurl"
+	"github.com/tendermint/starport/starport/services"
 	"golang.org/x/sync/errgroup"
 )
 
-var (
-	// ignoredExts holds a list of ignored files from watching.
-	ignoredExts = []string{"pb.go", "pb.gw.go"}
-
-	// chainSavePath is the place where chain exported genesis are saved
-	chainSavePath = filepath.Join(services.StarportConfDir, "local-chains")
-
+const (
 	// exportedGenesis is the name of the exported genesis file for a chain
 	exportedGenesis = "exported_genesis.json"
 
@@ -51,6 +38,17 @@ var (
 
 	// configChecksum is the file containing the checksum to detect config modification
 	configChecksum = "config_checksum.txt"
+)
+
+var (
+	// ignoredExts holds a list of ignored files from watching.
+	ignoredExts = []string{"pb.go", "pb.gw.go"}
+
+	// starportSavePath is the place where chain exported genesis are saved
+	starportSavePath = xfilepath.Join(
+		services.StarportConfPath,
+		xfilepath.Path("local-chains"),
+	)
 )
 
 type serveOptions struct {
@@ -107,16 +105,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 
 	// start serving components.
 	g, ctx := errgroup.WithContext(ctx)
-
-	// routine to watch front-end
-	g.Go(func() error {
-		return c.watchAppFrontend(ctx)
-	})
-
-	// development server routine
-	g.Go(func() error {
-		return c.runDevServer(ctx)
-	})
 
 	// blockchain node routine
 	g.Go(func() error {
@@ -233,11 +221,6 @@ func (c *Chain) checkSystem() error {
 	if !xexec.IsCommandAvailable("go") {
 		return errors.New("Please, check that Go language is installed correctly in $PATH. See https://golang.org/doc/install")
 	}
-	// check if Go's bin added to System's path.
-	gobinpath := path.Join(build.Default.GOPATH, "bin")
-	if err := xos.IsInPath(gobinpath); err != nil {
-		return errors.New("$(go env GOPATH)/bin must be added to your $PATH. See https://golang.org/doc/gopath_code.html#GOPATH")
-	}
 	return nil
 }
 
@@ -254,13 +237,13 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 		watchPaths = append(watchPaths, c.ConfigPath())
 	}
 
-	return fswatcher.Watch(
+	return localfs.Watch(
 		ctx,
 		watchPaths,
-		fswatcher.Workdir(c.app.Path),
-		fswatcher.OnChange(c.refreshServe),
-		fswatcher.IgnoreHidden(),
-		fswatcher.IgnoreExt(ignoredExts...),
+		localfs.WatcherWorkdir(c.app.Path),
+		localfs.WatcherOnChange(c.refreshServe),
+		localfs.WatcherIgnoreHidden(),
+		localfs.WatcherIgnoreExt(ignoredExts...),
 	)
 }
 
@@ -459,91 +442,14 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a Cosmos '%[1]v' app with Tendermint at %s.\n", c.app.Name, xurl.HTTP(config.Host.RPC))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a server at %s (LCD)\n", xurl.HTTP(config.Host.API))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Running a faucet at http://%s\n", conf.FaucetHost(config))
+		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
 	}
-
-	fmt.Fprintf(c.stdLog(logStarport).out, "\n🚀 Get started: %s\n\n", xurl.HTTP(config.Host.DevUI))
 
 	return g.Wait()
-}
-
-func (c *Chain) watchAppFrontend(ctx context.Context) error {
-	conf, err := c.Config()
-	if err != nil {
-		return err
-	}
-	vueFullPath := filepath.Join(c.app.Path, vuePath)
-	if _, err := os.Stat(vueFullPath); os.IsNotExist(err) {
-		return nil
-	}
-	frontendErr := &bytes.Buffer{}
-	postExec := func(err error) error {
-		var exitErr *exec.ExitError
-		if errors.As(err, &exitErr) && exitErr.ExitCode() > 0 {
-			fmt.Fprintf(c.stdLog(logStarport).err, "%s\n%s",
-				infoColor("skipping serving Vue frontend due to following errors:"), errorColor(frontendErr.String()))
-		}
-		return nil // ignore errors.
-	}
-	host, port, err := net.SplitHostPort(conf.Host.Frontend)
-	if err != nil {
-		return err
-	}
-	return cmdrunner.
-		New(
-			cmdrunner.DefaultWorkdir(vueFullPath),
-			cmdrunner.DefaultStderr(frontendErr),
-		).
-		Run(ctx,
-			step.New(
-				step.Exec("npm", "i"),
-				step.PostExec(postExec),
-			),
-			step.New(
-				step.Exec("npm", "run", "serve"),
-				step.Env(
-					fmt.Sprintf("HOST=%s", host),
-					fmt.Sprintf("PORT=%s", port),
-					fmt.Sprintf("VUE_APP_API_COSMOS=%s", xurl.HTTP(conf.Host.API)),
-					fmt.Sprintf("VUE_APP_API_TENDERMINT=%s", xurl.HTTP(conf.Host.RPC)),
-					fmt.Sprintf("VUE_APP_WS_TENDERMINT=%s/websocket", xurl.WS(conf.Host.RPC)),
-				),
-				step.PostExec(postExec),
-			),
-		)
-}
-
-func (c *Chain) runDevServer(ctx context.Context) error {
-	config, err := c.Config()
-	if err != nil {
-		return err
-	}
-
-	grpcconn, grpcHandler, err := newGRPCWebProxyHandler(config.Host.GRPC)
-	if err != nil {
-		return err
-	}
-	defer grpcconn.Close()
-
-	conf := Config{
-		SdkVersion:      c.plugin.Name(),
-		EngineAddr:      xurl.HTTP(config.Host.RPC),
-		AppBackendAddr:  xurl.HTTP(config.Host.API),
-		AppFrontendAddr: xurl.HTTP(config.Host.Frontend),
-	} // TODO get vals from const
-	handler, err := newDevHandler(c.app, conf, grpcHandler)
-	if err != nil {
-		return err
-	}
-
-	return xhttp.Serve(ctx, &http.Server{
-		Addr:    config.Host.DevUI,
-		Handler: handler,
-	})
 }
 
 func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet) error {
@@ -585,18 +491,23 @@ func (c *Chain) importChainState() error {
 // chainSavePath returns the path where the chain state is saved
 // create the path if it doesn't exist
 func (c *Chain) chainSavePath() (string, error) {
+	savePath, err := starportSavePath()
+	if err != nil {
+		return "", err
+	}
+
 	chainID, err := c.ID()
 	if err != nil {
 		return "", err
 	}
-	savePath := filepath.Join(chainSavePath, chainID)
+	chainSavePath := filepath.Join(savePath, chainID)
 
 	// ensure the path exists
 	if err := os.MkdirAll(savePath, 0700); err != nil && !os.IsExist(err) {
 		return "", err
 	}
 
-	return savePath, nil
+	return chainSavePath, nil
 }
 
 // exportedGenesisPath returns the path of the exported genesis file

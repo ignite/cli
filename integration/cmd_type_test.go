@@ -8,80 +8,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestGenerateAnAppWithLaunchpadWithTypeAndVerify(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
-	)
-
-	env.Must(env.Exec("create a type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a type with int",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "employee", "name:string", "level:int"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a type with bool",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "document", "signed:bool"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating a type with duplicated fields",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "company", "name", "name"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating a type with unrecognized field type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "employee", "level:itn"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating an existing type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating a type whose name is a reserved word",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "map", "size:int"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating a type containing a field with a reserved word",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "document", "type:int"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.EnsureAppIsSteady(path)
-}
-
 func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a type",
@@ -121,13 +51,6 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
-	env.Must(env.Exec("create a type with legacy scaffold",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "participant", "email", "--legacy"),
-			step.Workdir(path),
-		)),
-	))
-
 	env.Must(env.Exec("should prevent creating an existing type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email"),
@@ -152,58 +75,11 @@ func TestGenerateAnAppWithStargateWithTypeAndVerify(t *testing.T) {
 		ExecShouldError(),
 	))
 
-	env.EnsureAppIsSteady(path)
-}
-
-func TestCreateTypeInCustomModuleWithLaunchpad(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
-	)
-
-	env.Must(env.Exec("create a module",
+	env.Must(env.Exec("create a type with no interaction message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "type", "nomessage", "email", "--no-message"),
 			step.Workdir(path),
 		)),
-	))
-
-	env.Must(env.Exec("create a type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a type in the app's module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating a type in a non existant module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email", "--module", "idontexist"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating an existing type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("should prevent creating an indexed type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "indexeduser", "email", "--indexed"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
@@ -212,12 +88,12 @@ func TestCreateTypeInCustomModuleWithLaunchpad(t *testing.T) {
 func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -225,13 +101,6 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 	env.Must(env.Exec("create a type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "type", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a type with legacy scaffold",
-		step.NewSteps(step.New(
-			step.Exec("starport", "type", "participant", "email", "--legacy", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
@@ -265,7 +134,7 @@ func TestCreateTypeInCustomModuleWithStargate(t *testing.T) {
 func TestCreateIndexTypeWithStargate(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create an indexed type",
@@ -275,9 +144,16 @@ func TestCreateIndexTypeWithStargate(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create an indexed type with no message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "type", "nomessage", "email", "--indexed", "--no-message"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

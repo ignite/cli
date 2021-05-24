@@ -9,14 +9,12 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
-	conf "github.com/tendermint/starport/starport/chainconf"
-	"github.com/tendermint/starport/starport/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/localfs"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/templates/app"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/tendermint/vue"
 )
 
 var (
@@ -30,7 +28,7 @@ var (
 
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(name string) (path string, err error) {
+func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -42,17 +40,11 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	absRoot := filepath.Join(pwd, pathInfo.Root)
 
 	// create the project
-	if err := s.generate(pathInfo, absRoot); err != nil {
+	if err := s.generate(tracer, pathInfo, absRoot); err != nil {
 		return "", err
 	}
 
-	// generate protobuf types
-	if err := s.protoc(absRoot, pathInfo.RawPath, s.options.sdkVersion); err != nil {
-		return "", err
-	}
-
-	// format the source
-	if err := fmtProject(absRoot); err != nil {
+	if err := s.finish(absRoot, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 
@@ -63,8 +55,10 @@ func (s *Scaffolder) Init(name string) (path string, err error) {
 	return pathInfo.Root, nil
 }
 
-func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error {
-	g, err := app.New(s.options.sdkVersion, &app.Options{
+//nolint:interfacer
+func (s *Scaffolder) generate(tracer *placeholder.Tracer, pathInfo gomodulepath.Path, absRoot string) error {
+	g, err := app.New(&app.Options{
+		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		OwnerName:        owner(pathInfo.RawPath),
@@ -74,53 +68,39 @@ func (s *Scaffolder) generate(pathInfo gomodulepath.Path, absRoot string) error 
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	run.Root = absRoot
-	return run.Run()
-}
 
-func (s *Scaffolder) protoc(projectPath, gomodPath string, version cosmosver.MajorVersion) error {
-	if version != cosmosver.Stargate {
-		return nil
+	run := func(runner *genny.Runner, gen *genny.Generator) error {
+		runner.With(gen)
+		runner.Root = absRoot
+		return runner.Run()
 	}
-
-	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
-		if err == cosmosgen.ErrProtocNotInstalled {
-			return errors.ErrStarportRequiresProtoc
-		}
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
 		return err
 	}
 
-	confpath, err := conf.LocateDefault(projectPath)
+	// generate module template
+	opts := &modulecreate.CreateOptions{
+		ModuleName: pathInfo.Package, // App name
+		ModulePath: pathInfo.RawPath,
+		AppName:    pathInfo.Package,
+		OwnerName:  owner(pathInfo.RawPath),
+		IsIBC:      false,
+	}
+	g, err = modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
-	conf, err := conf.ParseFile(confpath)
-	if err != nil {
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
+		return err
+	}
+	g = modulecreate.NewStargateAppModify(tracer, opts)
+	if err := run(genny.WetRunner(context.Background()), g); err != nil {
 		return err
 	}
 
-	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(gomodPath),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
-	}
-
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
-		options = append(options,
-			cosmosgen.WithVuexGeneration(
-				false,
-				func(m module.Module) string {
-					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
-				},
-				storeRootPath,
-			),
-		)
-	}
-
-	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
+	// generate the vue app.
+	vuepath := filepath.Join(absRoot, "vue")
+	return localfs.Save(vue.Boilerplate(), vuepath)
 }
 
 func initGit(path string) error {

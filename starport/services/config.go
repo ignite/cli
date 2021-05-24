@@ -1,7 +1,10 @@
 package services
 
-import "os"
+import (
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
+)
 
 var (
-	StarportConfDir = os.ExpandEnv("$HOME/.starport")
+	// StarportConfPath returns the Starport Configuration directory
+	StarportConfPath = xfilepath.JoinFromHome(xfilepath.Path(".starport"))
 )

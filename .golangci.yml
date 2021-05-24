@@ -18,7 +18,7 @@ linters:
     - gofmt
     - goimports
     - golint
-#    - gosec
+    # - gosec
     - gosimple
     - govet
     - ineffassign
@@ -36,7 +36,7 @@ linters:
     - unparam
     - misspell
     # - wsl
-    - nolintlint
+    # - nolintlint
 
 issues:
   max-issues-per-linter: 0

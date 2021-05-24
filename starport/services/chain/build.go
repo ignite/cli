@@ -4,17 +4,14 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"os"
 	"os/exec"
 	"path/filepath"
 
 	"github.com/pkg/errors"
-	starporterrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/goenv"
@@ -109,7 +106,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	// install the app.
 	steps.Add(step.New(
 		step.PreExec(func() error {
-			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the app...")
+			fmt.Fprintln(c.stdLog(logStarport).out, "🛠️  Building the blockchain...")
 			return nil
 		}),
 	))
@@ -136,10 +133,6 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 
 	addInstallStep(binary, filepath.Join(cmdPath, c.app.D()))
 
-	if c.Version.Major().Is(cosmosver.Launchpad) {
-		addInstallStep(c.BinaryCLI(), filepath.Join(cmdPath, c.app.CLI()))
-	}
-
 	return steps, nil
 }
 
@@ -149,16 +142,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 		return err
 	}
 
-	// If proto dir exists, compile the proto files.
-	protoPath := filepath.Join(c.app.Path, conf.Build.Proto.Path)
-	if _, err := os.Stat(protoPath); os.IsNotExist(err) {
-		return nil
-	}
-
 	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		if err == cosmosgen.ErrProtocNotInstalled {
-			return starporterrors.ErrStarportRequiresProtoc
-		}
 		return err
 	}
 
@@ -178,11 +162,15 @@ func (c *Chain) buildProto(ctx context.Context) error {
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
 				func(m module.Module) string {
-					return filepath.Join(storeRootPath, giturl.UserAndRepo(m.Pkg.GoImportName), m.Pkg.Name, "module")
+					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
+					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
 				storeRootPath,
 			),
 		)
+	}
+	if conf.Client.OpenAPI.Path != "" {
+		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
 	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {

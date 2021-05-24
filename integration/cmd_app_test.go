@@ -14,7 +14,7 @@ import (
 func TestGenerateAnAppAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	_, statErr := os.Stat(filepath.Join(path, "config.yml"))
@@ -26,7 +26,7 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("add Wasm module",
@@ -47,46 +47,22 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestGenerateAnAppWithEmptyModuleAndVerify(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog", Launchpad)
-	)
-
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating an existing module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.EnsureAppIsSteady(path)
-}
-
 func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("blog", Stargate)
+		path = env.Scaffold("blog")
 	)
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example"),
+			step.Exec("starport", "module", "create", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),

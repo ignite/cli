@@ -12,12 +12,12 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog", Stargate)
+		path = env.Scaffold("ibcblog")
 	)
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo", "--ibc"),
+			step.Exec("starport", "module", "create", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -31,21 +31,21 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module with an ordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "orderedfoo", "--ordering", "ordered"),
+			step.Exec("starport", "module", "create", "--ibc", "orderedfoo", "--ordering", "ordered", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an IBC module with an unordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "unorderedfoo", "--ordering", "unordered"),
+			step.Exec("starport", "module", "create", "--ibc", "unorderedfoo", "--ordering", "unordered", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foobar"),
+			step.Exec("starport", "module", "create", "foobar", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -57,12 +57,12 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog2", Stargate)
+		path = env.Scaffold("ibcblog2")
 	)
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo", "--ibc"),
+			step.Exec("starport", "module", "create", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -105,6 +105,13 @@ func TestCreateIBCPacket(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a packet with no send message",
+		step.NewSteps(step.New(
+			step.Exec("starport", "packet", "nomessage", "foo", "--no-message", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a packet with no field",
 		step.NewSteps(step.New(
 			step.Exec("starport", "packet", "empty", "--module", "foo"),
@@ -114,7 +121,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a non-IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "bar"),
+			step.Exec("starport", "module", "create", "bar", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

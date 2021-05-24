@@ -11,6 +11,8 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
+
 	"github.com/tendermint/starport/starport/services"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -38,7 +40,15 @@ const (
 )
 
 var (
-	sourcePath = filepath.Join(services.StarportConfDir, "spn-chains")
+	// spnChainSourcePath returns the path used for the chain source used to build spn chains
+	spnChainSourcePath = xfilepath.Join(
+		services.StarportConfPath,
+		xfilepath.Path("spn-chains"),
+	)
+
+	spnChainHomesDir = xfilepath.JoinFromHome(
+		xfilepath.Path(".spn-chain-homes"),
+	)
 )
 
 // Builder is network builder.
@@ -76,7 +86,25 @@ type initOptions struct {
 	path                     string
 	mustNotInitializedBefore bool
 	homePath                 string
-	cliHomePath              string
+	keyringBackend           chaincmd.KeyringBackend
+}
+
+// newInitOptions initializes initOptions
+func newInitOptions(chainID string, options ...InitOption) (initOpts initOptions, err error) {
+	initOpts.homePath, err = xfilepath.Join(
+		spnChainHomesDir,
+		xfilepath.Path(chainID),
+	)()
+	if err != nil {
+		return initOpts, err
+	}
+
+	// set custom options
+	for _, option := range options {
+		option(&initOpts)
+	}
+
+	return initOpts, nil
 }
 
 // SourceOption sets the source for blockchain.
@@ -145,10 +173,10 @@ func InitializationHomePath(homePath string) InitOption {
 	}
 }
 
-// InitializationCLIHomePath provides a specific cli home path for the blockchain for the initialization
-func InitializationCLIHomePath(cliHomePath string) InitOption {
+// InitializationKeyringBackend provides the keyring backend to use to initialize the blockchain
+func InitializationKeyringBackend(keyringBackend chaincmd.KeyringBackend) InitOption {
 	return func(o *initOptions) {
-		o.cliHomePath = cliHomePath
+		o.keyringBackend = keyringBackend
 	}
 }
 
@@ -159,12 +187,11 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		return nil, err
 	}
 
-	// set options.
-	o := &initOptions{}
-	source(o)
-	for _, option := range options {
-		option(o)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return nil, err
 	}
+	source(&o)
 
 	// determine final source configuration.
 	var (
@@ -179,6 +206,12 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		if err != nil {
 			return nil, err
 		}
+
+		// verify chain information
+		if err := b.VerifyChain(ctx, chain); err != nil {
+			return nil, err
+		}
+
 		url = chain.URL
 		hash = chain.Hash
 	}
@@ -204,6 +237,11 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 	// otherwise clone from the remote. this option can be used by chain coordinators
 	// as well as validators.
 	default:
+		sourcePath, err := spnChainSourcePath()
+		if err != nil {
+			return nil, err
+		}
+
 		// ensure the path for chain source exists
 		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
 			if !os.IsExist(err) {
@@ -273,7 +311,7 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		url,
 		githash.String(),
 		o.homePath,
-		o.cliHomePath,
+		o.keyringBackend,
 		o.mustNotInitializedBefore,
 	)
 }
@@ -317,10 +355,9 @@ func (b *Builder) ensureRemoteSynced(repo *git.Repository) (url string, err erro
 // After overwriting the downloaded Genesis on top of app's home dir, it starts blockchain by
 // executing the start command on its appd binary with optionally provided flags.
 func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string, options ...InitOption) error {
-	// set options
-	o := &initOptions{}
-	for _, option := range options {
-		option(o)
+	o, err := newInitOptions(chainID, options...)
+	if err != nil {
+		return err
 	}
 
 	chainInfo, err := b.ShowChain(ctx, chainID)
@@ -341,14 +378,16 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	if o.homePath != "" {
 		chainOption = append(chainOption, chain.HomePath(o.homePath))
 	}
-	if o.cliHomePath != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(o.cliHomePath))
-	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
 	// password. This happens because Gitpod uses containers.
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	}
+
+	sourcePath, err := spnChainSourcePath()
+	if err != nil {
+		return err
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
@@ -456,6 +495,41 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	return g.Wait()
 }
 
+// GenerateTemporaryGenesis generates the genesis from the launch information in a given temporary directory and return the genesis path
+func (b *Builder) GenerateGenesisWithHome(
+	ctx context.Context,
+	chainID string,
+	launchInfo spn.LaunchInformation,
+	homeDir string,
+) (string, error) {
+	chainInfo, err := b.ShowChain(ctx, chainID)
+	if err != nil {
+		return "", err
+	}
+
+	sourcePath, err := spnChainSourcePath()
+	if err != nil {
+		return "", err
+	}
+
+	appPath := filepath.Join(sourcePath, chainID)
+	chainHandler, err := chain.New(ctx, appPath,
+		chain.HomePath(homeDir),
+		chain.LogLevel(chain.LogSilent),
+		chain.KeyringBackend(chaincmd.KeyringBackendTest),
+	)
+	if err != nil {
+		return "", err
+	}
+
+	// Run the commands to generate genesis
+	if err := generateGenesis(ctx, chainInfo, launchInfo, chainHandler); err != nil {
+		return "", err
+	}
+
+	return chainHandler.GenesisPath()
+}
+
 // generateGenesis generate the genesis from the launch information in the specified app home
 func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.LaunchInformation, chainHandler *chain.Chain) error {
 	commands, err := chainHandler.Commands(ctx)
@@ -468,13 +542,22 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		return err
 	}
 
-	// overwrite genesis with initial genesis.
-	initialGenesis, err := ioutil.ReadFile(initialGenesisPath(home))
-	if err != nil {
+	var initialGenesis []byte
+
+	if chainInfo.GenesisURL != "" {
+		var hash string
+		if initialGenesis, hash, err = genesisAndHashFromURL(ctx, chainInfo.GenesisURL); err != nil {
+			return err
+		}
+		if hash != chainInfo.GenesisHash {
+			return errors.New("hash mismatch for the downloaded genesis")
+		}
+	} else if initialGenesis, err = ioutil.ReadFile(initialGenesisPath(home)); err != nil {
 		return err
 	}
-	err = ioutil.WriteFile(genesisPath(home), initialGenesis, 0755)
-	if err != nil {
+
+	// overwrite genesis with initial genesis.
+	if err := ioutil.WriteFile(genesisPath(home), initialGenesis, 0755); err != nil {
 		return err
 	}
 
@@ -492,7 +575,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	// add the genesis accounts
 	for _, account := range launchInfo.GenesisAccounts {
 		genesisAccount := chain.Account{
-			Address: account.Address.String(),
+			Address: account.Address,
 			Coins:   account.Coins.String(),
 		}
 

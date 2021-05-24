@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/gorilla/mux"
+	"github.com/ilgooz/openapiconsole"
 	"github.com/rs/cors"
 )
 
@@ -18,7 +19,7 @@ func (f Faucet) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	router.Handle("/info", cors.Default().Handler(http.HandlerFunc(f.faucetInfoHandler))).
 		Methods(http.MethodGet)
 
-	router.HandleFunc("/", f.openAPIIndexHandler).
+	router.HandleFunc("/", openapiconsole.Handler("Faucet", "openapi.yml")).
 		Methods(http.MethodGet)
 
 	router.HandleFunc("/openapi.yml", f.openAPISpecHandler).

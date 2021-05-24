@@ -6,7 +6,7 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
-	genesistypes "github.com/tendermint/spn/x/genesis/types"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 )
 
@@ -47,8 +47,8 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 		return nil, nil, err
 	}
 
-	q := genesistypes.NewQueryClient(clientCtx)
-	chainList, err := q.ListChains(ctx, &genesistypes.QueryListChainsRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	chainList, err := q.ListChains(ctx, &launchtypes.QueryListChainsRequest{
 		Prefix: o.prefix,
 		Pagination: &query.PageRequest{
 			Key:   o.paginationKey,
@@ -67,32 +67,44 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 }
 
 // ChainCreate creates a new chain.
-func (c *Client) ChainCreate(ctx context.Context, accountName, chainID string, sourceURL, sourceHash string) error {
+func (c *Client) ChainCreate(
+	ctx context.Context,
+	accountName,
+	chainID,
+	sourceURL,
+	sourceHash,
+	genesisURL,
+	genesisHash string,
+) error {
 	clientCtx, err := c.buildClientCtx(accountName)
 	if err != nil {
 		return err
 	}
-	return c.broadcast(ctx, clientCtx, genesistypes.NewMsgChainCreate(
+	return c.broadcast(ctx, clientCtx, launchtypes.NewMsgChainCreate(
 		chainID,
-		clientCtx.GetFromAddress(),
+		clientCtx.GetFromAddress().String(),
 		sourceURL,
 		sourceHash,
+		genesisURL,
+		genesisHash,
 	))
 }
 
 // GenesisAccount represents a genesis account inside a chain with its allocated coins.
 type GenesisAccount struct {
-	Address types.AccAddress
+	Address string
 	Coins   types.Coins
 }
 
 // Chain represents a chain in Genesis module of SPN.
 type Chain struct {
-	ChainID   string
-	Creator   string
-	URL       string
-	Hash      string
-	CreatedAt time.Time
+	ChainID     string
+	Creator     string
+	URL         string
+	Hash        string
+	GenesisURL  string
+	GenesisHash string
+	CreatedAt   time.Time
 }
 
 // ShowChain shows chain info.
@@ -103,8 +115,8 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.ShowChain(ctx, &genesistypes.QueryShowChainRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.ShowChain(ctx, &launchtypes.QueryShowChainRequest{
 		ChainID: chainID,
 	})
 	if err != nil {
@@ -115,14 +127,22 @@ func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Ch
 }
 
 // toChain converts proto chain to Chain type.
-func toChain(chain *genesistypes.Chain) Chain {
-	return Chain{
+func toChain(chain *launchtypes.Chain) Chain {
+	c := Chain{
 		ChainID:   chain.ChainID,
 		Creator:   chain.Creator,
 		URL:       chain.SourceURL,
 		Hash:      chain.SourceHash,
 		CreatedAt: time.Unix(chain.CreatedAt, 0),
 	}
+
+	genesisFromURL := chain.GetInitialGenesis().GetGenesisURL()
+	if genesisFromURL != nil {
+		c.GenesisURL = genesisFromURL.Url
+		c.GenesisHash = genesisFromURL.Hash
+	}
+
+	return c
 }
 
 // LaunchInformation keeps the chain's launch information.
@@ -140,8 +160,8 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.LaunchInformation(ctx, &genesistypes.QueryLaunchInformationRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.LaunchInformation(ctx, &launchtypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	})
 	if err != nil {
@@ -180,8 +200,8 @@ func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, ch
 	}
 
 	// Query the chain from spnd
-	q := genesistypes.NewQueryClient(clientCtx)
-	res, err := q.SimulatedLaunchInformation(ctx, &genesistypes.QuerySimulatedLaunchInformationRequest{
+	q := launchtypes.NewQueryClient(clientCtx)
+	res, err := q.SimulatedLaunchInformation(ctx, &launchtypes.QuerySimulatedLaunchInformationRequest{
 		ChainID:     chainID,
 		ProposalIDs: proposalIDs32,
 	})

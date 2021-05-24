@@ -1,8 +1,9 @@
-build/
-dist
-nodetime-*
+scripts/**/nodetime-*
+dist/
 node_modules
 .DS_Store
 apps/
 .idea
 .vscode
+docs/.vuepress/dist
+build/

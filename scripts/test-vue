@@ -1,0 +1,11 @@
+#!/bin/bash
+cd /workspace && starport app github.com/chain/vuetest
+cd /workspace && git clone https://github.com/tendermint/vue
+cd /workspace/vue && git checkout $1
+rm -rf /workspace/vuetest/vue/*
+cp -r /workspace/vue/packages/template/* /workspace/vuetest/vue
+cd /workspace/vuetest && starport serve &
+cd /workspace/vue/packages/client-js && npm i && npm run build && npm link
+cd /workspace/vue/packages/vue && npm i && npm run build && npm link
+cd /workspace/vue/packages/vuex && npm i && npm run build && npm link && npm link @starport/client-js
+cd /workspace/vuetest/vue && npm link @starport/vue @starport/vuex && npm run serve

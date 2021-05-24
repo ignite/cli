@@ -1,10 +1,5 @@
 FROM gitpod/workspace-full
 
-RUN wget https://golang.org/dl/go1.16.linux-amd64.tar.gz && \
-    rm -rf $HOME/go && \
-    tar -C $HOME -xzf go1.16.linux-amd64.tar.gz && \
-    rm go1.16.linux-amd64.tar.gz
+RUN brew install gh
 
-ENV GONAME go1.15
-
-RUN brew install gh protobuf
+RUN npm install -g npm@7.10.0

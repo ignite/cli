@@ -1,25 +1,26 @@
 package scaffolder
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"os"
-	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
-// AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc string, fields []string, resField []string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
+// AddMessage adds a new message to scaffolded app
+func (s *Scaffolder) AddMessage(
+	tracer *placeholder.Tracer,
+	moduleName,
+	msgName,
+	msgDesc string,
+	fields,
+	resFields []string,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
@@ -29,34 +30,17 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
-		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
-	}
 
-	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(msgName) {
-		return fmt.Errorf("%s can't be used as a message name", msgName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, msgName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, msgName); err != nil {
 		return err
-	}
-	if ok {
-		return fmt.Errorf("%s component is already added", msgName)
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields, isForbiddenMessageField)
+	parsedMsgFields, err := parseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resField, isGoReservedWord)
+	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -74,68 +58,47 @@ func (s *Scaffolder) AddMessage(moduleName string, msgName string, msgDesc strin
 			MsgDesc:    msgDesc,
 		}
 	)
-	// generate depending on the version
-	if majorVersion == cosmosver.Launchpad {
-		return errors.New("message scaffolding not supported on Launchpad")
-	}
-	// check if the msgServer convention is used
-	var msgServerDefined bool
-	msgServerDefined, err = isMsgServerDefined(s.path, moduleName)
+
+	// Check and support MsgServer convention
+	var gens []*genny.Generator
+	g, err = supportMsgServer(
+		tracer,
+		s.path,
+		&modulecreate.MsgServerOptions{
+			ModuleName: opts.ModuleName,
+			ModulePath: opts.ModulePath,
+			AppName:    opts.AppName,
+			OwnerName:  opts.OwnerName,
+		},
+	)
 	if err != nil {
 		return err
 	}
-	if !msgServerDefined {
-		// TODO: Determine if we want to support blockchains not using MsgServer convention
-		return errors.New("the blockchain must use MsgServer convention")
+	if g != nil {
+		gens = append(gens, g)
 	}
 
 	// Scaffold
-	g, err = message.NewStargate(opts)
+	g, err = message.NewStargate(tracer, opts)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	gens = append(gens, g)
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
-// isMsgCreated checks if the message is already scaffolded
-func isMsgCreated(appPath, moduleName, msgName string) (isCreated bool, err error) {
-	absPath, err := filepath.Abs(filepath.Join(
-		appPath,
-		moduleDir,
-		moduleName,
-		typesDirectory,
-		"message_"+msgName+".go",
-	))
-	if err != nil {
-		return false, err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		// Message doesn't exist
-		return false, nil
-	}
-
-	return true, err
-}
-
-// isForbiddenTypeField returns true if the name is forbidden as a message name
-func isForbiddenMessageField(name string) bool {
+// checkForbiddenMessageField returns true if the name is forbidden as a message name
+func checkForbiddenMessageField(name string) error {
 	if name == "creator" {
-		return true
+		return fmt.Errorf("%s is used by the message scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }

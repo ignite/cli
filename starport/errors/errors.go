@@ -1,9 +1,9 @@
-// Package errors keeps Starport errors.
-package errors
+// Package sperrors holds starport spesific errors.
+package sperrors
 
 import "errors"
 
 var (
-	// ErrStarportRequiresProtoc returned when protoc is not installed.
-	ErrStarportRequiresProtoc = errors.New("starport requires protoc installed.\nPlease, follow instructions on https://grpc.io/docs/protoc-installation")
+	// ErrOnlyStargateSupported is returned when underlying chain is not a stargate chain.
+	ErrOnlyStargateSupported = errors.New("this version of Cosmos SDK is no longer supported")
 )

@@ -8,24 +8,24 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
-// these needs to be created in the compiler time, otherwise packr2 won't be
-// able to find boxes.
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
 
-	//go:embed stargate_legacy/* stargate_legacy/**/*
-	fsStargateLegacy embed.FS
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
 
-	//go:embed launchpad/* launchpad/**/*
-	fsLaunchpad embed.FS
+	// stargateComponentTemplate is the template for a Stargate module type component
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
 
-	stargateTemplate       = xgenny.NewEmbedWalker(fsStargate, "stargate/")
-	stargateLegacyTemplate = xgenny.NewEmbedWalker(fsStargateLegacy, "stargate_legacy/")
-	launchpadTemplate      = xgenny.NewEmbedWalker(fsLaunchpad, "launchpad/")
+	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
+	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
@@ -49,9 +49,12 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 		}
 		return strconv
 	})
-	ctx.Set("nodash", func(s string) string {
-		return strings.ReplaceAll(s, "-", "")
-	})
+
+	// Used for proto package name
+	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+	plushhelpers.ExtendPlushContext(ctx)
+	testutil.Register(ctx, g)
+
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))

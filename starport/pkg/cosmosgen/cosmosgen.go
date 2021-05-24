@@ -13,6 +13,7 @@ type generateOptions struct {
 	gomodPath           string
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
+	specOut             string
 	vuexStoreRootPath   string
 }
 
@@ -50,6 +51,13 @@ func WithGoGeneration(gomodPath string) Option {
 	}
 }
 
+// WithOpenAPIGeneration adds OpenAPI spec generation.
+func WithOpenAPIGeneration(out string) Option {
+	return func(o *generateOptions) {
+		o.specOut = out
+	}
+}
+
 // IncludeDirs configures the third party proto dirs that used by app's proto.
 // relative to the projectPath.
 func IncludeDirs(dirs []string) Option {
@@ -60,21 +68,24 @@ func IncludeDirs(dirs []string) Option {
 
 // generator generates code for sdk and sdk apps.
 type generator struct {
-	ctx      context.Context
-	appPath  string
-	protoDir string
-	o        *generateOptions
-	deps     []gomodmodule.Version
+	ctx          context.Context
+	appPath      string
+	protoDir     string
+	o            *generateOptions
+	deps         []gomodmodule.Version
+	appModules   []module.Module
+	thirdModules map[string][]module.Module // app dependency-modules pair.
 }
 
 // Generate generates code from protoDir of an SDK app residing at appPath with given options.
 // protoDir must be relative to the projectPath.
 func Generate(ctx context.Context, appPath, protoDir string, options ...Option) error {
 	g := &generator{
-		ctx:      ctx,
-		appPath:  appPath,
-		protoDir: protoDir,
-		o:        &generateOptions{},
+		ctx:          ctx,
+		appPath:      appPath,
+		protoDir:     protoDir,
+		o:            &generateOptions{},
+		thirdModules: make(map[string][]module.Module),
 	}
 
 	for _, apply := range options {
@@ -100,5 +111,12 @@ func Generate(ctx context.Context, appPath, protoDir string, options ...Option) 
 		}
 	}
 
+	if g.o.specOut != "" {
+		if err := generateOpenAPISpec(g); err != nil {
+			return err
+		}
+	}
+
 	return nil
+
 }

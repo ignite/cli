@@ -4,15 +4,9 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
-
-	"github.com/tendermint/starport/starport/templates/module"
-
-	module_create "github.com/tendermint/starport/starport/templates/module/create"
-	module_import "github.com/tendermint/starport/starport/templates/module/import"
-
 	"go/parser"
 	"go/token"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -23,6 +17,12 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/validation"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
 )
 
 var (
@@ -30,11 +30,10 @@ var (
 )
 
 const (
-	wasmImport                 = "github.com/CosmWasm/wasmd"
-	apppkg                     = "app"
-	moduleDir                  = "x"
-	wasmVersionCommitLaunchpad = "b30902fe1fbe5237763775950f729b90bf34d53f"
-	wasmVersionCommitStargate  = "f9015cba4793d03cf7a77d7253375b16ad3d3eef"
+	wasmImport  = "github.com/CosmWasm/wasmd"
+	apppkg      = "app"
+	moduleDir   = "x"
+	wasmVersion = "v0.16.0"
 )
 
 // moduleCreationOptions holds options for creating a new module
@@ -46,7 +45,7 @@ type moduleCreationOptions struct {
 	ibcChannelOrdering string
 }
 
-// Option configures Chain.
+// ModuleCreationOption configures Chain.
 type ModuleCreationOption func(*moduleCreationOptions)
 
 // WithIBC scaffolds a module with IBC enabled
@@ -71,19 +70,7 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOption) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
-
-	// Apply the options
-	var creationOpts moduleCreationOptions
-	for _, apply := range options {
-		apply(&creationOpts)
-	}
-
+func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string, options ...ModuleCreationOption) error {
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -92,67 +79,57 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	if ok {
 		return fmt.Errorf("the module %v already exists", moduleName)
 	}
+
+	// Apply the options
+	var creationOpts moduleCreationOptions
+	for _, apply := range options {
+		apply(&creationOpts)
+	}
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
-
-	// Check if the IBC module can be scaffolded
-	if creationOpts.ibc {
-		// Cannot scaffold IBC module for Launchpad
-		if majorVersion == cosmosver.Launchpad {
-			return errors.New("launchpad doesn't support IBC")
-		}
-
-		// Old scaffolded apps miss a necessary placeholder, we give instruction for the change
+	opts := &modulecreate.CreateOptions{
+		ModuleName:  moduleName,
+		ModulePath:  path.RawPath,
+		AppName:     path.Package,
+		OwnerName:   owner(path.RawPath),
+		IsIBC:       creationOpts.ibc,
+		IBCOrdering: creationOpts.ibcChannelOrdering,
+	}
+	if opts.IsIBC {
 		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
 		if err != nil {
 			return err
 		}
-
 		if !ibcPlaceholder {
 			return ErrNoIBCRouterPlaceholder
 		}
 	}
 
-	var (
-		g    *genny.Generator
-		opts = &module_create.CreateOptions{
-			ModuleName:  moduleName,
-			ModulePath:  path.RawPath,
-			AppName:     path.Package,
-			OwnerName:   owner(path.RawPath),
-			IsIBC:       creationOpts.ibc,
-			IBCOrdering: creationOpts.ibcChannelOrdering,
-		}
-	)
-
 	// Generator from Cosmos SDK version
-	if majorVersion == cosmosver.Launchpad {
-		g, err = module_create.NewCreateLaunchpad(opts)
-	} else {
-		g, err = module_create.NewCreateStargate(opts)
-	}
+	g, err := modulecreate.NewStargate(opts)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
-		return err
-	}
+	gens := []*genny.Generator{g}
 
 	// Scaffold IBC module
-	if creationOpts.ibc {
-		g, err = module_create.NewIBC(opts)
+	if opts.IsIBC {
+		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
 			return err
 		}
-		run := genny.WetRunner(context.Background())
-		run.With(g)
-		if err := run.Run(); err != nil {
-			return err
-		}
+		gens = append(gens, g)
+	}
+	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
+		return err
+	}
+
+	runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	var validationErr validation.Error
+	if runErr != nil && !errors.As(runErr, &validationErr) {
+		return runErr
 	}
 
 	// Generate proto and format the source
@@ -160,24 +137,19 @@ func (s *Scaffolder) CreateModule(moduleName string, options ...ModuleCreationOp
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
+	if err := s.finish(pwd, path.RawPath); err != nil {
 		return err
 	}
-	return fmtProject(pwd)
+	return runErr
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(name string) error {
+func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) error {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
 	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return err
@@ -186,45 +158,36 @@ func (s *Scaffolder) ImportModule(name string) error {
 		return errors.New("wasm is already imported")
 	}
 
-	// import a specific version of ComsWasm
-	err = installWasm(version)
-	if err != nil {
-		return err
-	}
-
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
 
 	// run generator
-	var g *genny.Generator
-	if majorVersion == cosmosver.Launchpad {
-		g, err = module_import.NewImportLaunchpad(&module_import.ImportOptions{
-			Feature: name,
-			AppName: path.Package,
-		})
-	} else {
-		g, err = module_import.NewImportStargate(&module_import.ImportOptions{
-			Feature:          name,
-			AppName:          path.Package,
-			BinaryNamePrefix: path.Root,
-		})
-	}
-
+	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+		Feature:          name,
+		AppName:          path.Package,
+		BinaryNamePrefix: path.Root,
+	})
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+
+	if err := xgenny.RunWithValidation(tracer, g); err != nil {
 		return err
 	}
+
+	// import a specific version of ComsWasm
+	// NOTE(dshulyak) it must be installed after validation
+	if err := s.installWasm(); err != nil {
+		return err
+	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {
@@ -264,22 +227,8 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func installWasm(version cosmosver.Version) error {
-	switch version {
-	case cosmosver.LaunchpadAny:
-		return cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(os.Stderr),
-			).
-			Run(context.Background(),
-				step.New(
-					step.Exec(
-						gocmd.Name(),
-						"get",
-						wasmImport+"@"+wasmVersionCommitLaunchpad,
-					),
-				),
-			)
+func (s *Scaffolder) installWasm() error {
+	switch s.version {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
 			New(
@@ -290,7 +239,7 @@ func installWasm(version cosmosver.Version) error {
 					step.Exec(
 						gocmd.Name(),
 						"get",
-						wasmImport+"@"+wasmVersionCommitStargate,
+						wasmImport+"@"+wasmVersion,
 					),
 				),
 			)

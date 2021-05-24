@@ -1,14 +1,19 @@
 package networkbuilder
 
 import (
+	"bytes"
 	"context"
-	"errors"
+	"crypto/sha256"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types"
 	conf "github.com/tendermint/starport/starport/chainconf"
+	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -34,8 +39,8 @@ func newBlockchain(
 	appPath,
 	url,
 	hash,
-	home,
-	cliHome string,
+	home string,
+	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) (*Blockchain, error) {
 	bc := &Blockchain{
@@ -44,7 +49,7 @@ func newBlockchain(
 		hash:    hash,
 		builder: builder,
 	}
-	return bc, bc.init(ctx, chainID, home, cliHome, mustNotInitializedBefore)
+	return bc, bc.init(ctx, chainID, home, keyringBackend, mustNotInitializedBefore)
 }
 
 // init initializes blockchain by building the binaries and running the init command and
@@ -52,8 +57,8 @@ func newBlockchain(
 func (b *Blockchain) init(
 	ctx context.Context,
 	chainID,
-	home,
-	cliHome string,
+	home string,
+	keyringBackend chaincmd.KeyringBackend,
 	mustNotInitializedBefore bool,
 ) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
@@ -67,26 +72,25 @@ func (b *Blockchain) init(
 	if home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
-	if cliHome != "" {
-		chainOption = append(chainOption, chain.CLIHomePath(cliHome))
-	}
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
 	// password. This happens because Gitpod uses containers.
 	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
+	} else {
+		// Otherwise use the keyring backend specified by the user
+		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
-	c, err := chain.New(ctx, b.appPath, chainOption...)
+	chain, err := chain.New(ctx, b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}
 
-	if v := c.SDKVersion(); v != cosmosver.Stargate {
-		return errors.New("starport doesn't support Cosmos SDK Launchpad blockchains")
+	if !chain.Version.Major().Is(cosmosver.Stargate) {
+		return sperrors.ErrOnlyStargateSupported
 	}
-
-	chainHome, err := c.Home()
+	chainHome, err := chain.Home()
 	if err != nil {
 		return err
 	}
@@ -98,26 +102,20 @@ func (b *Blockchain) init(
 	}
 
 	// cleanup home dir of app if exists.
-	paths, err := c.StoragePaths()
-	if err != nil {
+	if err := xos.RemoveAllUnderHome(chainHome); err != nil {
 		return err
-	}
-	for _, path := range paths {
-		if err := xos.RemoveAllUnderHome(path); err != nil {
-			return err
-		}
 	}
 
-	if err := c.Build(ctx); err != nil {
+	if err := chain.Build(ctx); err != nil {
 		return err
 	}
-	if err := c.Init(ctx); err != nil {
+	if err := chain.Init(ctx); err != nil {
 		return err
 	}
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// backup initial genesis so it can be used during `start`.
-	genesisPath, err := c.GenesisPath()
+	genesisPath, err := chain.GenesisPath()
 	if err != nil {
 		return err
 	}
@@ -129,7 +127,7 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	b.chain = c
+	b.chain = chain
 	return nil
 }
 
@@ -173,8 +171,59 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	}, nil
 }
 
+// createOptions holds info about how to create a chain.
+type createOptions struct {
+	genesisURL string
+}
+
+// CreateOption configures chain creation.
+type CreateOption func(*createOptions)
+
+// WithCustomGenesisFromURL creates the chain with a custom one living at u.
+func WithCustomGenesisFromURL(u string) CreateOption {
+	return func(o *createOptions) {
+		o.genesisURL = u
+	}
+}
+
 // Create submits Genesis to SPN to announce a new network.
-func (b *Blockchain) Create(ctx context.Context) error {
+func (b *Blockchain) Create(ctx context.Context, options ...CreateOption) error {
+	o := createOptions{}
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	var genesisHash string
+
+	if o.genesisURL != "" {
+		// download the custom given genesis, validate it and calculate its hash.
+		var genesis []byte
+		var err error
+
+		genesis, genesisHash, err = genesisAndHashFromURL(ctx, o.genesisURL)
+		if err != nil {
+			return err
+		}
+
+		genesisPath, err := b.chain.GenesisPath()
+		if err != nil {
+			return err
+		}
+
+		if err := os.WriteFile(genesisPath, genesis, 0666); err != nil {
+			return err
+		}
+
+		commands, err := b.chain.Commands(ctx)
+		if err != nil {
+			return err
+		}
+
+		if err := commands.ValidateGenesis(ctx); err != nil {
+			return err
+		}
+	}
+
 	account, err := b.builder.AccountInUse()
 	if err != nil {
 		return err
@@ -183,7 +232,15 @@ func (b *Blockchain) Create(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	return b.builder.spnclient.ChainCreate(ctx, account.Name, chainID, b.url, b.hash)
+	return b.builder.spnclient.ChainCreate(
+		ctx,
+		account.Name,
+		chainID,
+		b.url,
+		b.hash,
+		o.genesisURL,
+		genesisHash,
+	)
 }
 
 // Proposal holds proposal info of validator candidate to join to a network.
@@ -224,7 +281,6 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 
 // IssueGentx creates a Genesis transaction for account with proposal.
 func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, proposal Proposal) (gentx jsondoc.Doc, err error) {
-	proposal.Validator.Name = account.Name
 	commands, err := b.chain.Commands(ctx)
 	if err != nil {
 		return nil, err
@@ -256,7 +312,14 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 //
 // address is the ip+port combination of a p2p address of a node (does not include id).
 // https://docs.tendermint.com/master/spec/p2p/config.html.
-func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress string, coins types.Coins, gentx []byte, selfDelegation types.Coin) error {
+func (b *Blockchain) Join(
+	ctx context.Context,
+	account *chain.Account,
+	validatorAddress,
+	publicAddress string,
+	gentx []byte,
+	selfDelegation types.Coin,
+) error {
 	commands, err := b.chain.Commands(ctx)
 	if err != nil {
 		return err
@@ -278,18 +341,52 @@ func (b *Blockchain) Join(ctx context.Context, accountAddress, publicAddress str
 		return err
 	}
 
-	return b.builder.Propose(
-		ctx,
-		chainID,
-		spn.AddAccountProposal(accountAddress, coins),
-		spn.AddValidatorProposal(gentx, accountAddress, selfDelegation, p2pAddress),
-	)
+	var proposalOptions []spn.ProposalOption
+	if account != nil {
+		coins, err := types.ParseCoinsNormalized(account.Coins)
+		if err != nil {
+			return err
+		}
+
+		proposalOptions = append(proposalOptions, spn.AddAccountProposal(account.Address, coins))
+	}
+
+	proposalOptions = append(proposalOptions, spn.AddValidatorProposal(gentx, validatorAddress, selfDelegation, p2pAddress))
+
+	return b.builder.Propose(ctx, chainID, proposalOptions...)
 }
 
 // Cleanup closes the event bus and cleanups everything related to installed blockchain.
 func (b *Blockchain) Cleanup() error {
 	b.builder.ev.Shutdown()
 	return nil
+}
+
+func genesisAndHashFromURL(ctx context.Context, u string) (genesis []byte, hash string, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+
+	genesis, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
+
+	h := sha256.New()
+	if _, err := io.Copy(h, bytes.NewReader(genesis)); err != nil {
+		return nil, "", err
+	}
+
+	hexhash := hex.EncodeToString(h.Sum(nil))
+
+	return genesis, hexhash, nil
 }
 
 type DataDirExistsError struct {

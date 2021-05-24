@@ -11,8 +11,8 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-
 	conf "github.com/tendermint/starport/starport/chainconf"
+	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -27,8 +27,6 @@ var (
 		"proto",
 		"third_party",
 	}
-
-	vuePath = "vue"
 
 	errorColor = color.Red.Render
 	infoColor  = color.Yellow.Render
@@ -77,9 +75,6 @@ type chainOptions struct {
 	// homePath of the chain's config dir.
 	homePath string
 
-	// cliHomePath of the chain's config dir.
-	cliHomePath string
-
 	// keyring backend used by commands if not specified in configuration
 	keyringBackend chaincmd.KeyringBackend
 
@@ -112,13 +107,6 @@ func ID(id string) Option {
 func HomePath(path string) Option {
 	return func(c *Chain) {
 		c.options.homePath = path
-	}
-}
-
-// CLIHomePath replaces chain's cli configuration home path with given path.
-func CLIHomePath(path string) Option {
-	return func(c *Chain) {
-		c.options.cliHomePath = path
 	}
 }
 
@@ -179,6 +167,10 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
+	if !c.Version.Major().Is(cosmosver.Stargate) {
+		return nil, sperrors.ErrOnlyStargateSupported
+	}
+
 	// initialize the plugin depending on the version of the chain
 	c.plugin = c.pickPlugin()
 
@@ -203,11 +195,6 @@ func (c *Chain) appVersion() (v version, err error) {
 	return v, nil
 }
 
-// SDKVersion returns the version of SDK used to build the blockchain.
-func (c *Chain) SDKVersion() cosmosver.MajorVersion {
-	return c.plugin.Version()
-}
-
 // RPCPublicAddress points to the public address of Tendermint RPC, this is shared by
 // other chains for relayer related actions.
 func (c *Chain) RPCPublicAddress() (string, error) {
@@ -220,25 +207,6 @@ func (c *Chain) RPCPublicAddress() (string, error) {
 		rpcAddress = conf.Host.RPC
 	}
 	return rpcAddress, nil
-}
-
-// StoragePaths returns the home and the cli home (for Launchpad blockchain)
-func (c *Chain) StoragePaths() (paths []string, err error) {
-	home, err := c.Home()
-	if err != nil {
-		return paths, err
-	}
-	paths = append(paths, home)
-
-	cliHome, err := c.CLIHome()
-	if err != nil {
-		return paths, err
-	}
-	if cliHome != home {
-		paths = append(paths, cliHome)
-	}
-
-	return paths, nil
 }
 
 // ConfigPath returns the config path of the chain
@@ -298,29 +266,6 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
-// BinaryCLI returns the name of app's secondary (appcli) binary.
-func (c *Chain) BinaryCLI() string {
-	return c.app.CLI()
-}
-
-// Binaries returns the list of binaries available for the chain.
-func (c *Chain) Binaries() ([]string, error) {
-	binary, err := c.Binary()
-	if err != nil {
-		return nil, err
-	}
-
-	binaries := []string{
-		binary,
-	}
-
-	if c.Version.Major().Is(cosmosver.Launchpad) {
-		binaries = append(binaries, c.app.CLI())
-	}
-
-	return binaries, nil
-}
-
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
@@ -353,37 +298,6 @@ func (c *Chain) DefaultHome() (string, error) {
 	}
 
 	return c.plugin.Home(), nil
-}
-
-// CLIHome returns the blockchain node's home dir.
-// This directory is the same as home for Stargate, it is a separate directory for Launchpad
-func (c *Chain) CLIHome() (string, error) {
-	// Return home dir for Stargate app
-	if c.SDKVersion().Is(cosmosver.Stargate) {
-		return c.Home()
-	}
-
-	// check if cli home is explicitly defined for the app
-	home := c.options.cliHomePath
-	if home == "" {
-		// check if cli home is defined in config
-		config, err := c.Config()
-		if err != nil {
-			return "", err
-		}
-		if config.Init.CLIHome != "" {
-			home = config.Init.CLIHome
-		} else {
-			// Use default for cli home otherwise
-			home = c.plugin.CLIHome()
-		}
-	}
-
-	// expand environment variables in home
-	home = filepath.Join(os.ExpandEnv(home))
-
-	// Return default home otherwise
-	return home, nil
 }
 
 // GenesisPath returns genesis.json path of the app.
@@ -435,28 +349,16 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
-	ccoptions := []chaincmd.Option{
+	chainCommandOptions := []chaincmd.Option{
 		chaincmd.WithChainID(id),
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
 		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
 	}
 
-	if c.plugin.Version() == cosmosver.Launchpad {
-		cliHome, err := c.CLIHome()
-		if err != nil {
-			return chaincmdrunner.Runner{}, err
-		}
-
-		ccoptions = append(ccoptions,
-			chaincmd.WithLaunchpadCLI(c.BinaryCLI()),
-			chaincmd.WithLaunchpadCLIHome(cliHome),
-		)
-	}
-
 	// use keyring backend if specified
 	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
+		chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
 	} else {
 		// check if keyring backend is specified in config
 		if config.Init.KeyringBackend != "" {
@@ -464,14 +366,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 			if err != nil {
 				return chaincmdrunner.Runner{}, err
 			}
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(configKeyringBackend))
+			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(configKeyringBackend))
 		} else {
 			// default keyring backend used is OS
-			ccoptions = append(ccoptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
+			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
 		}
 	}
 
-	cc := chaincmd.New(binary, ccoptions...)
+	cc := chaincmd.New(binary, chainCommandOptions...)
 
 	ccroptions := []chaincmdrunner.Option{}
 	if c.logLevel == LogVerbose {
@@ -479,7 +381,6 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 			chaincmdrunner.Stdout(os.Stdout),
 			chaincmdrunner.Stderr(os.Stderr),
 			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
-			chaincmdrunner.CLILogPrefix(c.genPrefix(logAppcli)),
 		)
 	}
 

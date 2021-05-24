@@ -1,52 +1,41 @@
 package scaffolder
 
 import (
-	"context"
-	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/templates/ibc"
-
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
 const (
 	ibcModuleImplementation = "module_ibc.go"
-	keeperDirectory         = "keeper"
-	typesDirectory          = "types"
 )
 
-// AddType adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetFields []string, ackFields []string) error {
-	version, err := s.version()
-	if err != nil {
-		return err
-	}
-	majorVersion := version.Major()
-	if majorVersion.Is(cosmosver.Launchpad) {
-		return errors.New("launchpad is not supported for IBC")
-	}
-
+// AddPacket adds a new type stype to scaffolded app by using optional type fields.
+func (s *Scaffolder) AddPacket(
+	tracer *placeholder.Tracer,
+	moduleName,
+	packetName string,
+	packetFields,
+	ackFields []string,
+	noMessage bool,
+) error {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return err
 	}
 
-	// Module must exist
-	ok, err := moduleExists(s.path, moduleName)
-	if err != nil {
+	if err := checkComponentValidity(s.path, moduleName, packetName); err != nil {
 		return err
-	}
-	if !ok {
-		return fmt.Errorf("the module %s doesn't exist", moduleName)
 	}
 
 	// Module must implement IBC
-	ok, err = isIBCModule(s.path, moduleName)
+	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
 		return err
 	}
@@ -54,28 +43,14 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 		return fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if isForbiddenComponentName(packetName) {
-		return fmt.Errorf("%s can't be used as a packet name", packetName)
-	}
-
-	// Check component name is not already used
-	ok, err = isComponentCreated(s.path, moduleName, packetName)
-	if err != nil {
-		return err
-	}
-	if ok {
-		return fmt.Errorf("the component %s already exist", packetName)
-	}
-
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields, isForbiddenPacketField)
+	parsedPacketFields, err := parseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields, isGoReservedWord)
+	parsedAcksFields, err := parseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -91,25 +66,21 @@ func (s *Scaffolder) AddPacket(moduleName string, packetName string, packetField
 			PacketName: packetName,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
+			NoMessage:  noMessage,
 		}
 	)
-	g, err = ibc.NewPacket(opts)
+	g, err = ibc.NewPacket(tracer, opts)
 	if err != nil {
 		return err
 	}
-	run := genny.WetRunner(context.Background())
-	run.With(g)
-	if err := run.Run(); err != nil {
+	if err := xgenny.RunWithValidation(tracer, g); err != nil {
 		return err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
 		return err
 	}
-	if err := s.protoc(pwd, path.RawPath, majorVersion); err != nil {
-		return err
-	}
-	return fmtProject(pwd)
+	return s.finish(pwd, path.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface
@@ -129,32 +100,15 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 	return true, err
 }
 
-// isPacketCreated returns true if the provided packet already exists in the module
-// we naively check the existence of keeper/<packetName>.go for this check
-func isPacketCreated(appPath, moduleName, packetName string) (isCreated bool, err error) {
-	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName, keeperDirectory, packetName+".go"))
-	if err != nil {
-		return false, err
-	}
-
-	_, err = os.Stat(absPath)
-	if os.IsNotExist(err) {
-		// Packet doesn't exist
-		return false, nil
-	}
-
-	return true, err
-}
-
-// isForbiddenPacketField returns true if the name is forbidden as a packet name
-func isForbiddenPacketField(name string) bool {
+// checkForbiddenPacketField returns true if the name is forbidden as a packet name
+func checkForbiddenPacketField(name string) error {
 	switch name {
 	case
 		"sender",
 		"port",
 		"channelID":
-		return true
+		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
-	return isGoReservedWord(name)
+	return checkGoReservedWord(name)
 }

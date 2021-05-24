@@ -7,11 +7,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-
-	conf "github.com/tendermint/starport/starport/chainconf"
-
 	"github.com/imdario/mergo"
+	conf "github.com/tendermint/starport/starport/chainconf"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 )
 
@@ -37,13 +35,6 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 	if err := os.RemoveAll(home); err != nil {
-		return err
-	}
-	cliHome, err := c.CLIHome()
-	if err != nil {
-		return err
-	}
-	if err := os.RemoveAll(cliHome); err != nil {
 		return err
 	}
 
@@ -121,7 +112,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 		// If the account doesn't provide an address, we create one
 		if accountAddress == "" {
-			generatedAccount, err = commands.AddAccount(ctx, account.Name, "")
+			generatedAccount, err = commands.AddAccount(ctx, account.Name, account.Mnemonic)
 			if err != nil {
 				return err
 			}

@@ -1,5 +1,38 @@
 # Changelog
 
+## `v0.16.0`
+
+### Features:
+
+- The new `join` flag adds the ability to pass a `--genesis` file and `--peers` address list with `starport network chain join`
+- The new `show` flag adds the ability to show `--genesis` and `--peers` list with `starport network chain show`
+- `protoc` is now bundled with Starport CLI. You don't need to install it anymore.
+- Starport is now published automatically on the Docker Hub
+- `starport relayer` `configure` and `connect` commands now use the [confio/ts-relayer](https://github.com/confio/ts-relayer) under the hood. Also, checkout the new `starport relayer lowlevel` command.
+- An OpenAPI spec for your chain now automatically generated with `serve` and `build` commands. A console is available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded chains.
+- Keplr extension is supported on web apps created with Starport
+- Added tests to the scaffold
+- Improved reliability of scaffolding by detecting placeholders
+- Added ability to scaffold modules in chains not created with Starport
+- Added the ability to scaffold Cosmos SDK queries
+- IBC relayer support is available on web apps created with Starport
+- New types without CRUD operations can be added with the `--no-message` flag in the `type` command
+- New packet without messages can be added with the `--no-message` flag in the `packet` command
+- Added `docs` command to read Starport documentation on the CLI
+- Published documentation on https://docs.starport.network
+- Added `mnemonic` property to account in the `accounts` list to generate a key from a mnemonic
+
+### Fixes:
+
+- `starport network chain join` hanging issue when creating an account
+- Error when scaffolding a chain with an underscore in the repo name (thanks @bensooraj!)
+
+### Changes:
+
+- `starport serve` no longer starts the web app in the `vue` directory (use `npm` to start it manually)
+- Default scaffold no longer includes legacy REST API endpoints (thanks @bensooraj!)
+- Removed support for Cosmos SDK v0.39 Launchpad
+
 ## `v0.15.0`
 
 ### Features:

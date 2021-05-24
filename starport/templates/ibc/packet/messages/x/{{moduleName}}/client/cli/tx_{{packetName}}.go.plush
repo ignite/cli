@@ -1,0 +1,58 @@
+package cli
+
+import (
+    "strconv"
+	"github.com/spf13/cobra"
+
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+	channelutils "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/client/utils"
+)
+
+var _ = strconv.Itoa(0)
+
+func CmdSend<%= title(packetName) %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "send-<%= packetName %> [src-port] [src-channel]<%= for (i, field) in fields { %> [<%= field.Name %>]<% } %>",
+		Short: "Send a <%= packetName %> over IBC",
+		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
+		RunE: func(cmd *cobra.Command, args []string) error {
+      <%= for (i, field) in fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i+2 %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
+      <% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			sender := clientCtx.GetFromAddress().String()
+            srcPort := args[0]
+            srcChannel := args[1]
+
+            // Get the relative timeout timestamp
+            timeoutTimestamp, err := cmd.Flags().GetUint64(flagPacketTimeoutTimestamp)
+            if err != nil {
+                return err
+            }
+            consensusState, _, _, err := channelutils.QueryLatestConsensusState(clientCtx, srcPort, srcChannel)
+            if err != nil {
+                return err
+            }
+            if timeoutTimestamp != 0 {
+                timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp
+            }
+
+			msg := types.NewMsgSend<%= title(packetName) %>(sender, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	cmd.Flags().Uint64(flagPacketTimeoutTimestamp, DefaultRelativePacketTimeoutTimestamp, "Packet timeout timestamp in nanoseconds. Default is 10 minutes.")
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}

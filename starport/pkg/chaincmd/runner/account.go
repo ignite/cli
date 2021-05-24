@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -27,7 +28,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 
 	// check if account already exists.
 	var accounts []Account
-	if err := r.run(ctx, runOptions{stdout: b}, r.cc.ListKeysCommand()); err != nil {
+	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.ListKeysCommand()); err != nil {
 		return Account{}, err
 	}
 	if err := json.NewDecoder(b).Decode(&accounts); err != nil {
@@ -50,22 +51,25 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 		input := &bytes.Buffer{}
 		fmt.Fprintln(input, mnemonic)
 
-		if r.cc.KeyringPassword() != "" {
-			fmt.Fprintln(input, r.cc.KeyringPassword())
-			fmt.Fprintln(input, r.cc.KeyringPassword())
+		if r.chainCmd.KeyringPassword() != "" {
+			fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+			fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		}
 
 		if err := r.run(
 			ctx,
 			runOptions{},
-			r.cc.ImportKeyCommand(name),
+			r.chainCmd.ImportKeyCommand(name),
 			step.Write(input.Bytes()),
 		); err != nil {
 			return Account{}, err
 		}
 	} else {
-		// note that, launchpad prints account output from stderr.
-		if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.cc.AddKeyCommand(name)); err != nil {
+		if err := r.run(ctx, runOptions{
+			stdout: b,
+			stderr: os.Stderr,
+			stdin:  os.Stdin,
+		}, r.chainCmd.AddKeyCommand(name)); err != nil {
 			return Account{}, err
 		}
 		if err := json.NewDecoder(b).Decode(&account); err != nil {
@@ -76,17 +80,26 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	}
 
 	// get full details of the account.
-	opt := []step.Option{
-		r.cc.ShowKeyAddressCommand(name),
+	runOptions := runOptions{
+		stdout: b,
+		stderr: os.Stderr,
 	}
 
-	if r.cc.KeyringPassword() != "" {
+	stepOptions := []step.Option{
+		r.chainCmd.ShowKeyAddressCommand(name),
+	}
+
+	if r.chainCmd.KeyringPassword() != "" {
+		// If keyring password is defined, we write it into the command input
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword())
-		opt = append(opt, step.Write(input.Bytes()))
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		stepOptions = append(stepOptions, step.Write(input.Bytes()))
+	} else {
+		// Otherwise we provide os stdin to the command
+		runOptions.stdin = os.Stdin
 	}
 
-	if err := r.run(ctx, runOptions{stdout: b}, opt...); err != nil {
+	if err := r.run(ctx, runOptions, stepOptions...); err != nil {
 		return Account{}, err
 	}
 	account.Address = strings.TrimSpace(b.String())
@@ -106,12 +119,12 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 	b := &bytes.Buffer{}
 
 	opt := []step.Option{
-		r.cc.ShowKeyAddressCommand(name),
+		r.chainCmd.ShowKeyAddressCommand(name),
 	}
 
-	if r.cc.KeyringPassword() != "" {
+	if r.chainCmd.KeyringPassword() != "" {
 		input := &bytes.Buffer{}
-		fmt.Fprintln(input, r.cc.KeyringPassword())
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
 		opt = append(opt, step.Write(input.Bytes()))
 	}
 
@@ -131,5 +144,5 @@ func (r Runner) ShowAccount(ctx context.Context, name string) (Account, error) {
 
 // AddGenesisAccount adds account to genesis by its address.
 func (r Runner) AddGenesisAccount(ctx context.Context, address, coins string) error {
-	return r.run(ctx, runOptions{}, r.cc.AddGenesisAccountCommand(address, coins))
+	return r.run(ctx, runOptions{}, r.chainCmd.AddGenesisAccountCommand(address, coins))
 }

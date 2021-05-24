@@ -1,23 +1,23 @@
 package protopath
 
 import (
+	"context"
 	"errors"
-	"os"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"golang.org/x/mod/module"
 )
 
 var (
-	globalInclude = []string{
+	globalInclude = xfilepath.List(
 		// this one should be already known by naked protoc execution, but adding it anyway to making sure.
-		os.ExpandEnv("$HOME/local/include"),
-
+		xfilepath.JoinFromHome(xfilepath.Path("local/include")),
 		// this one is the suggested installation path for placing default proto by
 		// https://grpc.io/docs/protoc-installation/.
-		os.ExpandEnv("$HOME/.local/include"),
-	}
+		xfilepath.JoinFromHome(xfilepath.Path(".local/include")),
+	)
 )
 
 // Module represents a go module that hosts dependency proto paths.
@@ -38,7 +38,12 @@ func NewModule(importPath string, protoPaths ...string) Module {
 // r should be the list of required packages of the target go app. it is used to resolve exact versions
 // of the go modules that used by the target app.
 // global dependencies are also included to paths.
-func ResolveDependencyPaths(versions []module.Version, modules ...Module) (paths []string, err error) {
+func ResolveDependencyPaths(ctx context.Context, src string, versions []module.Version, modules ...Module) (paths []string, err error) {
+	globalInclude, err := globalInclude()
+	if err != nil {
+		return nil, err
+	}
+
 	paths = append(paths, globalInclude...)
 
 	var importPaths []string
@@ -54,7 +59,7 @@ func ResolveDependencyPaths(versions []module.Version, modules ...Module) (paths
 	}
 
 	for i, v := range vs {
-		path, err := gomodule.LocatePath(v)
+		path, err := gomodule.LocatePath(ctx, src, v)
 		if err != nil {
 			return nil, err
 		}
