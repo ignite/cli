@@ -8,6 +8,7 @@ BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 
 pre-build:
 	@git fetch --tags
+	@./scripts/gen-nodetime
 
 install: pre-build
 	@echo Installing Starport...
