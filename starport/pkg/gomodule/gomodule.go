@@ -76,8 +76,10 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 // LocatePath locates pkg's absolute path managed by 'go mod' on the local filesystem.
 func LocatePath(ctx context.Context, src string, pkg module.Version) (path string, err error) {
 	// can be a local package.
-	if _, err := os.Stat(pkg.Path); !os.IsNotExist(err) {
-		return pkg.Path, nil
+	if pkg.Version == "" { // indicates that this is a local package.
+		if _, err := os.Stat(pkg.Path); !os.IsNotExist(err) {
+			return pkg.Path, nil
+		}
 	}
 
 	// otherwise, it is hosted.
