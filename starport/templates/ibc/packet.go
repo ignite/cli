@@ -95,11 +95,11 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
 	} else {
 		// Encode packet acknowledgment
-		packetAckBytes, err := packetAck.Marshal()
+		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
 		if err != nil {
 			return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
 		}
-		ack = channeltypes.NewResultAcknowledgement(packetAckBytes)
+		ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
 	}
 	ctx.EventManager().EmitEvent(
 		sdk.NewEvent(
