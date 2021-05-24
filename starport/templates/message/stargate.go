@@ -33,7 +33,7 @@ func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.Replace(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.Msg%[2]v:
