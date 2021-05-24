@@ -9,7 +9,7 @@
 - `protoc` is now bundled with Starport CLI so installing Starport is easier
 - Starport is now published automatically on the Docker Hub
 - `starport relayer` `configure` and `connect` commands now use the TypeScript relayer
-- Added automatic OpenAPI generation by default available on port `1317`
+- An OpenAPI spec for your chain now automatically generated with `serve` and `build` commands. A console is available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded chains.
 - Keplr extension is supported on web apps created with Starport
 - Added tests to the scaffold
 - Improved reliability of scaffolding by detecting placeholders
