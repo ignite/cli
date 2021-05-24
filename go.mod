@@ -14,7 +14,6 @@ require (
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
-	github.com/go-bindata/go-bindata v3.1.2+incompatible
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/logger v1.0.3
@@ -26,9 +25,8 @@ require (
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
-	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/iancoleman/strcase v0.1.3
-	github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9 // indirect
+	github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9
 	github.com/imdario/mergo v0.3.11
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.1.0
@@ -39,7 +37,6 @@ require (
 	github.com/pelletier/go-toml v1.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
-	github.com/rakyll/statik v0.1.7
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rs/cors v1.7.0
 	github.com/spf13/cobra v1.1.3
