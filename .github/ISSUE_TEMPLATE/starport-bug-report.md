@@ -17,3 +17,4 @@ Steps to reproduce the behavior:
 **Please provide output of commands**
  - `starport version`
  - `go version`
+ - `uname -a`
