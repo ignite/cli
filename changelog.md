@@ -6,7 +6,7 @@
 
 - The new `join` flag adds the ability to pass a `--genesis` file and `--peers` address list with `starport network chain join`
 - The new `show` flag adds the ability to show `--genesis` and `--peers` list with `starport network chain show`
-- `protoc` is now bundled with Starport CLI so installing Starport is easier
+- `protoc` is now bundled with Starport CLI. You don't need to install it anymore.
 - Starport is now published automatically on the Docker Hub
 - `starport relayer` `configure` and `connect` commands now use the [confio/ts-relayer](https://github.com/confio/ts-relayer) under the hood. Also, checkout the new `starport relayer lowlevel` command.
 - An OpenAPI spec for your chain now automatically generated with `serve` and `build` commands. A console is available at `localhost:1317` and spec at `localhost:1317/static/openapi.yml` by default for the newly scaffolded chains.
