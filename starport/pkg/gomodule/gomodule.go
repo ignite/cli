@@ -9,7 +9,6 @@ import (
 	"io"
 	"io/fs"
 	"io/ioutil"
-	"os"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -77,9 +76,10 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 func LocatePath(ctx context.Context, src string, pkg module.Version) (path string, err error) {
 	// can be a local package.
 	if pkg.Version == "" { // indicates that this is a local package.
-		if _, err := os.Stat(pkg.Path); !os.IsNotExist(err) {
+		if filepath.IsAbs(pkg.Path) {
 			return pkg.Path, nil
 		}
+		return filepath.Join(src, pkg.Path), nil
 	}
 
 	// otherwise, it is hosted.
