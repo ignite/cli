@@ -26,7 +26,6 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/iancoleman/strcase v0.1.3
-	github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9
 	github.com/imdario/mergo v0.3.11
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.1.0
@@ -42,6 +41,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
+	github.com/tendermint/spm v0.0.0-20210524110815-6d7452d2dc4a
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.9
 	github.com/tendermint/vue v0.1.49
