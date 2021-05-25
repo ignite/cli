@@ -11,8 +11,8 @@ npm run build
 
 
 tar -czvf nodetime-linux-arm64.tar.gz nodetime-linux-arm64
-tar -czvf nodetime-linux-x64.tar.gz nodetime-linux-x64
-tar -czvf nodetime-darwin-x64.tar.gz nodetime-macos-x64
+tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux-x64
+tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos-x64
 tar -czvf nodetime-darwin-arm64.tar.gz nodetime-macos-arm64
 
 cp nodetime-linux-arm64.tar.gz ../../../starport/pkg/nodetime/
