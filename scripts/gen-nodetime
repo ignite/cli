@@ -6,7 +6,10 @@ set -e
 
 cd ./scripts/data/gen-nodetime
 
-npm i 
+node --version
+
+npm i
+npm run prebuild
 npm run build
 
 
