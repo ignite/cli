@@ -13,6 +13,12 @@ Starport is written in the Go programming language. To use Starport on a local i
 
 - [Golang >=1.16](https://golang.org/)
 
+## Upgrading
+
+Remove any previous Starport installation. To do so, run `rm $(which starport)` command with or without `sudo` depending on your user and repeat until there is no `starport` binary left in your system.
+
+Then follow the regular installation instructions.
+
 ## Installing Starport with cURL
 
 ```
