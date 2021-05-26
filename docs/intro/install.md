@@ -13,11 +13,30 @@ Starport is written in the Go programming language. To use Starport on a local i
 
 - [Golang >=1.16](https://golang.org/)
 
-## Upgrading
+## Upgrading Your Starport Installation
 
-Remove any previous Starport installation. To do so, run `rm $(which starport)` command with or without `sudo` depending on your user and repeat until there is no `starport` binary left in your system.
+Before you install a new version of Starport, remove all existing Starport installations. 
 
-Then follow the regular installation instructions.
+To remove the current Starport installation:
+
+1. Run the `which starport` command to locate the Starport executable file.  By default, the Starport binary is installed in `/usr/local/bin`.
+
+1.  Change to the directory where Starport is installed. For example:
+
+    ```bash
+    cd /usr/local/bin
+    ```
+
+
+1.  Run the remove command.  Depending on your user permissions, run the command with or without `sudo`:
+
+    ```bash
+    rm starport
+    ``` 
+    
+1. Repeat these steps until all `starport` installations are removed from your system.
+
+After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo. 
 
 ## Installing Starport with cURL
 
