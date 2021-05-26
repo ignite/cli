@@ -19,22 +19,10 @@ Before you install a new version of Starport, remove all existing Starport insta
 
 To remove the current Starport installation:
 
-1. Run the `which starport` command to locate the Starport executable file.  By default, the Starport binary is installed in `/usr/local/bin`.
-
-1.  Change to the directory where Starport is installed. For example:
-
-    ```bash
-    cd /usr/local/bin
-    ```
-
-
-1.  Run the remove command.  Depending on your user permissions, run the command with or without `sudo`:
-
-    ```bash
-    rm starport
-    ``` 
-    
-1. Repeat these steps until all `starport` installations are removed from your system.
+1. On your terminal window, press Ctrl C to stop the chain that you started with `starport serve`.
+1. Remove the Starport binary with `rm $(which starport).
+   Depending on your user permissions, run the command with or without `sudo`.
+1. Repeat this step until all `starport` installations are removed from your system.
 
 After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo. 
 
