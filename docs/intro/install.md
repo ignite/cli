@@ -68,3 +68,4 @@ cd starport && make install
 - To setup a local development environment, install Starport locally on your computer.
 - Install Starport by fetching the binary using cURL, Homebrew, or by building from source.
 - The latest version is installed by default. You can install previous versions of the precompiled `starport` binary.
+- Stop the chain and remove existing versions before installing a new version.
