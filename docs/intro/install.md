@@ -31,7 +31,7 @@ After Starport builds the chain, the resulting binary is installed in `~/go/bin`
 export $PATH=~/go/bin:$PATH
 ```
 
-And apply the changes for the current terminal:
+Apply the changes for the current terminal:
 
 ```
 source ~/.bashrc
