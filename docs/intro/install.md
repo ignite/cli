@@ -23,6 +23,22 @@ The latest `starport` binary is downloaded from the Github repo and installed in
 
 To install previous versions of the precompiled `starport` binary or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
 
+### Adding `~/go/bin` to `$PATH`
+
+After Starport builds the chain, the resulting binary is installed in `~/go/bin`. For Starport to be able to access this binary the path to this location has to be set. To do so, add the following line to your shell config file (for example, `~/.bashrc`):
+
+```
+export $PATH=~/go/bin:$PATH
+```
+
+And apply the changes for the current terminal:
+
+```
+source ~/.bashrc
+```
+
+Please, follow the steps above if you get the following error: `: exec: “appd”: executable file not found in $PATH`.
+
 ### Write permission
 
 Starport installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
