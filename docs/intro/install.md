@@ -37,7 +37,9 @@ Apply the changes for the current terminal:
 source ~/.bashrc
 ```
 
-Please, follow the steps above if you get the following error: `: exec: “appd”: executable file not found in $PATH`.
+Your path is not set correctly if you get the following error: `: exec: “appd”: executable file not found in $PATH`.  Be sure to follow these steps. To use a different location and for more details, see [The GOPATH environment variable](https://golang.org/doc/gopath_code#GOPATH). 
+
+
 
 ### Write permission
 
