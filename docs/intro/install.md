@@ -41,7 +41,7 @@ Your path is not set correctly if you get the following error: `: exec: â€œappdâ
 
 
 
-### Write permission
+### Write Permission
 
 Starport installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
 
