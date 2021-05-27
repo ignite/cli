@@ -25,7 +25,7 @@ To install previous versions of the precompiled `starport` binary or customize t
 
 ### Adding `~/go/bin` to `$PATH`
 
-After Starport builds the chain, the resulting binary is installed in `~/go/bin`. For Starport to be able to access this binary the path to this location has to be set. To do so, add the following line to your shell config file (for example, `~/.bashrc`):
+After Starport builds the chain, the resulting binary is installed in `~/go/bin`.  For Starport to access the `bin` subdirectory that contains the executable binary, you must set the path to this location. To set the PATH, add the following line to your shell config file (for example, `~/.bashrc`):
 
 ```
 export $PATH=~/go/bin:$PATH
