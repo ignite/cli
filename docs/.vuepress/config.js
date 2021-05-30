@@ -9,6 +9,10 @@ module.exports = {
           title: "Resources",
           children: [
             {
+              title: "Starport on Github",
+              path: "https://github.com/tendermint/starport",
+            },
+            {
               title: "Tutorials",
               path: "https://tutorials.cosmos.network",
             },
