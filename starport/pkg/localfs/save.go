@@ -29,8 +29,8 @@ func SaveTemp(f fs.FS) (path string, cleanup func(), err error) {
 }
 
 // SaveBytesTemp saves data bytes to a temporary file location at path.
-func SaveBytesTemp(data []byte, perm os.FileMode) (path string, cleanup func(), err error) {
-	f, err := os.CreateTemp("", "")
+func SaveBytesTemp(data []byte, prefix string, perm os.FileMode) (path string, cleanup func(), err error) {
+	f, err := os.CreateTemp("", prefix)
 	if err != nil {
 		return
 	}

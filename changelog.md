@@ -6,6 +6,12 @@
 
 - Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
 
+## `v0.16.1`
+
+### Features:
+
+- Ensure that CLI operates fine even if the installation directory (bin) of Go programs is not configured properly.
+
 ## `v0.16.0`
 
 ### Features:
