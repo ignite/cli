@@ -4,7 +4,7 @@
 
 ### Features:
 
-- Ensure that CLI operates fine even if installation directory (bin) of Go programs is not configured properly.
+- Ensure that CLI operates fine even if the installation directory (bin) of Go programs is not configured properly.
 
 ## `v0.16.0`
 
