@@ -39,7 +39,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 
 	// setup protoc and global protos.
-	protocPath, cleanup, err := localfs.SaveBytesTemp(binary, 0755)
+	protocPath, cleanup, err := localfs.SaveBytesTemp(binary, "protoc", 0755)
 	if err != nil {
 		return err
 	}

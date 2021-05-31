@@ -71,7 +71,7 @@ func Binary() []byte {
 
 // Command setups the nodetime binary and returns the command needed to execute c.
 func Command(c CommandName) (command []string, cleanup func(), err error) {
-	path, cleanup, err := localfs.SaveBytesTemp(Binary(), 0755)
+	path, cleanup, err := localfs.SaveBytesTemp(Binary(), command[0], 0755)
 	if err != nil {
 		return nil, nil, err
 	}
