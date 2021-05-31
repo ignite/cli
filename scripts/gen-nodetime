@@ -1,27 +1,35 @@
 #!/bin/bash
 
 # generates static Go files to embed node cli programs into Starport for linux and darwin.
+# You should have node.js version 14 LTS on your build machine.
 
 set -e
 
 cd ./scripts/data/gen-nodetime
 
+# print the node.js version.  Should be 14.
 node --version
 
+# install typescript, install package.json, prebuild (tsc), build
+npm i -g typescript
 npm i
-npm run prebuild
 npm run build
 
 
+# compress the output
 tar -czvf nodetime-linux-arm64.tar.gz nodetime-linux-arm64
 tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux-x64
 tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos-x64
 tar -czvf nodetime-darwin-arm64.tar.gz nodetime-macos-arm64
 
+
+# copy files into place so that they can be bundled into starport
 cp nodetime-linux-arm64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-linux-amd64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-darwin-amd64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-darwin-arm64.tar.gz ../../../starport/pkg/nodetime/
 
+
+# Cleanup
 rm nodetime-*
 rm -rf dist/
