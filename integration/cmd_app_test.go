@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"fmt"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,7 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
-func TestGenerateAnAppAndVerify(t *testing.T) {
+func TestGenerateAnApp(t *testing.T) {
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog")
@@ -23,7 +24,40 @@ func TestGenerateAnAppAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
+func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
+	var (
+		env  = newEnv(t)
+		appName = "blog"
+	)
+
+	root := env.TmpDir()
+	env.Exec("scaffold an app",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"app",
+				fmt.Sprintf("github.com/test/%s", appName),
+				"--no-default-module",
+			),
+			step.Workdir(root),
+		)),
+	)
+
+	// Cleanup the home directory of the app
+	env.t.Cleanup(func() {
+		os.RemoveAll(filepath.Join(env.Home(), fmt.Sprintf(".%s", appName)))
+	})
+
+	path := filepath.Join(root, appName)
+
+	_, statErr := os.Stat(filepath.Join(path, "config.yml"))
+	require.False(t, os.IsNotExist(statErr), "config.yml cannot be found")
+
+	env.EnsureAppIsSteady(path)
+}
+
+
+func TestGenerateAnAppWithWasm(t *testing.T) {
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog")
@@ -47,7 +81,7 @@ func TestGenerateAnAppWithWasmAndVerify(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
-func TestGenerateAStargateAppWithEmptyModuleAndVerify(t *testing.T) {
+func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog")
