@@ -2,6 +2,7 @@
 package goenv
 
 import (
+	"fmt"
 	"go/build"
 	"os"
 	"path/filepath"
@@ -18,4 +19,14 @@ func GetGOBIN() string {
 		return binPath
 	}
 	return filepath.Join(build.Default.GOPATH, "bin")
+}
+
+// Path returns $PATH with correct go bin configuration set.
+func Path() string {
+	return os.ExpandEnv(fmt.Sprintf("$PATH:%s", GetGOBIN()))
+}
+
+// ConfigurePath configures the env with correct $PATH that has go bin setup.
+func ConfigurePath() error {
+	return os.Setenv("PATH", Path())
 }

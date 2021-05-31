@@ -9,6 +9,7 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -28,6 +29,9 @@ func New() *cobra.Command {
 		Short:         "A developer tool for building Cosmos SDK blockchains",
 		SilenceUsage:  true,
 		SilenceErrors: true,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return goenv.ConfigurePath()
+		},
 	}
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewApp())
