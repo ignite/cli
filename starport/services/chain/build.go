@@ -112,7 +112,7 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 	))
 
 	addInstallStep := func(binaryName, mainPath string) {
-		installPath := filepath.Join(goenv.GetGOBIN(), binaryName)
+		installPath := filepath.Join(goenv.Bin(), binaryName)
 
 		steps.Add(step.New(step.NewOptions().
 			Add(

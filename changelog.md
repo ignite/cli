@@ -1,5 +1,11 @@
 # Changelog
 
+## `v0.16.1`
+
+### Features:
+
+- Ensure that CLI operates fine even if installation directory (bin) of Go programs is not configured properly.
+
 ## `v0.16.0`
 
 ### Features:
