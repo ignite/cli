@@ -10,7 +10,7 @@ cd ./scripts/data/gen-nodetime
 # print the node.js version.  Should be 14.
 node --version
 
-# install typescript, install package.json, prebuild (tsc), build
+# install typescript, install package.json, build
 npm i -g typescript
 npm i
 npm run build
@@ -30,6 +30,7 @@ cp nodetime-darwin-amd64.tar.gz ../../../starport/pkg/nodetime/
 cp nodetime-darwin-arm64.tar.gz ../../../starport/pkg/nodetime/
 
 
+# Not needed for CI
 # Cleanup
-rm nodetime-*
-rm -rf dist/
+# rm nodetime-*
+# rm -rf dist/
