@@ -2,6 +2,7 @@
 package goenv
 
 import (
+	"fmt"
 	"go/build"
 	"os"
 	"path/filepath"
@@ -10,12 +11,32 @@ import (
 const (
 	// GOBIN is the env var for GOBIN.
 	GOBIN = "GOBIN"
+
+	// GOPATH is the env var for GOPATH.
+	GOPATH = "GOPATH"
 )
 
-// GetGOBIN returns the path of where Go binaries are installed.
-func GetGOBIN() string {
+const (
+	binDir = "bin"
+)
+
+// Bin returns the path of where Go binaries are installed.
+func Bin() string {
 	if binPath := os.Getenv(GOBIN); binPath != "" {
 		return binPath
 	}
-	return filepath.Join(build.Default.GOPATH, "bin")
+	if goPath := os.Getenv(GOPATH); goPath != "" {
+		return filepath.Join(goPath, binDir)
+	}
+	return filepath.Join(build.Default.GOPATH, binDir)
+}
+
+// Path returns $PATH with correct go bin configuration set.
+func Path() string {
+	return os.ExpandEnv(fmt.Sprintf("$PATH:%s", Bin()))
+}
+
+// ConfigurePath configures the env with correct $PATH that has go bin setup.
+func ConfigurePath() error {
+	return os.Setenv("PATH", Path())
 }

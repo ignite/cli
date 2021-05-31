@@ -21,7 +21,7 @@ jobs:
       - name: Setup go
         uses: actions/setup-go@v1
         with:
-          go-version: 1.15
+          go-version: 1.16
         env:
           GOOS: ${{ matrix.targetos }}
           GOARCH: ${{ matrix.arch }}

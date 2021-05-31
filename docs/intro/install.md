@@ -9,9 +9,20 @@ You can run Starport in a web-based Gitpod IDE or you can install Starport on yo
 
 ## Prerequisite
 
-Starport is written in the Go programming language. To use Starport on a local installation, Go must be installed and running:
+Starport is written in the Go programming language. To use Starport on a local installation, [Go](https://golang.org/doc/install) (**version 1.16** or higher) must be installed.
 
-- [Golang >=1.16](https://golang.org/)
+## Upgrading Your Starport Installation
+
+Before you install a new version of Starport, remove all existing Starport installations. 
+
+To remove the current Starport installation:
+
+1. On your terminal window, press `Ctrl+C` to stop the chain that you started with `starport serve`.
+1. Remove the Starport binary with `rm $(which starport)`.
+   Depending on your user permissions, run the command with or without `sudo`.
+1. Repeat this step until all `starport` installations are removed from your system.
+
+After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo. 
 
 ## Installing Starport with cURL
 
@@ -55,3 +66,4 @@ cd starport && make install
 - To setup a local development environment, install Starport locally on your computer.
 - Install Starport by fetching the binary using cURL, Homebrew, or by building from source.
 - The latest version is installed by default. You can install previous versions of the precompiled `starport` binary.
+- Stop the chain and remove existing versions before installing a new version.

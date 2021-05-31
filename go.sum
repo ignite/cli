@@ -471,8 +471,6 @@ github.com/hudl/fargo v1.3.0/go.mod h1:y3CKSmjA+wD2gak7sUSXTAoopbhU08POFhmITJgmK
 github.com/iancoleman/strcase v0.1.3 h1:dJBk1m2/qjL1twPLf68JND55vvivMupZ4wIzE8CTdBw=
 github.com/iancoleman/strcase v0.1.3/go.mod h1:SK73tn/9oHe+/Y0h39VT4UCxmurVJkR5NA7kMEAOgSE=
 github.com/ilgooz/analytics-go v3.1.1-0.20200723195510-acde4190c655+incompatible/go.mod h1:36xDpOWfOEZLx5a4Qra2Ntu7by75m/qwZZx9/YrPrtY=
-github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9 h1:ZDSezyPtsgJdIlGFqmH4QEITF9MUyqwd/foAtNMBVdU=
-github.com/ilgooz/openapiconsole v0.0.0-20210521063533-567a97c7c7e9/go.mod h1:Cs2TNeb8t3Txy1Ro0eRtH62q6rmyyQ/+mnJ/DDgU3sY=
 github.com/imdario/mergo v0.3.9/go.mod h1:2EnlNZ0deacrJVfApfmtdGgDfMuh/nq6Ok1EcJh5FfA=
 github.com/imdario/mergo v0.3.11 h1:3tnifQM4i+fbajXKBHXWEH+KvNHqojZ778UH75j3bGA=
 github.com/imdario/mergo v0.3.11/go.mod h1:jmQim1M+e3UYxmgPu/WyfjB3N3VflVyUjjjwH0dnCYA=
@@ -886,6 +884,8 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
+github.com/tendermint/spm v0.0.0-20210524110815-6d7452d2dc4a h1:zy/l4N++BcIAqcZYR42BhUnl8XE8RcyjWS71Ujl0BU0=
+github.com/tendermint/spm v0.0.0-20210524110815-6d7452d2dc4a/go.mod h1:Cu18wgpxjFMnVwQA1xBpHE75CfVrle8s1UxuchfzBF0=
 github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
 github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9 h1:rSY6/WFoTIj5GoiBPBh3zGyEPJ+ygjGqb/toBF/70oE=
 github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9/go.mod h1:baJaa8BnakMVpYWhNY9YA01IU03td3ykrqE3wj2ixgA=
