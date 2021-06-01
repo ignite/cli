@@ -199,6 +199,9 @@ func (e env) Serve(msg, path, home, configPath string, options ...execOption) (o
 // EnsureAppIsSteady ensures that app living at the path can compile and its tests
 // are passing.
 func (e env) EnsureAppIsSteady(appPath string) {
+	_, statErr := os.Stat(filepath.Join(appPath, "config.yml"))
+	require.False(e.t, os.IsNotExist(statErr), "config.yml cannot be found")
+
 	e.Exec("make sure app is steady",
 		step.NewSteps(step.New(
 			step.Exec(gocmd.Name(), "test", "./..."),

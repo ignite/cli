@@ -18,8 +18,8 @@ func TestGenerateAnApp(t *testing.T) {
 		path = env.Scaffold("blog")
 	)
 
-	_, statErr := os.Stat(filepath.Join(path, "config.yml"))
-	require.False(t, os.IsNotExist(statErr), "config.yml cannot be found")
+	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
+	require.False(t, os.IsNotExist(statErr), "the default module should be scaffolded")
 
 	env.EnsureAppIsSteady(path)
 }
@@ -50,8 +50,8 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 
 	path := filepath.Join(root, appName)
 
-	_, statErr := os.Stat(filepath.Join(path, "config.yml"))
-	require.False(t, os.IsNotExist(statErr), "config.yml cannot be found")
+	_, statErr := os.Stat(filepath.Join(path, "x", "blog"))
+	require.True(t, os.IsNotExist(statErr), "the default module should not be scaffolded")
 
 	env.EnsureAppIsSteady(path)
 }
