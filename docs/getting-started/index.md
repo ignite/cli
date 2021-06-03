@@ -1,7 +1,7 @@
 ---
 order: 1
 parent:
-  order: 0
+  order: 1
   title: Getting Started with Starport
 ---
 
@@ -69,7 +69,7 @@ starport serve
 
 This will download dependencies, compile the source code into a binary called `blogd` (by default Starport uses the name of the repo + `d`), use this binary to initialize a single validator node, and start the node.
 
-![Getting%20Started%20with%20Starport%200150ae9fa24a4dd6ae9e4ee68d8dbc9a/Screenshot_2021-06-01_at_09.02.24.png](Getting%20Started%20with%20Starport%200150ae9fa24a4dd6ae9e4ee68d8dbc9a/Screenshot_2021-06-01_at_09.02.24.png)
+![./images/api.png](./images/api.png)
 
 A validator node exposes two endpoints: [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API and [http://localhost:1317](http://localhost:1317) for the high-level blockchain API.
 
