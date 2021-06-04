@@ -23,6 +23,7 @@ var (
 				Module:           "es2020",
 				TypeRoots:        []string{filepath.Join(nodeModulesPath, "@types")},
 				SkipLibCheck:     true,
+				NoEmit:           false,
 			},
 		}
 	}
@@ -44,6 +45,7 @@ type CompilerOptions struct {
 	TypeRoots        []string `json:"typeRoots"`
 	Declaration      bool     `json:"declaration"`
 	SkipLibCheck     bool     `json:"skipLibCheck"`
+	NoEmit           bool     `json:"noEmit"`
 }
 
 // Generate transpiles TS into JS by given TS config.

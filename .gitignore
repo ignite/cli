@@ -7,3 +7,5 @@ apps/
 .vscode
 docs/.vuepress/dist
 build/
+# vim swap files
+*.swp

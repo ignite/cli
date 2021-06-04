@@ -106,6 +106,9 @@ type Client struct {
 
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi"`
+
+	// JS configures code generation for a plain js/ts API client.
+	JS JS `yaml:"js"`
 }
 
 // Vuex configures code generation for Vuex.
@@ -117,6 +120,15 @@ type Vuex struct {
 // OpenAPI configures OpenAPI spec generation for API.
 type OpenAPI struct {
 	Path string `yaml:"path"`
+}
+
+// JS configures code generation for a plain js/ts API client.
+type JS struct {
+	Path string `yaml:"path"`
+	// Additional field for specifying whether to emit *js files.
+	// Execution engines like ts-node do not like finding overlapping
+	// js files in mixed js/ts repos.
+	NoEmit bool `yaml:"noEmit"`
 }
 
 // Faucet configuration.
