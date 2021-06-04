@@ -43,7 +43,7 @@ To use this command, open a terminal, navigate to a directory where you have per
 starport app github.com/alice/blog
 ```
 
-This will create a new Cosmos SDK blockchain called Blog in a `blog` directory.
+This will create a new Cosmos SDK blockchain called Blog in a `blog` directory. The source code inside the `blog` directory contains a fully functional ready-to-use blockchain. This new blockchain imports standard Cosmos SDK modules, such as [`staking`](https://docs.cosmos.network/v0.42/modules/staking/) (for delegated proof of stake), [`bank`](https://docs.cosmos.network/v0.42/modules/bank/) (for fungible token transfers between accounts), [`gov`](https://docs.cosmos.network/v0.42/modules/gov/) (for on-chain governance) and [other modules](https://docs.cosmos.network/v0.42/modules/).
 
 Note: You can see all the command line options that Starport provides by running `starport scaffold chain --help`.
 
@@ -96,7 +96,7 @@ In terms of workflow, developers usually work with proto files first to define C
 Let's start by creating a `posts` query:
 
 ```
-starport query posts --response body,title
+starport query posts --response title,body
 ```
 
 `query` accepts a name of the query (in our case, `posts`), an optional list of request parameters (in our case, empty), and an optional comma-separated list of response fields with a `--response` flag (in our case, `body,title`).
@@ -136,7 +136,7 @@ message QueryPostsResponse {
 
 `QueryPostsRequest` is empty because requesting all posts doesn't require are parameters. `QueryPostsResponse` contains `title` and `body` that will be returned from the chain.
 
-`x/chain/keeper/grpc_query_posts.go` contains `Posts` keeper function that handles the query and returns data.
+`x/blog/keeper/grpc_query_posts.go` contains `Posts` keeper function that handles the query and returns data.
 
 ```go
 func (k Keeper) Posts(goCtx context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -162,7 +162,7 @@ func (k Keeper) Posts(goCtx context.Context, req *types.QueryPostsRequest) (*typ
 
 If we start our chain right now and visit the posts endpoint, we would get a "Not Implemented" error. To fix that we need to wire up our API by registering query handlers with gRPC.
 
-Inside `x/chain/module.go` import `"context"`, search for `RegisterGRPCGatewayRoutes` and register query handlers:
+Inside `x/blog/module.go` import `"context"`, search for `RegisterGRPCGatewayRoutes` and register query handlers:
 
 ```go
 import (
@@ -217,12 +217,12 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 The `message` command has created and modified several files:
 
 - modified `proto/chain/tx.proto`
-- modified `x/chain/handler.go`
-- created `x/chain/keeper/msg_server_createPost.go`
-- modified `x/chain/client/cli/tx.go`
-- created `x/chain/client/cli/txCreatePost.go`
-- created `x/chain/types/message_createPost.go`
-- modified `x/chain/types/codec.go`
+- modified `x/blog/handler.go`
+- created `x/blog/keeper/msg_server_createPost.go`
+- modified `x/blog/client/cli/tx.go`
+- created `x/blog/client/cli/txCreatePost.go`
+- created `x/blog/types/message_createPost.go`
+- modified `x/blog/types/codec.go`
 
 As always, we start with a proto file. Inside `proto/chain/tx.proto`:
 
@@ -246,7 +246,7 @@ service Msg {
 }
 ```
 
-Next, let's look into `x/chain/handler.go`. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message
+Next, let's look into `x/blog/handler.go`. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message
 
 ```go
 func NewHandler(k keeper.Keeper) sdk.Handler {
@@ -269,7 +269,7 @@ Every module has a handler function like this to process messages and call keepe
 
 ### Processing Messages
 
-In the newly scaffolded file `x/chain/keeper/msg_server_createPost.go` we can see a placeholder implementation of `CreatePost`. Right now it does nothing and returns an empty response. For our blog chain we want the contents of the message (title and body) to be written to the state as a new post. To do so we need to do two things: create a variable of type `Post` with title and body from the message and append this `Post` to the store.
+In the newly scaffolded file `x/blog/keeper/msg_server_createPost.go` we can see a placeholder implementation of `CreatePost`. Right now it does nothing and returns an empty response. For our blog chain we want the contents of the message (title and body) to be written to the state as a new post. To do so we need to do two things: create a variable of type `Post` with title and body from the message and append this `Post` to the store.
 
 ```go
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
@@ -413,7 +413,7 @@ We've implemented all the code necessary to create new posts and store them on c
 Let's try it out! If the chain is yet not started, run `starport serve`. Create a post:
 
 ```
-chaind tx blog create-post foo bar --from alice
+blogd tx blog createPost foo bar --from alice
 ```
 
 ```
@@ -429,24 +429,7 @@ Now that we've added the functionality to create posts and broadcast them to our
 
 There are two components responsible for querying data: `rpc` inside `service Query` in a proto file (that defines data types and specifies the HTTP API endpoint) and a keeper method that performs the querying from the key-value store.
 
-Let's first review the services and messages in `x/blog/query.proto`. `Posts` `rpc` accepts an empty request and returns an object with two fields: title and body. We would like for it to return a list of posts, instead. Thus, we'll need to define the `Post` `message`. The list of posts can be long, so let's also add pagination. For pagination, both request and response should include a page number: we want to be able to request a particular page and we need to know what page has been returned.
-
-Create a new file `x/blog/post.proto` to define the `Post` `message`:
-
-```go
-syntax = "proto3";
-package alice.chain.chain;
-
-// Go package in which the type will be generated
-option go_package = "github.com/alice/chain/x/chain/types";
-
-message Post {
-  string creator = 1;
-  uint64 id = 2;
-  string title = 3; 
-  string body = 4; 
-}
-```
+Let's first review the services and messages in `x/blog/query.proto`. `Posts` `rpc` accepts an empty request and returns an object with two fields: title and body. We would like for it to return a list of posts, instead. The list of posts can be long, so let's also add pagination. For pagination, both request and response should include a page number: we want to be able to request a particular page and we need to know what page has been returned.
 
 `x/blog/query.proto`:
 
