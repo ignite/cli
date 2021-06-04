@@ -55,6 +55,18 @@ cd blog
 
 The `blog` directory will have a number of generated files and directories that make up the structure of a Cosmos SDK blockchain. Most of the work in this tutorial will happen in the `x` directory, but here is a quick overview of files and directories that Starport creates by default:
 
+| File/directory | Purpose                                                                                                                                                                        |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| app/           | Contains files that wire together the blockchain. The most important file is app.go that contains type definition of the blockchain and functions to create and initialize it. |
+| cmd/           | Contains the main package responsible for the CLI of compiled binary.                                                                                                          |
+| docs/          | Directory for project's documentation. By default an OpenAPI spec is generated.                                                                                                |
+| proto/         | Protocol buffer files describing                                                                                                                                               |
+| testutil/      | Contains helper functions for testing                                                                                                                                          |
+| vue/           | Contains a Vue 3 web app template                                                                                                                                              |
+| x/             | Contains custom modules                                                                                                                                                        |
+| config.yml     | A configuration file for customising a chain in development                                                                                                                    |
+
+
 ## Hello, Starport!
 
 To get started, let's get our blockchain up and running locally on a single node.
