@@ -40,7 +40,7 @@ Starport comes with a number of scaffolding commands that are designed to make d
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
 
 ```
-starport scaffold chain blog
+starport app github.com/alice/blog
 ```
 
 This will create a new Cosmos SDK blockchain called Blog in a `blog` directory.
