@@ -28,7 +28,7 @@ var (
 
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string) (path string, err error) {
+func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModule bool) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
@@ -40,7 +40,7 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string) (path string,
 	absRoot := filepath.Join(pwd, pathInfo.Root)
 
 	// create the project
-	if err := s.generate(tracer, pathInfo, absRoot); err != nil {
+	if err := s.generate(tracer, pathInfo, absRoot, noDefaultModule); err != nil {
 		return "", err
 	}
 
@@ -56,7 +56,12 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string) (path string,
 }
 
 //nolint:interfacer
-func (s *Scaffolder) generate(tracer *placeholder.Tracer, pathInfo gomodulepath.Path, absRoot string) error {
+func (s *Scaffolder) generate(
+	tracer *placeholder.Tracer,
+	pathInfo gomodulepath.Path,
+	absRoot string,
+	noDefaultModule bool,
+) error {
 	g, err := app.New(&app.Options{
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
@@ -79,23 +84,26 @@ func (s *Scaffolder) generate(tracer *placeholder.Tracer, pathInfo gomodulepath.
 	}
 
 	// generate module template
-	opts := &modulecreate.CreateOptions{
-		ModuleName: pathInfo.Package, // App name
-		ModulePath: pathInfo.RawPath,
-		AppName:    pathInfo.Package,
-		OwnerName:  owner(pathInfo.RawPath),
-		IsIBC:      false,
-	}
-	g, err = modulecreate.NewStargate(opts)
-	if err != nil {
-		return err
-	}
-	if err := run(genny.WetRunner(context.Background()), g); err != nil {
-		return err
-	}
-	g = modulecreate.NewStargateAppModify(tracer, opts)
-	if err := run(genny.WetRunner(context.Background()), g); err != nil {
-		return err
+	if !noDefaultModule {
+		opts := &modulecreate.CreateOptions{
+			ModuleName: pathInfo.Package, // App name
+			ModulePath: pathInfo.RawPath,
+			AppName:    pathInfo.Package,
+			OwnerName:  owner(pathInfo.RawPath),
+			IsIBC:      false,
+		}
+		g, err = modulecreate.NewStargate(opts)
+		if err != nil {
+			return err
+		}
+		if err := run(genny.WetRunner(context.Background()), g); err != nil {
+			return err
+		}
+		g = modulecreate.NewStargateAppModify(tracer, opts)
+		if err := run(genny.WetRunner(context.Background()), g); err != nil {
+			return err
+		}
+
 	}
 
 	// generate the vue app.
