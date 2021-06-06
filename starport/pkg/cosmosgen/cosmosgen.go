@@ -15,10 +15,6 @@ type generateOptions struct {
 	jsIncludeThirdParty bool
 	specOut             string
 	vuexStoreRootPath   string
-	// Additional field for specifying whether to emit *.js files or not.
-	// Execution engines like ts-node do not like finding overlapping js
-	// files in mixed js/ts repos.
-	noEmit bool
 }
 
 // TODO add WithInstall.
@@ -30,11 +26,10 @@ type Option func(*generateOptions)
 // retrieve the path that should be used to place generated js code inside for a given module.
 // if includeThirdPartyModules set to true, code generation will be made for the 3rd party modules
 // used by the app -including the SDK- as well.
-func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), noEmit bool) Option {
+func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string)) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
-		o.noEmit = noEmit
 	}
 }
 
