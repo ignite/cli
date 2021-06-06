@@ -35,7 +35,7 @@ This command will fetch the `starport` binary and install it into `/usr/local/bi
 
 ### Creating a Blog-Chain
 
-Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold chain` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
+Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold app` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
 
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
 
