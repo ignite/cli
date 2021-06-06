@@ -8,7 +8,19 @@ parent:
 
 # Start a Blockchain
 
-One of your first actions is to start your blockchain. To start your blockchain, use the `starport serve` command.
+Blockchains are decentralized applications that in production run (often) the same software on many validator nodes by different people/entities. To launch a blockchain in production entities coordinate on the launch process together and start their nodes.
+
+During development, however, a blockchain can be started locally on a single validator node. This is very convenient, because you can quickly restart a chain and iterate faster. Starting a chain on single node in development is similar to starting a traditional web application on a local server.
+
+## Start a Blockchain Node in Development
+
+Switch to a directory that contains a blockchain scaffolded with Starport and run the following command:
+
+```
+starport serve
+```
+
+This command initializes a chain, builds the code, starts a single validator node and starts watching for file changes. Whenever a file is changed, Starport will reinitialise the chain, rebuild and start the chain again. Starport tries to preserve the state of the chain, if the changes to source code are compatible with the previous state. This is very useful for development purposes. `starport serve` command is a development tool, it should not be used in production environment. See below how to run a chain in production.
 
 ## The Magic of `starport serve`
 
@@ -22,19 +34,15 @@ The `starport serve` command performs the following tasks:
 - Creates accounts
 - Initializes a blockchain node
 - Starts the following processes:
-
   - Tendermint RPC
   - Cosmos SDK API
   - Faucet, optional
-
 - Watches for file changes and restarts
-
 - Exports state
 
 The `starport serve` command starts a fully operational blockchain. You can use flags to configure how the blockchain runs. All flags are optional.
 
 ## Define How Your Blockchain Starts
-
 
 Flags for the `starport serve` command determine how your blockchain starts:
 
@@ -61,3 +69,16 @@ Enters verbose detailed mode with extensive logging.
 `--home`
 
 Specify a custom home directory.
+
+## Start a Blockchain Node in Production
+
+Both `starport serve` and `starport build` compile the source code of the chain in a binary file and install it in `~/go/bin`. By default, the binary name matches the name of the repository with a `d` suffix in the end. For example, if a chain was scaffolded using `starport app github.com/alice/chain`, then the binary will be named `chaind`.
+
+The binary name can be customised in `config.yml`:
+
+```yml
+build:
+  binary: "newchaind"
+```
+
+Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/v0.42/run-node/run-node.html).

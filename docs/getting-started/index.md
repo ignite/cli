@@ -91,7 +91,7 @@ When you want to stop your blockchain, press Ctrl+C in the terminal window where
 
 To get your Cosmos SDK blockchain to say "Hello", you will need to modify a protocol buffer file, create a keeper query function that returns data, and register a query function. Protocol buffer files contain proto `rpc`s that define Cosmos SDK queries and message handlers and proto `message`s that define Cosmos SDK types. `rpc`s are also responsible for exposing an HTTP API. [Keeper](https://docs.cosmos.network/v0.42/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain and keeper functions let you query or write to the state. Registering a query needs to happen only once after you add the first query to your chain.
 
-In terms of workflow, developers usually work with proto files first to define Cosmos SDK messages, queries, message handlers and then implement the logic of these queries and message handlers in keeper functions.
+In terms of workflow, developers usually work with proto files first to define Cosmos SDK [messages](https://docs.cosmos.network/v0.42/building-modules/msg-services.html), [queries](https://docs.cosmos.network/v0.42/building-modules/query-services.html), message handlers and then implement the logic of these queries and message handlers in keeper functions.
 
 Let's start by creating a `posts` query:
 
@@ -108,7 +108,7 @@ The `query` command has created and modified several files:
 - modified `x/blog/client/cli/query.go`
 - created `x/blog/client/cli/query_posts.go`
 
-Let's examine some of these changes. For clarity, we'll skip placeholder comments Starport uses to scaffold code.
+Let's examine some of these changes. For clarity, in the following code blocks we'll skip placeholder comments Starport uses to scaffold code. Don't delete these placeholders, however, to be able to continue using Starport's scaffolding functionality.
 
 In `proto/chain/query.proto` a `Posts` `rpc` has been added to the `Query` `service`.
 
