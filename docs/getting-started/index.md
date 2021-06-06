@@ -45,7 +45,7 @@ starport app github.com/alice/blog
 
 This will create a new Cosmos SDK blockchain called Blog in a `blog` directory. The source code inside the `blog` directory contains a fully functional ready-to-use blockchain. This new blockchain imports standard Cosmos SDK modules, such as [`staking`](https://docs.cosmos.network/v0.42/modules/staking/) (for delegated proof of stake), [`bank`](https://docs.cosmos.network/v0.42/modules/bank/) (for fungible token transfers between accounts), [`gov`](https://docs.cosmos.network/v0.42/modules/gov/) (for on-chain governance) and [other modules](https://docs.cosmos.network/v0.42/modules/).
 
-Note: You can see all the command line options that Starport provides by running `starport scaffold chain --help`.
+Note: You can see all the command line options that Starport provides by running `starport app --help`.
 
 After you create the blockchain, switch to its directory:
 
