@@ -23,9 +23,6 @@ var (
 				Module:           "es2020",
 				TypeRoots:        []string{filepath.Join(nodeModulesPath, "@types")},
 				SkipLibCheck:     true,
-				// Default to not emitting JS client files.
-				// NB: Will need to be configurable to support generating plain js clients in the future.
-				NoEmit: true,
 			},
 		}
 	}

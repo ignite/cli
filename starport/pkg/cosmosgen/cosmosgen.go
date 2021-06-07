@@ -15,6 +15,7 @@ type generateOptions struct {
 	jsIncludeThirdParty bool
 	specOut             string
 	vuexStoreRootPath   string
+	typescript          bool
 }
 
 // TODO add WithInstall.
@@ -30,6 +31,13 @@ func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (pa
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
+	}
+}
+
+// WithTSGeneration specifies that we're only generating typescript client files (tsc `noEmit` flag set to `true`).
+func WithTSGeneration() Option {
+	return func(o *generateOptions) {
+		o.typescript = true
 	}
 }
 

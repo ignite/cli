@@ -161,7 +161,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		}
 	}
 	// generate .js and .d.ts files for all ts files.
-	return tsc.Generate(g.g.ctx, tscConfig(storeDirPath+"/**/*.ts"))
+	return tsc.Generate(g.g.ctx, tscConfig(g.g.o.typescript, storeDirPath+"/**/*.ts"))
 }
 
 func (g *jsGenerator) generateVuexModuleLoader() error {
@@ -222,14 +222,15 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	return tsc.Generate(g.g.ctx, tscConfig(loaderPath))
+	return tsc.Generate(g.g.ctx, tscConfig(g.g.o.typescript, loaderPath))
 }
 
-func tscConfig(include ...string) tsc.Config {
+func tscConfig(noEmit bool, include ...string) tsc.Config {
 	return tsc.Config{
 		Include: include,
 		CompilerOptions: tsc.CompilerOptions{
 			Declaration: true,
+			NoEmit:      noEmit,
 		},
 	}
 }

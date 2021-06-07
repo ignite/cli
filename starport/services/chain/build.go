@@ -211,9 +211,10 @@ func (c *Chain) buildProto(ctx context.Context) error {
 	}
 
 	// generate ts client code as well if it is enabled.
-	// NB: Vuex generates JS client code as well but within a vuex store.
+	// NB: Vuex generates JS/TS client code as well but in addtion to a vuex store.
+	// Path options will conflict with each other.
 	if conf.Client.Typescript.Path != "" {
-		tsRootPath := filepath.Join(c.app.Path, conf.Client.Typescript.Path, "generated")
+		tsRootPath := filepath.Join(c.app.Path, conf.Client.Typescript.Path)
 		options = append(options,
 			cosmosgen.WithJSGeneration(
 				enableThirdPartyModuleCodegen,
@@ -222,6 +223,8 @@ func (c *Chain) buildProto(ctx context.Context) error {
 					return filepath.Join(tsRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
 				},
 			),
+			// Only generate typescript client files.
+			cosmosgen.WithTSGeneration(),
 		)
 
 	}

@@ -30,6 +30,8 @@ func Generate(ctx context.Context, outPath, specPath, moduleNameIndex string) er
 		dir,
 		"-n",
 		file,
+		// NB: Use axios client since it works for both nodejs and web.
+		"--axios",
 	}...)
 
 	// execute the command.
