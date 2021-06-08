@@ -80,7 +80,7 @@ Specify a custom home directory.
 
 The `starport serve` and `starport build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `starport app github.com/alice/chain`, then the binary is named `chaind`.
 
-The binary name can be customised in `config.yml`:
+You can customize the binary name in `config.yml`:
 
 ```yml
 build:
