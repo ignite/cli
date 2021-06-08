@@ -78,7 +78,7 @@ Specify a custom home directory.
 
 ## Start a Blockchain Node in Production
 
-Both `starport serve` and `starport build` compile the source code of the chain in a binary file and install it in `~/go/bin`. By default, the binary name matches the name of the repository with a `d` suffix in the end. For example, if a chain was scaffolded using `starport app github.com/alice/chain`, then the binary will be named `chaind`.
+The `starport serve` and `starport build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `starport app github.com/alice/chain`, then the binary is named `chaind`.
 
 The binary name can be customised in `config.yml`:
 
