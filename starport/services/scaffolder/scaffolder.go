@@ -6,19 +6,17 @@ import (
 	"context"
 	"errors"
 	"os"
-	"path/filepath"
 	"strings"
 
 	conf "github.com/tendermint/starport/starport/chainconf"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/services"
 )
 
 // Scaffolder is Starport app scaffolder.
@@ -108,29 +106,7 @@ func protoc(projectPath, gomodPath string) error {
 		return err
 	}
 
-	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(gomodPath),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
-	}
-
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(projectPath, conf.Client.Vuex.Path, "generated")
-
-		options = append(options,
-			cosmosgen.WithVuexGeneration(
-				false,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
-				storeRootPath,
-			),
-		)
-	}
-	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
-	}
+	options := services.GetClientGenerationOptions(projectPath, gomodPath, false, conf)
 
 	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
 }

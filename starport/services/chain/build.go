@@ -15,10 +15,9 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
+	"github.com/tendermint/starport/starport/services"
 )
 
 const releaseDir = "release"
@@ -188,49 +187,9 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building proto...")
 
-	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(c.app.ImportPath),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
-	}
-
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
-		options = append(options,
-			cosmosgen.WithVuexGeneration(
-				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
-				storeRootPath,
-			),
-		)
-	}
-
-	// generate ts client code as well if it is enabled.
-	// NB: Vuex generates JS/TS client code as well but in addtion to a vuex store.
-	// Path options will conflict with each other.
-	if conf.Client.Typescript.Path != "" {
-		tsRootPath := filepath.Join(c.app.Path, conf.Client.Typescript.Path)
-		options = append(options,
-			cosmosgen.WithJSGeneration(
-				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(tsRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
-			),
-			// Only generate typescript client files.
-			cosmosgen.WithTSGeneration(),
-		)
-
-	}
-	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
-	}
+	options := services.GetClientGenerationOptions(c.app.Path, c.app.ImportPath, enableThirdPartyModuleCodegen, conf)
 
 	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}
