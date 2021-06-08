@@ -21,7 +21,11 @@ Switch to the directory that contains a blockchain that was scaffolded with Star
 starport serve
 ```
 
-This command initializes a chain, builds the code, starts a single validator node and starts watching for file changes. Whenever a file is changed, Starport will reinitialise the chain, rebuild and start the chain again. Starport tries to preserve the state of the chain, if the changes to source code are compatible with the previous state. This is very useful for development purposes. `starport serve` command is a development tool, it should not be used in production environment. See below how to run a chain in production.
+This command initializes a chain, builds the code, starts a single validator node, and starts watching for file changes. 
+
+Whenever a file is changed, the chain is automatically reinitialized, rebuilt, and started again. The chain's state is preserved if the changes to the source code are compatible with the previous state. This state preservation is beneficial for development purposes. 
+
+Because the `starport serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
 
 ## The Magic of `starport serve`
 
