@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os/exec"
 	"path/filepath"
+	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -48,13 +49,13 @@ func (c *Chain) buildSteps() (steps step.Steps, err error) {
 		return nil, err
 	}
 
-	ldflags := fmt.Sprintf(`-X github.com/cosmos/cosmos-sdk/version.Name=NewApp
--X github.com/cosmos/cosmos-sdk/version.ServerName=%sd
--X github.com/cosmos/cosmos-sdk/version.ClientName=%scli
--X github.com/cosmos/cosmos-sdk/version.Version=%s
--X github.com/cosmos/cosmos-sdk/version.Commit=%s
--X %s/cmd/%s/cmd.ChainID=%s`,
-		c.app.Name,
+	ldflags := fmt.Sprintf(`-X github.com/cosmos/cosmos-sdk/version.Name=%[1]s
+-X github.com/cosmos/cosmos-sdk/version.ServerName=%[2]sd
+-X github.com/cosmos/cosmos-sdk/version.ClientName=%[2]scli
+-X github.com/cosmos/cosmos-sdk/version.Version=%[3]s
+-X github.com/cosmos/cosmos-sdk/version.Commit=%[4]s
+-X %[5]s/cmd/%[6]s/cmd.ChainID=%[7]s`,
+		strings.Title(c.app.Name),
 		c.app.Name,
 		c.sourceVersion.tag,
 		c.sourceVersion.hash,
