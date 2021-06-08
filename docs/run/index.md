@@ -50,7 +50,7 @@ You can use flags to configure how the blockchain runs.
 
 ## Define How Your Blockchain Starts
 
-Flags for the `starport serve` command determine how your blockchain starts:
+Flags for the `starport serve` command determine how your blockchain starts. All flags are optional.
 
 `--config`, default is `config.yml`
 
