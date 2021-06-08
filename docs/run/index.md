@@ -8,9 +8,10 @@ parent:
 
 # Start a Blockchain
 
-Blockchains are decentralized applications that in production run (often) the same software on many validator nodes by different people/entities. To launch a blockchain in production entities coordinate on the launch process together and start their nodes.
+Blockchains are decentralized applications.
 
-During development, however, a blockchain can be started locally on a single validator node. This is very convenient, because you can quickly restart a chain and iterate faster. Starting a chain on single node in development is similar to starting a traditional web application on a local server.
+- In production, blockchains often run the same software on many validator nodes that are run by different people and entities. To launch a blockchain in production, the validator entities coordinate the launch process to start their nodes simultaneously.
+- During development, a blockchain can be started locally on a single validator node. This convenient process lets you can restart a chain quickly and iterate faster. Starting a chain on a single node in development is similar to starting a traditional web application on a local server. 
 
 ## Start a Blockchain Node in Development
 
