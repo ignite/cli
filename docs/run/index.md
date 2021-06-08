@@ -15,7 +15,7 @@ Blockchains are decentralized applications.
 
 ## Start a Blockchain Node in Development
 
-Switch to a directory that contains a blockchain scaffolded with Starport and run the following command:
+Switch to the directory that contains a blockchain that was scaffolded with Starport. To start the blockchain node, run the following command:
 
 ```
 starport serve
