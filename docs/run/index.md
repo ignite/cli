@@ -28,6 +28,7 @@ Whenever a file is changed, the chain is automatically reinitialized, rebuilt, a
 Because the `starport serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
 
 ## The Magic of `starport serve`
+The `starport serve` command starts a fully operational blockchain.
 
 The `starport serve` command performs the following tasks:
 
