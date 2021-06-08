@@ -13,7 +13,7 @@ const types = [
 ];
 export const MissingWalletError = new Error("wallet is required");
 
-const registry = new Registry(<any>types);
+export const registry = new Registry(<any>types);
 
 const defaultFee = {
   amount: [],
@@ -31,8 +31,12 @@ interface SignAndBroadcastOptions {
 
 const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions = { addr: "http://localhost:26657" }) => {
   if (!wallet) throw MissingWalletError;
-
-  const client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
+  let client;
+  if (addr) {
+    client = await SigningStargateClient.connectWithSigner(addr, wallet, { registry });
+  }else{
+    client = await SigningStargateClient.offline( wallet, { registry });
+  }
   const { address } = (await wallet.getAccounts())[0];
 
   return {
