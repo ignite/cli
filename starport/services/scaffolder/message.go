@@ -33,7 +33,12 @@ func (s *Scaffolder) AddMessage(
 		moduleName = path.Package
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, msgName); err != nil {
+	name, err := multiformatname.NewMultiFormatName(msgName)
+	if err != nil {
+		return err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name.LowerCamel); err != nil {
 		return err
 	}
 
@@ -43,11 +48,6 @@ func (s *Scaffolder) AddMessage(
 		return err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
-	if err != nil {
-		return err
-	}
-
-	name, err := multiformatname.NewMultiFormatName(msgName)
 	if err != nil {
 		return err
 	}
