@@ -1,6 +1,8 @@
 package query
 
-import "github.com/tendermint/starport/starport/templates/typed"
+import (
+	"github.com/tendermint/starport/starport/pkg/field"
+)
 
 // Options ...
 type Options struct {
@@ -10,7 +12,7 @@ type Options struct {
 	OwnerName   string
 	QueryName   string
 	Description string
-	ResFields   []typed.Field
-	ReqFields   []typed.Field
+	ResFields   []field.Field
+	ReqFields   []field.Field
 	Paginated   bool
 }

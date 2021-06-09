@@ -1,11 +1,8 @@
 package typed
 
-// Field ...
-type Field struct {
-	Name         string
-	Datatype     string
-	DatatypeName string
-}
+import (
+	"github.com/tendermint/starport/starport/pkg/field"
+)
 
 // Options ...
 type Options struct {
@@ -14,7 +11,7 @@ type Options struct {
 	ModulePath string
 	OwnerName  string
 	TypeName   string
-	Fields     []Field
+	Fields     []field.Field
 	NoMessage  bool
 }
 

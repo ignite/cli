@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"github.com/tendermint/starport/starport/pkg/field"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -34,11 +35,11 @@ func (s *Scaffolder) AddQuery(
 	}
 
 	// Parse provided fields
-	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
+	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}

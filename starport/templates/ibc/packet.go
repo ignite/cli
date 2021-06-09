@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -11,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
-	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 var (
@@ -35,8 +35,8 @@ type PacketOptions struct {
 	ModulePath string
 	OwnerName  string
 	PacketName string
-	Fields     []typed.Field
-	AckFields  []typed.Field
+	Fields     []field.Field
+	AckFields  []field.Field
 	NoMessage  bool
 }
 

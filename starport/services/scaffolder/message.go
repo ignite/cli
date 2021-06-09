@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -36,11 +37,11 @@ func (s *Scaffolder) AddMessage(
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}

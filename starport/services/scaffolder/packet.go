@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"os"
 	"path/filepath"
 
@@ -44,13 +45,13 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields, checkForbiddenPacketField)
+	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields, checkGoReservedWord)
+	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}

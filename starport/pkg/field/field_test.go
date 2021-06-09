@@ -8,8 +8,8 @@ import (
 )
 
 var (
-	noCheck = func(string) error{return nil}
-	alwaysInvalid = func(string) error{return errors.New("invalid name")}
+	noCheck       = func(string) error { return nil }
+	alwaysInvalid = func(string) error { return errors.New("invalid name") }
 )
 
 type testCases struct {
@@ -28,28 +28,28 @@ func TestParseFields(t *testing.T) {
 		},
 		expected: []field.Field{
 			{
-				Name: "foo",
-				Datatype: "string",
+				Name:         "foo",
+				Datatype:     "string",
 				DatatypeName: "string",
 			},
 			{
-				Name: "bar",
-				Datatype: "string",
+				Name:         "bar",
+				Datatype:     "string",
 				DatatypeName: "string",
 			},
 			{
-				Name: "foobar",
-				Datatype: "bool",
+				Name:         "foobar",
+				Datatype:     "bool",
 				DatatypeName: "bool",
 			},
 			{
-				Name: "barfoo",
-				Datatype: "int32",
+				Name:         "barfoo",
+				Datatype:     "int32",
 				DatatypeName: "int",
 			},
 			{
-				Name: "foofoo",
-				Datatype: "uint64",
+				Name:         "foofoo",
+				Datatype:     "uint64",
 				DatatypeName: "uint",
 			},
 		},
