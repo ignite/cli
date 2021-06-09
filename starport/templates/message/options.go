@@ -2,6 +2,7 @@ package message
 
 import (
 	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 // Options ...
@@ -10,7 +11,7 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	MsgName    string
+	MsgName    multiformatname.MultiFormatName
 	MsgDesc    string
 	Fields     []field.Field
 	ResFields  []field.Field

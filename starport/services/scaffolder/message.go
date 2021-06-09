@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -46,6 +47,11 @@ func (s *Scaffolder) AddMessage(
 		return err
 	}
 
+	name, err := multiformatname.NewMultiFormatName(msgName)
+	if err != nil {
+		return err
+	}
+
 	var (
 		g    *genny.Generator
 		opts = &message.Options{
@@ -53,7 +59,7 @@ func (s *Scaffolder) AddMessage(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			MsgName:    msgName,
+			MsgName:    name,
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
 			MsgDesc:    msgDesc,

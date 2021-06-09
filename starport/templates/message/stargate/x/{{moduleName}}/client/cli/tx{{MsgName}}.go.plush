@@ -12,9 +12,9 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func Cmd<%= title(MsgName) %>() *cobra.Command {
+func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= MsgName %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Use:   "<%= MsgName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -25,7 +25,7 @@ func Cmd<%= title(MsgName) %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsg<%= title(MsgName) %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
+			msg := types.NewMsg<%= MsgName.UpperCamel %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= title(field.Name) %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
