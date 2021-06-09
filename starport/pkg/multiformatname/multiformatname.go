@@ -4,6 +4,7 @@ package multiformatname
 import (
 	"errors"
 	"fmt"
+
 	"github.com/iancoleman/strcase"
 )
 

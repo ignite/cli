@@ -2,6 +2,8 @@ package scaffolder
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -10,7 +12,6 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
-	"os"
 )
 
 type AddTypeOption struct {

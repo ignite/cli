@@ -1,10 +1,10 @@
 package scaffolder
 
 import (
-	"github.com/tendermint/starport/starport/pkg/field"
 	"os"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"

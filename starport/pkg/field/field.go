@@ -30,7 +30,7 @@ func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field,
 	for _, field := range fields {
 		fieldSplit := strings.Split(field, ":")
 		if len(fieldSplit) > 2 {
-			fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
+			return parsedFields, fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
 		}
 
 		name := fieldSplit[0]

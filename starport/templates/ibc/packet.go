@@ -3,12 +3,12 @@ package ibc
 import (
 	"embed"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
