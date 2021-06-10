@@ -7,6 +7,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
@@ -36,7 +37,13 @@ func (s *Scaffolder) AddType(
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	if err := checkComponentValidity(s.path, moduleName, typeName); err != nil {
+
+	name, err := multiformatname.NewMultiFormatName(typeName)
+	if err != nil {
+		return err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return err
 	}
 

@@ -38,7 +38,7 @@ func (s *Scaffolder) AddMessage(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name.LowerCamel); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return err
 	}
 

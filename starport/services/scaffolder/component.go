@@ -7,9 +7,9 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -56,7 +56,7 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 }
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
-func checkComponentValidity(appPath, moduleName, compName string) error {
+func checkComponentValidity(appPath, moduleName string, compName multiformatname.MultiFormatName) error {
 	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
 		return err
@@ -66,7 +66,7 @@ func checkComponentValidity(appPath, moduleName, compName string) error {
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if err := checkForbiddenComponentName(compName); err != nil {
+	if err := checkForbiddenComponentName(compName.LowerCamel); err != nil {
 		return fmt.Errorf("%s can't be used as a component name: %s", compName, err.Error())
 	}
 
@@ -143,24 +143,23 @@ func checkGoReservedWord(name string) error {
 }
 
 // checkComponentCreated checks if the component has been already created with Starport in the project
-func checkComponentCreated(appPath, moduleName, compName string) (err error) {
-	compNameTitle := strings.Title(compName)
+func checkComponentCreated(appPath, moduleName string, compName multiformatname.MultiFormatName) (err error) {
 
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
-		compNameTitle:                           componentType,
-		"MsgCreate" + compNameTitle:             componentType,
-		"MsgUpdate" + compNameTitle:             componentType,
-		"MsgDelete" + compNameTitle:             componentType,
-		"QueryAll" + compNameTitle + "Request":  componentType,
-		"QueryAll" + compNameTitle + "Response": componentType,
-		"QueryGet" + compNameTitle + "Request":  componentType,
-		"QueryGet" + compNameTitle + "Response": componentType,
-		"Msg" + compNameTitle:                   componentMessage,
-		"Query" + compNameTitle + "Request":     componentQuery,
-		"Query" + compNameTitle + "Response":    componentQuery,
-		"MsgSend" + compNameTitle:               componentPacket,
-		compNameTitle + "PacketData":            componentPacket,
+		compName.UpperCamel:                           componentType,
+		"MsgCreate" + compName.UpperCamel:             componentType,
+		"MsgUpdate" + compName.UpperCamel:             componentType,
+		"MsgDelete" + compName.UpperCamel:             componentType,
+		"QueryAll" + compName.UpperCamel + "Request":  componentType,
+		"QueryAll" + compName.UpperCamel + "Response": componentType,
+		"QueryGet" + compName.UpperCamel + "Request":  componentType,
+		"QueryGet" + compName.UpperCamel + "Response": componentType,
+		"Msg" + compName.UpperCamel:                   componentMessage,
+		"Query" + compName.UpperCamel + "Request":     componentQuery,
+		"Query" + compName.UpperCamel + "Response":    componentQuery,
+		"MsgSend" + compName.UpperCamel:               componentPacket,
+		compName.UpperCamel + "PacketData":            componentPacket,
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
@@ -189,7 +188,7 @@ func checkComponentCreated(appPath, moduleName, compName string) (err error) {
 				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
 					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
 						compType,
-						compName,
+						compName.Kebab,
 						typeSpec.Name.Name,
 					)
 					return false
