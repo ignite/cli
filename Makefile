@@ -6,10 +6,7 @@ LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 
-pre-build:
-	@git fetch --tags
-
-install: pre-build
+install:
 	@echo Installing Starport...
 	@go install $(BUILD_FLAGS) ./...
 	@starport version
