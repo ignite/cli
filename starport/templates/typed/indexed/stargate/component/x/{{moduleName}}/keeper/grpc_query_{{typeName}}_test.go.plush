@@ -13,29 +13,29 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func Test<%= title(TypeName) %>QuerySingle(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createN<%= title(TypeName) %>(keeper, ctx, 2)
+	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 2)
 	for _, tc := range []struct {
 		desc     string
-		request  *types.QueryGet<%= title(TypeName) %>Request
-		response *types.QueryGet<%= title(TypeName) %>Response
+		request  *types.QueryGet<%= TypeName.UpperCamel %>Request
+		response *types.QueryGet<%= TypeName.UpperCamel %>Response
 		err      error
 	}{
 		{
 			desc:     "First",
-			request:  &types.QueryGet<%= title(TypeName) %>Request{Index: msgs[0].Index},
-			response: &types.QueryGet<%= title(TypeName) %>Response{<%= title(TypeName) %>: &msgs[0]},
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[0].Index},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[0]},
 		},
 		{
 			desc:     "Second",
-			request:  &types.QueryGet<%= title(TypeName) %>Request{Index: msgs[1].Index},
-			response: &types.QueryGet<%= title(TypeName) %>Response{<%= title(TypeName) %>: &msgs[1]},
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[1].Index},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.QueryGet<%= title(TypeName) %>Request{Index: "missing"},
+			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: "missing"},
 			err:     status.Error(codes.InvalidArgument, "not found"),
 		},
 		{
@@ -45,7 +45,7 @@ func Test<%= title(TypeName) %>QuerySingle(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			response, err := keeper.<%= title(TypeName) %>(wctx, tc.request)
+			response, err := keeper.<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -55,13 +55,13 @@ func Test<%= title(TypeName) %>QuerySingle(t *testing.T) {
 	}
 }
 
-func Test<%= title(TypeName) %>QueryPaginated(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createN<%= title(TypeName) %>(keeper, ctx, 5)
 
-	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAll<%= title(TypeName) %>Request {
-		return &types.QueryAll<%= title(TypeName) %>Request{
+	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAll<%= TypeName.UpperCamel %>Request {
+		return &types.QueryAll<%= TypeName.UpperCamel %>Request{
 			Pagination: &query.PageRequest{
 				Key:        next,
 				Offset:     offset,
@@ -73,10 +73,10 @@ func Test<%= title(TypeName) %>QueryPaginated(t *testing.T) {
 	t.Run("ByOffset", func(t *testing.T) {
 		step := 2
 		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.<%= title(TypeName) %>All(wctx, request(nil, uint64(i), uint64(step), false))
+			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
 			for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.<%= title(TypeName) %>[j-i])
+				assert.Equal(t, &msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 		}
 	})
@@ -84,21 +84,21 @@ func Test<%= title(TypeName) %>QueryPaginated(t *testing.T) {
 		step := 2
 		var next []byte
 		for i := 0; i < len(msgs); i += step {
-			resp, err := keeper.<%= title(TypeName) %>All(wctx, request(next, 0, uint64(step), false))
+			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
 			for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.<%= title(TypeName) %>[j-i])
+				assert.Equal(t, &msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 			next = resp.Pagination.NextKey
 		}
 	})
 	t.Run("Total", func(t *testing.T) {
-		resp, err := keeper.<%= title(TypeName) %>All(wctx, request(nil, 0, 0, true))
+		resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, 0, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
 	})
 	t.Run("InvalidRequest", func(t *testing.T) {
-		_, err := keeper.<%= title(TypeName) %>All(wctx, nil)
+		_, err := keeper.<%= TypeName.UpperCamel %>All(wctx, nil)
 		require.ErrorIs(t, err, status.Error(codes.InvalidArgument, "invalid request"))
 	})
 }
