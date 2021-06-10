@@ -2,8 +2,6 @@ package query
 
 import (
 	"fmt"
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
@@ -37,7 +35,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			Placeholder2,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 			opts.QueryName,
 			opts.OwnerName,
 			opts.AppName,
@@ -74,7 +72,7 @@ message Query%[2]vResponse {
 		replacementMessages := fmt.Sprintf(
 			templateMessages,
 			Placeholder3,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 			reqFields,
 			resFields,
 		)
@@ -100,7 +98,7 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		replacement := fmt.Sprintf(
 			template,
 			Placeholder,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 

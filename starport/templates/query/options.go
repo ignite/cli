@@ -2,6 +2,7 @@ package query
 
 import (
 	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 // Options ...
@@ -10,7 +11,7 @@ type Options struct {
 	ModuleName  string
 	ModulePath  string
 	OwnerName   string
-	QueryName   string
+	QueryName   multiformatname.MultiFormatName
 	Description string
 	ResFields   []field.Field
 	ReqFields   []field.Field

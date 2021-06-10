@@ -13,7 +13,7 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= title(QueryName) %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= QueryName %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
+		Use:   "<%= QueryName.Kebab %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -26,7 +26,7 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.Query<%= title(QueryName) %>Request{
+			params := &types.Query<%= QueryName.UpperCamel %>Request{
                 <%= for (i, field) in ReqFields { %>
                 <%= title(field.Name) %>: <%= field.Datatype %>(req<%= title(field.Name) %>),<% } %>
             }
@@ -37,7 +37,7 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
             }
             params.Pagination = pageReq<% } %>
 
-			res, err := queryClient.<%= title(QueryName) %>(cmd.Context(), params)
+			res, err := queryClient.<%= QueryName.UpperCamel %>(cmd.Context(), params)
             if err != nil {
                 return err
             }
