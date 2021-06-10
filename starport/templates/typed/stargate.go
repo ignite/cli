@@ -2,9 +2,10 @@ package typed
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"os"
 )
 
 type typedStargate struct {

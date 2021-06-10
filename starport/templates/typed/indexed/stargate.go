@@ -3,7 +3,6 @@ package indexed
 import (
 	"embed"
 	"fmt"
-
 	"strings"
 
 	"github.com/gobuffalo/genny"

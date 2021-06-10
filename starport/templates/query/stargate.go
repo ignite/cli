@@ -2,6 +2,7 @@ package query
 
 import (
 	"fmt"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
