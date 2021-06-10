@@ -64,7 +64,7 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 const (
 	%[1]vKey= "%[1]v-value-"
 )
-`, strings.Title(opts.TypeName))
+`, opts.TypeName.UpperCamel)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -101,7 +101,7 @@ import "%s/%s.proto";`
 	}
 `
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 			opts.TypeName,
 			opts.OwnerName,
 			opts.AppName,
@@ -128,7 +128,7 @@ message QueryAll%[2]vResponse {
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 			opts.TypeName,
 		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementMessage)
@@ -169,7 +169,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 	cmd.AddCommand(CmdShow%[2]v())
 `
 		replacement := fmt.Sprintf(template, typed.Placeholder,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -187,7 +187,12 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		templateProtoImport := `%[1]v
 import "%[2]v/%[3]v.proto";`
-		replacementProtoImport := fmt.Sprintf(templateProtoImport, typed.PlaceholderGenesisProtoImport, opts.ModuleName, opts.TypeName)
+		replacementProtoImport := fmt.Sprintf(
+			templateProtoImport,
+			typed.PlaceholderGenesisProtoImport,
+			opts.ModuleName,
+			opts.TypeName,
+		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Determine the new field number
@@ -198,7 +203,7 @@ import "%[2]v/%[3]v.proto";`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 			opts.TypeName,
 			fieldNumber,
 			typed.PlaceholderGenesisProtoStateField,
@@ -225,7 +230,11 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		templateTypesDefault := `%[1]v
 %[2]vList: []*%[2]v{},`
-		replacementTypesDefault := fmt.Sprintf(templateTypesDefault, typed.PlaceholderGenesisTypesDefault, strings.Title(opts.TypeName))
+		replacementTypesDefault := fmt.Sprintf(
+			templateTypesDefault,
+			typed.PlaceholderGenesisTypesDefault,
+			opts.TypeName.UpperCamel,
+		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
 		templateTypesValidate := `%[1]v
@@ -242,7 +251,7 @@ for _, elem := range gs.%[3]vList {
 			templateTypesValidate,
 			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
 
@@ -270,7 +279,7 @@ for _, elem := range genState.%[3]vList {
 			templateModuleInit,
 			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
@@ -286,7 +295,7 @@ for _, elem := range %[2]vList {
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
 			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
 
@@ -318,7 +327,7 @@ import "%s/%s.proto";`
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
   rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC)
 
@@ -348,7 +357,7 @@ message MsgDelete%[2]v {
 message MsgDelete%[2]vResponse { }
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 			fields,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
@@ -383,7 +392,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			typed.Placeholder,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
@@ -403,7 +412,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
 `
-		replacement := fmt.Sprintf(template, typed.Placeholder, strings.Title(opts.TypeName))
+		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -430,7 +439,12 @@ cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 `
-		replacementConcrete := fmt.Sprintf(templateConcrete, typed.Placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
+		replacementConcrete := fmt.Sprintf(
+			templateConcrete,
+			typed.Placeholder2,
+			opts.TypeName.UpperCamel,
+			opts.ModuleName,
+		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
@@ -440,7 +454,11 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, strings.Title(opts.TypeName))
+		replacementInterface := fmt.Sprintf(
+			templateInterface,
+			typed.Placeholder3,
+			opts.TypeName.UpperCamel,
+		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)

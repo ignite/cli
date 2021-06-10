@@ -60,7 +60,7 @@ func (s *Scaffolder) AddType(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			TypeName:   typeName,
+			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  addTypeOptions.NoMessage,
 		}

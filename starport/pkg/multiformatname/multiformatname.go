@@ -24,7 +24,7 @@ func NewMultiFormatName(name string) (MultiFormatName, error) {
 	}
 
 	return MultiFormatName{
-		Original: 	name,
+		Original:   name,
 		LowerCamel: strcase.ToLowerCamel(name),
 		UpperCamel: strcase.ToCamel(name),
 		Kebab:      strcase.ToKebab(name),
