@@ -12,24 +12,24 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) <%= title(TypeName) %>All(c context.Context, req *types.QueryAll<%= title(TypeName) %>Request) (*types.QueryAll<%= title(TypeName) %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.QueryAll<%= TypeName.UpperCamel %>Request) (*types.QueryAll<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var <%= TypeName %>s []*types.<%= title(TypeName) %>
+	var <%= TypeName.LowerCamel %>s []*types.<%= TypeName.UpperCamel %>
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	<%= TypeName %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= title(TypeName) %>Key))
+	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 
-	pageRes, err := query.Paginate(<%= TypeName %>Store, req.Pagination, func(key []byte, value []byte) error {
-		var <%= TypeName %> types.<%= title(TypeName) %>
-		if err := k.cdc.UnmarshalBinaryBare(value, &<%= TypeName %>); err != nil {
+	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
+		var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
+		if err := k.cdc.UnmarshalBinaryBare(value, &<%= TypeName.LowerCamel %>); err != nil {
 			return err
 		}
 
-		<%= TypeName %>s = append(<%= TypeName %>s, &<%= TypeName %>)
+		<%= TypeName.LowerCamel %>s = append(<%= TypeName.LowerCamel %>s, &<%= TypeName.LowerCamel %>)
 		return nil
 	})
 
@@ -37,23 +37,23 @@ func (k Keeper) <%= title(TypeName) %>All(c context.Context, req *types.QueryAll
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	return &types.QueryAll<%= title(TypeName) %>Response{<%= title(TypeName) %>: <%= TypeName %>s, Pagination: pageRes}, nil
+	return &types.QueryAll<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>s, Pagination: pageRes}, nil
 }
 
-func (k Keeper) <%= title(TypeName) %>(c context.Context, req *types.QueryGet<%= title(TypeName) %>Request) (*types.QueryGet<%= title(TypeName) %>Response, error) {
+func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGet<%= TypeName.UpperCamel %>Request) (*types.QueryGet<%= TypeName.UpperCamel %>Response, error) {
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var <%= TypeName %> types.<%= title(TypeName) %>
+	var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
 	ctx := sdk.UnwrapSDKContext(c)
 
-    if !k.Has<%= title(TypeName) %>(ctx, req.Id) {
+    if !k.Has<%= TypeName.UpperCamel %>(ctx, req.Id) {
         return nil, sdkerrors.ErrKeyNotFound
     }
 
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= title(TypeName) %>IDBytes(req.Id)), &<%= TypeName %>)
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= TypeName.UpperCamel %>IDBytes(req.Id)), &<%= TypeName.LowerCamel %>)
 
-	return &types.QueryGet<%= title(TypeName) %>Response{<%= title(TypeName) %>: &<%= TypeName %>}, nil
+	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &<%= TypeName.LowerCamel %>}, nil
 }

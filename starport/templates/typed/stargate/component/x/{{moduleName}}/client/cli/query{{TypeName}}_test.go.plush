@@ -17,23 +17,23 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func networkWith<%= title(TypeName) %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= title(TypeName) %>) {
+func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
 	state := types.GenesisState{}
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	for i := 0; i < n; i++ {
-		state.<%= title(TypeName) %>List = append(state.<%= title(TypeName) %>List, &types.<%= title(TypeName) %>{Creator: "ANY", Id: uint64(i)})
+		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{Creator: "ANY", Id: uint64(i)})
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
     cfg.GenesisState[types.ModuleName] = buf
-	return network.New(t, cfg), state.<%= title(TypeName) %>List
+	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>List
 }
 
-func TestShow<%= title(TypeName) %>(t *testing.T) {
-	net, objs := networkWith<%= title(TypeName) %>Objects(t, 2)
+func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
+	net, objs := networkWith<%= TypeName.UpperCamel %>Objects(t, 2)
 
 	ctx := net.Validators[0].ClientCtx
 	common := []string{
@@ -44,7 +44,7 @@ func TestShow<%= title(TypeName) %>(t *testing.T) {
 		id   string
 		args []string
 		err  error
-		obj  *types.<%= title(TypeName) %>
+		obj  *types.<%= TypeName.UpperCamel %>
 	}{
 		{
 			desc: "found",
@@ -63,24 +63,24 @@ func TestShow<%= title(TypeName) %>(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			args := []string{tc.id}
 			args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShow<%= title(TypeName) %>(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShow<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				stat, ok := status.FromError(tc.err)
 				require.True(t, ok)
 				require.ErrorIs(t, stat.Err(), tc.err)
 			} else {
 				require.NoError(t, err)
-				var resp types.QueryGet<%= title(TypeName) %>Response
+				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
-				require.NotNil(t, resp.<%= title(TypeName) %>)
-				require.Equal(t, tc.obj, resp.<%= title(TypeName) %>)
+				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
+				require.Equal(t, tc.obj, resp.<%= TypeName.UpperCamel %>)
 			}
 		})
 	}
 }
 
-func TestList<%= title(TypeName) %>(t *testing.T) {
-	net, objs := networkWith<%= title(TypeName) %>Objects(t, 5)
+func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
+	net, objs := networkWith<%= TypeName.UpperCamel %>Objects(t, 5)
 
 	ctx := net.Validators[0].ClientCtx
 	request := func(next []byte, offset, limit uint64, total bool) []string {
@@ -102,12 +102,12 @@ func TestList<%= title(TypeName) %>(t *testing.T) {
 		step := 2
 		for i := 0; i < len(objs); i += step {
 			args := request(nil, uint64(i), uint64(step), false)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= title(TypeName) %>(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 			require.NoError(t, err)
-			var resp types.QueryAll<%= title(TypeName) %>Response
+			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			for j := i; j < len(objs) && j < i+step; j++ {
-				assert.Equal(t, objs[j], resp.<%= title(TypeName) %>[j-i])
+				assert.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 		}
 	})
@@ -116,24 +116,24 @@ func TestList<%= title(TypeName) %>(t *testing.T) {
 		var next []byte
 		for i := 0; i < len(objs); i += step {
 			args := request(next, 0, uint64(step), false)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= title(TypeName) %>(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 			require.NoError(t, err)
-			var resp types.QueryAll<%= title(TypeName) %>Response
+			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			for j := i; j < len(objs) && j < i+step; j++ {
-				assert.Equal(t, objs[j], resp.<%= title(TypeName) %>[j-i])
+				assert.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 			next = resp.Pagination.NextKey
 		}
 	})
 	t.Run("Total", func(t *testing.T) {
 		args := request(nil, 0, uint64(len(objs)), true)
-		out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= title(TypeName) %>(), args)
+		out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdList<%= TypeName.UpperCamel %>(), args)
 		require.NoError(t, err)
-		var resp types.QueryAll<%= title(TypeName) %>Response
+		var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 		require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
-		require.Equal(t, objs, resp.<%= title(TypeName) %>)
+		require.Equal(t, objs, resp.<%= TypeName.UpperCamel %>)
 	})
 }
