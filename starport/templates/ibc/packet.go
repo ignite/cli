@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -34,7 +35,7 @@ type PacketOptions struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	PacketName string
+	PacketName multiformatname.MultiFormatName
 	Fields     []field.Field
 	AckFields  []field.Field
 	NoMessage  bool
@@ -75,7 +76,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName))
+	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.LowerCamel))
 	return g, nil
 }
 
@@ -112,7 +113,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			templateRecv,
 			PlaceholderIBCPacketModuleRecv,
 			strings.Title(opts.ModuleName),
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
 
@@ -128,7 +129,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			templateAck,
 			PlaceholderIBCPacketModuleAck,
 			strings.Title(opts.ModuleName),
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
 
@@ -143,7 +144,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			templateTimeout,
 			PlaceholderIBCPacketModuleTimeout,
 			strings.Title(opts.ModuleName),
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleTimeout, replacementTimeout)
 
@@ -169,7 +170,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		replacementField := fmt.Sprintf(
 			templateField,
 			PlaceholderIBCPacketProtoField,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 			opts.PacketName,
 			fieldCount+2,
 			PlaceholderIBCPacketProtoFieldNumber,
@@ -199,7 +200,7 @@ message %[2]vPacketAck {
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderIBCPacketProtoMessage,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 			packetFields,
 			ackFields,
 		)
@@ -224,7 +225,7 @@ EventType%[2]vPacket       = "%[3]v_packet"
 		replacement := fmt.Sprintf(
 			template,
 			PlaceholderIBCPacketEvent,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 			opts.PacketName,
 		)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
@@ -248,7 +249,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			PlaceholderProtoTxRPC,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacementRPC)
 
@@ -275,7 +276,7 @@ message MsgSend%[2]vResponse {
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderProtoTxMessage,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 			sendFields,
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
@@ -304,7 +305,7 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
-			strings.Title(opts.PacketName),
+			opts.PacketName.UpperCamel,
 		)
 		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
@@ -322,7 +323,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 		template := `%[1]v
 	cmd.AddCommand(CmdSend%[2]v())
 `
-		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.PacketName))
+		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -345,7 +346,12 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		templateRegistry := `%[1]v
 cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
 `
-		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2, strings.Title(opts.PacketName), opts.ModuleName)
+		replacementRegistry := fmt.Sprintf(
+			templateRegistry,
+			module.Placeholder2,
+			opts.PacketName.UpperCamel,
+			opts.ModuleName,
+		)
 		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
@@ -353,7 +359,7 @@ cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
 registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, strings.Title(opts.PacketName))
+		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, opts.PacketName.UpperCamel)
 		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)

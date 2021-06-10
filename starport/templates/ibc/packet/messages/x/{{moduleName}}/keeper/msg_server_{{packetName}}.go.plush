@@ -9,18 +9,18 @@ import (
 )
 
 
-func (k msgServer) Send<%= title(packetName) %>(goCtx context.Context,  msg *types.MsgSend<%= title(packetName) %>) (*types.MsgSend<%= title(packetName) %>Response, error) {
+func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg *types.MsgSend<%= packetName.UpperCamel %>) (*types.MsgSend<%= packetName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // TODO: logic before transmitting the packet
 
     // Construct the packet
-    var packet types.<%= title(packetName) %>PacketData
+    var packet types.<%= packetName.UpperCamel %>PacketData
     <%= for (field) in fields { %>
     packet.<%= title(field.Name) %> = msg.<%= title(field.Name) %><% } %>
 
     // Transmit the packet
-    err := k.Transmit<%= title(packetName) %>Packet(
+    err := k.Transmit<%= packetName.UpperCamel %>Packet(
         ctx,
         packet,
         msg.Port,
@@ -32,5 +32,5 @@ func (k msgServer) Send<%= title(packetName) %>(goCtx context.Context,  msg *typ
         return nil, err
     }
 
-	return &types.MsgSend<%= title(packetName) %>Response{}, nil
+	return &types.MsgSend<%= packetName.UpperCamel %>Response{}, nil
 }

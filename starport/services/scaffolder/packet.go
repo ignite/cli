@@ -70,7 +70,7 @@ func (s *Scaffolder) AddPacket(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			PacketName: packetName,
+			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
 			NoMessage:  noMessage,
