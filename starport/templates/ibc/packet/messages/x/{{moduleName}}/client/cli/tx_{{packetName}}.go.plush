@@ -16,7 +16,7 @@ var _ = strconv.Itoa(0)
 func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= for (i, field) in fields { %> [<%= field.Name %>]<% } %>",
-		Short: "Send a <%= packetName.Kebab %> over IBC",
+		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
       <%= for (i, field) in fields { %>args<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i+2 %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)

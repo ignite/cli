@@ -188,7 +188,7 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 				if compType, ok := typesToCheck[typeSpec.Name.Name]; ok {
 					err = fmt.Errorf("component %s with name %s is already created (type %s exists)",
 						compType,
-						compName.Kebab,
+						compName.Original,
 						typeSpec.Name.Name,
 					)
 					return false

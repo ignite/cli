@@ -26,6 +26,11 @@ func TestNewMultiFormatName(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(
 			t,
+			testCase[0],
+			name.Original,
+		)
+		require.Equal(
+			t,
 			testCase[1],
 			name.LowerCamel,
 			fmt.Sprintf("%s should be converted to the correct lower camel format", testCase[0]),
