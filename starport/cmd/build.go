@@ -74,7 +74,7 @@ func buildHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 
-		fmt.Printf("🗃  Release created. Check: %s\n", infoColor(releasePath))
+		fmt.Printf("🗃  Release created: %s\n", infoColor(releasePath))
 
 		return nil
 	}
