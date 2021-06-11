@@ -107,11 +107,11 @@ import "%s/%s.proto";`
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+2)
+			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
+			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
 		}
 
 		templateMessages := `%[1]v

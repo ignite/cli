@@ -4,6 +4,7 @@ import (
 	"errors"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"testing"
 )
 
@@ -22,38 +23,38 @@ func TestParseFields(t *testing.T) {
 		provided: []string{
 			"foo",
 			"bar:string",
-			"foobar:bool",
-			"barfoo:int",
-			"foofoo:uint",
+			"fooBar:bool",
+			"bar-foo:int",
+			"foo_foo:uint",
 		},
 		expected: []field.Field{
 			{
-				Name:         "foo",
 				Datatype:     "string",
 				DatatypeName: "string",
 			},
 			{
-				Name:         "bar",
 				Datatype:     "string",
 				DatatypeName: "string",
 			},
 			{
-				Name:         "foobar",
 				Datatype:     "bool",
 				DatatypeName: "bool",
 			},
 			{
-				Name:         "barfoo",
 				Datatype:     "int32",
 				DatatypeName: "int",
 			},
 			{
-				Name:         "foofoo",
 				Datatype:     "uint64",
 				DatatypeName: "uint",
 			},
 		},
 	}
+	cases.expected[0].Name, _ = multiformatname.NewMultiFormatName("foo")
+	cases.expected[1].Name, _ = multiformatname.NewMultiFormatName("bar")
+	cases.expected[2].Name, _ = multiformatname.NewMultiFormatName("fooBar")
+	cases.expected[3].Name, _ = multiformatname.NewMultiFormatName("bar-foo")
+	cases.expected[4].Name, _ = multiformatname.NewMultiFormatName("foo_foo")
 
 	actual, err := field.ParseFields(cases.provided, noCheck)
 	require.NoError(t, err)
@@ -78,6 +79,10 @@ func TestParseFields2(t *testing.T) {
 
 	// invalid type
 	_, err = field.ParseFields([]string{"foo:invalid"}, alwaysInvalid)
+	require.Error(t, err)
+
+	// invalid field name
+	_, err = field.ParseFields([]string{"foo@bar:int"}, alwaysInvalid)
 	require.Error(t, err)
 
 	// invalid format

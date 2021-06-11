@@ -47,7 +47,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Fields for request
 		var reqFields string
 		for i, field := range opts.ReqFields {
-			reqFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			reqFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 		if opts.Paginated {
 			reqFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageRequest pagination = %d;\n", len(opts.ReqFields)+1)
@@ -56,7 +56,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Fields for response
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 		if opts.Paginated {
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)

@@ -3,6 +3,7 @@ package field
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"strings"
 )
 
@@ -16,7 +17,7 @@ const (
 // Field represents a field inside a structure for a component
 // it can a field contained in a type or inside the response of a query, etc...
 type Field struct {
-	Name         string
+	Name         multiformatname.MultiFormatName
 	Datatype     string
 	DatatypeName string
 }
@@ -33,18 +34,21 @@ func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field,
 			return parsedFields, fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
 		}
 
-		name := fieldSplit[0]
+		name, err := multiformatname.NewMultiFormatName(fieldSplit[0])
+		if err != nil {
+			return parsedFields, err
+		}
 
 		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if err := isForbiddenField(name); err != nil {
+		if err := isForbiddenField(name.LowerCamel); err != nil {
 			return parsedFields, fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
 		}
 
 		// Ensure the field is not duplicated
-		if _, exists := existingFields[name]; exists {
-			return parsedFields, fmt.Errorf("the field %s is duplicated", name)
+		if _, exists := existingFields[name.LowerCamel]; exists {
+			return parsedFields, fmt.Errorf("the field %s is duplicated", name.Original)
 		}
-		existingFields[name] = true
+		existingFields[name.LowerCamel] = true
 
 		// Parse the type if it is provided, otherwise string is used by defaut
 		datatypeName, datatype := TypeString, TypeString

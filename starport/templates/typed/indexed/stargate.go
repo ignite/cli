@@ -333,7 +333,7 @@ import "%s/%s.proto";`
 		// Messages
 		var fields string
 		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
+			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
 		}
 
 		templateMessages := `%[1]v
