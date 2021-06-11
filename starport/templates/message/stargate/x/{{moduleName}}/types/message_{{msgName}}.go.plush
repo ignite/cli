@@ -7,10 +7,10 @@ import (
 
 var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
 
-func NewMsg<%= MsgName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *Msg<%= MsgName.UpperCamel %> {
+func NewMsg<%= MsgName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *Msg<%= MsgName.UpperCamel %> {
   return &Msg<%= MsgName.UpperCamel %>{
 		Creator: creator,<%= for (field) in Fields { %>
-    <%= title(field.Name) %>: <%= field.Name %>,<% } %>
+    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
 

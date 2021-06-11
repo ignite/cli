@@ -17,7 +17,7 @@ func (k msgServer) Send<%= packetName.UpperCamel %>(goCtx context.Context,  msg 
     // Construct the packet
     var packet types.<%= packetName.UpperCamel %>PacketData
     <%= for (field) in fields { %>
-    packet.<%= title(field.Name) %> = msg.<%= title(field.Name) %><% } %>
+    packet.<%= field.Name.UpperCamel %> = msg.<%= field.Name.UpperCamel %><% } %>
 
     // Transmit the packet
     err := k.Transmit<%= packetName.UpperCamel %>Packet(

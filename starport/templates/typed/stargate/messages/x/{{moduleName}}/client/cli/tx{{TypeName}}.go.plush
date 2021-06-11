@@ -16,11 +16,11 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-	  	<%= for (i, field) in Fields { %> args<%= title(field.Name) %>, err := <%= castArgs(field.Datatype, i) %>
+	  	<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i) %>
 			if err != nil {
 				return err
 			}
@@ -30,7 +30,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
+			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, args<%= field.Name.UpperCamel %><% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -45,7 +45,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %> [id]<%= for (i, field) in Fields { %> [<%= field.Name %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %> [id]<%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
 		Short: "Update a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -55,7 +55,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
             }
 
 	    <%= for (i, field) in Fields { %>
-	  		args<%= title(field.Name) %>, err := <%= castArgs(field.Datatype, i+1) %>
+	  		args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+1) %>
 			if err != nil {
 				return err
 			}
@@ -65,7 +65,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, args<%= title(field.Name) %><% } %>)
+			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, args<%= field.Name.UpperCamel %><% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

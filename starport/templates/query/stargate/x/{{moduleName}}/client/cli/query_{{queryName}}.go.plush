@@ -13,11 +13,11 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= QueryName.Kebab %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
+		Use:   "<%= QueryName.Kebab %><%= for (i, field) in ReqFields { %> [<%= field.Name.LowerCamel %>]<% } %>",
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in ReqFields { %>req<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
+      <%= for (i, field) in ReqFields { %>req<%= field.Name.UpperCamel %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
       <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -28,7 +28,7 @@ func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 
 			params := &types.Query<%= QueryName.UpperCamel %>Request{
                 <%= for (i, field) in ReqFields { %>
-                <%= title(field.Name) %>: <%= field.Datatype %>(req<%= title(field.Name) %>),<% } %>
+                <%= field.Name.UpperCamel %>: <%= field.Datatype %>(req<%= field.Name.UpperCamel %>),<% } %>
             }
 
             <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())

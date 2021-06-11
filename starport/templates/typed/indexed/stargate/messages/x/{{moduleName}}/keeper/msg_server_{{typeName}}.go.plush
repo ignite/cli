@@ -22,7 +22,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
         Index: msg.Index,
         Creator: msg.Creator,<%= for (field) in Fields { %>
-        <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+        <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
     }
 
    k.Set<%= TypeName.UpperCamel %>(
@@ -49,7 +49,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
         Index: msg.Index,
 		Creator: msg.Creator,<%= for (field) in Fields { %>
-    	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+    	<%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
 	}
 
 	k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
