@@ -19,14 +19,12 @@ const (
 func NewBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
-		Short: "Build your app",
-		Long: `By default, build command will build your application's binaries
-and add them to your $(go env GOPATH)/bin path.
+		Short: "Build a node binary",
+		Long: `By default, build your node binaries
+and add the binaries to your $(go env GOPATH)/bin path.
 
-If you want to only build binaries for a release, use the --release flag with
---release.targets (optional). Then, binaries built for chosen targets will appear
-in your app's path under release/. You can add any number of targets in GOOS:GOARCH format.
-If you don't provide any, a binary will be created for your own machine.
+To build binaries for a release, use the optional --release flag. The app binaries for one or more specified release targets are built in a release/ dir under the app's source. Specify the release targets with GOOS:GOARCH build tags.
+If the GOOS:GOARCH build tags are not specified, a binary is created for your local machine.
 
 Sample usages:
 	- starport build
@@ -37,9 +35,9 @@ Sample usages:
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
 	c.Flags().Bool(flagRelease, false, "build for a release")
-	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. only available with use of --release flag")
-	c.Flags().String(flagReleasePrefix, "", "prefix to be used in tarball names for each target")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules. only available without the --release flag")
+	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
+	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target")
+	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules. Available only without the --release flag")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
