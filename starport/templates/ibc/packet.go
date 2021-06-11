@@ -171,7 +171,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			templateField,
 			PlaceholderIBCPacketProtoField,
 			opts.PacketName.UpperCamel,
-			opts.PacketName,
+			opts.PacketName.LowerCamel,
 			fieldCount+2,
 			PlaceholderIBCPacketProtoFieldNumber,
 		)
@@ -226,7 +226,7 @@ EventType%[2]vPacket       = "%[3]v_packet"
 			template,
 			PlaceholderIBCPacketEvent,
 			opts.PacketName.UpperCamel,
-			opts.PacketName,
+			opts.PacketName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
 

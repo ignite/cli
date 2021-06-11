@@ -46,7 +46,7 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
 var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
 func NewMsgUpdate<%= TypeName.UpperCamel %>(creator string, id uint64<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
-  return &MsgUpdate<%= title(TypeName) %>{
+  return &MsgUpdate<%= TypeName.UpperCamel%>{
         Id: id,
 		Creator: creator,<%= for (field) in Fields { %>
     <%= title(field.Name) %>: <%= field.Name %>,<% } %>

@@ -37,7 +37,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			templateRPC,
 			Placeholder2,
 			opts.QueryName.UpperCamel,
-			opts.QueryName,
+			opts.QueryName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,

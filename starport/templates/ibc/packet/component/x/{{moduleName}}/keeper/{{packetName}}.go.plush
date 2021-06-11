@@ -11,7 +11,7 @@ import (
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
 )
 
-// Transmit<%= title(packetName) %>Packet transmits the packet over IBC with the specified source port and source channel
+// Transmit<%= packetName.UpperCamel %>Packet transmits the packet over IBC with the specified source port and source channel
 func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
     ctx sdk.Context,
     packetData types.<%= packetName.UpperCamel %>PacketData,

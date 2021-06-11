@@ -11,7 +11,7 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func Cmd<%= title(QueryName) %>() *cobra.Command {
+func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "<%= QueryName.Kebab %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
 		Short: "<%= Description %>",

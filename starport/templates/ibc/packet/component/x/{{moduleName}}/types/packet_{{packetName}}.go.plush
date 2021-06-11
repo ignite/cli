@@ -12,7 +12,7 @@ func (p <%= packetName.UpperCamel %>PacketData) ValidateBasic() error {
 func (p <%= packetName.UpperCamel %>PacketData) GetBytes() ([]byte, error) {
 	var modulePacket <%= title(moduleName) %>PacketData
 
-	modulePacket.Packet = &<%= title(moduleName) %>PacketData_<%= title(packetName) %>Packet{&p}
+	modulePacket.Packet = &<%= title(moduleName) %>PacketData_<%= packetName.UpperCamel %>Packet{&p}
 
 	return modulePacket.Marshal()
 }

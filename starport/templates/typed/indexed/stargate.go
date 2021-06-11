@@ -82,7 +82,7 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, typed.Placeholder,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
@@ -101,7 +101,7 @@ import "%s/%s.proto";`
 `
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
@@ -128,7 +128,7 @@ message QueryAll%[2]vResponse {
 }`
 		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementMessage)
 
@@ -190,7 +190,7 @@ import "%[2]v/%[3]v.proto";`
 			templateProtoImport,
 			typed.PlaceholderGenesisProtoImport,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
@@ -203,7 +203,7 @@ import "%[2]v/%[3]v.proto";`
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			fieldNumber,
 			typed.PlaceholderGenesisProtoStateField,
 		)
@@ -249,7 +249,7 @@ for _, elem := range gs.%[3]vList {
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
 			typed.PlaceholderGenesisTypesValidate,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
@@ -277,7 +277,7 @@ for _, elem := range genState.%[3]vList {
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
 			typed.PlaceholderGenesisModuleInit,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
@@ -293,7 +293,7 @@ for _, elem := range %[2]vList {
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
@@ -316,7 +316,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 

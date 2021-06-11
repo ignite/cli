@@ -90,7 +90,7 @@ func (t *typedStargate) protoTxModify(replacer placeholder.Replacer, opts *Optio
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
 
@@ -162,7 +162,7 @@ func (t *typedStargate) protoQueryModify(replacer placeholder.Replacer, opts *Op
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, Placeholder,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
@@ -181,7 +181,7 @@ import "%s/%s.proto";`
 `
 		replacementRPC := fmt.Sprintf(templateRPC, Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
@@ -208,7 +208,7 @@ message QueryAll%[2]vResponse {
 }`
 		replacementMessages := fmt.Sprintf(templateMessages, Placeholder3,
 			opts.TypeName.UpperCamel,
-			opts.TypeName,
+			opts.TypeName.LowerCamel,
 		)
 		content = replacer.Replace(content, Placeholder3, replacementMessages)
 

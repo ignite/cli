@@ -43,7 +43,7 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
     return cmd
 }
 
-func CmdShow<%= title(TypeName) %>() *cobra.Command {
+func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-<%= TypeName.Kebab %> [id]",
 		Short: "shows a <%= TypeName.Original %>",
