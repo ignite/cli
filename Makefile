@@ -1,15 +1,12 @@
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-VERSION = $(shell git describe --tags)
+VERSION = development
 HEAD = $(shell git rev-parse HEAD)
 LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='$(VERSION)' \
 	-X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 
-pre-build:
-	@git fetch --tags
-
-install: pre-build
+install:
 	@echo Installing Starport...
 	@go install $(BUILD_FLAGS) ./...
 	@starport version
