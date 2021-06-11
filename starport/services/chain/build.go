@@ -90,7 +90,7 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 	}
 
 	for _, t := range targets {
-		// build binary for a target, tarball it and save under the release dir.
+		// build binary for a target, tarball it and save it under the release dir.
 		goos, goarch, err := gocmd.ParseTarget(t)
 		if err != nil {
 			return "", err

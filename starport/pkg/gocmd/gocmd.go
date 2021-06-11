@@ -24,7 +24,7 @@ const (
 	// CommandModTidy represents go mod "tidy" command.
 	CommandModTidy = "tidy"
 
-	// CommandModVerify represents go mod "tidy" command.
+	// CommandModVerify represents go mod "verify" command.
 	CommandModVerify = "verify"
 )
 

@@ -10,7 +10,7 @@ import (
 )
 
 // Sum reads files from dirPath, calculates sha256 for each file and creates a new checksum
-// file for them at outPath.
+// file for them in outPath.
 func Sum(dirPath, outPath string) error {
 	var b bytes.Buffer
 
