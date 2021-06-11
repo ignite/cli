@@ -24,7 +24,6 @@ jobs:
         with:
           args: build --release --release.prefix ${{ steps.vars.outputs.prefix }} -t linux:amd64 -t linux:arm64 -t darwin:amd64 -t darwin:arm64
 
-
       - name: Publish It
         uses: softprops/action-gh-release@v1
         with:
