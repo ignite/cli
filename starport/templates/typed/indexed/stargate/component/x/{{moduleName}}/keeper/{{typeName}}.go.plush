@@ -10,7 +10,7 @@ import (
 func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
-	store.Set(types.KeyPrefix(<%= TypeName %>.Index), b)
+	store.Set(types.KeyPrefix(<%= TypeName.LowerCamel %>.Index), b)
 }
 
 // Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its index

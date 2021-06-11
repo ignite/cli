@@ -58,7 +58,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createN<%= title(TypeName) %>(keeper, ctx, 5)
+	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 5)
 
 	request := func(next []byte, offset, limit uint64, total bool) *types.QueryAll<%= TypeName.UpperCamel %>Request {
 		return &types.QueryAll<%= TypeName.UpperCamel %>Request{

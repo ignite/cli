@@ -3,8 +3,9 @@ package field
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 const (

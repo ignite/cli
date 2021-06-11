@@ -9,7 +9,7 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func CmdList<%= title(TypeName) %>() *cobra.Command {
+func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "list-<%= TypeName.Kebab %>",
 		Short: "list all <%= TypeName.Original %>",
@@ -42,7 +42,7 @@ func CmdList<%= title(TypeName) %>() *cobra.Command {
     return cmd
 }
 
-func CmdShow<%= title(TypeName) %>() *cobra.Command {
+func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "show-<%= TypeName.Kebab %> [index]",
 		Short: "shows a <%= TypeName.Original %>",

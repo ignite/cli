@@ -59,7 +59,7 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Route() string {
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
-  return "Update<%= title(TypeName) %>"
+  return "Update<%= TypeName.UpperCamel %>"
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
