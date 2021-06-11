@@ -126,7 +126,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 
 		if account.Address == "" {
 			fmt.Fprintf(
-				c.stdLog(logStarport).out,
+				c.stdLog().out,
 				"🙂 Created account %q with address %q with mnemonic: %q\n",
 				generatedAccount.Name,
 				generatedAccount.Address,
@@ -134,7 +134,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 			)
 		} else {
 			fmt.Fprintf(
-				c.stdLog(logStarport).out,
+				c.stdLog().out,
 				"🙂 Imported an account %q with address: %q\n",
 				account.Name,
 				account.Address,
