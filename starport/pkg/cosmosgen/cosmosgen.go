@@ -23,27 +23,21 @@ type generateOptions struct {
 // Option configures code generation.
 type Option func(*generateOptions)
 
-// WithJSGeneration adds JS code generation. out hook is called for each module to
+// WithTSGeneration adds TS code generation. out hook is called for each module to
 // retrieve the path that should be used to place generated js code inside for a given module.
 // if includeThirdPartyModules set to true, code generation will be made for the 3rd party modules
 // used by the app -including the SDK- as well.
-func WithJSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string)) Option {
+func WithTSGeneration(includeThirdPartyModules bool, out func(module.Module) (path string)) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
-	}
-}
-
-// WithTSGeneration specifies that we're only generating typescript client files (tsc `noEmit` flag set to `true`).
-func WithTSGeneration() Option {
-	return func(o *generateOptions) {
 		o.typescript = true
 	}
 }
 
 // WithVuexGeneration adds Vuex code generation. storeRootPath is used to determine the root path of generated
 // Vuex stores. includeThirdPartyModules and out configures the underlying JS lib generation which is
-// documented in WithJSGeneration.
+// documented in WithTSGeneration.
 func WithVuexGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), storeRootPath string) Option {
 	return func(o *generateOptions) {
 		o.jsOut = out

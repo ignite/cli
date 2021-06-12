@@ -189,7 +189,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
-	options := services.GetClientGenerationOptions(c.app.Path, c.app.ImportPath, enableThirdPartyModuleCodegen, conf)
+	options := services.CodegenOptions(c.app.Path, c.app.ImportPath, enableThirdPartyModuleCodegen, conf)
 
 	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
 		return &CannotBuildAppError{err}

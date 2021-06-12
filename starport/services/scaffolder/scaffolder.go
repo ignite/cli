@@ -106,7 +106,7 @@ func protoc(projectPath, gomodPath string) error {
 		return err
 	}
 
-	options := services.GetClientGenerationOptions(projectPath, gomodPath, false, conf)
+	options := services.CodegenOptions(projectPath, gomodPath, false, conf)
 
 	return cosmosgen.Generate(context.Background(), projectPath, conf.Build.Proto.Path, options...)
 }

@@ -9,8 +9,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/giturl"
 )
 
-// GetClientGenerationOptions gets client generation options.
-func GetClientGenerationOptions(
+// CodegenOptions gets client code generation options.
+func CodegenOptions(
 	projecPath string,
 	goModPath string,
 	enableThirdPartyModuleCodegen bool,
@@ -39,12 +39,10 @@ func GetClientGenerationOptions(
 	if conf.Client.Typescript.Path != "" {
 		tsRootPath := filepath.Join(projecPath, conf.Client.Typescript.Path)
 		options = append(options,
-			cosmosgen.WithJSGeneration(
+			cosmosgen.WithTSGeneration(
 				enableThirdPartyModuleCodegen,
 				getModulePathFn(tsRootPath),
 			),
-			// Only generate typescript client files.
-			cosmosgen.WithTSGeneration(),
 		)
 
 	}
