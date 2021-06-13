@@ -110,7 +110,7 @@ The `query` command has created and modified several files:
 
 Let's examine some of these changes. For clarity, in the following code blocks we'll skip placeholder comments Starport uses to scaffold code. Don't delete these placeholders, however, to be able to continue using Starport's scaffolding functionality.
 
-In `proto/chain/query.proto` a `Posts` `rpc` has been added to the `Query` `service`.
+In `proto/blog/query.proto` a `Posts` `rpc` has been added to the `Query` `service`.
 
 ```
 service Query {
@@ -139,11 +139,11 @@ message QueryPostsResponse {
 `x/blog/keeper/grpc_query_posts.go` contains `Posts` keeper function that handles the query and returns data.
 
 ```go
-func (k Keeper) Posts(goCtx context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
+func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
   if req == nil {
     return nil, status.Error(codes.InvalidArgument, "invalid request")
   }
-  ctx := sdk.UnwrapSDKContext(goCtx)
+  ctx := sdk.UnwrapSDKContext(c)
   _ = ctx
   return &types.QueryPostsResponse{}, nil
 }
@@ -154,7 +154,7 @@ func (k Keeper) Posts(goCtx context.Context, req *types.QueryPostsRequest) (*typ
 From the `query.proto` we know that response may contain `title` and `body`, so let's modify the last line of the function to return a "Hello!".
 
 ```go
-func (k Keeper) Posts(goCtx context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
+func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
   //...
   return &types.QueryPostsResponse{Title: "Hello!", Body: "Starport"}, nil
 }
@@ -216,7 +216,7 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-- modified `proto/chain/tx.proto`
+- modified `proto/blog/tx.proto`
 - modified `x/blog/handler.go`
 - created `x/blog/keeper/msg_server_createPost.go`
 - modified `x/blog/client/cli/tx.go`
@@ -224,7 +224,7 @@ The `message` command has created and modified several files:
 - created `x/blog/types/message_createPost.go`
 - modified `x/blog/types/codec.go`
 
-As always, we start with a proto file. Inside `proto/chain/tx.proto`:
+As always, we start with a proto file. Inside `proto/blog/tx.proto`:
 
 ```go
 message MsgCreatePost {
@@ -435,7 +435,7 @@ Let's first review the services and messages in `x/blog/query.proto`. `Posts` `r
 
 ```go
 // Import the Post message
-import "chain/post.proto";
+import "blog/post.proto";
 
 message QueryPostsRequest {
   // Adding pagination to request
