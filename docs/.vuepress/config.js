@@ -119,4 +119,12 @@ module.exports = {
       ],
     },
   },
+  plugins: [
+    [
+      "@vuepress/google-analytics",
+      {
+        ga: "G-XL9GNV1KHW",
+      },
+    ],
+  ],
 };
