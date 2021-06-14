@@ -32,7 +32,7 @@ func (s *Scaffolder) AddPacket(
 		return err
 	}
 
-	name, err := multiformatname.NewMultiFormatName(packetName)
+	name, err := multiformatname.NewName(packetName)
 	if err != nil {
 		return err
 	}

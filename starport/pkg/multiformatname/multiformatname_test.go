@@ -22,7 +22,7 @@ func TestNewMultiFormatName(t *testing.T) {
 
 	// test cases
 	for _, testCase := range cases {
-		name, err := multiformatname.NewMultiFormatName(testCase[0])
+		name, err := multiformatname.NewName(testCase[0])
 		require.NoError(t, err)
 		require.Equal(
 			t,
@@ -61,7 +61,7 @@ func TestNewMultiFormatName2(t *testing.T) {
 
 	// test cases
 	for _, testCase := range cases {
-		_, err := multiformatname.NewMultiFormatName(testCase)
+		_, err := multiformatname.NewName(testCase)
 		require.Error(t, err)
 	}
 }

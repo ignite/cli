@@ -38,7 +38,7 @@ func (s *Scaffolder) AddType(
 		moduleName = path.Package
 	}
 
-	name, err := multiformatname.NewMultiFormatName(typeName)
+	name, err := multiformatname.NewName(typeName)
 	if err != nil {
 		return err
 	}

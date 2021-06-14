@@ -18,7 +18,7 @@ type Name struct {
 }
 
 // NewMultiFormatName returns a new multi-format name from a name
-func NewMultiFormatName(name string) (Name, error) {
+func NewName(name string) (Name, error) {
 	if err := CheckName(name); err != nil {
 		return Name{}, err
 	}

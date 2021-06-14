@@ -35,7 +35,7 @@ func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field,
 			return parsedFields, fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
 		}
 
-		name, err := multiformatname.NewMultiFormatName(fieldSplit[0])
+		name, err := multiformatname.NewName(fieldSplit[0])
 		if err != nil {
 			return parsedFields, err
 		}

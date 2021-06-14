@@ -33,7 +33,7 @@ func (s *Scaffolder) AddMessage(
 		moduleName = path.Package
 	}
 
-	name, err := multiformatname.NewMultiFormatName(msgName)
+	name, err := multiformatname.NewName(msgName)
 	if err != nil {
 		return err
 	}

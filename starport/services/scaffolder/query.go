@@ -32,7 +32,7 @@ func (s *Scaffolder) AddQuery(
 		moduleName = path.Package
 	}
 
-	name, err := multiformatname.NewMultiFormatName(queryName)
+	name, err := multiformatname.NewName(queryName)
 	if err != nil {
 		return err
 	}

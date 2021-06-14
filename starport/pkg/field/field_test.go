@@ -50,11 +50,11 @@ func TestParseFields(t *testing.T) {
 			},
 		},
 	}
-	cases.expected[0].Name, _ = multiformatname.NewMultiFormatName("foo")
-	cases.expected[1].Name, _ = multiformatname.NewMultiFormatName("bar")
-	cases.expected[2].Name, _ = multiformatname.NewMultiFormatName("fooBar")
-	cases.expected[3].Name, _ = multiformatname.NewMultiFormatName("bar-foo")
-	cases.expected[4].Name, _ = multiformatname.NewMultiFormatName("foo_foo")
+	cases.expected[0].Name, _ = multiformatname.NewName("foo")
+	cases.expected[1].Name, _ = multiformatname.NewName("bar")
+	cases.expected[2].Name, _ = multiformatname.NewName("fooBar")
+	cases.expected[3].Name, _ = multiformatname.NewName("bar-foo")
+	cases.expected[4].Name, _ = multiformatname.NewName("foo_foo")
 
 	actual, err := field.ParseFields(cases.provided, noCheck)
 	require.NoError(t, err)
