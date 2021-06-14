@@ -10,7 +10,7 @@ import (
 
 // MultiFormatName represents a name with multiple naming convention representations
 // Supported naming convention are: camel, pascal, and kebab cases
-type MultiFormatName struct {
+type Name struct {
 	Original   string
 	LowerCamel string
 	UpperCamel string
@@ -18,12 +18,12 @@ type MultiFormatName struct {
 }
 
 // NewMultiFormatName returns a new multi-format name from a name
-func NewMultiFormatName(name string) (MultiFormatName, error) {
+func NewMultiFormatName(name string) (Name, error) {
 	if err := CheckName(name); err != nil {
-		return MultiFormatName{}, err
+		return Name{}, err
 	}
 
-	return MultiFormatName{
+	return Name{
 		Original:   name,
 		LowerCamel: strcase.ToLowerCamel(name),
 		UpperCamel: strcase.ToCamel(name),

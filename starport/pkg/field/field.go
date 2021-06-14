@@ -18,7 +18,7 @@ const (
 // Field represents a field inside a structure for a component
 // it can a field contained in a type or inside the response of a query, etc...
 type Field struct {
-	Name         multiformatname.MultiFormatName
+	Name         multiformatname.Name
 	Datatype     string
 	DatatypeName string
 }

@@ -56,7 +56,7 @@ func isMsgServerDefined(appPath, moduleName string) (bool, error) {
 }
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
-func checkComponentValidity(appPath, moduleName string, compName multiformatname.MultiFormatName) error {
+func checkComponentValidity(appPath, moduleName string, compName multiformatname.Name) error {
 	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
 		return err
@@ -143,7 +143,7 @@ func checkGoReservedWord(name string) error {
 }
 
 // checkComponentCreated checks if the component has been already created with Starport in the project
-func checkComponentCreated(appPath, moduleName string, compName multiformatname.MultiFormatName) (err error) {
+func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name) (err error) {
 
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{

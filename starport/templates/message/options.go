@@ -11,7 +11,7 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	MsgName    multiformatname.MultiFormatName
+	MsgName    multiformatname.Name
 	MsgDesc    string
 	Fields     []field.Field
 	ResFields  []field.Field

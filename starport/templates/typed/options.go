@@ -11,7 +11,7 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	TypeName   multiformatname.MultiFormatName
+	TypeName   multiformatname.Name
 	Fields     []field.Field
 	NoMessage  bool
 }

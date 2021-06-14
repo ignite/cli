@@ -11,7 +11,7 @@ type Options struct {
 	ModuleName  string
 	ModulePath  string
 	OwnerName   string
-	QueryName   multiformatname.MultiFormatName
+	QueryName   multiformatname.Name
 	Description string
 	ResFields   []field.Field
 	ReqFields   []field.Field
