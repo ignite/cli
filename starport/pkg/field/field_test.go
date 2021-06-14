@@ -19,13 +19,20 @@ type testCases struct {
 }
 
 func TestParseFields(t *testing.T) {
+	names := []string{
+		"foo",
+		"bar",
+		"fooBar",
+		"bar-foo",
+		"foo_foo",
+	}
 	cases := testCases{
 		provided: []string{
-			"foo",
-			"bar:string",
-			"fooBar:bool",
-			"bar-foo:int",
-			"foo_foo:uint",
+			names[0],
+			names[1] + ":string",
+			names[2] + ":bool",
+			names[3] + ":int",
+			names[4] + ":uint",
 		},
 		expected: []field.Field{
 			{
@@ -50,11 +57,9 @@ func TestParseFields(t *testing.T) {
 			},
 		},
 	}
-	cases.expected[0].Name, _ = multiformatname.NewName("foo")
-	cases.expected[1].Name, _ = multiformatname.NewName("bar")
-	cases.expected[2].Name, _ = multiformatname.NewName("fooBar")
-	cases.expected[3].Name, _ = multiformatname.NewName("bar-foo")
-	cases.expected[4].Name, _ = multiformatname.NewName("foo_foo")
+	for i, name := range names {
+		cases.expected[i].Name, _ = multiformatname.NewName(name)
+	}
 
 	actual, err := field.ParseFields(cases.provided, noCheck)
 	require.NoError(t, err)
