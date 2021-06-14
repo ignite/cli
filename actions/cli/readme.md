@@ -1,5 +1,5 @@
 # Starport CLI Action
-This action makes the `starport` cli available as a Github Action.
+This action makes the `starport` CLI available as a Github Action.
 
 ## Quick start
 
