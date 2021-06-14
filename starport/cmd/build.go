@@ -23,10 +23,10 @@ func NewBuild() *cobra.Command {
 		Long: `By default, build your node binaries
 and add the binaries to your $(go env GOPATH)/bin path.
 
-To build binaries for a release, use the optional --release flag. The app binaries
+To build binaries for a release, use the --release flag. The app binaries
 for one or more specified release targets are built in a release/ dir under the app's
 source. Specify the release targets with GOOS:GOARCH build tags.
-If the GOOS:GOARCH build tags are not specified, a binary is created for your local machine.
+If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
 	- starport build
@@ -38,7 +38,7 @@ Sample usages:
 	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
-	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target")
+	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules. Available only without the --release flag")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
