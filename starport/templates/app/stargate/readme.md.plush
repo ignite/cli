@@ -1,4 +1,5 @@
 # <%= AppName %>
+**<%= AppName %>** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
 
 ## Get started
 
@@ -44,9 +45,6 @@ To install the latest version of your blockchain node's binary, execute the foll
 ```
 curl https://get.starport.network/<%= OwnerAndRepoName %>! | sudo bash
 ```
-
-**<%= AppName %>** is a blockchain built using Cosmos SDK and Tendermint and created with [Starport](https://github.com/tendermint/starport).
-
 
 ## Learn more
 
