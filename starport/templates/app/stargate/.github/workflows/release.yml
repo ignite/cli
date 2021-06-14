@@ -1,11 +1,13 @@
-# This workflow creates a new draft release that includes app binaries when there is
-# a new tag pushed to repo with "v" prefix.
-name: Release 
+# This workflow creates a new prerelease with "v*" name everytime there is a new 
+# tag pushed with a "v" prefix or updates the "latest" release when a change is 
+# pushed to the develop branch. 
 
 on:
   push:
     tags:
       - v*
+    branches:
+      - develop
 
 jobs:
   test:
@@ -14,20 +16,35 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Prepare Tarball Prefix 
+      - name: Prepare Release Variables 
         id: vars
         run: |
-          echo ::set-output name=prefix::${GITHUB_REPOSITORY##*/}_${GITHUB_REF##*/}
+          tag=${GITHUB_REF##*/}
+          if [[ $tag == develop ]]; then tag=latest; fi
 
-      - name: Create the Release 
-        uses: tendermint/starport/actions/cli@develop
+          echo ::set-output name=tag::$tag
+          echo ::set-output name=prefix::${GITHUB_REPOSITORY##*/}_$tag
+
+      - name: Issue Release Assets 
+        uses: tendermint/starport/actions/cli@feat/action
         with:
-          args: build --release --release.prefix ${{ steps.vars.outputs.prefix }} -t linux:amd64 -t linux:arm64 -t darwin:amd64 -t darwin:arm64
+          args: build --release --release.prefix ${{ steps.vars.outputs.prefix }} -t linux:amd64 -t darwin:amd64
 
-      - name: Publish It
+      # if we're releasing the "latest" release, we should delete it first
+      # otherwise, the releaser won't be able to prerelease with the same name.
+      - name: Might Delete the "latest" Release
+        if: ${{ steps.vars.outputs.tag == 'latest' }}
+        run: |
+          gh release delete latest -y || true
+          git push origin --delete latest || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish the Release
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.vars.outputs.tag }}
           files: release/*
-          draft: true
+          prerelease: true 
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
