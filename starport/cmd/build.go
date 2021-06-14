@@ -23,7 +23,9 @@ func NewBuild() *cobra.Command {
 		Long: `By default, build your node binaries
 and add the binaries to your $(go env GOPATH)/bin path.
 
-To build binaries for a release, use the optional --release flag. The app binaries for one or more specified release targets are built in a release/ dir under the app's source. Specify the release targets with GOOS:GOARCH build tags.
+To build binaries for a release, use the optional --release flag. The app binaries
+for one or more specified release targets are built in a release/ dir under the app's
+source. Specify the release targets with GOOS:GOARCH build tags.
 If the GOOS:GOARCH build tags are not specified, a binary is created for your local machine.
 
 Sample usages:
