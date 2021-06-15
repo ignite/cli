@@ -5,7 +5,7 @@ module.exports = {
     algolia: {
       id: "BH4D9OD16A",
       key: "d6908a9436133e03e9b0131bad808775",
-      index: "docs-starport",
+      index: "docs-startport",
     },
     sidebar: {
       auto: true,
