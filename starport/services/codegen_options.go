@@ -34,7 +34,7 @@ func CodegenOptions(
 	}
 
 	// generate ts client code as well if it is enabled.
-	// NB: Vuex generates JS/TS client code as well but in addtion to a vuex store.
+	// NB: Vuex generates JS/TS client code as well but in addition to a vuex store.
 	// Path options will conflict with each other.
 	if conf.Client.Typescript.Path != "" {
 		tsRootPath := filepath.Join(projecPath, conf.Client.Typescript.Path)
