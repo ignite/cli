@@ -2,6 +2,11 @@ module.exports = {
   theme: "cosmos",
   title: "Starport",
   themeConfig: {
+    algolia: {
+      id: "BH4D9OD16A",
+      key: "d6908a9436133e03e9b0131bad808775",
+      index: "docs-starport",
+    },
     sidebar: {
       auto: true,
       nav: [
