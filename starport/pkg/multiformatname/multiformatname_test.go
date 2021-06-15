@@ -18,6 +18,7 @@ func TestNewMultiFormatName(t *testing.T) {
 		{"foo_-_bar", "fooBar", "FooBar", "foo---bar"},
 		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar"},
 		{"fooBAR", "fooBAR", "FooBAR", "foo-bar"},
+		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123"},
 	}
 
 	// test cases
@@ -55,7 +56,9 @@ func TestNewMultiFormatName2(t *testing.T) {
 	cases := []string{
 		"",
 		"foo bar",
-		"foo123",
+		"1foo",
+		"-foo",
+		"_foo",
 		"@foo",
 	}
 
