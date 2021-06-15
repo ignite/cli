@@ -6,7 +6,9 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/ibc"
@@ -30,7 +32,12 @@ func (s *Scaffolder) AddPacket(
 		return err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, packetName); err != nil {
+	name, err := multiformatname.NewName(packetName)
+	if err != nil {
+		return err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return err
 	}
 
@@ -44,13 +51,13 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := parseFields(packetFields, checkForbiddenPacketField)
+	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := parseFields(ackFields, checkGoReservedWord)
+	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -63,7 +70,7 @@ func (s *Scaffolder) AddPacket(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			PacketName: packetName,
+			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
 			NoMessage:  noMessage,

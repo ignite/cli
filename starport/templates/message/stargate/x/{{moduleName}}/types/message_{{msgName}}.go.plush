@@ -5,24 +5,24 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &Msg<%= title(MsgName) %>{}
+var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
 
-func NewMsg<%= title(MsgName) %>(creator string<%= for (field) in Fields { %>, <%= field.Name %> <%= field.Datatype %><% } %>) *Msg<%= title(MsgName) %> {
-  return &Msg<%= title(MsgName) %>{
+func NewMsg<%= MsgName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *Msg<%= MsgName.UpperCamel %> {
+  return &Msg<%= MsgName.UpperCamel %>{
 		Creator: creator,<%= for (field) in Fields { %>
-    <%= title(field.Name) %>: <%= field.Name %>,<% } %>
+    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
 
-func (msg *Msg<%= title(MsgName) %>) Route() string {
+func (msg *Msg<%= MsgName.UpperCamel %>) Route() string {
   return RouterKey
 }
 
-func (msg *Msg<%= title(MsgName) %>) Type() string {
-  return "<%= title(MsgName) %>"
+func (msg *Msg<%= MsgName.UpperCamel %>) Type() string {
+  return "<%= MsgName.UpperCamel %>"
 }
 
-func (msg *Msg<%= title(MsgName) %>) GetSigners() []sdk.AccAddress {
+func (msg *Msg<%= MsgName.UpperCamel %>) GetSigners() []sdk.AccAddress {
   creator, err := sdk.AccAddressFromBech32(msg.Creator)
   if err != nil {
     panic(err)
@@ -30,12 +30,12 @@ func (msg *Msg<%= title(MsgName) %>) GetSigners() []sdk.AccAddress {
   return []sdk.AccAddress{creator}
 }
 
-func (msg *Msg<%= title(MsgName) %>) GetSignBytes() []byte {
+func (msg *Msg<%= MsgName.UpperCamel %>) GetSignBytes() []byte {
   bz := ModuleCdc.MustMarshalJSON(msg)
   return sdk.MustSortJSON(bz)
 }
 
-func (msg *Msg<%= title(MsgName) %>) ValidateBasic() error {
+func (msg *Msg<%= MsgName.UpperCamel %>) ValidateBasic() error {
   _, err := sdk.AccAddressFromBech32(msg.Creator)
   	if err != nil {
   		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
