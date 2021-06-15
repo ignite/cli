@@ -3,7 +3,6 @@
 # a) Creating a new prelease when you push a new tag with a "v" prefix (version).
 #
 #    This type of prerelease is meant to be used for production: alpha, beta, rc, etc. type of releases.
-#
 #    After the prerelease is created, you need to make your changes on the release page at the relevant
 #    Github page and publish your release.
 #
