@@ -64,6 +64,9 @@ func generateCmd(cmd *cobra.Command, w io.Writer) error {
 		return err
 	}
 
+	// here we change sub titles to bold sytling otherwise, these titles will get
+	// printed in the right menu of docs.starport.network which is unpleasant because
+	// we only want to see a list of all available commands without the extra noise.
 	sc := bufio.NewScanner(b)
 	for sc.Scan() {
 		t := sc.Text()
