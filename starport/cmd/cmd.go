@@ -107,7 +107,7 @@ func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.Ini
 }
 
 var (
-	modifyPrefix = color.New(color.FgRed).SprintFunc()("modify ")
+	modifyPrefix = color.New(color.FgMagenta).SprintFunc()("modify ")
 	createPrefix = color.New(color.FgGreen).SprintFunc()("create ")
 	removePrefix = func(s string) string {
 		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
@@ -132,5 +132,5 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 		return strings.Compare(s1, s2) == -1
 	})
 
-	return strings.Join(files, "\n")
+	return "\n" + strings.Join(files, "\n")
 }
