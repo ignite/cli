@@ -15,6 +15,7 @@ type Name struct {
 	LowerCamel string
 	UpperCamel string
 	Kebab      string
+	Snake	   string
 }
 
 // NewMultiFormatName returns a new multi-format name from a name
@@ -28,6 +29,7 @@ func NewName(name string) (Name, error) {
 		LowerCamel: strcase.ToLowerCamel(name),
 		UpperCamel: strcase.ToCamel(name),
 		Kebab:      strcase.ToKebab(name),
+		Snake: 		strcase.ToSnake(name),
 	}, nil
 }
 
