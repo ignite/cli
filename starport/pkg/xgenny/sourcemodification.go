@@ -1,7 +1,5 @@
 package xgenny
 
-import "sort"
-
 // SourceModification describes modified and created files in the source code after a run
 type SourceModification struct {
 	modified map[string]struct{}
@@ -20,7 +18,6 @@ func (sm SourceModification) ModifiedFiles() (modifiedFiles []string) {
 	for modified := range sm.modified {
 		modifiedFiles = append(modifiedFiles, modified)
 	}
-	sort.Strings(modifiedFiles)
 	return
 }
 
@@ -29,7 +26,6 @@ func (sm SourceModification) CreatedFiles() (createdFiles []string) {
 	for created := range sm.created {
 		createdFiles = append(createdFiles, created)
 	}
-	sort.Strings(createdFiles)
 	return
 }
 

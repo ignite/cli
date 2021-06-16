@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
 	"strings"
 
 	"github.com/fatih/color"
@@ -105,11 +106,31 @@ func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.Ini
 	return initOptions
 }
 
+var (
+	modifyPrefix = color.New(color.FgRed).SprintFunc()("modify ")
+	createPrefix = color.New(color.FgGreen).SprintFunc()("create ")
+	removePrefix = func(s string) string {
+		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
+	}
+)
+
 func sourceModificationToString(sm xgenny.SourceModification) string {
-	return fmt.Sprintf(`🔧 Modified files:
-%s
-🔨 Created files:
-%s
-`, color.New(color.FgCyan).SprintFunc()(strings.Join(sm.ModifiedFiles(), "\n")),
-		color.New(color.FgGreen).SprintFunc()(strings.Join(sm.CreatedFiles(), "\n")))
+	// get file names and add prefix
+	var files []string
+	for _, modified := range sm.ModifiedFiles() {
+		files = append(files, modifyPrefix+modified)
+	}
+	for _, created := range sm.CreatedFiles() {
+		files = append(files, createPrefix+created)
+	}
+
+	// sort filenames without prefix
+	sort.Slice(files, func(i, j int) bool {
+		s1 := removePrefix(files[i])
+		s2 := removePrefix(files[j])
+
+		return strings.Compare(s1, s2) == -1
+	})
+
+	return strings.Join(files, "\n")
 }
