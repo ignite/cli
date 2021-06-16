@@ -90,7 +90,7 @@ func (t *typedStargate) protoTxModify(replacer placeholder.Replacer, opts *Optio
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport,
 			opts.ModuleName,
-			opts.TypeName.LowerCamel,
+			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
 
@@ -162,7 +162,7 @@ func (t *typedStargate) protoQueryModify(replacer placeholder.Replacer, opts *Op
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, Placeholder,
 			opts.ModuleName,
-			opts.TypeName.LowerCamel,
+			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
