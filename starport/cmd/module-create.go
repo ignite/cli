@@ -108,7 +108,7 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		fmt.Print(sourceModificationToString(sm))
+		fmt.Println(sourceModificationToString(sm))
 	}
 
 	io.Copy(cmd.OutOrStdout(), &msg)

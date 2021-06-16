@@ -55,7 +55,7 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Print(sourceModificationToString(sm))
+	fmt.Println(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 	return nil
 }

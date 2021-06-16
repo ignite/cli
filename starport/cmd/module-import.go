@@ -38,7 +38,7 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Print(sourceModificationToString(sm))
+	fmt.Println(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Imported module `%s`.\n\n", name)
 	return nil
 }
