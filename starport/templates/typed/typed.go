@@ -57,7 +57,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
-	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
+	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.LowerCamel))
+	g.Transformer(genny.Replace("{{TypeName}}", opts.TypeName.UpperCamel))
 	return nil
 }

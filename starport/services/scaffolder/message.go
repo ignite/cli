@@ -5,7 +5,9 @@ import (
 	"os"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
@@ -31,16 +33,21 @@ func (s *Scaffolder) AddMessage(
 		moduleName = path.Package
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, msgName); err != nil {
+	name, err := multiformatname.NewName(msgName)
+	if err != nil {
+		return sm, err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return sm, err
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := parseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return sm, err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}
@@ -52,7 +59,7 @@ func (s *Scaffolder) AddMessage(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			MsgName:    msgName,
+			MsgName:    name,
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
 			MsgDesc:    msgDesc,

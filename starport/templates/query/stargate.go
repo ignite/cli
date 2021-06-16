@@ -2,7 +2,6 @@ package query
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -37,8 +36,8 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			Placeholder2,
-			strings.Title(opts.QueryName),
-			opts.QueryName,
+			opts.QueryName.UpperCamel,
+			opts.QueryName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
@@ -48,7 +47,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Fields for request
 		var reqFields string
 		for i, field := range opts.ReqFields {
-			reqFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			reqFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 		if opts.Paginated {
 			reqFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageRequest pagination = %d;\n", len(opts.ReqFields)+1)
@@ -57,7 +56,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Fields for response
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 		if opts.Paginated {
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
@@ -74,7 +73,7 @@ message Query%[2]vResponse {
 		replacementMessages := fmt.Sprintf(
 			templateMessages,
 			Placeholder3,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 			reqFields,
 			resFields,
 		)
@@ -100,7 +99,7 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		replacement := fmt.Sprintf(
 			template,
 			Placeholder,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 

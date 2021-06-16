@@ -14,7 +14,7 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/client/cli"
 )
 
-func TestCreate<%= title(TypeName) %>(t *testing.T) {
+func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	net := network.New(t)
 	val := net.Validators[0]
 	ctx := val.ClientCtx
@@ -41,7 +41,7 @@ func TestCreate<%= title(TypeName) %>(t *testing.T) {
             args := []string{}
             args = append(args, fields...)
             args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= title(TypeName) %>(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -54,7 +54,7 @@ func TestCreate<%= title(TypeName) %>(t *testing.T) {
 	}
 }
 
-func TestUpdate<%= title(TypeName) %>(t *testing.T) {
+func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	net := network.New(t)
 
 	val := net.Validators[0]
@@ -70,7 +70,7 @@ func TestUpdate<%= title(TypeName) %>(t *testing.T) {
     args := []string{}
 	args = append(args, fields...)
 	args = append(args, common...)
-	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= title(TypeName) %>(), args)
+	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	require.NoError(t, err)
 
 	for _, tc := range []struct {
@@ -97,7 +97,7 @@ func TestUpdate<%= title(TypeName) %>(t *testing.T) {
             args := []string{tc.id}
             args = append(args, fields...)
             args = append(args, tc.args...)
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= title(TypeName) %>(), args)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -110,7 +110,7 @@ func TestUpdate<%= title(TypeName) %>(t *testing.T) {
 	}
 }
 
-func TestDelete<%= title(TypeName) %>(t *testing.T) {
+func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	net := network.New(t)
 
 	val := net.Validators[0]
@@ -126,7 +126,7 @@ func TestDelete<%= title(TypeName) %>(t *testing.T) {
     args := []string{}
 	args = append(args, fields...)
 	args = append(args, common...)
-	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= title(TypeName) %>(), args)
+	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
 	require.NoError(t, err)
 
 	for _, tc := range []struct {
@@ -150,7 +150,7 @@ func TestDelete<%= title(TypeName) %>(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= title(TypeName) %>(), append([]string{tc.id}, tc.args...))
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{tc.id}, tc.args...))
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {

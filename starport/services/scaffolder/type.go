@@ -3,22 +3,16 @@ package scaffolder
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
-)
-
-const (
-	TypeString = "string"
-	TypeBool   = "bool"
-	TypeInt32  = "int32"
-	TypeUint64 = "uint64"
 )
 
 type AddTypeOption struct {
@@ -43,12 +37,18 @@ func (s *Scaffolder) AddType(
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	if err := checkComponentValidity(s.path, moduleName, typeName); err != nil {
+
+	name, err := multiformatname.NewName(typeName)
+	if err != nil {
+		return sm, err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return sm, err
 	}
 
 	// Parse provided field
-	tFields, err := parseFields(fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(fields, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
 	}
@@ -60,7 +60,7 @@ func (s *Scaffolder) AddType(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			TypeName:   typeName,
+			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  addTypeOptions.NoMessage,
 		}
@@ -104,53 +104,6 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 	return sm, s.finish(pwd, path.RawPath)
-}
-
-// parseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func parseFields(fields []string, isForbiddenField func(string) error) ([]typed.Field, error) {
-	// Used to check duplicated field
-	existingFields := make(map[string]bool)
-
-	var tFields []typed.Field
-	for _, f := range fields {
-		fs := strings.Split(f, ":")
-		name := fs[0]
-
-		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if err := isForbiddenField(name); err != nil {
-			return tFields, fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
-		}
-
-		// Ensure the field is not duplicated
-		if _, exists := existingFields[name]; exists {
-			return tFields, fmt.Errorf("the field %s is duplicated", name)
-		}
-		existingFields[name] = true
-
-		datatypeName, datatype := TypeString, TypeString
-		acceptedTypes := map[string]string{
-			"string": TypeString,
-			"bool":   TypeBool,
-			"int":    TypeInt32,
-			"uint":   TypeUint64,
-		}
-		isTypeSpecified := len(fs) == 2
-		if isTypeSpecified {
-			if t, ok := acceptedTypes[fs[1]]; ok {
-				datatype = t
-				datatypeName = fs[1]
-			} else {
-				return tFields, fmt.Errorf("the field type %s doesn't exist", fs[1])
-			}
-		}
-		tFields = append(tFields, typed.Field{
-			Name:         name,
-			Datatype:     datatype,
-			DatatypeName: datatypeName,
-		})
-	}
-
-	return tFields, nil
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
