@@ -493,7 +493,7 @@ blogd tx blog createPost foo bar --from alice
 ```
 
 ```
-{"body":{"messages":[{"@type":"/alice.chain.chain.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/alice.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 {"height":"2828","txhash":"E04A712E65B0F6F30F5DC291A6552B69F6CB3F77761F28AFFF8EAA535EC4C589","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
