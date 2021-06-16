@@ -35,6 +35,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("title", strings.Title)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.LowerCamel))
+	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
 	return nil
 }
