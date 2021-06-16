@@ -1,14 +1,14 @@
-# This workflow is useful if you want to automate the processs of:
+# This workflow is useful if you want to automate the process of:
 #
 # a) Creating a new prelease when you push a new tag with a "v" prefix (version).
 #
-#    This type of prerelease is meant to be used for production: alpha, beta, rc, etc. type of releases.
+#    This type of prerelease is meant to be used for production: alpha, beta, rc, etc. types of releases.
 #    After the prerelease is created, you need to make your changes on the release page at the relevant
 #    Github page and publish your release.
 #
 # b) Creating/updating the "latest" prerelease when you push to your default branch.
 #
-#    This type of prelease is useful to make your bleeding-edge binaries avaiable to advanced users.
+#    This type of prelease is useful to make your bleeding-edge binaries available to advanced users.
 #
 # The workflow will not run if there is no tag pushed with a "v" prefix and no change pushed to your 
 # default branch.
