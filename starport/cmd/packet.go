@@ -62,13 +62,14 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, noMessage)
+	sm, err := sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, noMessage)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Print(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
 	return nil
 }

@@ -1,10 +1,5 @@
 package xgenny
 
-import (
-	"fmt"
-	"strings"
-)
-
 // SourceModification describes modified and created files in the source code after a run
 type SourceModification struct {
 	modified map[string]struct{}
@@ -20,7 +15,7 @@ func NewSourceModification() SourceModification {
 
 // ModifiedFiles returns the modified files of the source modification
 func (sm SourceModification) ModifiedFiles() (modifiedFiles []string) {
-	for modified, _ := range sm.modified {
+	for modified := range sm.modified {
 		modifiedFiles = append(modifiedFiles, modified)
 	}
 	return
@@ -28,19 +23,10 @@ func (sm SourceModification) ModifiedFiles() (modifiedFiles []string) {
 
 // CreatedFiles returns the created files of the source modification
 func (sm SourceModification) CreatedFiles() (createdFiles []string) {
-	for created, _ := range sm.created {
+	for created := range sm.created {
 		createdFiles = append(createdFiles, created)
 	}
 	return
-}
-
-// ToString returns a string containing detailed information about the modified and created files
-func (sm SourceModification) ToString() string {
-	return fmt.Sprintf(`Modified files:
-%s
-Created files:
-%s
-`, strings.Join(sm.ModifiedFiles(), "\n"), strings.Join(sm.CreatedFiles(), "\n"))
 }
 
 // AppendModifiedFile appends modified files in the source modification that are not already documented

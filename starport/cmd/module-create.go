@@ -92,7 +92,8 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
-	_, err = sc.CreateModule(placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	s.Stop()
 	if err != nil {
 		// If this is an old scaffolded application that doesn't contain the necessary placeholder
 		// We give instruction to the user to modify the application
@@ -106,8 +107,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 		} else {
 			return err
 		}
+	} else {
+		fmt.Print(sourceModificationToString(sm))
 	}
-	s.Stop()
 
 	io.Copy(cmd.OutOrStdout(), &msg)
 	return nil

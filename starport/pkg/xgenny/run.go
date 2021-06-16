@@ -3,11 +3,12 @@ package xgenny
 import (
 	"context"
 	"errors"
+	"os"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
-	"os"
 )
 
 var _ validation.Error = (*dryRunError)(nil)
@@ -55,6 +56,8 @@ func RunWithValidation(
 		sm = NewSourceModification()
 		for _, file := range dryRunner.Results().Files {
 			_, err := os.Stat(file.Name())
+
+			// nolint:gocritic
 			if os.IsNotExist(err) {
 				// if the file doesn't exist in the source, it means it has been created by the runner
 				sm.AppendCreatedFiles(file.Name())

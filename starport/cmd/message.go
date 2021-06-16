@@ -60,13 +60,14 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields)
+	sm, err := sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Print(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 	return nil
 }

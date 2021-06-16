@@ -65,13 +65,14 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	_, err = sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sm, err := sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Print(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
 	return nil
 }

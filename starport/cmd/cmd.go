@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -10,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -101,4 +103,13 @@ func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.Ini
 	}
 
 	return initOptions
+}
+
+func sourceModificationToString(sm xgenny.SourceModification) string {
+	return fmt.Sprintf(`🔧 Modified files:
+%s
+🔨 Created files:
+%s
+`, color.New(color.FgCyan).SprintFunc()(strings.Join(sm.ModifiedFiles(), "\n")),
+		color.New(color.FgGreen).SprintFunc()(strings.Join(sm.CreatedFiles(), "\n")))
 }

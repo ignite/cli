@@ -74,7 +74,7 @@ func (s *Scaffolder) CreateModule(
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
-	) (sm xgenny.SourceModification, err error) {
+) (sm xgenny.SourceModification, err error) {
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {

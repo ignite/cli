@@ -8,7 +8,7 @@ import (
 
 var (
 	modifiedExample = []string{"mfoo", "mbar", "mfoobar"}
-	createdExample = []string{"cfoo", "cbar", "cfoobar"}
+	createdExample  = []string{"cfoo", "cbar", "cfoobar"}
 )
 
 func sourceModificationExample() xgenny.SourceModification {
