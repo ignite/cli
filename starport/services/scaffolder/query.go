@@ -19,10 +19,10 @@ func (s *Scaffolder) AddQuery(
 	reqFields,
 	resFields []string,
 	paginated bool,
-) error {
+) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// If no module is provided, we add the type to the app's module
@@ -30,17 +30,17 @@ func (s *Scaffolder) AddQuery(
 		moduleName = path.Package
 	}
 	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
-		return err
+		return sm, err
 	}
 
 	// Parse provided fields
 	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	var (
@@ -61,14 +61,15 @@ func (s *Scaffolder) AddQuery(
 	// Scaffold
 	g, err = query.NewStargate(tracer, opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	if err := xgenny.RunWithValidation(tracer, g); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, g)
+	if err != nil {
+		return sm, err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }

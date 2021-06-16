@@ -33,10 +33,10 @@ func (s *Scaffolder) AddType(
 	moduleName,
 	typeName string,
 	fields ...string,
-) error {
+) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// If no module is provided, we add the type to the app's module
@@ -44,13 +44,13 @@ func (s *Scaffolder) AddType(
 		moduleName = path.Package
 	}
 	if err := checkComponentValidity(s.path, moduleName, typeName); err != nil {
-		return err
+		return sm, err
 	}
 
 	// Parse provided field
 	tFields, err := parseFields(fields, checkForbiddenTypeField)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	var (
@@ -78,7 +78,7 @@ func (s *Scaffolder) AddType(
 		},
 	)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if g != nil {
 		gens = append(gens, g)
@@ -92,17 +92,18 @@ func (s *Scaffolder) AddType(
 		g, err = typed.NewStargate(tracer, opts)
 	}
 	if err != nil {
-		return err
+		return sm, err
 	}
 	gens = append(gens, g)
-	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, gens...)
+	if err != nil {
+		return sm, err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field

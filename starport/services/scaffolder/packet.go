@@ -24,35 +24,35 @@ func (s *Scaffolder) AddPacket(
 	packetFields,
 	ackFields []string,
 	noMessage bool,
-) error {
+) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, packetName); err != nil {
-		return err
+		return sm, err
 	}
 
 	// Module must implement IBC
 	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if !ok {
-		return fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
+		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
 	// Parse packet fields
 	parsedPacketFields, err := parseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// Parse acknowledgment fields
 	parsedAcksFields, err := parseFields(ackFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// Generate the packet
@@ -71,16 +71,17 @@ func (s *Scaffolder) AddPacket(
 	)
 	g, err = ibc.NewPacket(tracer, opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	if err := xgenny.RunWithValidation(tracer, g); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, g)
+	if err != nil {
+		return sm, err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface
