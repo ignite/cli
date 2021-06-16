@@ -31,7 +31,8 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.ImportModule(placeholder.New(), name); err != nil {
+	_, err = sc.ImportModule(placeholder.New(), name)
+	if err != nil {
 		return err
 	}
 
