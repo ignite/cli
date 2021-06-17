@@ -18,23 +18,21 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
+func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Network, *types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
 	state := types.GenesisState{}
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
-	for i := 0; i < n; i++ {
-		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{Creator: "ANY", Index: strconv.Itoa(i)})
-	}
+	state.<%= TypeName.UpperCamel %> = &types.<%= TypeName.UpperCamel %>{Creator: "ANY"}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
 	cfg.GenesisState[types.ModuleName] = buf
-	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>List
+	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>
 }
 
 func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
-	net, objs := networkWith<%= TypeName.UpperCamel %>Objects(t, 2)
+	net, obj := networkWith<%= TypeName.UpperCamel %>Objects(t)
 
 	ctx := net.Validators[0].ClientCtx
 	common := []string{
@@ -48,16 +46,9 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		obj  *types.<%= TypeName.UpperCamel %>
 	}{
 		{
-			desc: "found",
-			id:   objs[0].Index,
+			desc: "get",
 			args: common,
-			obj:  objs[0],
-		},
-		{
-			desc: "not found",
-			id:   "not_found",
-			args: common,
-			err:  status.Error(codes.InvalidArgument, "not found"),
+			obj:  obj,
 		},
 	} {
 		tc := tc
