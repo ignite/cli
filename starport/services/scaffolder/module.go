@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"go/parser"
 	"go/token"
 	"io/ioutil"
@@ -75,6 +76,12 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
+	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+	moduleName = mfName.Lowercase
+
 	// Check if the module name is valid
 	if err := checkModuleName(moduleName); err != nil {
 		return sm, err
