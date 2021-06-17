@@ -7,6 +7,11 @@
 - The `--release` flag for the `build` command adds the ability to release binaries in a tarball with a checksum file.
 - Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
 - Added support for multiple naming conventions for component names and field names
+- Print created and modified files when scaffolding a new component
+
+### Fixes:
+
+- Use snake case for generated files
 
 ## `v0.16.1`
 

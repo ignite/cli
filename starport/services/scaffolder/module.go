@@ -70,14 +70,18 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string, options ...ModuleCreationOption) error {
+func (s *Scaffolder) CreateModule(
+	tracer *placeholder.Tracer,
+	moduleName string,
+	options ...ModuleCreationOption,
+) (sm xgenny.SourceModification, err error) {
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if ok {
-		return fmt.Errorf("the module %v already exists", moduleName)
+		return sm, fmt.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -87,7 +91,7 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	}
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	opts := &modulecreate.CreateOptions{
 		ModuleName:  moduleName,
@@ -100,17 +104,17 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if opts.IsIBC {
 		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
 		if err != nil {
-			return err
+			return sm, err
 		}
 		if !ibcPlaceholder {
-			return ErrNoIBCRouterPlaceholder
+			return sm, ErrNoIBCRouterPlaceholder
 		}
 	}
 
 	// Generator from Cosmos SDK version
 	g, err := modulecreate.NewStargate(opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	gens := []*genny.Generator{g}
 
@@ -118,49 +122,51 @@ func (s *Scaffolder) CreateModule(tracer *placeholder.Tracer, moduleName string,
 	if opts.IsIBC {
 		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
-			return err
+			return sm, err
 		}
 		gens = append(gens, g)
 	}
-	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, gens...)
+	if err != nil {
+		return sm, err
 	}
 
-	runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
+	sm.Merge(newSourceModification)
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {
-		return runErr
+		return sm, runErr
 	}
 
 	// Generate proto and format the source
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if err := s.finish(pwd, path.RawPath); err != nil {
-		return err
+		return sm, err
 	}
-	return runErr
+	return sm, runErr
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) error {
+func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
-		return errors.New("module cannot be imported. Supported module: wasm")
+		return sm, errors.New("module cannot be imported. Supported module: wasm")
 	}
 
 	ok, err := isWasmImported(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if ok {
-		return errors.New("wasm is already imported")
+		return sm, errors.New("wasm is already imported")
 	}
 
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// run generator
@@ -170,24 +176,25 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) error
 		BinaryNamePrefix: path.Root,
 	})
 	if err != nil {
-		return err
+		return sm, err
 	}
 
-	if err := xgenny.RunWithValidation(tracer, g); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, g)
+	if err != nil {
+		return sm, err
 	}
 
 	// import a specific version of ComsWasm
 	// NOTE(dshulyak) it must be installed after validation
 	if err := s.installWasm(); err != nil {
-		return err
+		return sm, err
 	}
 
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {

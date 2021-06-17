@@ -9,16 +9,16 @@ import (
 
 func TestNewMultiFormatName(t *testing.T) {
 	// [valueToTest, lowerCamel, upperCamel, kebabCase]
-	cases := [][4]string{
-		{"foo", "foo", "Foo", "foo"},
-		{"fooBar", "fooBar", "FooBar", "foo-bar"},
-		{"foo-bar", "fooBar", "FooBar", "foo-bar"},
-		{"foo_bar", "fooBar", "FooBar", "foo-bar"},
-		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar"},
-		{"foo_-_bar", "fooBar", "FooBar", "foo---bar"},
-		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar"},
-		{"fooBAR", "fooBAR", "FooBAR", "foo-bar"},
-		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123"},
+	cases := [][5]string{
+		{"foo", "foo", "Foo", "foo", "foo"},
+		{"fooBar", "fooBar", "FooBar", "foo-bar", "foo_bar"},
+		{"foo-bar", "fooBar", "FooBar", "foo-bar", "foo_bar"},
+		{"foo_bar", "fooBar", "FooBar", "foo-bar", "foo_bar"},
+		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar", "foo_bar_foobar"},
+		{"foo_-_bar", "fooBar", "FooBar", "foo---bar", "foo___bar"},
+		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar", "foo___bar"},
+		{"fooBAR", "fooBAR", "FooBAR", "foo-bar", "foo_bar"},
+		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123", "foo_bar_123"},
 	}
 
 	// test cases
@@ -47,6 +47,12 @@ func TestNewMultiFormatName(t *testing.T) {
 			testCase[3],
 			name.Kebab,
 			fmt.Sprintf("%s should be converted the correct kebab format", testCase[0]),
+		)
+		require.Equal(
+			t,
+			testCase[4],
+			name.Snake,
+			fmt.Sprintf("%s should be converted the correct snake format", testCase[0]),
 		)
 	}
 }

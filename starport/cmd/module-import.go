@@ -31,12 +31,14 @@ func importModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.ImportModule(placeholder.New(), name); err != nil {
+	sm, err := sc.ImportModule(placeholder.New(), name)
+	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Println(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Imported module `%s`.\n\n", name)
 	return nil
 }

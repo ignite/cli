@@ -28,7 +28,7 @@ import "%[2]v/%[3]v.proto";`
 			templateProtoImport,
 			PlaceholderGenesisProtoImport,
 			opts.ModuleName,
-			opts.TypeName.LowerCamel,
+			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
 
