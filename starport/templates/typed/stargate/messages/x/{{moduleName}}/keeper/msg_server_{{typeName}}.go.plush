@@ -10,59 +10,59 @@ import (
 )
 
 
-func (k msgServer) Create<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgCreate<%= title(TypeName) %>) (*types.MsgCreate<%= title(TypeName) %>Response, error) {
+func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgCreate<%= TypeName.UpperCamel %>) (*types.MsgCreate<%= TypeName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    var <%= TypeName %> = types.<%= title(TypeName) %>{
+    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
         Creator: msg.Creator,<%= for (field) in Fields { %>
-        <%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+        <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
     }
 
-    id := k.Append<%= title(TypeName) %>(
+    id := k.Append<%= TypeName.UpperCamel %>(
         ctx,
-        <%= TypeName %>,
+        <%= TypeName.LowerCamel %>,
     )
 
-	return &types.MsgCreate<%= title(TypeName) %>Response{
+	return &types.MsgCreate<%= TypeName.UpperCamel %>Response{
 	    Id: id,
 	}, nil
 }
 
-func (k msgServer) Update<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgUpdate<%= title(TypeName) %>) (*types.MsgUpdate<%= title(TypeName) %>Response, error) {
+func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgUpdate<%= TypeName.UpperCamel %>) (*types.MsgUpdate<%= TypeName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    var <%= TypeName %> = types.<%= title(TypeName) %>{
+    var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
 		Creator: msg.Creator,
 		Id:      msg.Id,<%= for (field) in Fields { %>
-    	<%= title(field.Name) %>: msg.<%= title(field.Name) %>,<% } %>
+    	<%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
 	}
 
     // Checks that the element exists
-    if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {
+    if !k.Has<%= TypeName.UpperCamel %>(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
 
     // Checks if the the msg sender is the same as the current owner
-    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
+    if msg.Creator != k.Get<%= TypeName.UpperCamel %>Owner(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Set<%= title(TypeName) %>(ctx, <%= TypeName %>)
+	k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
 
-	return &types.MsgUpdate<%= title(TypeName) %>Response{}, nil
+	return &types.MsgUpdate<%= TypeName.UpperCamel %>Response{}, nil
 }
 
-func (k msgServer) Delete<%= title(TypeName) %>(goCtx context.Context,  msg *types.MsgDelete<%= title(TypeName) %>) (*types.MsgDelete<%= title(TypeName) %>Response, error) {
+func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    if !k.Has<%= title(TypeName) %>(ctx, msg.Id) {
+    if !k.Has<%= TypeName.UpperCamel %>(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
-    if msg.Creator != k.Get<%= title(TypeName) %>Owner(ctx, msg.Id) {
+    if msg.Creator != k.Get<%= TypeName.UpperCamel %>Owner(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Remove<%= title(TypeName) %>(ctx, msg.Id)
+	k.Remove<%= TypeName.UpperCamel %>(ctx, msg.Id)
 
-	return &types.MsgDelete<%= title(TypeName) %>Response{}, nil
+	return &types.MsgDelete<%= TypeName.UpperCamel %>Response{}, nil
 }

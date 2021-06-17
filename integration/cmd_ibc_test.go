@@ -69,7 +69,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "bar", "text", "--module", "foo", "--ack", "ack1:string,ack2:int,ack3:bool"),
+			step.Exec("starport", "packet", "bar", "text", "--module", "foo", "--ack", "foo:string,bar:int,foobar:bool"),
 			step.Workdir(path),
 		)),
 	))

@@ -1,7 +1,7 @@
 package types
 
 // ValidateBasic is used for validating the packet
-func (p <%= title(packetName) %>PacketData) ValidateBasic() error {
+func (p <%= packetName.UpperCamel %>PacketData) ValidateBasic() error {
 
 	// TODO: Validate the packet data
 
@@ -9,10 +9,10 @@ func (p <%= title(packetName) %>PacketData) ValidateBasic() error {
 }
 
 // GetBytes is a helper for serialising
-func (p <%= title(packetName) %>PacketData) GetBytes() ([]byte, error) {
+func (p <%= packetName.UpperCamel %>PacketData) GetBytes() ([]byte, error) {
 	var modulePacket <%= title(moduleName) %>PacketData
 
-	modulePacket.Packet = &<%= title(moduleName) %>PacketData_<%= title(packetName) %>Packet{&p}
+	modulePacket.Packet = &<%= title(moduleName) %>PacketData_<%= packetName.UpperCamel %>Packet{&p}
 
 	return modulePacket.Marshal()
 }
