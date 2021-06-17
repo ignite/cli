@@ -1,6 +1,7 @@
 package multiformatname_test
 
 import (
+	"errors"
 	"fmt"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -9,16 +10,16 @@ import (
 
 func TestNewMultiFormatName(t *testing.T) {
 	// [valueToTest, lowerCamel, upperCamel, kebabCase]
-	cases := [][4]string{
-		{"foo", "foo", "Foo", "foo"},
-		{"fooBar", "fooBar", "FooBar", "foo-bar"},
-		{"foo-bar", "fooBar", "FooBar", "foo-bar"},
-		{"foo_bar", "fooBar", "FooBar", "foo-bar"},
-		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar"},
-		{"foo_-_bar", "fooBar", "FooBar", "foo---bar"},
-		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar"},
-		{"fooBAR", "fooBAR", "FooBAR", "foo-bar"},
-		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123"},
+	cases := [][5]string{
+		{"foo", "foo", "Foo", "foo", "foo"},
+		{"fooBar", "fooBar", "FooBar", "foo-bar", "foobar"},
+		{"foo-bar", "fooBar", "FooBar", "foo-bar", "foobar"},
+		{"foo_bar", "fooBar", "FooBar", "foo-bar", "foobar"},
+		{"foo_barFoobar", "fooBarFoobar", "FooBarFoobar", "foo-bar-foobar", "foobarfoobar"},
+		{"foo_-_bar", "fooBar", "FooBar", "foo---bar", "foobar"},
+		{"foo_-_Bar", "fooBar", "FooBar", "foo---bar", "foobar"},
+		{"fooBAR", "fooBAR", "FooBAR", "foo-bar", "foobar"},
+		{"fooBar123", "fooBar123", "FooBar123", "foo-bar-123", "foobar123"},
 	}
 
 	// test cases
@@ -48,11 +49,17 @@ func TestNewMultiFormatName(t *testing.T) {
 			name.Kebab,
 			fmt.Sprintf("%s should be converted the correct kebab format", testCase[0]),
 		)
+		require.Equal(
+			t,
+			testCase[5],
+			name.Kebab,
+			fmt.Sprintf("%s should be converted the correct lowercase format", testCase[0]),
+		)
 	}
 }
 
 func TestNewMultiFormatName2(t *testing.T) {
-	// Test forbidden names
+	// Test basic forbidden names
 	cases := []string{
 		"",
 		"foo bar",
@@ -61,10 +68,22 @@ func TestNewMultiFormatName2(t *testing.T) {
 		"_foo",
 		"@foo",
 	}
-
-	// test cases
 	for _, testCase := range cases {
 		_, err := multiformatname.NewName(testCase)
 		require.Error(t, err)
 	}
+
+	// Test custom check
+	alwaysWrong := func (string) error {return errors.New("always wrong")}
+	_, err := multiformatname.NewName("foo", alwaysWrong)
+	require.Error(t, err)
+
+	alwaysGood := func (string) error {return nil}
+	_, err = multiformatname.NewName("foo", alwaysGood)
+	require.NoError(t, err)
+}
+
+func TestNoNumber(t *testing.T) {
+	require.NoError(t, multiformatname.NoNumber("foo"))
+	require.Error(t, multiformatname.NoNumber("foo1"))
 }
