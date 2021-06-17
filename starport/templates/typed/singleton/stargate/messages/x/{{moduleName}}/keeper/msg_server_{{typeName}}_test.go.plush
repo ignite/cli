@@ -30,7 +30,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	creator := "A"
-	index := "any"
 
 	for _, tc := range []struct {
 		desc    string
@@ -39,17 +38,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator, Index: index},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B", Index: index},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B"},
 			err:     sdkerrors.ErrUnauthorized,
-		},
-		{
-			desc:    "KeyNotFound",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator, Index: "missing"},
-			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
 		tc := tc
@@ -57,7 +51,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			keeper, ctx := setupKeeper(t)
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
-			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: index}
+			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator}
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
 			require.NoError(t, err)
 
@@ -66,7 +60,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, expected.Index)
+				rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
 				require.True(t, found)
 				assert.Equal(t, expected.Creator, rst.Creator)
 			}
@@ -76,7 +70,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	creator := "A"
-	index := "any"
 
 	for _, tc := range []struct {
 		desc    string
@@ -85,17 +78,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator, Index: index},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B", Index: index},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B"},
 			err:     sdkerrors.ErrUnauthorized,
-		},
-		{
-			desc:    "KeyNotFound",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator, Index: "missing"},
-			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
 		tc := tc
@@ -104,7 +92,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
 
-			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: index})
+			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator})
 			require.NoError(t, err)
 			_, err = srv.Delete<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {

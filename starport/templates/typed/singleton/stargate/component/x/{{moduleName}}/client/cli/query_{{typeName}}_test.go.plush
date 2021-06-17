@@ -40,7 +40,6 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		desc string
-		id   string
 		args []string
 		err  error
 		obj  *types.<%= TypeName.UpperCamel %>
@@ -53,7 +52,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			args := []string{tc.id}
+			var args []string
 			args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShow<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {

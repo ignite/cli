@@ -16,7 +16,7 @@ import (
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 2)
+	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
 	for _, tc := range []struct {
 		desc     string
 		request  *types.QueryGet<%= TypeName.UpperCamel %>Request
@@ -25,18 +25,8 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 	}{
 		{
 			desc:     "First",
-			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[0].Index},
-			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[0]},
-		},
-		{
-			desc:     "Second",
-			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[1].Index},
-			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[1]},
-		},
-		{
-			desc:    "KeyNotFound",
-			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: "missing"},
-			err:     status.Error(codes.InvalidArgument, "not found"),
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &item},
 		},
 		{
 			desc: "InvalidRequest",

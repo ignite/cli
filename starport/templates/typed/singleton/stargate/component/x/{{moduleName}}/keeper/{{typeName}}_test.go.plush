@@ -10,31 +10,25 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
-	items := make([]types.<%= TypeName.UpperCamel %>, n)
-	for i := range items {
-		items[i].Creator = "any"
-		items[i].Index = fmt.Sprintf("%d", i)
-		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
+func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
+	item := types.<%= TypeName.UpperCamel %>{
+	    Creator: "any"
 	}
-	return items
+	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
+	return item
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	for _, item := range items {
-		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Index)
-		assert.True(t, found)
-		assert.Equal(t, item, rst)
-	}
+	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    assert.True(t, found)
+    assert.Equal(t, item, rst)
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	for _, item := range items {
-		keeper.Remove<%= TypeName.UpperCamel %>(ctx, item.Index)
-		_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Index)
-		assert.False(t, found)
-	}
+	createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	keeper.Remove<%= TypeName.UpperCamel %>(ctx)
+    _, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    assert.False(t, found)
 }
