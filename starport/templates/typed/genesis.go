@@ -24,7 +24,12 @@ func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *
 
 		templateProtoImport := `%[1]v
 import "%[2]v/%[3]v.proto";`
-		replacementProtoImport := fmt.Sprintf(templateProtoImport, PlaceholderGenesisProtoImport, opts.ModuleName, opts.TypeName)
+		replacementProtoImport := fmt.Sprintf(
+			templateProtoImport,
+			PlaceholderGenesisProtoImport,
+			opts.ModuleName,
+			opts.TypeName.Snake,
+		)
 		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Determine the new field number
@@ -36,8 +41,8 @@ import "%[2]v/%[3]v.proto";`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			PlaceholderGenesisProtoState,
-			strings.Title(opts.TypeName),
-			opts.TypeName,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCamel,
 			fieldNumber,
 			PlaceholderGenesisProtoStateField,
 			fieldNumber+1,
@@ -67,7 +72,7 @@ func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			PlaceholderGenesisTypesDefault,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
@@ -84,8 +89,8 @@ for _, elem := range gs.%[3]vList {
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
 			PlaceholderGenesisTypesValidate,
-			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisTypesValidate, replacementTypesValidate)
 
@@ -114,8 +119,8 @@ k.Set%[3]vCount(ctx, genState.%[3]vCount)
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
 			PlaceholderGenesisModuleInit,
-			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderGenesisModuleInit, replacementModuleInit)
 
@@ -133,8 +138,8 @@ genesis.%[3]vCount = k.Get%[3]vCount(ctx)
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			PlaceholderGenesisModuleExport,
-			opts.TypeName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport)
 

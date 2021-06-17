@@ -10,46 +10,46 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func Test<%= title(TypeName) %>MsgServerCreate(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	srv, ctx := setupMsgServer(t)
 	creator := "A"
 	for i := 0; i < 5; i++ {
-		resp, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator})
+		resp, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator})
 		require.NoError(t, err)
 		assert.Equal(t, i, int(resp.Id))
 	}
 }
 
-func Test<%= title(TypeName) %>MsgServerUpdate(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	creator := "A"
 
 	for _, tc := range []struct {
 		desc    string
-		request *types.MsgUpdate<%= title(TypeName) %>
+		request *types.MsgUpdate<%= TypeName.UpperCamel %>
 		err     error
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: creator},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: "B"},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B"},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgUpdate<%= title(TypeName) %>{Creator: creator, Id: 10},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator, Id: 10},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
-			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator})
+			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator})
 			require.NoError(t, err)
 
-			_, err = srv.Update<%= title(TypeName) %>(ctx, tc.request)
+			_, err = srv.Update<%= TypeName.UpperCamel %>(ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
@@ -59,26 +59,26 @@ func Test<%= title(TypeName) %>MsgServerUpdate(t *testing.T) {
 	}
 }
 
-func Test<%= title(TypeName) %>MsgServerDelete(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	creator := "A"
 
 	for _, tc := range []struct {
 		desc    string
-		request *types.MsgDelete<%= title(TypeName) %>
+		request *types.MsgDelete<%= TypeName.UpperCamel %>
 		err     error
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgDelete<%= title(TypeName) %>{Creator: creator},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgDelete<%= title(TypeName) %>{Creator: "B"},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B"},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.MsgDelete<%= title(TypeName) %>{Creator: creator, Id: 10},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator, Id: 10},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
@@ -86,9 +86,9 @@ func Test<%= title(TypeName) %>MsgServerDelete(t *testing.T) {
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
 
-			_, err := srv.Create<%= title(TypeName) %>(ctx, &types.MsgCreate<%= title(TypeName) %>{Creator: creator})
+			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator})
 			require.NoError(t, err)
-			_, err = srv.Delete<%= title(TypeName) %>(ctx, tc.request)
+			_, err = srv.Delete<%= TypeName.UpperCamel %>(ctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {

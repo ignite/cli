@@ -12,7 +12,6 @@ require (
 	github.com/containerd/containerd v1.5.2 // indirect
 	github.com/cosmos/cosmos-sdk v0.42.4
 	github.com/cosmos/go-bip39 v1.0.0
-	github.com/cosmos/relayer v1.0.0-rc1.0.20210426142722-71e9d4d9142e
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0

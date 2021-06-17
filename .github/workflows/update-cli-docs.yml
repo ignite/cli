@@ -1,0 +1,34 @@
+name: Update CLI Docs
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Generate CLI Docs
+        run: ./scripts/gen-cli-docs
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: "docs(cli): update generated docs"
+          commit-message: "docs(cli): update generated docs"
+          body: ""
+          branch: feat/gen-cli-docs
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+

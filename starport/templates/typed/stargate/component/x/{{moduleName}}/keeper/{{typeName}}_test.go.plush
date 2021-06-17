@@ -8,49 +8,49 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func createN<%= title(TypeName) %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= title(TypeName) %> {
-	items := make([]types.<%= title(TypeName) %>, n)
+func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		items[i].Creator = "any"
-		items[i].Id = keeper.Append<%= title(TypeName) %>(ctx, items[i])
+		items[i].Id = keeper.Append<%= TypeName.UpperCamel%>(ctx, items[i])
 	}
 	return items
 }
 
-func Test<%= title(TypeName) %>Get(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		assert.Equal(t, item, keeper.Get<%= title(TypeName) %>(ctx, item.Id))
+		assert.Equal(t, item, keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
-func Test<%= title(TypeName) %>Exist(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>Exist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		assert.True(t, keeper.Has<%= title(TypeName) %>(ctx, item.Id))
+		assert.True(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
-func Test<%= title(TypeName) %>Remove(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		keeper.Remove<%= title(TypeName) %>(ctx, item.Id)
-		assert.False(t, keeper.Has<%= title(TypeName) %>(ctx, item.Id))
+		keeper.Remove<%= TypeName.UpperCamel %>(ctx, item.Id)
+		assert.False(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
-func Test<%= title(TypeName) %>GetAll(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
-	assert.Equal(t, items, keeper.GetAll<%= title(TypeName) %>(ctx))
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
+	assert.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }
 
-func Test<%= title(TypeName) %>Count(t *testing.T) {
+func Test<%= TypeName.UpperCamel %>Count(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
-	items := createN<%= title(TypeName) %>(keeper, ctx, 10)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	count := uint64(len(items))
-	assert.Equal(t, count, keeper.Get<%= title(TypeName) %>Count(ctx))
+	assert.Equal(t, count, keeper.Get<%= TypeName.UpperCamel %>Count(ctx))
 }

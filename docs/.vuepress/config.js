@@ -2,6 +2,11 @@ module.exports = {
   theme: "cosmos",
   title: "Starport",
   themeConfig: {
+    algolia: {
+      id: "BH4D9OD16A",
+      key: "d6908a9436133e03e9b0131bad808775",
+      index: "docs-startport",
+    },
     sidebar: {
       auto: true,
       nav: [
@@ -119,4 +124,12 @@ module.exports = {
       ],
     },
   },
+  plugins: [
+    [
+      "@vuepress/google-analytics",
+      {
+        ga: "G-XL9GNV1KHW",
+      },
+    ],
+  ],
 };
