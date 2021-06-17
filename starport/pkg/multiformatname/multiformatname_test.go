@@ -80,11 +80,11 @@ func TestNewMultiFormatName2(t *testing.T) {
 	}
 
 	// Test custom check
-	alwaysWrong := func (string) error {return errors.New("always wrong")}
+	alwaysWrong := func(string) error { return errors.New("always wrong") }
 	_, err := multiformatname.NewName("foo", alwaysWrong)
 	require.Error(t, err)
 
-	alwaysGood := func (string) error {return nil}
+	alwaysGood := func(string) error { return nil }
 	_, err = multiformatname.NewName("foo", alwaysGood)
 	require.NoError(t, err)
 }

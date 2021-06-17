@@ -17,7 +17,7 @@ type Name struct {
 	UpperCamel string
 	Kebab      string
 	Snake      string
-	Lowercase	string
+	Lowercase  string
 }
 
 type checkFunc func(string) error
@@ -40,7 +40,7 @@ func NewName(name string, customChecks ...checkFunc) (Name, error) {
 		UpperCamel: strcase.ToCamel(name),
 		Kebab:      strcase.ToKebab(name),
 		Snake:      strcase.ToSnake(name),
-		Lowercase: lowercase(name),
+		Lowercase:  lowercase(name),
 	}, nil
 }
 
@@ -82,11 +82,10 @@ func basicCheckName(name string) error {
 // lowercase returns the name with lower case and no special character
 func lowercase(name string) string {
 	return strings.ToLower(
-		strings.Replace(
-			strings.Replace(name, "-", "", -1),
+		strings.ReplaceAll(
+			strings.ReplaceAll(name, "-", ""),
 			"_",
 			"",
-			-1,
 		),
 	)
 }
