@@ -205,6 +205,20 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 	return true, err
 }
 
+func isModuleNameAuthorized(moduleName string) bool {
+	switch moduleName {
+	case
+		"panic",
+		"recover",
+		"append",
+		"bool",
+		"byte",
+		"cap":
+		return false
+	}
+	return true
+}
+
 func isWasmImported(appPath string) (bool, error) {
 	abspath, err := filepath.Abs(filepath.Join(appPath, apppkg))
 	if err != nil {
