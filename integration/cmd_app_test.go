@@ -26,7 +26,7 @@ func TestGenerateAnApp(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env     = newEnv(t)
 		appName = "blog"
 	)
 
@@ -55,7 +55,6 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 
 	env.EnsureAppIsSteady(path)
 }
-
 
 func TestGenerateAnAppWithWasm(t *testing.T) {
 	var (

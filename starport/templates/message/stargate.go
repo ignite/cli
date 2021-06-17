@@ -2,7 +2,6 @@ package message
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -40,7 +39,7 @@ func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
-			strings.Title(opts.MsgName),
+			opts.MsgName.UpperCamel,
 		)
 		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
@@ -58,7 +57,7 @@ func protoTxRPCModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		template := `%[1]v
   rpc %[2]v(Msg%[2]v) returns (Msg%[2]vResponse);`
 		replacement := fmt.Sprintf(template, PlaceholderProtoTxRPC,
-			strings.Title(opts.MsgName),
+			opts.MsgName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxRPC, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -76,11 +75,11 @@ func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.Ru
 
 		var msgFields string
 		for i, field := range opts.Fields {
-			msgFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+2)
+			msgFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
 		}
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 
 		template := `%[1]v
@@ -92,7 +91,7 @@ message Msg%[2]vResponse {
 %[4]v}
 `
 		replacement := fmt.Sprintf(template, PlaceholderProtoTxMessage,
-			strings.Title(opts.MsgName),
+			opts.MsgName.UpperCamel,
 			msgFields,
 			resFields,
 		)
@@ -118,7 +117,7 @@ cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
 		replacementRegisterConcrete := fmt.Sprintf(
 			templateRegisterConcrete,
 			Placeholder2,
-			strings.Title(opts.MsgName),
+			opts.MsgName.UpperCamel,
 			opts.ModuleName,
 		)
 		content = replacer.Replace(content, Placeholder2, replacementRegisterConcrete)
@@ -130,7 +129,7 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
 			Placeholder3,
-			strings.Title(opts.MsgName),
+			opts.MsgName.UpperCamel,
 		)
 		content = replacer.Replace(content, Placeholder3, replacementRegisterImplementations)
 
@@ -149,7 +148,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 		template := `%[1]v
 	cmd.AddCommand(Cmd%[2]v())
 `
-		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.MsgName))
+		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

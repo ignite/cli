@@ -4,7 +4,9 @@ import (
 	"os"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/query"
@@ -29,16 +31,22 @@ func (s *Scaffolder) AddQuery(
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
+
+	name, err := multiformatname.NewName(queryName)
+	if err != nil {
+		return err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
 		return err
 	}
 
 	// Parse provided fields
-	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
+	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return err
 	}
@@ -50,7 +58,7 @@ func (s *Scaffolder) AddQuery(
 			ModulePath:  path.RawPath,
 			ModuleName:  moduleName,
 			OwnerName:   owner(path.RawPath),
-			QueryName:   queryName,
+			QueryName:   name,
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
 			Description: description,

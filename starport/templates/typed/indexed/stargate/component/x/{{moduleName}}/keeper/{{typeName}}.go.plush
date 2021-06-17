@@ -6,16 +6,16 @@ import (
 	"github.com/cosmos/cosmos-sdk/store/prefix"
 )
 
-// Set<%= title(TypeName) %> set a specific <%= TypeName %> in the store from its index
-func (k Keeper) Set<%= title(TypeName) %>(ctx sdk.Context, <%= TypeName %> types.<%= title(TypeName) %>) {
-	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
-	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName %>)
-	store.Set(types.KeyPrefix(<%= TypeName %>.Index), b)
+// Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store from its index
+func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
+	store.Set(types.KeyPrefix(<%= TypeName.LowerCamel %>.Index), b)
 }
 
-// Get<%= title(TypeName) %> returns a <%= TypeName %> from its index
-func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, index string) (val types.<%= title(TypeName) %>, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+// Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its index
+func (k Keeper) Get<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) (val types.<%= TypeName.UpperCamel %>, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 
 	b := store.Get(types.KeyPrefix(index))
     if b == nil {
@@ -26,21 +26,21 @@ func (k Keeper) Get<%= title(TypeName) %>(ctx sdk.Context, index string) (val ty
 	return val, true
 }
 
-// Delete<%= title(TypeName) %> removes a <%= TypeName %> from the store
-func (k Keeper) Remove<%= title(TypeName) %>(ctx sdk.Context, index string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+// Delete<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
+func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	store.Delete(types.KeyPrefix(index))
 }
 
-// GetAll<%= title(TypeName) %> returns all <%= TypeName %>
-func (k Keeper) GetAll<%= title(TypeName) %>(ctx sdk.Context) (list []types.<%= title(TypeName) %>) {
-    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= title(TypeName) %>Key))
+// GetAll<%= TypeName.UpperCamel %> returns all <%= TypeName.LowerCamel %>
+func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.<%= TypeName.UpperCamel %>) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
-		var val types.<%= title(TypeName) %>
+		var val types.<%= TypeName.UpperCamel %>
 		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
         list = append(list, val)
 	}
