@@ -76,7 +76,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.LowerCamel))
+	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
 	return g, nil
 }
 

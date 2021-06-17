@@ -16,6 +16,7 @@ type Name struct {
 	LowerCamel string
 	UpperCamel string
 	Kebab      string
+	Snake      string
 	Lowercase	string
 }
 
@@ -38,6 +39,7 @@ func NewName(name string, customChecks ...checkFunc) (Name, error) {
 		LowerCamel: strcase.ToLowerCamel(name),
 		UpperCamel: strcase.ToCamel(name),
 		Kebab:      strcase.ToKebab(name),
+		Snake:      strcase.ToSnake(name),
 		Lowercase: lowercase(name),
 	}, nil
 }

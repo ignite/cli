@@ -9,6 +9,10 @@
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
 
+### Fixes:
+
+- Use snake case for generated files
+
 ## `v0.16.1`
 
 ### Features:
