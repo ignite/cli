@@ -218,6 +218,11 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 }
 
 func checkModuleName(moduleName string) error {
+	// go keyword
+	if token.Lookup(moduleName).IsKeyword() {
+		return fmt.Errorf("%s is a Go keyword", moduleName)
+	}
+
 	// name of default registered module
 	switch moduleName {
 	case
