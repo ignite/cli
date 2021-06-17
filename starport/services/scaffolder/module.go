@@ -75,6 +75,11 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
+	// Check if the module name is valid
+	if err := checkModuleName(moduleName); err != nil {
+		return sm, err
+	}
+
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -212,18 +217,29 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 	return true, err
 }
 
-func isModuleNameAuthorized(moduleName string) bool {
+func checkModuleName(moduleName string) error {
+	// name of default registered module
 	switch moduleName {
 	case
-		"panic",
-		"recover",
-		"append",
-		"bool",
-		"byte",
-		"cap":
-		return false
+		"auth",
+		"genutil",
+		"bank",
+		"capability",
+		"staking",
+		"mint",
+		"distr",
+		"gov",
+		"params",
+		"crisis",
+		"slashing",
+		"ibc",
+		"upgrade",
+		"evidence",
+		"transfer",
+		"vesting":
+		return fmt.Errorf("%s is a default module", moduleName)
 	}
-	return true
+	return nil
 }
 
 func isWasmImported(appPath string) (bool, error) {
