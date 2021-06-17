@@ -48,12 +48,14 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := sc.AddType(placeholder.New(), opts, module, args[0], args[1:]...); err != nil {
+	sm, err := sc.AddType(placeholder.New(), opts, module, args[0], args[1:]...)
+	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	fmt.Println(sourceModificationToString(sm))
 	fmt.Printf("\n🎉 Created a type `%[1]v`.\n\n", args[0])
 	return nil
 }
