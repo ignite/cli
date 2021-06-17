@@ -11,7 +11,7 @@ import (
 func TestNewMultiFormatName(t *testing.T) {
 	// [valueToTest, lowerCamel, upperCamel, kebabCase]
 	cases := [][6]string{
-		{"foo", "foo", "Foo", "foo", "foo"},
+		{"foo", "foo", "Foo", "foo", "foo", "foo"},
 		{"fooBar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
 		{"foo-bar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
 		{"foo_bar", "fooBar", "FooBar", "foo-bar", "foo_bar", "foobar"},
@@ -52,13 +52,13 @@ func TestNewMultiFormatName(t *testing.T) {
 		require.Equal(
 			t,
 			testCase[4],
-			name.Kebab,
+			name.Snake,
 			fmt.Sprintf("%s should be converted the correct snake format", testCase[0]),
 		)
 		require.Equal(
 			t,
 			testCase[5],
-			name.Kebab,
+			name.Lowercase,
 			fmt.Sprintf("%s should be converted the correct lowercase format", testCase[0]),
 		)
 	}
