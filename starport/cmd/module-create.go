@@ -92,7 +92,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
-	if err := sc.CreateModule(placeholder.New(), name, options...); err != nil {
+	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	s.Stop()
+	if err != nil {
 		// If this is an old scaffolded application that doesn't contain the necessary placeholder
 		// We give instruction to the user to modify the application
 		if err == scaffolder.ErrNoIBCRouterPlaceholder {
@@ -105,8 +107,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 		} else {
 			return err
 		}
+	} else {
+		fmt.Println(sourceModificationToString(sm))
 	}
-	s.Stop()
 
 	io.Copy(cmd.OutOrStdout(), &msg)
 	return nil

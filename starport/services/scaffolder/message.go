@@ -22,10 +22,10 @@ func (s *Scaffolder) AddMessage(
 	msgDesc string,
 	fields,
 	resFields []string,
-) error {
+) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// If no module is provided, we add the type to the app's module
@@ -35,21 +35,21 @@ func (s *Scaffolder) AddMessage(
 
 	name, err := multiformatname.NewName(msgName)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
-		return err
+		return sm, err
 	}
 
 	// Parse provided fields
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	var (
@@ -79,7 +79,7 @@ func (s *Scaffolder) AddMessage(
 		},
 	)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	if g != nil {
 		gens = append(gens, g)
@@ -88,17 +88,18 @@ func (s *Scaffolder) AddMessage(
 	// Scaffold
 	g, err = message.NewStargate(tracer, opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
 	gens = append(gens, g)
-	if err := xgenny.RunWithValidation(tracer, gens...); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, gens...)
+	if err != nil {
+		return sm, err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
