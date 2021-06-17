@@ -233,7 +233,7 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 		// Add route to IBC router
 		templateRouter := `%[1]v
-ibcRouter.AddRoute(%[2]vtypes.ModuleName, %[2]vModule)`
+ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)`
 		replacementRouter := fmt.Sprintf(
 			templateRouter,
 			module.PlaceholderIBCAppRouter,
@@ -247,7 +247,7 @@ ibcRouter.AddRoute(%[2]vtypes.ModuleName, %[2]vModule)`
 		content = replacer.Replace(content, module.PlaceholderIBCAppScopedKeeperDeclaration, replacementScopedKeeperDeclaration)
 
 		// Scoped keeper definition
-		templateScopedKeeperDefinition := `scoped%[1]vKeeper := app.CapabilityKeeper.ScopeToModule(%[2]vtypes.ModuleName)
+		templateScopedKeeperDefinition := `scoped%[1]vKeeper := app.CapabilityKeeper.ScopeToModule(%[2]vmoduletypes.ModuleName)
 app.Scoped%[1]vKeeper = scoped%[1]vKeeper`
 		replacementScopedKeeperDefinition := fmt.Sprintf(
 			templateScopedKeeperDefinition,
