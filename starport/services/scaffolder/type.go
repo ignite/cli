@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"errors"
 	"fmt"
 	"os"
 
@@ -13,10 +14,19 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
+	"github.com/tendermint/starport/starport/templates/typed/singleton"
+)
+
+type TypeModel int
+
+const (
+	List TypeModel = iota
+	Map
+	Singleton
 )
 
 type AddTypeOption struct {
-	Indexed   bool
+	Model     TypeModel
 	NoMessage bool
 }
 
@@ -84,13 +94,19 @@ func (s *Scaffolder) AddType(
 		gens = append(gens, g)
 	}
 
-	// Check if indexed type
-	if addTypeOptions.Indexed {
-		g, err = indexed.NewStargate(tracer, opts)
-	} else {
-		// Scaffolding a type with ID
+	// create the type generator depending on the model
+	// TODO: rename the template packages to make it consistent with the type new naming
+	switch addTypeOptions.Model {
+	case List:
 		g, err = typed.NewStargate(tracer, opts)
+	case Map:
+		g, err = indexed.NewStargate(tracer, opts)
+	case Singleton:
+		g, err = singleton.NewStargate(tracer, opts)
+	default:
+		return sm, errors.New("unrecognized type model")
 	}
+
 	if err != nil {
 		return sm, err
 	}
