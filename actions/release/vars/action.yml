@@ -1,0 +1,50 @@
+name: vars 
+description: Outputs variables that can be useful while creating a release
+outputs:
+  should_release:
+    description: Indicates whether a release should be created or not
+    value: ${{ steps.vars.outputs.should_release }}
+  is_release_type_latest:
+    description: Shows if release type is latest (not a v* release) 
+    value: ${{ steps.vars.outputs.is_release_type_latest }}
+  tag_name:
+    description: Name of the tag that should be used for release
+    value: ${{ steps.vars.outputs.tag_name }}
+  tarball_prefix:
+    description: A prefix to use in tarball asset names
+    value: ${{ steps.vars.outputs.tarball_prefix }}
+runs:
+  using: "composite"
+  steps:
+    - id: vars 
+      run: |
+        repo_name=${GITHUB_REPOSITORY##*/}
+        ref_name=${GITHUB_REF##*/}
+        default_branch=$(git remote show origin | awk '/HEAD branch/ {print $NF}')
+
+        should_release=true
+        is_release_type_latest=false
+        tag_name=""
+
+        if [[ $GITHUB_REF == refs/tags/* ]]
+        then
+          tag_name=$ref_name
+        elif [[ $GITHUB_REF == refs/heads/* && $ref_name == $default_branch ]]
+        then
+          tag_name=latest
+          is_release_type_latest=true
+        else
+          should_release=false
+        fi
+
+        echo ::set-output name=should_release::$should_release
+        echo ::set-output name=is_release_type_latest::$is_release_type_latest
+        echo ::set-output name=tag_name::$tag_name
+        echo ::set-output name=tarball_prefix::"$repo_name"_$tag_name
+      shell: bash
+    - run: |
+        echo "- should_release: ${{ steps.vars.outputs.should_release }}"
+        echo "- is_release_type_latest: ${{ steps.vars.outputs.is_release_type_latest }}"
+        echo "- tag_name: ${{ steps.vars.outputs.tag_name }}"
+        echo "- tarball_prefix: ${{ steps.vars.outputs.tarball_prefix }}"
+      shell: bash
