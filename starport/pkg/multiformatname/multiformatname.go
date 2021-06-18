@@ -20,15 +20,13 @@ type Name struct {
 	Lowercase  string
 }
 
-type checkFunc func(string) error
+type Checker func(name string) error
 
 // NewMultiFormatName returns a new multi-format name from a name
-func NewName(name string, customChecks ...checkFunc) (Name, error) {
-	if err := basicCheckName(name); err != nil {
-		return Name{}, err
-	}
+func NewName(name string, additionalChecks ...Checker) (Name, error) {
+	checks := append([]Checker{basicCheckName}, additionalChecks...)
 
-	for _, check := range customChecks {
+	for _, check := range checks {
 		if err := check(name); err != nil {
 			return Name{}, err
 		}
