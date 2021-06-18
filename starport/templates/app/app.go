@@ -28,6 +28,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	ctx := plush.NewContext()
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("AppName", opts.AppName)
+	ctx.Set("OwnerAndRepoName", opts.OwnerAndRepoName)
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("BinaryNamePrefix", opts.BinaryNamePrefix)
 	ctx.Set("AddressPrefix", opts.AddressPrefix)
