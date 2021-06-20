@@ -429,9 +429,9 @@ Now that we've added the functionality to create posts and broadcast them to our
 
 There are two components responsible for querying data: `rpc` inside `service Query` in a proto file (that defines data types and specifies the HTTP API endpoint) and a keeper method that performs the querying from the key-value store.
 
-Let's first review the services and messages in `x/blog/query.proto`. `Posts` `rpc` accepts an empty request and returns an object with two fields: title and body. We would like for it to return a list of posts, instead. The list of posts can be long, so let's also add pagination. For pagination, both request and response should include a page number: we want to be able to request a particular page and we need to know what page has been returned.
+Let's first review the services and messages in `proto/blog/query.proto`. `Posts` `rpc` accepts an empty request and returns an object with two fields: title and body. We would like for it to return a list of posts, instead. The list of posts can be long, so let's also add pagination. For pagination, both request and response should include a page number: we want to be able to request a particular page and we need to know what page has been returned.
 
-`x/blog/query.proto`:
+`proto/blog/query.proto`:
 
 ```go
 // Import the Post message
