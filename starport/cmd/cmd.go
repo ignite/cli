@@ -37,11 +37,9 @@ func New() *cobra.Command {
 		},
 	}
 	c.AddCommand(NewScaffold())
+	c.AddCommand(NewChain())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewType())
-	c.AddCommand(NewServe())
-	c.AddCommand(NewFaucet())
-	c.AddCommand(NewBuild())
 	c.AddCommand(NewModule())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
@@ -142,6 +140,18 @@ func deprecated() []*cobra.Command {
 		{
 			Use:        "app",
 			Deprecated: "use `starport scaffold chain` instead.",
+		},
+		{
+			Use:        "build",
+			Deprecated: "use `starport chain build` instead.",
+		},
+		{
+			Use:        "serve",
+			Deprecated: "use `starport chain serve` instead.",
+		},
+		{
+			Use:        "faucet",
+			Deprecated: "use `starport chain faucet` instead.",
 		},
 	}
 }

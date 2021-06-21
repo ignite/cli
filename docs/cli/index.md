@@ -21,48 +21,39 @@ A developer tool for building Cosmos SDK blockchains
 
 **SEE ALSO**
 
-* [starport app](#starport-app)	 - Scaffold a new blockchain
-* [starport build](#starport-build)	 - Build a node binary
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
 * [starport docs](#starport-docs)	 - Show Starport docs
-* [starport faucet](#starport-faucet)	 - Send coins to an account
 * [starport message](#starport-message)	 - Scaffold a Cosmos SDK message
 * [starport module](#starport-module)	 - Manage Cosmos SDK modules for your blockchain
 * [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
 * [starport packet](#starport-packet)	 - Scaffold an IBC packet
 * [starport query](#starport-query)	 - Scaffold a Cosmos SDK query
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
-* [starport serve](#starport-serve)	 - Start a blockchain node in development
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
 * [starport tools](#starport-tools)	 - Tools for advanced users
 * [starport type](#starport-type)	 - Scaffold a type with CRUD operations
 * [starport version](#starport-version)	 - Print the current build information
 
 
-## starport app
+## starport chain
 
-Scaffold a new blockchain
-
-**Synopsis**
-
-Scaffold a new Cosmos SDK blockchain with a default directory structure
-
-```
-starport app [github.com/org/repo] [flags]
-```
+Build, initialize, and start a blockchain
 
 **Options**
 
 ```
-      --address-prefix string   Address prefix (default "cosmos")
-  -h, --help                    help for app
-      --no-default-module       Prevent scaffolding a default module in the app
+  -h, --help   help for chain
 ```
 
 **SEE ALSO**
 
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport chain build](#starport-chain-build)	 - Build a node binary
+* [starport chain faucet](#starport-chain-faucet)	 - Send coins to an account
+* [starport chain serve](#starport-chain-serve)	 - Start a blockchain node in development
 
 
-## starport build
+## starport chain build
 
 Build a node binary
 
@@ -81,7 +72,7 @@ Sample usages:
 	- starport build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
-starport build [flags]
+starport chain build [flags]
 ```
 
 **Options**
@@ -99,7 +90,59 @@ starport build [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+
+
+## starport chain faucet
+
+Send coins to an account
+
+```
+starport chain faucet [address] [coin<,...>] [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for faucet
+      --home string   Home directory used for blockchains
+  -p, --path string   path of the app
+  -v, --verbose       Verbose output
+```
+
+**SEE ALSO**
+
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+
+
+## starport chain serve
+
+Start a blockchain node in development
+
+**Synopsis**
+
+Start a blockchain node with automatic reloading
+
+```
+starport chain serve [flags]
+```
+
+**Options**
+
+```
+  -c, --config string        Starport config file (default: ./config.yml)
+  -f, --force-reset          Force reset of the app state on start and every source change
+  -h, --help                 help for serve
+      --home string          Home directory used for blockchains
+  -p, --path string          Path of the app
+      --rebuild-proto-once   Enables proto code generation for 3rd party modules
+  -r, --reset-once           Reset of the app state on first start
+  -v, --verbose              Verbose output
+```
+
+**SEE ALSO**
+
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
 
 
 ## starport docs
@@ -114,28 +157,6 @@ starport docs [flags]
 
 ```
   -h, --help   help for docs
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
-
-## starport faucet
-
-Send coins to an account
-
-```
-starport faucet [address] [coin<,...>] [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for faucet
-      --home string   Home directory used for blockchains
-  -p, --path string   path of the app
-  -v, --verbose       Verbose output
 ```
 
 **SEE ALSO**
@@ -906,34 +927,45 @@ starport relayer connect [<path>,...] [flags]
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
 
 
-## starport serve
+## starport scaffold
 
-Start a blockchain node in development
-
-**Synopsis**
-
-Start a blockchain node with automatic reloading
-
-```
-starport serve [flags]
-```
+Scaffold a new blockchain or scaffold components inside an existing one
 
 **Options**
 
 ```
-  -c, --config string        Starport config file (default: ./config.yml)
-  -f, --force-reset          Force reset of the app state on start and every source change
-  -h, --help                 help for serve
-      --home string          Home directory used for blockchains
-  -p, --path string          Path of the app
-      --rebuild-proto-once   Enables proto code generation for 3rd party modules
-  -r, --reset-once           Reset of the app state on first start
-  -v, --verbose              Verbose output
+  -h, --help   help for scaffold
 ```
 
 **SEE ALSO**
 
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport scaffold chain](#starport-scaffold-chain)	 - Scaffold a new blockchain
+
+
+## starport scaffold chain
+
+Scaffold a new blockchain
+
+**Synopsis**
+
+Scaffold a new Cosmos SDK blockchain with a default directory structure
+
+```
+starport scaffold chain [github.com/org/repo] [flags]
+```
+
+**Options**
+
+```
+      --address-prefix string   Address prefix (default "cosmos")
+  -h, --help                    help for chain
+      --no-default-module       Prevent scaffolding a default module in the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
 
 
 ## starport tools
