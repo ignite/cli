@@ -10,7 +10,7 @@ import (
 )
 
 // NewTools returns a command where various tools (binaries) are attached as sub commands
-// for advanded users.
+// for advanced users.
 func NewTools() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "tools",
