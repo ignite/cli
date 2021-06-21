@@ -7,7 +7,7 @@ func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "scaffold [command]",
 		Short:   "Scaffold a blockchain or add features to it",
-		Aliases: []string{"sc"},
+		Aliases: []string{"s"},
 		Args:    cobra.ExactArgs(1),
 	}
 
