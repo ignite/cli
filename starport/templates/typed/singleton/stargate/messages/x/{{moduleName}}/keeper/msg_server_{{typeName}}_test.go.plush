@@ -17,15 +17,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	srv := NewMsgServerImpl(*keeper)
 	wctx := sdk.WrapSDKContext(ctx)
 	creator := "A"
-	for i := 0; i < 5; i++ {
-		idx := fmt.Sprintf("%d", i)
-		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator}
-		_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
-		require.NoError(t, err)
-		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
-		require.True(t, found)
-		assert.Equal(t, expected.Creator, rst.Creator)
-	}
+	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator}
+    _, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
+    require.NoError(t, err)
+    rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    require.True(t, found)
+    assert.Equal(t, expected.Creator, rst.Creator)
 }
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
