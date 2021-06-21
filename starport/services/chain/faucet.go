@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 
 	"github.com/pkg/errors"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -74,6 +75,7 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		}
 
 		var amountMax uint64
+		var limitRefreshTime uint64
 
 		// find out the max amount for this coin.
 		for _, coinMax := range conf.Faucet.CoinsMax {
@@ -87,7 +89,24 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 			}
 		}
 
-		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
+		// find out limit for this coin
+		for _, coinLimit := range conf.Faucet.CoinsLimit {
+			amount, denomLimit, err := cosmoscoin.Parse(coinLimit.Coin)
+			fmt.Println(coinLimit)
+			if err != nil {
+				return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+			}
+			if denomLimit == denom {
+				amountMax = amount
+				limitRefreshTime, err = strconv.ParseUint(coinLimit.LimitRefreshTime, 10, 64)
+				if err != nil {
+					return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, coin)
+				}
+				break
+			}
+		}
+
+		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, limitRefreshTime, denom))
 	}
 
 	// init the faucet with options and return.
