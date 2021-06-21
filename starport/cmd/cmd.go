@@ -36,8 +36,8 @@ func New() *cobra.Command {
 			return goenv.ConfigurePath()
 		},
 	}
+	c.AddCommand(NewScaffold())
 	c.AddCommand(NewDocs())
-	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
 	c.AddCommand(NewServe())
 	c.AddCommand(NewFaucet())
