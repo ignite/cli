@@ -44,6 +44,9 @@ type moduleCreationOptions struct {
 
 	// homePath of the chain's config dir.
 	ibcChannelOrdering string
+
+	// list of module depencies
+	dependencies []string
 }
 
 // ModuleCreationOption configures Chain.
@@ -67,6 +70,13 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 		default:
 			m.ibcChannelOrdering = "NONE"
 		}
+	}
+}
+
+// WithDependencies specifies the name of the modules that the module depends on
+func WithDependencies(dependencies []string) ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		m.dependencies = dependencies
 	}
 }
 

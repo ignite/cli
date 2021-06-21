@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -15,6 +16,7 @@ import (
 )
 
 const (
+	flagDep					= "dep"
 	flagIBC                 = "ibc"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
@@ -53,6 +55,7 @@ func NewModuleCreate() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createModuleHandler,
 	}
+	c.Flags().String(flagDep, "", "comma-separated module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
@@ -84,6 +87,16 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	// Check if the module must be an IBC module
 	if ibcModule {
 		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
+	}
+
+	// Get module dependencies
+	dep, err := cmd.Flags().GetString(flagDep)
+	if err != nil {
+		return err
+	}
+	if len(dep) > 0 {
+		dependencies := strings.Split(dep, ",")
+		options = append(options, scaffolder.WithDependencies(dependencies))
 	}
 
 	sc, err := scaffolder.New(appPath)
