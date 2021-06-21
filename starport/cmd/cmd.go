@@ -36,8 +36,8 @@ func New() *cobra.Command {
 			return goenv.ConfigurePath()
 		},
 	}
+	c.AddCommand(NewScaffold())
 	c.AddCommand(NewDocs())
-	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
 	c.AddCommand(NewServe())
 	c.AddCommand(NewFaucet())
@@ -50,6 +50,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewMessage())
 	c.AddCommand(NewQuery())
 	c.AddCommand(NewTools())
+	c.AddCommand(deprecated()...)
 	return c
 }
 
@@ -134,4 +135,13 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 	})
 
 	return "\n" + strings.Join(files, "\n")
+}
+
+func deprecated() []*cobra.Command {
+	return []*cobra.Command{
+		{
+			Use:        "app",
+			Deprecated: "use `starport scaffold chain` instead.",
+		},
+	}
 }
