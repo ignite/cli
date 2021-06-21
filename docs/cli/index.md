@@ -21,7 +21,6 @@ A developer tool for building Cosmos SDK blockchains
 
 **SEE ALSO**
 
-* [starport app](#starport-app)	 - Scaffold a new blockchain
 * [starport build](#starport-build)	 - Build a node binary
 * [starport docs](#starport-docs)	 - Show Starport docs
 * [starport faucet](#starport-faucet)	 - Send coins to an account
@@ -31,35 +30,11 @@ A developer tool for building Cosmos SDK blockchains
 * [starport packet](#starport-packet)	 - Scaffold an IBC packet
 * [starport query](#starport-query)	 - Scaffold a Cosmos SDK query
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
 * [starport serve](#starport-serve)	 - Start a blockchain node in development
 * [starport tools](#starport-tools)	 - Tools for advanced users
 * [starport type](#starport-type)	 - Scaffold a type with CRUD operations
 * [starport version](#starport-version)	 - Print the current build information
-
-
-## starport app
-
-Scaffold a new blockchain
-
-**Synopsis**
-
-Scaffold a new Cosmos SDK blockchain with a default directory structure
-
-```
-starport app [github.com/org/repo] [flags]
-```
-
-**Options**
-
-```
-      --address-prefix string   Address prefix (default "cosmos")
-  -h, --help                    help for app
-      --no-default-module       Prevent scaffolding a default module in the app
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
 
 
 ## starport build
@@ -904,6 +879,47 @@ starport relayer connect [<path>,...] [flags]
 **SEE ALSO**
 
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
+
+
+## starport scaffold
+
+Scaffold a new blockchain or scaffold components inside an existing one
+
+**Options**
+
+```
+  -h, --help   help for scaffold
+```
+
+**SEE ALSO**
+
+* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport scaffold chain](#starport-scaffold-chain)	 - Scaffold a new blockchain
+
+
+## starport scaffold chain
+
+Scaffold a new blockchain
+
+**Synopsis**
+
+Scaffold a new Cosmos SDK blockchain with a default directory structure
+
+```
+starport scaffold chain [github.com/org/repo] [flags]
+```
+
+**Options**
+
+```
+      --address-prefix string   Address prefix (default "cosmos")
+  -h, --help                    help for chain
+      --no-default-module       Prevent scaffolding a default module in the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
 
 
 ## starport serve
