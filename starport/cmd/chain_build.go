@@ -15,8 +15,8 @@ const (
 	flagReleasePrefix    = "release.prefix"
 )
 
-// NewBuild returns a new build command to build a blockchain app.
-func NewBuild() *cobra.Command {
+// NewChainBuild returns a new build command to build a blockchain app.
+func NewChainBuild() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "build",
 		Short: "Build a node binary",
@@ -32,7 +32,7 @@ Sample usages:
 	- starport build
 	- starport build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
 		Args: cobra.ExactArgs(0),
-		RunE: buildHandler,
+		RunE: chainBuildHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
@@ -44,7 +44,7 @@ Sample usages:
 	return c
 }
 
-func buildHandler(cmd *cobra.Command, args []string) error {
+func chainBuildHandler(cmd *cobra.Command, args []string) error {
 	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
 	if err != nil {
 		return err
