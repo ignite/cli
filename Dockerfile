@@ -18,9 +18,6 @@ ENV GOPROXY https://proxy.golang.org
 #
 FROM base as builder
 
-RUN useradd -ms /bin/bash tendermint
-USER tendermint
-
 WORKDIR /starport
 
 # cache dependencies.
@@ -36,7 +33,10 @@ RUN --mount=type=cache,target=/root/.cache/go-build go install -v ./...
 #
 FROM base
 
-COPY --from=builder /go/bin/starport /usr/bin
+RUN useradd -ms /bin/bash tendermint
+USER tendermint
+
+COPY --from=builder /go/bin/starport /home/tendermint/bin
 
 WORKDIR /apps
 
