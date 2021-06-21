@@ -36,12 +36,10 @@ func New() *cobra.Command {
 			return goenv.ConfigurePath()
 		},
 	}
+	c.AddCommand(NewChain())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
-	c.AddCommand(NewServe())
-	c.AddCommand(NewFaucet())
-	c.AddCommand(NewBuild())
 	c.AddCommand(NewModule())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
