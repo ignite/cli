@@ -32,6 +32,7 @@ A developer tool for building Cosmos SDK blockchains
 * [starport query](#starport-query)	 - Scaffold a Cosmos SDK query
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
 * [starport serve](#starport-serve)	 - Start a blockchain node in development
+* [starport tools](#starport-tools)	 - Tools for advanced users
 * [starport type](#starport-type)	 - Scaffold a type with CRUD operations
 * [starport version](#starport-version)	 - Print the current build information
 
@@ -851,7 +852,6 @@ Connects blockchains via IBC protocol
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
 * [starport relayer configure](#starport-relayer-configure)	 - Configure source and target chains for relaying
 * [starport relayer connect](#starport-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
 
 
 ## starport relayer configure
@@ -906,74 +906,6 @@ starport relayer connect [<path>,...] [flags]
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
 
 
-## starport relayer lowlevel
-
-Low-level relayer commands from @confio/relayer
-
-**Options**
-
-```
-  -h, --help   help for lowlevel
-```
-
-**SEE ALSO**
-
-* [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
-* [starport relayer lowlevel ibc-relayer](#starport-relayer-lowlevel-ibc-relayer)	 - Typescript implementation of an IBC relayer
-* [starport relayer lowlevel ibc-setup](#starport-relayer-lowlevel-ibc-setup)	 - Collection of commands to quickly setup a relayer
-
-
-## starport relayer lowlevel ibc-relayer
-
-Typescript implementation of an IBC relayer
-
-```
-starport relayer lowlevel ibc-relayer [--] [...] [flags]
-```
-
-**Examples**
-
-```
-starport relayer lowlevel ibc-relayer -- -h
-```
-
-**Options**
-
-```
-  -h, --help   help for ibc-relayer
-```
-
-**SEE ALSO**
-
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
-
-
-## starport relayer lowlevel ibc-setup
-
-Collection of commands to quickly setup a relayer
-
-```
-starport relayer lowlevel ibc-setup [--] [...] [flags]
-```
-
-**Examples**
-
-```
-starport relayer lowlevel ibc-setup -- -h
-starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
-```
-
-**Options**
-
-```
-  -h, --help   help for ibc-setup
-```
-
-**SEE ALSO**
-
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
-
-
 ## starport serve
 
 Start a blockchain node in development
@@ -1002,6 +934,74 @@ starport serve [flags]
 **SEE ALSO**
 
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+
+
+## starport tools
+
+Tools for advanced users
+
+**Options**
+
+```
+  -h, --help   help for tools
+```
+
+**SEE ALSO**
+
+* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport tools ibc-relayer](#starport-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
+* [starport tools ibc-setup](#starport-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
+
+
+## starport tools ibc-relayer
+
+Typescript implementation of an IBC relayer
+
+```
+starport tools ibc-relayer [--] [...] [flags]
+```
+
+**Examples**
+
+```
+starport tools ibc-relayer -- -h
+```
+
+**Options**
+
+```
+  -h, --help   help for ibc-relayer
+```
+
+**SEE ALSO**
+
+* [starport tools](#starport-tools)	 - Tools for advanced users
+
+
+## starport tools ibc-setup
+
+Collection of commands to quickly setup a relayer
+
+```
+starport tools ibc-setup [--] [...] [flags]
+```
+
+**Examples**
+
+```
+starport tools ibc-setup -- -h
+starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
+```
+
+**Options**
+
+```
+  -h, --help   help for ibc-setup
+```
+
+**SEE ALSO**
+
+* [starport tools](#starport-tools)	 - Tools for advanced users
 
 
 ## starport type
