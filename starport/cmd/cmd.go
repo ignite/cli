@@ -49,6 +49,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewIBCPacket())
 	c.AddCommand(NewMessage())
 	c.AddCommand(NewQuery())
+	c.AddCommand(NewTools())
 	return c
 }
 
