@@ -156,7 +156,8 @@ func (e env) Scaffold(appName string) (appPath string) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"app",
+				"scaffold",
+				"chain",
 				fmt.Sprintf("github.com/test/%s", appName),
 			),
 			step.Workdir(root),

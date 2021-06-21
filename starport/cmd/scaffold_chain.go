@@ -14,22 +14,21 @@ const (
 	flagNoDefaultModule = "no-default-module"
 )
 
-// NewApp creates new command named `app` to create Cosmos scaffolds customized
-// by the user given options.
-func NewApp() *cobra.Command {
+// NewScaffoldChain creates new command to scaffold a Comos-SDK based blockchain.
+func NewScaffoldChain() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "app [github.com/org/repo]",
+		Use:   "chain [github.com/org/repo]",
 		Short: "Scaffold a new blockchain",
 		Long:  "Scaffold a new Cosmos SDK blockchain with a default directory structure",
 		Args:  cobra.ExactArgs(1),
-		RunE:  appHandler,
+		RunE:  scaffoldChainHandler,
 	}
 	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Prevent scaffolding a default module in the app")
 	return c
 }
 
-func appHandler(cmd *cobra.Command, args []string) error {
+func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
