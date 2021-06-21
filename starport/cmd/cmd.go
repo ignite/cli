@@ -49,6 +49,7 @@ func New() *cobra.Command {
 	c.AddCommand(NewIBCPacket())
 	c.AddCommand(NewMessage())
 	c.AddCommand(NewQuery())
+	c.AddCommand(deprecated()...)
 	return c
 }
 
@@ -133,4 +134,13 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 	})
 
 	return "\n" + strings.Join(files, "\n")
+}
+
+func deprecated() []*cobra.Command {
+	return []*cobra.Command{
+		{
+			Use:        "app",
+			Deprecated: "use `starport scaffold chain` instead.",
+		},
+	}
 }
