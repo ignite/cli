@@ -32,6 +32,12 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
+	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+	moduleName = mfName.Lowercase
+
 	name, err := multiformatname.NewName(packetName)
 	if err != nil {
 		return sm, err

@@ -12,6 +12,7 @@
 ### Fixes:
 
 - Use snake case for generated files
+- Prevent using incorrect module name
 
 ## `v0.16.1`
 
