@@ -101,5 +101,13 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a module with an invalid name",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "example1", "--require-registration"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
