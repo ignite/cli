@@ -1,7 +1,6 @@
 package keeper
 
 import (
-    "fmt"
 	"context"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -35,7 +34,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // Check if the value exists
-    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Index)
+    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
     if !isFound {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }
@@ -59,7 +58,7 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // Check if the value exists
-    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Index)
+    valFound, isFound := k.Get<%= TypeName.UpperCamel %>(ctx)
     if !isFound {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, "not set")
     }

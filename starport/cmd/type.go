@@ -12,6 +12,7 @@ import (
 const (
 	flagModule    = "module"
 	flagIndexed   = "indexed"
+	flagSingleton = "single"
 	flagNoMessage = "no-message"
 )
 
@@ -27,6 +28,7 @@ func NewType() *cobra.Command {
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().String(flagModule, "", "Module to add the type into. Default: app's main module")
 	c.Flags().Bool(flagIndexed, false, "Scaffold an indexed type")
+	c.Flags().Bool(flagSingleton, false, "Scaffold a singleton type")
 	c.Flags().Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
 
 	return c
@@ -41,8 +43,18 @@ func typeHandler(cmd *cobra.Command, args []string) error {
 
 	// Add type options
 	var opts scaffolder.AddTypeOption
-	opts.Indexed, _ = cmd.Flags().GetBool(flagIndexed)
 	opts.NoMessage, _ = cmd.Flags().GetBool(flagNoMessage)
+	opts.Model = scaffolder.List
+
+	// Get type model to scaffold
+	indexed, _ := cmd.Flags().GetBool(flagIndexed)
+	singleton, _ := cmd.Flags().GetBool(flagSingleton)
+	if indexed {
+		opts.Model = scaffolder.Map
+	}
+	if singleton {
+		opts.Model = scaffolder.Singleton
+	}
 
 	sc, err := scaffolder.New(appPath)
 	if err != nil {

@@ -105,9 +105,7 @@ import "%s/%s.proto";`
 
 		// Add the service messages
 		templateMessage := `%[1]v
-message QueryGet%[2]vRequest {
-	string index = 1;
-}
+message QueryGet%[2]vRequest {}
 
 message QueryGet%[2]vResponse {
 	%[2]v %[2]v = 1;
@@ -208,9 +206,6 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		content := typed.PatchGenesisTypeImport(replacer, f.String())
-
-		templateTypesImport := `"fmt"`
-		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
 
 		templateTypesDefault := `%[1]v
 %[2]v: nil,`

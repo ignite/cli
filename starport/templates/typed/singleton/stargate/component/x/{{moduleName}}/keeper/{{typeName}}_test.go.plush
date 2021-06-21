@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,7 +11,7 @@ import (
 
 func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
 	item := types.<%= TypeName.UpperCamel %>{
-	    Creator: "any"
+	    Creator: "any",
 	}
 	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
 	return item

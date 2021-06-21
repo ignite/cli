@@ -19,10 +19,10 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	creator := "A"
 	for i := 0; i < 5; i++ {
 		idx := fmt.Sprintf("%d", i)
-		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: idx}
+		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator}
 		_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
 		require.NoError(t, err)
-		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, expected.Index)
+		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
 		require.True(t, found)
 		assert.Equal(t, expected.Creator, rst.Creator)
 	}
@@ -99,7 +99,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, tc.request.Index)
+				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
 				require.False(t, found)
 			}
 		})
