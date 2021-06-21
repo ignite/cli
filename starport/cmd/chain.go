@@ -7,7 +7,7 @@ import "github.com/spf13/cobra"
 func NewChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "chain [command]",
-		Short:   "Compile, serve blockchains and so on",
+		Short:   "Build, initialize, and start a blockchain",
 		Aliases: []string{"c"},
 		Args:    cobra.ExactArgs(1),
 	}
