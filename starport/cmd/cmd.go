@@ -141,5 +141,17 @@ func deprecated() []*cobra.Command {
 			Use:        "app",
 			Deprecated: "use `starport scaffold chain` instead.",
 		},
+		{
+			Use:        "build",
+			Deprecated: "use `starport chain build` instead.",
+		},
+		{
+			Use:        "serve",
+			Deprecated: "use `starport chain serve` instead.",
+		},
+		{
+			Use:        "faucet",
+			Deprecated: "use `starport chain faucet` instead.",
+		},
 	}
 }
