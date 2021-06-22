@@ -1,4 +1,4 @@
-name: Lint
+name: Test
 on:
   pull_request:
   push:
@@ -6,7 +6,7 @@ on:
       - master
       - develop
 jobs:
-  golangci:
+  lint:
     name: golangci-lint
     runs-on: ubuntu-latest
     timeout-minutes: 6
