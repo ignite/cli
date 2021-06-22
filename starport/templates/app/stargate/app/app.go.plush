@@ -316,12 +316,12 @@ func New(
 	// If evidence needs to be handled for the app, set routes in router here and seal
 	app.EvidenceKeeper = *evidenceKeeper
 
-	// this line is used by starport scaffolding # stargate/app/keeperDefinition
-
     app.GovKeeper = govkeeper.NewKeeper(
         appCodec, keys[govtypes.StoreKey], app.GetSubspace(govtypes.ModuleName), app.AccountKeeper, app.BankKeeper,
         &stakingKeeper, govRouter,
     )
+
+	// this line is used by starport scaffolding # stargate/app/keeperDefinition
 
     // Create static IBC router, add transfer route, then set and seal it
     ibcRouter := porttypes.NewRouter()

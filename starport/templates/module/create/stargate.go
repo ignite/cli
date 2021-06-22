@@ -120,15 +120,16 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
 			ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
 		}
-		template = `%[1]v
-		%[3]v
+		template = `%[3]v
 		app.%[5]vKeeper = *%[2]vmodulekeeper.NewKeeper(
 			appCodec,
 			keys[%[2]vmoduletypes.StoreKey],
 			keys[%[2]vmoduletypes.MemStoreKey],
 			%[4]v
 			%[6]v)
-		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)`
+		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)
+
+		%[1]v`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDefinition,

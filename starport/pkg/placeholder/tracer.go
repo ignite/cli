@@ -143,7 +143,7 @@ func (t *Tracer) Err() error {
 	// miscellaneous errors represent errors preventing source modification not related to missing placeholder
 	var miscErrors error
 	if len(t.miscErrors) > 0 {
-		miscErrors = fmt.Errorf("%v", t.miscErrors)
+		miscErrors = fmt.Errorf("%v", strings.Join(t.miscErrors, "\n"))
 	}
 
 	if len(t.missing) > 0 {
