@@ -6,7 +6,7 @@ on:
       - master
       - develop
 jobs:
-  linit:
+  lint:
     name: golangci-lint
     runs-on: ubuntu-latest
     timeout-minutes: 6
