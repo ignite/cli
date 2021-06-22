@@ -95,7 +95,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppStoreKey, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacement)
 
-		// Keeper definition
+		// Module dependencies
 		var depArgs string
 		for _, dep := range opts.Dependencies {
 			keeperDefinition := fmt.Sprintf("app.%sKeeper", strings.Title(dep))
@@ -110,8 +110,22 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			}
 
 			depArgs = fmt.Sprintf("%s%s,\n", depArgs, keeperDefinition)
+
+			// If bank is a dependency, add account permissions to the module
+			if dep == "bank" {
+				template = `%[1]v
+				%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},`
+
+				replacement = fmt.Sprintf(
+					template,
+					module.PlaceholderSgAppMaccPerms,
+					opts.ModuleName,
+				)
+				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+			}
 		}
 
+		// Keeper definition
 		var scopedKeeperDefinition string
 		var ibcKeeperArgument string
 		if opts.IsIBC {

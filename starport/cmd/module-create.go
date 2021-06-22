@@ -148,7 +148,7 @@ app.GovKeeper = ...
 func dependencyWarning(dependencies []string) {
 	for _, dep := range dependencies {
 		if dep == "gov" {
-			fmt.Printf(govWarning)
+			fmt.Print(govWarning)
 		}
 	}
 }
