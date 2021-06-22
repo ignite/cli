@@ -125,7 +125,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("should prevent registering a module with an non-existent dependency",
+	env.Must(env.Exec("should prevent creating a module with invalid dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
@@ -133,7 +133,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				"create",
 				"example_with_wrong_dep",
 				"--dep",
-				"nonexistent",
+				"dup,dup",
 				"--require-registration",
 			),
 			step.Workdir(path),
