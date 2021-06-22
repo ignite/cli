@@ -111,6 +111,12 @@ func (s *Scaffolder) CreateModule(
 	for _, apply := range options {
 		apply(&creationOpts)
 	}
+
+	// Check dependencies
+	if err := checkDependencies(creationOpts.dependencies); err != nil {
+		return sm, err
+	}
+
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return sm, err
@@ -323,4 +329,19 @@ func checkIBCRouterPlaceholder(appPath string) (bool, error) {
 	}
 
 	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
+}
+
+// checkDependencies perform checks on the dependencies
+func checkDependencies(dependencies []string) error {
+	// check there is no duplicated dependencies
+	depMap := make(map[string]struct{})
+	for _, dep := range dependencies {
+		_, ok := depMap[dep]
+		if ok {
+			return fmt.Errorf("%s is a duplicated dependency", dep)
+		}
+		depMap[dep] = struct{}{}
+	}
+
+	return nil
 }
