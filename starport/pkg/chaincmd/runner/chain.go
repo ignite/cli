@@ -223,8 +223,9 @@ func NewEventSelector(typ, addr, value string) EventSelector {
 
 // Event represents a TX event.
 type Event struct {
-	Type       string
-	Attributes []EventAttribute
+	Type         string
+	Attributes   []EventAttribute
+	ISOTimeStamp string
 }
 
 // EventAttribute holds event's attributes.
@@ -268,6 +269,7 @@ func (r Runner) QueryTxEvents(
 					} `json:"attributes"`
 				} `json:"events"`
 			} `json:"logs"`
+			TimeStamp string `json:"timestamp"`
 		} `json:"txs"`
 	}{}
 
@@ -289,8 +291,9 @@ func (r Runner) QueryTxEvents(
 				}
 
 				events = append(events, Event{
-					Type:       e.Type,
-					Attributes: attrs,
+					Type:         e.Type,
+					Attributes:   attrs,
+					ISOTimeStamp: tx.TimeStamp,
 				})
 			}
 		}

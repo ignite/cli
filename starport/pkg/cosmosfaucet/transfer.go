@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -30,10 +31,13 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 					if !strings.HasSuffix(attr.Value, denom) {
 						continue
 					}
-
-					amountStr := strings.TrimRight(attr.Value, denom)
-					if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
-						amount += a
+					txTime, _ := time.Parse(time.RFC3339, event.ISOTimeStamp)
+					timeDiff := time.Since(txTime).Seconds()
+					if uint64(timeDiff) < f.coinsLimit[denom] {
+						amountStr := strings.TrimRight(attr.Value, denom)
+						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
+							amount += a
+						}
 					}
 				}
 			}

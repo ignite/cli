@@ -49,7 +49,8 @@ type Faucet struct {
 	// it holds the maximum amounts of coins that can be sent to a single account.
 	coinsMax map[string]uint64
 
-	// CoinsLimit holds the limiter information for each coin type
+	// CoinsLimit is a denom-refresh_time pair
+	// it holds the limiter information for each coin type
 	coinsLimit map[string]uint64
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
