@@ -94,8 +94,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	var dependencies []string
 	if len(dep) > 0 {
-		dependencies := strings.Split(dep, ",")
+		dependencies = strings.Split(dep, ",")
 		options = append(options, scaffolder.WithDependencies(dependencies))
 	}
 
@@ -124,6 +125,30 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 		fmt.Println(sourceModificationToString(sm))
 	}
 
+	if len(dependencies) > 0 {
+		dependencyWarning(dependencies)
+	}
+
 	io.Copy(cmd.OutOrStdout(), &msg)
 	return nil
+}
+
+// in previously scaffolded apps gov keeper is defined below the scaffolded module keeper definition
+// therefore we must warn the user to manually move the definition if it's the case
+// https://github.com/tendermint/starport/issues/818#issuecomment-865736052
+const govWarning = `⚠️ If your app has been scaffolded with Starport 0.16.x or below
+Please make sure that your module keeper definition is defined after gov module keeper definition in app/app.go:
+
+app.GovKeeper = ...
+...
+[your module keeper definition]
+`
+
+// dependencyWarning is used to print a warning if gov is provided as a dependency
+func dependencyWarning(dependencies []string) {
+	for _, dep := range dependencies {
+		if dep == "gov" {
+			fmt.Printf(govWarning)
+		}
+	}
 }
