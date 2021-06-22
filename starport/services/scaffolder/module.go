@@ -32,7 +32,7 @@ var (
 
 const (
 	wasmImport  = "github.com/CosmWasm/wasmd"
-	apppkg      = "app"
+	appPkg      = "app"
 	moduleDir   = "x"
 	wasmVersion = "v0.16.0"
 )
@@ -85,25 +85,25 @@ func (s *Scaffolder) CreateModule(
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
-) (sm xgenny.SourceModification, err error) {
+) (sourceModification xgenny.SourceModification, err error) {
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 	moduleName = mfName.Lowercase
 
 	// Check if the module name is valid
 	if err := checkModuleName(moduleName); err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 	if ok {
-		return sm, fmt.Errorf("the module %v already exists", moduleName)
+		return sourceModification, fmt.Errorf("the module %v already exists", moduleName)
 	}
 
 	// Apply the options
@@ -113,7 +113,7 @@ func (s *Scaffolder) CreateModule(
 	}
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 	opts := &modulecreate.CreateOptions{
 		ModuleName:  moduleName,
@@ -122,21 +122,22 @@ func (s *Scaffolder) CreateModule(
 		OwnerName:   owner(path.RawPath),
 		IsIBC:       creationOpts.ibc,
 		IBCOrdering: creationOpts.ibcChannelOrdering,
+		Dependencies: creationOpts.dependencies,
 	}
 	if opts.IsIBC {
 		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
 		if err != nil {
-			return sm, err
+			return sourceModification, err
 		}
 		if !ibcPlaceholder {
-			return sm, ErrNoIBCRouterPlaceholder
+			return sourceModification, ErrNoIBCRouterPlaceholder
 		}
 	}
 
 	// Generator from Cosmos SDK version
 	g, err := modulecreate.NewStargate(opts)
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 	gens := []*genny.Generator{g}
 
@@ -144,31 +145,31 @@ func (s *Scaffolder) CreateModule(
 	if opts.IsIBC {
 		g, err = modulecreate.NewIBC(tracer, opts)
 		if err != nil {
-			return sm, err
+			return sourceModification, err
 		}
 		gens = append(gens, g)
 	}
-	sm, err = xgenny.RunWithValidation(tracer, gens...)
+	sourceModification, err = xgenny.RunWithValidation(tracer, gens...)
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 
 	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
-	sm.Merge(newSourceModification)
+	sourceModification.Merge(newSourceModification)
 	var validationErr validation.Error
 	if runErr != nil && !errors.As(runErr, &validationErr) {
-		return sm, runErr
+		return sourceModification, runErr
 	}
 
 	// Generate proto and format the source
 	pwd, err := os.Getwd()
 	if err != nil {
-		return sm, err
+		return sourceModification, err
 	}
 	if err := s.finish(pwd, path.RawPath); err != nil {
-		return sm, err
+		return sourceModification, err
 	}
-	return sm, runErr
+	return sourceModification, runErr
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -265,7 +266,7 @@ func checkModuleName(moduleName string) error {
 }
 
 func isWasmImported(appPath string) (bool, error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, apppkg))
+	abspath, err := filepath.Abs(filepath.Join(appPath, appPkg))
 	if err != nil {
 		return false, err
 	}

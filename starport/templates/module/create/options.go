@@ -12,6 +12,9 @@ type CreateOptions struct {
 
 	// Channel ordering of the IBC module: ordered, unordered or none
 	IBCOrdering string
+
+	// Dependencies of the module
+	Dependencies []string
 }
 
 // CreateOptions defines options to add MsgServer

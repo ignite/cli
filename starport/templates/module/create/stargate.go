@@ -27,6 +27,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
+	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)

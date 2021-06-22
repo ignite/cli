@@ -1,3 +1,7 @@
 package types
 
-// this line is used by starport scaffolding # dep/expected_keeper
+<%= for (dependency) in dependencies { %>
+type <%= title(dependency) %>Keeper interface {
+	// Methods imported by the module should be defined here
+}
+<% } %>
