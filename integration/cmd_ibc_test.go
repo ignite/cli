@@ -31,21 +31,55 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module with an ordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "orderedfoo", "--ordering", "ordered", "--require-registration"),
+			step.Exec(
+				"starport",
+				"module",
+				"create",
+				"--ibc",
+				"orderedfoo",
+				"--ordering",
+				"ordered",
+				"--require-registration",
+			),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an IBC module with an unordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "--ibc", "unorderedfoo", "--ordering", "unordered", "--require-registration"),
+			step.Exec(
+				"starport",
+				"module",
+				"create",
+				"--ibc",
+				"unorderedfoo",
+				"--ordering",
+				"unordered",
+				"--require-registration",
+			),
 			step.Workdir(path),
 		)),
 	))
 
-	env.Must(env.Exec("create an non IBC module",
+	env.Must(env.Exec("create a non IBC module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "create", "foobar", "--require-registration"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an IBC module with dependencies",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"module",
+				"create",
+				"example_with_dep",
+				"--ibc",
+				"--dep",
+				"account,bank,staking,slashing",
+				"--require-registration",
+			),
 			step.Workdir(path),
 		)),
 	))
@@ -69,7 +103,16 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet",
 		step.NewSteps(step.New(
-			step.Exec("starport", "packet", "bar", "text", "--module", "foo", "--ack", "foo:string,bar:int,foobar:bool"),
+			step.Exec(
+				"starport",
+				"packet",
+				"bar",
+				"text",
+				"--module",
+				"foo",
+				"--ack",
+				"foo:string,bar:int,foobar:bool",
+			),
 			step.Workdir(path),
 		)),
 	))

@@ -14,14 +14,33 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a query",
 		step.NewSteps(step.New(
-			step.Exec("starport", "query", "foo", "text", "vote:int", "like:bool", "-r", "foo,bar:int,foobar:bool"),
+			step.Exec(
+				"starport",
+				"query",
+				"foo",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+			),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a paginated query",
 		step.NewSteps(step.New(
-			step.Exec("starport", "query", "bar", "text", "vote:int", "like:bool", "-r", "foo,bar:int,foobar:bool", "--paginated"),
+			step.Exec(
+				"starport",
+				"query",
+				"bar",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+				"--paginated",
+			),
 			step.Workdir(path),
 		)),
 	))
@@ -50,7 +69,18 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a query in a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "query", "foo", "text", "--module", "foo", "--desc", "foo bar foobar", "--response", "foo,bar:int,foobar:bool"),
+			step.Exec(
+				"starport",
+				"query",
+				"foo",
+				"text",
+				"--module",
+				"foo",
+				"--desc",
+				"foo bar foobar",
+				"--response",
+				"foo,bar:int,foobar:bool",
+			),
 			step.Workdir(path),
 		)),
 	))
