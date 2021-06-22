@@ -4,6 +4,7 @@ package multiformatname
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/iancoleman/strcase"
 )
@@ -16,12 +17,19 @@ type Name struct {
 	UpperCamel string
 	Kebab      string
 	Snake      string
+	Lowercase  string
 }
 
+type Checker func(name string) error
+
 // NewMultiFormatName returns a new multi-format name from a name
-func NewName(name string) (Name, error) {
-	if err := CheckName(name); err != nil {
-		return Name{}, err
+func NewName(name string, additionalChecks ...Checker) (Name, error) {
+	checks := append([]Checker{basicCheckName}, additionalChecks...)
+
+	for _, check := range checks {
+		if err := check(name); err != nil {
+			return Name{}, err
+		}
 	}
 
 	return Name{
@@ -30,11 +38,23 @@ func NewName(name string) (Name, error) {
 		UpperCamel: strcase.ToCamel(name),
 		Kebab:      strcase.ToKebab(name),
 		Snake:      strcase.ToSnake(name),
+		Lowercase:  lowercase(name),
 	}, nil
 }
 
-// CheckName checks name validity
-func CheckName(name string) error {
+// NoNumber prevents using number in a name
+func NoNumber(name string) error {
+	for _, c := range name {
+		if '0' <= c && c <= '9' {
+			return errors.New("name cannot contain number")
+		}
+	}
+
+	return nil
+}
+
+// basicCheckName performs basic checks common for all names
+func basicCheckName(name string) error {
 	if name == "" {
 		return errors.New("name cannot be empty")
 	}
@@ -55,4 +75,15 @@ func CheckName(name string) error {
 	}
 
 	return nil
+}
+
+// lowercase returns the name with lower case and no special character
+func lowercase(name string) string {
+	return strings.ToLower(
+		strings.ReplaceAll(
+			strings.ReplaceAll(name, "-", ""),
+			"_",
+			"",
+		),
+	)
 }

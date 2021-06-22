@@ -156,7 +156,8 @@ func (e env) Scaffold(appName string) (appPath string) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"app",
+				"scaffold",
+				"chain",
 				fmt.Sprintf("github.com/test/%s", appName),
 			),
 			step.Workdir(root),
@@ -176,6 +177,7 @@ func (e env) Scaffold(appName string) (appPath string) {
 // unless calling with Must(), Serve() will not exit test runtime on failure.
 func (e env) Serve(msg, path, home, configPath string, options ...execOption) (ok bool) {
 	serveCommand := []string{
+		"chain",
 		"serve",
 		"-v",
 	}

@@ -9,38 +9,40 @@ import (
 	"github.com/tendermint/starport/starport/pkg/nodetime"
 )
 
-func NewRelayerLowLevel() *cobra.Command {
+// NewTools returns a command where various tools (binaries) are attached as sub commands
+// for advanced users.
+func NewTools() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "lowlevel",
-		Short: "Low-level relayer commands from @confio/relayer",
+		Use:   "tools",
+		Short: "Tools for advanced users",
 	}
-	c.AddCommand(NewRelayerLowLevelIBCSetup())
-	c.AddCommand(NewRelayerLowLevelIBCRelayer())
+	c.AddCommand(NewToolsIBCSetup())
+	c.AddCommand(NewToolsIBCRelayer())
 	return c
 }
 
-func NewRelayerLowLevelIBCSetup() *cobra.Command {
+func NewToolsIBCSetup() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "ibc-setup [--] [...]",
 		Short: "Collection of commands to quickly setup a relayer",
-		RunE:  relayerLowLevelHandle(nodetime.CommandIBCSetup),
-		Example: `starport relayer lowlevel ibc-setup -- -h
+		RunE:  toolsNodetimeProxy(nodetime.CommandIBCSetup),
+		Example: `starport tools ibc-setup -- -h
 starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_test_2`,
 	}
 	return c
 }
 
-func NewRelayerLowLevelIBCRelayer() *cobra.Command {
+func NewToolsIBCRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "ibc-relayer [--] [...]",
 		Short:   "Typescript implementation of an IBC relayer",
-		RunE:    relayerLowLevelHandle(nodetime.CommandIBCRelayer),
-		Example: `starport relayer lowlevel ibc-relayer -- -h`,
+		RunE:    toolsNodetimeProxy(nodetime.CommandIBCRelayer),
+		Example: `starport tools ibc-relayer -- -h`,
 	}
 	return c
 }
 
-func relayerLowLevelHandle(c nodetime.CommandName) func(cmd *cobra.Command, args []string) error {
+func toolsNodetimeProxy(c nodetime.CommandName) func(cmd *cobra.Command, args []string) error {
 	return func(cmd *cobra.Command, args []string) error {
 		command, cleanup, err := nodetime.Command(c)
 		if err != nil {

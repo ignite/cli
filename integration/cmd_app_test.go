@@ -35,7 +35,8 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"app",
+				"scaffold",
+				"chain",
 				fmt.Sprintf("github.com/test/%s", appName),
 				"--no-default-module",
 			),
@@ -96,6 +97,14 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "module", "create", "example", "--require-registration"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a module with an invalid name",
+		step.NewSteps(step.New(
+			step.Exec("starport", "module", "create", "example1", "--require-registration"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),

@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -75,6 +76,17 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
+	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+	moduleName = mfName.Lowercase
+
+	// Check if the module name is valid
+	if err := checkModuleName(moduleName); err != nil {
+		return sm, err
+	}
+
 	// Check if the module already exist
 	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
@@ -210,6 +222,36 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 	}
 
 	return true, err
+}
+
+func checkModuleName(moduleName string) error {
+	// go keyword
+	if token.Lookup(moduleName).IsKeyword() {
+		return fmt.Errorf("%s is a Go keyword", moduleName)
+	}
+
+	// name of default registered module
+	switch moduleName {
+	case
+		"auth",
+		"genutil",
+		"bank",
+		"capability",
+		"staking",
+		"mint",
+		"distr",
+		"gov",
+		"params",
+		"crisis",
+		"slashing",
+		"ibc",
+		"upgrade",
+		"evidence",
+		"transfer",
+		"vesting":
+		return fmt.Errorf("%s is a default module", moduleName)
+	}
+	return nil
 }
 
 func isWasmImported(appPath string) (bool, error) {

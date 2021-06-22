@@ -13,7 +13,6 @@ func NewRelayer() *cobra.Command {
 
 	c.AddCommand(NewRelayerConfigure())
 	c.AddCommand(NewRelayerConnect())
-	c.AddCommand(NewRelayerLowLevel())
 
 	return c
 }
