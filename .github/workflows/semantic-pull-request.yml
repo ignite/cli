@@ -1,12 +1,14 @@
-name: "Semantic PR"
+name: Test 
+
 on:
   pull_request_target:
     types:
       - opened
       - edited
       - synchronize
+
 jobs:
-  main:
+  semantic_pr:
     runs-on: ubuntu-latest
     steps:
       - uses: amannn/action-semantic-pull-request@v1.2.0
