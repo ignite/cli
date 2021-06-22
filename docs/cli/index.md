@@ -21,47 +21,39 @@ A developer tool for building Cosmos SDK blockchains
 
 **SEE ALSO**
 
-* [starport app](#starport-app)	 - Scaffold a new blockchain
-* [starport build](#starport-build)	 - Build a node binary
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
 * [starport docs](#starport-docs)	 - Show Starport docs
-* [starport faucet](#starport-faucet)	 - Send coins to an account
 * [starport message](#starport-message)	 - Scaffold a Cosmos SDK message
 * [starport module](#starport-module)	 - Manage Cosmos SDK modules for your blockchain
 * [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
 * [starport packet](#starport-packet)	 - Scaffold an IBC packet
 * [starport query](#starport-query)	 - Scaffold a Cosmos SDK query
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
-* [starport serve](#starport-serve)	 - Start a blockchain node in development
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
+* [starport tools](#starport-tools)	 - Tools for advanced users
 * [starport type](#starport-type)	 - Scaffold a type with CRUD operations
 * [starport version](#starport-version)	 - Print the current build information
 
 
-## starport app
+## starport chain
 
-Scaffold a new blockchain
-
-**Synopsis**
-
-Scaffold a new Cosmos SDK blockchain with a default directory structure
-
-```
-starport app [github.com/org/repo] [flags]
-```
+Build, initialize, and start a blockchain
 
 **Options**
 
 ```
-      --address-prefix string   Address prefix (default "cosmos")
-  -h, --help                    help for app
-      --no-default-module       Prevent scaffolding a default module in the app
+  -h, --help   help for chain
 ```
 
 **SEE ALSO**
 
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport chain build](#starport-chain-build)	 - Build a node binary
+* [starport chain faucet](#starport-chain-faucet)	 - Send coins to an account
+* [starport chain serve](#starport-chain-serve)	 - Start a blockchain node in development
 
 
-## starport build
+## starport chain build
 
 Build a node binary
 
@@ -80,7 +72,7 @@ Sample usages:
 	- starport build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64
 
 ```
-starport build [flags]
+starport chain build [flags]
 ```
 
 **Options**
@@ -98,7 +90,59 @@ starport build [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+
+
+## starport chain faucet
+
+Send coins to an account
+
+```
+starport chain faucet [address] [coin<,...>] [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for faucet
+      --home string   Home directory used for blockchains
+  -p, --path string   path of the app
+  -v, --verbose       Verbose output
+```
+
+**SEE ALSO**
+
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+
+
+## starport chain serve
+
+Start a blockchain node in development
+
+**Synopsis**
+
+Start a blockchain node with automatic reloading
+
+```
+starport chain serve [flags]
+```
+
+**Options**
+
+```
+  -c, --config string        Starport config file (default: ./config.yml)
+  -f, --force-reset          Force reset of the app state on start and every source change
+  -h, --help                 help for serve
+      --home string          Home directory used for blockchains
+  -p, --path string          Path of the app
+      --rebuild-proto-once   Enables proto code generation for 3rd party modules
+  -r, --reset-once           Reset of the app state on first start
+  -v, --verbose              Verbose output
+```
+
+**SEE ALSO**
+
+* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
 
 
 ## starport docs
@@ -113,28 +157,6 @@ starport docs [flags]
 
 ```
   -h, --help   help for docs
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
-
-## starport faucet
-
-Send coins to an account
-
-```
-starport faucet [address] [coin<,...>] [flags]
-```
-
-**Options**
-
-```
-  -h, --help          help for faucet
-      --home string   Home directory used for blockchains
-  -p, --path string   path of the app
-  -v, --verbose       Verbose output
 ```
 
 **SEE ALSO**
@@ -851,7 +873,6 @@ Connects blockchains via IBC protocol
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
 * [starport relayer configure](#starport-relayer-configure)	 - Configure source and target chains for relaying
 * [starport relayer connect](#starport-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
 
 
 ## starport relayer configure
@@ -906,35 +927,76 @@ starport relayer connect [<path>,...] [flags]
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
 
 
-## starport relayer lowlevel
+## starport scaffold
 
-Low-level relayer commands from @confio/relayer
+Scaffold a new blockchain or scaffold components inside an existing one
 
 **Options**
 
 ```
-  -h, --help   help for lowlevel
+  -h, --help   help for scaffold
 ```
 
 **SEE ALSO**
 
-* [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
-* [starport relayer lowlevel ibc-relayer](#starport-relayer-lowlevel-ibc-relayer)	 - Typescript implementation of an IBC relayer
-* [starport relayer lowlevel ibc-setup](#starport-relayer-lowlevel-ibc-setup)	 - Collection of commands to quickly setup a relayer
+* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport scaffold chain](#starport-scaffold-chain)	 - Scaffold a new blockchain
 
 
-## starport relayer lowlevel ibc-relayer
+## starport scaffold chain
+
+Scaffold a new blockchain
+
+**Synopsis**
+
+Scaffold a new Cosmos SDK blockchain with a default directory structure
+
+```
+starport scaffold chain [github.com/org/repo] [flags]
+```
+
+**Options**
+
+```
+      --address-prefix string   Address prefix (default "cosmos")
+  -h, --help                    help for chain
+      --no-default-module       Prevent scaffolding a default module in the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
+
+
+## starport tools
+
+Tools for advanced users
+
+**Options**
+
+```
+  -h, --help   help for tools
+```
+
+**SEE ALSO**
+
+* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport tools ibc-relayer](#starport-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
+* [starport tools ibc-setup](#starport-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
+
+
+## starport tools ibc-relayer
 
 Typescript implementation of an IBC relayer
 
 ```
-starport relayer lowlevel ibc-relayer [--] [...] [flags]
+starport tools ibc-relayer [--] [...] [flags]
 ```
 
 **Examples**
 
 ```
-starport relayer lowlevel ibc-relayer -- -h
+starport tools ibc-relayer -- -h
 ```
 
 **Options**
@@ -945,21 +1007,21 @@ starport relayer lowlevel ibc-relayer -- -h
 
 **SEE ALSO**
 
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
+* [starport tools](#starport-tools)	 - Tools for advanced users
 
 
-## starport relayer lowlevel ibc-setup
+## starport tools ibc-setup
 
 Collection of commands to quickly setup a relayer
 
 ```
-starport relayer lowlevel ibc-setup [--] [...] [flags]
+starport tools ibc-setup [--] [...] [flags]
 ```
 
 **Examples**
 
 ```
-starport relayer lowlevel ibc-setup -- -h
+starport tools ibc-setup -- -h
 starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 ```
 
@@ -971,37 +1033,7 @@ starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_
 
 **SEE ALSO**
 
-* [starport relayer lowlevel](#starport-relayer-lowlevel)	 - Low-level relayer commands from @confio/relayer
-
-
-## starport serve
-
-Start a blockchain node in development
-
-**Synopsis**
-
-Start a blockchain node with automatic reloading
-
-```
-starport serve [flags]
-```
-
-**Options**
-
-```
-  -c, --config string        Starport config file (default: ./config.yml)
-  -f, --force-reset          Force reset of the app state on start and every source change
-  -h, --help                 help for serve
-      --home string          Home directory used for blockchains
-  -p, --path string          Path of the app
-      --rebuild-proto-once   Enables proto code generation for 3rd party modules
-  -r, --reset-once           Reset of the app state on first start
-  -v, --verbose              Verbose output
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport tools](#starport-tools)	 - Tools for advanced users
 
 
 ## starport type

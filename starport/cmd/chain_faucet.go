@@ -10,13 +10,13 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-// NewFaucet creates a new faucet command to send coins to accounts.
-func NewFaucet() *cobra.Command {
+// NewChainFaucet creates a new faucet command to send coins to accounts.
+func NewChainFaucet() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "faucet [address] [coin<,...>]",
 		Short: "Send coins to an account",
 		Args:  cobra.ExactArgs(2),
-		RunE:  faucetHandler,
+		RunE:  chainFaucetHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
@@ -24,7 +24,7 @@ func NewFaucet() *cobra.Command {
 	return c
 }
 
-func faucetHandler(cmd *cobra.Command, args []string) error {
+func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	var (
 		toAddress = args[0]
 		coins     = args[1]
