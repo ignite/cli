@@ -4,6 +4,7 @@ package cosmosfaucet
 import (
 	"context"
 	"fmt"
+	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -23,9 +24,9 @@ const (
 	// account in all times.
 	DefaultMaxAmount = 100000000
 
-	// DefaultRefreshTime specifies the time after which the max amount limit
-	//is refreshed for an account
-	DefaultRefreshTime = 18446744073709551615
+	// DefaultLimitRefreshWindow specifies the time after which the max amount limit
+	// is refreshed for an account [1 year]
+	DefaultRefreshWindow = time.Hour * 24 * 365
 )
 
 // Faucet represents a faucet.
@@ -49,9 +50,7 @@ type Faucet struct {
 	// it holds the maximum amounts of coins that can be sent to a single account.
 	coinsMax map[string]uint64
 
-	// CoinsLimit is a denom-refresh_time pair
-	// it holds the limiter information for each coin type
-	coinsLimit map[string]uint64
+	limitRefreshWindow time.Duration
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
@@ -87,11 +86,17 @@ func Account(name, mnemonic string) Option {
 // amount is the amount of the coin can be distributed per request.
 // maxAmount is the maximum amount of the coin that can be sent to a single account.
 // denom is denomination of the coin to be distributed by the faucet.
-func Coin(amount, maxAmount, refreshTime uint64, denom string) Option {
+func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
 		f.coins = append(f.coins, coin{amount, denom})
 		f.coinsMax[denom] = maxAmount
-		f.coinsLimit[denom] = refreshTime
+	}
+}
+
+// RefreshWindow adds the duration to refresh the transfer limit to the faucet
+func RefreshWindow(refreshWindow time.Duration) Option {
+	return func(f *Faucet) {
+		f.limitRefreshWindow = refreshWindow
 	}
 }
 
@@ -115,7 +120,6 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 		runner:      ccr,
 		accountName: DefaultAccountName,
 		coinsMax:    make(map[string]uint64),
-		coinsLimit:  make(map[string]uint64),
 		openAPIData: openAPIData{"Blockchain", "http://localhost:1317"},
 	}
 
@@ -124,7 +128,11 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 	}
 
 	if len(f.coins) == 0 {
-		Coin(DefaultAmount, DefaultMaxAmount, DefaultRefreshTime, DefaultDenom)(&f)
+		Coin(DefaultAmount, DefaultMaxAmount, DefaultDenom)(&f)
+	}
+
+	if f.limitRefreshWindow == 0 {
+		RefreshWindow(DefaultRefreshWindow)(&f)
 	}
 
 	// import the account if mnemonic is provided.

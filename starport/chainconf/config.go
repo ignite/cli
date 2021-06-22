@@ -119,16 +119,6 @@ type OpenAPI struct {
 	Path string `yaml:"path"`
 }
 
-// TransferLimit is a limiter for transfer over a timeframe to an account. At the end
-// of the duration, the limit is reset to zero
-type TransferLimit struct {
-	// Coin holds type of coin denom and amount to be limited.
-	Coin string `yaml:"coin"`
-
-	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed
-	LimitRefreshTime string `yaml:"limit_refresh_time"`
-}
-
 // Faucet configuration.
 type Faucet struct {
 	// Name is faucet account's name.
@@ -141,8 +131,8 @@ type Faucet struct {
 	// to single user.
 	CoinsMax []string `yaml:"coins_max"`
 
-	// CoinsLimit holds the limiter information for each coin type
-	CoinsLimit []TransferLimit `yaml:"coins_limit"`
+	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed
+	RateLimitWindow string `yaml:"rate_limit_window"`
 
 	// Host is the host of the faucet server
 	Host string `yaml:"host"`

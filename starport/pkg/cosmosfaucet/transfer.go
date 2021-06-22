@@ -31,9 +31,8 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 					if !strings.HasSuffix(attr.Value, denom) {
 						continue
 					}
-					txTime, _ := time.Parse(time.RFC3339, event.ISOTimeStamp)
-					timeDiff := time.Since(txTime).Seconds()
-					if uint64(timeDiff) < f.coinsLimit[denom] {
+
+					if time.Since(event.Time) < f.limitRefreshWindow {
 						amountStr := strings.TrimRight(attr.Value, denom)
 						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
 							amount += a

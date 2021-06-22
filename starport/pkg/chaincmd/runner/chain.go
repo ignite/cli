@@ -11,6 +11,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -223,9 +224,9 @@ func NewEventSelector(typ, addr, value string) EventSelector {
 
 // Event represents a TX event.
 type Event struct {
-	Type         string
-	Attributes   []EventAttribute
-	ISOTimeStamp string
+	Type       string
+	Attributes []EventAttribute
+	Time       time.Time
 }
 
 // EventAttribute holds event's attributes.
@@ -290,10 +291,15 @@ func (r Runner) QueryTxEvents(
 					})
 				}
 
+				txTime, err := time.Parse(time.RFC3339, tx.TimeStamp)
+				if err != nil {
+					return nil, err
+				}
+
 				events = append(events, Event{
-					Type:         e.Type,
-					Attributes:   attrs,
-					ISOTimeStamp: tx.TimeStamp,
+					Type:       e.Type,
+					Attributes: attrs,
+					Time:       txTime,
 				})
 			}
 		}
