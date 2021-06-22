@@ -36,7 +36,7 @@ FROM base
 RUN useradd -ms /bin/bash tendermint
 USER tendermint
 
-COPY --from=builder /go/bin/starport /home/tendermint/bin
+COPY --from=builder /go/bin/starport /usr/bin
 
 WORKDIR /apps
 
