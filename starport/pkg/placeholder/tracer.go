@@ -1,6 +1,7 @@
 package placeholder
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/validation"
@@ -25,8 +26,9 @@ func (set iterableStringSet) Add(item string) {
 var _ validation.Error = (*MissingPlaceholdersError)(nil)
 
 type MissingPlaceholdersError struct {
-	missing        iterableStringSet
-	additionalInfo string
+	missing          iterableStringSet
+	additionalInfo   string
+	additionalErrors error
 }
 
 // Is true if both errors have the same list of missing placeholders.
@@ -73,6 +75,10 @@ func (e *MissingPlaceholdersError) ValidationInfo() string {
 		b.WriteString("\n\n")
 		b.WriteString(e.additionalInfo)
 	}
+	if e.additionalErrors != nil {
+		b.WriteString("\n\nAdditional errors: ")
+		b.WriteString(e.additionalErrors.Error())
+	}
 	return b.String()
 }
 
@@ -98,11 +104,13 @@ func New(opts ...Option) *Tracer {
 type Replacer interface {
 	Replace(content, placeholder, replacement string) string
 	ReplaceOnce(content, placeholder, replacement string) string
+	AppendMiscError(miscError string)
 }
 
-// Tracer keeps track of missing placeholders.
+// Tracer keeps track of missing placeholders or other issues related to file modification.
 type Tracer struct {
 	missing        iterableStringSet
+	miscErrors     []string
 	additionalInfo string
 }
 
@@ -125,14 +133,31 @@ func (t *Tracer) ReplaceOnce(content, placeholder, replacement string) string {
 	return content
 }
 
+// AppendMiscError allows to track errors not related to missing placeholders during file modification
+func (t *Tracer) AppendMiscError(miscError string) {
+	t.miscErrors = append(t.miscErrors, miscError)
+}
+
 // Err if any of the placeholders were missing during execution.
 func (t *Tracer) Err() error {
+	// miscellaneous errors represent errors preventing source modification not related to missing placeholder
+	var miscErrors error
+	if len(t.miscErrors) > 0 {
+		miscErrors = fmt.Errorf("%v", t.miscErrors)
+	}
+
 	if len(t.missing) > 0 {
 		missing := iterableStringSet{}
 		for key := range t.missing {
 			missing.Add(key)
 		}
-		return &MissingPlaceholdersError{missing: missing, additionalInfo: t.additionalInfo}
+		return &MissingPlaceholdersError{
+			missing:          missing,
+			additionalInfo:   t.additionalInfo,
+			additionalErrors: miscErrors,
+		}
 	}
-	return nil
+
+	// if not missing placeholder but still miscellaneous errors, return them
+	return miscErrors
 }
