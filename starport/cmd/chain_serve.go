@@ -12,14 +12,14 @@ const flagConfig = "config"
 
 var appPath string
 
-// NewServe creates a new serve command to serve a blockchain.
-func NewServe() *cobra.Command {
+// NewChainServe creates a new serve command to serve a blockchain.
+func NewChainServe() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "serve",
 		Short: "Start a blockchain node in development",
 		Long:  "Start a blockchain node with automatic reloading",
 		Args:  cobra.ExactArgs(0),
-		RunE:  serveHandler,
+		RunE:  chainServeHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
@@ -32,7 +32,7 @@ func NewServe() *cobra.Command {
 	return c
 }
 
-func serveHandler(cmd *cobra.Command, args []string) error {
+func chainServeHandler(cmd *cobra.Command, args []string) error {
 	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
 	if err != nil {
 		return err
