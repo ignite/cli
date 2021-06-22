@@ -16,7 +16,7 @@ import (
 )
 
 const (
-	flagDep					= "dep"
+	flagDep                 = "dep"
 	flagIBC                 = "ibc"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"

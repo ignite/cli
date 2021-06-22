@@ -96,6 +96,22 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacement)
 
 		// Keeper definition
+		var depArgs string
+		for _, dep := range opts.Dependencies {
+			keeperDefinition := fmt.Sprintf("app.%sKeeper", strings.Title(dep))
+
+			// if module has dependencies, we must verify the keeper of the dependency is defined in app.go
+			if !strings.Contains(content, keeperDefinition) {
+				replacer.AppendMiscError(fmt.Sprintf(
+					"the module cannot have %s as a dependency: %s is not declared in app.go",
+					dep,
+					keeperDefinition,
+				))
+			}
+
+			depArgs = fmt.Sprintf("%s%s,\n", depArgs, keeperDefinition)
+		}
+
 		var scopedKeeperDefinition string
 		var ibcKeeperArgument string
 		if opts.IsIBC {
@@ -111,7 +127,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			keys[%[2]vmoduletypes.StoreKey],
 			keys[%[2]vmoduletypes.MemStoreKey],
 			%[4]v
-		)
+			%[6]v)
 		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)`
 		replacement = fmt.Sprintf(
 			template,
@@ -120,6 +136,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition,
 			ibcKeeperArgument,
 			strings.Title(opts.ModuleName),
+			depArgs,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
 
