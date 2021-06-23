@@ -1,4 +1,3 @@
-# run unit tests for Starport.
 name: Test
 
 on:
