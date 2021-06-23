@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -31,9 +32,11 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 						continue
 					}
 
-					amountStr := strings.TrimRight(attr.Value, denom)
-					if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
-						amount += a
+					if time.Since(event.Time) < f.limitRefreshWindow {
+						amountStr := strings.TrimRight(attr.Value, denom)
+						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
+							amount += a
+						}
 					}
 				}
 			}

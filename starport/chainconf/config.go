@@ -131,6 +131,9 @@ type Faucet struct {
 	// to single user.
 	CoinsMax []string `yaml:"coins_max"`
 
+	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed
+	RateLimitWindow string `yaml:"rate_limit_window"`
+
 	// Host is the host of the faucet server
 	Host string `yaml:"host"`
 
