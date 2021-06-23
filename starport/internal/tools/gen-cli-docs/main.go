@@ -28,6 +28,7 @@ parent:
 
 # CLI
 Documentation for Starport CLI.
+Note: CLI docs reflects the changes in an upcoming release.
 `
 
 func main() {
