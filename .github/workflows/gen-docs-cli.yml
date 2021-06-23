@@ -1,4 +1,4 @@
-name: Update CLI Docs
+name: Generate Docs
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - develop
 
 jobs:
-  docs:
+  cli:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
