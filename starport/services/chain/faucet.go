@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/pkg/errors"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -88,6 +89,15 @@ func (c *Chain) Faucet(ctx context.Context) (cosmosfaucet.Faucet, error) {
 		}
 
 		faucetOptions = append(faucetOptions, cosmosfaucet.Coin(amount, amountMax, denom))
+	}
+
+	if conf.Faucet.RateLimitWindow != "" {
+		rateLimitWindow, err := time.ParseDuration(conf.Faucet.RateLimitWindow)
+		if err != nil {
+			return cosmosfaucet.Faucet{}, fmt.Errorf("%s: %s", err, conf.Faucet.RateLimitWindow)
+		}
+
+		faucetOptions = append(faucetOptions, cosmosfaucet.RefreshWindow(rateLimitWindow))
 	}
 
 	// init the faucet with options and return.
