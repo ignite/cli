@@ -30,7 +30,7 @@ For questions and support please join the `cosmos-sdk-starport` channel in the [
 
 ## Contributing
 
-We welcome contributions from everyone. The `develop` contains the development version. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. Thank you to all those who have contributed to Starport!
+We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. Thank you to all those who have contributed to Starport!
 
 ## Stay in touch
 
