@@ -11,9 +11,9 @@ import (
 )
 
 type generateOptions struct {
-	isProtoBuildGoEnabled      bool
-	isProtoBuildVuexEnabled    bool
-	isProtoBuildOpenAPIEnabled bool
+	isGoEnabled      bool
+	isVuexEnabled    bool
+	isOpenAPIEnabled bool
 }
 
 // GenerateTarget is a target to generate code for from proto files.
@@ -22,21 +22,21 @@ type GenerateTarget func(*generateOptions)
 // GenerateGo enables generating proto based Go code needed for the chain's source code.
 func GenerateGo() GenerateTarget {
 	return func(o *generateOptions) {
-		o.isProtoBuildGoEnabled = true
+		o.isGoEnabled = true
 	}
 }
 
 // GenerateVuex enables generating proto based Vuex store.
 func GenerateVuex() GenerateTarget {
 	return func(o *generateOptions) {
-		o.isProtoBuildVuexEnabled = true
+		o.isVuexEnabled = true
 	}
 }
 
 // GenerateOpenAPI enables generating OpenAPI spec for your chain.
 func GenerateOpenAPI() GenerateTarget {
 	return func(o *generateOptions) {
-		o.isProtoBuildOpenAPIEnabled = true
+		o.isOpenAPIEnabled = true
 	}
 }
 
@@ -71,14 +71,14 @@ func (c *Chain) Generate(
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
 	}
 
-	if targetOptions.isProtoBuildGoEnabled {
+	if targetOptions.isGoEnabled {
 		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
 	}
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
 	// generate Vuex code as well if it is enabled.
-	if targetOptions.isProtoBuildVuexEnabled && conf.Client.Vuex.Path != "" {
+	if targetOptions.isVuexEnabled && conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
@@ -91,7 +91,7 @@ func (c *Chain) Generate(
 			),
 		)
 	}
-	if targetOptions.isProtoBuildOpenAPIEnabled && conf.Client.OpenAPI.Path != "" {
+	if targetOptions.isOpenAPIEnabled && conf.Client.OpenAPI.Path != "" {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
