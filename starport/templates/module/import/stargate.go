@@ -1,42 +1,27 @@
 package moduleimport
 
 import (
-	"embed"
 	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
-	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
 
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
-)
 
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
 func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(replacer))
 	g.RunFn(cmdModifyStargate(replacer, opts))
-	if err := g.Box(stargateTemplate); err != nil {
-		return g, err
-	}
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)
 
-	testutil.WASMRegister(replacer, ctx, g)
-
-	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
+	//testutil.WASMRegister(replacer, ctx, g)
 	return g, nil
 }
 
@@ -50,7 +35,6 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 		}
 
 		templateImport := `%[1]v
-		"strings"
 		"github.com/CosmWasm/wasmd/x/wasm"
 		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgAppModuleImport)
