@@ -224,7 +224,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanalysis.Package, error) {
 	// find out all proto packages inside blockchain.
-	allprotopkgs, err := protoanalysis.Parse(ctx, protoanalysis.PatternRecursive(d.sourcePath))
+	allprotopkgs, err := protoanalysis.Parse(ctx, d.sourcePath)
 	if err != nil {
 		return nil, err
 	}
