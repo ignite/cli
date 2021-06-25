@@ -11,11 +11,11 @@ Starport is the easiest way to build a blockchain. It is a developer-friendly in
 Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/intro/install). Create and start a blockchain:
 
 ```
-starport app github.com/alice/chain
+starport scaffold app github.com/alice/chain
 
 cd chain
 
-starport serve
+starport chain serve
 ```
 
 ## Documentation
