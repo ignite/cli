@@ -85,7 +85,7 @@ import (
 	"<%= ModulePath %>/docs"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
 
-    "github.com/tendermint/spm/cosmosapp"
+    "github.com/tendermint/spm/cosmoscmd"
 )
 
 const (
@@ -150,7 +150,7 @@ var (
 )
 
 var (
-	_ cosmosapp.CosmosApp     = (*App)(nil)
+	_ cosmoscmd.CosmosApp     = (*App)(nil)
 	_ servertypes.Application = (*App)(nil)
 )
 
@@ -215,10 +215,10 @@ func New(
 	skipUpgradeHeights map[int64]bool,
 	homePath string,
 	invCheckPeriod uint,
-	encodingConfig cosmosapp.EncodingConfig,
+	encodingConfig cosmoscmd.EncodingConfig,
 	appOpts servertypes.AppOptions,
 	baseAppOptions ...func(*baseapp.BaseApp),
-) cosmosapp.App {
+) cosmoscmd.App {
 
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino
