@@ -4,15 +4,13 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	"io"
-	"strings"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
+	"io"
 )
 
 const (
@@ -55,7 +53,7 @@ func NewModuleCreate() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createModuleHandler,
 	}
-	c.Flags().String(flagDep, "", "comma-separated module dependencies (e.g. --dep account,bank)")
+	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
@@ -90,14 +88,9 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get module dependencies
-	dep, err := cmd.Flags().GetString(flagDep)
+	dependencies, err := cmd.Flags().GetStringSlice(flagDep)
 	if err != nil {
 		return err
-	}
-	var dependencies []string
-	if len(dep) > 0 {
-		dependencies = strings.Split(dep, ",")
-		options = append(options, scaffolder.WithDependencies(dependencies))
 	}
 
 	sc, err := scaffolder.New(appPath)
