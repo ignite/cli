@@ -179,7 +179,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
 						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport chain serve --reset-once")
 
 						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
