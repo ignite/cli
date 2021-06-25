@@ -9,7 +9,7 @@ In this browser-based development environment, the terminal window is in the low
 To create a blockchain and start a node in development:
 
 ```
-starport scaffold app github.com/user/hello
+starport scaffold chain github.com/user/hello
 
 cd hello
 
