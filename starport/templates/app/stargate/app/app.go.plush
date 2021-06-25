@@ -85,6 +85,8 @@ import (
 	appparams "<%= ModulePath %>/app/params"
 	"<%= ModulePath %>/docs"
 	// this line is used by starport scaffolding # stargate/app/moduleImport
+
+    "github.com/tendermint/spm/cosmosapp"
 )
 
 const Name = "<%= BinaryNamePrefix %>"
@@ -203,13 +205,18 @@ type App struct {
 }
 
 // New returns a reference to an initialized Gaia.
-// NewSimApp returns a reference to an initialized SimApp.
 func New(
-	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
-	homePath string, invCheckPeriod uint, encodingConfig appparams.EncodingConfig,
-	// this line is used by starport scaffolding # stargate/app/newArgument
-	appOpts servertypes.AppOptions, baseAppOptions ...func(*baseapp.BaseApp),
-) *App {
+	logger log.Logger,
+	db dbm.DB,
+	traceStore io.Writer,
+	loadLatest bool,
+	skipUpgradeHeights map[int64]bool,
+	homePath string,
+	invCheckPeriod uint,
+	encodingConfig appparams.EncodingConfig,
+	appOpts servertypes.AppOptions,
+	baseAppOptions ...func(*baseapp.BaseApp),
+) cosmosapp.App {
 
 	appCodec := encodingConfig.Marshaler
 	cdc := encodingConfig.Amino

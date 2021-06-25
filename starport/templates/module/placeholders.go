@@ -25,7 +25,6 @@ const (
 	PlaceholderSgAppInitGenesis         = "// this line is used by starport scaffolding # stargate/app/initGenesis"
 	PlaceholderSgAppParamSubspace       = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
 	PlaceholderSgAppGovProposalHandlers = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
-	PlaceholderSgAppGovProposalHandler  = "// this line is used by starport scaffolding # stargate/app/govProposalHandler"
 	PlaceholderSgAppNewArgument         = "// this line is used by starport scaffolding # stargate/app/newArgument"
 	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
 	PlaceholderSgAppBeforeInitReturn    = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
