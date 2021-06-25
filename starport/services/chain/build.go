@@ -46,7 +46,7 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		}
 	}()
 
-	if err := c.buildProto(ctx); err != nil {
+	if err := c.generateAll(ctx); err != nil {
 		return err
 	}
 
@@ -176,27 +176,75 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	return buildFlags, nil
 }
 
-func (c *Chain) buildProto(ctx context.Context) error {
+type generateOptions struct {
+	isProtoBuildGoEnabled      bool
+	isProtoBuildVuexEnabled    bool
+	isProtoBuildOpenAPIEnabled bool
+}
+
+// GenerateTarget is a target to generate code for from proto files.
+type GenerateTarget func(*generateOptions)
+
+// GenerateGo enables generating proto based Go code needed for the chain's source code.
+func GenerateGo() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoBuildGoEnabled = true
+	}
+}
+
+// GenerateVuex enables generating proto based Vuex store.
+func GenerateVuex() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoBuildVuexEnabled = true
+	}
+}
+
+// GenerateOpenAPI enables generating OpenAPI spec for your chain.
+func GenerateOpenAPI() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isProtoBuildOpenAPIEnabled = true
+	}
+}
+
+func (c *Chain) generateAll(ctx context.Context) error {
+	return c.Generate(ctx, GenerateGo(), GenerateVuex(), GenerateOpenAPI())
+}
+
+// Generate makes code generation from proto files for given target and additionalTargets.
+func (c *Chain) Generate(
+	ctx context.Context,
+	target GenerateTarget,
+	additionalTargets ...GenerateTarget,
+) error {
+	var targetOptions generateOptions
+
+	for _, apply := range append(additionalTargets, target) {
+		apply(&targetOptions)
+	}
+
 	conf, err := c.Config()
 	if err != nil {
 		return err
 	}
 
-	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
+	if err := cosmosgen.InstallDependencies(ctx, c.app.Path); err != nil {
 		return err
 	}
 
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building proto...")
 
 	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(c.app.ImportPath),
 		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
+	}
+
+	if targetOptions.isProtoBuildGoEnabled {
+		options = append(options, cosmosgen.WithGoGeneration(c.app.ImportPath))
 	}
 
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
 	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
+	if targetOptions.isProtoBuildVuexEnabled && conf.Client.Vuex.Path != "" {
 		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
@@ -209,7 +257,7 @@ func (c *Chain) buildProto(ctx context.Context) error {
 			),
 		)
 	}
-	if conf.Client.OpenAPI.Path != "" {
+	if targetOptions.isProtoBuildOpenAPIEnabled && conf.Client.OpenAPI.Path != "" {
 		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
 	}
 
