@@ -343,13 +343,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 
-		// initialize the blockchain
 		if err := c.Init(ctx); err != nil {
-			return err
-		}
-
-		// initialize the blockchain accounts
-		if err := c.InitAccounts(ctx, conf); err != nil {
 			return err
 		}
 	} else if appModified {
