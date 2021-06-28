@@ -52,7 +52,7 @@ func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// Import
-		templateImport := `porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"`
+		templateImport := `porttypes "github.com/cosmos/ibc-go/modules/core/05-port/types"`
 		content := replacer.Replace(f.String(), module.PlaceholderIBCModuleImport, templateImport)
 
 		// Interface to implement
@@ -122,7 +122,7 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+		templateImport := `host "github.com/cosmos/ibc-go/modules/core/24-host"`
 		content := replacer.Replace(f.String(), module.PlaceholderIBCGenesisTypeImport, templateImport)
 
 		// Default genesis
