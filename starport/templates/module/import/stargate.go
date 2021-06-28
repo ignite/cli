@@ -10,8 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
-
-
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
 func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
@@ -21,7 +19,6 @@ func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Gen
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)
 
-	//testutil.WASMRegister(replacer, ctx, g)
 	return g, nil
 }
 
