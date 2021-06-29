@@ -211,7 +211,7 @@ type App struct {
 	mm *module.Manager
 }
 
-// New returns a reference to an initialized Gaia.
+// New returns a reference to an initialized chain.
 // NewSimApp returns a reference to an initialized SimApp.
 func New(
 	logger log.Logger, db dbm.DB, traceStore io.Writer, loadLatest bool, skipUpgradeHeights map[int64]bool,
