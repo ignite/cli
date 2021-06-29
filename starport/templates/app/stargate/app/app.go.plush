@@ -228,13 +228,16 @@ func New(
 	bApp.SetCommitMultiStoreTracer(traceStore)
 	bApp.SetInterfaceRegistry(interfaceRegistry)
 
-	keys := sdk.NewKVStoreKeys(
-		authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
-		minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
-		govtypes.StoreKey, paramstypes.StoreKey, ibchost.StoreKey, upgradetypes.StoreKey,
-		evidencetypes.StoreKey, ibctransfertypes.StoreKey, capabilitytypes.StoreKey,
-		// this line is used by starport scaffolding # stargate/app/storeKey
-	)
+
+    keys := sdk.NewKVStoreKeys(
+        authtypes.StoreKey, banktypes.StoreKey, stakingtypes.StoreKey,
+        minttypes.StoreKey, distrtypes.StoreKey, slashingtypes.StoreKey,
+        govtypes.StoreKey, paramstypes.StoreKey, upgradetypes.StoreKey, feegrant.StoreKey,
+        evidencetypes.StoreKey, capabilitytypes.StoreKey, ibchost.StoreKey,
+        authzkeeper.StoreKey, ibctransfertypes.StoreKey,
+        // this line is used by starport scaffolding # stargate/app/storeKey
+    )
+
 	tkeys := sdk.NewTransientStoreKeys(paramstypes.TStoreKey)
 	memKeys := sdk.NewMemoryStoreKeys(capabilitytypes.MemStoreKey)
 
