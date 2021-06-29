@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"io"
+	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -92,6 +94,29 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 	dependencies, err := cmd.Flags().GetStringSlice(flagDep)
 	if err != nil {
 		return err
+	}
+	if len(dependencies) > 0 {
+		var formattedDependencies []modulecreate.Dependency
+
+		// Parse the provided dependencies
+		for _, dependency := range dependencies {
+			splitted := strings.Split(dependency, ".")
+			switch {
+			case len(splitted) == 1:
+				formattedDependencies = append(
+					formattedDependencies,
+					modulecreate.NewDependency(splitted[0], ""),
+					)
+			case len(splitted) == 1:
+				formattedDependencies = append(
+					formattedDependencies,
+					modulecreate.NewDependency(splitted[0], splitted[1]),
+				)
+			default:
+				return fmt.Errorf("dependency %s is invalid, must have <depName> or <depName>.<depKeeperName>")
+			}
+		}
+		options = append(options, scaffolder.WithDependencies(formattedDependencies))
 	}
 
 	sc, err := scaffolder.New(appPath)

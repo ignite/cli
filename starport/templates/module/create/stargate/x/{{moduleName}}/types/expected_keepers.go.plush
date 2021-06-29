@@ -1,7 +1,7 @@
 package types
 
 <%= for (dependency) in dependencies { %>
-type <%= title(dependency) %>Keeper interface {
-	// Methods imported by the module should be defined here
+type <%= title(dependency.Name) %>Keeper interface {
+	// Methods imported from <%= dependency.Name %> should be defined here
 }
 <% } %>

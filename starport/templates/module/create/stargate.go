@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strings"
 
+	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
@@ -98,21 +99,18 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		// Module dependencies
 		var depArgs string
 		for _, dep := range opts.Dependencies {
-			keeperDefinition := fmt.Sprintf("app.%sKeeper", strings.Title(dep))
-
 			// if module has dependencies, we must verify the keeper of the dependency is defined in app.go
-			if !strings.Contains(content, keeperDefinition) {
+			if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
 				replacer.AppendMiscError(fmt.Sprintf(
-					"the module cannot have %s as a dependency: %s is not declared in app.go",
-					dep,
-					keeperDefinition,
+					"the module cannot have %s as a dependency: %s",
+					dep.Name,
+					err.Error(),
 				))
 			}
-
-			depArgs = fmt.Sprintf("%s%s,\n", depArgs, keeperDefinition)
+			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName)
 
 			// If bank is a dependency, add account permissions to the module
-			if dep == "bank" {
+			if dep.Name == "bank" {
 				template = `%[1]v
 				%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},`
 

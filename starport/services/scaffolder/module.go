@@ -46,7 +46,7 @@ type moduleCreationOptions struct {
 	ibcChannelOrdering string
 
 	// list of module depencies
-	dependencies []string
+	dependencies []modulecreate.Dependency
 }
 
 // ModuleCreationOption configures Chain.
@@ -74,7 +74,7 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 }
 
 // WithDependencies specifies the name of the modules that the module depends on
-func WithDependencies(dependencies []string) ModuleCreationOption {
+func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.dependencies = dependencies
 	}
@@ -332,15 +332,15 @@ func checkIBCRouterPlaceholder(appPath string) (bool, error) {
 }
 
 // checkDependencies perform checks on the dependencies
-func checkDependencies(dependencies []string) error {
+func checkDependencies(dependencies []modulecreate.Dependency) error {
 	// check there is no duplicated dependencies
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {
-		_, ok := depMap[dep]
+		_, ok := depMap[dep.Name]
 		if ok {
 			return fmt.Errorf("%s is a duplicated dependency", dep)
 		}
-		depMap[dep] = struct{}{}
+		depMap[dep.Name] = struct{}{}
 	}
 
 	return nil
