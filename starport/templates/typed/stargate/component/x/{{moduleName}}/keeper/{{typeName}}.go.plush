@@ -49,7 +49,7 @@ func (k Keeper) Append<%= TypeName.UpperCamel %>(
     <%= TypeName.LowerCamel %>.Id = count
 
     store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-    appendedValue := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
+    appendedValue := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
     store.Set(Get<%= TypeName.UpperCamel %>IDBytes(<%= TypeName.LowerCamel %>.Id), appendedValue)
 
     // Update <%= TypeName.LowerCamel %> count
@@ -61,7 +61,7 @@ func (k Keeper) Append<%= TypeName.UpperCamel %>(
 // Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store
 func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
+	b := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
 	store.Set(Get<%= TypeName.UpperCamel %>IDBytes(<%= TypeName.LowerCamel %>.Id), b)
 }
 
@@ -69,7 +69,7 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.Lowe
 func (k Keeper) Get<%=TypeName.UpperCamel %>(ctx sdk.Context, id uint64) types.<%= TypeName.UpperCamel %> {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
-	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= TypeName.UpperCamel %>IDBytes(id)), &<%= TypeName.LowerCamel %>)
+	k.cdc.MustUnmarshal(store.Get(Get<%= TypeName.UpperCamel %>IDBytes(id)), &<%= TypeName.LowerCamel %>)
 	return <%= TypeName.LowerCamel %>
 }
 
@@ -99,7 +99,7 @@ func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.<%= TypeName.UpperCamel %>
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
         list = append(list, val)
 	}
 

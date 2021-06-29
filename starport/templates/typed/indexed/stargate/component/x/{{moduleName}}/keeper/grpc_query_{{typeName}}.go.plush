@@ -24,7 +24,7 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.Quer
 
 	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
 		var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
-		if err := k.cdc.UnmarshalBinaryBare(value, &<%= TypeName.LowerCamel %>); err != nil {
+		if err := k.cdc.Unmarshal(value, &<%= TypeName.LowerCamel %>); err != nil {
 			return err
 		}
 
