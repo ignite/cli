@@ -46,7 +46,7 @@ func NewToolsIBCRelayer() *cobra.Command {
 func NewToolsProtoc() *cobra.Command {
 	return &cobra.Command{
 		Use:     "protoc [--] [...]",
-		Short:   "The protoc command",
+		Short:   "Execute the protoc command",
 		Long:    "The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled",
 		RunE:    toolsProtocProxy,
 		Example: `starport tools protoc -- --version`,

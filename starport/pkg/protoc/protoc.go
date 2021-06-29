@@ -27,7 +27,7 @@ func Plugin(path string) Option {
 	}
 }
 
-// Command setups the protoc binary and returns the command needed to execute c.
+// Command sets the protoc binary up and returns the command needed to execute c.
 func Command() (command []string, cleanup func(), err error) {
 	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0755)
 	if err != nil {
