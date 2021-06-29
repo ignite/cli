@@ -152,6 +152,8 @@ var (
 		govtypes.ModuleName:            {authtypes.Burner},
 		ibctransfertypes.ModuleName:    {authtypes.Minter, authtypes.Burner},
 	}
+    // Module configurator
+
 )
 
 var (
@@ -211,6 +213,10 @@ type App struct {
 
 	// the module manager
 	mm *module.Manager
+
+	// module configurator
+	configurator module.Configurator
+
 }
 
 // New returns a reference to an initialized chain.
