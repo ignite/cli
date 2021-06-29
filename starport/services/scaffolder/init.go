@@ -9,6 +9,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -62,11 +63,17 @@ func (s *Scaffolder) generate(
 	absRoot string,
 	noDefaultModule bool,
 ) error {
+	gu, err := giturl.Parse(pathInfo.RawPath)
+	if err != nil {
+		return err
+	}
+
 	g, err := app.New(&app.Options{
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
 		OwnerName:        owner(pathInfo.RawPath),
+		OwnerAndRepoName: gu.UserAndRepo(),
 		BinaryNamePrefix: pathInfo.Root,
 		AddressPrefix:    s.options.addressPrefix,
 	})

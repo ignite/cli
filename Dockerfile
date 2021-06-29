@@ -33,10 +33,10 @@ RUN --mount=type=cache,target=/root/.cache/go-build go install -v ./...
 #
 FROM base
 
-COPY --from=builder /go/bin/starport /usr/bin
-
 RUN useradd -ms /bin/bash tendermint
 USER tendermint
+
+COPY --from=builder /go/bin/starport /usr/bin
 
 WORKDIR /apps
 

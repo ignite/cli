@@ -1,4 +1,4 @@
-name: goreleaser
+name: Release
 
 on:
   push:
@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  goreleaser:
+  binary:
     runs-on: ubuntu-latest
     env:
       working-directory: go/src/github.com/tendermint/starport 

@@ -1,6 +1,9 @@
 package message
 
-import "github.com/tendermint/starport/starport/templates/typed"
+import (
+	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
+)
 
 // Options ...
 type Options struct {
@@ -8,10 +11,10 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	MsgName    string
+	MsgName    multiformatname.Name
 	MsgDesc    string
-	Fields     []typed.Field
-	ResFields  []typed.Field
+	Fields     []field.Field
+	ResFields  []field.Field
 }
 
 // Validate that options are usuable

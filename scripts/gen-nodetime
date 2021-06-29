@@ -12,8 +12,7 @@ npm run build
 tar -czvf nodetime-linux-amd64.tar.gz nodetime-linux
 tar -czvf nodetime-darwin-amd64.tar.gz nodetime-macos
 
-mv nodetime-linux-amd64.tar.gz ../../../starport/pkg/nodetime/ 
-mv nodetime-darwin-amd64.tar.gz ../../../starport/pkg/nodetime/
+mv nodetime-*.tar.gz ../../../starport/pkg/nodetime/data
 
 rm nodetime-linux nodetime-macos
 rm -rf dist/

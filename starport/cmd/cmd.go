@@ -3,6 +3,8 @@ package starportcmd
 import (
 	"fmt"
 	"path/filepath"
+	"sort"
+	"strings"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
@@ -10,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -33,12 +36,10 @@ func New() *cobra.Command {
 			return goenv.ConfigurePath()
 		},
 	}
+	c.AddCommand(NewScaffold())
+	c.AddCommand(NewChain())
 	c.AddCommand(NewDocs())
-	c.AddCommand(NewApp())
 	c.AddCommand(NewType())
-	c.AddCommand(NewServe())
-	c.AddCommand(NewFaucet())
-	c.AddCommand(NewBuild())
 	c.AddCommand(NewModule())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
@@ -46,6 +47,8 @@ func New() *cobra.Command {
 	c.AddCommand(NewIBCPacket())
 	c.AddCommand(NewMessage())
 	c.AddCommand(NewQuery())
+	c.AddCommand(NewTools())
+	c.AddCommand(deprecated()...)
 	return c
 }
 
@@ -101,4 +104,54 @@ func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.Ini
 	}
 
 	return initOptions
+}
+
+var (
+	modifyPrefix = color.New(color.FgMagenta).SprintFunc()("modify ")
+	createPrefix = color.New(color.FgGreen).SprintFunc()("create ")
+	removePrefix = func(s string) string {
+		return strings.TrimPrefix(strings.TrimPrefix(s, modifyPrefix), createPrefix)
+	}
+)
+
+func sourceModificationToString(sm xgenny.SourceModification) string {
+	// get file names and add prefix
+	var files []string
+	for _, modified := range sm.ModifiedFiles() {
+		files = append(files, modifyPrefix+modified)
+	}
+	for _, created := range sm.CreatedFiles() {
+		files = append(files, createPrefix+created)
+	}
+
+	// sort filenames without prefix
+	sort.Slice(files, func(i, j int) bool {
+		s1 := removePrefix(files[i])
+		s2 := removePrefix(files[j])
+
+		return strings.Compare(s1, s2) == -1
+	})
+
+	return "\n" + strings.Join(files, "\n")
+}
+
+func deprecated() []*cobra.Command {
+	return []*cobra.Command{
+		{
+			Use:        "app",
+			Deprecated: "use `starport scaffold chain` instead.",
+		},
+		{
+			Use:        "build",
+			Deprecated: "use `starport chain build` instead.",
+		},
+		{
+			Use:        "serve",
+			Deprecated: "use `starport chain serve` instead.",
+		},
+		{
+			Use:        "faucet",
+			Deprecated: "use `starport chain faucet` instead.",
+		},
+	}
 }
