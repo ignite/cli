@@ -193,6 +193,11 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
+		var validationErr validation.Error
+		if errors.As(err, &validationErr) {
+			// TODO: implement a more generic method when there will be new methods to import wasm
+			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Staport to 0.16.2 to import wasm")
+		}
 		return sm, err
 	}
 
