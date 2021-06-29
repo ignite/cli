@@ -1,6 +1,7 @@
 #! /usr/bin/make -f
 
 # Project variables.
+PROJECT_NAME = starport
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
 VERSION = development
 HEAD = $(shell git rev-parse HEAD)
@@ -8,12 +9,25 @@ LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='
 	-X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
+BUILD_FOLDER = ./dist
+BUILD_CMD = ./starport/cmd/starport
 
 ## install: Install de binary.
 install:
 	@echo Installing Starport...
 	@go install $(BUILD_FLAGS) ./...
 	@starport version
+
+## build: Build the binary.
+build: clean
+	@echo Building Starport...
+	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER)/$(PROJECT_NAME) $(BUILD_CMD)
+
+## clean: Clean build files. Also runs `go clean` internally.
+clean:
+	@echo Cleaning build cache...
+	@-rm -rf $(BUILD_FOLDER) 2> /dev/null
+	@go clean ./...
 
 ## govet: Run go vet.
 govet:
@@ -45,7 +59,7 @@ test: govet test-unit test-integration
 
 help: Makefile
 	@echo
-	@echo " Choose a command run in Starport, or just run 'make' for install"
+	@echo " Choose a command run in "$(PROJECT_NAME)", or just run 'make' for install"
 	@echo
 	@sed -n 's/^##//p' $< | column -t -s ':' |  sed -e 's/^/ /'
 	@echo
