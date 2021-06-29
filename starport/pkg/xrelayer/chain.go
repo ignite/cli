@@ -11,7 +11,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/ts-relayer"
+	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-relayer"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 )
 
