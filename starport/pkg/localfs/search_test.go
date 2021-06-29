@@ -1,10 +1,8 @@
 package localfs
 
 import (
-	"io/fs"
 	"os"
 	"path/filepath"
-	"syscall"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -13,27 +11,19 @@ import (
 
 func setupGlobTests(t *testing.T, files []string) string {
 	t.Helper()
-	dir, err := os.Getwd()
-	if err != nil {
-		t.Fatal(err)
-	}
-	tmpdir, err := os.MkdirTemp(dir, "glob-test")
-	if err != nil {
-		t.Fatal(err)
-	}
+	tmpdir, err := os.MkdirTemp("", "glob-test")
+	require.NoError(t, err)
+
 	t.Cleanup(func() {
-		_ = os.RemoveAll(tmpdir)
+		os.RemoveAll(tmpdir)
 	})
 	for _, file := range files {
 		fileDir := filepath.Dir(file)
 		fileDir = filepath.Join(tmpdir, fileDir)
-		if _, err := os.Stat(fileDir); os.IsNotExist(err) {
-			err = os.MkdirAll(fileDir, 0755)
-		}
+		err = os.MkdirAll(fileDir, 0755)
+		require.NoError(t, err)
 		err = os.WriteFile(filepath.Join(tmpdir, file), []byte{}, 0644)
-		if err != nil {
-			t.Fatal(err)
-		}
+		require.NoError(t, err)
 	}
 	return tmpdir
 }
@@ -65,10 +55,10 @@ func TestSearch(t *testing.T) {
 				pattern: "*.proto",
 			},
 			want: []string{
-				tmpdir + "/foo/bar/file1.proto",
-				tmpdir + "/foo/bar/file2.proto",
-				tmpdir + "/foo/baz/file.proto",
-				tmpdir + "/foo/file.proto",
+				filepath.Join(tmpdir, "foo/bar/file1.proto"),
+				filepath.Join(tmpdir, "foo/bar/file2.proto"),
+				filepath.Join(tmpdir, "foo/baz/file.proto"),
+				filepath.Join(tmpdir, "foo/file.proto"),
 			},
 		}, {
 			name: "get only one proto file by name",
@@ -76,28 +66,34 @@ func TestSearch(t *testing.T) {
 				path:    tmpdir,
 				pattern: "file1.proto",
 			},
-			want: []string{tmpdir + "/foo/bar/file1.proto"},
+			want: []string{filepath.Join(tmpdir, "foo/bar/file1.proto")},
 		}, {
 			name: "get two proto files by name",
 			args: args{
 				path:    tmpdir,
 				pattern: "file.proto",
 			},
-			want: []string{tmpdir + "/foo/baz/file.proto", tmpdir + "/foo/file.proto"},
+			want: []string{
+				filepath.Join(tmpdir, "foo/baz/file.proto"),
+				filepath.Join(tmpdir, "foo/file.proto"),
+			},
 		}, {
 			name: "get a specific file by name",
 			args: args{
 				path:    tmpdir,
 				pattern: "file",
 			},
-			want: []string{tmpdir + "/foo/baz/file", tmpdir + "/foo/file"},
+			want: []string{
+				filepath.Join(tmpdir, "foo/baz/file"),
+				filepath.Join(tmpdir, "foo/file"),
+			},
 		}, {
-			name: "error invalid directory",
+			name: "not found directory",
 			args: args{
 				path:    "no-directory",
 				pattern: "file",
 			},
-			err: &fs.PathError{Op: "stat", Path: "no-directory", Err: syscall.ENOENT},
+			want: []string{},
 		},
 	}
 	for _, tt := range tests {
