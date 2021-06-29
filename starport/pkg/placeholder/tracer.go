@@ -1,10 +1,7 @@
 package placeholder
 
 import (
-	"fmt"
 	"strings"
-
-	"github.com/tendermint/starport/starport/pkg/validation"
 )
 
 type iterableStringSet map[string]struct{}
@@ -23,64 +20,6 @@ func (set iterableStringSet) Add(item string) {
 	set[item] = struct{}{}
 }
 
-var _ validation.Error = (*MissingPlaceholdersError)(nil)
-
-type MissingPlaceholdersError struct {
-	missing          iterableStringSet
-	additionalInfo   string
-	additionalErrors error
-}
-
-// Is true if both errors have the same list of missing placeholders.
-func (e *MissingPlaceholdersError) Is(err error) bool {
-	other, ok := err.(*MissingPlaceholdersError)
-	if !ok {
-		return false
-	}
-	if len(other.missing) != len(e.missing) {
-		return false
-	}
-	for i := range e.missing {
-		if e.missing[i] != other.missing[i] {
-			return false
-		}
-	}
-	return true
-}
-
-func (e *MissingPlaceholdersError) Error() string {
-	var b strings.Builder
-	b.WriteString("missing placeholders: ")
-	e.missing.Iterate(func(i int, element string) bool {
-		if i > 0 {
-			b.WriteString(", ")
-		}
-		b.WriteString(element)
-		return true
-	})
-	return b.String()
-}
-
-func (e *MissingPlaceholdersError) ValidationInfo() string {
-	var b strings.Builder
-	b.WriteString("Missing placeholders:\n\n")
-	e.missing.Iterate(func(i int, element string) bool {
-		if i > 0 {
-			b.WriteString("\n")
-		}
-		b.WriteString(element)
-		return true
-	})
-	if e.additionalInfo != "" {
-		b.WriteString("\n\n")
-		b.WriteString(e.additionalInfo)
-	}
-	if e.additionalErrors != nil {
-		b.WriteString("\n\nAdditional errors: ")
-		b.WriteString(e.additionalErrors.Error())
-	}
-	return b.String()
-}
 
 // Option for configuring session.
 type Option func(*Tracer)
@@ -143,7 +82,9 @@ func (t *Tracer) Err() error {
 	// miscellaneous errors represent errors preventing source modification not related to missing placeholder
 	var miscErrors error
 	if len(t.miscErrors) > 0 {
-		miscErrors = fmt.Errorf("%v", strings.Join(t.miscErrors, "\n"))
+		miscErrors = &ValidationMiscError{
+			errors: t.miscErrors,
+		}
 	}
 
 	if len(t.missing) > 0 {
