@@ -17,8 +17,22 @@ const (
 	moniker = "mynode"
 )
 
-// Init initializes chain.
+// Init initializes the chain and applies all optional configurations.
 func (c *Chain) Init(ctx context.Context) error {
+	conf, err := c.Config()
+	if err != nil {
+		return &CannotBuildAppError{err}
+	}
+
+	if err := c.InitChain(ctx); err != nil {
+		return err
+	}
+
+	return c.InitAccounts(ctx, conf)
+}
+
+// InitChain initializes the chain.
+func (c *Chain) InitChain(ctx context.Context) error {
 	chainID, err := c.ID()
 	if err != nil {
 		return err
