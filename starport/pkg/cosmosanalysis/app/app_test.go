@@ -1,11 +1,12 @@
 package app_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 )
 
 var (
@@ -33,7 +34,7 @@ func TestCheckKeeper(t *testing.T) {
 	tmpFile := filepath.Join(tmpDir, "source")
 	err := os.WriteFile(tmpFile, source, 0644)
 	require.NoError(t, err)
-	t.Cleanup(func() {os.Remove(tmpFile)})
+	t.Cleanup(func() { os.Remove(tmpFile) })
 
 	err = app.CheckKeeper(tmpFile, "FooKeeper")
 	require.NoError(t, err)
@@ -44,7 +45,7 @@ func TestCheckKeeper(t *testing.T) {
 	tmpFileNoApp := filepath.Join(tmpDir, "source")
 	err = os.WriteFile(tmpFileNoApp, sourceNoApp, 0644)
 	require.NoError(t, err)
-	t.Cleanup(func() {os.Remove(tmpFileNoApp)})
+	t.Cleanup(func() { os.Remove(tmpFileNoApp) })
 
 	err = app.CheckKeeper(tmpFileNoApp, "FooKeeper")
 	require.Error(t, err)

@@ -37,8 +37,8 @@ func (opts *CreateOptions) Validate() error {
 
 // Dependency represents a module dependency of a module
 type Dependency struct {
-	Name string
-	KeeperName string	// KeeperName represents the name of the keeper for the module in app.go
+	Name       string
+	KeeperName string // KeeperName represents the name of the keeper for the module in app.go
 }
 
 // NewDependency returns a new dependency object

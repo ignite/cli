@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"io"
 	"strings"
 
@@ -14,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/validation"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 	"github.com/tendermint/starport/starport/templates/module"
+	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
 const (
@@ -106,7 +106,7 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 				formattedDependencies = append(
 					formattedDependencies,
 					modulecreate.NewDependency(splitted[0], ""),
-					)
+				)
 			case len(splitted) == 2:
 				formattedDependencies = append(
 					formattedDependencies,

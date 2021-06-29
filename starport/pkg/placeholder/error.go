@@ -2,8 +2,9 @@ package placeholder
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/validation"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/validation"
 )
 
 var _ validation.Error = (*MissingPlaceholdersError)(nil)
@@ -72,7 +73,7 @@ var _ validation.Error = (*ValidationMiscError)(nil)
 
 // ValidationMiscError is used as a miscellaneous error related to validation
 type ValidationMiscError struct {
-	errors          []string
+	errors []string
 }
 
 // Error implements error interface

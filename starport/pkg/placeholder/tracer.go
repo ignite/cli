@@ -20,7 +20,6 @@ func (set iterableStringSet) Add(item string) {
 	set[item] = struct{}{}
 }
 
-
 // Option for configuring session.
 type Option func(*Tracer)
 
