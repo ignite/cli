@@ -23,7 +23,7 @@ Keep an eye on your PR and make sure that all CI checks becomes green.
 ### Avoid rebasing commits in your branch 
 Avoid rebasing after you open your PRs to reviews instead, add more commits. It's OK to do force pushes if it's in the draft mode and never opened to reviews before.
 
-A reviewer would like see a linear commit history while reviewing. If you tend to force push to an older commit, reviewer will lose track in your recent changes and will have to start reviewing from scratch.
+A reviewer would like to see a linear commit history while reviewing. If you tend to force push to an older commit, reviewer will lose track in your recent changes and will have to start reviewing from scratch.
 
 Don't worry about adding too many commits. They will be squashed into a single commit while merging. Your PR's title will be used as the commit message.
 
