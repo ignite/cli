@@ -40,7 +40,6 @@ func New() *cobra.Command {
 	c.AddCommand(NewChain())
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewType())
-	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())
