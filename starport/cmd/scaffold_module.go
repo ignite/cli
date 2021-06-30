@@ -22,11 +22,16 @@ const (
 
 var ibcRouterPlaceholderInstruction = fmt.Sprintf(`
 💬 To enable scaffolding of IBC modules, remove these lines from app/app.go:
+
 %s
+
 💬 Then, find the following line:
+
 %s
+
 💬 Finally, add this block of code below:
 %s
+
 `,
 	infoColor(`ibcRouter := porttypes.NewRouter()
 ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
