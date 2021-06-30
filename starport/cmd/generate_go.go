@@ -10,7 +10,7 @@ import (
 
 func NewGenerateGo() *cobra.Command {
 	return &cobra.Command{
-		Use:   "go",
+		Use:   "proto-go",
 		Short: "Generate proto based Go code needed for the app's source code",
 		RunE:  generateGoHandler,
 	}
