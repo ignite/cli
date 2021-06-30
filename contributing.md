@@ -8,7 +8,7 @@ Thank you for your contribution!
 
 ## Opening pull requests 
 
-### Your pull request title
+### Choose a good title
 Avoid long names in your titles. Make sure your title does not have more than 60 characters.
 
 Follow [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/) to find the best title.
