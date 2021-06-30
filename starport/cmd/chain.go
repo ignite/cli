@@ -12,6 +12,7 @@ func NewChain() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 	}
 
+	c.AddCommand(NewChainInit())
 	c.AddCommand(NewChainServe())
 	c.AddCommand(NewChainBuild())
 	c.AddCommand(NewChainFaucet())
