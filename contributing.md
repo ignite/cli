@@ -28,7 +28,7 @@ A reviewer would like see a linear commit history while reviewing. If you tend t
 Don't worry about adding too many commits. They will be squashed into a single commit while merging. Your PR's title will be used as the commit message.
 
 ### Ask someone else's help
-If you start a PR but couldn't finish it because you lack off time, don't hesisate to ask for help from someone else to take over the ownership.
+If you started a PR but couldn't finish it because you lack off time, don't hesisate to ask for help from someone else to take over the ownership.
 
 We appreciate every bits of your work!
 
