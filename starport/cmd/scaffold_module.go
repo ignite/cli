@@ -43,7 +43,7 @@ ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 app.IBCKeeper.SetRouter(ibcRouter)`),
 )
 
-// NewScaffoldModule  creates a new module create command to scaffold an
+// NewScaffoldModule returns the command to scaffold an
 // sdk module.
 func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
