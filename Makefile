@@ -19,8 +19,9 @@ install:
 	@starport version
 
 ## build: Build the binary.
-build: clean
+build:
 	@echo Building Starport...
+	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
 	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER)/$(PROJECT_NAME) $(BUILD_CMD)
 
 ## clean: Clean build files. Also runs `go clean` internally.
