@@ -17,7 +17,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "foo", "--ibc", "--require-registration"),
+			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -31,21 +31,21 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module with an ordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "--ibc", "orderedfoo", "--ordering", "ordered", "--require-registration"),
+			step.Exec("starport", "s", "module", "--ibc", "orderedfoo", "--ordering", "ordered", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an IBC module with an unordered channel",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "--ibc", "unorderedfoo", "--ordering", "unordered", "--require-registration"),
+			step.Exec("starport", "s", "module", "--ibc", "unorderedfoo", "--ordering", "unordered", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "foobar", "--require-registration"),
+			step.Exec("starport", "s", "module", "foobar", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -62,7 +62,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "foo", "--ibc", "--require-registration"),
+			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -121,7 +121,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a non-IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "create", "bar", "--require-registration"),
+			step.Exec("starport", "s", "module", "bar", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
