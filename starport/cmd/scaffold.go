@@ -12,6 +12,11 @@ func NewScaffold() *cobra.Command {
 	}
 
 	c.AddCommand(NewScaffoldChain())
+	c.AddCommand(NewScaffoldQuery())
+	c.AddCommand(NewScaffoldModule())
+	c.AddCommand(NewScaffoldWasm())
+	c.AddCommand(NewScaffoldPacket())
+	c.AddCommand(NewScaffoldMessage())
 
 	return c
 }

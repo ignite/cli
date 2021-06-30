@@ -10,27 +10,27 @@ import (
 )
 
 const (
-	flagPaginated = "paginated"
+	flagResponse    string = "response"
+	flagDescription string = "desc"
 )
 
-// NewType command creates a new type command to scaffold queries
-func NewQuery() *cobra.Command {
+// NewScaffoldMessage NewType command creates a new type command to scaffold messages
+func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "query [name] [request_field1] [request_field2] ...",
-		Short: "Scaffold a Cosmos SDK query",
+		Use:   "message [name] [field1] [field2] ...",
+		Short: "Scaffold a Cosmos SDK message",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  queryHandler,
+		RunE:  messageHandler,
 	}
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
-	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
+	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().Bool(flagPaginated, false, "Define if the request can be paginated")
 
 	return c
 }
 
-func queryHandler(cmd *cobra.Command, args []string) error {
+func messageHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -40,7 +40,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Get request fields
+	// Get response fields
 	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
 	if err != nil {
 		return err
@@ -53,19 +53,14 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	}
 	if desc == "" {
 		// Use a default description
-		desc = fmt.Sprintf("Query %s", args[0])
-	}
-
-	paginated, err := cmd.Flags().GetBool(flagPaginated)
-	if err != nil {
-		return err
+		desc = fmt.Sprintf("Broadcast message %s", args[0])
 	}
 
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sm, err := sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields)
 	if err != nil {
 		return err
 	}
@@ -73,6 +68,6 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	s.Stop()
 
 	fmt.Println(sourceModificationToString(sm))
-	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
+	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 	return nil
 }
