@@ -12,6 +12,7 @@ func NewScaffold() *cobra.Command {
 	}
 
 	c.AddCommand(NewScaffoldChain())
+	c.AddCommand(NewScaffoldVue())
 
 	return c
 }

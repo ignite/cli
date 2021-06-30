@@ -114,8 +114,12 @@ func (s *Scaffolder) generate(
 	}
 
 	// generate the vue app.
-	vuepath := filepath.Join(absRoot, "vue")
-	return localfs.Save(vue.Boilerplate(), vuepath)
+	return Vue(filepath.Join(absRoot, "vue"))
+}
+
+// Vue scaffolds a Vue.js app for a chain.
+func Vue(path string) error {
+	return localfs.Save(vue.Boilerplate(), path)
 }
 
 func initGit(path string) error {
