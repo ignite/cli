@@ -3,7 +3,7 @@ package xrelayer
 import (
 	"context"
 
-	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/ts-relayer"
+	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-relayer"
 )
 
 // Link links all chains that has a path to each other.
