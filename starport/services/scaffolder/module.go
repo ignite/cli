@@ -14,6 +14,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -160,6 +161,7 @@ func (s *Scaffolder) CreateModule(
 		return sm, err
 	}
 
+	// Modify app.go to register the module
 	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
 	sm.Merge(newSourceModification)
 	var validationErr validation.Error
@@ -333,9 +335,18 @@ func checkIBCRouterPlaceholder(appPath string) (bool, error) {
 
 // checkDependencies perform checks on the dependencies
 func checkDependencies(dependencies []modulecreate.Dependency) error {
-	// check there is no duplicated dependencies
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {
+		// check the dependency has been registered
+		if err := appanalysis.CheckKeeper(module.PathAppModule, dep.KeeperName); err != nil {
+			return fmt.Errorf(
+				"the module cannot have %s as a dependency: %s",
+				dep.Name,
+				err.Error(),
+			)
+		}
+
+		// check duplicated
 		_, ok := depMap[dep.Name]
 		if ok {
 			return fmt.Errorf("%s is a duplicated dependency", dep)

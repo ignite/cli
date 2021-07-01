@@ -7,7 +7,6 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -99,14 +98,6 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		// Module dependencies
 		var depArgs string
 		for _, dep := range opts.Dependencies {
-			// if module has dependencies, we must verify the keeper of the dependency is defined in app.go
-			if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
-				replacer.AppendMiscError(fmt.Sprintf(
-					"the module cannot have %s as a dependency: %s",
-					dep.Name,
-					err.Error(),
-				))
-			}
 			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName)
 
 			// If bank is a dependency, add account permissions to the module
