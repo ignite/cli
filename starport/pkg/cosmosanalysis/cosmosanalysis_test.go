@@ -1,11 +1,12 @@
 package cosmosanalysis_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 )
 
 var (
@@ -35,7 +36,6 @@ func (f Foobar) foobar() {}
 func (f Foobar) barfoo() {}
 `)
 )
-
 
 func TestFindImplementation(t *testing.T) {
 	tmpDir, err := os.MkdirTemp("", "cosmosanalysis_test")

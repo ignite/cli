@@ -55,4 +55,3 @@ func TestCheckKeeper(t *testing.T) {
 	err = app.CheckKeeper(tmpFileNoApp, "FooKeeper")
 	require.Error(t, err)
 }
-

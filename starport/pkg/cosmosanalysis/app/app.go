@@ -3,10 +3,11 @@ package app
 import (
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"go/ast"
 	"go/parser"
 	"go/token"
+
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 )
 
 var appImplementation = []string{
@@ -15,7 +16,6 @@ var appImplementation = []string{
 	"RegisterTxService",
 	"RegisterTendermintService",
 }
-
 
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure
 func CheckKeeper(appPath, keeperName string) error {

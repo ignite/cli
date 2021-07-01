@@ -3,10 +3,10 @@
 package cosmosanalysis
 
 import (
-	"os"
 	"go/ast"
 	"go/parser"
 	"go/token"
+	"os"
 )
 
 // implementation tracks the implementation of an interface for a given struct
@@ -55,7 +55,7 @@ func FindImplementation(path string, interfaceList []string) (found []string, er
 
 func isDirectory(path string) (bool, error) {
 	fileInfo, err := os.Stat(path)
-	if err != nil{
+	if err != nil {
 		return false, err
 	}
 	return fileInfo.IsDir(), nil
@@ -86,7 +86,7 @@ func findStructImplementationsInFile(
 	f ast.Node,
 	structImplementations map[string]implementation,
 	interfaceList []string,
-	) {
+) {
 	ast.Inspect(f, func(n ast.Node) bool {
 		// look for struct methods.
 		methodDecl, ok := n.(*ast.FuncDecl)
