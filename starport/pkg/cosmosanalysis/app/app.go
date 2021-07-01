@@ -12,7 +12,6 @@ import (
 
 var appImplementation = []string{
 	"RegisterAPIRoutes",
-	"RegisterGRPCServer",
 	"RegisterTxService",
 	"RegisterTendermintService",
 }

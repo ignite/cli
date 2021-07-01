@@ -18,7 +18,6 @@ type Foo struct {
 }
 
 func (f Foo) RegisterAPIRoutes() {}
-func (f Foo) RegisterGRPCServer() {}
 func (f Foo) RegisterTxService() {}
 func (f Foo) RegisterTendermintService() {}
 `)
