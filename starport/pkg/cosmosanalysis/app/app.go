@@ -54,6 +54,7 @@ func CheckKeeper(path, keeperName string) error {
 					for _, fieldName := range field.Names {
 						if fieldName.Name == keeperName {
 							found = true
+							return false
 						}
 					}
 				}

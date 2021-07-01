@@ -100,21 +100,18 @@ func createModuleHandler(cmd *cobra.Command, args []string) error {
 
 		// Parse the provided dependencies
 		for _, dependency := range dependencies {
-			splitted := strings.Split(dependency, ".")
-			switch {
-			case len(splitted) == 1:
-				formattedDependencies = append(
-					formattedDependencies,
-					modulecreate.NewDependency(splitted[0], ""),
-				)
-			case len(splitted) == 2:
-				formattedDependencies = append(
-					formattedDependencies,
-					modulecreate.NewDependency(splitted[0], splitted[1]),
-				)
+			var formattedDependency modulecreate.Dependency
+
+			splitted := strings.Split(dependency, ":")
+			switch len(splitted) {
+			case 1:
+				formattedDependency = modulecreate.NewDependency(splitted[0], "")
+			case 2:
+				formattedDependency = modulecreate.NewDependency(splitted[0], splitted[1])
 			default:
 				return fmt.Errorf("dependency %s is invalid, must have <depName> or <depName>.<depKeeperName>", dependency)
 			}
+			formattedDependencies = append(formattedDependencies, formattedDependency)
 		}
 		options = append(options, scaffolder.WithDependencies(formattedDependencies))
 	}
