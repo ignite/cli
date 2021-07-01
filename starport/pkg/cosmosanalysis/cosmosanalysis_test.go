@@ -64,13 +64,7 @@ func TestFindImplementation(t *testing.T) {
 	require.NoError(t, err)
 	require.Empty(t, found)
 
-	// find in file
-	found, err = cosmosanalysis.FindImplementation(filepath.Join(tmpDir, "1.go"), expectedinterface)
-	require.NoError(t, err)
-	require.Len(t, found, 1)
-	require.Contains(t, found, "Foo")
-
-	// no file
-	_, err = cosmosanalysis.FindImplementation(filepath.Join(tmpDir, "3.go"), expectedinterface)
+	// can't provide file
+	_, err = cosmosanalysis.FindImplementation(filepath.Join(tmpDir, "1.go"), expectedinterface)
 	require.Error(t, err)
 }

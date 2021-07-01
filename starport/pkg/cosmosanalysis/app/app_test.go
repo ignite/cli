@@ -10,7 +10,7 @@ import (
 )
 
 var (
-	source = []byte(`
+	AppFile = []byte(`
 package foo
 
 type Foo struct {
@@ -22,35 +22,67 @@ func (f Foo) RegisterTxService() {}
 func (f Foo) RegisterTendermintService() {}
 `)
 
-	sourceNoApp = []byte(`
+	NoAppFile = []byte(`
 package foo
 
 type Bar struct {
 	FooKeeper foo.keeper
 }
 `)
+
+	TwoAppFile = []byte(`
+package foo
+
+type Foo struct {
+	FooKeeper foo.keeper
+}
+
+func (f Foo) RegisterAPIRoutes() {}
+func (f Foo) RegisterTxService() {}
+func (f Foo) RegisterTendermintService() {}
+
+type Bar struct {
+	FooKeeper foo.keeper
+}
+
+func (f Bar) RegisterAPIRoutes() {}
+func (f Bar) RegisterTxService() {}
+func (f Bar) RegisterTendermintService() {}
+`)
 )
 
 func TestCheckKeeper(t *testing.T) {
-	tmpDir := os.TempDir()
+	tmpDir, err := os.MkdirTemp("", "app_test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(tmpDir) })
 
 	// Test with a source file containing an app
-	tmpFile := filepath.Join(tmpDir, "source")
-	err := os.WriteFile(tmpFile, source, 0644)
+	tmpFile := filepath.Join(tmpDir, "app.go")
+	err = os.WriteFile(tmpFile, AppFile, 0644)
 	require.NoError(t, err)
-	t.Cleanup(func() { os.Remove(tmpFile) })
 
-	err = app.CheckKeeper(tmpFile, "FooKeeper")
+	err = app.CheckKeeper(tmpDir, "FooKeeper")
 	require.NoError(t, err)
-	err = app.CheckKeeper(tmpFile, "BarKeeper")
+	err = app.CheckKeeper(tmpDir, "BarKeeper")
 	require.Error(t, err)
 
 	// No app in source must return an error
-	tmpFileNoApp := filepath.Join(tmpDir, "source")
-	err = os.WriteFile(tmpFileNoApp, sourceNoApp, 0644)
+	tmpDirNoApp, err := os.MkdirTemp("", "app_test")
 	require.NoError(t, err)
-	t.Cleanup(func() { os.Remove(tmpFileNoApp) })
+	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpFileNoApp := filepath.Join(tmpDirNoApp, "app.go")
+	err = os.WriteFile(tmpFileNoApp, NoAppFile, 0644)
+	require.NoError(t, err)
+	err = app.CheckKeeper(tmpDirNoApp, "FooKeeper")
+	require.Error(t, err)
 
-	err = app.CheckKeeper(tmpFileNoApp, "FooKeeper")
+	// More than one app must return an error
+	tmpDirTwoApp, err := os.MkdirTemp("", "app_test")
+	require.NoError(t, err)
+	t.Cleanup(func() { os.RemoveAll(tmpDir) })
+	tmpFileTwoApp := filepath.Join(tmpDirTwoApp, "app.go")
+	err = os.WriteFile(tmpFileTwoApp, TwoAppFile, 0644)
+	require.NoError(t, err)
+	err = app.CheckKeeper(tmpDirTwoApp, "FooKeeper")
 	require.Error(t, err)
 }
