@@ -160,7 +160,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user", "email"),
+			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
@@ -175,7 +175,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "indexeduser", "email", "--module", "example"),
+			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
