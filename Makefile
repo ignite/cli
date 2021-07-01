@@ -10,7 +10,6 @@ LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
-BUILD_CMD = ./starport/cmd/starport
 
 ## install: Install de binary.
 install:
@@ -22,7 +21,7 @@ install:
 build:
 	@echo Building Starport...
 	@-mkdir -p $(BUILD_FOLDER) 2> /dev/null
-	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER)/$(PROJECT_NAME) $(BUILD_CMD)
+	@go build $(BUILD_FLAGS) -o $(BUILD_FOLDER) ./...
 
 ## clean: Clean build files. Also runs `go clean` internally.
 clean:
