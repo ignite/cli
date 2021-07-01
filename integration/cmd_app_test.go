@@ -141,5 +141,21 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a module with a non registered dependency",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"module",
+				"create",
+				"example_with_no_dep",
+				"--dep",
+				"inexistent",
+				"--require-registration",
+			),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
