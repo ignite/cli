@@ -13,9 +13,14 @@ var (
 	source = []byte(`
 package foo
 
-type App struct {
+type Foo struct {
 	FooKeeper foo.keeper
 }
+
+func (f Foo) RegisterAPIRoutes() {}
+func (f Foo) RegisterGRPCServer() {}
+func (f Foo) RegisterTxService() {}
+func (f Foo) RegisterTendermintService() {}
 `)
 
 	sourceNoApp = []byte(`
@@ -50,3 +55,4 @@ func TestCheckKeeper(t *testing.T) {
 	err = app.CheckKeeper(tmpFileNoApp, "FooKeeper")
 	require.Error(t, err)
 }
+

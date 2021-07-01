@@ -1,15 +1,21 @@
 package app
 
 import (
+	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"go/ast"
 	"go/parser"
 	"go/token"
 )
 
-const (
-	appTypeName = "App"
-)
+var appImplementation = []string{
+	"RegisterAPIRoutes",
+	"RegisterGRPCServer",
+	"RegisterTxService",
+	"RegisterTendermintService",
+}
+
 
 // CheckKeeper checks for the existence of the keeper with the provided name in the app structure
 func CheckKeeper(appPath, keeperName string) error {
@@ -18,6 +24,16 @@ func CheckKeeper(appPath, keeperName string) error {
 	if err != nil {
 		return err
 	}
+
+	// find app type
+	appImpl, err := cosmosanalysis.FindImplementation(appPath, appImplementation)
+	if err != nil {
+		return err
+	}
+	if len(appImpl) != 1 {
+		return errors.New("app.go should contain a single app")
+	}
+	appTypeName := appImpl[0]
 
 	// Inspect the file for app struct
 	var found bool
