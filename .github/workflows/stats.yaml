@@ -12,4 +12,6 @@ jobs:
     steps:
       - name: run-ghrs
         uses: jgehrcke/github-repo-stats@v1.1.0
+        with:
+          ghtoken: ${{ secrets.ghrs_github_api_token }}
 
