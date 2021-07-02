@@ -3,18 +3,14 @@ package protoc
 
 import (
 	"context"
-	"embed"
-	"io/fs"
 	"os"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoc/data"
 )
-
-//go:embed data/include/* data/include/**/*
-var include embed.FS
 
 // Option configures Generate configs.
 type Option func(*configs)
@@ -31,6 +27,32 @@ func Plugin(path string) Option {
 	}
 }
 
+// Command sets the protoc binary up and returns the command needed to execute c.
+func Command() (command []string, cleanup func(), err error) {
+	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0755)
+	if err != nil {
+		return nil, nil, err
+	}
+
+	include, cleanupInclude, err := localfs.SaveTemp(data.Include())
+	if err != nil {
+		cleanupProto()
+		return nil, nil, err
+	}
+
+	cleanup = func() {
+		cleanupProto()
+		cleanupInclude()
+	}
+
+	command = []string{
+		path,
+		"-I", include,
+	}
+
+	return command, cleanup, nil
+}
+
 // Generate generates code into outDir from protoPath and its includePaths by using plugins provided with protocOuts.
 func Generate(ctx context.Context, outDir, protoPath string, includePaths, protocOuts []string, options ...Option) error {
 	c := &configs{}
@@ -38,28 +60,11 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 		o(c)
 	}
 
-	// setup protoc and global protos.
-	protocPath, cleanup, err := localfs.SaveBytesTemp(binary, "protoc", 0755)
+	command, cleanup, err := Command()
 	if err != nil {
 		return err
 	}
 	defer cleanup()
-
-	fsInInclude, err := fs.Sub(include, "data/include")
-	if err != nil {
-		return err
-	}
-
-	globalIncludePath, cleanup, err := localfs.SaveTemp(fsInInclude)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
-	includePaths = append(includePaths, globalIncludePath)
-
-	// start preparing the protoc command for execution.
-	command := []string{protocPath}
 
 	// add plugin if set.
 	if c.pluginPath != "" {
