@@ -30,6 +30,7 @@ func NewScaffold() *cobra.Command {
 	c.AddCommand(NewScaffoldChain())
 	c.AddCommand(NewScaffoldList())
 	c.AddCommand(NewScaffoldMap())
+	c.AddCommand(NewScaffoldSingle())
 	c.AddCommand(NewScaffoldVue())
 
 	return c

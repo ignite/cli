@@ -191,14 +191,14 @@ func TestCreateSingletonTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create an singleton type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "single", "user", "email"),
+			step.Exec("starport", "s", "single", "user", "email"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create an singleton type with no message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "single", "nomessage", "email", "--no-message"),
+			step.Exec("starport", "s", "single", "no-message", "email", "--no-message"),
 			step.Workdir(path),
 		)),
 	))
@@ -212,14 +212,14 @@ func TestCreateSingletonTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create another type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "list", "user", "email", "--module", "example"),
+			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an singleton type with a typename that already exist",
 		step.NewSteps(step.New(
-			step.Exec("starport", "single", "user", "email", "--module", "example"),
+			step.Exec("starport", "s", "single", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -227,7 +227,7 @@ func TestCreateSingletonTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create an singleton type in a custom module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "single", "singleuser", "email", "--module", "example"),
+			step.Exec("starport", "s", "single", "singleuser", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
