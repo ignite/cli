@@ -9,6 +9,7 @@
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
 - Scaffold a type that contains a single instance in the store
+- Introduce `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
 
 ### Fixes:
 

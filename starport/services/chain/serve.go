@@ -179,7 +179,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
 						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport chain serve --reset-once")
 
 						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
@@ -343,13 +343,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 
-		// initialize the blockchain
 		if err := c.Init(ctx); err != nil {
-			return err
-		}
-
-		// initialize the blockchain accounts
-		if err := c.InitAccounts(ctx, conf); err != nil {
 			return err
 		}
 	} else if appModified {
