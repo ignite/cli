@@ -24,7 +24,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a type in an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "type", "user", "email", "--module", "foo"),
+			step.Exec("starport", "s", "list", "user", "email", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
