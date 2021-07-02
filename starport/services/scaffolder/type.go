@@ -17,12 +17,12 @@ import (
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
 )
 
-type TypeModel int
+type TypeModel string
 
 const (
-	List TypeModel = iota
-	Map
-	Singleton
+	List      TypeModel = "list"
+	Map       TypeModel = "map"
+	Singleton TypeModel = "singleton"
 )
 
 type AddTypeOption struct {
@@ -111,10 +111,11 @@ func (s *Scaffolder) AddType(
 	default:
 		return sm, errors.New("unrecognized type model")
 	}
-
 	if err != nil {
 		return sm, err
 	}
+
+	// run the generation
 	gens = append(gens, g)
 	sm, err = xgenny.RunWithValidation(tracer, gens...)
 	if err != nil {

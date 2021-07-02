@@ -23,7 +23,8 @@ func NewScaffoldList() *cobra.Command {
 func scaffoldListHandler(cmd *cobra.Command, args []string) error {
 	opts := scaffolder.AddTypeOption{
 		NoMessage: flagGetNoMessage(cmd),
+		Model:     scaffolder.List,
 	}
 
-	return scaffoldType("list", flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
 }

@@ -9,11 +9,6 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const (
-	flagResponse    string = "response"
-	flagDescription string = "desc"
-)
-
 // NewType command creates a new type command to scaffold messages
 func NewMessage() *cobra.Command {
 	c := &cobra.Command{
