@@ -11,10 +11,10 @@ While `type` constructs a message for each CRUD action and implements CRUD logic
 
 ## Construct Cosmos SDK Messages
 
-Use the `starport message` command to scaffold Cosmos SDK messages. See [Cosmos SDK messages](https://docs.cosmos.network/v0.42/building-modules/messages-and-queries.html).
+Use the `starport scaffold message` command to scaffold Cosmos SDK messages. See [Cosmos SDK messages](https://docs.cosmos.network/v0.42/building-modules/messages-and-queries.html).
 
 ```
-starport message [name] [field1] [field2] ... [flags]
+starport scaffold message [name] [field1] [field2] ... [flags]
 ```
 
 ## Files and Directories
@@ -44,5 +44,5 @@ Comma-separated list (no spaces) of fields that describe the response fields of 
 This example command creates the `cancelSellOrder` message with two fields
 
 ```
-starport message cancelSellOrder port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --response id,amount --module ibcdex
+starport scaffold message cancelSellOrder port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --response id,amount --module ibcdex
 ```

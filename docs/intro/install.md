@@ -22,7 +22,7 @@ Before you install a new version of Starport, remove all existing Starport insta
 
 To remove the current Starport installation:
 
-1. On your terminal window, press `Ctrl+C` to stop the chain that you started with `starport serve`.
+1. On your terminal window, press `Ctrl+C` to stop the chain that you started with `starport chain serve`.
 1. Remove the Starport binary with `rm $(which starport)`.
    Depending on your user permissions, run the command with or without `sudo`.
 1. Repeat this step until all `starport` installations are removed from your system.
