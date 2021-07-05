@@ -47,14 +47,14 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create an empty query",
 		step.NewSteps(step.New(
-			step.Exec("starport", "query", "foobar"),
+			step.Exec("starport", "s", "query", "foobar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing query",
 		step.NewSteps(step.New(
-			step.Exec("starport", "query", "foo", "bar"),
+			step.Exec("starport", "s", "query", "foo", "bar"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -62,7 +62,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo", "--require-registration"),
+			step.Exec("starport", "s", "module", "foo", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

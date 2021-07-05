@@ -4,16 +4,19 @@
 
 ### Features:
 
+- Added GitHub action that automatically builds and releases a binary
 - The `--release` flag for the `build` command adds the ability to release binaries in a tarball with a checksum file.
 - Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
 - Introduce `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
+- Added `faucet.rate_limit_window` property to `config.yml`
 
 ### Fixes:
 
 - Use snake case for generated files
 - Prevent using incorrect module name
+- Fixed permissions issue when using Starport in Docker
 
 ## `v0.16.1`
 

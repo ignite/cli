@@ -46,15 +46,15 @@ ibcRouter.AddRoute(ibctransfertypes.ModuleName, transferModule)
 app.IBCKeeper.SetRouter(ibcRouter)`),
 )
 
-// NewModuleCreate creates a new module create command to scaffold an
+// NewScaffoldModule returns the command to scaffold an
 // sdk module.
-func NewModuleCreate() *cobra.Command {
+func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [name]",
+		Use:   "module [name]",
 		Short: "Scaffold a Cosmos SDK module",
 		Long:  "Scaffold a new Cosmos SDK module in the `x` directory",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  createModuleHandler,
+		RunE:  scaffoldModuleHandler,
 	}
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
@@ -63,7 +63,7 @@ func NewModuleCreate() *cobra.Command {
 	return c
 }
 
-func createModuleHandler(cmd *cobra.Command, args []string) error {
+func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
