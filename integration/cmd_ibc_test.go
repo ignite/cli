@@ -33,6 +33,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
 				"create",
 				"--ibc",
@@ -49,6 +50,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
 				"create",
 				"--ibc",
@@ -72,6 +74,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
 				"create",
 				"example_with_dep",
@@ -105,6 +108,7 @@ func TestCreateIBCPacket(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"packet",
 				"bar",
 				"text",

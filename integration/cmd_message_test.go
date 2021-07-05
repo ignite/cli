@@ -18,6 +18,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"message",
 				"do-foo",
 				"text",
@@ -56,6 +57,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"message",
 				"do-foo",
 				"text",

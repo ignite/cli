@@ -16,6 +16,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"query",
 				"foo",
 				"text",
@@ -32,6 +33,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"query",
 				"bar",
 				"text",
@@ -71,6 +73,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"query",
 				"foo",
 				"text",
