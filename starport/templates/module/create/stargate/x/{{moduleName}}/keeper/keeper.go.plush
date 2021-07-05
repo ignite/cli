@@ -17,6 +17,8 @@ type (
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 		// this line is used by starport scaffolding # ibc/keeper/attribute
+		<%= for (dependency) in dependencies { %>
+        <%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper<% } %>
 	}
 )
 
@@ -25,12 +27,14 @@ func NewKeeper(
     storeKey,
     memKey sdk.StoreKey,
     // this line is used by starport scaffolding # ibc/keeper/parameter
+    <%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper,<% } %>
 ) *Keeper {
 	return &Keeper{
 		cdc:      cdc,
 		storeKey: storeKey,
 		memKey:   memKey,
 		// this line is used by starport scaffolding # ibc/keeper/return
+		<%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper: <%= dependency.Name %>Keeper,<% } %>
 	}
 }
 
