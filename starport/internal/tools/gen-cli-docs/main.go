@@ -41,7 +41,7 @@ func main() {
 }
 
 func generate(cmd *cobra.Command, outPath string) error {
-	if err := os.MkdirAll(filepath.Dir(outPath), 755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
 		return err
 	}
 	f, err := os.OpenFile(outPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)

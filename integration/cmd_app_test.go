@@ -65,14 +65,14 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "import", "wasm"),
+			step.Exec("starport", "s", "wasm"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should not add Wasm module second time",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "import", "wasm"),
+			step.Exec("starport", "s", "wasm"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -89,14 +89,14 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example", "--require-registration"),
+			step.Exec("starport", "s", "module", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example", "--require-registration"),
+			step.Exec("starport", "s", "module", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -104,7 +104,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a module with an invalid name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example1", "--require-registration"),
+			step.Exec("starport", "s", "module", "example1", "--require-registration"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
