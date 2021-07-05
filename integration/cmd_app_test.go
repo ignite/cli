@@ -114,8 +114,8 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
-				"create",
 				"example_with_dep",
 				"--dep",
 				"account,bank,staking,slashing,example",
@@ -129,8 +129,8 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
-				"create",
 				"example_with_wrong_dep",
 				"--dep",
 				"dup,dup",
@@ -145,8 +145,8 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
+				"s",
 				"module",
-				"create",
 				"example_with_no_dep",
 				"--dep",
 				"inexistent",
