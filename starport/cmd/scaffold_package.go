@@ -14,8 +14,8 @@ const (
 	flagAck = "ack"
 )
 
-// NewIBCPacket creates a new packet in the module
-func NewIBCPacket() *cobra.Command {
+// NewScaffoldPacket creates a new packet in the module
+func NewScaffoldPacket() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "packet [packetName] [field1] [field2] ... --module [moduleName]",
 		Short: "Scaffold an IBC packet",

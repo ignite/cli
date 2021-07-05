@@ -27,6 +27,8 @@ var (
 
 // New creates a new root command for `starport` with its sub commands.
 func New() *cobra.Command {
+	cobra.EnableCommandSorting = false
+
 	c := &cobra.Command{
 		Use:           "starport",
 		Short:         "A developer tool for building Cosmos SDK blockchains",
@@ -36,19 +38,17 @@ func New() *cobra.Command {
 			return goenv.ConfigurePath()
 		},
 	}
+
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
-	c.AddCommand(NewDocs())
-	c.AddCommand(NewType())
-	c.AddCommand(NewModule())
-	c.AddCommand(NewRelayer())
-	c.AddCommand(NewVersion())
+	c.AddCommand(NewGenerate())
 	c.AddCommand(NewNetwork())
-	c.AddCommand(NewIBCPacket())
-	c.AddCommand(NewMessage())
-	c.AddCommand(NewQuery())
+	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
+	c.AddCommand(NewDocs())
+	c.AddCommand(NewVersion())
 	c.AddCommand(deprecated()...)
+
 	return c
 }
 

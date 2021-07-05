@@ -8,7 +8,7 @@ parent:
 
 # Quickstart
 
-Use these three commands to build, start, and add features to your first blockchain.
+Use these three commands to build, start, and add features to your first blockchain. Before moving forward, make sure to have Starport locally installed, visit the [Installation guide](https://docs.starport.network/intro/install.html) for more information.
 
 ## Create a blockchain
 
