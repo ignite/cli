@@ -2,32 +2,14 @@ package module
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
-
-// ErrModuleNotFound error returned when an sdk module cannot be found.
-var ErrModuleNotFound = errors.New("sdk module not found")
-
-// requirements holds a list of sdk.Msg's method names.
-type requirements map[string]bool
-
-// newRequirements creates a new list of requirements(method names) that needed by a sdk.Msg impl.
-// TODO(low priority): dynamically get these from the source code of underlying version of the sdk.
-func newRequirements() requirements {
-	return requirements{
-		"Route":         false,
-		"Type":          false,
-		"GetSigners":    false,
-		"GetSignBytes":  false,
-		"ValidateBasic": false,
-	}
-}
 
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
@@ -136,12 +118,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
 	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
 
-	msgs, err := DiscoverMessages(pkgpath)
-	if err == ErrModuleNotFound {
-		return Module{}, nil
-	}
+	msgs, err := cosmosanalysis.FindImplementation(pkgpath, messageImplementation)
 	if err != nil {
 		return Module{}, err
+	}
+	if len(msgs) == 0 {
+		// No message means the module has not been found
+		return Module{}, nil
 	}
 
 	namesplit := strings.Split(pkg.Name, ".")
