@@ -205,7 +205,7 @@ func TestCreateSingletonTypeWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "example", "--require-registration"),
+			step.Exec("starport", "s", "module", "example", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
