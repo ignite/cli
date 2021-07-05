@@ -27,6 +27,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
+	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
@@ -94,6 +95,25 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppStoreKey, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacement)
 
+		// Module dependencies
+		var depArgs string
+		for _, dep := range opts.Dependencies {
+			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName)
+
+			// If bank is a dependency, add account permissions to the module
+			if dep.Name == "bank" {
+				template = `%[1]v
+				%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},`
+
+				replacement = fmt.Sprintf(
+					template,
+					module.PlaceholderSgAppMaccPerms,
+					opts.ModuleName,
+				)
+				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+			}
+		}
+
 		// Keeper definition
 		var scopedKeeperDefinition string
 		var ibcKeeperArgument string
@@ -103,15 +123,16 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
 			ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
 		}
-		template = `%[1]v
-		%[3]v
+		template = `%[3]v
 		app.%[5]vKeeper = *%[2]vmodulekeeper.NewKeeper(
 			appCodec,
 			keys[%[2]vmoduletypes.StoreKey],
 			keys[%[2]vmoduletypes.MemStoreKey],
 			%[4]v
-		)
-		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)`
+			%[6]v)
+		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)
+
+		%[1]v`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDefinition,
@@ -119,6 +140,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition,
 			ibcKeeperArgument,
 			strings.Title(opts.ModuleName),
+			depArgs,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
 

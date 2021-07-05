@@ -14,6 +14,7 @@ func NewChain() *cobra.Command {
 
 	c.AddCommand(NewChainServe())
 	c.AddCommand(NewChainBuild())
+	c.AddCommand(NewChainInit())
 	c.AddCommand(NewChainFaucet())
 
 	return c

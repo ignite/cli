@@ -15,9 +15,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	"github.com/tendermint/starport/starport/pkg/cosmosgen"
-	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
@@ -46,7 +43,7 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		}
 	}()
 
-	if err := c.buildProto(ctx); err != nil {
+	if err := c.generateAll(ctx); err != nil {
 		return err
 	}
 
@@ -174,50 +171,4 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
 
 	return buildFlags, nil
-}
-
-func (c *Chain) buildProto(ctx context.Context) error {
-	conf, err := c.Config()
-	if err != nil {
-		return err
-	}
-
-	if err := cosmosgen.InstallDependencies(context.Background(), c.app.Path); err != nil {
-		return err
-	}
-
-	fmt.Fprintln(c.stdLog().out, "🛠️  Building proto...")
-
-	options := []cosmosgen.Option{
-		cosmosgen.WithGoGeneration(c.app.ImportPath),
-		cosmosgen.IncludeDirs(conf.Build.Proto.ThirdPartyPaths),
-	}
-
-	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
-
-	// generate Vuex code as well if it is enabled.
-	if conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
-		options = append(options,
-			cosmosgen.WithVuexGeneration(
-				enableThirdPartyModuleCodegen,
-				func(m module.Module) string {
-					parsedGitURL, _ := giturl.Parse(m.Pkg.GoImportName)
-					return filepath.Join(storeRootPath, parsedGitURL.UserAndRepo(), m.Pkg.Name, "module")
-				},
-				storeRootPath,
-			),
-		)
-	}
-	if conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
-	}
-
-	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
-		return &CannotBuildAppError{err}
-	}
-
-	c.protoBuiltAtLeastOnce = true
-
-	return nil
 }

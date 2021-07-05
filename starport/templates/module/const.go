@@ -1,6 +1,6 @@
 package module
 
 const (
-	PathAppGo    = "app/app.go"
-	PathExportGo = "app/export.go"
+	PathAppModule = "app"
+	PathAppGo     = "app/app.go"
 )

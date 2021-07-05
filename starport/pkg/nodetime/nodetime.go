@@ -11,6 +11,7 @@ import (
 	"sync"
 
 	"github.com/tendermint/starport/starport/pkg/localfs"
+	"github.com/tendermint/starport/starport/pkg/nodetime/data"
 )
 
 // the list of CLIs included.
@@ -49,7 +50,7 @@ var (
 func Binary() []byte {
 	onceBinary.Do(func() {
 		// untar the binary.
-		gzr, err := gzip.NewReader(bytes.NewReader(binaryCompressed))
+		gzr, err := gzip.NewReader(bytes.NewReader(data.Binary()))
 		if err != nil {
 			panic(err)
 		}
