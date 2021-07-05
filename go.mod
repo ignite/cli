@@ -10,7 +10,7 @@ require (
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0
 	github.com/containerd/containerd v1.5.2 // indirect
-	github.com/cosmos/cosmos-sdk v0.42.4
+	github.com/cosmos/cosmos-sdk v0.42.6
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/dariubs/percent v0.0.0-20200128140941-b7801cf1c7e2
 	github.com/docker/docker v20.10.7+incompatible
@@ -34,7 +34,7 @@ require (
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
-	github.com/otiai10/copy v1.4.2
+	github.com/otiai10/copy v1.6.0
 	github.com/pelletier/go-toml v1.8.1
 	github.com/pkg/errors v0.9.1
 	github.com/radovskyb/watcher v1.0.7
@@ -43,9 +43,9 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/spm v0.0.0-20210524110815-6d7452d2dc4a
+	github.com/tendermint/spm v0.0.0-20210705094313-42e72ad05b63
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
-	github.com/tendermint/tendermint v0.34.9
+	github.com/tendermint/tendermint v0.34.11
 	github.com/tendermint/vue v0.1.49
 	go.opencensus.io v0.22.6 // indirect
 	golang.org/x/mod v0.4.2
@@ -57,5 +57,5 @@ require (
 
 replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
- 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
+	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 )
