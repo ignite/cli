@@ -52,7 +52,6 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494 // indirect
-	google.golang.org/grpc v1.37.0 // indirect
 )
 
 replace (
