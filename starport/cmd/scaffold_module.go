@@ -19,15 +19,14 @@ const (
 	flagRequireRegistration = "require-registration"
 )
 
-// NewModuleCreate creates a new module create command to scaffold an
-// sdk module.
-func NewModuleCreate() *cobra.Command {
+// NewScaffoldModule returns the command to scaffold a Cosmos SDK module
+func NewScaffoldModule() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "create [name]",
+		Use:   "module [name]",
 		Short: "Scaffold a Cosmos SDK module",
 		Long:  "Scaffold a new Cosmos SDK module in the `x` directory",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  createModuleHandler,
+		RunE:  scaffoldModuleHandler,
 	}
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
@@ -35,7 +34,7 @@ func NewModuleCreate() *cobra.Command {
 	return c
 }
 
-func createModuleHandler(cmd *cobra.Command, args []string) error {
+func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
