@@ -1,42 +1,24 @@
 package moduleimport
 
 import (
-	"embed"
 	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
-	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
-	"github.com/tendermint/starport/starport/templates/testutil"
-)
-
-var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
-
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
 func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
 	g.RunFn(appModifyStargate(replacer))
-	g.RunFn(rootModifyStargate(replacer, opts))
-	if err := g.Box(stargateTemplate); err != nil {
-		return g, err
-	}
+	g.RunFn(cmdModifyStargate(replacer, opts))
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("title", strings.Title)
 
-	testutil.WASMRegister(replacer, ctx, g)
-
-	g.Transformer(plushgen.Transformer(ctx))
-	g.Transformer(genny.Replace("{{binaryNamePrefix}}", opts.BinaryNamePrefix))
 	return g, nil
 }
 
@@ -50,7 +32,6 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 		}
 
 		templateImport := `%[1]v
-		"strings"
 		"github.com/CosmWasm/wasmd/x/wasm"
 		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgAppModuleImport)
@@ -65,23 +46,7 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 			// https://github.com/CosmWasm/wasmd/blob/02a54d33ff2c064f3539ae12d75d027d9c665f05/x/wasm/internal/types/proposal.go#L28-L34
 			EnableSpecificProposals = ""
 		)
-		
-		// GetEnabledProposals parses the ProposalsEnabled / EnableSpecificProposals values to
-		// produce a list of enabled proposals to pass into wasmd app.
-		func GetEnabledProposals() []wasm.ProposalType {
-			if EnableSpecificProposals == "" {
-				if ProposalsEnabled == "true" {
-					return wasm.EnableAllProposals
-				}
-				return wasm.DisableAllProposals
-			}
-			chunks := strings.Split(EnableSpecificProposals, ",")
-			proposals, err := wasm.ConvertToProposals(chunks)
-			if err != nil {
-				panic(err)
-			}
-			return proposals
-		}`
+		`
 		content = replacer.Replace(content, module.PlaceholderSgWasmAppEnabledProposals, templateEnabledProposals)
 
 		templateGovProposalHandlers := `%[1]v
@@ -112,11 +77,6 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 		`
 		replacementDeclaration = fmt.Sprintf(templateDeclaration, module.PlaceholderSgAppBeforeInitReturn)
 		content = replacer.Replace(content, module.PlaceholderSgAppBeforeInitReturn, replacementDeclaration)
-
-		templateEnabledProposalsArgument := `%[1]v
-		enabledProposals []wasm.ProposalType, wasmOpts []wasm.Option,`
-		replacementEnabledProposalsArgument := fmt.Sprintf(templateEnabledProposalsArgument, module.PlaceholderSgAppNewArgument)
-		content = replacer.Replace(content, module.PlaceholderSgAppNewArgument, replacementEnabledProposalsArgument)
 
 		templateStoreKey := `%[1]v
 		wasm.StoreKey,`
@@ -151,10 +111,10 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 				wasmDir,
 				wasmConfig,
 				supportedFeatures,
-				wasmOpts...,
 		)
 	
 		// The gov proposal types can be individually enabled
+		enabledProposals := cosmoscmd.GetEnabledProposals(ProposalsEnabled, EnableSpecificProposals)
 		if len(enabledProposals) != 0 {
 			govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
 		}`
@@ -181,54 +141,19 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 	}
 }
 
-// app.go modification on Stargate when importing wasm
-func rootModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
+// main.go modification on Stargate when importing wasm
+func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "cmd/" + opts.BinaryNamePrefix + "d/cmd/root.go"
+		path := "cmd/" + opts.BinaryNamePrefix + "d/main.go"
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		templateImport := `%[1]v
-		"github.com/CosmWasm/wasmd/x/wasm"
-		"github.com/prometheus/client_golang/prometheus"
-		wasmkeeper "github.com/CosmWasm/wasmd/x/wasm/keeper"`
-		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgRootImport)
-		content := replacer.Replace(f.String(), module.PlaceholderSgRootImport, replacementImport)
-
-		templateCommand := `%[1]v
-		AddGenesisWasmMsgCmd(app.DefaultNodeHome),`
-		replacementCommand := fmt.Sprintf(templateCommand, module.PlaceholderSgRootCommands)
-		content = replacer.Replace(content, module.PlaceholderSgRootCommands, replacementCommand)
-
-		templateInitFlags := `%[1]v
-		wasm.AddModuleInitFlags(startCmd)`
-		replacementInitFlags := fmt.Sprintf(templateInitFlags, module.PlaceholderSgRootInitFlags)
-		content = replacer.Replace(content, module.PlaceholderSgRootInitFlags, replacementInitFlags)
-
-		template := `%[1]v
-		var wasmOpts []wasm.Option
-		if cast.ToBool(appOpts.Get("telemetry.enabled")) {
-			   wasmOpts = append(wasmOpts, wasmkeeper.WithVMCacheMetrics(prometheus.DefaultRegisterer))
-		}`
-		replacement := fmt.Sprintf(template, module.PlaceholderSgRootAppBeforeInit)
-		content = replacer.Replace(content, module.PlaceholderSgRootAppBeforeInit, replacement)
-
-		template = `%[1]v
-		app.GetEnabledProposals(),
-		wasmOpts,`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgRootAppArgument)
-		content = replacer.Replace(content, module.PlaceholderSgRootAppArgument, replacement)
-
-		template = `%[1]v
-		app.GetEnabledProposals(),
-		nil,`
-		replacement = fmt.Sprintf(template, module.PlaceholderSgRootExportArgument)
-		content = replacer.Replace(content, module.PlaceholderSgRootExportArgument, replacement)
-
-		replacement = fmt.Sprintf(template, module.PlaceholderSgRootNoHeightExportArgument)
-		content = replacer.Replace(content, module.PlaceholderSgRootNoHeightExportArgument, replacement)
+		templateArgs := `cosmoscmd.WithWasm(),
+		%[1]v`
+		replacementArgs := fmt.Sprintf(templateArgs, module.PlaceholderSgRootArgument)
+		content := replacer.Replace(f.String(), module.PlaceholderSgRootArgument, replacementArgs)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
