@@ -76,7 +76,7 @@ func TypeWithoutMessage(fields ...string) AddTypeOption {
 	}
 }
 
-// AddType adds a new type stype to scaffolded app.
+// AddType adds a new type to a scaffold app.
 // if non of the list, map or singleton given, a basic type without anything extra will be scaffold.
 // if no module given, type will be scaffold inside the app's default module.
 func (s *Scaffolder) AddType(
