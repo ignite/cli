@@ -7,6 +7,8 @@ import "gogoproto/gogo.proto";
 
 message <%= TypeName.UpperCamel %> {
   string creator = 1;
-  string index = 2;<%= for (i, field) in Fields { %>
-  <%= field.Datatype %> <%= field.Name.LowerCamel %> = <%= i+3 %>; <% } %>
+  <%= for (i, index) in Indexes { %>
+  <%= index.Datatype %> <%= index.Name.LowerCamel %> = <%= i+2 %>; <% } %><%= for (i, field) in Fields { %>
+  <%= field.Datatype %> <%= field.Name.LowerCamel %> = <%= i+2+len(Indexes) %>; <% } %>
 }
+
