@@ -9,6 +9,7 @@
 - Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
+- Scaffold a type that contains a single instance in the store
 - Introduce `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
 - Added `faucet.rate_limit_window` property to `config.yml`
 

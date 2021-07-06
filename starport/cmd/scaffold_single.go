@@ -5,13 +5,13 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-// NewScaffoldMap returns a new command to scaffold a map.
-func NewScaffoldMap() *cobra.Command {
+// NewScaffoldSingle returns a new command to scaffold a singleton.
+func NewScaffoldSingle() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "map NAME [field]...",
-		Short: "Scaffold a map",
+		Use:   "single NAME [field]...",
+		Short: "Scaffold a singleton",
 		Args:  cobra.MinimumNArgs(1),
-		RunE:  scaffoldMapHandler,
+		RunE:  scaffoldSingleHandler,
 	}
 
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
@@ -20,10 +20,10 @@ func NewScaffoldMap() *cobra.Command {
 	return c
 }
 
-func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
+func scaffoldSingleHandler(cmd *cobra.Command, args []string) error {
 	opts := scaffolder.AddTypeOption{
 		NoMessage: flagGetNoMessage(cmd),
-		Model:     scaffolder.Map,
+		Model:     scaffolder.Singleton,
 	}
 
 	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
