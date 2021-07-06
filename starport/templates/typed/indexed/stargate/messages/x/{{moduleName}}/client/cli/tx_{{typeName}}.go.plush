@@ -15,12 +15,19 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
     cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %> [index]<%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
 		Short: "Create a new <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
+		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            index := args[0]
-		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+1) %>
+            // Get indexes
+        <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
+            if err != nil {
+                return err
+            }
+        <% } %>
+
+            // Get value arguments
+		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+len(Indexes)) %>
 			if err != nil {
 				return err
 			}
@@ -31,7 +38,11 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), index<%= for (i, field) in Fields { %>, args<%= field.Name.UpperCamel %><% } %>)
+			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>args<%= field.Name.UpperCamel %>,
+			    <% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -46,13 +57,19 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %> [index]<%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
 		Short: "Update a <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
+		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            index := args[0]
+            // Get indexes
+        <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
+            if err != nil {
+                return err
+            }
+        <% } %>
 
-		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+1) %>
+            // Get value arguments
+		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+len(Indexes)) %>
 			if err != nil {
 				return err
 			}
@@ -63,7 +80,11 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), index<%= for (i, field) in Fields { %>, args<%= field.Name.UpperCamel %><% } %>)
+			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>args<%= field.Name.UpperCamel %>,
+                <% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
@@ -78,18 +99,25 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName.Kebab %> [index]",
+		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %>",
 		Short: "Delete a <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(len(Indexes)),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            index := args[0]
+            <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
+                if err != nil {
+                    return err
+                }
+            <% } %>
 
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsgDelete<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), index)
+			msg := types.NewMsgDelete<%= TypeName.UpperCamel %>(
+			    clientCtx.GetFromAddress().String(),
+			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
+                <% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
