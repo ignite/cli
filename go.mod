@@ -31,7 +31,6 @@ require (
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.2.1
 	github.com/manifoldco/promptui v0.8.0
-	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.4.2
@@ -57,5 +56,5 @@ require (
 
 replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
- 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
+	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
 )
