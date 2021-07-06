@@ -1,7 +1,6 @@
 package scaffolder
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -13,45 +12,97 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/tendermint/starport/starport/templates/typed/basic"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
 )
 
-type TypeModel string
+// AddTypeOption configures options for AddType.
+type AddTypeOption func(*addTypeOptions)
 
-const (
-	List      TypeModel = "list"
-	Map       TypeModel = "map"
-	Singleton TypeModel = "singleton"
-)
+type addTypeOptions struct {
+	moduleName string
+	fields     []string
 
-type AddTypeOption struct {
-	Model     TypeModel
-	NoMessage bool
+	isList      bool
+	isMap       bool
+	isSingleton bool
+
+	index string
+
+	withoutMessage bool
 }
 
-// AddType adds a new type stype to scaffolded app by using optional type fields.
+// ListType enables adding a list storage.
+func ListType() AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.isList = true
+	}
+}
+
+// MapType enables adding a map storage.
+func MapType(index string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.isMap = true
+		o.index = index
+	}
+}
+
+// SingletonType enables adding a singleton storage.
+func SingletonType() AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.isSingleton = true
+	}
+}
+
+// TypeWithModule specifies module to scaffold type inside.
+func TypeWithModule(name string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.moduleName = name
+	}
+}
+
+// TypeWithFields adds fields to the type to be scaffold.
+func TypeWithFields(fields ...string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.fields = fields
+	}
+}
+
+// TypeWithoutMessage disables CRUD for type.
+func TypeWithoutMessage(fields ...string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.withoutMessage = true
+	}
+}
+
+// AddType adds a new type stype to scaffolded app.
+// if non of the list, map or singleton given, a basic type without anything extra will be scaffold.
+// if no module given, type will be scaffold inside the app's default module.
 func (s *Scaffolder) AddType(
-	tracer *placeholder.Tracer,
-	addTypeOptions AddTypeOption,
-	moduleName,
 	typeName string,
-	fields ...string,
+	tracer *placeholder.Tracer,
+	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return sm, err
 	}
 
-	// If no module is provided, we add the type to the app's module
-	if moduleName == "" {
-		moduleName = path.Package
+	// apply options.
+	o := addTypeOptions{
+		moduleName: path.Package,
 	}
-	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+
+	for _, apply := range options {
+		apply(&o)
+	}
+
+	mfName, err := multiformatname.NewName(o.moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return sm, err
 	}
-	moduleName = mfName.Lowercase
+	moduleName := mfName.Lowercase
 
 	name, err := multiformatname.NewName(typeName)
 	if err != nil {
@@ -62,8 +113,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	// Parse provided field
-	tFields, err := field.ParseFields(fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
 	}
@@ -77,7 +127,7 @@ func (s *Scaffolder) AddType(
 			OwnerName:  owner(path.RawPath),
 			TypeName:   name,
 			Fields:     tFields,
-			NoMessage:  addTypeOptions.NoMessage,
+			NoMessage:  o.withoutMessage,
 		}
 		gens []*genny.Generator
 	)
@@ -101,15 +151,15 @@ func (s *Scaffolder) AddType(
 
 	// create the type generator depending on the model
 	// TODO: rename the template packages to make it consistent with the type new naming
-	switch addTypeOptions.Model {
-	case List:
+	switch {
+	case o.isList:
 		g, err = typed.NewStargate(tracer, opts)
-	case Map:
+	case o.isMap:
 		g, err = indexed.NewStargate(tracer, opts)
-	case Singleton:
+	case o.isSingleton:
 		g, err = singleton.NewStargate(tracer, opts)
 	default:
-		return sm, errors.New("unrecognized type model")
+		g, err = basic.NewStargate(opts)
 	}
 	if err != nil {
 		return sm, err

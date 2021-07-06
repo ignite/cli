@@ -21,10 +21,5 @@ func NewScaffoldMap() *cobra.Command {
 }
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
-	opts := scaffolder.AddTypeOption{
-		NoMessage: flagGetNoMessage(cmd),
-		Model:     scaffolder.Map,
-	}
-
-	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(cmd, args, scaffolder.MapType(""))
 }
