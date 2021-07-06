@@ -31,7 +31,6 @@ require (
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.2.1
 	github.com/manifoldco/promptui v0.8.0
-	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.6.0
