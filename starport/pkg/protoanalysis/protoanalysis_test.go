@@ -8,7 +8,7 @@ import (
 )
 
 func TestLiquidity(t *testing.T) {
-	packages, err := Parse(context.Background(), PatternRecursive("testdata/liquidity"))
+	packages, err := Parse(context.Background(), "testdata/liquidity")
 	require.NoError(t, err)
 
 	expected := []Package{
