@@ -1,5 +1,4 @@
 // +build !relayer
-
 package integration_test
 
 import (
@@ -126,110 +125,6 @@ func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
-	))
-
-	env.EnsureAppIsSteady(path)
-}
-
-func TestCreateMapWithStargate(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog")
-	)
-
-	env.Must(env.Exec("create a map",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "user", "email"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a map with no message",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "nomessage", "email", "--no-message"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example", "--require-registration"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a list",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating a map with a typename that already exist",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("create a map in a custom module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.EnsureAppIsSteady(path)
-}
-
-func TestCreateSingletonTypeWithStargate(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog")
-	)
-
-	env.Must(env.Exec("create an singleton type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "user", "email"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create an singleton type with no message",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "no-message", "email", "--no-message"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "example", "--require-registration"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create another type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("should prevent creating an singleton type with a typename that already exist",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "user", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
-		ExecShouldError(),
-	))
-
-	env.Must(env.Exec("create an singleton type in a custom module",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "single", "singleuser", "email", "--module", "example"),
-			step.Workdir(path),
-		)),
 	))
 
 	env.EnsureAppIsSteady(path)
