@@ -28,6 +28,7 @@ const (
 type AddTypeOption struct {
 	Model     TypeModel
 	NoMessage bool
+	Indexes []string
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.
@@ -105,7 +106,7 @@ func (s *Scaffolder) AddType(
 	case List:
 		g, err = typed.NewStargate(tracer, opts)
 	case Map:
-		g, err = indexed.NewStargate(tracer, opts)
+		g, err = mapGenerator(tracer, opts, addTypeOptions.Indexes)
 	case Singleton:
 		g, err = singleton.NewStargate(tracer, opts)
 	default:
@@ -133,11 +134,33 @@ func checkForbiddenTypeField(name string) error {
 	switch name {
 	case
 		"id",
-		"index",
 		"appendedValue",
 		"creator":
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)
+}
+
+// mapGenerator returns the template generator for a map
+func mapGenerator(tracer *placeholder.Tracer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
+	// Parse indexes with the associated type
+	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeField)
+	if err != nil {
+		return nil, err
+	}
+
+	// Indexes and type fields must be disjoint
+	exists := make(map[string]struct{})
+	for _, field := range opts.Fields {
+		exists[field.Name.LowerCamel] = struct{}{}
+	}
+	for _, index := range parsedIndexes {
+		if _, ok := exists[index.Name.LowerCamel]; ok {
+			return nil, fmt.Errorf("%s cannot be an index and a field at the same time")
+		}
+	}
+
+	opts.Indexes = parsedIndexes
+	return indexed.NewStargate(tracer, opts)
 }
