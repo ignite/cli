@@ -127,12 +127,18 @@ import "%s/%s.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
+		var lowercaseIndexes []string
+		for _, index := range opts.Indexes {
+			lowercaseIndexes = append(lowercaseIndexes, fmt.Sprintf("{%s}", index.Name.Lowercase))
+		}
+		indexPath := strings.Join(lowercaseIndexes, "/")
+
 		// Add the service
 		templateService := `%[1]v
 
 	// Queries a %[3]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{index}";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v}";
 	}
 
 	// Queries a list of %[3]v items.
@@ -146,13 +152,24 @@ import "%s/%s.proto";`
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			indexPath,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
 
 		// Add the service messages
+		var queryIndexFields string
+		for i, index := range opts.Indexes {
+			queryIndexFields += fmt.Sprintf(
+				"  %s %s = %d;\n",
+				index.Datatype,
+				index.Name.LowerCamel,
+				i+1,
+				)
+		}
+
 		templateMessage := `%[1]v
 message QueryGet%[2]vRequest {
-	string index = 1;
+	%[3]v
 }
 
 message QueryGet%[2]vResponse {
@@ -170,6 +187,7 @@ message QueryAll%[2]vResponse {
 		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
+			queryIndexFields,
 		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementMessage)
 
@@ -277,21 +295,30 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
+		// lines of code to call the key function with the indexes of the element
+		var indexArgs []string
+		for _, index := range opts.Indexes {
+			indexArgs = append(indexArgs, "elem." + index.Name.UpperCamel)
+		}
+		keyCall := fmt.Sprintf("%sKey(%s)", opts.TypeName.UpperCamel, strings.Join(indexArgs, ","))
+
 		templateTypesValidate := `%[1]v
 // Check for duplicated index in %[2]v
-%[2]vIndexMap := make(map[string]bool)
+%[2]vIndexMap := make(map[string]struct{})
 
 for _, elem := range gs.%[3]vList {
-	if _, ok := %[2]vIndexMap[elem.Index]; ok {
+	index := %[4]v
+	if _, ok := %[2]vIndexMap[index]; ok {
 		return fmt.Errorf("duplicated index for %[2]v")
 	}
-	%[2]vIndexMap[elem.Index] = true
+	%[2]vIndexMap[index] = struct{}{}
 }`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
 			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			fmt.Sprintf("string(%s)", keyCall),
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
 
@@ -372,32 +399,48 @@ import "%s/%s.proto";`
 		content = replacer.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC)
 
 		// Messages
+		var indexes string
+		for i, index := range opts.Indexes {
+			indexes += fmt.Sprintf(
+				"  %s %s = %d;\n",
+				index.Datatype,
+				index.Name.LowerCamel,
+				i+2,
+			)
+		}
+
 		var fields string
 		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+			fields += fmt.Sprintf(
+				"  %s %s = %d;\n",
+				field.Datatype,
+				field.Name.LowerCamel,
+				i+2+len(opts.Indexes),
+				)
 		}
 
 		templateMessages := `%[1]v
 message MsgCreate%[2]v {
   string creator = 1;
-  string index = 2;
-%[3]v}
+%[3]v
+%[4]v}
 message MsgCreate%[2]vResponse { }
 
 message MsgUpdate%[2]v {
   string creator = 1;
-  string index = 2;
-%[3]v}
+%[3]v
+%[4]v}
 message MsgUpdate%[2]vResponse { }
 
 message MsgDelete%[2]v {
   string creator = 1;
-  string index = 2;
+%[3]v
 }
 message MsgDelete%[2]vResponse { }
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
+			indexes,
 			fields,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
