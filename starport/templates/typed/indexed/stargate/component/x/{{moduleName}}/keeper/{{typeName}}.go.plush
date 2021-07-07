@@ -11,7 +11,7 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.Lowe
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
 	store.Set(types.<%= TypeName.UpperCamel %>Key(
-        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %><%= index.Name.UpperCamel %>,
+        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
     <% } %>), b)
 }
 

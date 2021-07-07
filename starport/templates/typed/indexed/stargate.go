@@ -7,7 +7,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -30,7 +29,6 @@ var (
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(typesKeyModify(opts))
 	g.RunFn(protoRPCModify(replacer, opts))
 	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
 	g.RunFn(clientCliQueryModify(replacer, opts))
@@ -51,64 +49,6 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	}
 
 	return g, typed.Box(stargateIndexedComponentTemplate, opts, g)
-}
-
-func typesKeyModify(opts *typed.Options) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// indexes to pass as argument
-		var indexArgs string
-		for _, index := range opts.Indexes {
-			indexArgs = fmt.Sprintf(
-				"%s%s %s,\n",
-				indexArgs,
-				index.Name.LowerCamel,
-				index.Datatype,
-			)
-		}
-
-		// create the content of the <typeName>Key function
-		// this methods return the store key from the indexes
-		var casts string
-		for _, index := range opts.Indexes {
-			cast, bytesVarName := plushhelpers.CastToBytes(index.Name.LowerCamel, index.DatatypeName)
-			casts = fmt.Sprintf(
-				`%s%s
-	key = append(key, %s...)
-	key = append(key, []byte("/")...)`,
-				casts,
-				cast,
-				bytesVarName,
-			)
-		}
-
-		content := f.String() + fmt.Sprintf(`
-const (
-	%[1]vKeyPrefix = "%[1]v/value/"
-)
-
-// %[1]vKey returns the store key to retrieve a %[1]v from the index fields
-func %[1]vKey(
-	%[2]v
-) []byte {
-	var key []byte
-	%[3]v
-	return key
-}
-`,
-			opts.TypeName.UpperCamel,
-			indexArgs,
-			casts,
-		)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
