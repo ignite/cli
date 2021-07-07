@@ -15,6 +15,9 @@ type CreateOptions struct {
 	// True if the module should implement the IBC module interface
 	IsIBC bool
 
+	// True if the module should implement the Bandchain oracle interface
+	IsOracle bool
+
 	// Channel ordering of the IBC module: ordered, unordered or none
 	IBCOrdering string
 

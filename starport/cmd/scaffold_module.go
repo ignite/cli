@@ -18,6 +18,7 @@ import (
 const (
 	flagDep                 = "dep"
 	flagIBC                 = "ibc"
+	flagOracle              = "oracle"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
 )
@@ -33,6 +34,7 @@ func NewScaffoldModule() *cobra.Command {
 	}
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
+	c.Flags().Bool(flagOracle, false, "scaffold a bandchain oracle module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
 	return c
@@ -63,6 +65,14 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	// Check if the module must be an IBC module
 	if ibcModule {
 		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
+	}
+
+	oracle, err := cmd.Flags().GetBool(flagOracle)
+	if err != nil {
+		return err
+	}
+	if oracle {
+		options = append(options, scaffolder.WithOracleIntegration())
 	}
 
 	// Get module dependencies

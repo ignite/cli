@@ -35,8 +35,11 @@ const (
 
 // moduleCreationOptions holds options for creating a new module
 type moduleCreationOptions struct {
-	// chainID is the chain's id.
+	// ibc if ibc is needed
 	ibc bool
+
+	// oracle if oracle integration is needed
+	oracle bool
 
 	// homePath of the chain's config dir.
 	ibcChannelOrdering string
@@ -66,6 +69,13 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 		default:
 			m.ibcChannelOrdering = "NONE"
 		}
+	}
+}
+
+// WithOracleIntegration configures the Bandchain oracle integration
+func WithOracleIntegration() ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		m.oracle = true
 	}
 }
 
@@ -123,6 +133,7 @@ func (s *Scaffolder) CreateModule(
 		AppName:      path.Package,
 		OwnerName:    owner(path.RawPath),
 		IsIBC:        creationOpts.ibc,
+		IsOracle:     creationOpts.oracle,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
 	}
