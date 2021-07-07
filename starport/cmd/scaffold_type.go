@@ -8,7 +8,7 @@ import (
 func NewScaffoldType() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "type NAME [field]...",
-		Short: "Scaffold a type",
+		Short: "Scaffold only a type definition",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldTypeHandler,
 	}

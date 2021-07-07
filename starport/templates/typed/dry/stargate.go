@@ -1,4 +1,4 @@
-package basic
+package dry
 
 import (
 	"embed"

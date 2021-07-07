@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"github.com/tendermint/starport/starport/templates/typed/basic"
+	"github.com/tendermint/starport/starport/templates/typed/dry"
 	"github.com/tendermint/starport/starport/templates/typed/indexed"
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
 )
@@ -28,57 +28,59 @@ type addTypeOptions struct {
 	isMap       bool
 	isSingleton bool
 
-	index string
+	index []string
 
 	withoutMessage bool
 }
 
-// ListType enables adding a list storage.
+// ListType makes the type stored in a list convention in the storage.
 func ListType() AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.isList = true
 	}
 }
 
-// MapType enables adding a map storage.
-func MapType(index string) AddTypeOption {
+// MapType makes the type stored in a key-value convention in the storage with a custom
+// index option.
+func MapType(index []string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.isMap = true
 		o.index = index
 	}
 }
 
-// SingletonType enables adding a singleton storage.
+// SingletonType makes the type stored in a fixed place as a single entry in the storage.
 func SingletonType() AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.isSingleton = true
 	}
 }
 
-// TypeWithModule specifies module to scaffold type inside.
+// TypeWithModule module to scaffold type inside.
 func TypeWithModule(name string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.moduleName = name
 	}
 }
 
-// TypeWithFields adds fields to the type to be scaffold.
+// TypeWithFields adds fields to the type to be scaffolded.
 func TypeWithFields(fields ...string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.fields = fields
 	}
 }
 
-// TypeWithoutMessage disables CRUD for type.
+// TypeWithoutMessage disables generating sdk compatible messages and tx related APIs.
 func TypeWithoutMessage(fields ...string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.withoutMessage = true
 	}
 }
 
-// AddType adds a new type to a scaffold app.
-// if non of the list, map or singleton given, a basic type without anything extra will be scaffold.
-// if no module given, type will be scaffold inside the app's default module.
+// AddType adds a new type to a scaffolded app.
+// if non of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
+// will be scaffold.
+// if no module is given, the type will be scaffolded inside the app's default module.
 func (s *Scaffolder) AddType(
 	typeName string,
 	tracer *placeholder.Tracer,
@@ -91,7 +93,7 @@ func (s *Scaffolder) AddType(
 
 	// apply options.
 	o := addTypeOptions{
-		moduleName: path.Package,
+		moduleName: path.Package, // app's default module.
 	}
 
 	for _, apply := range options {
@@ -159,7 +161,7 @@ func (s *Scaffolder) AddType(
 	case o.isSingleton:
 		g, err = singleton.NewStargate(tracer, opts)
 	default:
-		g, err = basic.NewStargate(opts)
+		g, err = dry.NewStargate(opts)
 	}
 	if err != nil {
 		return sm, err
