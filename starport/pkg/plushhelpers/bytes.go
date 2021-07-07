@@ -17,9 +17,9 @@ func CastToBytes(varName string, datatypeName string) string {
 		return fmt.Sprintf(`%[1]vBytes := make([]byte, 4)
   		binary.BigEndian.PutUint32(%[1]vBytes, uint32(%[1]v))`, varName)
 	case "bool":
-		return fmt.Sprintf(`%[1]vBytes := []byte("0")
+		return fmt.Sprintf(`%[1]vBytes := []byte{0}
 		if %[1]v {
-			%[1]vBytes = []byte("1")
+			%[1]vBytes = []byte{1}
 		}`, varName)
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))

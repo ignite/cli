@@ -14,7 +14,8 @@ func <%= TypeName.UpperCamel %>Key(
 <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
 <% } %>) []byte {
 	var key []byte
-    <%= for (i, index) in Indexes { %><%= plushhelpers.CastToBytes(index.Name.LowerCamel, index.DatatypeName) %>
+    <%= for (i, index) in Indexes { %>
+    <%= castToBytes(index.Name.LowerCamel, index.DatatypeName) %>
     key = append(key, <%= index.Name.LowerCamel %>Bytes...)
     key = append(key, []byte("/")...)
     <% } %>
