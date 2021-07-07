@@ -10,7 +10,9 @@ import (
 func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
-	store.Set(types.KeyPrefix(<%= TypeName.LowerCamel %>.Index), b)
+	store.Set(types.<%= TypeName.UpperCamel %>Key(
+        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+    <% } %>), b)
 }
 
 // Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its index
@@ -21,7 +23,7 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>(
 ) (val types.<%= TypeName.UpperCamel %>, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 
-	b := store.Get(types.<%= TypeName.UpperCamel %>KeyPrefix(
+	b := store.Get(types.<%= TypeName.UpperCamel %>Key(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>))
     if b == nil {
@@ -39,7 +41,7 @@ func (k Keeper) Remove<%= TypeName.UpperCamel %>(
     <% } %>
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-	store.Delete(types.<%= TypeName.UpperCamel %>KeyPrefix(
+	store.Delete(types.<%= TypeName.UpperCamel %>Key(
 	    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>))
 }
