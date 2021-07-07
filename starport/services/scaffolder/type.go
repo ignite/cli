@@ -143,7 +143,7 @@ func checkForbiddenTypeField(name string) error {
 }
 
 // mapGenerator returns the template generator for a map
-func mapGenerator(tracer *placeholder.Tracer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
+func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
 	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeField)
 	if err != nil {
@@ -157,10 +157,10 @@ func mapGenerator(tracer *placeholder.Tracer, opts *typed.Options, indexes []str
 	}
 	for _, index := range parsedIndexes {
 		if _, ok := exists[index.Name.LowerCamel]; ok {
-			return nil, fmt.Errorf("%s cannot be an index and a field at the same time")
+			return nil, fmt.Errorf("%s cannot simultaneously be an index and a field", index.Name.Original)
 		}
 	}
 
 	opts.Indexes = parsedIndexes
-	return indexed.NewStargate(tracer, opts)
+	return indexed.NewStargate(replacer, opts)
 }

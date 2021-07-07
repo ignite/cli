@@ -3,11 +3,11 @@ package indexed
 import (
 	"embed"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -164,7 +164,7 @@ import "%s/%s.proto";`
 				index.Datatype,
 				index.Name.LowerCamel,
 				i+1,
-				)
+			)
 		}
 
 		templateMessage := `%[1]v
@@ -298,7 +298,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// lines of code to call the key function with the indexes of the element
 		var indexArgs []string
 		for _, index := range opts.Indexes {
-			indexArgs = append(indexArgs, "elem." + index.Name.UpperCamel)
+			indexArgs = append(indexArgs, "elem."+index.Name.UpperCamel)
 		}
 		keyCall := fmt.Sprintf("%sKey(%s)", opts.TypeName.UpperCamel, strings.Join(indexArgs, ","))
 
@@ -416,7 +416,7 @@ import "%s/%s.proto";`
 				field.Datatype,
 				field.Name.LowerCamel,
 				i+2+len(opts.Indexes),
-				)
+			)
 		}
 
 		templateMessages := `%[1]v
