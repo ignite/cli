@@ -42,7 +42,7 @@ func ListType() AddTypeOption {
 
 // MapType makes the type stored in a key-value convention in the storage with a custom
 // index option.
-func MapType(index []string) AddTypeOption {
+func MapType(index ...string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.isMap = true
 		o.index = index
