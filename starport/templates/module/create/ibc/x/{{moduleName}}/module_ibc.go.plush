@@ -135,12 +135,15 @@ func (am AppModule) OnRecvPacket(
 	ctx sdk.Context,
 	modulePacket channeltypes.Packet,
 ) (*sdk.Result, []byte, error) {
+    var ack channeltypes.Acknowledgement
+
+    // this line is used by starport scaffolding # oracle/packet/module/recv
+
     var modulePacketData types.<%= title(moduleName) %>PacketData
     if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
         return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
     }
 
-    var ack channeltypes.Acknowledgement
 
     // Dispatch packet
     switch packet := modulePacketData.Packet.(type) {
@@ -166,6 +169,8 @@ func (am AppModule) OnAcknowledgementPacket(
     if err := types.ModuleCdc.UnmarshalJSON(acknowledgement, &ack); err != nil {
         return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
     }
+
+    // this line is used by starport scaffolding # oracle/packet/module/ack
 
 	var modulePacketData types.<%= title(moduleName) %>PacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {

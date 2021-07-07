@@ -14,8 +14,6 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-var _ = strconv.Itoa(0)
-
 const (
 	flagChannel    = "channel"
 	flagSymbols    = "symbols"
@@ -28,17 +26,9 @@ const (
 
 func CmdRequestOracleData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oracle-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count] (--channel) (--symbols) (--multiplier) (--fee-limit) (--request-key) (--prepare-gas) (--execute-gas)",
+		Use:   "oracle-data",
 		Short: "Make a new data request via an existing oracle script",
 		Args:  cobra.ExactArgs(3),
-		Long: strings.TrimSpace(
-			fmt.Sprintf(`Make a new request via an existing oracle script with the configuration flags.
-Example:
-$ %s tx consuming oracle-data 38 4 3 --channel channel-0 --symbols "BTC,ETH" --multiplier 1000000 --fee-limit 30uband --request-key requestkey --prepare-gas 200000 --execute-gas 200000 --from mykey
-`,
-				version.AppName,
-			),
-		),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.
 			int64OracleScriptID, err := strconv.ParseInt(args[0], 10, 64)

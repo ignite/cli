@@ -1,4 +1,4 @@
-package consuming
+package <%= moduleName %>
 
 import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
