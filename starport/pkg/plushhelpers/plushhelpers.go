@@ -6,4 +6,5 @@ import "github.com/gobuffalo/plush"
 func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("castArgs", CastArgs)
 	ctx.Set("genValidArg", GenerateValidArg)
+	ctx.Set("castToBytes", CastToBytes)
 }

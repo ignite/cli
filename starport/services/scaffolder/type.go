@@ -28,7 +28,7 @@ const (
 type AddTypeOption struct {
 	Model     TypeModel
 	NoMessage bool
-	Indexes []string
+	Indexes   []string
 }
 
 // AddType adds a new type stype to scaffolded app by using optional type fields.

@@ -3,6 +3,7 @@ package indexed
 import (
 	"embed"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -59,11 +60,51 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 		if err != nil {
 			return err
 		}
+
+		// indexes to pass as argument
+		var indexArgs string
+		for _, index := range opts.Indexes {
+			indexArgs = fmt.Sprintf(
+				"%s%s %s,\n",
+				indexArgs,
+				index.Name.LowerCamel,
+				index.Datatype,
+			)
+		}
+
+		// create the content of the <typeName>Key function
+		// this methods return the store key from the indexes
+		var casts string
+		for _, index := range opts.Indexes {
+			cast, bytesVarName := plushhelpers.CastToBytes(index.Name.LowerCamel, index.DatatypeName)
+			casts = fmt.Sprintf(
+				`%s%s
+key = append(key, []byte("/")...)
+key = append(key, []byte(%s)...)`,
+				casts,
+				cast,
+				bytesVarName,
+			)
+		}
+
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[1]vKey= "%[1]v-value-"
+	%[1]vKey= "%[1]v/value/"
 )
-`, opts.TypeName.UpperCamel)
+
+%[1]vKey(
+	%[2]v
+) []byte {
+	var key []byte
+	%[3]v
+	return key
+}
+`,
+			opts.TypeName.UpperCamel,
+			indexArgs,
+			casts,
+		)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

@@ -6,7 +6,7 @@ import (
 )
 
 const (
-	FlagIndexes	= "indexes"
+	FlagIndexes = "indexes"
 )
 
 // NewScaffoldMap returns a new command to scaffold a map.
