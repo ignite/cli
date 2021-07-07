@@ -16,13 +16,13 @@ import (
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(moduleModify(replacer, opts))
-	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(errorsModify(replacer, opts))
-	g.RunFn(genesisTypeModify(replacer, opts))
-	g.RunFn(genesisProtoModify(replacer, opts))
-	g.RunFn(keysModify(replacer, opts))
-	g.RunFn(keeperModify(replacer, opts))
+	g.RunFn(moduleIBCModify(replacer, opts))
+	g.RunFn(genesisIBCModify(replacer, opts))
+	g.RunFn(errorsIBCModify(replacer, opts))
+	g.RunFn(genesisTypeIBCModify(replacer, opts))
+	g.RunFn(genesisProtoIBCModify(replacer, opts))
+	g.RunFn(keysIBCModify(replacer, opts))
+	g.RunFn(keeperIBCModify(replacer, opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -32,9 +32,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
-	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("title", strings.Title)
-	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
@@ -44,7 +42,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	return g, nil
 }
 
-func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func moduleIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -65,7 +63,7 @@ func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 	}
 }
 
-func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -96,7 +94,7 @@ if !k.IsBound(ctx, genState.PortId) {
 	}
 }
 
-func errorsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func errorsIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/errors.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -114,7 +112,7 @@ ErrInvalidVersion = sdkerrors.Register(ModuleName, 1501, "invalid version")`
 	}
 }
 
-func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisTypeIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -142,7 +140,7 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 	}
 }
 
-func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisProtoIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -163,7 +161,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 	}
 }
 
-func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func keysIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -193,7 +191,7 @@ PortID = "%[1]v"`
 	}
 }
 
-func keeperModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func keeperIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/keeper/keeper.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)

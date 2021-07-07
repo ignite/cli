@@ -12,10 +12,6 @@ const (
 	PlaceholderIBCPacketModuleAck        = "// this line is used by starport scaffolding # ibc/packet/module/ack"
 	PlaceholderIBCPacketModuleTimeout    = "// this line is used by starport scaffolding # ibc/packet/module/timeout"
 
-	// Placeholders Oracle packets
-	PlaceholderOraclePacketModuleRecv       = "// this line is used by starport scaffolding # oracle/packet/module/recv"
-	PlaceholderOraclePacketModuleAck        = "// this line is used by starport scaffolding # oracle/packet/module/ack"
-
 	// Placeholders for messages
 	PlaceholderProtoTxRPC       = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage   = "// this line is used by starport scaffolding # proto/tx/message"

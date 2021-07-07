@@ -153,6 +153,15 @@ func (s *Scaffolder) CreateModule(
 		}
 		gens = append(gens, g)
 	}
+
+	// Scaffold Oracle
+	if opts.IsOracle {
+		g, err = modulecreate.NewOracle(tracer, opts)
+		if err != nil {
+			return sm, err
+		}
+		gens = append(gens, g)
+	}
 	sm, err = xgenny.RunWithValidation(tracer, gens...)
 	if err != nil {
 		return sm, err

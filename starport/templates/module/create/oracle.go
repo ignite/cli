@@ -1,6 +1,8 @@
 package modulecreate
 
 import (
+	"fmt"
+	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -14,13 +16,7 @@ import (
 func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(moduleModify(replacer, opts))
-	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(errorsModify(replacer, opts))
-	g.RunFn(genesisTypeModify(replacer, opts))
-	g.RunFn(genesisProtoModify(replacer, opts))
-	g.RunFn(keysModify(replacer, opts))
-	g.RunFn(keeperModify(replacer, opts))
+	g.RunFn(moduleOracleModify(replacer, opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -30,7 +26,6 @@ func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gener
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
-	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("title", strings.Title)
 	ctx.Set("dependencies", opts.Dependencies)
 
@@ -40,4 +35,43 @@ func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gener
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
+}
+
+func moduleOracleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+
+		// Recv packet dispatch
+		templateRecv := `	
+	ack, oracleResult, err := am.handleOraclePacket(ctx, modulePacket)
+	if err != nil {
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
+	} else if oracleResult.Size() > 0 {
+		ctx.Logger().Debug("Receive oracle packet", "result", oracleResult)
+		return &sdk.Result{
+			Events: ctx.EventManager().Events().ToABCIEvents(),
+		}, ack.GetBytes(), nil
+	}`
+		content := replacer.Replace(f.String(), module.PlaceholderOraclePacketModuleRecv, templateRecv)
+
+		// Ack packet dispatch
+		templateAck := `
+	var requestID types.RequestID
+	ctx, requestID = am.handleOracleAcknowledgement(ctx, ack)
+	if requestID > 0 {
+		ctx.Logger().Debug("Receive oracle ack", "request_id", requestID)
+		return &sdk.Result{
+			Events: ctx.EventManager().Events().ToABCIEvents(),
+		}, nil
+	}`
+		content = replacer.Replace(content, module.PlaceholderOraclePacketModuleAck, templateAck)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
 }
