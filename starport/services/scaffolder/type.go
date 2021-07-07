@@ -56,7 +56,7 @@ func SingletonType() AddTypeOption {
 	}
 }
 
-// TypeWithModule module to scaffold type inside.
+// TypeWithModule module to scaffold type into.
 func TypeWithModule(name string) AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.moduleName = name
