@@ -3,8 +3,6 @@ package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
 
 option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
 
-import "gogoproto/gogo.proto";
-
 message <%= TypeName.UpperCamel %> {
   string creator = 1;
   <%= for (i, index) in Indexes { %>

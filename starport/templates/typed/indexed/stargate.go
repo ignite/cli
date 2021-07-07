@@ -79,8 +79,8 @@ func typesKeyModify(opts *typed.Options) genny.RunFn {
 			cast, bytesVarName := plushhelpers.CastToBytes(index.Name.LowerCamel, index.DatatypeName)
 			casts = fmt.Sprintf(
 				`%s%s
-key = append(key, []byte("/")...)
-key = append(key, []byte(%s)...)`,
+	key = append(key, %s...)
+	key = append(key, []byte("/")...)`,
 				casts,
 				cast,
 				bytesVarName,
@@ -89,10 +89,11 @@ key = append(key, []byte(%s)...)`,
 
 		content := f.String() + fmt.Sprintf(`
 const (
-	%[1]vKey= "%[1]v/value/"
+	%[1]vKeyPrefix = "%[1]v/value/"
 )
 
-%[1]vKey(
+// %[1]vKey returns the store key to retrieve a %[1]v from the index fields
+func %[1]vKey(
 	%[2]v
 ) []byte {
 	var key []byte
@@ -138,7 +139,7 @@ import "%s/%s.proto";`
 
 	// Queries a %[3]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v}";
+		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v";
 	}
 
 	// Queries a list of %[3]v items.
@@ -169,11 +170,11 @@ import "%s/%s.proto";`
 
 		templateMessage := `%[1]v
 message QueryGet%[2]vRequest {
-	%[3]v
+	%[4]v
 }
 
 message QueryGet%[2]vResponse {
-	%[2]v %[2]v = 1;
+	%[2]v %[3]v = 1;
 }
 
 message QueryAll%[2]vRequest {
@@ -181,10 +182,11 @@ message QueryAll%[2]vRequest {
 }
 
 message QueryAll%[2]vResponse {
-	repeated %[2]v %[2]v = 1;
+	repeated %[2]v %[3]v = 1;
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
-		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
+		replacementMessage := fmt.Sprintf(templateMessage,
+			typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
 			queryIndexFields,

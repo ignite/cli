@@ -1,7 +1,6 @@
 package keeper
 
 import (
-    "fmt"
 	"context"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"

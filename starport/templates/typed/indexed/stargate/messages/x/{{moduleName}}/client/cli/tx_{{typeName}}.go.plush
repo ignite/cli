@@ -2,10 +2,7 @@ package cli
 
 import (
     "github.com/spf13/cobra"
-
-<%= if (len(Fields) > 0) { %> 
 	"github.com/spf13/cast"
-<% } %>
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -101,7 +98,7 @@ func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %>",
 		Short: "Delete a <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(len(Indexes)),
+		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
                 if err != nil {
