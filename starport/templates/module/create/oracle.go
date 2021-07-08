@@ -25,7 +25,7 @@ func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gener
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
 
-	if err := g.Box(ibcTemplate); err != nil {
+	if err := g.Box(oracleTemplate); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
