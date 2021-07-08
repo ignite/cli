@@ -31,10 +31,10 @@ var (
 	stargateMapMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 
 	// stargateMapTestsComponentTemplate allows to scaffold tests for map component in a Stargate module
-	stargateMapTestsComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/tests/component/")
+	stargateMapTestsComponentTemplate = xgenny.NewEmbedWalker(fsStargateTestsComponent, "stargate/tests/component/")
 
 	// stargateMapTestsMessagesTemplate allows to scaffold tests for map CRUD messages in a Stargate module
-	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/tests/messages/")
+	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateTestsMessages, "stargate/tests/messages/")
 
 )
 
