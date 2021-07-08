@@ -1,10 +1,11 @@
 package <%= moduleName %>
 
 import (
+    "github.com/bandprotocol/bandchain-packet/obi"
+	"github.com/bandprotocol/bandchain-packet/packet"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	"<%= modulePath %>/obi"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
@@ -12,10 +13,10 @@ func (am AppModule) handleOracleAcknowledgement(ctx sdk.Context, ack channeltype
 	var requestID types.RequestID
 	switch resp := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Result:
-		var oracleAck types.OracleRequestPacketAcknowledgement
+		var oracleAck packet.OracleRequestPacketAcknowledgement
 		err := types.ModuleCdc.UnmarshalJSON(resp.Result, &oracleAck)
 		if err == nil {
-			requestID = oracleAck.RequestID
+			requestID = types.RequestID(oracleAck.RequestID)
 			am.keeper.SetLastOracleID(ctx, requestID)
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
@@ -31,7 +32,7 @@ func (am AppModule) handleOracleAcknowledgement(ctx sdk.Context, ack channeltype
 func (am AppModule) handleOraclePacket(ctx sdk.Context, modulePacket channeltypes.Packet) (channeltypes.Acknowledgement, types.OracleResult, error) {
 	var ack channeltypes.Acknowledgement
 	var result types.OracleResult
-	var modulePacketData types.OracleResponsePacketData
+	var modulePacketData packet.OracleResponsePacketData
 	if err := types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &modulePacketData); err != nil {
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
 		return ack, result, nil
@@ -43,9 +44,9 @@ func (am AppModule) handleOraclePacket(ctx sdk.Context, modulePacket channeltype
 	}
 	ack = channeltypes.NewResultAcknowledgement(
 		types.ModuleCdc.MustMarshalJSON(
-			types.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
+			packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
 		),
 	)
-	am.keeper.SetResult(ctx, modulePacketData.RequestID, result)
+	am.keeper.SetResult(ctx, types.RequestID(modulePacketData.RequestID), result)
 	return ack, result, nil
 }

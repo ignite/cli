@@ -2,7 +2,6 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -10,6 +9,7 @@ import (
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 // NewOracle returns the generator to scaffold the implementation of the Oracle interface inside a module

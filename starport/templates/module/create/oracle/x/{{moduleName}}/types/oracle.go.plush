@@ -3,8 +3,6 @@ package types
 import (
 	"encoding/binary"
 
-	"github.com/cosmos/cosmos-sdk/codec"
-	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -26,35 +24,6 @@ type (
 	// RequestID is the type-safe unique identifier type for data requests.
 	RequestID int64
 )
-
-// NewOracleRequestPacketData contructs a new OracleRequestPacketData instance
-func NewOracleRequestPacketData(
-	clientID string, oracleScriptID int64, calldata []byte, askCount uint64, minCount uint64, feeLimit sdk.Coins, requestKey string, prepareGas uint64, executeGas uint64,
-) OracleRequestPacketData {
-	return OracleRequestPacketData{
-		ClientID:       clientID,
-		OracleScriptID: OracleScriptID(oracleScriptID),
-		Calldata:       calldata,
-		AskCount:       askCount,
-		MinCount:       minCount,
-		FeeLimit:       feeLimit,
-		RequestKey:     requestKey,
-		PrepareGas:     prepareGas,
-		ExecuteGas:     executeGas,
-	}
-}
-
-// GetBytes is a helper for serialising
-func (m OracleRequestPacketData) GetBytes() []byte {
-	cdc := codec.NewProtoCodec(codectypes.NewInterfaceRegistry())
-	return sdk.MustSortJSON(cdc.MustMarshalJSON(&m))
-}
-
-func NewOracleRequestPacketAcknowledgement(requestID RequestID) *OracleRequestPacketAcknowledgement {
-	return &OracleRequestPacketAcknowledgement{
-		RequestID: requestID,
-	}
-}
 
 func NewMsgOracleData(
 	creator string,

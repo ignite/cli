@@ -1,118 +1,13 @@
 syntax = "proto3";
 package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
 
-import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
-
 option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
 
-// ResolveStatus encodes the status of an oracle request.
-enum ResolveStatus {
-  option (gogoproto.goproto_enum_prefix) = false;
-
-  // Open - the request is not yet resolved.
-  RESOLVE_STATUS_OPEN_UNSPECIFIED = 0
-  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_OPEN"];
-  // Success - the request has been resolved successfully with no errors.
-  RESOLVE_STATUS_SUCCESS = 1
-  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_SUCCESS"];
-  // Failure - an error occured during the request's resolve call.
-  RESOLVE_STATUS_FAILURE = 2
-  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_FAILURE"];
-  // Expired - the request does not get enough reports from validator within the
-  // timeframe.
-  RESOLVE_STATUS_EXPIRED = 3
-  [(gogoproto.enumvalue_customname) = "RESOLVE_STATUS_EXPIRED"];
-}
-
-// CallData Oracle request data
 message CallData {
   repeated string symbols = 1;
   uint64 multiplier = 2;
 }
 
-// OracleResult Bandchain oracle result messages
 message OracleResult {
   repeated uint64 rates = 1;
-}
-
-// OracleRequestPacketData encodes an oracle request sent from
-// other blockchains to BandChain.
-message OracleRequestPacketData {
-  option (gogoproto.equal) = true;
-  // ClientID is the unique identifier of this oracle request, as specified by
-  // the client. This same unique ID will be sent back to the requester with the
-  // oracle response.
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
-  // OracleScriptID is the unique identifier of the oracle script to be
-  // executed.
-  int64 oracle_script_id = 2 [
-    (gogoproto.customname) = "OracleScriptID",
-    (gogoproto.casttype) = "OracleScriptID"
-  ];
-  // CallData is the OBI-encoded calldata bytes available for oracle executor to
-  // read.
-  bytes calldata = 3;
-  // AskCount is the number of validators that are requested to respond to this
-  // oracle request. Higher value means more security, at a higher gas cost.
-  uint64 ask_count = 4;
-  // MinCount is the minimum number of validators necessary for the request to
-  // proceed to the execution phase. Higher value means more security, at the
-  // cost of liveness.
-  uint64 min_count = 5;
-  // FeeLimit is the maximum tokens that will be paid to all data source
-  // providers.
-  repeated cosmos.base.v1beta1.Coin fee_limit = 6 [
-    (gogoproto.nullable) = false,
-    (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
-  ];
-  // RequestKey is the key from request chain to match data source fee payer on
-  // Bandchain
-  string request_key = 7;
-  // PrepareGas is amount of gas to pay to prepare raw requests
-  uint64 prepare_gas = 8;
-  // ExecuteGas is amount of gas to reserve for executing
-  uint64 execute_gas = 9;
-}
-
-
-// OracleResponsePacketData encodes an oracle response from BandChain to the
-// requester.
-message OracleResponsePacketData {
-  option (gogoproto.equal) = true;
-  // ClientID is the unique identifier matched with that of the oracle request
-  // packet.
-  string client_id = 1 [(gogoproto.customname) = "ClientID"];
-  // RequestID is BandChain's unique identifier for this oracle request.
-  int64 request_id = 2 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
-  // AnsCount is the number of validators among to the asked validators that
-  // actually responded to this oracle request prior to this oracle request
-  // being resolved.
-  uint64 ans_count = 3;
-  // RequestTime is the UNIX epoch time at which the request was sent to
-  // BandChain.
-  int64 request_time = 4;
-  // ResolveTime is the UNIX epoch time at which the request was resolved to the
-  // final result.
-  int64 resolve_time = 5;
-  // ResolveStatus is the status of this oracle request, which can be OK,
-  // FAILURE, or EXPIRED.
-  ResolveStatus resolve_status = 6;
-  // Result is the final aggregated value encoded in OBI format. Only available
-  // if status if OK.
-  bytes result = 7;
-}
-
-// OracleRequestPacketAcknowledgement encodes an oracle request
-// acknowledgement send back to requester chain.
-message OracleRequestPacketAcknowledgement {
-  option (gogoproto.equal) = true;
-  // RequestID is BandChain's unique identifier for this oracle request.
-  int64 request_id = 1 [
-    (gogoproto.customname) = "RequestID",
-    (gogoproto.casttype) = "RequestID"
-  ];
 }
