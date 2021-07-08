@@ -59,14 +59,14 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map with custom indexes",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "map_with_index", "email", "--indexes", "foo:string,bar:int,foobar:uin,barfoo:bool"),
+			step.Exec("starport", "s", "map", "map_with_index", "email", "--index", "foo:string,bar:int,foobar:uint,barfoo:bool"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with duplicated indexes",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "map_with_duplicated_index", "email", "--indexes", "foo,foo"),
+			step.Exec("starport", "s", "map", "map_with_duplicated_index", "email", "--index", "foo,foo"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -74,7 +74,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "map_with_invalid_index", "email", "--indexes", "email"),
+			step.Exec("starport", "s", "map", "map_with_invalid_index", "email", "--index", "email"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
