@@ -35,7 +35,6 @@ var (
 
 	// stargateMapTestsMessagesTemplate allows to scaffold tests for map CRUD messages in a Stargate module
 	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateTestsMessages, "stargate/tests/messages/")
-
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
