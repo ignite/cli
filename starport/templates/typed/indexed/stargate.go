@@ -18,15 +18,32 @@ var (
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
 
-	// stargateIndexedComponentTemplate allows to scaffold a new indexed type component in a Stargate module
-	stargateIndexedComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+	//go:embed stargate/tests/component/* stargate/tests/component/**/*
+	fsStargateTestsComponent embed.FS
 
-	// stargateIndexedMessagesTemplate allows to scaffold indexed type CRUD messages in a Stargate module
-	stargateIndexedMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
+	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
+	fsStargateTestsMessages embed.FS
+
+	// stargateMapComponentTemplate allows to scaffold a new map component in a Stargate module
+	stargateMapComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+
+	// stargateMapMessagesTemplate allows to scaffold map CRUD messages in a Stargate module
+	stargateMapMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
+
+	// stargateMapTestsComponentTemplate allows to scaffold tests for map component in a Stargate module
+	stargateMapTestsComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/tests/component/")
+
+	// stargateMapTestsMessagesTemplate allows to scaffold tests for map CRUD messages in a Stargate module
+	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/tests/messages/")
+
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
+	// Tests are currently not generated for map with a custom index
+	// TODO: handle test generation for map with custom index
+	generateTest := len(opts.Indexes) == 1 && opts.Indexes[0].Name.UpperCamel == "Index"
+
 	g := genny.New()
 
 	g.RunFn(protoRPCModify(replacer, opts))
@@ -43,12 +60,22 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
-		if err := typed.Box(stargateIndexedMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(stargateMapMessagesTemplate, opts, g); err != nil {
 			return nil, err
+		}
+		if generateTest {
+			if err := typed.Box(stargateMapTestsMessagesTemplate, opts, g); err != nil {
+				return nil, err
+			}
 		}
 	}
 
-	return g, typed.Box(stargateIndexedComponentTemplate, opts, g)
+	if generateTest {
+		if err := typed.Box(stargateMapTestsComponentTemplate, opts, g); err != nil {
+			return nil, err
+		}
+	}
+	return g, typed.Box(stargateMapComponentTemplate, opts, g)
 }
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
