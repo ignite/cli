@@ -14,6 +14,8 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
+// <%= oracleName.UpperCamel %>Data creates the <%= oracleName.UpperCamel %> packet
+// data with obi encoded and send it to the channel
 func (k msgServer) <%= oracleName.UpperCamel %>Data(goCtx context.Context, msg *types.Msg<%= oracleName.UpperCamel %>Data) (*types.Msg<%= oracleName.UpperCamel %>DataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 

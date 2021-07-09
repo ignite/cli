@@ -25,6 +25,7 @@ type (
 	RequestID int64
 )
 
+// NewMsg<%= oracleName.UpperCamel %>Data creates a new <%= oracleName.UpperCamel %> message
 func NewMsg<%= oracleName.UpperCamel %>Data(
 	creator string,
 	oracleScriptID OracleScriptID,
@@ -51,14 +52,17 @@ func NewMsg<%= oracleName.UpperCamel %>Data(
 	}
 }
 
+// Route returns the message route
 func (m *Msg<%= oracleName.UpperCamel %>Data) Route() string {
 	return RouterKey
 }
 
+// Type returns the message type
 func (m *Msg<%= oracleName.UpperCamel %>Data) Type() string {
 	return "<%= oracleName.UpperCamel %>Data"
 }
 
+// GetSigners returns the message signers
 func (m *Msg<%= oracleName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
@@ -67,11 +71,13 @@ func (m *Msg<%= oracleName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
+// GetSignBytes returns the signed bytes from the message
 func (m *Msg<%= oracleName.UpperCamel %>Data) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
+// ValidateBasic check the basic message validation
 func (m *Msg<%= oracleName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
@@ -85,6 +91,7 @@ func ResultStoreKey(requestID RequestID) []byte {
 	return append(<%= oracleName.UpperCamel %>ResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
 }
 
+// int64ToBytes convert int64 to a byte slice
 func int64ToBytes(num int64) []byte {
 	result := make([]byte, 8)
 	binary.BigEndian.PutUint64(result, uint64(num))

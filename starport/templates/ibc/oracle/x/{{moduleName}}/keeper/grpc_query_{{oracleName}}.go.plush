@@ -7,6 +7,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
+// <%= oracleName.UpperCamel %>Result returns the <%= oracleName.UpperCamel %> result by RequestId
 func (k Keeper) <%= oracleName.UpperCamel %>Result(c context.Context, req *types.Query<%= oracleName.UpperCamel %>Request) (*types.Query<%= oracleName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	result, err := k.Get<%= oracleName.UpperCamel %>Result(ctx, types.RequestID(req.RequestId))
@@ -16,6 +17,7 @@ func (k Keeper) <%= oracleName.UpperCamel %>Result(c context.Context, req *types
 	return &types.Query<%= oracleName.UpperCamel %>Response{Result: &result}, nil
 }
 
+// Last<%= oracleName.UpperCamel %>Id returns the last <%= oracleName.UpperCamel %> request Id
 func (k Keeper) Last<%= oracleName.UpperCamel %>Id(c context.Context, req *types.QueryLast<%= oracleName.UpperCamel %>IdRequest) (*types.QueryLast<%= oracleName.UpperCamel %>IdResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
 	id := k.GetLast<%= oracleName.UpperCamel %>ID(ctx)
