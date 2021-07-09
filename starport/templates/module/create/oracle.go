@@ -34,7 +34,6 @@ func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gener
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
-	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
@@ -46,7 +45,7 @@ func NewOracle(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Gener
 
 func moduleOracleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
+		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -110,9 +109,9 @@ func protoQueryOracleModify(replacer placeholder.Replacer, opts *CreateOptions) 
 		}
 
 		// Import the type
-		templateImport := `%s
-import "consuming/oracle.proto";`
-		replacementImport := fmt.Sprintf(templateImport, module.Placeholder)
+		templateImport := `%[1]v
+import "%[2]v/oracle.proto";`
+		replacementImport := fmt.Sprintf(templateImport, module.Placeholder, opts.ModuleName)
 		content := replacer.Replace(f.String(), module.Placeholder, replacementImport)
 
 		// Add the service
@@ -120,14 +119,11 @@ import "consuming/oracle.proto";`
 
   	// Request defines a rpc handler method for MsgOracleData.
   	rpc OracleResult(QueryOracleRequest) returns (QueryOracleResponse) {
-    	option (google.api.http).get = "/tendermint/consuming/result/{request_id}";
 		option (google.api.http).get = "/%[2]v/%[3]v/result/{request_id}";
-
   	}
 
   	// LastOracleId
   	rpc LastOracleId(QueryLastOracleIdRequest) returns (QueryLastOracleIdResponse) {
-    	option (google.api.http).get = "/tendermint/consuming/last_request_id";
 		option (google.api.http).get = "/%[2]v/%[3]v/last_request_id";
   	}
 `
@@ -169,8 +165,8 @@ func protoTxOracleModify(replacer placeholder.Replacer, opts *CreateOptions) gen
 		templateImport := `%[1]v
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "consuming/oracle.proto";`
-		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderProtoTxImport)
+import "%[2]v/oracle.proto";`
+		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderProtoTxImport, opts.ModuleName)
 		content := replacer.Replace(f.String(), module.PlaceholderProtoTxImport, replacementImport)
 
 		// RPC
@@ -218,13 +214,17 @@ func handlerTxOracleModify(replacer placeholder.Replacer, opts *CreateOptions) g
 			return err
 		}
 
+		// Set once the MsgServer definition if it is not defined yet
+		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
+		content := replacer.ReplaceOnce(f.String(), module.PlaceholderHandlerMsgServer, replacementMsgServer)
+
 		templateHandlers := `%[1]v
 		case *types.MsgOracleData:
 					res, err := msgServer.OracleData(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers, module.Placeholder)
-		content := replacer.Replace(f.String(), module.Placeholder, replacementHandlers)
+		content = replacer.Replace(content, module.Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -280,9 +280,9 @@ func codecOracleModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 		// Register the module packet
 		templateRegistry := `%[1]v
-cdc.RegisterConcrete(&MsgOracleData{}, "consuming/OracleData", nil)
+cdc.RegisterConcrete(&MsgOracleData{}, "%[2]v/OracleData", nil)
 `
-		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2)
+		replacementRegistry := fmt.Sprintf(templateRegistry, module.Placeholder2, opts.ModuleName)
 		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface

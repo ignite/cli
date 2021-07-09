@@ -147,7 +147,7 @@ func (s *Scaffolder) CreateModule(
 
 	// Scaffold IBC module
 	if opts.IsIBC {
-		g, err = modulecreate.NewIBC(tracer, opts)
+		g, err := modulecreate.NewIBC(tracer, opts)
 		if err != nil {
 			return sm, err
 		}
@@ -156,7 +156,7 @@ func (s *Scaffolder) CreateModule(
 
 	// Scaffold Oracle
 	if opts.IsOracle {
-		g, err = modulecreate.NewOracle(tracer, opts)
+		g, err := modulecreate.NewOracle(tracer, opts)
 		if err != nil {
 			return sm, err
 		}

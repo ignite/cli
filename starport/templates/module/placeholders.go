@@ -71,7 +71,8 @@ const (
 	PlaceholderIBCPacketEvent         = "// this line is used by starport scaffolding # ibc/packet/event"
 	PlaceholderProtoTxRPC             = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage         = "// this line is used by starport scaffolding # proto/tx/message"
-	PlaceholderProtoTxImport  = "// this line is used by starport scaffolding # proto/tx/import"
+	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
+	PlaceholderHandlerMsgServer       = "// this line is used by starport scaffolding # handler/msgServer"
 	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
 	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"
 )

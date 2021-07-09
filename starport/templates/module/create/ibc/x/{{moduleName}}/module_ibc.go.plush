@@ -170,7 +170,7 @@ func (am AppModule) OnAcknowledgementPacket(
         return nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet acknowledgement: %v", err)
     }
 
-    // this line is used by starport scaffolding # oracle/packet/module/ack
+	// this line is used by starport scaffolding # oracle/packet/module/ack
 
 	var modulePacketData types.<%= title(moduleName) %>PacketData
 	if err := modulePacketData.Unmarshal(modulePacket.GetData()); err != nil {
