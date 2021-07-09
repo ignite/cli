@@ -84,9 +84,26 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create an oracle module",
+	env.EnsureAppIsSteady(path)
+}
+
+func TestCreateIBCOracle(t *testing.T) {
+
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("ibcoracle")
+	)
+
+	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "foobaz", "--ibc", "--oracle"),
+			step.Exec("starport", "s", "module", "bandchain", "--ibc", "--require-registration"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a Bandchain oracle integration",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "oracle", "--module", "bandchain"),
 			step.Workdir(path),
 		)),
 	))
