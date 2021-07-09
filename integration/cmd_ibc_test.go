@@ -84,6 +84,13 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create an oracle module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "foobaz", "--ibc", "--oracle"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.EnsureAppIsSteady(path)
 }
 
