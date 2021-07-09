@@ -8,13 +8,13 @@ import (
 )
 
 var (
-	_ sdk.Msg = &MsgOracleData{}
+	_ sdk.Msg = &Msg<%= oracleName.UpperCamel %>Data{}
 
-	// OracleResultStoreKeyPrefix is a prefix for storing result
-	OracleResultStoreKeyPrefix = []byte{0xff}
+	// <%= oracleName.UpperCamel %>ResultStoreKeyPrefix is a prefix for storing result
+	<%= oracleName.UpperCamel %>ResultStoreKeyPrefix = []byte{0xff}
 
-	// LastOracleIDKey is the key for the last request id
-	LastOracleIDKey = []byte{0x01}
+	// Last<%= oracleName.UpperCamel %>IDKey is the key for the last request id
+	Last<%= oracleName.UpperCamel %>IDKey = []byte{0x01}
 )
 
 type (
@@ -25,7 +25,7 @@ type (
 	RequestID int64
 )
 
-func NewMsgOracleData(
+func NewMsg<%= oracleName.UpperCamel %>Data(
 	creator string,
 	oracleScriptID OracleScriptID,
 	sourceChannel string,
@@ -36,8 +36,8 @@ func NewMsgOracleData(
 	requestKey string,
 	prepareGas uint64,
 	executeGas uint64,
-) *MsgOracleData {
-	return &MsgOracleData{
+) *Msg<%= oracleName.UpperCamel %>Data {
+	return &Msg<%= oracleName.UpperCamel %>Data{
 		Creator:        creator,
 		OracleScriptID: int64(oracleScriptID),
 		SourceChannel:  sourceChannel,
@@ -51,15 +51,15 @@ func NewMsgOracleData(
 	}
 }
 
-func (m *MsgOracleData) Route() string {
+func (m *Msg<%= oracleName.UpperCamel %>Data) Route() string {
 	return RouterKey
 }
 
-func (m *MsgOracleData) Type() string {
-	return "OracleData"
+func (m *Msg<%= oracleName.UpperCamel %>Data) Type() string {
+	return "<%= oracleName.UpperCamel %>Data"
 }
 
-func (m *MsgOracleData) GetSigners() []sdk.AccAddress {
+func (m *Msg<%= oracleName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
 	creator, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
 		panic(err)
@@ -67,12 +67,12 @@ func (m *MsgOracleData) GetSigners() []sdk.AccAddress {
 	return []sdk.AccAddress{creator}
 }
 
-func (m *MsgOracleData) GetSignBytes() []byte {
+func (m *Msg<%= oracleName.UpperCamel %>Data) GetSignBytes() []byte {
 	bz := ModuleCdc.MustMarshalJSON(m)
 	return sdk.MustSortJSON(bz)
 }
 
-func (m *MsgOracleData) ValidateBasic() error {
+func (m *Msg<%= oracleName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.Creator)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
@@ -82,7 +82,7 @@ func (m *MsgOracleData) ValidateBasic() error {
 
 // ResultStoreKey is a function to generate key for each result in store
 func ResultStoreKey(requestID RequestID) []byte {
-	return append(OracleResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
+	return append(<%= oracleName.UpperCamel %>ResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
 }
 
 func int64ToBytes(num int64) []byte {

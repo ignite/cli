@@ -17,10 +17,10 @@ func (am AppModule) handleOracleAcknowledgement(ctx sdk.Context, ack channeltype
 		err := types.ModuleCdc.UnmarshalJSON(resp.Result, &oracleAck)
 		if err == nil {
 			requestID = types.RequestID(oracleAck.RequestID)
-			am.keeper.SetLastOracleID(ctx, requestID)
+			am.keeper.SetLast<%= oracleName.UpperCamel %>ID(ctx, requestID)
 			ctx.EventManager().EmitEvent(
 				sdk.NewEvent(
-					types.EventTypeOraclePacket,
+					types.EventType<%= oracleName.UpperCamel %>Packet,
 					sdk.NewAttribute(types.AttributeKeyAckSuccess, string(resp.Result)),
 				),
 			)
@@ -29,7 +29,7 @@ func (am AppModule) handleOracleAcknowledgement(ctx sdk.Context, ack channeltype
 	return ctx, requestID
 }
 
-func (am AppModule) handleOraclePacket(ctx sdk.Context, modulePacket channeltypes.Packet) (channeltypes.Acknowledgement, types.OracleResult, error) {
+func (am AppModule) handleOraclePacket(ctx sdk.Context, modulePacket channeltypes.Packet) (channeltypes.Acknowledgement, types.<%= oracleName.UpperCamel %>Result, error) {
 	var ack channeltypes.Acknowledgement
 	var result types.<%= oracleName.UpperCamel %>Result
 	var modulePacketData packet.OracleResponsePacketData
@@ -47,6 +47,6 @@ func (am AppModule) handleOraclePacket(ctx sdk.Context, modulePacket channeltype
 			packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
 		),
 	)
-	am.keeper.SetResult(ctx, types.RequestID(modulePacketData.RequestID), result)
+	am.keeper.Set<%= oracleName.UpperCamel %>Result(ctx, types.RequestID(modulePacketData.RequestID), result)
 	return ack, result, nil
 }

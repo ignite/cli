@@ -7,15 +7,15 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func (k Keeper) SetResult(ctx sdk.Context, requestID types.RequestID, result types.OracleResult) {
+func (k Keeper) Set<%= oracleName.UpperCamel %>Result(ctx sdk.Context, requestID types.RequestID, result types.<%= oracleName.UpperCamel %>Result) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.ResultStoreKey(requestID), k.cdc.MustMarshalBinaryBare(&result))
 }
 
-func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.OracleResult, error) {
+func (k Keeper) Get<%= oracleName.UpperCamel %>Result(ctx sdk.Context, id types.RequestID) (types.<%= oracleName.UpperCamel %>Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
-		return types.OracleResult{}, sdkerrors.Wrapf(types.ErrSample,
+		return types.<%= oracleName.UpperCamel %>Result{}, sdkerrors.Wrapf(types.ErrSample,
 			"GetResult: Result for request ID %d is not available.", id,
 		)
 	}
@@ -24,14 +24,14 @@ func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.OracleResu
 	return result, nil
 }
 
-func (k Keeper) GetLastOracleID(ctx sdk.Context) int64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.LastOracleIDKey)
+func (k Keeper) GetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context) int64 {
+	bz := ctx.KVStore(k.storeKey).Get(types.Last<%= oracleName.UpperCamel %>IDKey)
 	intV := gogotypes.Int64Value{}
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
 	return intV.GetValue()
 }
 
-func (k Keeper) SetLastOracleID(ctx sdk.Context, id types.RequestID) {
+func (k Keeper) SetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context, id types.RequestID) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.LastOracleIDKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+	store.Set(types.Last<%= oracleName.UpperCamel %>IDKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
 }

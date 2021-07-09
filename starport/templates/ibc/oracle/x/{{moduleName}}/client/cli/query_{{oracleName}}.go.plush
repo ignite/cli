@@ -10,10 +10,10 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// CmdOracleResult queries request result by reqID
-func CmdOracleResult() *cobra.Command {
+// Cmd<%= oracleName.UpperCamel %>Result queries request result by reqID
+func Cmd<%= oracleName.UpperCamel %>Result() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "oracle-result [request-id]",
+		Use:  "<%= oracleName.Kebab %>-result [request-id]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
@@ -25,7 +25,7 @@ func CmdOracleResult() *cobra.Command {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.OracleResult(context.Background(), &types.QueryOracleRequest{RequestId: id})
+			r, err := queryClient.<%= oracleName.UpperCamel %>Result(context.Background(), &types.Query<%= oracleName.UpperCamel %>Request{RequestId: id})
 			if err != nil {
 				return err
 			}
@@ -39,17 +39,17 @@ func CmdOracleResult() *cobra.Command {
 	return cmd
 }
 
-// CmdLastRequest queries latest request
-func CmdLastRequest() *cobra.Command {
+// CmdLast<%= oracleName.UpperCamel %>ID queries latest request
+func CmdLast<%= oracleName.UpperCamel %>ID() *cobra.Command {
 	cmd := &cobra.Command{
-		Use: "last-oracle-id",
+		Use: "last-<%= oracleName.Kebab %>-id",
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
 			if err != nil {
 				return err
 			}
 			queryClient := types.NewQueryClient(clientCtx)
-			r, err := queryClient.LastOracleId(context.Background(), &types.QueryLastOracleIdRequest{})
+			r, err := queryClient.Last<%= oracleName.UpperCamel %>Id(context.Background(), &types.QueryLast<%= oracleName.UpperCamel %>IdRequest{})
 			if err != nil {
 				return err
 			}

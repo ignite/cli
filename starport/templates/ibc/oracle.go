@@ -74,16 +74,17 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 
 		// Recv packet dispatch
 		templateRecv := `	
-	ack, oracleResult, err := am.handleOraclePacket(ctx, modulePacket)
+	ack, %[1]vResult, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
-	} else if oracleResult.Size() > 0 {
-		ctx.Logger().Debug("Receive oracle packet", "result", oracleResult)
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data:", err.Error())
+	} else if %[1]vResult.Size() > 0 {
+		ctx.Logger().Debug("Receive %[2]v oracle packet", "result", %[1]vResult)
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
 		}, ack.GetBytes(), nil
 	}`
-		content := replacer.Replace(f.String(), PlaceholderOraclePacketModuleRecv, templateRecv)
+		replacement := fmt.Sprintf(templateRecv, opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
+		content := replacer.Replace(f.String(), PlaceholderOraclePacketModuleRecv, replacement)
 
 		// Ack packet dispatch
 		templateAck := `
@@ -111,9 +112,10 @@ func eventOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 		}
 
 		template := `%[1]v
-EventTypeOraclePacket       = "oracle_packet"
+EventType%[2]vPacket       = "%[3]v_packet"
 `
-		replacement := fmt.Sprintf(template, PlaceholderIBCPacketEvent)
+		replacement := fmt.Sprintf(template, PlaceholderIBCPacketEvent,
+			opts.OracleName.UpperCamel, opts.OracleName.Snake)
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
 
 		newFile := genny.NewFileS(path, content)
@@ -138,17 +140,19 @@ import "%[2]v/%[3]v.proto";`
 		// Add the service
 		templateService := `%[1]v
 
-  	// Request defines a rpc handler method for MsgOracleData.
-  	rpc OracleResult(QueryOracleRequest) returns (QueryOracleResponse) {
-		option (google.api.http).get = "/%[2]v/%[3]v/result/{request_id}";
+  	// Request defines a rpc handler method for Msg%[2]vData.
+  	rpc %[2]vResult(Query%[2]vRequest) returns (Query%[2]vResponse) {
+		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v_result/{request_id}";
   	}
 
-  	// LastOracleId
-  	rpc LastOracleId(QueryLastOracleIdRequest) returns (QueryLastOracleIdResponse) {
-		option (google.api.http).get = "/%[2]v/%[3]v/last_request_id";
+  	// Last%[2]vId
+  	rpc Last%[2]vId(QueryLast%[2]vIdRequest) returns (QueryLast%[2]vIdResponse) {
+		option (google.api.http).get = "/%[4]v/%[5]v/last_%[3]v_id";
   	}
 `
 		replacementService := fmt.Sprintf(templateService, Placeholder2,
+			opts.OracleName.UpperCamel,
+			opts.OracleName.Snake,
 			opts.AppName,
 			opts.ModuleName,
 		)
@@ -156,15 +160,15 @@ import "%[2]v/%[3]v.proto";`
 
 		// Add the service messages
 		templateMessage := `%[1]v
-message QueryOracleRequest {int64 request_id = 1;}
+message Query%[2]vRequest {int64 request_id = 1;}
 
-message QueryOracleResponse {
+message Query%[2]vResponse {
   %[2]vResult result = 1;
 }
 
-message QueryLastOracleIdRequest {}
+message QueryLast%[2]vIdRequest {}
 
-message QueryLastOracleIdResponse {int64 request_id = 1;}
+message QueryLast%[2]vIdResponse {int64 request_id = 1;}
 `
 		replacementMessage := fmt.Sprintf(templateMessage, Placeholder3, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementMessage)
@@ -192,12 +196,12 @@ import "%[2]v/%[3]v.proto";`
 
 		// RPC
 		templateRPC := `%[1]v
-  rpc OracleData(MsgOracleData) returns (MsgOracleDataResponse);`
-		replacementRPC := fmt.Sprintf(templateRPC, PlaceholderProtoTxRPC)
+  rpc %[2]vData(Msg%[2]vData) returns (Msg%[2]vDataResponse);`
+		replacementRPC := fmt.Sprintf(templateRPC, PlaceholderProtoTxRPC, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
 
 		templateMessage := `%[1]v
-message MsgOracleData {
+message Msg%[2]vData {
   string creator = 1;
   int64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
@@ -216,7 +220,7 @@ message MsgOracleData {
   uint64 execute_gas = 10;
 }
 
-message MsgOracleDataResponse {
+message Msg%[2]vDataResponse {
 }
 `
 		replacementMessage := fmt.Sprintf(templateMessage, PlaceholderProtoTxMessage, opts.OracleName.UpperCamel)
@@ -240,11 +244,11 @@ func handlerTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) g
 		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
-		case *types.MsgOracleData:
-					res, err := msgServer.OracleData(sdk.WrapSDKContext(ctx), msg)
+		case *types.Msg%[2]vData:
+					res, err := msgServer.%[2]vData(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
 `
-		replacementHandlers := fmt.Sprintf(templateHandlers, Placeholder)
+		replacementHandlers := fmt.Sprintf(templateHandlers, Placeholder, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -260,10 +264,10 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 		}
 		template := `%[1]v
 
-	cmd.AddCommand(CmdOracleResult())
-	cmd.AddCommand(CmdLastRequest())
+	cmd.AddCommand(Cmd%[2]vResult())
+	cmd.AddCommand(CmdLast%[2]vID())
 `
-		replacement := fmt.Sprintf(template, Placeholder)
+		replacement := fmt.Sprintf(template, Placeholder, opts.OracleName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -278,9 +282,9 @@ func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions)
 			return err
 		}
 		template := `%[1]v
-	cmd.AddCommand(CmdRequestOracleData())
+	cmd.AddCommand(CmdRequest%[2]vData())
 `
-		replacement := fmt.Sprintf(template, Placeholder)
+		replacement := fmt.Sprintf(template, Placeholder, opts.OracleName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -301,17 +305,17 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 
 		// Register the module packet
 		templateRegistry := `%[1]v
-cdc.RegisterConcrete(&MsgOracleData{}, "%[2]v/OracleData", nil)
+cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
 `
-		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName)
+		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
 		templateInterface := `%[1]v
 registry.RegisterImplementations((*sdk.Msg)(nil),
-	&MsgOracleData{},
+	&Msg%[2]vData{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3)
+		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)

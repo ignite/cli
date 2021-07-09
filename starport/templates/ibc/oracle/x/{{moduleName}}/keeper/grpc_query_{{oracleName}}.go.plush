@@ -7,17 +7,17 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func (k Keeper) OracleResult(c context.Context, req *types.QueryOracleRequest) (*types.QueryOracleResponse, error) {
+func (k Keeper) <%= oracleName.UpperCamel %>Result(c context.Context, req *types.Query<%= oracleName.UpperCamel %>Request) (*types.Query<%= oracleName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	result, err := k.GetResult(ctx, types.RequestID(req.RequestId))
+	result, err := k.Get<%= oracleName.UpperCamel %>Result(ctx, types.RequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}
-	return &types.QueryOracleResponse{Result: &result}, nil
+	return &types.Query<%= oracleName.UpperCamel %>Response{Result: &result}, nil
 }
 
-func (k Keeper) LastOracleId(c context.Context, req *types.QueryLastOracleIdRequest) (*types.QueryLastOracleIdResponse, error) {
+func (k Keeper) Last<%= oracleName.UpperCamel %>Id(c context.Context, req *types.QueryLast<%= oracleName.UpperCamel %>IdRequest) (*types.QueryLast<%= oracleName.UpperCamel %>IdResponse, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	id := k.GetLastOracleID(ctx)
-	return &types.QueryLastOracleIdResponse{RequestId: id}, nil
+	id := k.GetLast<%= oracleName.UpperCamel %>ID(ctx)
+	return &types.QueryLast<%= oracleName.UpperCamel %>IdResponse{RequestId: id}, nil
 }

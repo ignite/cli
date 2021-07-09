@@ -22,10 +22,10 @@ const (
 	flagExecuteGas = "execute-gas"
 )
 
-func CmdRequestOracleData() *cobra.Command {
+func CmdRequest<%= oracleName.UpperCamel %>Data() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oracle-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
-		Short: "Make a new data request via an existing oracle script",
+		Use:   "<%= oracleName.Kebab %>-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
+		Short: "Make a new data request via an existing bandchain oracle script",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.
@@ -102,7 +102,7 @@ func CmdRequestOracleData() *cobra.Command {
 				return err
 			}
 
-			msg := types.NewMsgOracleData(
+			msg := types.NewMsg<%= oracleName.UpperCamel %>Data(
 				clientCtx.GetFromAddress().String(),
 				oracleScriptID,
 				channel,

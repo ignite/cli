@@ -14,7 +14,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-func (k msgServer) OracleData(goCtx context.Context, msg *types.MsgOracleData) (*types.MsgOracleDataResponse, error) {
+func (k msgServer) <%= oracleName.UpperCamel %>Data(goCtx context.Context, msg *types.Msg<%= oracleName.UpperCamel %>Data) (*types.Msg<%= oracleName.UpperCamel %>DataResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	sourcePort := types.PortID
@@ -71,5 +71,5 @@ func (k msgServer) OracleData(goCtx context.Context, msg *types.MsgOracleData) (
 		return nil, err
 	}
 
-	return &types.MsgOracleDataResponse{}, nil
+	return &types.Msg<%= oracleName.UpperCamel %>DataResponse{}, nil
 }
