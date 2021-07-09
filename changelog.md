@@ -6,18 +6,30 @@
 
 - Added GitHub action that automatically builds and releases a binary
 - The `--release` flag for the `build` command adds the ability to release binaries in a tarball with a checksum file.
-- Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
+- Added the flag `--no-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
+- Added `--dep` flag to specify module dependency when scaffolding a module
 - Added support for multiple naming conventions for component names and field names
 - Print created and modified files when scaffolding a new component
+- Added `starport generate` namespace with commands to generate Go, Vuex and OpenAPI
+- Added `starport chain init` command to initialize a chain without starting a node
 - Scaffold a type that contains a single instance in the store
-- Introduce `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
+- Introduced `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
 - Added `faucet.rate_limit_window` property to `config.yml`
+- Simplified the `cmd` package in the template
 
 ### Fixes:
 
 - Use snake case for generated files
 - Prevent using incorrect module name
 - Fixed permissions issue when using Starport in Docker
+- Ignore hidden directories when building a chain
+- Fix error when scaffolding an IBC module in non-Starport chains
+
+## `v0.16.2`
+
+### Fix:
+
+- Prevent indirect Buf dependency.
 
 ## `v0.16.1`
 
@@ -88,7 +100,8 @@
 - Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Starport CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
-- Added ability to change path to home directory with `init.home` in `config.yml`
+- Added ability to change path to home directory with `
+.home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command
