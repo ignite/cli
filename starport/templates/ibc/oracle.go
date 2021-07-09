@@ -79,24 +79,30 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data:", err.Error())
 	} else if %[1]vResult.Size() > 0 {
 		ctx.Logger().Debug("Receive %[2]v oracle packet", "result", %[1]vResult)
+
+		// TODO: %[2]v oracle data reception logic 
+
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
 		}, ack.GetBytes(), nil
 	}`
-		replacement := fmt.Sprintf(templateRecv, opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
-		content := replacer.Replace(f.String(), PlaceholderOraclePacketModuleRecv, replacement)
+		replacementRecv := fmt.Sprintf(templateRecv, opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
+		content := replacer.Replace(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
 		templateAck := `
 	var requestID types.RequestID
 	ctx, requestID = am.handleOracleAcknowledgement(ctx, ack)
 	if requestID > 0 {
-		ctx.Logger().Debug("Receive oracle ack", "request_id", requestID)
+		
+		// TODO: %[2]v oracle ack reception logic 
+
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
 		}, nil
 	}`
-		content = replacer.Replace(content, PlaceholderOraclePacketModuleAck, templateAck)
+		replacementAck := fmt.Sprintf(templateAck, opts.OracleName.UpperCamel)
+		content = replacer.Replace(content, PlaceholderOraclePacketModuleAck, replacementAck)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
