@@ -60,6 +60,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+	g.Transformer(genny.Replace("{{oracleName}}", opts.OracleName.Snake))
 	return g, nil
 }
 
@@ -130,8 +131,8 @@ func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) 
 
 		// Import the type
 		templateImport := `%[1]v
-import "%[2]v/oracle.proto";`
-		replacementImport := fmt.Sprintf(templateImport, Placeholder, opts.ModuleName)
+import "%[2]v/%[3]v.proto";`
+		replacementImport := fmt.Sprintf(templateImport, Placeholder, opts.ModuleName, opts.OracleName.Snake)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
 		// Add the service
@@ -158,14 +159,14 @@ import "%[2]v/oracle.proto";`
 message QueryOracleRequest {int64 request_id = 1;}
 
 message QueryOracleResponse {
-  OracleResult result = 1;
+  %[2]vResult result = 1;
 }
 
 message QueryLastOracleIdRequest {}
 
 message QueryLastOracleIdResponse {int64 request_id = 1;}
 `
-		replacementMessage := fmt.Sprintf(templateMessage, Placeholder3)
+		replacementMessage := fmt.Sprintf(templateMessage, Placeholder3, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementMessage)
 
 		newFile := genny.NewFileS(path, content)
@@ -185,8 +186,8 @@ func protoTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) gen
 		templateImport := `%[1]v
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "%[2]v/oracle.proto";`
-		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.ModuleName)
+import "%[2]v/%[3]v.proto";`
+		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.ModuleName, opts.OracleName.Snake)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
 
 		// RPC

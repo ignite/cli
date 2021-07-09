@@ -19,7 +19,7 @@ func (k Keeper) GetResult(ctx sdk.Context, id types.RequestID) (types.OracleResu
 			"GetResult: Result for request ID %d is not available.", id,
 		)
 	}
-	var result types.OracleResult
+	var result types.<%= oracleName.UpperCamel %>Result
 	k.cdc.MustUnmarshalBinaryBare(bz, &result)
 	return result, nil
 }
