@@ -62,18 +62,19 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Check if the module must be an IBC module
-	if ibcModule {
-		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
-	}
-
 	// Check if the module must be a Bandchain oracle module
 	oracle, err := cmd.Flags().GetBool(flagOracle)
 	if err != nil {
 		return err
 	}
 	if oracle {
+		ibcModule = true
 		options = append(options, scaffolder.WithOracleIntegration())
+	}
+
+	// Check if the module must be an IBC module
+	if ibcModule {
+		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
 	}
 
 	// Get module dependencies
