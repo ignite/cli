@@ -11,7 +11,7 @@ import (
 
 const (
 	flagAddressPrefix   = "address-prefix"
-	flagNoDefaultModule = "no-default-module"
+	flagNoDefaultModule = "no-module"
 )
 
 // NewScaffoldChain creates new command to scaffold a Comos-SDK based blockchain.
