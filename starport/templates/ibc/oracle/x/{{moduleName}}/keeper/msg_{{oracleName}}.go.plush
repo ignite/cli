@@ -44,7 +44,7 @@ func (k msgServer) OracleData(goCtx context.Context, msg *types.MsgOracleData) (
 			"module does not own channel capability")
 	}
 
-	encodedCalldata := obi.MustEncode(*msg.Calldata)
+	encodedCalldata := obi.MustEncode(*msg.<%= oracleName.UpperCamel %>Calldata)
 	packetData := packet.NewOracleRequestPacketData(
 		types.ModuleName,
 		msg.OracleScriptID,

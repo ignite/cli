@@ -66,13 +66,4 @@ const (
 	PlaceholderIBCAppScopedKeeperDefinition  = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/definition"
 	PlaceholderIBCAppKeeperArgument          = "// this line is used by starport scaffolding # ibc/app/keeper/argument"
 	PlaceholderIBCAppRouter                  = "// this line is used by starport scaffolding # ibc/app/router"
-
-	// Placeholders Oracle
-	PlaceholderIBCPacketEvent         = "// this line is used by starport scaffolding # ibc/packet/event"
-	PlaceholderProtoTxRPC             = "// this line is used by starport scaffolding # proto/tx/rpc"
-	PlaceholderProtoTxMessage         = "// this line is used by starport scaffolding # proto/tx/message"
-	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
-	PlaceholderHandlerMsgServer       = "// this line is used by starport scaffolding # handler/msgServer"
-	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
-	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"
 )

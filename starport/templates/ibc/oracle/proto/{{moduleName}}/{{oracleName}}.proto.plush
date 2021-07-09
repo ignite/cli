@@ -3,11 +3,11 @@ package <%= formatOwnerName(ownerName) %>.<%= appName %>.<%= moduleName %>;
 
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
-message CallData {
+message <%= oracleName.UpperCamel %>CallData {
   repeated string symbols = 1;
   uint64 multiplier = 2;
 }
 
-message OracleResult {
+message <%= oracleName.UpperCamel %>Result {
   repeated uint64 rates = 1;
 }

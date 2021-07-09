@@ -24,7 +24,7 @@ const (
 
 func CmdRequestOracleData() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "oracle-data",
+		Use:   "oracle-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
 		Short: "Make a new data request via an existing oracle script",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -64,7 +64,7 @@ func CmdRequestOracleData() *cobra.Command {
 				return err
 			}
 
-			calldata := &types.CallData{
+			calldata := &types.<%= oracleName.UpperCamel %>CallData{
 				Symbols:    symbols,
 				Multiplier: multiplier,
 			}

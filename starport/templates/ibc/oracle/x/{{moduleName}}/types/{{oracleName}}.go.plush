@@ -29,7 +29,7 @@ func NewMsgOracleData(
 	creator string,
 	oracleScriptID OracleScriptID,
 	sourceChannel string,
-	calldata *CallData,
+	calldata *<%= oracleName.UpperCamel %>CallData,
 	askCount uint64,
 	minCount uint64,
 	feeLimit sdk.Coins,

@@ -27,6 +27,7 @@ func NewScaffold() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 	}
 
+	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldChain())
 	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewScaffoldList())

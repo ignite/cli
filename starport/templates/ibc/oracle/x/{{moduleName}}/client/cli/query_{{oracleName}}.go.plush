@@ -10,10 +10,10 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// CmdOracleResult queries request by reqID
+// CmdOracleResult queries request result by reqID
 func CmdOracleResult() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:  "oracle-result",
+		Use:  "oracle-result [request-id]",
 		Args: cobra.ExactArgs(1),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientQueryContext(cmd)
