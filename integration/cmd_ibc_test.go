@@ -103,7 +103,7 @@ func TestCreateIBCOracle(t *testing.T) {
 
 	env.Must(env.Exec("create a Bandchain oracle integration",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "band", "oracle", "--module", "bandchain"),
+			step.Exec("starport", "s", "band", "bandoracle", "--module", "bandchain"),
 			step.Workdir(path),
 		)),
 	))
