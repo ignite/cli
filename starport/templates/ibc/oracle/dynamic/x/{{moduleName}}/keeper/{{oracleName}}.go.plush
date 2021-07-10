@@ -10,12 +10,12 @@ import (
 // Set<%= oracleName.UpperCamel %>Result saves the <%= oracleName.UpperCamel %> result
 func (k Keeper) Set<%= oracleName.UpperCamel %>Result(ctx sdk.Context, requestID types.OracleRequestID, result types.<%= oracleName.UpperCamel %>Result) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.ResultStoreKey(requestID), k.cdc.MustMarshalBinaryBare(&result))
+	store.Set(types.<%= oracleName.UpperCamel %>ResultStoreKey(requestID), k.cdc.MustMarshalBinaryBare(&result))
 }
 
 // Get<%= oracleName.UpperCamel %>Result returns the <%= oracleName.UpperCamel %> by requestId
 func (k Keeper) Get<%= oracleName.UpperCamel %>Result(ctx sdk.Context, id types.OracleRequestID) (types.<%= oracleName.UpperCamel %>Result, error) {
-	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
+	bz := ctx.KVStore(k.storeKey).Get(types.<%= oracleName.UpperCamel %>ResultStoreKey(id))
 	if bz == nil {
 		return types.<%= oracleName.UpperCamel %>Result{}, sdkerrors.Wrapf(types.ErrSample,
 			"GetResult: Result for request ID %d is not available.", id,
@@ -28,7 +28,7 @@ func (k Keeper) Get<%= oracleName.UpperCamel %>Result(ctx sdk.Context, id types.
 
 // GetLast<%= oracleName.UpperCamel %>ID return the id from the last <%= oracleName.UpperCamel %> request
 func (k Keeper) GetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context) int64 {
-	bz := ctx.KVStore(k.storeKey).Get(types.Last<%= oracleName.UpperCamel %>IDKey)
+	bz := ctx.KVStore(k.storeKey).Get(types.KeyPrefix(types.Last<%= oracleName.UpperCamel %>IDKey))
 	intV := gogotypes.Int64Value{}
 	k.cdc.MustUnmarshalBinaryLengthPrefixed(bz, &intV)
 	return intV.GetValue()
@@ -37,5 +37,6 @@ func (k Keeper) GetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context) int64 {
 // SetLast<%= oracleName.UpperCamel %>ID saves the id from the last <%= oracleName.UpperCamel %> request
 func (k Keeper) SetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context, id types.OracleRequestID) {
 	store := ctx.KVStore(k.storeKey)
-	store.Set(types.Last<%= oracleName.UpperCamel %>IDKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
+	store.Set(types.KeyPrefix(types.Last<%= oracleName.UpperCamel %>IDKey),
+		k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
 }

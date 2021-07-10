@@ -9,10 +9,10 @@ var (
 	_ sdk.Msg = &Msg<%= oracleName.UpperCamel %>Data{}
 
 	// <%= oracleName.UpperCamel %>ResultStoreKeyPrefix is a prefix for storing result
-	<%= oracleName.UpperCamel %>ResultStoreKeyPrefix = []byte{0xff}
+	<%= oracleName.UpperCamel %>ResultStoreKeyPrefix = "<%= oracleName.Snake %>_result"
 
 	// Last<%= oracleName.UpperCamel %>IDKey is the key for the last request id
-	Last<%= oracleName.UpperCamel %>IDKey = []byte{0x01}
+	Last<%= oracleName.UpperCamel %>IDKey = "<%= oracleName.Snake %>_last_id"
 )
 
 // NewMsg<%= oracleName.UpperCamel %>Data creates a new <%= oracleName.UpperCamel %> message
@@ -74,4 +74,9 @@ func (m *Msg<%= oracleName.UpperCamel %>Data) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 	return nil
+}
+
+// <%= oracleName.UpperCamel %>ResultStoreKey is a function to generate key for each result in store
+func <%= oracleName.UpperCamel %>ResultStoreKey(requestID OracleRequestID) []byte {
+	return append(KeyPrefix(<%= oracleName.UpperCamel %>ResultStoreKeyPrefix), int64ToBytes(int64(requestID))...)
 }

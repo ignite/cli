@@ -10,11 +10,6 @@ type (
 	OracleRequestID int64
 )
 
-// ResultStoreKey is a function to generate key for each result in store
-func ResultStoreKey(requestID OracleRequestID) []byte {
-	return append(BandoraResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
-}
-
 // int64ToBytes convert int64 to a byte slice
 func int64ToBytes(num int64) []byte {
 	result := make([]byte, 8)
