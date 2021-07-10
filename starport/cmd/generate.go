@@ -6,8 +6,8 @@ import "github.com/spf13/cobra"
 func NewGenerate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "generate [command]",
-		Short: "Generate commands produce source code that is required for your project to compile",
-		Long: `Generate commands produce source code that is required for your project to compile.
+		Short: "Generate clients, API docs from source code",
+		Long: `Generate clients, API docs from source code.
 
 Such as compiling protocol buffer files into Go or implement particular functionality, for example, generating an OpenAPI spec.
 
