@@ -106,7 +106,6 @@ func TestCreateIBCOracle(t *testing.T) {
 			step.Exec("starport", "s", "band", "bandoracle", "--module", "foo"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
