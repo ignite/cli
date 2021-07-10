@@ -162,10 +162,10 @@ func protoTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) gen
 			return err
 		}
 
-		content := strings.Replace(f.String(), `
-import "gogoproto/gogo.proto";`, "", -1)
-		content = strings.Replace(content, `
-import "cosmos/base/v1beta1/coin.proto";`, "", -1)
+		content := strings.ReplaceAll(f.String(), `
+import "gogoproto/gogo.proto";`, "")
+		content = strings.ReplaceAll(content, `
+import "cosmos/base/v1beta1/coin.proto";`, "")
 
 		// Import
 		templateImport := `%[1]v
