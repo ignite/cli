@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -15,11 +16,17 @@ import (
 )
 
 var (
-	//go:embed oracle/* oracle/**/*
-	fsOracle embed.FS
+	//go:embed oracle/static/* oracle/static/**/*
+	fsOracleStatic embed.FS
 
-	// ibcOracleTemplate is the template to scaffold a new oracle in an IBC module
-	ibcOracleTemplate = xgenny.NewEmbedWalker(fsOracle, "oracle/")
+	// ibcOracleStaticTemplate is the template to scaffold a new static oracle templates in an IBC module
+	ibcOracleStaticTemplate = xgenny.NewEmbedWalker(fsOracleStatic, "oracle/static/")
+
+	//go:embed oracle/dynamic/* oracle/dynamic/**/*
+	fsOracleDynamic embed.FS
+
+	// ibcOracleDynamicTemplate is the template to scaffold a new dynamic oracle templates in an IBC module
+	ibcOracleDynamicTemplate = xgenny.NewEmbedWalker(fsOracleDynamic, "oracle/dynamic/")
 )
 
 // OracleOptions are options to scaffold an oracle in a IBC module
@@ -43,7 +50,8 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
 
-	if err := g.Box(ibcOracleTemplate); err != nil {
+	err := box(g, opts)
+	if err != nil {
 		return g, err
 	}
 	g.RunFn(packetHandlerOracleModify(replacer, opts))
@@ -65,6 +73,18 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	return g, nil
 }
 
+func box(g *genny.Generator, opts *OracleOptions) error {
+	gs := genny.New()
+	path := fmt.Sprintf("x/%s/oracle.go", opts.ModuleName)
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		if err := gs.Box(ibcOracleStaticTemplate); err != nil {
+			return err
+		}
+	}
+	g.Merge(gs)
+	return g.Box(ibcOracleDynamicTemplate)
+}
+
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
@@ -74,25 +94,27 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		}
 
 		// Recv packet dispatch
-		templateRecv := `	
+		templateRecv := `%[1]v
 	oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: ", err.Error())
 	} else if ack != oracleAck {
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
 		}, oracleAck.GetBytes(), nil
 	}`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, templateRecv)
+		replacementRecv := fmt.Sprintf(templateRecv, PlaceholderOraclePacketModuleRecv)
+		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `	
+		templateAck := `%[1]v
 	sdkResult := am.handleOracleAcknowledgement(ctx, ack, modulePacket)
 	if sdkResult != nil {
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
 		return sdkResult, nil
 	}`
-		content = replacer.ReplaceOnce(content, PlaceholderOraclePacketModuleAck, templateAck)
+		replacementAck := fmt.Sprintf(templateAck, PlaceholderOraclePacketModuleAck)
+		content = replacer.ReplaceOnce(content, PlaceholderOraclePacketModuleAck, replacementAck)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

@@ -6,7 +6,7 @@ type (
 	// OracleScriptID is the type-safe unique identifier type for oracle scripts.
 	OracleScriptID int64
 
-	// RequestID is the type-safe unique identifier type for data requests.
+	// OracleRequestID is the type-safe unique identifier type for data requests.
 	OracleRequestID int64
 )
 

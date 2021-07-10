@@ -12,16 +12,6 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-const (
-	flagChannel    = "channel"
-	flagSymbols    = "symbols"
-	flagMultiplier = "multiplier"
-	flagFeeLimit   = "fee-limit"
-	flagRequestkey = "request-key"
-	flagPrepareGas = "prepare-gas"
-	flagExecuteGas = "execute-gas"
-)
-
 func CmdRequest<%= oracleName.UpperCamel %>Data() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "<%= oracleName.Kebab %>-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",

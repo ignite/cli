@@ -96,16 +96,17 @@ func TestCreateIBCOracle(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "bandchain", "--ibc"),
+			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
-
+	
 	env.Must(env.Exec("create a Bandchain oracle integration",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "band", "bandoracle", "--module", "bandchain"),
+			step.Exec("starport", "s", "band", "bandoracle", "--module", "foo"),
 			step.Workdir(path),
 		)),
+		ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
