@@ -101,9 +101,16 @@ func TestCreateIBCOracle(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a Bandchain oracle integration",
+	env.Must(env.Exec("create the first Bandchain oracle integration",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "band", "bandoracle", "--module", "foo"),
+			step.Exec("starport", "s", "band", "oracleone", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create the second Bandchain oracle integration",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "oracletwo", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
