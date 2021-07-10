@@ -92,7 +92,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
 		return sdkResult, nil
 	}`
-		content = replacer.Replace(content, PlaceholderOraclePacketModuleAck, templateAck)
+		content = replacer.ReplaceOnce(content, PlaceholderOraclePacketModuleAck, templateAck)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

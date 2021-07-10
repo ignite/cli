@@ -20,7 +20,7 @@ func (am AppModule) handleOraclePacket(
 		return ack, nil
 	}
 
-	// this line is used by starport scaffolding # oracle/module/oracle/recv
+	// this line is used by starport scaffolding # oracle/module/recv
 
 	if err != nil {
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
@@ -53,7 +53,7 @@ func (am AppModule) handleOracleAcknowledgement(
 		}
 		requestID := types.OracleRequestID(oracleAck.RequestID)
 
-		// this line is used by starport scaffolding # oracle/module/oracle/ack
+		// this line is used by starport scaffolding # oracle/module/ack
 	}
 	return nil
 }
