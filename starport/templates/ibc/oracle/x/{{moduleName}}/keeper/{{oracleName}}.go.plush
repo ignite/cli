@@ -8,13 +8,13 @@ import (
 )
 
 // Set<%= oracleName.UpperCamel %>Result saves the <%= oracleName.UpperCamel %> result
-func (k Keeper) Set<%= oracleName.UpperCamel %>Result(ctx sdk.Context, requestID types.RequestID, result types.<%= oracleName.UpperCamel %>Result) {
+func (k Keeper) Set<%= oracleName.UpperCamel %>Result(ctx sdk.Context, requestID types.OracleRequestID, result types.<%= oracleName.UpperCamel %>Result) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.ResultStoreKey(requestID), k.cdc.MustMarshalBinaryBare(&result))
 }
 
 // Get<%= oracleName.UpperCamel %>Result returns the <%= oracleName.UpperCamel %> by requestId
-func (k Keeper) Get<%= oracleName.UpperCamel %>Result(ctx sdk.Context, id types.RequestID) (types.<%= oracleName.UpperCamel %>Result, error) {
+func (k Keeper) Get<%= oracleName.UpperCamel %>Result(ctx sdk.Context, id types.OracleRequestID) (types.<%= oracleName.UpperCamel %>Result, error) {
 	bz := ctx.KVStore(k.storeKey).Get(types.ResultStoreKey(id))
 	if bz == nil {
 		return types.<%= oracleName.UpperCamel %>Result{}, sdkerrors.Wrapf(types.ErrSample,
@@ -35,7 +35,7 @@ func (k Keeper) GetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context) int64 {
 }
 
 // SetLast<%= oracleName.UpperCamel %>ID saves the id from the last <%= oracleName.UpperCamel %> request
-func (k Keeper) SetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context, id types.RequestID) {
+func (k Keeper) SetLast<%= oracleName.UpperCamel %>ID(ctx sdk.Context, id types.OracleRequestID) {
 	store := ctx.KVStore(k.storeKey)
 	store.Set(types.Last<%= oracleName.UpperCamel %>IDKey, k.cdc.MustMarshalBinaryLengthPrefixed(&gogotypes.Int64Value{Value: int64(id)}))
 }

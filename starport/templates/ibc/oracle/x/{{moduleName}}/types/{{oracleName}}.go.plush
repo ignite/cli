@@ -1,8 +1,6 @@
 package types
 
 import (
-	"encoding/binary"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
@@ -15,14 +13,6 @@ var (
 
 	// Last<%= oracleName.UpperCamel %>IDKey is the key for the last request id
 	Last<%= oracleName.UpperCamel %>IDKey = []byte{0x01}
-)
-
-type (
-	// OracleScriptID is the type-safe unique identifier type for oracle scripts.
-	OracleScriptID int64
-
-	// RequestID is the type-safe unique identifier type for data requests.
-	RequestID int64
 )
 
 // NewMsg<%= oracleName.UpperCamel %>Data creates a new <%= oracleName.UpperCamel %> message
@@ -84,16 +74,4 @@ func (m *Msg<%= oracleName.UpperCamel %>Data) ValidateBasic() error {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
 	return nil
-}
-
-// ResultStoreKey is a function to generate key for each result in store
-func ResultStoreKey(requestID RequestID) []byte {
-	return append(<%= oracleName.UpperCamel %>ResultStoreKeyPrefix, int64ToBytes(int64(requestID))...)
-}
-
-// int64ToBytes convert int64 to a byte slice
-func int64ToBytes(num int64) []byte {
-	result := make([]byte, 8)
-	binary.BigEndian.PutUint64(result, uint64(num))
-	return result
 }

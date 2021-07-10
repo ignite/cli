@@ -10,7 +10,7 @@ import (
 // <%= oracleName.UpperCamel %>Result returns the <%= oracleName.UpperCamel %> result by RequestId
 func (k Keeper) <%= oracleName.UpperCamel %>Result(c context.Context, req *types.Query<%= oracleName.UpperCamel %>Request) (*types.Query<%= oracleName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(c)
-	result, err := k.Get<%= oracleName.UpperCamel %>Result(ctx, types.RequestID(req.RequestId))
+	result, err := k.Get<%= oracleName.UpperCamel %>Result(ctx, types.OracleRequestID(req.RequestId))
 	if err != nil {
 		return nil, err
 	}

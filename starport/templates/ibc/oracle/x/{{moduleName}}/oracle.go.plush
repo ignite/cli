@@ -1,0 +1,59 @@
+package <%= moduleName %>
+
+import (
+	"github.com/bandprotocol/bandchain-packet/obi"
+	"github.com/bandprotocol/bandchain-packet/packet"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
+	"<%= modulePath %>/x/<%= moduleName %>/types"
+)
+
+func (am AppModule) handleOraclePacket(
+	ctx sdk.Context,
+	modulePacket channeltypes.Packet,
+) (channeltypes.Acknowledgement, error) {
+	var ack channeltypes.Acknowledgement
+	var modulePacketData packet.OracleResponsePacketData
+	var err error
+	if err = types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &modulePacketData); err != nil {
+		return ack, nil
+	}
+
+	// this line is used by starport scaffolding # oracle/module/oracle/recv
+
+	if err != nil {
+		ack = channeltypes.NewErrorAcknowledgement(err.Error())
+		return ack, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode oracle result: %s", err.Error())
+	}
+	ack = channeltypes.NewResultAcknowledgement(
+		types.ModuleCdc.MustMarshalJSON(
+			packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
+		),
+	)
+	return ack, nil
+}
+
+func (am AppModule) handleOracleAcknowledgement(
+	ctx sdk.Context,
+	ack channeltypes.Acknowledgement,
+	modulePacket channeltypes.Packet,
+) *sdk.Result {
+	switch resp := ack.Response.(type) {
+	case *channeltypes.Acknowledgement_Result:
+		var oracleAck packet.OracleRequestPacketAcknowledgement
+		err := types.ModuleCdc.UnmarshalJSON(resp.Result, &oracleAck)
+		if err != nil {
+			return nil
+		}
+
+		var data packet.OracleRequestPacketData
+		if err = types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &data); err != nil {
+			return nil
+		}
+		requestID := types.OracleRequestID(oracleAck.RequestID)
+
+		// this line is used by starport scaffolding # oracle/module/oracle/ack
+	}
+	return nil
+}

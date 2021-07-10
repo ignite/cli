@@ -3,14 +3,14 @@ package ibc
 import (
 	"embed"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 )
 
@@ -36,7 +36,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g := genny.New()
 
 	g.RunFn(moduleOracleModify(replacer, opts))
-	g.RunFn(eventOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))
 	g.RunFn(protoTxOracleModify(replacer, opts))
 	g.RunFn(handlerTxOracleModify(replacer, opts))
@@ -47,6 +46,8 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	if err := g.Box(ibcOracleTemplate); err != nil {
 		return g, err
 	}
+	g.RunFn(packetHandlerOracleModify(replacer, opts))
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
 	ctx.Set("modulePath", opts.ModulePath)
@@ -74,55 +75,24 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 
 		// Recv packet dispatch
 		templateRecv := `	
-	ack, %[1]vResult, err := am.handleOraclePacket(ctx, modulePacket)
+	oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data:", err.Error())
-	} else if %[1]vResult.Size() > 0 {
-		ctx.Logger().Debug("Receive %[2]v oracle packet", "result", %[1]vResult)
-
-		// TODO: %[2]v oracle data reception logic 
-
+		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: %s", err.Error())
+	} else if ack != oracleAck {
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
-		}, ack.GetBytes(), nil
+		}, oracleAck.GetBytes(), nil
 	}`
-		replacementRecv := fmt.Sprintf(templateRecv, opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
-		content := replacer.Replace(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
+		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, templateRecv)
 
 		// Ack packet dispatch
-		templateAck := `
-	var requestID types.RequestID
-	ctx, requestID = am.handleOracleAcknowledgement(ctx, ack)
-	if requestID > 0 {
-		
-		// TODO: %[2]v oracle ack reception logic 
-
-		return &sdk.Result{
-			Events: ctx.EventManager().Events().ToABCIEvents(),
-		}, nil
+		templateAck := `	
+	sdkResult := am.handleOracleAcknowledgement(ctx, ack, modulePacket)
+	if sdkResult != nil {
+		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
+		return sdkResult, nil
 	}`
-		replacementAck := fmt.Sprintf(templateAck, opts.OracleName.UpperCamel)
-		content = replacer.Replace(content, PlaceholderOraclePacketModuleAck, replacementAck)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func eventOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		template := `%[1]v
-EventType%[2]vPacket       = "%[3]v_packet"
-`
-		replacement := fmt.Sprintf(template, PlaceholderIBCPacketEvent,
-			opts.OracleName.UpperCamel, opts.OracleName.Snake)
-		content := replacer.Replace(f.String(), PlaceholderIBCPacketEvent, replacement)
+		content = replacer.Replace(content, PlaceholderOraclePacketModuleAck, templateAck)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -146,12 +116,12 @@ import "%[2]v/%[3]v.proto";`
 		// Add the service
 		templateService := `%[1]v
 
-  	// Request defines a rpc handler method for Msg%[2]vData.
+  	// %[2]vResult defines a rpc handler method for Msg%[2]vData.
   	rpc %[2]vResult(Query%[2]vRequest) returns (Query%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v_result/{request_id}";
   	}
 
-  	// Last%[2]vId
+  	// Last%[2]vId query the last %[2]v result id
   	rpc Last%[2]vId(QueryLast%[2]vIdRequest) returns (QueryLast%[2]vIdResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/last_%[3]v_id";
   	}
@@ -192,13 +162,18 @@ func protoTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) gen
 			return err
 		}
 
+		content := strings.Replace(f.String(), `
+import "gogoproto/gogo.proto";`, "", -1)
+		content = strings.Replace(content, `
+import "cosmos/base/v1beta1/coin.proto";`, "", -1)
+
 		// Import
 		templateImport := `%[1]v
 import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
 import "%[2]v/%[3]v.proto";`
 		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.ModuleName, opts.OracleName.Snake)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
+		content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 
 		// RPC
 		templateRPC := `%[1]v
@@ -323,6 +298,44 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 )`
 		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, opts.OracleName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementInterface)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/oracle.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Register the module packet
+		templateRecv := `%[1]v
+	var %[2]vResult types.%[3]vResult
+	if err = obi.Decode(modulePacketData.Result, &%[2]vResult); err == nil {
+		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
+
+		// TODO: %[3]v oracle data reception logic
+	}
+`
+		replacementRegistry := fmt.Sprintf(templateRecv, PlaceholderOracleModuleRecv,
+			opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
+		content := replacer.Replace(f.String(), PlaceholderOracleModuleRecv, replacementRegistry)
+
+		// Register the module packet interface
+		templateAck := `%[1]v
+		var %[2]vData types.%[3]vCallData
+		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err == nil {
+			am.keeper.SetLast%[3]vID(ctx, requestID)
+			return &sdk.Result{}
+		}
+`
+		replacementInterface := fmt.Sprintf(templateAck, PlaceholderOracleModuleAck,
+			opts.OracleName.LowerCamel, opts.OracleName.UpperCamel)
+		content = replacer.Replace(content, PlaceholderOracleModuleAck, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

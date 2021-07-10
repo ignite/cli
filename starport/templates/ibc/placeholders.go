@@ -23,4 +23,6 @@ const (
 	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
 	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
 	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"
+	PlaceholderOracleModuleRecv       = "// this line is used by starport scaffolding # oracle/module/oracle/recv"
+	PlaceholderOracleModuleAck        = "// this line is used by starport scaffolding # oracle/module/oracle/ack"
 )

@@ -2,13 +2,14 @@ package scaffolder
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/ibc"
-	"os"
 )
 
 // AddOracle adds a new Bandchain oracle integration.

@@ -96,7 +96,7 @@ func TestCreateIBCOracle(t *testing.T) {
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "bandchain", "--ibc", "--require-registration"),
+			step.Exec("starport", "s", "module", "bandchain", "--ibc"),
 			step.Workdir(path),
 		)),
 	))
