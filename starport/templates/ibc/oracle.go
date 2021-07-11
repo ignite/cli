@@ -337,8 +337,13 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		// Register the module packet
 		templateRecv := `%[1]v
 	var %[2]vResult types.%[3]vResult
-	if err = obi.Decode(modulePacketData.Result, &%[2]vResult); err == nil {
+	if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err == nil {
 		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
+		ack = channeltypes.NewResultAcknowledgement(
+			types.ModuleCdc.MustMarshalJSON(
+				packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
+			),
+		)
 
 		// TODO: %[3]v oracle data reception logic
 	}

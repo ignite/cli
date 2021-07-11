@@ -15,23 +15,19 @@ func (am AppModule) handleOraclePacket(
 ) (channeltypes.Acknowledgement, error) {
 	var ack channeltypes.Acknowledgement
 	var modulePacketData packet.OracleResponsePacketData
-	var err error
-	if err = types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &modulePacketData); err != nil {
+	if err := types.ModuleCdc.UnmarshalJSON(modulePacket.GetData(), &modulePacketData); err != nil {
 		return ack, nil
 	}
 
 	// this line is used by starport scaffolding # oracle/module/recv
 
-	if err != nil {
+	var err error
+	if (ack == channeltypes.Acknowledgement{}) {
+		err = sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest,
+			"cannot decode oracle result: %v", modulePacketData.Result)
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
-		return ack, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot decode oracle result: %s", err.Error())
 	}
-	ack = channeltypes.NewResultAcknowledgement(
-		types.ModuleCdc.MustMarshalJSON(
-			packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
-		),
-	)
-	return ack, nil
+	return ack, err
 }
 
 func (am AppModule) handleOracleAcknowledgement(
