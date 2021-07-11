@@ -97,7 +97,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		templateRecv := `%[1]v
 	oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: ", err.Error())
+		return nil, nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error())
 	} else if ack != oracleAck {
 		return &sdk.Result{
 			Events: ctx.EventManager().Events().ToABCIEvents(),
