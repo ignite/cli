@@ -55,7 +55,7 @@ func (s *Scaffolder) AddOracle(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			QueryName: name,
+			QueryName:  name,
 		}
 	)
 	g, err = ibc.NewOracle(tracer, opts)

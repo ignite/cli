@@ -35,7 +35,7 @@ type OracleOptions struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	QueryName multiformatname.Name
+	QueryName  multiformatname.Name
 }
 
 // NewOracle returns the generator to scaffold the implementation of the Oracle interface inside a module
