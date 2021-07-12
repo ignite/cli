@@ -46,7 +46,6 @@ func scaffoldType(
 	cmd *cobra.Command,
 	args []string,
 	kind scaffolder.AddTypeKind,
-	options ...scaffolder.AddTypeOption,
 ) error {
 	var (
 		typeName       = args[0]
@@ -54,6 +53,8 @@ func scaffoldType(
 		moduleName     = flagGetModule(cmd)
 		withoutMessage = flagGetNoMessage(cmd)
 	)
+
+	var options []scaffolder.AddTypeOption
 
 	if len(fields) > 0 {
 		options = append(options, scaffolder.TypeWithFields(fields...))
