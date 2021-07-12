@@ -59,7 +59,7 @@ func (c *Chain) generateAll(ctx context.Context) error {
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
-		additionalTargets = append(additionalTargets, GenerateVuex())
+		additionalTargets = append(additionalTargets, GenerateOpenAPI())
 	}
 
 	return c.Generate(ctx, GenerateGo(), additionalTargets...)
