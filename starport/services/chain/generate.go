@@ -47,7 +47,22 @@ func GenerateOpenAPI() GenerateTarget {
 }
 
 func (c *Chain) generateAll(ctx context.Context) error {
-	return c.Generate(ctx, GenerateGo(), GenerateVuex(), GenerateOpenAPI())
+	conf, err := c.Config()
+	if err != nil {
+		return err
+	}
+
+	var additionalTargets []GenerateTarget
+
+	if conf.Client.Vuex.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateVuex())
+	}
+
+	if conf.Client.OpenAPI.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateVuex())
+	}
+
+	return c.Generate(ctx, GenerateGo(), additionalTargets...)
 }
 
 // Generate makes code generation from proto files for given target and additionalTargets.
