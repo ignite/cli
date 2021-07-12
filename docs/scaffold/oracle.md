@@ -56,7 +56,7 @@ $ starport relayer configure -a \
 --target-port "consuming" \
 --target-gasprice "0.0stake" \
 --target-prefix "cosmos"  \
---target-version "ibcoracle-1"
+--target-version "consuming-1"
 
 $ starport relayer connect
 ```
