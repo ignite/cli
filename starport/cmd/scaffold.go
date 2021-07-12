@@ -42,7 +42,12 @@ func NewScaffold() *cobra.Command {
 	return c
 }
 
-func scaffoldType(cmd *cobra.Command, args []string, options ...scaffolder.AddTypeOption) error {
+func scaffoldType(
+	cmd *cobra.Command,
+	args []string,
+	kind scaffolder.AddTypeKind,
+	options ...scaffolder.AddTypeOption,
+) error {
 	var (
 		typeName       = args[0]
 		fields         = args[1:]
@@ -67,7 +72,7 @@ func scaffoldType(cmd *cobra.Command, args []string, options ...scaffolder.AddTy
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddType(typeName, placeholder.New(), options...)
+	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}

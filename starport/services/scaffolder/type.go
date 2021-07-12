@@ -20,6 +20,9 @@ import (
 // AddTypeOption configures options for AddType.
 type AddTypeOption func(*addTypeOptions)
 
+// AddTypeKind configures the type kind option for AddType.
+type AddTypeKind func(*addTypeOptions)
+
 type addTypeOptions struct {
 	moduleName string
 	fields     []string
@@ -34,7 +37,7 @@ type addTypeOptions struct {
 }
 
 // ListType makes the type stored in a list convention in the storage.
-func ListType() AddTypeOption {
+func ListType() AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isList = true
 	}
@@ -42,7 +45,7 @@ func ListType() AddTypeOption {
 
 // MapType makes the type stored in a key-value convention in the storage with a custom
 // index option.
-func MapType(index ...string) AddTypeOption {
+func MapType(index ...string) AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isMap = true
 		o.index = index
@@ -50,10 +53,15 @@ func MapType(index ...string) AddTypeOption {
 }
 
 // SingletonType makes the type stored in a fixed place as a single entry in the storage.
-func SingletonType() AddTypeOption {
+func SingletonType() AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isSingleton = true
 	}
+}
+
+// DryType only creates a type with a basic definition.
+func DryType() AddTypeKind {
+	return func(o *addTypeOptions) {}
 }
 
 // TypeWithModule module to scaffold type into.
@@ -84,6 +92,7 @@ func TypeWithoutMessage(fields ...string) AddTypeOption {
 func (s *Scaffolder) AddType(
 	typeName string,
 	tracer *placeholder.Tracer,
+	kind AddTypeKind,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
@@ -96,7 +105,7 @@ func (s *Scaffolder) AddType(
 		moduleName: path.Package, // app's default module.
 	}
 
-	for _, apply := range options {
+	for _, apply := range append(options, AddTypeOption(kind)) {
 		apply(&o)
 	}
 
