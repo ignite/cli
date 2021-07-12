@@ -16,7 +16,7 @@ import (
 func (s *Scaffolder) AddOracle(
 	tracer *placeholder.Tracer,
 	moduleName,
-	oracleName string,
+	queryName string,
 ) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
@@ -29,7 +29,7 @@ func (s *Scaffolder) AddOracle(
 	}
 	moduleName = mfName.Lowercase
 
-	name, err := multiformatname.NewName(oracleName)
+	name, err := multiformatname.NewName(queryName)
 	if err != nil {
 		return sm, err
 	}
@@ -55,7 +55,7 @@ func (s *Scaffolder) AddOracle(
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
-			OracleName: name,
+			QueryName: name,
 		}
 	)
 	g, err = ibc.NewOracle(tracer, opts)

@@ -10,12 +10,12 @@ Bandchain has multiples scripts deployed into the network, and we can request an
 
 ## IBC Module Packet Scaffold
 
-Bandchain oracles can be scaffolded only in IBC modules.
+Bandchain oracle queries can be scaffolded only in IBC modules.
 
 To scaffold an oracle:
 
 ```
-starport scaffold band [oracleName] --module [module_name]
+starport scaffold band [queryName] --module [moduleName]
 ```
 
 ### Acknowledgement

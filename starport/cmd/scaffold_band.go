@@ -13,7 +13,7 @@ import (
 // NewScaffoldBandchain creates a new Bandchain oracle in the module
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "band [oracleName] ... --module [moduleName]",
+		Use:   "band [queryName] ... --module [moduleName]",
 		Short: "Scaffold an IBC Bandchain oracle",
 		Long:  "Scaffold an IBC Bandchain oracle in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
@@ -50,6 +50,15 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	s.Stop()
 
 	fmt.Println(sourceModificationToString(sm))
-	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
+	fmt.Printf(`
+🎉 Created a Band oracle query "%[1]v".
+
+Note: BandChain module uses version "bandchain-1".
+Make sure to update the keys.go file accordingly.
+
+// x/bandmodule/types/keys.go
+const Version = "bandchain-1"
+
+`, args[0])
 	return nil
 }
