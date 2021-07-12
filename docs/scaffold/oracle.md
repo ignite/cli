@@ -125,10 +125,11 @@ import (
 	"github.com/tendermint/test/x/consuming/types"
 )
 
+// CmdRequestGoldPriceData creates and broadcast a GoldPrice request transaction
 func CmdRequestGoldPriceData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gold-price-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
-		Short: "Make a new data request via an existing bandchain oracle script",
+		Short: "Make a new GoldPrice data request via an existing bandchain oracle script",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.

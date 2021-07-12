@@ -12,7 +12,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// CmdRequest<%= queryName.UpperCamel %>Data creates and broadcast a Bandchain data request transaction
+// CmdRequest<%= queryName.UpperCamel %>Data creates and broadcast a <%= queryName.UpperCamel %> request transaction
 func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "<%= queryName.Kebab %>-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
