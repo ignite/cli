@@ -38,7 +38,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 				"scaffold",
 				"chain",
 				fmt.Sprintf("github.com/test/%s", appName),
-				"--no-default-module",
+				"--no-module",
 			),
 			step.Workdir(root),
 		)),

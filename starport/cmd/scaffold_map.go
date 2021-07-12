@@ -9,7 +9,7 @@ import (
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "map NAME [field]...",
-		Short: "Scaffold a map",
+		Short: "CRUD for data stored as key-value pairs",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldMapHandler,
 	}

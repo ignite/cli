@@ -18,7 +18,7 @@ const (
 func NewScaffoldPacket() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "packet [packetName] [field1] [field2] ... --module [moduleName]",
-		Short: "Scaffold an IBC packet",
+		Short: "Message for sending an IBC packet",
 		Long:  "Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createPacketHandler,

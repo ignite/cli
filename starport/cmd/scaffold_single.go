@@ -9,7 +9,7 @@ import (
 func NewScaffoldSingle() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "single NAME [field]...",
-		Short: "Scaffold a singleton",
+		Short: "CRUD for data stored in a single location",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldSingleHandler,
 	}
