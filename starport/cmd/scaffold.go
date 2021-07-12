@@ -10,6 +10,14 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+// flags related to component scaffolding
+const (
+	flagModule      = "module"
+	flagNoMessage   = "no-message"
+	flagResponse    = "response"
+	flagDescription = "desc"
+)
+
 // NewScaffold returns a command that groups scaffolding related sub commands.
 func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
@@ -23,6 +31,7 @@ func NewScaffold() *cobra.Command {
 	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewScaffoldList())
 	c.AddCommand(NewScaffoldMap())
+	c.AddCommand(NewScaffoldSingle())
 	c.AddCommand(NewScaffoldMessage())
 	c.AddCommand(NewScaffoldQuery())
 	c.AddCommand(NewScaffoldPacket())
@@ -32,7 +41,7 @@ func NewScaffold() *cobra.Command {
 	return c
 }
 
-func scaffoldType(kind, module, typeName string, typeFields []string, opts scaffolder.AddTypeOption) error {
+func scaffoldType(module, typeName string, typeFields []string, opts scaffolder.AddTypeOption) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -48,7 +57,7 @@ func scaffoldType(kind, module, typeName string, typeFields []string, opts scaff
 	s.Stop()
 
 	fmt.Println(sourceModificationToString(sm))
-	fmt.Printf("\n🎉 Created a %s `%s`.\n\n", kind, typeName)
+	fmt.Printf("\n🎉 Created a %s `%s`.\n\n", opts.Model, typeName)
 
 	return nil
 }

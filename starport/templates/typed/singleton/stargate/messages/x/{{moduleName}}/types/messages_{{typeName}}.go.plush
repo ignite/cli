@@ -1,0 +1,118 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
+
+func NewMsgCreate<%= TypeName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
+  return &MsgCreate<%= TypeName.UpperCamel %>{
+		Creator: creator,<%= for (field) in Fields { %>
+    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+	}
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) Type() string {
+  return "Create<%= TypeName.UpperCamel %>"
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  	if err != nil {
+  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+  	}
+  return nil
+}
+
+var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
+
+func NewMsgUpdate<%= TypeName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
+  return &MsgUpdate<%= TypeName.UpperCamel %>{
+		Creator: creator,<%= for (field) in Fields { %>
+    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+	}
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
+  return "Update<%= TypeName.UpperCamel %>"
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+  }
+   return nil
+}
+
+var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
+
+func NewMsgDelete<%= TypeName.UpperCamel %>(creator string) *MsgDelete<%= TypeName.UpperCamel %> {
+  return &MsgDelete<%= TypeName.UpperCamel %>{
+		Creator: creator,
+	}
+}
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) Type() string {
+  return "Delete<%= TypeName.UpperCamel %>"
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{creator}
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+  }
+  return nil
+}

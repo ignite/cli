@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -25,10 +24,6 @@ import (
 	"github.com/tendermint/starport/starport/templates/module"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
-)
-
-var (
-	ErrNoIBCRouterPlaceholder = errors.New("app.go doesn't contain the necessary placeholder to generate an IBC module")
 )
 
 const (
@@ -131,15 +126,6 @@ func (s *Scaffolder) CreateModule(
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
 	}
-	if opts.IsIBC {
-		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
-		if err != nil {
-			return sm, err
-		}
-		if !ibcPlaceholder {
-			return sm, ErrNoIBCRouterPlaceholder
-		}
-	}
 
 	// Generator from Cosmos SDK version
 	g, err := modulecreate.NewStargate(opts)
@@ -212,6 +198,11 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
+		var validationErr validation.Error
+		if errors.As(err, &validationErr) {
+			// TODO: implement a more generic method when there will be new methods to import wasm
+			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Starport to 0.16.2 to import wasm")
+		}
 		return sm, err
 	}
 
@@ -314,23 +305,6 @@ func (s *Scaffolder) installWasm() error {
 	default:
 		return errors.New("version not supported")
 	}
-}
-
-// checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter
-// this placeholder is necessary to scaffold a new IBC module
-// if it doesn't exist, we give instruction to add it to the user
-func checkIBCRouterPlaceholder(appPath string) (bool, error) {
-	appGo, err := filepath.Abs(filepath.Join(appPath, module.PathAppGo))
-	if err != nil {
-		return false, err
-	}
-
-	content, err := ioutil.ReadFile(appGo)
-	if err != nil {
-		return false, err
-	}
-
-	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
 }
 
 // checkDependencies perform checks on the dependencies

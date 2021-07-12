@@ -9,11 +9,6 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const (
-	flagResponse    string = "response"
-	flagDescription string = "desc"
-)
-
 // NewScaffoldMessage returns the command to scaffold messages
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{

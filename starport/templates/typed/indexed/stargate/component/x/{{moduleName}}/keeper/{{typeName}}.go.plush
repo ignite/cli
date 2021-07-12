@@ -26,7 +26,7 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) (va
 	return val, true
 }
 
-// Delete<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
+// Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
 func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	store.Delete(types.KeyPrefix(index))
