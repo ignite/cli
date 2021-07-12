@@ -42,6 +42,13 @@ $ starport scaffold module consuming --ibc
 $ starport s band coinRates --module consuming
 ```
 
+Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
+
+`x/ibcoracle/types/keys.go`
+```go
+const Version = "bandchain-1"
+```
+
 After scaffold and change the data, configure and run the starport relayer.
 ```shell
 $ starport relayer configure -a \
@@ -56,7 +63,7 @@ $ starport relayer configure -a \
 --target-port "consuming" \
 --target-gasprice "0.0stake" \
 --target-prefix "cosmos"  \
---target-version "consuming-1"
+--target-version "bandchain-1"
 
 $ starport relayer connect
 ```
@@ -80,7 +87,7 @@ $ ibcoracled query consuming coin-rates-result 101276
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` objects into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet2.cosmoscan.io/oracle-script/33#bridge):
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet2.cosmoscan.io/oracle-script/33#bridge):
 
 ```shell
 $ starport s band goldPrice --module consuming
