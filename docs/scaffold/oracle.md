@@ -34,7 +34,7 @@ When you scaffold a Bandchain oracle, the following files and directories are cr
 
 ## Bandchain Oracle Scaffold Example
 
-The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for `coinRates` request and result.
+The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet2.cosmoscan.io/oracle-script/37#bridge) request and result.
 
 ```shell
 $ starport scaffold chain github.com/test/ibcoracle && cd ibcoracle 
@@ -63,7 +63,7 @@ $ starport relayer connect
 
 Make a request transaction, passing the script id.
 ```shell
-# Coin Rates (script [37](https://laozi-testnet2.cosmoscan.io/oracle-script/37#bridge) into the testnet)
+# Coin Rates (script 37 into the testnet)
 $ ibcoracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --request-key "random_string" --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id ibcoracle
 ```
 
@@ -80,7 +80,7 @@ $ ibcoracled query consuming coin-rates-result 101276
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` objects into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the gold price:
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` objects into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet2.cosmoscan.io/oracle-script/33#bridge):
 
 ```shell
 $ starport s band goldPrice --module consuming
@@ -225,7 +225,7 @@ func CmdRequestGoldPriceData() *cobra.Command {
 
 Make the request transaction.
 ```shell
-# Gold Price (script [33](https://laozi-testnet2.cosmoscan.io/oracle-script/33#bridge) into the testnet)
+# Gold Price (script 33 into the testnet)
 $ ibcoracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --request-key "random_string" --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id ibcoracle
 ```
 
