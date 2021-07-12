@@ -18,6 +18,19 @@ import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/c
 import Errors from "./errors";
 import ConsoleLogger from "./logger";
 
+const defaultGasLimits = {
+	initClient: 150000,
+	updateClient: 600000,
+	initConnection: 150000,
+	connectionHandshake: 600000,
+	initChannel: 150000,
+	channelHandshake: 600000,
+	receivePacket: 600000,
+	ackPacket: 600000,
+	timeoutPacket: 600000,
+	transfer: 180000,
+};
+
 // ***
 // define types for relayer's config.yml.
 // ***
@@ -532,6 +545,7 @@ export default class Relayer {
 			{
 				prefix: chain.addressPrefix,
 				gasPrice: chainGP,
+				gasLimits: defaultGasLimits,
 			}
 		);
 
