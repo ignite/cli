@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
@@ -31,7 +32,7 @@ func parse(ctx context.Context, path, pattern string) ([]*pkg, error) {
 			return nil, ctx.Err()
 		}
 		if err := pr.parseFile(path); err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "file: %s", path)
 		}
 	}
 
