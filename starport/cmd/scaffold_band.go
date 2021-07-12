@@ -14,8 +14,8 @@ import (
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "band [queryName] ... --module [moduleName]",
-		Short: "Scaffold an IBC Bandchain oracle",
-		Long:  "Scaffold an IBC Bandchain oracle in a specific IBC-enabled Cosmos SDK module",
+		Short: "Scaffold an IBC Bandchain query oracle to request real-time data",
+		Long:  "Scaffold an IBC Bandchain query oracle to request real-time data from Bandchain scripts in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createBandchainHandler,
 	}
