@@ -13,7 +13,7 @@ import (
 // NewScaffoldBandchain creates a new Bandchain oracle in the module
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "band [queryName] ... --module [moduleName]",
+		Use:   "band [queryName] --module [moduleName]",
 		Short: "Scaffold an IBC Bandchain query oracle to request real-time data",
 		Long:  "Scaffold an IBC Bandchain query oracle to request real-time data from Bandchain scripts in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
