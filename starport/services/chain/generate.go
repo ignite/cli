@@ -3,11 +3,17 @@ package chain
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/giturl"
+)
+
+const (
+	defaultVuexPath    = "vue/src/store"
+	defaultOpenAPIPath = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
@@ -78,8 +84,17 @@ func (c *Chain) Generate(
 	enableThirdPartyModuleCodegen := !c.protoBuiltAtLeastOnce && c.options.isThirdPartyModuleCodegenEnabled
 
 	// generate Vuex code as well if it is enabled.
-	if targetOptions.isVuexEnabled && conf.Client.Vuex.Path != "" {
-		storeRootPath := filepath.Join(c.app.Path, conf.Client.Vuex.Path, "generated")
+	if targetOptions.isVuexEnabled {
+		vuexPath := conf.Client.Vuex.Path
+		if vuexPath == "" {
+			vuexPath = defaultVuexPath
+		}
+
+		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
+		if err := os.MkdirAll(storeRootPath, 0755); err != nil {
+			return err
+		}
+
 		options = append(options,
 			cosmosgen.WithVuexGeneration(
 				enableThirdPartyModuleCodegen,
@@ -91,8 +106,14 @@ func (c *Chain) Generate(
 			),
 		)
 	}
-	if targetOptions.isOpenAPIEnabled && conf.Client.OpenAPI.Path != "" {
-		options = append(options, cosmosgen.WithOpenAPIGeneration(conf.Client.OpenAPI.Path))
+	if targetOptions.isOpenAPIEnabled {
+		openAPIPath := conf.Client.OpenAPI.Path
+
+		if openAPIPath == "" {
+			openAPIPath = defaultOpenAPIPath
+		}
+
+		options = append(options, cosmosgen.WithOpenAPIGeneration(openAPIPath))
 	}
 
 	if err := cosmosgen.Generate(ctx, c.app.Path, conf.Build.Proto.Path, options...); err != nil {
