@@ -14,7 +14,7 @@ const flagPath = "path"
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "vue",
-		Short: "Scaffold a Vue.JS app for a chain",
+		Short: "Vue 3 web app template",
 		Args:  cobra.NoArgs,
 		RunE:  scaffoldVueHandler,
 	}

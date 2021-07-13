@@ -17,7 +17,7 @@ const (
 func NewScaffoldQuery() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "query [name] [request_field1] [request_field2] ...",
-		Short: "Scaffold a Cosmos SDK query",
+		Short: "Query to get data from the blockchain",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  queryHandler,
 	}

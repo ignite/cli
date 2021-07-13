@@ -961,7 +961,7 @@ starport scaffold chain [github.com/org/repo] [flags]
 ```
       --address-prefix string   Address prefix (default "cosmos")
   -h, --help                    help for chain
-      --no-default-module       Prevent scaffolding a default module in the app
+      --no-module              Prevent scaffolding a default module in the app
 ```
 
 **SEE ALSO**
@@ -1081,4 +1081,3 @@ starport version [flags]
 **SEE ALSO**
 
 * [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
