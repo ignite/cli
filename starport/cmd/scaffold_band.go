@@ -53,10 +53,10 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	fmt.Printf(`
 🎉 Created a Band oracle query "%[1]v".
 
-Note: %[2]v module uses version "bandchain-1".
+Note: BandChain module uses version "bandchain-1".
 Make sure to update the keys.go file accordingly.
 
-// x/bandmodule/types/keys.go
+// x/%[2]v/types/keys.go
 const Version = "bandchain-1"
 
 `, oracle, module)
