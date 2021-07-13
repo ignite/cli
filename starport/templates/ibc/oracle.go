@@ -108,7 +108,10 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 
 		// Ack packet dispatch
 		templateAck := `%[1]v
-	sdkResult := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
+	sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
+	if err != nil {
+		return nil, err
+	}
 	if sdkResult != nil {
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
 		return sdkResult, nil
@@ -221,6 +224,7 @@ message Msg%[2]vData {
   string request_key = 8;
   uint64 prepare_gas = 9;
   uint64 execute_gas = 10;
+  string client_id = 11 [(gogoproto.customname) = "ClientID"];
 }
 
 message Msg%[2]vDataResponse {
@@ -336,17 +340,17 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 
 		// Register the module packet
 		templateRecv := `%[1]v
-	var %[2]vResult types.%[3]vResult
-	if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err == nil {
-		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
-		ack = channeltypes.NewResultAcknowledgement(
-			types.ModuleCdc.MustMarshalJSON(
-				packet.NewOracleRequestPacketAcknowledgement(modulePacketData.RequestID),
-			),
-		)
 
+	case types.%[3]vClientIDKey:
+		var %[2]vResult types.%[3]vResult
+		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
+			ack = channeltypes.NewErrorAcknowledgement(err.Error())
+			return ack, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest,
+				"cannot decode oracle received packet: %v", modulePacketData.GetClientID())
+		}
+		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
+	
 		// TODO: %[3]v oracle data reception logic
-	}
 `
 		replacementRegistry := fmt.Sprintf(templateRecv, PlaceholderOracleModuleRecv,
 			opts.QueryName.LowerCamel, opts.QueryName.UpperCamel)
@@ -354,11 +358,15 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 
 		// Register the module packet interface
 		templateAck := `%[1]v
+
+	case types.%[3]vClientIDKey:
 		var %[2]vData types.%[3]vCallData
-		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err == nil {
-			am.keeper.SetLast%[3]vID(ctx, requestID)
-			return &sdk.Result{}
+		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err != nil {
+			return nil, sdkerrors.Wrapf(err,
+				"cannot decode the oracle acknowledgment packet: %s", data.GetClientID())
 		}
+		am.keeper.SetLast%[3]vID(ctx, requestID)
+		return &sdk.Result{}, nil
 `
 		replacementInterface := fmt.Sprintf(templateAck, PlaceholderOracleModuleAck,
 			opts.QueryName.LowerCamel, opts.QueryName.UpperCamel)

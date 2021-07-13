@@ -48,7 +48,7 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 
 	encodedCalldata := obi.MustEncode(*msg.Calldata)
 	packetData := packet.NewOracleRequestPacketData(
-		types.ModuleName,
+		msg.ClientID,
 		msg.OracleScriptID,
 		encodedCalldata,
 		msg.AskCount,

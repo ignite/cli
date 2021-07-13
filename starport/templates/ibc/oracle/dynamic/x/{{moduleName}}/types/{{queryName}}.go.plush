@@ -13,6 +13,9 @@ var (
 
 	// Last<%= queryName.UpperCamel %>IDKey is the key for the last request id
 	Last<%= queryName.UpperCamel %>IDKey = "<%= queryName.Snake %>_last_id"
+
+	// <%= queryName.UpperCamel %>ClientIDKey is query request identifier
+	<%= queryName.UpperCamel %>ClientIDKey = "<%= queryName.Snake %>_id"
 )
 
 // NewMsg<%= queryName.UpperCamel %>Data creates a new <%= queryName.UpperCamel %> message
@@ -29,6 +32,7 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 	executeGas uint64,
 ) *Msg<%= queryName.UpperCamel %>Data {
 	return &Msg<%= queryName.UpperCamel %>Data{
+		ClientID:       <%= queryName.UpperCamel %>ClientIDKey,
 		Creator:        creator,
 		OracleScriptID: int64(oracleScriptID),
 		SourceChannel:  sourceChannel,
