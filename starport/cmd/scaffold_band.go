@@ -10,12 +10,12 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-// NewScaffoldBandchain creates a new Bandchain oracle in the module
+// NewScaffoldBandchain creates a new BandChain oracle in the module
 func NewScaffoldBandchain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "band [queryName] --module [moduleName]",
-		Short: "Scaffold an IBC Bandchain query oracle to request real-time data",
-		Long:  "Scaffold an IBC Bandchain query oracle to request real-time data from Bandchain scripts in a specific IBC-enabled Cosmos SDK module",
+		Short: "Scaffold an IBC BandChain query oracle to request real-time data",
+		Long:  "Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  createBandchainHandler,
 	}
@@ -53,12 +53,12 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	fmt.Printf(`
 🎉 Created a Band oracle query "%[1]v".
 
-Note: BandChain module uses version "bandchain-1".
+Note: %[2]v module uses version "bandchain-1".
 Make sure to update the keys.go file accordingly.
 
 // x/bandmodule/types/keys.go
 const Version = "bandchain-1"
 
-`, args[0])
+`, oracle, module)
 	return nil
 }

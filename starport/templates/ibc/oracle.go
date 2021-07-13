@@ -29,7 +29,7 @@ var (
 	ibcOracleDynamicTemplate = xgenny.NewEmbedWalker(fsOracleDynamic, "oracle/dynamic/")
 )
 
-// OracleOptions are options to scaffold an oracle in a IBC module
+// OracleOptions are options to scaffold an oracle query in a IBC module
 type OracleOptions struct {
 	AppName    string
 	ModuleName string

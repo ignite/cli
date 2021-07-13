@@ -1,16 +1,16 @@
 ---
 order: 7
-description: IBC oracle integration with Bandchain
+description: IBC oracle integration with BandChain
 ---
 
-# Bandchain Oracle Scaffold
+# BandChain Oracle Scaffold
 
 BandChain’s Oracle module is a communication module built-in compliance with IBC protocol which can query data points of various types from BandChain. In addition, other chains can ask our Oracle module for real-time information according to their needs.
-Bandchain has multiples scripts deployed into the network, and we can request any data using the script id.
+BandChain has multiples scripts deployed into the network, and we can request any data using the script id.
 
 ## IBC Module Packet Scaffold
 
-Bandchain oracle queries can be scaffolded only in IBC modules.
+BandChain oracle queries can be scaffolded only in IBC modules.
 
 To scaffold an oracle:
 
@@ -20,19 +20,19 @@ starport scaffold band [queryName] --module [moduleName]
 
 ### Acknowledgement
 
-The Bandchain oracle will return the ack messages with the request's id, and we save the last request id for future queries.
+The BandChain oracle will return the ack messages with the request's id, and we save the last request id for future queries.
 
 ## Files and Directories
 
-When you scaffold a Bandchain oracle, the following files and directories are created and modified:
+When you scaffold a BandChain oracle, the following files and directories are created and modified:
 
 - `proto`: oracle request and response data.
 - `x/module_name/keeper`: IBC hooks, gRPC message server.
 - `x/module_name/types`: message types, IBC events.
 - `x/module_name/client/cli`: CLI command to broadcast a transaction containing a message with a packet.
-- `x/module_name/oracle.go`: Bandchain oracle packet handlers.
+- `x/module_name/oracle.go`: BandChain oracle packet handlers.
 
-## Bandchain Oracle Scaffold Example
+## BandChain Oracle Scaffold Example
 
 The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet2.cosmoscan.io/oracle-script/37#bridge) request and result.
 
@@ -56,15 +56,17 @@ $ starport relayer configure -a \
 --source-faucet "https://laozi-testnet2.bandchain.org/faucet/request" \
 --source-port "oracle" \
 --source-gasprice "0uband" \
+--source-gaslimit 5000000 \
 --source-prefix "band" \
 --source-version "bandchain-1" \
 --target-rpc "http://localhost:26657" \
 --target-faucet "http://localhost:4500" \
 --target-port "consuming" \
 --target-gasprice "0.0stake" \
+--target-gaslimit 300000 \
 --target-prefix "cosmos"  \
 --target-version "bandchain-1"
-
+            
 $ starport relayer connect
 ```
 
@@ -76,7 +78,7 @@ $ ibcoracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "
 
 You can check the last request id returned by ack.
 ```shell
-$ ibcoracled query consuming last-coin-rates-price-id
+$ ibcoracled query consuming last-coin-rates-id
 request_id: "101276"
 ```
 

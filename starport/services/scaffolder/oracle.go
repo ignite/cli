@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
-// AddOracle adds a new Bandchain oracle integration.
+// AddOracle adds a new BandChain oracle integration.
 func (s *Scaffolder) AddOracle(
 	tracer *placeholder.Tracer,
 	moduleName,

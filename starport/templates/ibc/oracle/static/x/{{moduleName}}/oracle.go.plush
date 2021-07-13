@@ -9,7 +9,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 )
 
-// handleBroadcastResult handles the result of the received Bandchain oracles
+// handleBroadcastResult handles the result of the received BandChain oracles
 // packet and saves the data into the KV database
 func (am AppModule) handleOraclePacket(
 	ctx sdk.Context,
@@ -32,7 +32,7 @@ func (am AppModule) handleOraclePacket(
 	return ack, err
 }
 
-// handleOracleAcknowledgment handles the acknowledgment result from the Bandchain
+// handleOracleAcknowledgment handles the acknowledgment result from the BandChain
 // request and saves the request-id into the KV database
 func (am AppModule) handleOracleAcknowledgment(
 	ctx sdk.Context,
