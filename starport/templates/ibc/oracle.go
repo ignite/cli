@@ -345,8 +345,8 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
 			ack = channeltypes.NewErrorAcknowledgement(err.Error())
-			return ack, sdkerrors.Wrapf(sdkerrors.ErrUnknownRequest,
-				"cannot decode oracle received packet: %v", modulePacketData.GetClientID())
+			return ack, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest,
+				"cannot decode the %[2]v received packet")
 		}
 		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
 	
@@ -362,8 +362,8 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 	case types.%[3]vClientIDKey:
 		var %[2]vData types.%[3]vCallData
 		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err != nil {
-			return nil, sdkerrors.Wrapf(err,
-				"cannot decode the oracle acknowledgment packet: %s", data.GetClientID())
+			return nil, sdkerrors.Wrap(err,
+				"cannot decode the %[2]v oracle acknowledgment packet")
 		}
 		am.keeper.SetLast%[3]vID(ctx, requestID)
 		return &sdk.Result{}, nil
