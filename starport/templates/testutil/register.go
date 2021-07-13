@@ -3,13 +3,17 @@ package testutil
 import (
 	"embed"
 	"fmt"
+	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
-const modulePathKey = "ModulePath"
+const (
+	modulePathKey = "ModulePath"
+	testUtilDir   = "testutil"
+)
 
 var (
 	//go:embed stargate/* stargate/**/*
@@ -24,6 +28,9 @@ var (
 func Register(ctx *plush.Context, gen *genny.Generator) error {
 	if !ctx.Has(modulePathKey) {
 		return fmt.Errorf("ctx is missing value for the ket %s", modulePathKey)
+	}
+	if _, err := os.Stat(testUtilDir); !os.IsNotExist(err) {
+		return fmt.Errorf("templates files already exist %s", testUtilDir)
 	}
 	return gen.Box(testutilTemplate)
 }
