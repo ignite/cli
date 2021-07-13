@@ -18,7 +18,7 @@ const (
 func NewScaffoldChain() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "chain [github.com/org/repo]",
-		Short: "Scaffold a new blockchain",
+		Short: "Fully-featured Cosmos SDK blockchain",
 		Long:  "Scaffold a new Cosmos SDK blockchain with a default directory structure",
 		Args:  cobra.ExactArgs(1),
 		RunE:  scaffoldChainHandler,

@@ -21,8 +21,11 @@ const (
 // NewScaffold returns a command that groups scaffolding related sub commands.
 func NewScaffold() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "scaffold [command]",
-		Short:   "Scaffold a new blockchain or scaffold components inside an existing one",
+		Use:   "scaffold [command]",
+		Short: "Scaffold a new blockchain, module, message, query, and more",
+		Long: `Scaffold commands create and modify the source code files to add functionality.
+
+CRUD stands for "create, read, update, delete".`,
 		Aliases: []string{"s"},
 		Args:    cobra.ExactArgs(1),
 	}
