@@ -16,7 +16,7 @@ import (
 func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "<%= queryName.Kebab %>-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
-		Short: "Make a new <%= queryName.UpperCamel %> data request via an existing bandchain oracle script",
+		Short: "Make a new <%= queryName.UpperCamel %> query request via an existing BandChain oracle script",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.

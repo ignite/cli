@@ -131,7 +131,7 @@ import (
 func CmdRequestGoldPriceData() *cobra.Command {
 	cmd := &cobra.Command{
 		Use:   "gold-price-data [oracle-script-id] [requested-validator-count] [sufficient-validator-count]",
-		Short: "Make a new GoldPrice data request via an existing bandchain oracle script",
+		Short: "Make a new GoldPrice query request via an existing BandChain oracle script",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.
