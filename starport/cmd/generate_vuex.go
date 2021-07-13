@@ -15,8 +15,6 @@ func NewGenerateVuex() *cobra.Command {
 		RunE:  generateVuexHandler,
 	}
 
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules.")
-
 	return c
 }
 
@@ -24,15 +22,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
-	isRebuildProtoOnce, _ := cmd.Flags().GetBool(flagRebuildProtoOnce)
-
-	chainOption := []chain.Option{}
-
-	if isRebuildProtoOnce {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
-	}
-
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, appPath, chain.EnableThirdPartyModuleCodegen())
 	if err != nil {
 		return err
 	}
