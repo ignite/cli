@@ -3,10 +3,8 @@
 # Project variables.
 PROJECT_NAME = starport
 DATE := $(shell date '+%Y-%m-%dT%H:%M:%S')
-VERSION = development
 HEAD = $(shell git rev-parse HEAD)
-LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Version='$(VERSION)' \
-	-X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
+LD_FLAGS = -X github.com/tendermint/starport/starport/internal/version.Head='$(HEAD)' \
 	-X github.com/tendermint/starport/starport/internal/version.Date='$(DATE)'
 BUILD_FLAGS = -mod=readonly -ldflags='$(LD_FLAGS)'
 BUILD_FOLDER = ./dist
