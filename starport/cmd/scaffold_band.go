@@ -35,7 +35,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	if module == "" {
-		return errors.New("please specify a module to create the packet into: --module <module_name>")
+		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
 
 	sc, err := scaffolder.New(appPath)
