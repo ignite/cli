@@ -40,7 +40,7 @@ func CheckNext(ctx context.Context) (isAvailable bool, version string, err error
 	}
 
 	if latest.TagName == nil {
-		return false, "", err
+		return false, "", nil
 	}
 
 	currentVersion, err := semver.Parse(strings.TrimPrefix(Version, prefix))
