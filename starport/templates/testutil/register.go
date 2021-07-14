@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
@@ -29,8 +30,12 @@ func Register(ctx *plush.Context, gen *genny.Generator) error {
 	if !ctx.Has(modulePathKey) {
 		return fmt.Errorf("ctx is missing value for the ket %s", modulePathKey)
 	}
-	if _, err := os.Stat(testUtilDir); !os.IsNotExist(err) {
-		return fmt.Errorf("templates files already exist %s", testUtilDir)
+	path, err := filepath.Abs(testUtilDir)
+	if err != nil {
+		return err
+	}
+	if _, err := os.Stat(path); !os.IsNotExist(err) {
+		return nil
 	}
 	return gen.Box(testutilTemplate)
 }
