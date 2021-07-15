@@ -17,6 +17,8 @@
 - Added `faucet.rate_limit_window` property to `config.yml`
 - Simplified the `cmd` package in the template
 - Added `starport scaffold band` oracle query scaffolding
+- Updated TypeScript relayer to 0.2.0
+- Added customizable gas limits for the relayer
 
 ### Fixes:
 
