@@ -20,7 +20,7 @@ import ConsoleLogger from "./logger";
 
 const calcGasLimits = (limit: number) => ({
 	initClient: 150000,
-	updateClient: limit,
+	updateClient: 600000,
 	initConnection: 150000,
 	connectionHandshake: limit,
 	initChannel: 150000,
