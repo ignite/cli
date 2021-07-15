@@ -9,7 +9,7 @@ import (
 func NewScaffoldList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list NAME [field]...",
-		Short: "Scaffold a list",
+		Short: "CRUD for data stored as an array",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldListHandler,
 	}
@@ -23,7 +23,8 @@ func NewScaffoldList() *cobra.Command {
 func scaffoldListHandler(cmd *cobra.Command, args []string) error {
 	opts := scaffolder.AddTypeOption{
 		NoMessage: flagGetNoMessage(cmd),
+		Model:     scaffolder.List,
 	}
 
-	return scaffoldType("list", flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
 }

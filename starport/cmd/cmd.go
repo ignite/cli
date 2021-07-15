@@ -27,24 +27,35 @@ var (
 
 // New creates a new root command for `starport` with its sub commands.
 func New() *cobra.Command {
+	cobra.EnableCommandSorting = false
+
 	c := &cobra.Command{
-		Use:           "starport",
-		Short:         "A developer tool for building Cosmos SDK blockchains",
+		Use:   "starport",
+		Short: "Starport offers everything you need to scaffold, test, build, and launch your blockchain",
+		Long: `Starport is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+most popular modular blockchain framework. Starport offers everything you need to scaffold,
+test, build, and launch your blockchain.
+
+To get started, create a blockchain:
+
+starport scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return goenv.ConfigurePath()
 		},
 	}
+
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
-	c.AddCommand(NewDocs())
-	c.AddCommand(NewRelayer())
-	c.AddCommand(NewVersion())
 	c.AddCommand(NewNetwork())
+	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
+	c.AddCommand(NewDocs())
+	c.AddCommand(NewVersion())
 	c.AddCommand(deprecated()...)
+
 	return c
 }
 

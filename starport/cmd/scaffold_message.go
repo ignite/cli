@@ -9,16 +9,11 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const (
-	flagResponse    string = "response"
-	flagDescription string = "desc"
-)
-
 // NewScaffoldMessage returns the command to scaffold messages
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "message [name] [field1] [field2] ...",
-		Short: "Scaffold a Cosmos SDK message",
+		Short: "Message to perform state transition on the blockchain",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  messageHandler,
 	}

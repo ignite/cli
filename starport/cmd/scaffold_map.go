@@ -5,16 +5,11 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const (
-	flagModule    = "module"
-	flagNoMessage = "no-message"
-)
-
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "map NAME [field]...",
-		Short: "Scaffold a map",
+		Short: "CRUD for data stored as key-value pairs",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldMapHandler,
 	}
@@ -27,9 +22,9 @@ func NewScaffoldMap() *cobra.Command {
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
 	opts := scaffolder.AddTypeOption{
-		Indexed:   true,
 		NoMessage: flagGetNoMessage(cmd),
+		Model:     scaffolder.Map,
 	}
 
-	return scaffoldType("map", flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
 }

@@ -11,11 +11,11 @@ Starport is the easiest way to build a blockchain. It is a developer-friendly in
 Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/intro/install). Create and start a blockchain:
 
 ```
-starport scaffold chain github.com/alice/chain
+starport app github.com/alice/chain
 
 cd chain
 
-starport chain serve
+starport serve
 ```
 
 ## Documentation
@@ -30,7 +30,7 @@ For questions and support please join the `cosmos-sdk-starport` channel in the [
 
 ## Contributing
 
-We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. Thank you to all those who have contributed to Starport!
+We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can branch of from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. If you're not sure where to start check out [contributing.md](contributing.md) for our guidelines & policies for how we develop Starport. Thank you to all those who have contributed to Starport!
 
 ## Stay in touch
 
