@@ -87,6 +87,68 @@ func TestCreateModuleWithIBC(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
+func TestCreateIBCOracle(t *testing.T) {
+
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("ibcoracle")
+	)
+
+	env.Must(env.Exec("create an IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create the first BandChain oracle integration",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "oracleone", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create the second BandChain oracle integration",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "oracletwo", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating a BandChain oracle with no module specified",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "invalidOracle"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a BandChain oracle in a non existent module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "invalidOracle", "--module", "nomodule"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("create a non-IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "bar", "--require-registration"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("should prevent creating a BandChain oracle in a non IBC module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "band", "invalidOracle", "--module", "bar"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.EnsureAppIsSteady(path)
+}
+
 func TestCreateIBCPacket(t *testing.T) {
 
 	var (
