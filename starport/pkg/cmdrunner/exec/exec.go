@@ -5,12 +5,16 @@ import (
 	"bytes"
 	"context"
 	"fmt"
+	"os/exec"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
+
+// ExitError is an alias to exec.ExitError
+type ExitError = exec.ExitError
 
 type execConfig struct {
 	stepOptions           []step.Option
@@ -67,6 +71,10 @@ type Error struct {
 	Command               string
 	StdLogs               string // collected logs from code generation tools.
 	includeStdLogsToError bool
+}
+
+func (e *Error) Unwrap() error {
+	return e.Err
 }
 
 func (e *Error) Error() string {

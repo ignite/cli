@@ -1,0 +1,33 @@
+package keeper
+
+import (
+	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/assert"
+    
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
+	item := types.<%= TypeName.UpperCamel %>{
+	    Creator: "any",
+	}
+	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
+	return item
+}
+
+func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    assert.True(t, found)
+    assert.Equal(t, item, rst)
+}
+func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
+	keeper, ctx := setupKeeper(t)
+	createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	keeper.Remove<%= TypeName.UpperCamel %>(ctx)
+    _, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    assert.False(t, found)
+}

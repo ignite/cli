@@ -10,7 +10,7 @@
 		"build": "./node_modules/pkg/lib-es5/bin.js --debug -t node14-linux-x64,node14-macos-x64 -o nodetime ."
 	},
 	"dependencies": {
-		"@confio/relayer": "0.1.4",
+		"@confio/relayer": "0.2.0",
 		"@cosmjs/crypto": "0.25.0",
 		"@cosmjs/launchpad": "0.25.0",
 		"@cosmjs/proto-signing": "0.25.0",

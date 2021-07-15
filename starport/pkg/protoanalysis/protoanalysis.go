@@ -7,9 +7,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
+const protoFilePattern = "*.proto"
+
 // Parse parses proto packages by finding them with given glob pattern.
-func Parse(ctx context.Context, pattern string) ([]Package, error) {
-	parsed, err := parse(ctx, pattern)
+func Parse(ctx context.Context, path string) ([]Package, error) {
+	parsed, err := parse(ctx, path, protoFilePattern)
 	if err != nil {
 		return nil, err
 	}
@@ -24,9 +26,6 @@ func Parse(ctx context.Context, pattern string) ([]Package, error) {
 }
 
 // SearchRecursive recursively finds all proto files under path.
-func SearchRecursive(dir string) ([]string, error) {
-	return localfs.Search(PatternRecursive(dir))
+func SearchRecursive(path string) ([]string, error) {
+	return localfs.Search(path, protoFilePattern)
 }
-
-// PatternRecursive returns a recursive glob search pattern to find all proto files under path.
-func PatternRecursive(dir string) string { return dir + "/**/*.proto" }

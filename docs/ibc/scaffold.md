@@ -12,7 +12,7 @@ Starport supports IBC-specific scaffolding.
 To create a Cosmos SDK module with IBC logic:
 
 ```
-starport module create ibcdex --ibc
+starport scaffold module create ibcdex --ibc
 ```
 
 ## Custom Packet
@@ -20,5 +20,5 @@ starport module create ibcdex --ibc
 To create a custom packet:
 
 ```
-starport packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
+starport scaffold packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
 ```

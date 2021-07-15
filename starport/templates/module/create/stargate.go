@@ -27,6 +27,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("title", strings.Title)
+	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
@@ -57,15 +58,15 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 		// Import
 		template := `%[1]v
-		"%[3]v/x/%[2]v"
-		%[2]vkeeper "%[3]v/x/%[2]v/keeper"
-		%[2]vtypes "%[3]v/x/%[2]v/types"`
+		%[2]vmodule "%[3]v/x/%[2]v"
+		%[2]vmodulekeeper "%[3]v/x/%[2]v/keeper"
+		%[2]vmoduletypes "%[3]v/x/%[2]v/types"`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderSgAppModuleImport, replacement)
 
 		// ModuleBasic
 		template = `%[1]v
-		%[2]v.AppModuleBasic{},`
+		%[2]vmodule.AppModuleBasic{},`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleBasic, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppModuleBasic, replacement)
 
@@ -78,7 +79,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		}
 		template = `%[1]v
 		%[3]v
-		%[4]vKeeper %[2]vkeeper.Keeper`
+		%[4]vKeeper %[2]vmodulekeeper.Keeper`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDeclaration,
@@ -90,9 +91,28 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 		// Store key
 		template = `%[1]v
-		%[2]vtypes.StoreKey,`
+		%[2]vmoduletypes.StoreKey,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppStoreKey, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacement)
+
+		// Module dependencies
+		var depArgs string
+		for _, dep := range opts.Dependencies {
+			depArgs = fmt.Sprintf("%sapp.%s,\n", depArgs, dep.KeeperName)
+
+			// If bank is a dependency, add account permissions to the module
+			if dep.Name == "bank" {
+				template = `%[1]v
+				%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},`
+
+				replacement = fmt.Sprintf(
+					template,
+					module.PlaceholderSgAppMaccPerms,
+					opts.ModuleName,
+				)
+				content = replacer.Replace(content, module.PlaceholderSgAppMaccPerms, replacement)
+			}
+		}
 
 		// Keeper definition
 		var scopedKeeperDefinition string
@@ -103,15 +123,16 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition = module.PlaceholderIBCAppScopedKeeperDefinition
 			ibcKeeperArgument = module.PlaceholderIBCAppKeeperArgument
 		}
-		template = `%[1]v
-		%[3]v
-		app.%[5]vKeeper = *%[2]vkeeper.NewKeeper(
+		template = `%[3]v
+		app.%[5]vKeeper = *%[2]vmodulekeeper.NewKeeper(
 			appCodec,
-			keys[%[2]vtypes.StoreKey],
-			keys[%[2]vtypes.MemStoreKey],
+			keys[%[2]vmoduletypes.StoreKey],
+			keys[%[2]vmoduletypes.MemStoreKey],
 			%[4]v
-		)
-		%[2]vModule := %[2]v.NewAppModule(appCodec, app.%[5]vKeeper)`
+			%[6]v)
+		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)
+
+		%[1]v`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDefinition,
@@ -119,6 +140,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			scopedKeeperDefinition,
 			ibcKeeperArgument,
 			strings.Title(opts.ModuleName),
+			depArgs,
 		)
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
 
@@ -130,13 +152,13 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 		// Init genesis
 		template = `%[1]v
-		%[2]vtypes.ModuleName,`
+		%[2]vmoduletypes.ModuleName,`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppInitGenesis, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppInitGenesis, replacement)
 
 		// Param subspace
 		template = `%[1]v
-		paramsKeeper.Subspace(%[2]vtypes.ModuleName)`
+		paramsKeeper.Subspace(%[2]vmoduletypes.ModuleName)`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppParamSubspace, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppParamSubspace, replacement)
 

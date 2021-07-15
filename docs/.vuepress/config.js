@@ -1,7 +1,28 @@
 module.exports = {
   theme: "cosmos",
   title: "Starport",
+  head: [
+    [
+      "script",
+      {
+        async: true,
+        src: "https://www.googletagmanager.com/gtag/js?id=G-XL9GNV1KHW",
+      },
+    ],
+    [
+      "script",
+      {},
+      [
+        "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-XL9GNV1KHW');",
+      ],
+    ],
+  ],
   themeConfig: {
+    algolia: {
+      id: "BH4D9OD16A",
+      key: "d6908a9436133e03e9b0131bad808775",
+      index: "docs-startport",
+    },
     sidebar: {
       auto: true,
       nav: [

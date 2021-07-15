@@ -22,7 +22,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 	env.Must(env.Exec("add Wasm module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "import", "wasm"),
+			step.Exec("starport", "s", "wasm"),
 			step.Workdir(apath),
 		)),
 	))

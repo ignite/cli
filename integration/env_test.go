@@ -156,7 +156,8 @@ func (e env) Scaffold(appName string) (appPath string) {
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"app",
+				"scaffold",
+				"chain",
 				fmt.Sprintf("github.com/test/%s", appName),
 			),
 			step.Workdir(root),
@@ -176,6 +177,7 @@ func (e env) Scaffold(appName string) (appPath string) {
 // unless calling with Must(), Serve() will not exit test runtime on failure.
 func (e env) Serve(msg, path, home, configPath string, options ...execOption) (ok bool) {
 	serveCommand := []string{
+		"chain",
 		"serve",
 		"-v",
 	}
@@ -199,6 +201,9 @@ func (e env) Serve(msg, path, home, configPath string, options ...execOption) (o
 // EnsureAppIsSteady ensures that app living at the path can compile and its tests
 // are passing.
 func (e env) EnsureAppIsSteady(appPath string) {
+	_, statErr := os.Stat(filepath.Join(appPath, "config.yml"))
+	require.False(e.t, os.IsNotExist(statErr), "config.yml cannot be found")
+
 	e.Exec("make sure app is steady",
 		step.NewSteps(step.New(
 			step.Exec(gocmd.Name(), "test", "./..."),

@@ -2,20 +2,20 @@
 order: 1
 description: Use commands to build, start, and add features to your first blockchain.
 parent:
-  order: 1
+  order: 0
   title: Introduction
 ---
 
 # Quickstart
 
-Use these three commands to build, start, and add features to your first blockchain.
+Use these three commands to build, start, and add features to your first blockchain. Before moving forward, make sure to have Starport locally installed, visit the [Installation guide](https://docs.starport.network/intro/install.html) for more information.
 
 ## Create a blockchain
 
 To create a blockchain:
 
 ```
-starport app github.com/username/myapp && cd myapp
+starport scaffold chain github.com/username/myapp && cd myapp
 ```
 
 The `app` command creates the blockchain directory `myapp` and scaffolds a [Cosmos SDK](https://docs.cosmos.network/) blockchain.
@@ -25,7 +25,7 @@ The `app` command creates the blockchain directory `myapp` and scaffolds a [Cosm
 To run a blockchain in your development environment:
 
 ```
-starport serve
+starport chain serve
 ```
 
 The `serve` command installs dependencies, builds, initializes, and starts the blockchain.
@@ -35,7 +35,7 @@ The `serve` command installs dependencies, builds, initializes, and starts the b
 To add a custom type with create, read, update, and delete (CRUD) functionality:
 
 ```
-starport type post title body
+starport scaffold type post title body
 ```
 
 The `type` command scaffolds functionality a custom type.

@@ -14,7 +14,7 @@ Packets can be be scaffolded only in IBC modules.
 To scaffold a packet:
 
 ```
-starport packet [packetName] [field1] [field2] --module [module_name] [flags]
+starport scaffold packet [packetName] [field1] [field2] --module [module_name] [flags]
 ```
 
 ### Custom acknowledgement types
@@ -35,5 +35,5 @@ When you scaffold a packet, the following files and directories are created and 
 The following command scaffolds the IBC-enabled `buyOrder` packet for the `amountDenom` and `remainingAmount` fields with custom acknowledgements for the `remainingAmount:int` and `purchase:int` fields.
 
 ```
-starport packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
+starport scaffold packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
 ```

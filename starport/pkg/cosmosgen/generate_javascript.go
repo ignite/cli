@@ -8,13 +8,13 @@ import (
 	"strings"
 
 	"github.com/iancoleman/strcase"
-	"github.com/mattn/go-zglob"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
-	"github.com/tendermint/starport/starport/pkg/nodetime/sta"
-	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/ts-proto"
-	"github.com/tendermint/starport/starport/pkg/nodetime/tsc"
+	"github.com/tendermint/starport/starport/pkg/localfs"
+	"github.com/tendermint/starport/starport/pkg/nodetime/programs/sta"
+	tsproto "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-proto"
+	"github.com/tendermint/starport/starport/pkg/nodetime/programs/tsc"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"golang.org/x/sync/errgroup"
@@ -28,9 +28,9 @@ var (
 	jsOpenAPIOut = []string{
 		"--openapiv2_out=logtostderr=true,allow_merge=true,Mgoogle/protobuf/any.proto=github.com/cosmos/cosmos-sdk/codec/types:.",
 	}
-
-	vuexRootMarker = "vuex-root"
 )
+
+const vuexRootMarker = "vuex-root"
 
 type jsGenerator struct {
 	g *generator
@@ -163,7 +163,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 }
 
 func (g *jsGenerator) generateVuexModuleLoader() error {
-	modulePaths, err := zglob.Glob(filepath.Join(g.g.o.vuexStoreRootPath, "/**/"+vuexRootMarker))
+	modulePaths, err := localfs.Search(g.g.o.vuexStoreRootPath, vuexRootMarker)
 	if err != nil {
 		return err
 	}

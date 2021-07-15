@@ -25,13 +25,14 @@ const (
 	PlaceholderSgAppInitGenesis         = "// this line is used by starport scaffolding # stargate/app/initGenesis"
 	PlaceholderSgAppParamSubspace       = "// this line is used by starport scaffolding # stargate/app/paramSubspace"
 	PlaceholderSgAppGovProposalHandlers = "// this line is used by starport scaffolding # stargate/app/govProposalHandlers"
-	PlaceholderSgAppGovProposalHandler  = "// this line is used by starport scaffolding # stargate/app/govProposalHandler"
 	PlaceholderSgAppNewArgument         = "// this line is used by starport scaffolding # stargate/app/newArgument"
 	PlaceholderSgAppScopedKeeper        = "// this line is used by starport scaffolding # stargate/app/scopedKeeper"
 	PlaceholderSgAppBeforeInitReturn    = "// this line is used by starport scaffolding # stargate/app/beforeInitReturn"
+	PlaceholderSgAppMaccPerms           = "// this line is used by starport scaffolding # stargate/app/maccPerms"
 
 	// Placeholders in Stargate app.go for wasm
 	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
+	PlaceholderSgRootArgument            = "// this line is used by starport scaffolding # root/arguments"
 
 	// Placeholders in Stargate root.go
 	PlaceholderSgRootImport                 = "// this line is used by starport scaffolding # stargate/root/import"
