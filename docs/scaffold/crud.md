@@ -1,16 +1,16 @@
 ---
 order: 3
-description: Generate the files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
+description: Generate the files that implement create, read, update, and delete (CRUD) functionality.
 ---
 
 # Type Scaffold Reference
 
-The `starport type` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
+The `starport scaffold list` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
 
 ## Command Overview
 
 ```
-starport type [typeName] [field1] [field2] ... [flags]
+starport scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
 `typeName` string
@@ -62,6 +62,6 @@ appd q blog show-post [id]
 This example command creates a `post` type with four fields: `title` and `body` strings, boolean `comments` and integer `count`. This type is created in a module called blog.
 
 ```
-starport type post title body comments:bool count:int32 --module blog
+starport scaffold list post title body comments:bool count:int32 --module blog
 ```
 

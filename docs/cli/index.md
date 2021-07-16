@@ -12,7 +12,17 @@ Note: CLI docs reflect the changes in an upcoming release.
 
 ## starport
 
-A developer tool for building Cosmos SDK blockchains
+Starport offers everything you need to scaffold, test, build, and launch your blockchain
+
+**Synopsis**
+
+Starport is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+most popular modular blockchain framework. Starport offers everything you need to scaffold,
+test, build, and launch your blockchain.
+
+To get started, create a blockchain:
+
+starport scaffold chain github.com/cosmonaut/mars
 
 **Options**
 
@@ -22,23 +32,23 @@ A developer tool for building Cosmos SDK blockchains
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 * [starport docs](#starport-docs)	 - Show Starport docs
-* [starport message](#starport-message)	 - Scaffold a Cosmos SDK message
-* [starport module](#starport-module)	 - Manage Cosmos SDK modules for your blockchain
-* [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
-* [starport packet](#starport-packet)	 - Scaffold an IBC packet
-* [starport query](#starport-query)	 - Scaffold a Cosmos SDK query
+* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
+* [starport network](#starport-network)	 - Launch a blockchain network in production
 * [starport relayer](#starport-relayer)	 - Connects blockchains via IBC protocol
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 * [starport tools](#starport-tools)	 - Tools for advanced users
-* [starport type](#starport-type)	 - Scaffold a type with CRUD operations
 * [starport version](#starport-version)	 - Print the current build information
 
 
 ## starport chain
 
-Build, initialize, and start a blockchain
+Build, initialize and start a blockchain node or perform other actions on the blockchain
+
+**Synopsis**
+
+Build, initialize and start a blockchain node or perform other actions on the blockchain.
 
 **Options**
 
@@ -48,9 +58,10 @@ Build, initialize, and start a blockchain
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
 * [starport chain build](#starport-chain-build)	 - Build a node binary
 * [starport chain faucet](#starport-chain-faucet)	 - Send coins to an account
+* [starport chain init](#starport-chain-init)	 - Initialize your chain
 * [starport chain serve](#starport-chain-serve)	 - Start a blockchain node in development
 
 
@@ -91,7 +102,7 @@ starport chain build [flags]
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
 ## starport chain faucet
@@ -113,7 +124,28 @@ starport chain faucet [address] [coin<,...>] [flags]
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
+
+
+## starport chain init
+
+Initialize your chain
+
+```
+starport chain init [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for init
+      --home string   Home directory used for blockchains
+  -p, --path string   Path of the app
+```
+
+**SEE ALSO**
+
+* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
 ## starport chain serve
@@ -143,7 +175,7 @@ starport chain serve [flags]
 
 **SEE ALSO**
 
-* [starport chain](#starport-chain)	 - Build, initialize, and start a blockchain
+* [starport chain](#starport-chain)	 - Build, initialize and start a blockchain node or perform other actions on the blockchain
 
 
 ## starport docs
@@ -162,101 +194,95 @@ starport docs [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
 
 
-## starport message
+## starport generate
 
-Scaffold a Cosmos SDK message
-
-```
-starport message [name] [field1] [field2] ... [flags]
-```
-
-**Options**
-
-```
-  -d, --desc string        Description of the command
-  -h, --help               help for message
-      --module string      Module to add the message into. Default: app's main module
-  -p, --path string        path of the app
-  -r, --response strings   Response fields
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
-
-## starport module
-
-Manage Cosmos SDK modules for your blockchain
-
-**Options**
-
-```
-  -h, --help   help for module
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-* [starport module create](#starport-module-create)	 - Scaffold a Cosmos SDK module
-* [starport module import](#starport-module-import)	 - Import a new module to app.
-
-
-## starport module create
-
-Scaffold a Cosmos SDK module
+Generate clients, API docs from source code
 
 **Synopsis**
 
-Scaffold a new Cosmos SDK module in the `x` directory
+Generate clients, API docs from source code.
+
+Such as compiling protocol buffer files into Go or implement particular functionality, for example, generating an OpenAPI spec.
+
+Produced source code can be regenerated by running a command again and is not meant to be edited by hand.
+
+**Options**
 
 ```
-starport module create [name] [flags]
+  -h, --help   help for generate
+```
+
+**SEE ALSO**
+
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
+* [starport generate openapi](#starport-generate-openapi)	 - Generate generates an OpenAPI spec for your chain from your config.yml
+* [starport generate proto-go](#starport-generate-proto-go)	 - Generate proto based Go code needed for the app's source code
+* [starport generate vuex](#starport-generate-vuex)	 - Generate Vuex store for you chain's frontend from your config.yml
+
+
+## starport generate openapi
+
+Generate generates an OpenAPI spec for your chain from your config.yml
+
+```
+starport generate openapi [flags]
 ```
 
 **Options**
 
 ```
-  -h, --help                   help for create
-      --ibc                    scaffold an IBC module
-      --ordering string        channel ordering of the IBC module [none|ordered|unordered] (default "none")
-      --require-registration   if true command will fail if module can't be registered
+  -h, --help   help for openapi
 ```
 
 **SEE ALSO**
 
-* [starport module](#starport-module)	 - Manage Cosmos SDK modules for your blockchain
+* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
 
 
-## starport module import
+## starport generate proto-go
 
-Import a new module to app.
-
-**Synopsis**
-
-Add support for WebAssembly smart contracts to your blockchain.
+Generate proto based Go code needed for the app's source code
 
 ```
-starport module import [feature] [flags]
+starport generate proto-go [flags]
 ```
 
 **Options**
 
 ```
-  -h, --help   help for import
+  -h, --help   help for proto-go
 ```
 
 **SEE ALSO**
 
-* [starport module](#starport-module)	 - Manage Cosmos SDK modules for your blockchain
+* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
+
+
+## starport generate vuex
+
+Generate Vuex store for you chain's frontend from your config.yml
+
+```
+starport generate vuex [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for vuex
+```
+
+**SEE ALSO**
+
+* [starport generate](#starport-generate)	 - Generate clients, API docs from source code
 
 
 ## starport network
 
-Launch a blockchain network in a decentralized way
+Launch a blockchain network in production
 
 **Options**
 
@@ -271,7 +297,7 @@ Launch a blockchain network in a decentralized way
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
 * [starport network account](#starport-network-account)	 - Show the underlying SPN account
 * [starport network chain](#starport-network-chain)	 - Build networks
 * [starport network proposal](#starport-network-proposal)	 - Proposals related to starting network
@@ -310,7 +336,7 @@ starport network account [flags]
 
 **SEE ALSO**
 
-* [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
+* [starport network](#starport-network)	 - Launch a blockchain network in production
 * [starport network account create](#starport-network-account-create)	 - Create an account
 * [starport network account export](#starport-network-account-export)	 - Export an account
 * [starport network account import](#starport-network-account-import)	 - Import an account
@@ -463,7 +489,7 @@ Build networks
 
 **SEE ALSO**
 
-* [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
+* [starport network](#starport-network)	 - Launch a blockchain network in production
 * [starport network chain create](#starport-network-chain-create)	 - Create a new network
 * [starport network chain join](#starport-network-chain-join)	 - Propose to join to a network as a validator
 * [starport network chain list](#starport-network-chain-list)	 - List all chains with proposals summary
@@ -650,7 +676,7 @@ Proposals related to starting network
 
 **SEE ALSO**
 
-* [starport network](#starport-network)	 - Launch a blockchain network in a decentralized way
+* [starport network](#starport-network)	 - Launch a blockchain network in production
 * [starport network proposal approve](#starport-network-proposal-approve)	 - Approve proposals
 * [starport network proposal list](#starport-network-proposal-list)	 - List all pending proposals
 * [starport network proposal reject](#starport-network-proposal-reject)	 - Reject proposals
@@ -809,56 +835,6 @@ starport network proposal verify [chain-id] [number<,...>] [flags]
 * [starport network proposal](#starport-network-proposal)	 - Proposals related to starting network
 
 
-## starport packet
-
-Scaffold an IBC packet
-
-**Synopsis**
-
-Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module
-
-```
-starport packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
-```
-
-**Options**
-
-```
-      --ack strings     Custom acknowledgment type (field1,field2,...)
-  -h, --help            help for packet
-      --module string   IBC Module to add the packet into
-      --no-message      Disable send message scaffolding
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
-
-## starport query
-
-Scaffold a Cosmos SDK query
-
-```
-starport query [name] [request_field1] [request_field2] ... [flags]
-```
-
-**Options**
-
-```
-  -d, --desc string        Description of the command
-  -h, --help               help for query
-      --module string      Module to add the query into. Default: app's main module
-      --paginated          Define if the request can be paginated
-  -p, --path string        path of the app
-  -r, --response strings   Response fields
-```
-
-**SEE ALSO**
-
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-
-
 ## starport relayer
 
 Connects blockchains via IBC protocol
@@ -871,7 +847,7 @@ Connects blockchains via IBC protocol
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
 * [starport relayer configure](#starport-relayer-configure)	 - Configure source and target chains for relaying
 * [starport relayer connect](#starport-relayer-connect)	 - Link chains associated with paths and start relaying tx packets in between
 
@@ -891,12 +867,14 @@ starport relayer configure [flags]
   -h, --help                     help for configure
       --ordered                  Set the channel as ordered
       --source-faucet string     Faucet address of the source chain
+      --source-gaslimit int      Gas limit used for transactions on source chain
       --source-gasprice string   Gas price used for transactions on source chain
       --source-port string       IBC port ID on the source chain
       --source-prefix string     Address prefix of the source chain
       --source-rpc string        RPC address of the source chain
       --source-version string    Module version on the source chain
       --target-faucet string     Faucet address of the target chain
+      --target-gaslimit int      Gas limit used for transactions on target chain
       --target-gasprice string   Gas price used for transactions on target chain
       --target-port string       IBC port ID on the target chain
       --target-prefix string     Address prefix of the target chain
@@ -930,7 +908,13 @@ starport relayer connect [<path>,...] [flags]
 
 ## starport scaffold
 
-Scaffold a new blockchain or scaffold components inside an existing one
+Scaffold a new blockchain, module, message, query, and more
+
+**Synopsis**
+
+Scaffold commands create and modify the source code files to add functionality.
+
+CRUD stands for "create, read, update, delete".
 
 **Options**
 
@@ -940,13 +924,47 @@ Scaffold a new blockchain or scaffold components inside an existing one
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
-* [starport scaffold chain](#starport-scaffold-chain)	 - Scaffold a new blockchain
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
+* [starport scaffold band](#starport-scaffold-band)	 - Scaffold an IBC BandChain query oracle to request real-time data
+* [starport scaffold chain](#starport-scaffold-chain)	 - Fully-featured Cosmos SDK blockchain
+* [starport scaffold list](#starport-scaffold-list)	 - CRUD for data stored as an array
+* [starport scaffold map](#starport-scaffold-map)	 - CRUD for data stored as key-value pairs
+* [starport scaffold message](#starport-scaffold-message)	 - Message to perform state transition on the blockchain
+* [starport scaffold module](#starport-scaffold-module)	 - Scaffold a Cosmos SDK module
+* [starport scaffold packet](#starport-scaffold-packet)	 - Message for sending an IBC packet
+* [starport scaffold query](#starport-scaffold-query)	 - Query to get data from the blockchain
+* [starport scaffold single](#starport-scaffold-single)	 - CRUD for data stored in a single location
+* [starport scaffold vue](#starport-scaffold-vue)	 - Vue 3 web app template
+* [starport scaffold wasm](#starport-scaffold-wasm)	 - Import the wasm module to your app
+
+
+## starport scaffold band
+
+Scaffold an IBC BandChain query oracle to request real-time data
+
+**Synopsis**
+
+Scaffold an IBC BandChain query oracle to request real-time data from BandChain scripts in a specific IBC-enabled Cosmos SDK module
+
+```
+starport scaffold band [queryName] --module [moduleName] [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for band
+      --module string   IBC Module to add the packet into
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
 ## starport scaffold chain
 
-Scaffold a new blockchain
+Fully-featured Cosmos SDK blockchain
 
 **Synopsis**
 
@@ -961,12 +979,221 @@ starport scaffold chain [github.com/org/repo] [flags]
 ```
       --address-prefix string   Address prefix (default "cosmos")
   -h, --help                    help for chain
-      --no-module              Prevent scaffolding a default module in the app
+      --no-module               Prevent scaffolding a default module in the app
 ```
 
 **SEE ALSO**
 
-* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain or scaffold components inside an existing one
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold list
+
+CRUD for data stored as an array
+
+```
+starport scaffold list NAME [field]... [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for list
+      --module string   Module to add into. Default is app's main module
+      --no-message      Disable CRUD interaction messages scaffolding
+  -p, --path string     path of the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold map
+
+CRUD for data stored as key-value pairs
+
+```
+starport scaffold map NAME [field]... [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for map
+      --module string   Module to add into. Default is app's main module
+      --no-message      Disable CRUD interaction messages scaffolding
+  -p, --path string     path of the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold message
+
+Message to perform state transition on the blockchain
+
+```
+starport scaffold message [name] [field1] [field2] ... [flags]
+```
+
+**Options**
+
+```
+  -d, --desc string        Description of the command
+  -h, --help               help for message
+      --module string      Module to add the message into. Default: app's main module
+  -p, --path string        path of the app
+  -r, --response strings   Response fields
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold module
+
+Scaffold a Cosmos SDK module
+
+**Synopsis**
+
+Scaffold a new Cosmos SDK module in the `x` directory
+
+```
+starport scaffold module [name] [flags]
+```
+
+**Options**
+
+```
+      --dep strings            module dependencies (e.g. --dep account,bank)
+  -h, --help                   help for module
+      --ibc                    scaffold an IBC module
+      --ordering string        channel ordering of the IBC module [none|ordered|unordered] (default "none")
+      --require-registration   if true command will fail if module can't be registered
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold packet
+
+Message for sending an IBC packet
+
+**Synopsis**
+
+Scaffold an IBC packet in a specific IBC-enabled Cosmos SDK module
+
+```
+starport scaffold packet [packetName] [field1] [field2] ... --module [moduleName] [flags]
+```
+
+**Options**
+
+```
+      --ack strings     Custom acknowledgment type (field1,field2,...)
+  -h, --help            help for packet
+      --module string   IBC Module to add the packet into
+      --no-message      Disable send message scaffolding
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold query
+
+Query to get data from the blockchain
+
+```
+starport scaffold query [name] [request_field1] [request_field2] ... [flags]
+```
+
+**Options**
+
+```
+  -d, --desc string        Description of the command
+  -h, --help               help for query
+      --module string      Module to add the query into. Default: app's main module
+      --paginated          Define if the request can be paginated
+  -p, --path string        path of the app
+  -r, --response strings   Response fields
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold single
+
+CRUD for data stored in a single location
+
+```
+starport scaffold single NAME [field]... [flags]
+```
+
+**Options**
+
+```
+  -h, --help            help for single
+      --module string   Module to add into. Default is app's main module
+      --no-message      Disable CRUD interaction messages scaffolding
+  -p, --path string     path of the app
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold vue
+
+Vue 3 web app template
+
+```
+starport scaffold vue [flags]
+```
+
+**Options**
+
+```
+  -h, --help          help for vue
+  -p, --path string   path to scaffold content of the Vue.js app (default "./vue")
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
+
+
+## starport scaffold wasm
+
+Import the wasm module to your app
+
+**Synopsis**
+
+Add support for WebAssembly smart contracts to your blockchain
+
+```
+starport scaffold wasm [flags]
+```
+
+**Options**
+
+```
+  -h, --help   help for wasm
+```
+
+**SEE ALSO**
+
+* [starport scaffold](#starport-scaffold)	 - Scaffold a new blockchain, module, message, query, and more
 
 
 ## starport tools
@@ -981,9 +1208,10 @@ Tools for advanced users
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
 * [starport tools ibc-relayer](#starport-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
 * [starport tools ibc-setup](#starport-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
+* [starport tools protoc](#starport-tools-protoc)	 - Execute the protoc command
 
 
 ## starport tools ibc-relayer
@@ -1023,7 +1251,7 @@ starport tools ibc-setup [--] [...] [flags]
 
 ```
 starport tools ibc-setup -- -h
-starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
+starport tools ibc-setup -- init --src relayer_test_1 --dest relayer_test_2
 ```
 
 **Options**
@@ -1037,31 +1265,33 @@ starport relayer lowlevel ibc-setup -- init --src relayer_test_1 --dest relayer_
 * [starport tools](#starport-tools)	 - Tools for advanced users
 
 
-## starport type
+## starport tools protoc
 
-Scaffold a type with CRUD operations
+Execute the protoc command
 
 **Synopsis**
 
-Scaffold a type with create, read, update and delete operations
+The protoc command. You don't need to setup the global protoc include folder with -I, it's automatically handled
 
 ```
-starport type [typeName] [field1] [field2] ... [flags]
+starport tools protoc [--] [...] [flags]
+```
+
+**Examples**
+
+```
+starport tools protoc -- --version
 ```
 
 **Options**
 
 ```
-  -h, --help            help for type
-      --indexed         Scaffold an indexed type
-      --module string   Module to add the type into. Default: app's main module
-      --no-message      Disable CRUD interaction messages scaffolding
-  -p, --path string     path of the app
+  -h, --help   help for protoc
 ```
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport tools](#starport-tools)	 - Tools for advanced users
 
 
 ## starport version
@@ -1080,4 +1310,5 @@ starport version [flags]
 
 **SEE ALSO**
 
-* [starport](#starport)	 - A developer tool for building Cosmos SDK blockchains
+* [starport](#starport)	 - Starport offers everything you need to scaffold, test, build, and launch your blockchain
+
