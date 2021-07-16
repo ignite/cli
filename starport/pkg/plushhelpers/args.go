@@ -3,21 +3,19 @@ package plushhelpers
 import (
 	"fmt"
 	"strings"
-
-	"github.com/gobuffalo/plush"
 )
 
-// CastArgs to type using github.com/spf13/cast.
-// Don't forget to import github.com/spf13/cast in templates.
-func CastArgs(actual string, i int) string {
-	return fmt.Sprintf("cast.To%sE(args[%d])", strings.Title(actual), i)
+// CastArgs returns the line of code to cast a value received from CLI of type string into its datatype
+// Don't forget to import github.com/spf13/cast in templates
+func CastArgs(datatype string, argIndex int) string {
+	return fmt.Sprintf("cast.To%sE(args[%d])", strings.Title(datatype), argIndex)
 }
 
-// GenerateValidArg will produce a valid value for the specified type.
-// This function doesn't guarantee to produce unique values.
-// Note that return value needs to be wrapped into a string.
-func GenerateValidArg(typ string) string {
-	switch typ {
+// GenerateValidArg will produce a valid value for the specified type
+// This function doesn't guarantee to produce unique values
+// Note that return value needs to be wrapped into a string
+func GenerateValidArg(datatypeName string) string {
+	switch datatypeName {
 	case "string":
 		return "xyz"
 	case "uint":
@@ -27,12 +25,6 @@ func GenerateValidArg(typ string) string {
 	case "bool":
 		return "true"
 	default:
-		panic(fmt.Sprintf("unknown type %s", typ))
+		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
-}
-
-// ExtendPlushContext sets available helpers on the provided context.
-func ExtendPlushContext(ctx *plush.Context) {
-	ctx.Set("castArgs", CastArgs)
-	ctx.Set("genValidArg", GenerateValidArg)
 }
