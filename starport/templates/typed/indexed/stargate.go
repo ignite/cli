@@ -94,11 +94,11 @@ import "%s/%s.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
-		var lowercaseIndexes []string
+		var lowerCamelIndexes []string
 		for _, index := range opts.Indexes {
-			lowercaseIndexes = append(lowercaseIndexes, fmt.Sprintf("{%s}", index.Name.Lowercase))
+			lowerCamelIndexes = append(lowerCamelIndexes, fmt.Sprintf("{%s}", index.Name.LowerCamel))
 		}
-		indexPath := strings.Join(lowercaseIndexes, "/")
+		indexPath := strings.Join(lowerCamelIndexes, "/")
 
 		// Add the service
 		templateService := `%[1]v
