@@ -1,5 +1,5 @@
 ---
-order: 2
+order: 3
 description: Steps to install Starport on your local computer.
 ---
 

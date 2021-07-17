@@ -1,5 +1,5 @@
 ---
-order: 3
+order: 4
 description: Run Starport CLI using a Docker container.
 ---
 
@@ -17,7 +17,7 @@ Experimentation and file system impact is limited to the Docker instance. The ho
 
 Docker must be installed. See [Get Started with Docker](https://www.docker.com/get-started).
 
-## Starport Commands in Docker 
+## Starport Commands in Docker
 
 After you scaffold and start a chain in your Docker container, all Starport commands are available. Just type the commands after `docker run -ti starport/cli`. For example:
 
@@ -48,7 +48,6 @@ Be patient, this command takes a minute or two to run because it does everything
     Using `-w` and `-v` together provides file persistence on the host machine. The application source code on the Docker container is mirrored to the file system of the host machine.
 
     **Note:** The directory name for the `-w` and `-v` flags can be a name other then `/app`, but the same directory must be specified for both flags. If you omit `-w` and `-v`, the changes are made in the container only and are lost when that container is shut down.
-
 
 ## Starting a Blockchain
 
