@@ -4,7 +4,9 @@ import (
 	"os"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/query"
@@ -19,28 +21,39 @@ func (s *Scaffolder) AddQuery(
 	reqFields,
 	resFields []string,
 	paginated bool,
-) error {
+) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
 		moduleName = path.Package
 	}
-	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
-		return err
+	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+	moduleName = mfName.Lowercase
+
+	name, err := multiformatname.NewName(queryName)
+	if err != nil {
+		return sm, err
+	}
+
+	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+		return sm, err
 	}
 
 	// Parse provided fields
-	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
+	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
 	}
 
 	var (
@@ -50,7 +63,7 @@ func (s *Scaffolder) AddQuery(
 			ModulePath:  path.RawPath,
 			ModuleName:  moduleName,
 			OwnerName:   owner(path.RawPath),
-			QueryName:   queryName,
+			QueryName:   name,
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
 			Description: description,
@@ -61,14 +74,15 @@ func (s *Scaffolder) AddQuery(
 	// Scaffold
 	g, err = query.NewStargate(tracer, opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	if err := xgenny.RunWithValidation(tracer, g); err != nil {
-		return err
+	sm, err = xgenny.RunWithValidation(tracer, g)
+	if err != nil {
+		return sm, err
 	}
 	pwd, err := os.Getwd()
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, s.finish(pwd, path.RawPath)
 }

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
@@ -18,10 +19,10 @@ type parser struct {
 
 // parse parses proto files in the fs that matches with pattern and returns
 // the low level representations of proto packages.
-func parse(ctx context.Context, pattern string) ([]*pkg, error) {
+func parse(ctx context.Context, path, pattern string) ([]*pkg, error) {
 	pr := &parser{}
 
-	paths, err := localfs.Search(pattern)
+	paths, err := localfs.Search(path, pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func parse(ctx context.Context, pattern string) ([]*pkg, error) {
 			return nil, ctx.Err()
 		}
 		if err := pr.parseFile(path); err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "file: %s", path)
 		}
 	}
 

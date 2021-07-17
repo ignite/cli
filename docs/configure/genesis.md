@@ -22,7 +22,7 @@ genesis:
 
 ## Change values in modules
 
-You can change one or more parameters of different modules. For example, in the `staking` module you can add a key-value pair to `bond_demon` to change which token gets staked:
+You can change one or more parameters of different modules. For example, in the `staking` module you can add a key-value pair to `bond_denom` to change which token gets staked:
 
 ```yml
 genesis:

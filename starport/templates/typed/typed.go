@@ -39,6 +39,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
+	ctx.Set("Indexes", opts.Indexes)
 	ctx.Set("title", strings.Title)
 	ctx.Set("strconv", func() bool {
 		strconv := false
@@ -57,7 +58,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName))
-	g.Transformer(genny.Replace("{{TypeName}}", strings.Title(opts.TypeName)))
+	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
 	return nil
 }

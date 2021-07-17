@@ -18,6 +18,19 @@ import { orderFromJSON } from "@confio/relayer/build/codec/ibc/core/channel/v1/c
 import Errors from "./errors";
 import ConsoleLogger from "./logger";
 
+const calcGasLimits = (limit: number) => ({
+	initClient: 150000,
+	updateClient: 600000,
+	initConnection: 150000,
+	connectionHandshake: limit,
+	initChannel: 150000,
+	channelHandshake: limit,
+	receivePacket: limit,
+	ackPacket: limit,
+	timeoutPacket: limit,
+	transfer: 180000,
+});
+
 // ***
 // define types for relayer's config.yml.
 // ***
@@ -40,6 +53,7 @@ type ChainConfig = {
 	rpcAddr: string;
 	addressPrefix: string;
 	gasPrice: string;
+	gasLimit: number;
 };
 
 // ***
@@ -85,8 +99,9 @@ type PacketHeights = {
 
 
 interface ChainSetupOptions {
-	gasPrice: string;
 	addressPrefix: string;
+	gasPrice: string;
+	gasLimit: number;
 }
 
 type EnsureChainSetupResponse = {
@@ -133,7 +148,7 @@ export default class Relayer {
 		this.initConfigProxy();
 	}
 
-	public async ensureChainSetup([rpcAddr, { addressPrefix, gasPrice }]: [
+	public async ensureChainSetup([rpcAddr, { addressPrefix, gasPrice, gasLimit }]: [
 		string,
 		ChainSetupOptions
 	]): Promise<EnsureChainSetupResponse> {
@@ -146,6 +161,7 @@ export default class Relayer {
 				rpcAddr,
 				addressPrefix,
 				gasPrice,
+				gasLimit,
 			};
 
 			if (!this.config.chains) {
@@ -532,6 +548,7 @@ export default class Relayer {
 			{
 				prefix: chain.addressPrefix,
 				gasPrice: chainGP,
+				gasLimits: calcGasLimits(chain.gasLimit),
 			}
 		);
 

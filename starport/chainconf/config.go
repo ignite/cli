@@ -13,7 +13,7 @@ import (
 
 var (
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/configure/index.md")
 
 	// FileNames holds a list of appropriate names for the config file.
 	FileNames = []string{"config.yml", "config.yaml"}
@@ -130,6 +130,9 @@ type Faucet struct {
 	// CoinsMax holds of chain denoms and their max amounts that can be transferred
 	// to single user.
 	CoinsMax []string `yaml:"coins_max"`
+
+	// LimitRefreshTime sets the timeframe at the end of which the limit will be refreshed
+	RateLimitWindow string `yaml:"rate_limit_window"`
 
 	// Host is the host of the faucet server
 	Host string `yaml:"host"`

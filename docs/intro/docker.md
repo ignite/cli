@@ -23,8 +23,8 @@ After you scaffold and start a chain in your Docker container, all Starport comm
 
 ```bash
 docker run -ti starport/cli -h
-docker run -ti starport/cli app github.com/test/planet
-docker run -ti starport/cli serve
+docker run -ti starport/cli scaffold chain github.com/test/planet
+docker run -ti starport/cli chain serve
 ```
 
 ## Scaffolding a Chain

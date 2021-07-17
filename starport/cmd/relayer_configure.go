@@ -24,6 +24,8 @@ const (
 	flagTargetVersion       = "target-version"
 	flagSourceGasPrice      = "source-gasprice"
 	flagTargetGasPrice      = "target-gasprice"
+	flagSourceGasLimit      = "source-gaslimit"
+	flagTargetGasLimit      = "target-gaslimit"
 	flagSourceAddressPrefix = "source-prefix"
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
@@ -36,6 +38,8 @@ const (
 
 	defautSourceGasPrice      = "0.00025stake"
 	defautTargetGasPrice      = "0.025uatom"
+	defautSourceGasLimit      = 300000
+	defautTargetGasLimit      = 300000
 	defautSourceAddressPrefix = "cosmos"
 	defautTargetAddressPrefix = "cosmos"
 )
@@ -61,6 +65,8 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagTargetVersion, "", "Module version on the target chain")
 	c.Flags().String(flagSourceGasPrice, "", "Gas price used for transactions on source chain")
 	c.Flags().String(flagTargetGasPrice, "", "Gas price used for transactions on target chain")
+	c.Flags().Int64(flagSourceGasLimit, 0, "Gas limit used for transactions on source chain")
+	c.Flags().Int64(flagTargetGasLimit, 0, "Gas limit used for transactions on target chain")
 	c.Flags().String(flagSourceAddressPrefix, "", "Address prefix of the source chain")
 	c.Flags().String(flagTargetAddressPrefix, "", "Address prefix of the target chain")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
@@ -82,6 +88,8 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetFaucetAddress string
 		sourceGasPrice      string
 		targetGasPrice      string
+		sourceGasLimit      int64
+		targetGasLimit      int64
 		sourceAddressPrefix string
 		targetAddressPrefix string
 	)
@@ -152,6 +160,18 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 			cliquiz.DefaultAnswer(defautTargetGasPrice),
 			cliquiz.Required(),
 		)
+		questionSourceGasLimit = cliquiz.NewQuestion(
+			"Source Gas Limit",
+			&sourceGasLimit,
+			cliquiz.DefaultAnswer(defautSourceGasLimit),
+			cliquiz.Required(),
+		)
+		questionTargetGasLimit = cliquiz.NewQuestion(
+			"Target Gas Limit",
+			&targetGasLimit,
+			cliquiz.DefaultAnswer(defautTargetGasLimit),
+			cliquiz.Required(),
+		)
 		questionSourceAddressPrefix = cliquiz.NewQuestion(
 			"Source Address Prefix",
 			&sourceAddressPrefix,
@@ -211,6 +231,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	sourceGasLimit, err = cmd.Flags().GetInt64(flagSourceGasLimit)
+	if err != nil {
+		return err
+	}
+	targetGasLimit, err = cmd.Flags().GetInt64(flagTargetGasLimit)
+	if err != nil {
+		return err
+	}
 	sourceAddressPrefix, err = cmd.Flags().GetString(flagSourceAddressPrefix)
 	if err != nil {
 		return err
@@ -244,6 +272,12 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	}
 	if targetGasPrice == "" {
 		questions = append(questions, questionTargetGasPrice)
+	}
+	if sourceGasLimit == 0 {
+		questions = append(questions, questionSourceGasLimit)
+	}
+	if targetGasLimit == 0 {
+		questions = append(questions, questionTargetGasLimit)
 	}
 	if sourceAddressPrefix == "" {
 		questions = append(questions, questionSourceAddressPrefix)
@@ -284,6 +318,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		sourceRPCAddress,
 		sourceFaucetAddress,
 		sourceGasPrice,
+		sourceGasLimit,
 		sourceAddressPrefix,
 	)
 	if err != nil {
@@ -297,6 +332,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		targetRPCAddress,
 		targetFaucetAddress,
 		targetGasPrice,
+		targetGasLimit,
 		targetAddressPrefix,
 	)
 	if err != nil {
@@ -342,7 +378,16 @@ This may change in the future. Until then, use them only for small amounts of to
 }
 
 // initChain initializes chain information for the relayer connection
-func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetAddr, gasPrice, addressPrefix string) (*xrelayer.Chain, error) {
+func initChain(
+	cmd *cobra.Command,
+	s *clispinner.Spinner,
+	name,
+	rpcAddr,
+	faucetAddr,
+	gasPrice string,
+	gasLimit int64,
+	addressPrefix string,
+) (*xrelayer.Chain, error) {
 	defer s.Stop()
 	s.SetText("Initializing chain...").Start()
 
@@ -351,6 +396,7 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 		rpcAddr,
 		xrelayer.WithFaucet(faucetAddr),
 		xrelayer.WithGasPrice(gasPrice),
+		xrelayer.WithGasLimit(gasLimit),
 		xrelayer.WithAddressPrefix(addressPrefix),
 	)
 	if err != nil {

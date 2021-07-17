@@ -12,7 +12,7 @@ Modules are the building blocks of Cosmos SDK blockchains. Modules encapsulate l
 Starport supports scaffolding Cosmos SDK modules.
 
 ```
-starport module create [name] [flags]
+starport scaffold module create [name] [flags]
 ```
 
 The `name` parameter is the name of your new module. The module name must be unique within a project.
@@ -36,6 +36,6 @@ To include all the logic for the scaffolded IBC modules, use `--ibc` flag.
 This example command scaffolds an -IBC-enable module named blog.
 
 ```bash
-starport module create blog --ibc
+starport scaffold module create blog --ibc
 ```
 

@@ -1,11 +1,9 @@
 package typed
 
-// Field ...
-type Field struct {
-	Name         string
-	Datatype     string
-	DatatypeName string
-}
+import (
+	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
+)
 
 // Options ...
 type Options struct {
@@ -13,9 +11,10 @@ type Options struct {
 	ModuleName string
 	ModulePath string
 	OwnerName  string
-	TypeName   string
-	Fields     []Field
+	TypeName   multiformatname.Name
+	Fields     []field.Field
 	NoMessage  bool
+	Indexes    []field.Field
 }
 
 // Validate that options are usuable

@@ -16,14 +16,24 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "foo", "text", "vote:int", "like:bool", "-r", "foo,bar:int,foobar:bool"),
+			step.Exec(
+				"starport",
+				"s",
+				"message",
+				"do-foo",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+			),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "foo", "bar"),
+			step.Exec("starport", "s", "message", "do-foo", "bar"),
 			step.Workdir(path),
 		)),
 		ExecShouldError(),
@@ -31,21 +41,33 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a second message",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "bar", "bar"),
+			step.Exec("starport", "s", "message", "do-bar", "bar"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "module", "create", "foo", "--require-registration"),
+			step.Exec("starport", "s", "module", "foo", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a message in a module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "message", "foo", "text", "--module", "foo", "--desc", "foo bar foobar", "--response", "foo,bar:int,foobar:bool"),
+			step.Exec(
+				"starport",
+				"s",
+				"message",
+				"do-foo",
+				"text",
+				"--module",
+				"foo",
+				"--desc",
+				"foo bar foobar",
+				"--response",
+				"foo,bar:int,foobar:bool",
+			),
 			step.Workdir(path),
 		)),
 	))

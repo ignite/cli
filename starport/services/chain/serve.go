@@ -14,7 +14,6 @@ import (
 	"github.com/pkg/errors"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/dirchange"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -145,30 +144,30 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					if c.served {
 						c.served = false
 
-						fmt.Fprintln(c.stdLog(logStarport).out, "💿 Saving genesis state...")
+						fmt.Fprintln(c.stdLog().out, "💿 Saving genesis state...")
 
 						// If serve has been stopped, save the genesis state
 						if err := c.saveChainState(context.TODO(), commands); err != nil {
-							fmt.Fprint(c.stdLog(logStarport).err, err.Error())
+							fmt.Fprint(c.stdLog().err, err.Error())
 							return err
 						}
 
 						genesisPath, err := c.exportedGenesisPath()
 						if err != nil {
-							fmt.Fprintln(c.stdLog(logStarport).err, err.Error())
+							fmt.Fprintln(c.stdLog().err, err.Error())
 							return err
 						}
-						fmt.Fprintf(c.stdLog(logStarport).out, "💿 Genesis state saved in %s\n", genesisPath)
+						fmt.Fprintf(c.stdLog().out, "💿 Genesis state saved in %s\n", genesisPath)
 					}
 				case errors.As(err, &buildErr):
-					fmt.Fprintf(c.stdLog(logStarport).err, "%s\n", errorColor(err.Error()))
+					fmt.Fprintf(c.stdLog().err, "%s\n", errorColor(err.Error()))
 
 					var validationErr *conf.ValidationError
 					if errors.As(err, &validationErr) {
-						fmt.Fprintln(c.stdLog(logStarport).out, "see: https://github.com/tendermint/starport#configure")
+						fmt.Fprintln(c.stdLog().out, "see: https://github.com/tendermint/starport#configure")
 					}
 
-					fmt.Fprintf(c.stdLog(logStarport).out, "%s\n", infoColor("Waiting for a fix before retrying..."))
+					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
 
 				case errors.As(err, &startErr):
 
@@ -179,8 +178,8 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					// Therefore, the error may be caused by a new logic that is not compatible with the old app state
 					// We suggest the user to eventually reset the app state
 					if parsedErr == "" {
-						fmt.Fprintf(c.stdLog(logStarport).out, "%s %s\n", infoColor(`Blockchain failed to start.
-If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport serve --reset-once")
+						fmt.Fprintf(c.stdLog().out, "%s %s\n", infoColor(`Blockchain failed to start.
+If the new code is no longer compatible with the saved state, you can reset the database by launching:`), "starport chain serve --reset-once")
 
 						return fmt.Errorf("cannot run %s", startErr.AppName)
 					}
@@ -203,7 +202,7 @@ If the new code is no longer compatible with the saved state, you can reset the 
 }
 
 func (c *Chain) setup(ctx context.Context) error {
-	fmt.Fprintf(c.stdLog(logStarport).out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
+	fmt.Fprintf(c.stdLog().out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
 	if err := c.checkSystem(); err != nil {
 		return err
@@ -247,12 +246,6 @@ func (c *Chain) watchAppBackend(ctx context.Context) error {
 	)
 }
 
-func (c *Chain) cmdOptions() []cmdrunner.Option {
-	return []cmdrunner.Option{
-		cmdrunner.DefaultWorkdir(c.app.Path),
-	}
-}
-
 // serve performs the operations to serve the blockchain: build, init and start
 // if the chain is already initialized and the file didn't changed, the app is directly started
 // if the files changed, the state is imported
@@ -292,7 +285,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 		if forceReset || configModified {
 			// if forceReset is set, we consider the app as being not initialized
-			fmt.Fprintln(c.stdLog(logStarport).out, "🔄 Resetting the app state...")
+			fmt.Fprintln(c.stdLog().out, "🔄 Resetting the app state...")
 			isInit = false
 		}
 	}
@@ -339,19 +332,8 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 
 	// build phase
 	if !isInit || appModified {
-		// build proto
-		if err := c.buildProto(ctx); err != nil {
-			return err
-		}
-
 		// build the blockchain app
-		buildSteps, err := c.buildSteps()
-		if err != nil {
-			return err
-		}
-		if err := cmdrunner.
-			New(c.cmdOptions()...).
-			Run(ctx, buildSteps...); err != nil {
+		if err := c.build(ctx); err != nil {
 			return err
 		}
 	}
@@ -359,21 +341,15 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// init phase
 	// nolint:gocritic
 	if !isInit || (appModified && !exportGenesisExists) {
-		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Initializing the app...")
+		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 
-		// initialize the blockchain
 		if err := c.Init(ctx); err != nil {
-			return err
-		}
-
-		// initialize the blockchain accounts
-		if err := c.InitAccounts(ctx, conf); err != nil {
 			return err
 		}
 	} else if appModified {
 		// if the chain is already initialized but the source has been modified
 		// we reset the chain database and import the genesis state
-		fmt.Fprintln(c.stdLog(logStarport).out, "💿 Existent genesis detected, restoring the database...")
+		fmt.Fprintln(c.stdLog().out, "💿 Existent genesis detected, restoring the database...")
 
 		if err := commands.UnsafeReset(ctx); err != nil {
 			return err
@@ -383,7 +359,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 			return err
 		}
 	} else {
-		fmt.Fprintln(c.stdLog(logStarport).out, "▶️  Restarting existing app...")
+		fmt.Fprintln(c.stdLog().out, "▶️  Restarting existing app...")
 	}
 
 	// save checksums
@@ -442,11 +418,11 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	c.served = true
 
 	// print the server addresses.
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
-	fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
+	fmt.Fprintf(c.stdLog().out, "🌍 Tendermint node: %s\n", xurl.HTTP(config.Host.RPC))
+	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog(logStarport).out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
+		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
 	}
 
 	return g.Wait()

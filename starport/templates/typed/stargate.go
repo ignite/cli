@@ -3,7 +3,6 @@ package typed
 import (
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -70,7 +69,7 @@ func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Optio
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
@@ -91,7 +90,7 @@ func (t *typedStargate) protoTxModify(replacer placeholder.Replacer, opts *Optio
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
 
@@ -101,18 +100,18 @@ import "%s/%s.proto";`
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
   rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
 		replacementRPC := fmt.Sprintf(templateRPC, PlaceholderProtoTxRPC,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
 
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+2)
+			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+3)
+			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
 		}
 
 		templateMessages := `%[1]v
@@ -139,7 +138,7 @@ message MsgDelete%[2]v {
 message MsgDelete%[2]vResponse { }
 `
 		replacementMessages := fmt.Sprintf(templateMessages, PlaceholderProtoTxMessage,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 			createFields,
 			updateFields,
 		)
@@ -163,7 +162,7 @@ func (t *typedStargate) protoQueryModify(replacer placeholder.Replacer, opts *Op
 import "%s/%s.proto";`
 		replacementImport := fmt.Sprintf(templateImport, Placeholder,
 			opts.ModuleName,
-			opts.TypeName,
+			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
@@ -181,8 +180,8 @@ import "%s/%s.proto";`
 	}
 `
 		replacementRPC := fmt.Sprintf(templateRPC, Placeholder2,
-			strings.Title(opts.TypeName),
-			opts.TypeName,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
@@ -208,8 +207,8 @@ message QueryAll%[2]vResponse {
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacementMessages := fmt.Sprintf(templateMessages, Placeholder3,
-			strings.Title(opts.TypeName),
-			opts.TypeName,
+			opts.TypeName.UpperCamel,
+			opts.TypeName.LowerCamel,
 		)
 		content = replacer.Replace(content, Placeholder3, replacementMessages)
 
@@ -246,7 +245,7 @@ const (
 	%[1]vKey= "%[1]v-value-"
 	%[1]vCountKey= "%[1]v-count-"
 )
-`, strings.Title(opts.TypeName))
+`, opts.TypeName.UpperCamel)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
@@ -270,7 +269,7 @@ cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 `
-		replacementConcrete := fmt.Sprintf(templateConcrete, Placeholder2, strings.Title(opts.TypeName), opts.ModuleName)
+		replacementConcrete := fmt.Sprintf(templateConcrete, Placeholder2, opts.TypeName.UpperCamel, opts.ModuleName)
 		content = replacer.Replace(content, Placeholder2, replacementConcrete)
 
 		// Interface
@@ -280,7 +279,7 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, strings.Title(opts.TypeName))
+		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, opts.TypeName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)
@@ -301,7 +300,7 @@ func (t *typedStargate) clientCliTxModify(replacer placeholder.Replacer, opts *O
 	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
 `
-		replacement := fmt.Sprintf(template, Placeholder, strings.Title(opts.TypeName))
+		replacement := fmt.Sprintf(template, Placeholder, opts.TypeName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -321,7 +320,7 @@ func (t *typedStargate) clientCliQueryModify(replacer placeholder.Replacer, opts
 	cmd.AddCommand(CmdShow%[2]v())
 `
 		replacement := fmt.Sprintf(template, Placeholder,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -346,7 +345,7 @@ func (t *typedStargate) frontendSrcStoreAppModify(replacer placeholder.Replacer,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
-			strings.Title(opts.TypeName),
+			opts.TypeName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder4, replacement)
 		newFile := genny.NewFileS(path, content)
