@@ -59,7 +59,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map with custom indexes",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "map_with_index", "email", "--index", "foo:string,bar:int,foobar:uint,barfoo:bool"),
+			step.Exec("starport", "s", "map", "map_with_index", "email", "--index", "foo:string,bar:int,foobar:uint,barFoo:bool"),
 			step.Workdir(path),
 		)),
 	))
