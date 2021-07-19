@@ -18,7 +18,7 @@ func InitConfig() error {
 		return err
 	}
 
-	if err := os.MkdirAll(confPath, 0700); err != nil && !os.IsExist(err) {
+	return os.MkdirAll(confPath, 0755);
 		return err
 	}
 	return nil
