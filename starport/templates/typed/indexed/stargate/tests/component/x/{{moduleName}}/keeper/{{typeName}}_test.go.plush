@@ -13,7 +13,6 @@ import (
 func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
-		items[i].Creator = "any"
 		items[i].Index = fmt.Sprintf("%d", i)
 		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
 	}
