@@ -7,7 +7,7 @@ description: Install the Go programming language
 
 In this tutorial, you will install the Go programming language (golang) on your local computer. Follow the instructions for your operating system:
 
-## Mac OS X
+## macOS
 
 * Download the latest MacOS installer package from <https://golang.org/dl/>.
 * Open the downloaded package and follow the prompts through to completion.
