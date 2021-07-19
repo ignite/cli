@@ -1,6 +1,6 @@
 ---
 order: 2
-description: Run Starport CLI using a Docker container.
+description: Install the Go programming language
 ---
 
 # Install Go
