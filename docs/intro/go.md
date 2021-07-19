@@ -69,10 +69,37 @@ source ~/.bash_profile
 go version
 ```
 
-## Windows
+## Windows Subsystem for Linux (WSL)
 
-* Download the latest windows distribution package from <https://golang.org/dl/>.
-* Open the MSI file you downloaded and follow the prompts to install Go.
+* Download the latest Linux distribution package from <https://golang.org/dl/>.
+* Extract the archive you downloaded and move into the `/usr/local` directory by running:
+
+```sh
+sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
+```
+
+* To add Go to your `.bash_profile` file:
+
+    1. Open `.bash_profile` profile using:
+
+        ```sh
+        nano ~/.bash_profile
+        ```
+
+    2. Add the following lines in your `.bash_profile` profile:
+
+        ```sh
+        export GOROOT=/usr/local/go
+        export GOPATH=$HOME/go
+        export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+        ```
+
+* To make sure the above changes are applied, run the following command:
+
+```sh
+~/.bash_profile
+```
+
 * Verify the installation of go using:
 
 ```sh
