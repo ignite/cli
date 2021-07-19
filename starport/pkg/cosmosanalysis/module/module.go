@@ -44,7 +44,7 @@ type Msg struct {
 	FilePath string
 }
 
-// Query is an sdk Query.
+// HTTPQuery is an sdk Query.
 type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string
