@@ -57,7 +57,7 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
         export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
         ```
 
-* To make sure the above changes execute, run the following command:
+* To make sure the above changes are applied, run the following command:
 
 ```sh
 source ~/.bash_profile
