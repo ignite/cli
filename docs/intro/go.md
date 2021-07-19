@@ -35,7 +35,7 @@ In this tutorial, you will install the Go programming language (golang) on your 
 
 ## Linux
 
-* Download the latest linux distribution package from <https://golang.org/dl/>.
+* Download the latest Linux distribution package from <https://golang.org/dl/>.
 * Extract the archive you downloaded into `/usr/local` using the following command:
 
 ```sh
