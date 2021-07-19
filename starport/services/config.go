@@ -18,8 +18,5 @@ func InitConfig() error {
 		return err
 	}
 
-	return os.MkdirAll(confPath, 0755);
-		return err
-	}
-	return nil
+	return os.MkdirAll(confPath, 0755)
 }

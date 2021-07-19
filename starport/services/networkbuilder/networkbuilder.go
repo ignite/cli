@@ -243,10 +243,8 @@ func (b *Builder) Init(ctx context.Context, chainID string, source SourceOption,
 		}
 
 		// ensure the path for chain source exists
-		if err := os.MkdirAll(sourcePath, 0700); err != nil && !os.IsExist(err) {
-			if !os.IsExist(err) {
-				return nil, err
-			}
+		if err := os.MkdirAll(sourcePath, 0755); err != nil {
+			return nil, err
 		}
 
 		path = filepath.Join(sourcePath, chainID)
