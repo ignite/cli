@@ -1,13 +1,13 @@
 ---
 order: 2
-description: Run Starport CLI using a Docker container.
+description: Install the Go programming language
 ---
 
 # Install Go
 
-In this tutorial, you will install golang on your local computer. Follow the instructions for your operating system:
+In this tutorial, you will install the Go programming language (golang) on your local computer. Follow the instructions for your operating system:
 
-## Mac OS X
+## macOS
 
 * Download the latest MacOS installer package from <https://golang.org/dl/>.
 * Open the downloaded package and follow the prompts through to completion.
@@ -35,7 +35,7 @@ In this tutorial, you will install golang on your local computer. Follow the ins
 
 ## Linux
 
-* Download the latest linux distribution package from <https://golang.org/dl/>.
+* Download the latest Linux distribution package from <https://golang.org/dl/>.
 * Extract the archive you downloaded into `/usr/local` using the following command:
 
 ```sh
@@ -57,7 +57,7 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
         export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
         ```
 
-* To make sure the above changes execute, run the following command:
+* To make sure the above changes are applied, run the following command:
 
 ```sh
 source ~/.bash_profile
