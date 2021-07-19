@@ -8,5 +8,9 @@ import (
 )
 
 func TestExampleDiscover(t *testing.T) {
-	pretty.Println(Discover(context.Background(), "/home/ilker/Documents/code/src/github.com/tendermint/starport/local_test/mars"))
+	pretty.Println(Discover(
+		context.Background(),
+		"$GOPATH/github.com/tendermint/starport/local_test/mars",
+		"proto",
+	))
 }
