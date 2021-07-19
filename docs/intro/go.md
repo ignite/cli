@@ -5,7 +5,7 @@ description: Install the Go programming language
 
 # Install Go
 
-In this tutorial, you will install golang on your local computer. Follow the instructions for your operating system:
+In this tutorial, you will install the Go programming language (golang) on your local computer. Follow the instructions for your operating system:
 
 ## Mac OS X
 
