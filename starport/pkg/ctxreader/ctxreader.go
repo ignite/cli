@@ -4,18 +4,15 @@ package ctxreader
 import (
 	"context"
 	"io"
+	"sync"
 )
 
-type (
-	cancelableReader struct {
-		io.Reader
-		ctx context.Context
-	}
-	ioReadResult struct {
-		n   int
-		err error
-	}
-)
+type cancelableReader struct {
+	io.Reader
+	ctx context.Context
+	m   sync.Mutex
+	err error
+}
 
 // New returns a new reader that emits a context error through its r.Read() method
 // when ctx canceled.
@@ -23,22 +20,32 @@ func New(ctx context.Context, r io.Reader) io.Reader {
 	return &cancelableReader{Reader: r, ctx: ctx}
 }
 
+// Read reads up to len(p) bytes into p. It returns the number of bytes
+// read (0 <= n <= len(p)) and any error encountered.
 func (r *cancelableReader) Read(data []byte) (n int, err error) {
-	chData := make([]byte, len(data))
-	chResult := make(chan ioReadResult, 1)
+	r.m.Lock()
+	defer r.m.Unlock()
 
+	if r.err != nil {
+		return 0, r.err
+	}
+
+	var (
+		readerN   int
+		readerErr error
+	)
+	isRead := make(chan struct{})
 	go func() {
-		n, err := r.Reader.Read(chData)
-		chResult <- ioReadResult{n, err}
-		close(chResult)
+		readerN, readerErr = r.Reader.Read(data)
+		close(isRead)
 	}()
 
 	select {
 	case <-r.ctx.Done():
+		r.err = r.ctx.Err()
 		return 0, r.ctx.Err()
-
-	case ret := <-chResult:
-		copy(data, chData)
-		return ret.n, ret.err
+	case <-isRead:
+		r.err = readerErr
+		return readerN, readerErr
 	}
 }
