@@ -72,7 +72,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			args := []string{
-			    <%= for (i, index) in Indexes { %><%= CastToString("tc.id" + index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
                 <% } %>
 			}
 			args = append(args, tc.args...)

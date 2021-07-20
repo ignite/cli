@@ -30,7 +30,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>,
                 <% } %>
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[0]},
@@ -38,7 +38,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:     "Second",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>,
                 <% } %>
 			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[1]},
@@ -46,7 +46,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:    "KeyNotFound",
 			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= genNotFoundIndex(index.DatatypeName) %>
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= genNotFoundIndex(index.DatatypeName) %>,
                 <% } %>
 			},
 			err:     status.Error(codes.InvalidArgument, "not found"),

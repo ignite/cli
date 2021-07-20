@@ -44,7 +44,7 @@ func GenerateUniqueArg(datatypeName string) string {
 func GenerateValidIndex(datatypeName string) string {
 	switch datatypeName {
 	case datatypeString:
-		return "\"any\""
+		return "strconv.Itoa(0)"
 	case datatypeUint:
 		return "0"
 	case datatypeInt:
@@ -62,7 +62,7 @@ func GenerateValidIndex(datatypeName string) string {
 func GenerateNotFoundIndex(datatypeName string) string {
 	switch datatypeName {
 	case datatypeString:
-		return "\"not_found\""
+		return "strconv.Itoa(100000)"
 	case datatypeUint:
 		return "100000"
 	case datatypeInt:

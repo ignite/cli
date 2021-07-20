@@ -41,7 +41,8 @@ var (
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are currently not generated for map with a custom index
 	// TODO: handle test generation for map with custom index
-	generateTest := len(opts.Indexes) == 1 && opts.Indexes[0].Name.UpperCamel == "Index"
+	// generateTest := len(opts.Indexes) == 1 && opts.Indexes[0].Name.UpperCamel == "Index"
+	generateTest := true
 
 	g := genny.New()
 

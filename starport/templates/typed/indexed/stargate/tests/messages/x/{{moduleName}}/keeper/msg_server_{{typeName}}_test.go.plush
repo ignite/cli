@@ -1,7 +1,6 @@
 package keeper
 
 import (
-	"fmt"
     "strconv"
 	"testing"
 
@@ -39,7 +38,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	creator := "A"
-	index := "any"
 
 	for _, tc := range []struct {
 		desc    string
@@ -146,7 +144,10 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, tc.request.Index)
+				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+				    <%= for (i, index) in Indexes { %>tc.request.<%= index.Name.UpperCamel %>,
+                    <% } %>
+				)
 				require.False(t, found)
 			}
 		})
