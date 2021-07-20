@@ -20,8 +20,8 @@ func New(ctx context.Context, r io.Reader) io.Reader {
 	return &cancelableReader{Reader: r, ctx: ctx}
 }
 
-// Read reads up to len(p) bytes into p. It returns the number of bytes
-// read (0 <= n <= len(p)) and any error encountered.
+// Read implements io.Reader and it stops blocking when reading is completed
+// or context is cancelled.
 func (r *cancelableReader) Read(data []byte) (n int, err error) {
 	r.m.Lock()
 	defer r.m.Unlock()
