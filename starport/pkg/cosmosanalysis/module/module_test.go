@@ -24,7 +24,6 @@ func TestDiscover(t *testing.T) {
 		name string
 		args args
 		want []Module
-		err  error
 	}{
 		{
 			name: "test valid",
@@ -70,10 +69,6 @@ func TestDiscover(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Discover(context.Background(), tt.args.sourcePath, tt.args.protoDir)
-			if tt.err != nil {
-				require.ErrorIs(t, err, tt.err)
-				return
-			}
 			require.NoError(t, err)
 			assert.Equal(t, tt.want, got)
 		})
