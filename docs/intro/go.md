@@ -13,7 +13,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
 * Open the downloaded package and follow the prompts through to completion.
 * By default, the package installs the Go distribution to `/usr/local/go`, however it is always best to define the path explicitly:
 
-    1. Open or create a `~/.bash_profile` file with your favorite command-line text editor.
+    1. Open or create a `~/.profile` file with your favorite command-line text editor.
     2. Add the following lines:
 
         ```sh
@@ -23,7 +23,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
     3. To make sure these changes execute, run the following command:
 
         ```sh
-        source ~/.bash_profile
+        source ~/.profile
         ```
 
 * Verify the installation of go by checking its version:
@@ -45,7 +45,7 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
 
 * To add Go to your `.bash_profile` file:
 
-    1. Open `~/.bash_profile` file with your favorite command-line text editor.
+    1. Open `~/.profile` file with your favorite command-line text editor.
     2. Add the following lines in your `.bash_profile` file:
 
         ```sh
@@ -55,7 +55,7 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
 * To make sure the above changes are applied, run the following command:
 
 ```sh
-source ~/.bash_profile
+source ~/.profile
 ```
 
 * Verify the installation of go using:
@@ -77,7 +77,7 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
 
 * To add Go to your `.bash_profile` file:
 
-    1. Open `~/.bash_profile` file with your favorite command-line text editor.
+    1. Open `~/.profile` file with your favorite command-line text editor.
     2. Add the following lines in your `.bash_profile` profile:
 
         ```sh
@@ -88,7 +88,7 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
 * To make sure the above changes are applied, run the following command:
 
 ```sh
-~/.bash_profile
+~/.profile
 ```
 
 * Verify the installation of go using:
