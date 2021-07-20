@@ -11,9 +11,7 @@ func GenerateValidArg(datatypeName string) string {
 	switch datatypeName {
 	case datatypeString:
 		return "xyz"
-	case datatypeUint:
-		return "111"
-	case datatypeInt:
+	case datatypeUint, datatypeInt:
 		return "111"
 	case datatypeBool:
 		return valueFalse
@@ -45,9 +43,7 @@ func GenerateValidIndex(datatypeName string) string {
 	switch datatypeName {
 	case datatypeString:
 		return "strconv.Itoa(0)"
-	case datatypeUint:
-		return "0"
-	case datatypeInt:
+	case datatypeUint, datatypeInt:
 		return "0"
 	case datatypeBool:
 		return valueFalse
@@ -63,10 +59,8 @@ func GenerateNotFoundIndex(datatypeName string) string {
 	switch datatypeName {
 	case datatypeString:
 		return "strconv.Itoa(100000)"
-	case datatypeUint:
+	case datatypeUint, datatypeInt:
 		return "100000"
-	case datatypeInt:
-		return "-1"
 	case datatypeBool:
 		return valueFalse
 	default:
