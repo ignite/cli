@@ -18,6 +18,9 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()

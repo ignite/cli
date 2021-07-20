@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,10 +10,14 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
-		items[i].Index = fmt.Sprintf("%d", i)
+		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= genUniqueArg(index.DatatypeName) %>,
+        <% } %>
 		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
 	}
 	return items

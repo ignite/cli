@@ -1,6 +1,7 @@
 package keeper
 
 import (
+    "strconv"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,6 +13,9 @@ import (
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
+
+// Prevent strconv unused error
+var _ = strconv.IntSize
 
 func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
@@ -25,17 +29,26 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 	}{
 		{
 			desc:     "First",
-			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[0].Index},
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[0].<%= index.Name.UpperCamel %>
+                <% } %>
+			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[0]},
 		},
 		{
 			desc:     "Second",
-			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: msgs[1].Index},
+			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msgs[1].<%= index.Name.UpperCamel %>
+                <% } %>
+			},
 			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{Index: "missing"},
+			request: &types.QueryGet<%= TypeName.UpperCamel %>Request{
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>:<%= genNotFoundIndex(index.DatatypeName) %>
+                <% } %>
+			},
 			err:     status.Error(codes.InvalidArgument, "not found"),
 		},
 		{
