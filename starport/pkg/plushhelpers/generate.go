@@ -16,7 +16,7 @@ func GenerateValidArg(datatypeName string) string {
 	case "int":
 		return "111"
 	case "bool":
-		return "true"
+		return "false"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -34,7 +34,23 @@ func GenerateUniqueArg(datatypeName string) string {
 	case "int":
 		return "int32(i)"
 	case "bool":
-		return "true"
+		return "false"
+	default:
+		panic(fmt.Sprintf("unknown type %s", datatypeName))
+	}
+}
+
+// GenerateValidIndex returns the line of code for a valid index for a map depending on the type
+func GenerateValidIndex(datatypeName string) string {
+	switch datatypeName {
+	case "string":
+		return "\"any\""
+	case "uint":
+		return "0" // max uint64
+	case "int":
+		return "0"
+	case "bool":
+		return "false"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -46,13 +62,13 @@ func GenerateUniqueArg(datatypeName string) string {
 func GenerateNotFoundIndex(datatypeName string) string {
 	switch datatypeName {
 	case "string":
-		return "not_found"
+		return "\"not_found\""
 	case "uint":
-		return "^uint64(0)" // max uint64
+		return "100000" // max uint64
 	case "int":
 		return "-1"
 	case "bool":
-		return "true"
+		return "false"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}

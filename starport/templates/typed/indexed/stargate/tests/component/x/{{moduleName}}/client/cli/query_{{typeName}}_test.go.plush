@@ -63,7 +63,6 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		},
 		{
 			desc: "not found",
-			id:   "not_found",
 			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
             <% } %>
 			args: common,
@@ -73,7 +72,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			args := []string{
-			    <%= for (i, index) in Indexes { %>tc.id<%= index.Name.UpperCamel %>,
+			    <%= for (i, index) in Indexes { %><%= CastToString("tc.id" + index.DatatypeName) %>,
                 <% } %>
 			}
 			args = append(args, tc.args...)

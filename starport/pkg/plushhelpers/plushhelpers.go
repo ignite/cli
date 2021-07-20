@@ -9,5 +9,6 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("castToString", CastToString)
 	ctx.Set("genValidArg", GenerateValidArg)
 	ctx.Set("genUniqueArg", GenerateUniqueArg)
+	ctx.Set("genValidIndex", GenerateValidIndex)
 	ctx.Set("genNotFoundIndex", GenerateNotFoundIndex)
 }
