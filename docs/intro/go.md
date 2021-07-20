@@ -79,7 +79,7 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
     1. Open `~/.profile` file with your favorite command-line text editor and add the following line.
 
         ```sh
-        export PATH=$GOPATH/bin:$PATH
+        export PATH=$PATH:$(go env GOPATH)/bin
         ```
 
 * To make sure the above changes are applied, run the following command:
