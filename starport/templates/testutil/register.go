@@ -28,7 +28,7 @@ var (
 //nolint:interfacer
 func Register(ctx *plush.Context, gen *genny.Generator) error {
 	if !ctx.Has(modulePathKey) {
-		return fmt.Errorf("ctx is missing value for the ket %s", modulePathKey)
+		return fmt.Errorf("ctx is missing value for the key %s", modulePathKey)
 	}
 	path, err := filepath.Abs(testUtilDir)
 	if err != nil {
