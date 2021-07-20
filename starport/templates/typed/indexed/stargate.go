@@ -39,10 +39,14 @@ var (
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	// Tests are currently not generated for map with a custom index
-	// TODO: handle test generation for map with custom index
-	// generateTest := len(opts.Indexes) == 1 && opts.Indexes[0].Name.UpperCamel == "Index"
-	generateTest := true
+	// Tests are not generated for map with a custom index that contains only booleans
+	// because the we can't generate reliable tests for this type
+	var generateTest bool
+	for _, index := range opts.Indexes {
+		if index.DatatypeName != "bool" {
+			generateTest = true
+		}
+	}
 
 	g := genny.New()
 
