@@ -20,7 +20,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
         export PATH=$PATH:$(go env GOPATH)/bin
         ```
 
-    3. To make sure these changes execute, run the following command:
+    3. To make sure these changes are applied, run the following command:
 
         ```sh
         source ~/.profile
@@ -43,10 +43,9 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
 
 **Note - Make sure to install the latest version available at that time.**
 
-* To add Go to your `.bash_profile` file:
+* To add Go to your `.profile` file:
 
-    1. Open `~/.profile` file with your favorite command-line text editor.
-    2. Add the following lines in your `.bash_profile` file:
+    1. Open `~/.profile` file with your favorite command-line text editor and add the following line.
 
         ```sh
         export PATH=$PATH:$GOPATH/bin:/usr/local/go/bin
@@ -75,14 +74,12 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
 
 **Note - Make sure to install the latest version available at that time.**
 
-* To add Go to your `.bash_profile` file:
+* To add Go to your `.profile` file:
 
-    1. Open `~/.profile` file with your favorite command-line text editor.
-    2. Add the following lines in your `.bash_profile` profile:
+    1. Open `~/.profile` file with your favorite command-line text editor and add the following line.
 
         ```sh
-        export GOPATH=$HOME/go
-        export PATH=$GOPATH/bin:$GOROOT/bin:$PATH
+        export PATH=$GOPATH/bin:$PATH
         ```
 
 * To make sure the above changes are applied, run the following command:
