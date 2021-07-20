@@ -9,14 +9,14 @@ import (
 // Note that return value needs to be wrapped into a string
 func GenerateValidArg(datatypeName string) string {
 	switch datatypeName {
-	case "string":
+	case datatypeString:
 		return "xyz"
-	case "uint":
+	case datatypeUint:
 		return "111"
-	case "int":
+	case datatypeInt:
 		return "111"
-	case "bool":
-		return "false"
+	case datatypeBool:
+		return valueFalse
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -27,14 +27,14 @@ func GenerateValidArg(datatypeName string) string {
 // This method must be placed in the template inside a loop with an iterator i
 func GenerateUniqueArg(datatypeName string) string {
 	switch datatypeName {
-	case "string":
+	case datatypeString:
 		return "strconv.Itoa(i)"
-	case "uint":
+	case datatypeUint:
 		return "uint64(i)"
-	case "int":
+	case datatypeInt:
 		return "int32(i)"
-	case "bool":
-		return "false"
+	case datatypeBool:
+		return valueFalse
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -43,14 +43,14 @@ func GenerateUniqueArg(datatypeName string) string {
 // GenerateValidIndex returns the line of code for a valid index for a map depending on the type
 func GenerateValidIndex(datatypeName string) string {
 	switch datatypeName {
-	case "string":
+	case datatypeString:
 		return "\"any\""
-	case "uint":
-		return "0" // max uint64
-	case "int":
+	case datatypeUint:
 		return "0"
-	case "bool":
-		return "false"
+	case datatypeInt:
+		return "0"
+	case datatypeBool:
+		return valueFalse
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -61,14 +61,14 @@ func GenerateValidIndex(datatypeName string) string {
 // NOTE: This method is not reliable for tests with a map with only booleans as indexes
 func GenerateNotFoundIndex(datatypeName string) string {
 	switch datatypeName {
-	case "string":
+	case datatypeString:
 		return "\"not_found\""
-	case "uint":
-		return "100000" // max uint64
-	case "int":
+	case datatypeUint:
+		return "100000"
+	case datatypeInt:
 		return "-1"
-	case "bool":
-		return "false"
+	case datatypeBool:
+		return valueFalse
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
