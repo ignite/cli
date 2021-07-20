@@ -85,7 +85,7 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
 * To make sure the above changes are applied, run the following command:
 
 ```sh
-~/.profile
+source ~/.profile
 ```
 
 * Verify the installation of go using:
