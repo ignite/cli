@@ -6,23 +6,76 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/kr/pretty"
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
-func TestExampleDiscover(t *testing.T) {
+func TestDiscover(t *testing.T) {
 	goPath := os.Getenv("GOPATH")
-	t.Run("test folder without proto files", func(t *testing.T) {
-		pretty.Println(Discover(
-			context.Background(),
-			filepath.Join(goPath, "src/github.com/tendermint/starport/local_test/mars"),
-			"proto",
-		))
-	})
-	t.Run("test folder with proto files", func(t *testing.T) {
-		pretty.Println(Discover(
-			context.Background(),
-			filepath.Join(goPath, "src/github.com/tendermint/starport"),
-			"starport/pkg/protoc/data/include/google/protobuf",
-		))
-	})
+	testDataPath := filepath.Join(goPath,
+		"src/github.com/tendermint/starport/starport/pkg/cosmosanalysis/module/testdata")
+
+	type args struct {
+		sourcePath string
+		protoDir   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want []Module
+		err  error
+	}{
+		{
+			name: "test valid",
+			args: args{
+				sourcePath: filepath.Join(testDataPath, "planet"),
+				protoDir:   "proto",
+			},
+			want: []Module{
+				{Pkg: protoanalysis.Package{}},
+			},
+		}, {
+			name: "test no proto folder",
+			args: args{
+				sourcePath: filepath.Join(testDataPath, "planet"),
+				protoDir:   "",
+			},
+			want: []Module{
+				{Pkg: protoanalysis.Package{}},
+			},
+		}, {
+			name: "test invalid proto folder",
+			args: args{
+				sourcePath: filepath.Join(testDataPath, "planet"),
+				protoDir:   "invalid",
+			},
+			want: nil,
+		}, {
+			name: "test invalid folder",
+			args: args{
+				sourcePath: filepath.Join(testDataPath, "invalid"),
+				protoDir:   "",
+			},
+			want: []Module{},
+		}, {
+			name: "test invalid main and proto folder",
+			args: args{
+				sourcePath: filepath.Join(testDataPath, "../../.."),
+				protoDir:   "proto",
+			},
+			want: []Module{},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := Discover(context.Background(), tt.args.sourcePath, tt.args.protoDir)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			assert.Equal(t, tt.want, got)
+		})
+	}
 }

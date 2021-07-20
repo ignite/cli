@@ -1,0 +1,4 @@
+syntax = "proto3";
+package tendermint.planet.planet;
+option go_package = "github.com/tendermint/planet/x/planet/types";
+
