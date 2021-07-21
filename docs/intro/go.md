@@ -20,7 +20,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
         export PATH=$PATH:$(go env GOPATH)/bin
         ```
 
-    3. To make sure these changes are applied, run the following command:
+    3. To make sure these changes are applied to `~/.profile`, run the following command:
 
         ```sh
         source ~/.profile
