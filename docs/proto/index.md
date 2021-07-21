@@ -14,7 +14,7 @@ Protocol buffer files define the data structures used by Cosmos SDK modules.
 
 Inside the `proto` directory, a directory for each custom module contains `query.proto`, `tx.proto`, `genesis.proto`, and other files.
 
-The `starport serve` command automatically generates Go code from proto files on every file change.
+The `starport chain serve` command automatically generates Go code from proto files on every file change.
 
 ## Third-Party Proto Files
 

@@ -5,7 +5,6 @@ go 1.16
 require (
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Microsoft/hcsshim v0.8.17 // indirect
-	github.com/Pallinder/go-randomdata v1.2.0
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
 	github.com/charmbracelet/glow v1.4.0

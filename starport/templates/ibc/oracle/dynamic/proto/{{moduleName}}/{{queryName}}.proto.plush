@@ -1,0 +1,13 @@
+syntax = "proto3";
+package <%= formatOwnerName(ownerName) %>.<%= appName %>.<%= moduleName %>;
+
+option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
+
+message <%= queryName.UpperCamel %>CallData {
+  repeated string symbols = 1;
+  uint64 multiplier = 2;
+}
+
+message <%= queryName.UpperCamel %>Result {
+  repeated uint64 rates = 1;
+}

@@ -35,17 +35,17 @@ This command will fetch the `starport` binary and install it into `/usr/local/bi
 
 ### Creating a Blog-Chain
 
-Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold app` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
+Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold scaffold chain` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
 
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
 
 ```
-starport app github.com/alice/blog
+starport scaffold chain github.com/alice/blog
 ```
 
 This will create a new Cosmos SDK blockchain called Blog in a `blog` directory. The source code inside the `blog` directory contains a fully functional ready-to-use blockchain. This new blockchain imports standard Cosmos SDK modules, such as [`staking`](https://docs.cosmos.network/v0.42/modules/staking/) (for delegated proof of stake), [`bank`](https://docs.cosmos.network/v0.42/modules/bank/) (for fungible token transfers between accounts), [`gov`](https://docs.cosmos.network/v0.42/modules/gov/) (for on-chain governance) and [other modules](https://docs.cosmos.network/v0.42/modules/).
 
-Note: You can see all the command line options that Starport provides by running `starport app --help`.
+Note: You can see all the command line options that Starport provides by running `starport scaffold chain --help`.
 
 After you create the blockchain, switch to its directory:
 
@@ -76,7 +76,7 @@ To get started, let's get our blockchain up and running locally on a single node
 You actually have a fully-functional blockchain already. To start it on your development machine, run the following command in the `blog` directory
 
 ```
-starport serve
+starport chain serve
 ```
 
 This will download dependencies, compile the source code into a binary called `blogd` (by default Starport uses the name of the repo + `d`), use this binary to initialize a single validator node, and start the node.
@@ -96,7 +96,7 @@ In terms of workflow, developers usually work with proto files first to define C
 Let's start by creating a `posts` query:
 
 ```
-starport query posts --response title,body
+starport scaffold query posts --response title,body
 ```
 
 `query` accepts a name of the query (in our case, `posts`), an optional list of request parameters (in our case, empty), and an optional comma-separated list of response fields with a `--response` flag (in our case, `body,title`).
@@ -178,7 +178,7 @@ func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *r
 Now we're ready to start our blockchain:
 
 ```go
-starport serve
+starport chain serve
 ```
 
 Once the chain has been started, visit [http://localhost:1317/alice/blog/blog/posts](http://localhost:1317/alice/blog/blog/posts) and see our text displayed!
@@ -209,7 +209,7 @@ A Cosmos SDK message contains information that can trigger changes in the state 
 To create a message type and its handler, use the `message` command:
 
 ```go
-starport message createPost title body
+starport scaffold message createPost title body
 ```
 
 The `message` command accepts message name (`createPost`) and a list of fields (`title` and `body`) as arguments.
@@ -410,7 +410,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
 
 We've implemented all the code necessary to create new posts and store them on chain. Now, when a transaction containing a message of type `MsgCreatePost` is broadcasted, Cosmos SDK will route the message to our blog module. `x/blog/handler.go` calls `k.CreatePost`, which in turn calls `AppendPost`. `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID.
 
-Let's try it out! If the chain is yet not started, run `starport serve`. Create a post:
+Let's try it out! If the chain is yet not started, run `starport chain serve`. Create a post:
 
 ```
 blogd tx blog createPost foo bar --from alice

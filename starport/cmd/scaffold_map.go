@@ -5,6 +5,10 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+const (
+	FlagIndexes = "index"
+)
+
 // NewScaffoldMap returns a new command to scaffold a map.
 func NewScaffoldMap() *cobra.Command {
 	c := &cobra.Command{
@@ -16,10 +20,16 @@ func NewScaffoldMap() *cobra.Command {
 
 	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().AddFlagSet(flagSetScaffoldType())
+	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
 
 	return c
 }
 
 func scaffoldMapHandler(cmd *cobra.Command, args []string) error {
-	return scaffoldType(cmd, args, scaffolder.MapType(""))
+	indexes, err := cmd.Flags().GetStringSlice(FlagIndexes)
+	if err != nil {
+		return err
+	}
+
+	return scaffoldType(cmd, args, scaffolder.MapType(indexes...))
 }

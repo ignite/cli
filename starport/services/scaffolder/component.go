@@ -79,6 +79,7 @@ func checkForbiddenComponentName(name string) error {
 	// Check with names already used from the scaffolded code
 	switch name {
 	case
+		"oracle",
 		"logger",
 		"keeper",
 		"query",

@@ -5,14 +5,14 @@ description: Overview of a new Cosmos SDK blockchain project built with Starport
 
 # Project Scaffold Reference
 
-The `starport app` command scaffolds a new Cosmos SDK blockchain project.
+The `starport scaffold chain` command scaffolds a new Cosmos SDK blockchain project.
 
 ## Build a Blockchain App
 
 To build the planet application:
 
 ```bash
-starport app github.com/hello/planet
+starport scaffold chain github.com/hello/planet
 ```
 
 ## Directory Structure
@@ -30,7 +30,7 @@ The project directory structure:
 
 ### Application-Specific Logic
 
-Most of the logic of your application-specific blockchain is written in custom modules. Each module effectively encapsulates an independent piece of functionality. Custom modules are stored inside the `x` directory. By default, `starport app` scaffolds a module with a name that matches the name of the project. In our example, the module name is `x/planet`.
+Most of the logic of your application-specific blockchain is written in custom modules. Each module effectively encapsulates an independent piece of functionality. Custom modules are stored inside the `x` directory. By default, `starport scaffold chain` scaffolds a module with a name that matches the name of the project. In our example, the module name is `x/planet`.
 
 ### Proto Files
 
@@ -53,7 +53,7 @@ Account addresses on Cosmos SDK-based blockchains have string prefixes. For exam
 When creating a new blockchain, pass a prefix as a value to the `--address-prefix` flag:
 
 ```bash
-starport app github.com/hello/planet --address-prefix moonlight
+starport scaffold chain github.com/hello/planet --address-prefix moonlight
 ```
 
 Using the `moonlight` prefix, account addresses on your blockchain look like this: `moonlight12fjzdtqfrrve7zyg9sv8j25azw2ua6tvu07ypf`.
@@ -67,8 +67,8 @@ To change the prefix after the blockchain has been scaffolded, modify the `Accou
 
 ## Cosmos SDK Version
 
-By default, the `starport app` command creates a Cosmos SDK blockchain using the latest stable version of the SDK.
+By default, the `starport scaffold chain` command creates a Cosmos SDK blockchain using the latest stable version of the SDK.
 
 <!-- is it time to delete this launchpad option? 
-It is possible to use the legacy Cosmos SDK v0.39.2 (Launchpad). This legacy version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain, but if you do, use the `--sdk-version` flag with the value `launchpad`. ``` starport app github.com/hello/planet --sdk-version launchpad ``` -->
+It is possible to use the legacy Cosmos SDK v0.39.2 (Launchpad). This legacy version has no active feature development and does not support IBC. You probably don't want to create a Launchpad blockchain, but if you do, use the `--sdk-version` flag with the value `launchpad`. ``` starport scaffold chain github.com/hello/planet --sdk-version launchpad ``` -->
 
