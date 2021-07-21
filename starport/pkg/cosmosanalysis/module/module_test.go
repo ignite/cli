@@ -43,7 +43,6 @@ func TestDiscover(t *testing.T) {
 				sourcePath: "testdata/planet",
 				protoDir:   "invalid",
 			},
-			want: nil,
 		}, {
 			name: "test invalid folder",
 			args: args{
