@@ -8,7 +8,7 @@ import (
 	"strconv"
 )
 
-// Get<%= TypeName.UpperCamel %>Count get the total number of TypeName.LowerCamel
+// Get<%= TypeName.UpperCamel %>Count get the total number of <%= TypeName.LowerCamel %>
 func (k Keeper) Get<%= TypeName.UpperCamel %>Count(ctx sdk.Context) uint64 {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey))
 	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
