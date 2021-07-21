@@ -9,7 +9,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
 
 ## macOS
 
-* Download the latest MacOS installer package from <https://golang.org/dl/>.
+* Download the latest macOS installer package from [Go downloads](https://golang.org/dl/).
 * Open the downloaded package and follow the prompts to install Go.
 * By default, the package installs the Go distribution to `/usr/local/go`, however it is always best to define the path explicitly:
 
