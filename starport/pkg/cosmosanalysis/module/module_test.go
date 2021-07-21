@@ -2,8 +2,6 @@ package module
 
 import (
 	"context"
-	"os"
-	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -12,10 +10,6 @@ import (
 )
 
 func TestDiscover(t *testing.T) {
-	goPath := os.Getenv("GOPATH")
-	testDataPath := filepath.Join(goPath,
-		"src/github.com/tendermint/starport/starport/pkg/cosmosanalysis/module/testdata")
-
 	type args struct {
 		sourcePath string
 		protoDir   string
@@ -28,7 +22,7 @@ func TestDiscover(t *testing.T) {
 		{
 			name: "test valid",
 			args: args{
-				sourcePath: filepath.Join(testDataPath, "planet"),
+				sourcePath: "testdata/planet",
 				protoDir:   "proto",
 			},
 			want: []Module{
@@ -37,7 +31,7 @@ func TestDiscover(t *testing.T) {
 		}, {
 			name: "test no proto folder",
 			args: args{
-				sourcePath: filepath.Join(testDataPath, "planet"),
+				sourcePath: "testdata/planet",
 				protoDir:   "",
 			},
 			want: []Module{
@@ -46,21 +40,21 @@ func TestDiscover(t *testing.T) {
 		}, {
 			name: "test invalid proto folder",
 			args: args{
-				sourcePath: filepath.Join(testDataPath, "planet"),
+				sourcePath: "testdata/planet",
 				protoDir:   "invalid",
 			},
 			want: nil,
 		}, {
 			name: "test invalid folder",
 			args: args{
-				sourcePath: filepath.Join(testDataPath, "invalid"),
+				sourcePath: "testdata/invalid",
 				protoDir:   "",
 			},
 			want: []Module{},
 		}, {
 			name: "test invalid main and proto folder",
 			args: args{
-				sourcePath: filepath.Join(testDataPath, "../../.."),
+				sourcePath: "../../..",
 				protoDir:   "proto",
 			},
 			want: []Module{},
