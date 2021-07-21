@@ -1,9 +1,6 @@
 ---
-order: 1
+order: 3
 description: Use commands to build, start, and add features to your first blockchain.
-parent:
-  order: 0
-  title: Introduction
 ---
 
 # Quickstart

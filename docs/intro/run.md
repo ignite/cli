@@ -1,9 +1,6 @@
 ---
-order: 1
-description: Use the Starport serve command to start your blockchain.
-parent:
-  order: 3
-  title: Run a Blockchain
+order: 5
+description: Running a blockchain with Starport.
 ---
 
 # Start a Blockchain
@@ -17,7 +14,7 @@ Blockchains are decentralized applications.
 
 Switch to the directory that contains a blockchain that was scaffolded with Starport. To start the blockchain node, run the following command:
 
-```
+```sh
 starport chain serve
 ```
 
@@ -28,6 +25,7 @@ Whenever a file is changed, the chain is automatically reinitialized, rebuilt, a
 Because the `starport chain serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
 
 ## The Magic of `starport chain serve`
+
 The `starport chain serve` command starts a fully operational blockchain.
 
 The `starport chain serve` command performs the following tasks:
@@ -46,7 +44,7 @@ The `starport chain serve` command performs the following tasks:
 - Watches for file changes and restarts
 - Exports state
 
-You can use flags to configure how the blockchain runs. 
+You can use flags to configure how the blockchain runs.
 
 ## Define How Your Blockchain Starts
 

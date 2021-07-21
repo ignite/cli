@@ -1,6 +1,9 @@
 ---
-order: 2
-description: Install the Go programming language
+order: 1
+description: Install the Go programming language.
+parent:
+  order: 0
+  title: Introduction
 ---
 
 # Install Go
