@@ -1,4 +1,4 @@
-# Introduction to Starport
+# Starport Bible
 
 [Starport](https://github.com/tendermint/starport) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
 
