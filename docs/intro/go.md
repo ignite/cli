@@ -14,7 +14,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
 * By default, the package installs the Go distribution to `/usr/local/go`, however it is always best to define the path explicitly:
 
     1. Open or create a `~/.profile` file with your favorite command-line text editor.
-    2. Add the following lines:
+    2. Add the following line:
 
         ```sh
         export PATH=$PATH:$(go env GOPATH)/bin
