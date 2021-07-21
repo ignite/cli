@@ -37,7 +37,7 @@ func New(opts *Options) (*genny.Generator, error) {
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
-	if err := testutil.Register(ctx, g); err != nil {
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
 		return g, err
 	}
 
