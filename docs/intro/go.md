@@ -26,7 +26,7 @@ In this tutorial, you will install the Go programming language (Golang) on your 
         source ~/.profile
         ```
 
-* Verify the installation of go by checking its version:
+* Verify that you have installed Go by running the following command to check the version:
 
     ```sh
     go version
@@ -34,14 +34,20 @@ In this tutorial, you will install the Go programming language (Golang) on your 
 
 ## Linux
 
-* Download the latest Linux distribution package from <https://golang.org/dl/>.
+* Download the latest Linux distribution package from [Go downloads](https://golang.org/dl/).
 * Extract the archive you downloaded into `/usr/local` using the following command:
+
+```sh
+sudo tar -C /usr/local -xzf gox.xx.x.linux-amd64.tar.gz
+```
+
+For example, to install version 1.16.6:
 
 ```sh
 sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
 ```
 
-**Note - Make sure to install the latest version available at that time.**
+**Note:** Make sure to install the latest supported version.
 
 * To add Go to your `.profile` file:
 
@@ -51,13 +57,13 @@ sudo tar -C /usr/local -xzf go1.16.6.linux-amd64.tar.gz
         export PATH=$PATH:$(go env GOPATH)/bin:/usr/local/go/bin
         ```
 
-* To make sure the above changes are applied, run the following command:
+* To make sure these changes are applied to `~/.profile`, run the following command:
 
 ```sh
 source ~/.profile
 ```
 
-* Verify the installation of go using:
+* Verify that you have installed Go by running the following command to check the version:
 
 ```sh
 go version
@@ -82,13 +88,13 @@ sudo tar -xvf go1.16.6.linux-amd64.tar.gz && sudo mv go /usr/local
         export PATH=$PATH:$(go env GOPATH)/bin
         ```
 
-* To make sure the above changes are applied, run the following command:
+* To make sure these changes are applied to `~/.profile`, run the following command:
 
 ```sh
 source ~/.profile
 ```
 
-* Verify the installation of go using:
+* Verify that you have installed Go by running the following command to check the version:
 
 ```sh
 go version
