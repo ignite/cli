@@ -35,6 +35,7 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldList())
 	c.AddCommand(NewScaffoldMap())
 	c.AddCommand(NewScaffoldSingle())
+	c.AddCommand(NewScaffoldType())
 	c.AddCommand(NewScaffoldMessage())
 	c.AddCommand(NewScaffoldQuery())
 	c.AddCommand(NewScaffoldPacket())
@@ -45,7 +46,30 @@ CRUD stands for "create, read, update, delete".`,
 	return c
 }
 
-func scaffoldType(module, typeName string, typeFields []string, opts scaffolder.AddTypeOption) error {
+func scaffoldType(
+	cmd *cobra.Command,
+	args []string,
+	kind scaffolder.AddTypeKind,
+) error {
+	var (
+		typeName       = args[0]
+		fields         = args[1:]
+		moduleName     = flagGetModule(cmd)
+		withoutMessage = flagGetNoMessage(cmd)
+	)
+
+	var options []scaffolder.AddTypeOption
+
+	if len(fields) > 0 {
+		options = append(options, scaffolder.TypeWithFields(fields...))
+	}
+	if moduleName != "" {
+		options = append(options, scaffolder.TypeWithModule(moduleName))
+	}
+	if withoutMessage {
+		options = append(options, scaffolder.TypeWithoutMessage())
+	}
+
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -53,7 +77,7 @@ func scaffoldType(module, typeName string, typeFields []string, opts scaffolder.
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddType(placeholder.New(), opts, module, typeName, typeFields...)
+	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
@@ -61,7 +85,7 @@ func scaffoldType(module, typeName string, typeFields []string, opts scaffolder.
 	s.Stop()
 
 	fmt.Println(sourceModificationToString(sm))
-	fmt.Printf("\n🎉 Created a %s `%s`.\n\n", opts.Model, typeName)
+	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
 }

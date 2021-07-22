@@ -44,7 +44,7 @@ type Msg struct {
 	FilePath string
 }
 
-// Query is an sdk Query.
+// HTTPQuery is an sdk Query.
 type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string
@@ -65,7 +65,9 @@ type Type struct {
 }
 
 type moduleDiscoverer struct {
-	sourcePath, basegopath string
+	sourcePath string
+	protoPath  string
+	basegopath string
 }
 
 // Discover discovers and returns modules and their types that implements sdk.Msg.
@@ -78,7 +80,7 @@ type moduleDiscoverer struct {
 // for a more opinionated check:
 //   - go/types.Implements() might be utilized and as needed.
 //   - instead of just comparing method names, their full signatures can be compared.
-func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
+func Discover(ctx context.Context, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -89,6 +91,7 @@ func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
 	}
 
 	md := &moduleDiscoverer{
+		protoPath:  filepath.Join(sourcePath, protoDir),
 		sourcePath: sourcePath,
 		basegopath: gm.Module.Mod.Path,
 	}
@@ -207,7 +210,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanalysis.Package, error) {
 	// find out all proto packages inside blockchain.
-	allprotopkgs, err := protoanalysis.Parse(ctx, d.sourcePath)
+	allprotopkgs, err := protoanalysis.Parse(ctx, d.protoPath)
 	if err != nil {
 		return nil, err
 	}

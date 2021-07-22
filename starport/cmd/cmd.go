@@ -1,14 +1,18 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/goenv"
@@ -17,17 +21,18 @@ import (
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
-const (
-	flagHome = "home"
-)
+const flagHome = "home"
+const checkVersionTimeout = time.Millisecond * 600
 
 var (
 	infoColor = color.New(color.FgYellow).SprintFunc()
 )
 
 // New creates a new root command for `starport` with its sub commands.
-func New() *cobra.Command {
+func New(ctx context.Context) *cobra.Command {
 	cobra.EnableCommandSorting = false
+
+	checkNewVersion(ctx)
 
 	c := &cobra.Command{
 		Use:   "starport",
@@ -161,4 +166,27 @@ func deprecated() []*cobra.Command {
 			Deprecated: "use `starport chain faucet` instead.",
 		},
 	}
+}
+
+func checkNewVersion(ctx context.Context) {
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
+	defer cancel()
+
+	isAvailable, next, err := version.CheckNext(ctx)
+	if err != nil || !isAvailable {
+		return
+	}
+
+	fmt.Printf(`·
+· 🛸 Starport %q is available!
+·
+· If you're looking to upgrade check out the instructions: https://docs.starport.network/intro/install.html#upgrading-your-starport-installation
+·
+··
+
+`, next)
 }
