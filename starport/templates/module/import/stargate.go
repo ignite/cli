@@ -150,10 +150,15 @@ func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 			return err
 		}
 
-		templateArgs := `cosmoscmd.WithWasm(),
+		templateArgs := `cosmoscmd.AddSubCmd(wasmcmd.GenesisWasmMsgCmd(app.DefaultNodeHome)),
+cosmoscmd.CustomizeStartCmd(wasmcmd.AddModuleInitFlags),
 		%[1]v`
 		replacementArgs := fmt.Sprintf(templateArgs, module.PlaceholderSgRootArgument)
 		content := replacer.Replace(f.String(), module.PlaceholderSgRootArgument, replacementArgs)
+
+		// import spm-extras.
+		content = replacer.Replace(f.String(), "package main", `package main
+import "github.com/tendermint/spm-extras/wasmcmd"`)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
