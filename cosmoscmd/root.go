@@ -2,12 +2,13 @@ package cosmoscmd
 
 import (
 	"errors"
-	"github.com/spf13/cast"
-	"github.com/spf13/cobra"
-	"github.com/spf13/pflag"
 	"io"
 	"os"
 	"path/filepath"
+
+	"github.com/spf13/cast"
+	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"github.com/tendermint/tendermint/libs/log"
@@ -76,8 +77,8 @@ type Option func(*rootOptions)
 
 // scaffoldingOptions keeps set of options to apply scaffolding.
 type rootOptions struct {
-	// true if wasm sub-command are imported
-	wasm bool
+	addSubCmds         []*cobra.Command
+	startCmdCustomizer func(*cobra.Command)
 }
 
 func newRootOptions(options ...Option) rootOptions {
@@ -92,10 +93,17 @@ func (s *rootOptions) apply(options ...Option) {
 	}
 }
 
-// WithWasm includes wasm sub-commands
-func WithWasm() Option {
+// AddSubCmd adds sub commands.
+func AddSubCmd(cmd ...*cobra.Command) Option {
 	return func(o *rootOptions) {
-		o.wasm = true
+		o.addSubCmds = append(o.addSubCmds, cmd...)
+	}
+}
+
+// CustomizeStartCmd accepts a handler to customize the start command.
+func CustomizeStartCmd(h func(startCmd *cobra.Command)) Option {
+	return func(o *rootOptions) {
+		o.startCmdCustomizer = h
 	}
 }
 
@@ -179,22 +187,22 @@ func initRootCmd(
 		debug.Cmd(),
 	)
 
-	// add wasm sub-commands if specified
-	if options.wasm {
-		rootCmd.AddCommand(AddGenesisWasmMsgCmd(defaultNodeHome))
-	}
-
 	a := appCreator{
 		encodingConfig,
 		buildApp,
 	}
 
 	// add server commands
-	addStartFlags := addModuleInitFlags
-	if options.wasm {
-		addStartFlags = addModuleInitFlagsWithWasm
-	}
-	server.AddCommands(rootCmd, defaultNodeHome, a.newApp, a.appExport, addStartFlags)
+	server.AddCommands(
+		rootCmd,
+		defaultNodeHome,
+		a.newApp,
+		a.appExport,
+		func(cmd *cobra.Command) {
+			addModuleInitFlags(cmd)
+			options.startCmdCustomizer(cmd)
+		},
+	)
 
 	// add keybase, auxiliary RPC, query, and tx child commands
 	rootCmd.AddCommand(
@@ -203,6 +211,11 @@ func initRootCmd(
 		txCommand(moduleBasics),
 		keys.Commands(defaultNodeHome),
 	)
+
+	// add user given sub commands.
+	for _, cmd := range options.addSubCmds {
+		rootCmd.AddCommand(cmd)
+	}
 }
 
 // queryCommand returns the sub-command to send queries to the app
@@ -353,7 +366,7 @@ func (a appCreator) appExport(
 	if !ok || homePath == "" {
 		return servertypes.ExportedApp{}, errors.New("application home not set")
 	}
-	
+
 	exportableApp = a.buildApp(
 		logger,
 		db,
