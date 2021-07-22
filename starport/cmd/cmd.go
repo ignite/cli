@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -168,6 +169,10 @@ func deprecated() []*cobra.Command {
 }
 
 func checkNewVersion(ctx context.Context) {
+	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+		return
+	}
+
 	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
 	defer cancel()
 
