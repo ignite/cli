@@ -157,7 +157,7 @@ cosmoscmd.CustomizeStartCmd(wasmcmd.AddModuleInitFlags),
 		content := replacer.Replace(f.String(), module.PlaceholderSgRootArgument, replacementArgs)
 
 		// import spm-extras.
-		content = replacer.Replace(f.String(), "package main", `package main
+		content = replacer.Replace(content, "package main", `package main
 import "github.com/tendermint/spm-extras/wasmcmd"`)
 
 		newFile := genny.NewFileS(path, content)
