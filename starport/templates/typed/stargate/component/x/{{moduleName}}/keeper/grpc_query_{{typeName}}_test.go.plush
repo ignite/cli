@@ -51,7 +51,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 			    require.NoError(t, err)
-				require.Equal(t, tc.response, response)
+			    require.Equal(t, tc.response, response)
 			}
 		})
 	}
