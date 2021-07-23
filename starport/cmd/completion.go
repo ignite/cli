@@ -1,8 +1,9 @@
 package starportcmd
 
 import (
-	"github.com/spf13/cobra"
 	"os"
+
+	"github.com/spf13/cobra"
 )
 
 func Completion() *cobra.Command {
