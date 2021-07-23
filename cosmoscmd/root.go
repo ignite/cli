@@ -200,7 +200,10 @@ func initRootCmd(
 		a.appExport,
 		func(cmd *cobra.Command) {
 			addModuleInitFlags(cmd)
-			options.startCmdCustomizer(cmd)
+
+			if options.startCmdCustomizer != nil {
+				options.startCmdCustomizer(cmd)
+			}
 		},
 	)
 
