@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"fmt"
+    "strconv"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -12,17 +12,25 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	srv := NewMsgServerImpl(*keeper)
 	wctx := sdk.WrapSDKContext(ctx)
 	creator := "A"
 	for i := 0; i < 5; i++ {
-		idx := fmt.Sprintf("%d", i)
-		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: idx}
+		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genUniqueArg(index.DatatypeName) %>,
+            <% } %>
+		}
 		_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
 		require.NoError(t, err)
-		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, expected.Index)
+		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
 		require.True(t, found)
 		assert.Equal(t, expected.Creator, rst.Creator)
 	}
@@ -30,7 +38,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	creator := "A"
-	index := "any"
 
 	for _, tc := range []struct {
 		desc    string
@@ -39,16 +46,25 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator, Index: index},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B", Index: index},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B",
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator, Index: "missing"},
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
@@ -57,7 +73,10 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			keeper, ctx := setupKeeper(t)
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
-			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: index}
+			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			}
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
 			require.NoError(t, err)
 
@@ -66,7 +85,10 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, expected.Index)
+				rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+				    <%= for (i, index) in Indexes { %>expected.<%= index.Name.UpperCamel %>,
+                    <% } %>
+				)
 				require.True(t, found)
 				assert.Equal(t, expected.Creator, rst.Creator)
 			}
@@ -76,7 +98,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	creator := "A"
-	index := "any"
 
 	for _, tc := range []struct {
 		desc    string
@@ -85,16 +106,25 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator, Index: index},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B", Index: index},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B",
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 			err:     sdkerrors.ErrUnauthorized,
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator, Index: "missing"},
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+                <% } %>
+			},
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
@@ -104,14 +134,20 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
 
-			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator, Index: index})
+			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+                <% } %>
+			})
 			require.NoError(t, err)
 			_, err = srv.Delete<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, tc.request.Index)
+				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+				    <%= for (i, index) in Indexes { %>tc.request.<%= index.Name.UpperCamel %>,
+                    <% } %>
+				)
 				require.False(t, found)
 			}
 		})
