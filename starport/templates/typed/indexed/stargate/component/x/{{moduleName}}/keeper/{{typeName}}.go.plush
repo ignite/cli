@@ -8,16 +8,24 @@ import (
 
 // Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store from its index
 func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
-	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
-	store.Set(types.KeyPrefix(<%= TypeName.LowerCamel %>.Index), b)
+	store.Set(types.<%= TypeName.UpperCamel %>Key(
+        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
+    <% } %>), b)
 }
 
 // Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its index
-func (k Keeper) Get<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) (val types.<%= TypeName.UpperCamel %>, found bool) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+func (k Keeper) Get<%= TypeName.UpperCamel %>(
+    ctx sdk.Context,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <% } %>
+) (val types.<%= TypeName.UpperCamel %>, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 
-	b := store.Get(types.KeyPrefix(index))
+	b := store.Get(types.<%= TypeName.UpperCamel %>Key(
+        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+    <% } %>))
     if b == nil {
         return val, false
     }
@@ -27,14 +35,20 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) (va
 }
 
 // Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
-func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, index string) {
-	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-	store.Delete(types.KeyPrefix(index))
+func (k Keeper) Remove<%= TypeName.UpperCamel %>(
+    ctx sdk.Context,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <% } %>
+) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
+	store.Delete(types.<%= TypeName.UpperCamel %>Key(
+	    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+    <% } %>))
 }
 
 // GetAll<%= TypeName.UpperCamel %> returns all <%= TypeName.LowerCamel %>
 func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.<%= TypeName.UpperCamel %>) {
-    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
 
 	defer iterator.Close()

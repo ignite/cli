@@ -18,19 +18,19 @@ Blockchains are decentralized applications.
 Switch to the directory that contains a blockchain that was scaffolded with Starport. To start the blockchain node, run the following command:
 
 ```
-starport serve
+starport chain serve
 ```
 
 This command initializes a chain, builds the code, starts a single validator node, and starts watching for file changes. 
 
 Whenever a file is changed, the chain is automatically reinitialized, rebuilt, and started again. The chain's state is preserved if the changes to the source code are compatible with the previous state. This state preservation is beneficial for development purposes. 
 
-Because the `starport serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
+Because the `starport chain serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
 
-## The Magic of `starport serve`
-The `starport serve` command starts a fully operational blockchain.
+## The Magic of `starport chain serve`
+The `starport chain serve` command starts a fully operational blockchain.
 
-The `starport serve` command performs the following tasks:
+The `starport chain serve` command performs the following tasks:
 
 - Installs dependencies
 - Imports state, if possible
@@ -50,7 +50,7 @@ You can use flags to configure how the blockchain runs.
 
 ## Define How Your Blockchain Starts
 
-Flags for the `starport serve` command determine how your blockchain starts. All flags are optional.
+Flags for the `starport chain serve` command determine how your blockchain starts. All flags are optional.
 
 `--config`, default is `config.yml`
 
@@ -78,7 +78,7 @@ Specify a custom home directory.
 
 ## Start a Blockchain Node in Production
 
-The `starport serve` and `starport build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `starport app github.com/alice/chain`, then the binary is named `chaind`.
+The `starport chain serve` and `starport chain build` commands compile the source code of the chain in a binary file and install the binary in `~/go/bin`. By default, the binary name is the name of the repository appended with `d`. For example, if you scaffold a chain using `starport scaffold chain github.com/alice/chain`, then the binary is named `chaind`.
 
 You can customize the binary name in `config.yml`:
 

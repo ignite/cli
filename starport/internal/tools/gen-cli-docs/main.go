@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -35,7 +36,7 @@ func main() {
 	outPath := flag.String("out", ".", ".md file path to place Starport CLI docs inside")
 	flag.Parse()
 
-	if err := generate(starportcmd.New(), *outPath); err != nil {
+	if err := generate(starportcmd.New(context.Background()), *outPath); err != nil {
 		log.Fatal(err)
 	}
 }

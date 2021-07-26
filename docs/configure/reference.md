@@ -81,12 +81,13 @@ client:
 
 The faucet service sends tokens to addresses. The default address for the web user interface is <http://localhost:4500>.
 
-| Key       | Required | Type            | Description                                                 |
-| --------- | -------- | --------------- | ----------------------------------------------------------- |
-| name      | Y        | String          | Name of a key pair. `name` must be in `accounts`            |
-| coins     | Y        | List of Strings | One or more coins with denominations sent per request       |
-| coins_max | N        | List of Strings | One or more maximum amounts of tokens sent for each address |
-| host      | N        | String          | Host and port number. Default: `:4500`                      |
+| Key               | Required | Type            | Description                                                 |
+| ----------------- | -------- | --------------- | ----------------------------------------------------------- |
+| name              | Y        | String          | Name of a key pair. `name` must be in `accounts`            |
+| coins             | Y        | List of Strings | One or more coins with denominations sent per request       |
+| coins_max         | N        | List of Strings | One or more maximum amounts of tokens sent for each address |
+| host              | N        | String          | Host and port number. Default: `:4500`                      |
+| rate_limit_window | N        | String          | Time after which the token limit is reset (in seconds)      |
 
 **faucet example**
 

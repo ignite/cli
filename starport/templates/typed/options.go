@@ -15,6 +15,7 @@ type Options struct {
 	TypeName   multiformatname.Name
 	Fields     []field.Field
 	NoMessage  bool
+	Indexes    []field.Field
 }
 
 // Validate that options are usuable
