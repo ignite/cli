@@ -2,7 +2,6 @@
 
 ## v0.17.1
 
-
 ### Fixes:
 
 - Set visibility to `public` on Gitpod's port 7575 to enable peer discovery for SPN
