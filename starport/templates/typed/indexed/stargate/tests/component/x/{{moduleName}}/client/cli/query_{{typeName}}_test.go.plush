@@ -18,6 +18,9 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
@@ -25,7 +28,10 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	for i := 0; i < n; i++ {
-		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{Creator: "ANY", Index: strconv.Itoa(i)})
+		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{
+		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genUniqueArg(index.DatatypeName) %>,
+		    <% } %>
+		})
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
@@ -42,27 +48,33 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		desc string
-		id   string
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+        <% } %>
 		args []string
 		err  error
 		obj  *types.<%= TypeName.UpperCamel %>
 	}{
 		{
 			desc: "found",
-			id:   objs[0].Index,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: objs[0].<%= index.Name.UpperCamel %>,
+            <% } %>
 			args: common,
 			obj:  objs[0],
 		},
 		{
 			desc: "not found",
-			id:   "not_found",
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+            <% } %>
 			args: common,
 			err:  status.Error(codes.InvalidArgument, "not found"),
 		},
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			args := []string{tc.id}
+			args := []string{
+			    <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <% } %>
+			}
 			args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdShow<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {

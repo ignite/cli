@@ -106,7 +106,7 @@ func (c *Chain) Generate(
 		}
 
 		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0755); err != nil {
+		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
 			return err
 		}
 

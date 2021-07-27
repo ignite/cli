@@ -72,6 +72,7 @@ func (s *Scaffolder) generate(
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
+		AppPath:          s.path,
 		OwnerName:        owner(pathInfo.RawPath),
 		OwnerAndRepoName: gu.UserAndRepo(),
 		BinaryNamePrefix: pathInfo.Root,

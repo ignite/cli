@@ -1,7 +1,7 @@
 package keeper
 
 import (
-	"fmt"
+	"strconv"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -10,11 +10,14 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
-		items[i].Creator = "any"
-		items[i].Index = fmt.Sprintf("%d", i)
+		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= genUniqueArg(index.DatatypeName) %>
+        <% } %>
 		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
 	}
 	return items
@@ -24,7 +27,10 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Index)
+		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
 		assert.True(t, found)
 		assert.Equal(t, item, rst)
 	}
@@ -33,8 +39,14 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		keeper.Remove<%= TypeName.UpperCamel %>(ctx, item.Index)
-		_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Index)
+		keeper.Remove<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
+		_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
 		assert.False(t, found)
 	}
 }

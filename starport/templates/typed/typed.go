@@ -39,6 +39,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
+	ctx.Set("Indexes", opts.Indexes)
 	ctx.Set("title", strings.Title)
 	ctx.Set("strconv", func() bool {
 		strconv := false
@@ -53,7 +54,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	plushhelpers.ExtendPlushContext(ctx)
-	testutil.Register(ctx, g)
+
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return err
+	}
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

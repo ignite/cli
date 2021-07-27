@@ -2,6 +2,7 @@ package cli_test
 
 import (
 	"fmt"
+    "strconv"
 	"testing"
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -14,22 +15,26 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/client/cli"
 )
 
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
 func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	net := network.New(t)
 	val := net.Validators[0]
 	ctx := val.ClientCtx
-    id := "0"
 
     fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
 	for _, tc := range []struct {
 		desc string
-        id   string
+        <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+        <% } %>
 		args []string
 		err  error
 		code uint32
 	}{
 		{
-            id:   id,
+            <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+            <% } %>
 			desc: "valid",
 			args: []string{
 				fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
@@ -41,7 +46,10 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-            args := []string{tc.id}
+            args := []string{
+                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <% } %>
+            }
             args = append(args, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
@@ -61,7 +69,6 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	net := network.New(t)
 	val := net.Validators[0]
 	ctx := val.ClientCtx
-    id := "0"
 
     fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
 	common := []string{
@@ -70,7 +77,10 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 	}
-    args := []string{id}
+    args := []string{
+        <%= for (i, index) in Indexes { %>"0",
+        <% } %>
+    }
 	args = append(args, fields...)
 	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
@@ -78,26 +88,32 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		id   string
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+        <% } %>
 		args []string
 		code uint32
 		err  error
 	}{
 		{
 			desc: "valid",
-			id:   id,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+            <% } %>
 			args: common,
 		},
 		{
 			desc: "key not found",
-			id:   "1",
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+            <% } %>
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
 		},
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-            args := []string{tc.id}
+            args := []string{
+                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <% } %>
+            }
             args = append(args, fields...)
             args = append(args, tc.args...)
 			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdUpdate<%= TypeName.UpperCamel %>(), args)
@@ -118,7 +134,6 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	val := net.Validators[0]
 	ctx := val.ClientCtx
-    id := "0"
 
 	fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
 	common := []string{
@@ -127,7 +142,10 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 		fmt.Sprintf("--%s=%s", flags.FlagBroadcastMode, flags.BroadcastBlock),
 		fmt.Sprintf("--%s=%s", flags.FlagFees, sdk.NewCoins(sdk.NewCoin(net.Config.BondDenom, sdk.NewInt(10))).String()),
 	}
-    args := []string{id}
+    args := []string{
+        <%= for (i, index) in Indexes { %>"0",
+        <% } %>
+    }
 	args = append(args, fields...)
 	args = append(args, common...)
 	_, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdCreate<%= TypeName.UpperCamel %>(), args)
@@ -135,26 +153,34 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		id   string
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+        <% } %>
 		args []string
 		code uint32
 		err  error
 	}{
 		{
 			desc: "valid",
-			id:   id,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+            <% } %>
 			args: common,
 		},
 		{
 			desc: "key not found",
-			id:   "1",
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+            <% } %>
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
 		},
 	} {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
-			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), append([]string{tc.id}, tc.args...))
+		    args := []string{
+                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <% } %>
+            }
+            args = append(args, tc.args...)
+			out, err := clitestutil.ExecTestCLICmd(ctx, cli.CmdDelete<%= TypeName.UpperCamel %>(), args)
 			if tc.err != nil {
 				require.ErrorIs(t, err, tc.err)
 			} else {
