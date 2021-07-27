@@ -79,10 +79,13 @@ func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *
 		templateTypesValidate := `%[1]v
 // Check for duplicated ID in %[2]v
 %[2]vIdMap := make(map[uint64]bool)
-
+%[2]vCount := len(gs.%[3]vList)
 for _, elem := range gs.%[3]vList {
 	if _, ok := %[2]vIdMap[elem.Id]; ok {
 		return fmt.Errorf("duplicated id for %[2]v")
+	}
+	if elem.Id > uint64(%[2]vCount) {
+		return fmt.Errorf("%[2]v id should be lower or equal than the last id")
 	}
 	%[2]vIdMap[elem.Id] = true
 }`
