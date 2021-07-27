@@ -21,7 +21,7 @@ func NewTools() *cobra.Command {
 	c.AddCommand(NewToolsIBCSetup())
 	c.AddCommand(NewToolsIBCRelayer())
 	c.AddCommand(NewToolsProtoc())
-	c.AddCommand(NewToolsCompletion())
+	c.AddCommand(NewToolsCompletions())
 	return c
 }
 
@@ -88,49 +88,49 @@ func toolsProxy(ctx context.Context, command []string) error {
 }
 
 
-func NewToolsCompletion() *cobra.Command {
+func NewToolsCompletions() *cobra.Command {
 
 	// completionCmd represents the completion command
 	c := &cobra.Command{
-		Use:   "completion",
-		Short: "Generate completion script",
+		Use:   "completions",
+		Short: "Generate completions script",
 		Long: `To load completions:
 
 Bash:
 
-  $ source <(starport  tools completion bash)
+  $ source <(starport  tools completions bash)
 
   # To load completions for each session, execute once:
   # Linux:
-  $ starport  tools completion bash > /etc/bash_completion.d/starport
+  $ starport  tools completions bash > /etc/bash_completion.d/starport
   # macOS:
-  $ starport  tools completion bash > /usr/local/etc/bash_completion.d/starport
+  $ starport  tools completions bash > /usr/local/etc/bash_completion.d/starport
 
 Zsh:
 
-  # If shell completion is not already enabled in your environment,
+  # If shell completions is not already enabled in your environment,
   # you will need to enable it.  You can execute the following once:
 
   $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
   # To load completions for each session, execute once:
-  $ starport  tools completion zsh > "${fpath[1]}/_starport"
+  $ starport  tools completions zsh > "${fpath[1]}/_starport"
 
   # You will need to start a new shell for this setup to take effect.
 
 fish:
 
-  $ starport  tools completion fish | source
+  $ starport  tools completions fish | source
 
   # To load completions for each session, execute once:
-  $ starport  tools completion fish > ~/.config/fish/completions/starport.fish
+  $ starport  tools completions fish > ~/.config/fish/completionss/starport.fish
 
 PowerShell:
 
-  PS> starport  tools completion powershell | Out-String | Invoke-Expression
+  PS> starport  tools completions powershell | Out-String | Invoke-Expression
 
   # To load completions for every new session, run:
-  PS> starport  tools completion powershell > starport.ps1
+  PS> starport  tools completions powershell > starport.ps1
   # and source this file from your PowerShell profile.
 `,
 		DisableFlagsInUseLine: true,
