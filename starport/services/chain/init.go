@@ -82,6 +82,10 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+	clientTOMLPath, err := c.ClientTOMLPath()
+	if err != nil {
+		return err
+	}
 	configTOMLPath, err := c.ConfigTOMLPath()
 	if err != nil {
 		return err
@@ -94,6 +98,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}{
 		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
 		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.Init.Client},
 		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 	}
 

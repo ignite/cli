@@ -327,6 +327,15 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 	return fmt.Sprintf("%s/config/config.toml", home), nil
 }
 
+// ClientTOMLPath returns client.toml path of the app.
+func (c *Chain) ClientTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return fmt.Sprintf("%s/config/client.toml", home), nil
+}
+
 // Commands returns the runner execute commands on the chain's binary
 func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
