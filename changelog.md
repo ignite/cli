@@ -2,9 +2,6 @@
 
 ## v0.17.1
 
-### Features:
-
-- Added `appd config` command and client configuration through `config.yml` (in the project's dir) and `client.toml` (in the data dir)
 
 ### Fixes:
 
