@@ -1,5 +1,18 @@
 # Changelog
 
+## v0.17.1
+
+### Features:
+
+- Added `appd config` command and client configuration through `config.yml` (in the project's dir) and `client.toml` (in the data dir)
+
+### Fixes:
+
+- Set visibility to `public` on Gitpod's port 7575 to enable peer discovery for SPN
+- Fixed GitHub action that releases blockchain node's binary
+- Fixed an error in chain scaffolding due to "unknown revision"
+- Fixed an error in `starport chain serve` by limiting the scope where proto files are searched for
+
 ## v0.17
 
 ### Features:
