@@ -70,6 +70,6 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 }
 ```
 
-`case *types.MsgCreatePost` handles messages of type `MsgCreatePost`, calls `CreatePost` method and returns back the response.
+`case *types.MsgCreatePost` handles messages of type `MsgCreatePost`, calls `CreatePost` method, and returns back the response.
 
 Every module has a handler function like this to process messages and call keeper methods.

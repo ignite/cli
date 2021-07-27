@@ -3,7 +3,7 @@ order: 1
 description: Install the Go programming language.
 parent:
   order: 9
-  title: Developer Gudie
+  title: Developer Guide
 ---
 
 # Install Go

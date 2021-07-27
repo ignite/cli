@@ -9,12 +9,7 @@ You can run Starport in a web-based Gitpod IDE or you can install Starport on yo
 
 ## Prerequisite
 
-Starport is written in the Go programming language. To use Starport on a local system:
-
-- Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
-- Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
-
-**Tip:** If you get the message `appd: command not found` then your Go environment variables might not be set correctly.
+Starport is written in the Go programming language. Visit the [Installatio guide](go.md) for more information.
 
 ## Upgrading Your Starport Installation
 
