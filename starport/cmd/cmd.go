@@ -60,7 +60,6 @@ starport scaffold chain github.com/cosmonaut/mars`,
 	c.AddCommand(NewDocs())
 	c.AddCommand(NewVersion())
 	c.AddCommand(deprecated()...)
-	c.AddCommand(Completion())
 
 	return c
 }
