@@ -40,7 +40,7 @@ func (g *generator) setup() (err error) {
 	}
 
 	// this is for user's app itself. it may contain custom modules. it is the first place to look for.
-	g.appModules, err = g.discoverModules(g.appPath)
+	g.appModules, err = g.discoverModules(g.appPath, g.protoDir)
 	if err != nil {
 		return err
 	}
@@ -63,7 +63,7 @@ func (g *generator) setup() (err error) {
 		if err != nil {
 			return err
 		}
-		modules, err := g.discoverModules(path)
+		modules, err := g.discoverModules(path, "")
 		if err != nil {
 			return err
 		}
@@ -89,10 +89,10 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	return paths, nil
 }
 
-func (g *generator) discoverModules(path string) ([]module.Module, error) {
+func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
 	var filteredModules []module.Module
 
-	modules, err := module.Discover(g.ctx, path)
+	modules, err := module.Discover(g.ctx, path, protoDir)
 	if err != nil {
 		return nil, err
 	}

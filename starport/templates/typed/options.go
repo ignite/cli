@@ -8,12 +8,14 @@ import (
 // Options ...
 type Options struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
 	TypeName   multiformatname.Name
 	Fields     []field.Field
 	NoMessage  bool
+	Indexes    []field.Field
 }
 
 // Validate that options are usuable
