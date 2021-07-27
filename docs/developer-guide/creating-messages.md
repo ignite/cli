@@ -3,15 +3,17 @@ order: 7
 description: Creating messages
 ---
 
-# Creating Posts
+# Creating Messages
 
-We discussed how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
+A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
+
+## Creating Posts
+
+So far, you have learned how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
 
 You can think of the state as being a collection of key-value stores. Each module is responsible for its own store. Changes to the store are triggered by transactions signed and broadcasted by users. Each transaction contains Cosmos SDK messages (not to be confused with proto `message`). When a transaction is processsed, each message gets routed to its module. A module has message handlers that process messages. Processing a message can trigger changes in the state.
 
 ## Handling Messages
-
-A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
 
 To create a message type and its handler, use the `message` command:
 
@@ -31,7 +33,7 @@ The `message` command has created and modified several files:
 - created `x/blog/types/message_createPost.go`
 - modified `x/blog/types/codec.go`
 
-As always, we start with a proto file. Inside `proto/blog/tx.proto`:
+As always, you start developing your messages with a proto file. Inside `proto/blog/tx.proto`:
 
 ```go
 message MsgCreatePost {
@@ -45,7 +47,13 @@ message MsgCreatePostResponse {
 }
 ```
 
-First, we define a Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title and body. Since the purpose of `MsgCreatePost` is to create new posts in the store, the only thing it needs to return is an ID of a created post. `CreatePost` `rpc` is added to the `Msg` `service`:
+First, define a Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three string fields:
+
+- creator
+- title
+- body
+
+Since the purpose of `MsgCreatePost` is to create new posts in the store, the only thing the message must return is an ID of a created post. For example, the following code adds the `CreatePost` message to the `Msg` service and returns the `MsgCreatePostResponse` response.
 
 ```go
 service Msg {
