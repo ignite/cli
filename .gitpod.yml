@@ -46,4 +46,5 @@ ports:
   - port: 26657
   - port: 8080
   - port: 7575
+    visibility: public
   - port: 4500

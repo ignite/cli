@@ -27,10 +27,12 @@ import (
 )
 
 const (
-	wasmImport  = "github.com/CosmWasm/wasmd"
-	appPkg      = "app"
-	moduleDir   = "x"
-	wasmVersion = "v0.16.0"
+	wasmImport    = "github.com/CosmWasm/wasmd"
+	wasmVersion   = "v0.16.0"
+	extrasImport  = "github.com/tendermint/spm-extras"
+	extrasVersion = "v0.1.0"
+	appPkg        = "app"
+	moduleDir     = "x"
 )
 
 // moduleCreationOptions holds options for creating a new module
@@ -290,17 +292,10 @@ func (s *Scaffolder) installWasm() error {
 	switch s.version {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(os.Stderr),
-			).
+			New().
 			Run(context.Background(),
-				step.New(
-					step.Exec(
-						gocmd.Name(),
-						"get",
-						wasmImport+"@"+wasmVersion,
-					),
-				),
+				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
+				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
 			)
 	default:
 		return errors.New("version not supported")

@@ -14,7 +14,7 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
-	err := starportcmd.New().ExecuteContext(ctx)
+	err := starportcmd.New(ctx).ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
