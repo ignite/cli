@@ -32,6 +32,7 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 		}
 
 		templateImport := `%[1]v
+		"github.com/tendermint/spm-extras/wasmcmd"
 		"github.com/CosmWasm/wasmd/x/wasm"
 		wasmclient "github.com/CosmWasm/wasmd/x/wasm/client"`
 		replacementImport := fmt.Sprintf(templateImport, module.PlaceholderSgAppModuleImport)
@@ -114,7 +115,7 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 		)
 	
 		// The gov proposal types can be individually enabled
-		enabledProposals := cosmoscmd.GetEnabledProposals(ProposalsEnabled, EnableSpecificProposals)
+		enabledProposals := wasmcmd.GetEnabledProposals(ProposalsEnabled, EnableSpecificProposals)
 		if len(enabledProposals) != 0 {
 			govRouter.AddRoute(wasm.RouterKey, wasm.NewWasmProposalHandler(app.wasmKeeper, enabledProposals))
 		}`
@@ -150,10 +151,15 @@ func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 			return err
 		}
 
-		templateArgs := `cosmoscmd.WithWasm(),
+		templateArgs := `cosmoscmd.AddSubCmd(wasmcmd.GenesisWasmMsgCmd(app.DefaultNodeHome)),
+cosmoscmd.CustomizeStartCmd(wasmcmd.AddModuleInitFlags),
 		%[1]v`
 		replacementArgs := fmt.Sprintf(templateArgs, module.PlaceholderSgRootArgument)
 		content := replacer.Replace(f.String(), module.PlaceholderSgRootArgument, replacementArgs)
+
+		// import spm-extras.
+		content = replacer.Replace(content, "package main", `package main
+import "github.com/tendermint/spm-extras/wasmcmd"`)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
