@@ -3,13 +3,13 @@ order: 7
 description: Creating messages
 ---
 
-## Creating Posts
+# Creating Posts
 
-So far, we've discussed how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
+We discussed how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
 
 You can think of the state as being a collection of key-value stores. Each module is responsible for its own store. Changes to the store are triggered by transactions signed and broadcasted by users. Each transaction contains Cosmos SDK messages (not to be confused with proto `message`). When a transaction is processsed, each message gets routed to its module. A module has message handlers that process messages. Processing a message can trigger changes in the state.
 
-### Handling Messages
+## Handling Messages
 
 A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
 

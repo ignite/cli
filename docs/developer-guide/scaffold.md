@@ -32,7 +32,3 @@ starport scaffold list post title body
 The `starport scaffold list` command scaffolds all the necessary files for create, read, update and delete (CRUD) actions for a specific new type.
 
 In this example, the type is `post`. The list of arguments that follow specify fields of the type, in this example: `title` and `body`. There can be any number of fields and fields can have specific types. By default, fields are strings.
-
-## Step-by-Step Learning
-
-To learn new skills by using step-by-step processes, head over to the [Cosmos SDK Tutorials](https://tutorials.cosmos.network/). These tutorials get you started with Starport and the Cosmos SDK.
