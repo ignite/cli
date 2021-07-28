@@ -1311,7 +1311,7 @@ starport tools completions [bash|zsh|fish|powershell]
 **Examples**
 
 ```
-starport tools completions [bash|zsh|fish|powershell]
+starport tools completions bash
 ```
 
 **Options**
