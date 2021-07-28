@@ -68,7 +68,7 @@ cd starport && make install
 
 ## Enable completion for your shell
 
-See [starport tools completions](#starport-tools-completions)
+See [starport tools completions](/cli/#starport-tools-completions)
 
 ## Summary
 
