@@ -66,10 +66,6 @@ git clone https://github.com/tendermint/starport --depth=1
 cd starport && make install
 ```
 
-## Enable completion for your shell
-
-See [starport tools completions](/cli/#starport-tools-completions)
-
 ## Summary
 
 - To setup a local development environment, install Starport locally on your computer.

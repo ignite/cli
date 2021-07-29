@@ -1294,49 +1294,6 @@ starport tools protoc -- --version
 
 * [starport tools](#starport-tools)	 - Tools for advanced users
 
-## starport tools completions
-
-Generates a completion script. 
-
-**Synopsis**
-
-The ``completions`` command generates a completion script to be used in your shell. However, the generated script depends on
-[bash-completion](https://github.com/scop/bash-completion) being installed and enabled in your system. Most of *nix like
-operating systems come with it by default and we assume it is already installed and operational. 
-
-```bash
-starport tools completions [bash|zsh|fish|powershell]
-```
-
-**Examples**
-
-```
-starport tools completions bash
-```
-
-**Options**
-
-```
--h, --help   help for completions
-```
-
-### Enable starport autocompletion
-
-In order to enable the autocompletion every time you open a terminal, we present two solutions :
-
-1. Source the completion script in your ~/.bashrc file:
-```bash
-echo 'source <(starport  tools completions bash)' >> ~/.bashrc
-```
-
-2. Add the completion script to the /etc/bash_completion.d directory:
-```
-starport tools completions bash > /etc/bash_completion.d/starport
-```
-**SEE ALSO**
-
-* [starport tools](#starport-tools)	 - Tools for advanced users
-
 
 ## starport version
 
