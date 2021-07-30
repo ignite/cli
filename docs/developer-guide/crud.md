@@ -1,11 +1,15 @@
 ---
-order: 8
+order: 7
 description: Implementing CRUD manually
 ---
 
-# Type Scaffold Reference
+# Description
+
+CRUD stands for "create, read, update, delete".
 
 The `starport scaffold list` command scaffolds files that implement create, read, update, and delete (CRUD) functionality for a custom new type.
+
+## Type Scaffold Reference
 
 To add a custom type with create, read, update, and delete (CRUD) functionality:
 
