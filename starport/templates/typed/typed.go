@@ -54,7 +54,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	plushhelpers.ExtendPlushContext(ctx)
-	testutil.Register(ctx, g)
+
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return err
+	}
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))

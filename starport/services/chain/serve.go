@@ -343,7 +343,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 
-		if err := c.Init(ctx); err != nil {
+		if err := c.Init(ctx, true); err != nil {
 			return err
 		}
 	} else if appModified {

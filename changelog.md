@@ -1,5 +1,14 @@
 # Changelog
 
+## v0.17.1
+
+### Fixes:
+
+- Set visibility to `public` on Gitpod's port 7575 to enable peer discovery for SPN
+- Fixed GitHub action that releases blockchain node's binary
+- Fixed an error in chain scaffolding due to "unknown revision"
+- Fixed an error in `starport chain serve` by limiting the scope where proto files are searched for
+
 ## v0.17
 
 ### Features:

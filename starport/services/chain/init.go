@@ -18,7 +18,7 @@ const (
 )
 
 // Init initializes the chain and applies all optional configurations.
-func (c *Chain) Init(ctx context.Context) error {
+func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -28,7 +28,10 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 
-	return c.InitAccounts(ctx, conf)
+	if initAccounts {
+		return c.InitAccounts(ctx, conf)
+	}
+	return nil
 }
 
 // InitChain initializes the chain.

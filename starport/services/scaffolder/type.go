@@ -133,6 +133,7 @@ func (s *Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:    path.Package,
+			AppPath:    s.path,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),

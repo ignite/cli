@@ -37,7 +37,7 @@ func chainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := c.Init(cmd.Context()); err != nil {
+	if err := c.Init(cmd.Context(), true); err != nil {
 		return err
 	}
 
