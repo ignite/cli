@@ -114,6 +114,7 @@ func (p *stargatePlugin) clienttoml(homePath string, conf starportconf.Config) e
 		return err
 	}
 	config.Set("keyring-backend", "test")
+	config.Set("broadcast-mode", "block")
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
