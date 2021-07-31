@@ -55,6 +55,9 @@ func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) err
 	if err := p.apptoml(homePath, conf); err != nil {
 		return err
 	}
+	if err := p.clienttoml(homePath, conf); err != nil {
+		return err
+	}
 	return p.configtoml(homePath, conf)
 }
 
@@ -92,6 +95,25 @@ func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) e
 	config.Set("rpc.laddr", xurl.TCP(conf.Host.RPC))
 	config.Set("p2p.laddr", xurl.TCP(conf.Host.P2P))
 	config.Set("rpc.pprof_laddr", conf.Host.Prof)
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+	return err
+}
+
+func (p *stargatePlugin) clienttoml(homePath string, conf starportconf.Config) error {
+	path := filepath.Join(homePath, "config/client.toml")
+	config, err := toml.LoadFile(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	config.Set("keyring-backend", "test")
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
