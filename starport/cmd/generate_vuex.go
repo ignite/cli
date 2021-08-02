@@ -14,7 +14,7 @@ func NewGenerateVuex() *cobra.Command {
 		Short: "Generate Vuex store for you chain's frontend from your config.yml",
 		RunE:  generateVuexHandler,
 	}
-
+	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	return c
 }
 
@@ -22,7 +22,13 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chain.EnableThirdPartyModuleCodegen())
+	var chainOption []chain.Option
+
+	if flagProto3rdParty(cmd) {
+		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
+	}
+
+	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
 	if err != nil {
 		return err
 	}

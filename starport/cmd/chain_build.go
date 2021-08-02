@@ -9,10 +9,9 @@ import (
 )
 
 const (
-	flagRebuildProtoOnce = "rebuild-proto-once"
-	flagRelease          = "release"
-	flagReleaseTargets   = "release.targets"
-	flagReleasePrefix    = "release.prefix"
+	flagRelease        = "release"
+	flagReleaseTargets = "release.targets"
+	flagReleasePrefix  = "release.prefix"
 )
 
 // NewChainBuild returns a new build command to build a blockchain app.
@@ -35,21 +34,16 @@ Sample usages:
 		RunE: chainBuildHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules. Available only without the --release flag")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	return c
 }
 
 func chainBuildHandler(cmd *cobra.Command, args []string) error {
-	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
-	if err != nil {
-		return err
-	}
-
 	isRelease, _ := cmd.Flags().GetBool(flagRelease)
 	releaseTargets, _ := cmd.Flags().GetStringSlice(flagReleaseTargets)
 	releasePrefix, _ := cmd.Flags().GetString(flagReleasePrefix)
@@ -59,7 +53,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	if isRebuildProtoOnce {
+	if flagProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 

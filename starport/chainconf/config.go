@@ -104,6 +104,9 @@ type Client struct {
 	// Vuex configures code generation for Vuex.
 	Vuex Vuex `yaml:"vuex"`
 
+	// Dart configures client code generation for Dart.
+	Dart Dart `yaml:"dart"`
+
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
@@ -111,6 +114,12 @@ type Client struct {
 // Vuex configures code generation for Vuex.
 type Vuex struct {
 	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
+}
+
+// Dart configures client code generation for Dart.
+type Dart struct {
+	// Path configures out location for generated Dart code.
 	Path string `yaml:"path"`
 }
 

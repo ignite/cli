@@ -21,7 +21,10 @@ import (
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
 
-const flagHome = "home"
+const (
+	flagHome             = "home"
+	flagRebuildProtoOnce = "rebuild-proto-once"
+)
 const checkVersionTimeout = time.Millisecond * 600
 
 var (
@@ -93,6 +96,23 @@ func flagSetHome() *flag.FlagSet {
 func getHomeFlag(cmd *cobra.Command) (home string) {
 	home, _ = cmd.Flags().GetString(flagHome)
 	return
+}
+
+func flagSetProto3rdParty(additonalInfo string) *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+
+	info := "Enables proto code generation for 3rd party modules"
+	if additonalInfo != "" {
+		info += ". " + additonalInfo
+	}
+
+	fs.Bool(flagRebuildProtoOnce, false, info)
+	return fs
+}
+
+func flagProto3rdParty(cmd *cobra.Command) bool {
+	isEnabled, _ := cmd.Flags().GetBool(flagRebuildProtoOnce)
+	return isEnabled
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...chain.Option) (*chain.Chain, error) {
