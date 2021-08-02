@@ -55,7 +55,7 @@ func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) err
 	if err := p.apptoml(homePath, conf); err != nil {
 		return err
 	}
-	if err := p.clienttoml(homePath, conf); err != nil {
+	if err := p.clienttoml(homePath); err != nil {
 		return err
 	}
 	return p.configtoml(homePath, conf)
@@ -104,7 +104,7 @@ func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) e
 	return err
 }
 
-func (p *stargatePlugin) clienttoml(homePath string, conf starportconf.Config) error {
+func (p *stargatePlugin) clienttoml(homePath string) error {
 	path := filepath.Join(homePath, "config/client.toml")
 	config, err := toml.LoadFile(path)
 	if os.IsNotExist(err) {
