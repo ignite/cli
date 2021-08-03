@@ -1,9 +1,14 @@
 package cosmosgen
 
 import (
+	"bytes"
 	"context"
+	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/mattn/go-zglob"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 	protocgendart "github.com/tendermint/starport/starport/pkg/protoc-gen-dart"
@@ -14,6 +19,11 @@ var (
 	dartOut = []string{
 		"--dart_out=grpc:.",
 	}
+)
+
+const (
+	dartExportFileName = "export.dart"
+	dartClientDirName  = "client"
 )
 
 type dartGenerator struct {
@@ -58,7 +68,11 @@ func (g *dartGenerator) generateModules() error {
 }
 
 func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath string, m module.Module) error {
-	out := g.g.o.dartOut(m)
+	var (
+		out       = g.g.o.dartOut(m)
+		clientOut = filepath.Join(out, dartClientDirName)
+		exportOut = filepath.Join(out, dartExportFileName)
+	)
 
 	includePaths, err := g.g.resolveInclude(appPath)
 	if err != nil {
@@ -69,16 +83,37 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 	if err := os.RemoveAll(out); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(out, 0766); err != nil {
+	if err := os.MkdirAll(clientOut, 0766); err != nil {
 		return err
 	}
 
-	return protoc.Generate(
+	// generate grpc client and protobuf types.
+	if err := protoc.Generate(
 		ctx,
-		out,
+		clientOut,
 		m.Pkg.Path,
 		includePaths,
 		dartOut,
 		protoc.Plugin(plugin),
-	)
+	); err != nil {
+		return err
+	}
+
+	// generate an export file to export all generated code through a single entrypoint.
+	generatedFiles, err := zglob.Glob(fmt.Sprintf("%s/**/*.dart", clientOut))
+	if err != nil {
+		return err
+	}
+
+	var exportContent bytes.Buffer
+	for _, file := range generatedFiles {
+		path, err := filepath.Rel(out, file)
+		if err != nil {
+			return err
+		}
+		exportContent.WriteString(fmt.Sprintf("export '%s';\n", path))
+	}
+
+	err = os.WriteFile(exportOut, exportContent.Bytes(), 0644)
+	return errors.Wrap(err, "could not create the Dart export file for module")
 }
