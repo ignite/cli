@@ -17,13 +17,22 @@ type Option func(*configs)
 
 // configs holds Generate configs.
 type configs struct {
-	pluginPath string
+	pluginPath             string
+	isGeneratedDepsEnabled bool
 }
 
 // Plugin configures a plugin for code generation.
 func Plugin(path string) Option {
 	return func(c *configs) {
 		c.pluginPath = path
+	}
+}
+
+// GenerateDependencies enables code generation for the proto files that your protofile depends on.
+// use this if your protoc plugin does not give you an option to enable the same feature.
+func GenerateDependencies() Option {
+	return func(c *configs) {
+		c.isGeneratedDepsEnabled = true
 	}
 }
 
