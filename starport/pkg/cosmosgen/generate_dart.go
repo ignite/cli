@@ -74,7 +74,7 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 	}
 
 	return protoc.Generate(
-		g.g.ctx,
+		ctx,
 		out,
 		m.Pkg.Path,
 		includePaths,
