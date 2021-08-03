@@ -47,100 +47,106 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	// 1- list accounts
 	// 2- send tokens from one to other.
 	// 3- verify tx by using gRPC Gateway API.
-	steps := step.NewSteps(step.New(
-		step.Exec(
-			appname+"d",
-			"keys",
-			"list",
-			"--keyring-backend", "test",
-			"--output", "json",
+	steps := step.NewSteps(
+		step.New(
+			step.Exec(
+				appname+"d",
+				"config",
+				"output", "json",
+			),
+			step.PreExec(func() error {
+				return env.IsAppServed(ctx, host)
+			}),
 		),
-		step.PreExec(func() error {
-			output.Reset()
-			return env.IsAppServed(ctx, host)
-		}),
-		step.PostExec(func(execErr error) error {
-			if execErr != nil {
-				return execErr
-			}
-
-			addresses := []string{}
-
-			// collect addresses of alice and bob.
-			accounts := []struct {
-				Name    string `json:"name"`
-				Address string `json:"address"`
-			}{}
-			if err := json.NewDecoder(output).Decode(&accounts); err != nil {
-				return err
-			}
-			for _, account := range accounts {
-				if account.Name == "alice" || account.Name == "bob" {
-					addresses = append(addresses, account.Address)
+		step.New(
+			step.Exec(
+				appname+"d",
+				"keys",
+				"list",
+				"--keyring-backend", "test",
+			),
+			step.PostExec(func(execErr error) error {
+				if execErr != nil {
+					return execErr
 				}
-			}
-			if len(addresses) != 2 {
-				return errors.New("expected alice and bob accounts to be created")
-			}
 
-			// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
-			// endpoint by asserting denom and amount.
-			return cmdrunner.New().Run(ctx, step.New(
-				step.Exec(
-					appname+"d",
-					"tx",
-					"bank",
-					"send",
-					addresses[0],
-					addresses[1],
-					"10token",
-					"--keyring-backend", "test",
-					"--chain-id", appname,
-					"--node", xurl.TCP(host.RPC),
-					"--yes",
-				),
-				step.PreExec(func() error {
-					output.Reset()
-					return nil
-				}),
-				step.PostExec(func(execErr error) error {
-					if execErr != nil {
-						return execErr
-					}
+				addresses := []string{}
 
-					tx := struct {
-						Hash string `json:"txHash"`
-					}{}
-					if err := json.NewDecoder(output).Decode(&tx); err != nil {
-						return err
+				// collect addresses of alice and bob.
+				accounts := []struct {
+					Name    string `json:"name"`
+					Address string `json:"address"`
+				}{}
+				if err := json.NewDecoder(output).Decode(&accounts); err != nil {
+					return err
+				}
+				for _, account := range accounts {
+					if account.Name == "alice" || account.Name == "bob" {
+						addresses = append(addresses, account.Address)
 					}
+				}
+				if len(addresses) != 2 {
+					return errors.New("expected alice and bob accounts to be created")
+				}
 
-					addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.API), tx.Hash)
-					req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
-					if err != nil {
-						return errors.Wrap(err, "call to get tx via gRPC gateway")
-					}
-					resp, err := http.DefaultClient.Do(req)
-					if err != nil {
-						return err
-					}
-					defer resp.Body.Close()
+				// send some tokens from alice to bob and confirm the corresponding tx via gRPC gateway
+				// endpoint by asserting denom and amount.
+				return cmdrunner.New().Run(ctx, step.New(
+					step.Exec(
+						appname+"d",
+						"tx",
+						"bank",
+						"send",
+						addresses[0],
+						addresses[1],
+						"10token",
+						"--keyring-backend", "test",
+						"--chain-id", appname,
+						"--node", xurl.TCP(host.RPC),
+						"--yes",
+					),
+					step.PreExec(func() error {
+						output.Reset()
+						return nil
+					}),
+					step.PostExec(func(execErr error) error {
+						if execErr != nil {
+							return execErr
+						}
 
-					// Send error if the request failed
-					if resp.StatusCode != http.StatusOK {
-						return errors.New(resp.Status)
-					}
+						tx := struct {
+							Hash string `json:"txHash"`
+						}{}
+						if err := json.NewDecoder(output).Decode(&tx); err != nil {
+							return err
+						}
 
-					if err := json.NewDecoder(resp.Body).Decode(&txBody); err != nil {
-						return err
-					}
-					return nil
-				}),
-				step.Stdout(output),
-			))
-		}),
-		step.Stdout(output),
-	))
+						addr := fmt.Sprintf("%s/cosmos/tx/v1beta1/txs/%s", xurl.HTTP(host.API), tx.Hash)
+						req, err := http.NewRequestWithContext(ctx, http.MethodGet, addr, nil)
+						if err != nil {
+							return errors.Wrap(err, "call to get tx via gRPC gateway")
+						}
+						resp, err := http.DefaultClient.Do(req)
+						if err != nil {
+							return err
+						}
+						defer resp.Body.Close()
+
+						// Send error if the request failed
+						if resp.StatusCode != http.StatusOK {
+							return errors.New(resp.Status)
+						}
+
+						if err := json.NewDecoder(resp.Body).Decode(&txBody); err != nil {
+							return err
+						}
+						return nil
+					}),
+					step.Stdout(output),
+				))
+			}),
+			step.Stdout(output),
+		))
 
 	go func() {
 		defer cancel()
