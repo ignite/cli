@@ -13,17 +13,11 @@ type Plugin interface {
 	// Name of a Cosmos version.
 	Name() string
 
-	// Setup performs the initial setup for plugin.
-	Setup(context.Context) error
-
-	// ConfigCommands returns step.Exec configuration for config commands.
-	Configure(context.Context, chaincmdrunner.Runner, string) error
-
 	// GentxCommand returns step.Exec configuration for gentx command.
 	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
-	// PostInit hook.
-	PostInit(string, starportconf.Config) error
+	// Configure configures config defaults.
+	Configure(string, starportconf.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
 	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
