@@ -23,7 +23,7 @@ const checksumTxt = "checksum.txt"
 
 // Build builds and installs app binaries.
 func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
-	if err := c.setup(ctx); err != nil {
+	if err := c.setup(); err != nil {
 		return "", err
 	}
 
@@ -67,7 +67,7 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 	}
 
 	// prepare for build.
-	if err := c.setup(ctx); err != nil {
+	if err := c.setup(); err != nil {
 		return "", err
 	}
 

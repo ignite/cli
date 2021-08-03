@@ -1212,6 +1212,7 @@ Tools for advanced users
 * [starport tools ibc-relayer](#starport-tools-ibc-relayer)	 - Typescript implementation of an IBC relayer
 * [starport tools ibc-setup](#starport-tools-ibc-setup)	 - Collection of commands to quickly setup a relayer
 * [starport tools protoc](#starport-tools-protoc)	 - Execute the protoc command
+* [starport tools completions](#starport-tools-completions)	 - Generates a shell completion script 
 
 
 ## starport tools ibc-relayer

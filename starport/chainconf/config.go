@@ -155,6 +155,9 @@ type Init struct {
 	// App overwrites appd's config/app.toml configs.
 	App map[string]interface{} `yaml:"app"`
 
+	// Client overwrites appd's config/client.toml configs.
+	Client map[string]interface{} `yaml:"client"`
+
 	// Config overwrites appd's config/config.toml configs.
 	Config map[string]interface{} `yaml:"config"`
 
