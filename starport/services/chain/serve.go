@@ -207,9 +207,6 @@ func (c *Chain) setup(ctx context.Context) error {
 	if err := c.checkSystem(); err != nil {
 		return err
 	}
-	if err := c.plugin.Setup(ctx); err != nil {
-		return err
-	}
 	return nil
 }
 

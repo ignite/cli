@@ -2,7 +2,6 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
@@ -306,7 +305,7 @@ func (c *Chain) GenesisPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/genesis.json", home), nil
+	return filepath.Join(home, "config/genesis.json"), nil
 }
 
 // AppTOMLPath returns app.toml path of the app.
@@ -315,7 +314,7 @@ func (c *Chain) AppTOMLPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/app.toml", home), nil
+	return filepath.Join(home, "config/app.toml"), nil
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
@@ -324,7 +323,7 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/config.toml", home), nil
+	return filepath.Join(home, "config/config.toml"), nil
 }
 
 // ClientTOMLPath returns client.toml path of the app.
@@ -333,7 +332,7 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/client.toml", home), nil
+	return filepath.Join(home, "config/client.toml"), nil
 }
 
 // Commands returns the runner execute commands on the chain's binary
