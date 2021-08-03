@@ -24,7 +24,7 @@ func generateVuexHandler(cmd *cobra.Command, args []string) error {
 
 	var chainOption []chain.Option
 
-	if flagProto3rdParty(cmd) {
+	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 

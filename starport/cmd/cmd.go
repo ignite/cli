@@ -22,9 +22,10 @@ import (
 )
 
 const (
-	flagHome             = "home"
-	flagRebuildProtoOnce = "rebuild-proto-once"
+	flagHome          = "home"
+	flagProto3rdParty = "proto-all-modules"
 )
+
 const checkVersionTimeout = time.Millisecond * 600
 
 var (
@@ -101,17 +102,17 @@ func getHomeFlag(cmd *cobra.Command) (home string) {
 func flagSetProto3rdParty(additonalInfo string) *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
-	info := "Enables proto code generation for 3rd party modules"
+	info := "Enables proto code generation for 3rd party modules used in your chain"
 	if additonalInfo != "" {
 		info += ". " + additonalInfo
 	}
 
-	fs.Bool(flagRebuildProtoOnce, false, info)
+	fs.Bool(flagProto3rdParty, false, info)
 	return fs
 }
 
-func flagProto3rdParty(cmd *cobra.Command) bool {
-	isEnabled, _ := cmd.Flags().GetBool(flagRebuildProtoOnce)
+func flagGetProto3rdParty(cmd *cobra.Command) bool {
+	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
 	return isEnabled
 }
 

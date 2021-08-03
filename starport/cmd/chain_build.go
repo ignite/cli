@@ -53,7 +53,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	if flagProto3rdParty(cmd) {
+	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
