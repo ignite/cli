@@ -1,0 +1,59 @@
+name: Generate Protoc Dart Plugin 
+
+on:
+  push:
+    branches:
+      - develop
+
+jobs:
+  dart-linux:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Generate CLI Docs
+        run: ./scripts/gen-protoc-gen-dart
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: "feat(pkg/protoc-gen-dart): update linux binary"
+          commit-message: "feat(pkg/protoc-gen-dart): update linux binary"
+          body: ""
+          branch: feat/gen-pgd-linux
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"
+
+  dart-macos:
+    runs-on: macos-11 
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-go@v2
+        with:
+          go-version: 1.16
+
+      - name: Generate CLI Docs
+        run: ./scripts/gen-protoc-gen-dart
+
+      - name: Create Pull Request
+        id: cpr
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: "feat(pkg/protoc-gen-dart): update darwin binary"
+          commit-message: "feat(pkg/protoc-gen-dart): update darwin binary"
+          body: ""
+          branch: feat/gen-pgd-linux
+
+      - name: Check outputs
+        run: |
+          echo "Pull Request Number - ${{ steps.cpr.outputs.pull-request-number }}"
+          echo "Pull Request URL - ${{ steps.cpr.outputs.pull-request-url }}"

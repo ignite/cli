@@ -30,7 +30,6 @@ require (
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.11
 	github.com/jpillora/chisel v1.7.3
-	github.com/kr/pretty v0.2.1
 	github.com/manifoldco/promptui v0.8.0
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/olekukonko/tablewriter v0.0.5
@@ -43,7 +42,7 @@ require (
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
-	github.com/tendermint/flutter v1.0.0
+	github.com/tendermint/flutter v0.1.0
 	github.com/tendermint/spm v0.0.0-20210705094313-42e72ad05b63
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.11
@@ -58,5 +57,4 @@ require (
 replace (
 	github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 	github.com/keybase/go-keychain => github.com/99designs/go-keychain v0.0.0-20191008050251-8e49817e8af4
-	github.com/tendermint/flutter => ../flutter
 )

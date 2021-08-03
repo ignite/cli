@@ -1218,6 +1218,8 @@ github.com/tendermint/btcd v0.1.1 h1:0VcxPfflS2zZ3RiOAHkBiFUcPvbtRj5O7zHmcJWHV7s
 github.com/tendermint/btcd v0.1.1/go.mod h1:DC6/m53jtQzr/NFmMNEu0rxf18/ktVoVtMrnDD5pN+U=
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RMWx1aInLzndwxKalgi5rTqgfXxOxbEI=
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
+github.com/tendermint/flutter v0.1.0 h1:0EWAWJWyP0QopThmc1Cxa2Ja8bft6ShraHoLOpllWow=
+github.com/tendermint/flutter v0.1.0/go.mod h1:hW8URRpeA0KEaBWl9sOJUAlFLXeUrNWMvUoahMi1s3A=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.0.0-20210705094313-42e72ad05b63 h1:3S7NdfHPZI7Z3oPbsJeYM9D0wGaIjt3Lu9zuNWrYlMg=
