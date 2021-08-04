@@ -95,6 +95,7 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 		includePaths,
 		dartOut,
 		protoc.Plugin(plugin),
+		protoc.GenerateDependencies(),
 	); err != nil {
 		return err
 	}
