@@ -5,6 +5,10 @@ order: 3
 
 # Building a Blog
 
+```
+starport scaffold chain github.com/cosmonaut/blog
+```
+
 ## Creating Posts
 
 So far, we've discussed how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.

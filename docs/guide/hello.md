@@ -4,34 +4,6 @@ order: 2
 
 # Hello, World!
 
-## What is Starport?
-
-Starport is an easy to use CLI tool for creating sovereign blockchains with Cosmos SDK. Cosmos SDK is the world's most popular framework for building blockchains. Both Starport CLI and Cosmos SDK are written in the Go programming language.
-
-## Starting a New Starport Project
-
-### Installing Go
-
-Before you start using Starport, you should check that your system has Go installed. To do so run:
-
-```
-go version
-```
-
-If you see `go1.16` (or higher), then you have the right version of Go installed. If the output is `command not found` or installed version of Go is older than 1.16, [install or upgrade Go](https://golang.org/doc/install).
-
-### Installing Starport CLI
-
-To install Starport run the following command:
-
-```
-curl https://get.starport.network/starport! | bash
-```
-
-This command will fetch the `starport` binary and install it into `/usr/local/bin`. If this command throws a permission error, lose `!` and it will download the binary in the current directory, you can then move it manually into your `$PATH`.
-
-### Creating a Hello-Chain
-
 Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold scaffold chain` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
 
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
@@ -63,12 +35,9 @@ The `hello` directory will have a number of generated files and directories that
 | x/             | Contains custom modules                                                                                                                                                        |
 | config.yml     | A configuration file for customising a chain in development                                                                                                                    |
 
-
-## Hello, Starport!
-
 To get started, let's get our blockchain up and running locally on a single node.
 
-### Starting a Blockchain
+## Starting a Blockchain
 
 You actually have a fully-functional blockchain already. To start it on your development machine, run the following command in the `hello` directory
 
@@ -84,7 +53,7 @@ A validator node exposes two endpoints: [http://localhost:26657](http://localhos
 
 When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running. In the development environment, Starport doesn't require you to restart the blockchain; changes you make in files will be automatically picked up by Starport.
 
-### Say "Hello, Starport"
+## Say "Hello, Starport"
 
 To get your Cosmos SDK blockchain to say "Hello", you will need to modify a protocol buffer file, create a keeper query function that returns data, and register a query function. Protocol buffer files contain proto `rpc`s that define Cosmos SDK queries and message handlers and proto `message`s that define Cosmos SDK types. `rpc`s are also responsible for exposing an HTTP API. [Keeper](https://docs.cosmos.network/v0.42/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain and keeper functions let you query or write to the state. Registering a query needs to happen only once after you add the first query to your chain.
 
