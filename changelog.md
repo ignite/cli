@@ -1,6 +1,12 @@
 # Changelog
 
-## v0.17.1
+## Unreleased
+
+### Features
+
+- `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
+
+## `v0.17.1`
 
 ### Fixes:
 
@@ -9,7 +15,7 @@
 - Fixed an error in chain scaffolding due to "unknown revision"
 - Fixed an error in `starport chain serve` by limiting the scope where proto files are searched for
 
-## v0.17
+## `v0.17`
 
 ### Features:
 
