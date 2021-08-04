@@ -83,11 +83,11 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 	defer cleanup()
 
-	var command []string
+	command := cmd.Command
 
 	// add plugin if set.
 	if c.pluginPath != "" {
-		command = append(cmd.Command, "--plugin", c.pluginPath)
+		command = append(command, "--plugin", c.pluginPath)
 	}
 
 	var existentIncludePaths []string
@@ -197,5 +197,5 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 		}
 	}
 
-	return
+	return discovered, nil
 }
