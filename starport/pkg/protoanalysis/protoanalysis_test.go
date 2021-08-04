@@ -8,13 +8,35 @@ import (
 )
 
 func TestLiquidity(t *testing.T) {
-	packages, err := Parse(context.Background(), "testdata/liquidity")
+	packages, err := Parse(context.Background(), nil, "testdata/liquidity")
 	require.NoError(t, err)
 
-	expected := []Package{
+	expected := Packages{
 		{
-			Name:         "tendermint.liquidity",
-			Path:         "testdata/liquidity",
+			Name: "tendermint.liquidity",
+			Path: "testdata/liquidity",
+			Files: Files{
+				{
+					Path:         "testdata/liquidity/genesis.proto",
+					Dependencies: []string{"liquidity.proto", "gogoproto/gogo.proto"},
+				},
+				{
+					Path:         "testdata/liquidity/liquidity.proto",
+					Dependencies: []string{"tx.proto", "gogoproto/gogo.proto", "cosmos_proto/coin.proto", "protoc-gen-openapiv2/options/annotations.proto"},
+				},
+				{
+					Path:         "testdata/liquidity/msg.proto",
+					Dependencies: []string{"google/api/annotations.proto", "protoc-gen-openapiv2/options/annotations.proto", "tx.proto"},
+				},
+				{
+					Path:         "testdata/liquidity/query.proto",
+					Dependencies: []string{"gogoproto/gogo.proto", "liquidity.proto", "google/api/annotations.proto", "cosmos_proto/pagination.proto", "protoc-gen-openapiv2/options/annotations.proto"},
+				},
+				{
+					Path:         "testdata/liquidity/tx.proto",
+					Dependencies: []string{"gogoproto/gogo.proto", "cosmos_proto/coin.proto", "protoc-gen-openapiv2/options/annotations.proto"},
+				},
+			},
 			GoImportName: "github.com/tendermint/liquidity/x/liquidity/types",
 			Messages: []Message{
 				{Name: "PoolRecord", Path: "testdata/liquidity/genesis.proto"},
