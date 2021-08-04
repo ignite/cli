@@ -184,7 +184,7 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 					discovered = append(discovered, guessedPath)
 
 					// perform a complete search on this one to discover its dependencies as well.
-					depFile, err := protoanalysis.ParseFile(dep)
+					depFile, err := protoanalysis.ParseFile(guessedPath)
 					if err != nil {
 						return nil, err
 					}
