@@ -163,17 +163,21 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 	for _, dep := range file.Dependencies {
 		// try to locate imported .proto file relative to the this .proto file.
 		guessedPath := filepath.Join(dir, dep)
-		if _, err := os.Stat(guessedPath); err == nil {
+		_, err := os.Stat(guessedPath)
+		if err == nil {
 			discovered = append(discovered, guessedPath)
 			continue
+		}
+		if !os.IsNotExist(err) {
+			return nil, err
 		}
 
 		// otherwise, search by absolute path in includePaths.
 		var found bool
 		for _, included := range includePaths {
-
 			guessedPath := filepath.Join(included, dep)
-			if _, err := os.Stat(guessedPath); err == nil {
+			_, err := os.Stat(guessedPath)
+			if err == nil {
 				// found the dependency.
 				// if it's under protoPath, it is already discovered so, skip it.
 				if !strings.HasPrefix(guessedPath, protoPath) {
@@ -193,6 +197,9 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 
 				found = true
 				break
+			}
+			if !os.IsNotExist(err) {
+				return nil, err
 			}
 		}
 
