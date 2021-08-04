@@ -179,8 +179,12 @@ func searchFile(file protoanalysis.File, protoPath string, includePaths []string
 				if !strings.HasPrefix(guessedPath, protoPath) {
 					discovered = append(discovered, guessedPath)
 
-					// perform a complete search on this one as well to discover its dependencies as well.
-					d, err := searchFile(protoanalysis.File{Path: dep}, protoPath, includePaths)
+					// perform a complete search on this one to discover its dependencies as well.
+					depFile, err := protoanalysis.ParseFile(dep)
+					if err != nil {
+						return nil, err
+					}
+					d, err := searchFile(depFile, protoPath, includePaths)
 					if err != nil {
 						return nil, err
 					}
