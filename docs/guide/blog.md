@@ -1,200 +1,9 @@
 ---
-order: 1
-parent:
-  order: 1
-  title: Getting Started with Starport
+title: "Module Basics: Blog"
+order: 3
 ---
 
-# Getting Started
-
-## What is Starport?
-
-Starport is an easy to use CLI tool for creating sovereign blockchains with Cosmos SDK. Cosmos SDK is the world's most popular framework for building blockchains. Both Starport CLI and Cosmos SDK are written in the Go programming language.
-
-## Starting a New Starport Project
-
-### Installing Go
-
-Before you start using Starport, you should check that your system has Go installed. To do so run:
-
-```
-go version
-```
-
-If you see `go1.16` (or higher), then you have the right version of Go installed. If the output is `command not found` or installed version of Go is older than 1.16, [install or upgrade Go](https://golang.org/doc/install).
-
-### Installing Starport CLI
-
-To install Starport run the following command:
-
-```
-curl https://get.starport.network/starport! | bash
-```
-
-This command will fetch the `starport` binary and install it into `/usr/local/bin`. If this command throws a permission error, lose `!` and it will download the binary in the current directory, you can then move it manually into your `$PATH`.
-
-### Creating a Blog-Chain
-
-Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold scaffold chain` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
-
-To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
-
-```
-starport scaffold chain github.com/alice/blog
-```
-
-This will create a new Cosmos SDK blockchain called Blog in a `blog` directory. The source code inside the `blog` directory contains a fully functional ready-to-use blockchain. This new blockchain imports standard Cosmos SDK modules, such as [`staking`](https://docs.cosmos.network/v0.42/modules/staking/) (for delegated proof of stake), [`bank`](https://docs.cosmos.network/v0.42/modules/bank/) (for fungible token transfers between accounts), [`gov`](https://docs.cosmos.network/v0.42/modules/gov/) (for on-chain governance) and [other modules](https://docs.cosmos.network/v0.42/modules/).
-
-Note: You can see all the command line options that Starport provides by running `starport scaffold chain --help`.
-
-After you create the blockchain, switch to its directory:
-
-```
-cd blog
-```
-
-The `blog` directory will have a number of generated files and directories that make up the structure of a Cosmos SDK blockchain. Most of the work in this tutorial will happen in the `x` directory, but here is a quick overview of files and directories that Starport creates by default:
-
-| File/directory | Purpose                                                                                                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| app/           | Contains files that wire together the blockchain. The most important file is app.go that contains type definition of the blockchain and functions to create and initialize it. |
-| cmd/           | Contains the main package responsible for the CLI of compiled binary.                                                                                                          |
-| docs/          | Directory for project's documentation. By default an OpenAPI spec is generated.                                                                                                |
-| proto/         | Protocol buffer files describing                                                                                                                                               |
-| testutil/      | Contains helper functions for testing                                                                                                                                          |
-| vue/           | Contains a Vue 3 web app template                                                                                                                                              |
-| x/             | Contains custom modules                                                                                                                                                        |
-| config.yml     | A configuration file for customising a chain in development                                                                                                                    |
-
-
-## Hello, Starport!
-
-To get started, let's get our blockchain up and running locally on a single node.
-
-### Starting a Blockchain
-
-You actually have a fully-functional blockchain already. To start it on your development machine, run the following command in the `blog` directory
-
-```
-starport chain serve
-```
-
-This will download dependencies, compile the source code into a binary called `blogd` (by default Starport uses the name of the repo + `d`), use this binary to initialize a single validator node, and start the node.
-
-![./images/api.png](./images/api.png)
-
-A validator node exposes two endpoints: [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API and [http://localhost:1317](http://localhost:1317) for the high-level blockchain API.
-
-When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running. In the development environment, Starport doesn't require you to restart the blockchain; changes you make in files will be automatically picked up by Starport.
-
-### Say "Hello, Starport"
-
-To get your Cosmos SDK blockchain to say "Hello", you will need to modify a protocol buffer file, create a keeper query function that returns data, and register a query function. Protocol buffer files contain proto `rpc`s that define Cosmos SDK queries and message handlers and proto `message`s that define Cosmos SDK types. `rpc`s are also responsible for exposing an HTTP API. [Keeper](https://docs.cosmos.network/v0.42/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain and keeper functions let you query or write to the state. Registering a query needs to happen only once after you add the first query to your chain.
-
-In terms of workflow, developers usually work with proto files first to define Cosmos SDK [messages](https://docs.cosmos.network/v0.42/building-modules/msg-services.html), [queries](https://docs.cosmos.network/v0.42/building-modules/query-services.html), message handlers and then implement the logic of these queries and message handlers in keeper functions.
-
-Let's start by creating a `posts` query:
-
-```
-starport scaffold query posts --response title,body
-```
-
-`query` accepts a name of the query (in our case, `posts`), an optional list of request parameters (in our case, empty), and an optional comma-separated list of response fields with a `--response` flag (in our case, `body,title`).
-
-The `query` command has created and modified several files:
-
-- modified `proto/blog/query.proto`
-- created `x/blog/keeper/grpc_query_posts.go`
-- modified `x/blog/client/cli/query.go`
-- created `x/blog/client/cli/query_posts.go`
-
-Let's examine some of these changes. For clarity, in the following code blocks we'll skip placeholder comments Starport uses to scaffold code. Don't delete these placeholders, however, to be able to continue using Starport's scaffolding functionality.
-
-In `proto/blog/query.proto` a `Posts` `rpc` has been added to the `Query` `service`.
-
-```
-service Query {
-  rpc Posts(QueryPostsRequest) returns (QueryPostsResponse) {
-    option (google.api.http).get = "/alice/blog/blog/posts";
-  }
-}
-```
-
-`Posts` `rpc` will be responsible for returning a list of all the posts on chain. It accepts request parameters (`QueryPostsRequest`) and returns response of type `QueryPostsResponse`. `option` defines the endpoint that will be used by gRPC to generate an HTTP API.
-
-Below you can see both request and response types.
-
-```
-message QueryPostsRequest {
-}
-
-message QueryPostsResponse {
-  string title = 1;
-  string body = 2;
-}
-```
-
-`QueryPostsRequest` is empty because requesting all posts doesn't require are parameters. `QueryPostsResponse` contains `title` and `body` that will be returned from the chain.
-
-`x/blog/keeper/grpc_query_posts.go` contains `Posts` keeper function that handles the query and returns data.
-
-```go
-func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
-  if req == nil {
-    return nil, status.Error(codes.InvalidArgument, "invalid request")
-  }
-  ctx := sdk.UnwrapSDKContext(c)
-  _ = ctx
-  return &types.QueryPostsResponse{}, nil
-}
-```
-
-`Posts` function makes a basic check on the request and throws an error if it's `nil`, stores context in a `ctx` variable (context contains information about the environment of the request) and returns a response of type `QueryPostsResponse`. Right now the response is empty.
-
-From the `query.proto` we know that response may contain `title` and `body`, so let's modify the last line of the function to return a "Hello!".
-
-```go
-func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
-  //...
-  return &types.QueryPostsResponse{Title: "Hello!", Body: "Starport"}, nil
-}
-```
-
-If we start our chain right now and visit the posts endpoint, we would get a "Not Implemented" error. To fix that we need to wire up our API by registering query handlers with gRPC.
-
-Inside `x/blog/module.go` import `"context"`, search for `RegisterGRPCGatewayRoutes` and register query handlers:
-
-```go
-import (
-  //...
-  "context"
-)
-
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-  types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
-
-Now we're ready to start our blockchain:
-
-```go
-starport chain serve
-```
-
-Once the chain has been started, visit [http://localhost:1317/alice/blog/blog/posts](http://localhost:1317/alice/blog/blog/posts) and see our text displayed!
-
-```go
-{
-  "title": "Hello!",
-  "body": "Starport"
-}
-```
-
-The `query` command has also scaffolded `x/blog/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command `x/blog/client/cli/query_posts.go` . Run the following command and get the same JSON response:
-
-```go
-blogd q blog posts
-```
+# Building a Blog
 
 ## Creating Posts
 
@@ -295,8 +104,8 @@ Create a new file `proto/blog/post.proto` and define the `Post` `message`:
 
 ```go
 syntax = "proto3";
-package alice.blog.blog;
-option go_package = "github.com/alice/blog/x/blog/types";
+package cosmonaut.blog.blog;
+option go_package = "github.com/cosmonaut/blog/x/blog/types";
 
 message Post {
   string creator = 1;
@@ -382,7 +191,7 @@ package keeper
 
 import (
   "encoding/binary"
-  "github.com/alice/blog/x/blog/types"
+  "github.com/cosmonaut/blog/x/blog/types"
   "github.com/cosmos/cosmos-sdk/store/prefix"
   sdk "github.com/cosmos/cosmos-sdk/types"
   "strconv"
@@ -413,11 +222,11 @@ We've implemented all the code necessary to create new posts and store them on c
 Let's try it out! If the chain is yet not started, run `starport chain serve`. Create a post:
 
 ```
-blogd tx blog createPost foo bar --from alice
+blogd tx blog createPost foo bar --from cosmonaut
 ```
 
 ```
-"body":{"messages":[{"@type":"/alice.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 {"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
@@ -426,6 +235,10 @@ confirm transaction before signing and broadcasting [y/N]: y
 Now that we've added the functionality to create posts and broadcast them to our chain, let's add querying.
 
 ## Displaying Posts
+
+```
+starport scaffold query posts --response title,body
+```
 
 There are two components responsible for querying data: `rpc` inside `service Query` in a proto file (that defines data types and specifies the HTTP API endpoint) and a keeper method that performs the querying from the key-value store.
 
@@ -489,11 +302,11 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 Having implemened logic for both creating and querying posts we can use the node's binary to interact with our chain. To create a post:
 
 ```
-blogd tx blog createPost foo bar --from alice
+blogd tx blog createPost foo bar --from cosmonaut
 ```
 
 ```
-{"body":{"messages":[{"@type":"/alice.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 {"height":"2828","txhash":"E04A712E65B0F6F30F5DC291A6552B69F6CB3F77761F28AFFF8EAA535EC4C589","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
