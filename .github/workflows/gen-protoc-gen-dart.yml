@@ -15,7 +15,7 @@ jobs:
         with:
           go-version: 1.16
 
-      - name: Generate CLI Docs
+      - name: Generate Dart files
         run: ./scripts/gen-protoc-gen-dart
 
       - name: Create Pull Request
@@ -41,7 +41,7 @@ jobs:
         with:
           go-version: 1.16
 
-      - name: Generate CLI Docs
+      - name: Generate Dart files
         run: ./scripts/gen-protoc-gen-dart
 
       - name: Create Pull Request

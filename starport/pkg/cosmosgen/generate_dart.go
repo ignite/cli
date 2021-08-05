@@ -101,7 +101,7 @@ func (g *dartGenerator) generateModule(ctx context.Context, plugin, appPath stri
 	}
 
 	// generate an export file to export all generated code through a single entrypoint.
-	generatedFiles, err := zglob.Glob(fmt.Sprintf("%s/**/*.dart", clientOut))
+	generatedFiles, err := zglob.Glob(filepath.Join(clientOut, "**/*.dart"))
 	if err != nil {
 		return err
 	}

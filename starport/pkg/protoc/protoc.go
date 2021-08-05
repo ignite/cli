@@ -128,7 +128,7 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 }
 
 // discoverFiles discovers .proto files to do code generation for. .proto files of the app
-// (everything under protoPath) will always be a part of the disovered files.
+// (everything under protoPath) will always be a part of the discovered files.
 //
 // when .proto files of the app depends on another proto package under includePaths (dependencies), those
 // ones may need to be discovered as well. some protoc plugins already do this discovery internally but

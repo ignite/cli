@@ -19,15 +19,15 @@ save_file="protoc-gen-dart_${kernelname}_amd64"
 
 # Check dir else create save dir
 if [[ $(basename ${setdir}) = "scripts" ]] ; then
-    if [[ $(basename $(dirname ${setdir})) = "starport" ]] ; then
-        [[ -d $(dirname "${setdir}/pkg/protoc-gen-dart/data") ]] || mkdir -p "$(dirname ${setdir})/starport/pkg/protoc-gen-dart/data"
+    if [[ $(basename $(dirname "${setdir}")) = "starport" ]] ; then
+        [[ -d $(dirname "${setdir}/pkg/protoc-gen-dart/data") ]] || mkdir -p "$(dirname "${setdir}")/starport/pkg/protoc-gen-dart/data"
     else
-        echo "Attantion: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
+        echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
         exit 1
     fi
 else
     echo "$setdir"
-    echo "Attantion: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
+    echo "Attention: you are running the script out of the startport project please run it this script in: https://github.com/tendermint/starport"
     exit 1
 fi
 
@@ -50,11 +50,12 @@ wget -q "${protobuf_src}" && echo "[OK]"
 echo -n "extracting $(basename ${protobuf_src}).."
 tar -xf ./$(basename "${protobuf_src}") && echo "[OK]"
 rm ./$(basename "${protobuf_src}")
-cd "$(ls -d */ | grep 'protobuf')"
+cd "$(ls -d */ | grep 'protobuf')" || exit
 cd protoc_plugin && dart pub get
-cd - &> /dev/null
+cd - &> /dev/null || exit
 
 # Compile the file
 
 dart compile exe "${setfile}" --output "${save_file}"
-[[ -f "${save_file}" ]] && { mv "${save_file}" "$(dirname ${setdir})/starport/pkg/protoc-gen-dart/data" && echo "the binary moved to '$(dirname ${setdir})/starport/pkg/protoc-gen-dart/data/${save_file}'" ; } || { echo "cannot create the binary file!" ; exit 1;}
+[[ -f "${save_file}" ]] && mv "${save_file}" "$(dirname ${setdir})/starport/pkg/protoc-gen-dart/data" || { echo "cannot create the binary file!" ; exit 1; }
+echo "the binary moved to '$(dirname "${setdir}")/starport/pkg/protoc-gen-dart/data/${save_file}'"
