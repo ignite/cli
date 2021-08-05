@@ -1,3 +1,7 @@
+---
+order: 2
+---
+
 # Messages
 
 Messages are a great place to start when building a module because they define the actions that your application can make.

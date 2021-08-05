@@ -4,13 +4,7 @@ order: 2
 
 # Scaffolding
 
-We'll be using a CLI tool called [Starport](https://github.com/tendermint/starport) to create a new Cosmos SDK blockchain. To use `starport` [install it](https://docs.starport.network/intro/install.html) on your local machine:
-
-```
-curl https://get.starport.network/starport@v0.17.1 | bash
-```
-
-Scaffold anew Cosmos SDK blockchain using the `starport scaffold chain` command. The command accepts one argument: the Go module path that will be used for the project.
+Scaffold a new Cosmos SDK blockchain using the `starport scaffold chain` command. The command accepts one argument: the Go module path that will be used for the project.
 
 By default a chain is scaffolded with a new empty Cosmos SDK module. Use the `--no-module` flag to skip module scaffolding.
 

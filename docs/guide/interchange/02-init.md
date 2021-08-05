@@ -1,22 +1,12 @@
 ---
-order: 3
+order: 2
 ---
 
-#  Initialize the Blockchain
+# App Init
+
+##  Initialize the Blockchain
 
 In this chapter you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets and messages. In the later chapters you  integrate more code into each of the transaction handlers.
-
-## Install Starport
-
-This tutorial uses [Starport](https://github.com/tendermint/starport) v0.16.2 The Starport tool is the easiest way to build a blockchain. 
-
-To install `starport` into `/usr/local/bin`, run the following command:
-
-```
-curl https://get.starport.network/starport@v0.16.2! | bash
-```
-
-You can also use Starport v0.16.2 in a [browser-based IDE](http://gitpod.io/#https://github.com/tendermint/starport/tree/v0.16.2), but this tutorial assumes you are using a local Starport installation. For more installation options, see [install Starport](https://docs.starport.network/intro/install.html).
 
 ## Create the Blockchain
 
@@ -39,7 +29,7 @@ The ibcdex module contains the logic for creating and maintaining order books an
 starport module create ibcdex --ibc --ordering unordered
 ```
 
-## Create the Transaction Types
+## Create CRUD logic for Buy and Sell Order Books
 
 To scaffold two types with create, read, update and delete (CRUD) actions use the Starport `type` command.
 The following commands create `sellOrderBook` and `buyOrderBook` types. 
@@ -50,6 +40,7 @@ starport type buyOrderBook amountDenom priceDenom --indexed --no-message --modul
 ```
 
 The values are: 
+
 - `amountDenom` represents which token will be sold and in which quantity
 - `priceDenom` the token selling price 
 
@@ -60,6 +51,7 @@ The `--module ibcdex` flag specifies that the type should be scaffolded in the `
 ## Create the IBC Packets
 
 Create three packets for IBC:
+
 - an order book pair `createPair` 
 - a sell order `sellOrder` 
 - a buy order `buyOrder`

@@ -5,6 +5,8 @@ order: 3
 
 # Building a Blog
 
+First, create a new blockchain:
+
 ```
 starport scaffold chain github.com/cosmonaut/blog
 ```
@@ -29,13 +31,13 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-- modified `proto/blog/tx.proto`
-- modified `x/blog/handler.go`
-- created `x/blog/keeper/msg_server_createPost.go`
-- modified `x/blog/client/cli/tx.go`
-- created `x/blog/client/cli/txCreatePost.go`
-- created `x/blog/types/message_createPost.go`
-- modified `x/blog/types/codec.go`
+* modified `proto/blog/tx.proto`
+* modified `x/blog/handler.go`
+* created `x/blog/keeper/msg_server_createPost.go`
+* modified `x/blog/client/cli/tx.go`
+* created `x/blog/client/cli/txCreatePost.go`
+* created `x/blog/types/message_createPost.go`
+* modified `x/blog/types/codec.go`
 
 As always, we start with a proto file. Inside `proto/blog/tx.proto`:
 

@@ -16,13 +16,21 @@ Starport is written in the Go programming language. To use Starport on a local s
  
 ## Installing Starport
 
+To install the **latest version** of the `starport` binary use the following command.
+
 ```
 curl https://get.starport.network/starport! | bash
 ```
 
-The latest `starport` binary is downloaded from the Github repo and installed in `/usr/local/bin`.
+This command invokes `curl` to download the install script and pipes the output to `bash` to perform the installation. The `starport` binary is installed in `/usr/local/bin`.
 
-To install previous versions of the precompiled `starport` binary or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
+Throughout the tutorial unless noted otherwise you'll be using a **specific version** of Starport. To install Starport v0.17.1 use the following command:
+
+```
+curl https://get.starport.network/starport@v0.17.1! | bash
+```
+
+To learn more or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
 
 ### Write permission
 

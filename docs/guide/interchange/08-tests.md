@@ -1,5 +1,5 @@
 ---
-order: 11
+order: 8
 ---
 
 # Write tests
@@ -12,7 +12,7 @@ After you add the test files below, change into the `interchange` directory with
 go test -timeout 30s ./x/ibcdex/types
 ```
 
-## Create Tests for the Order Book
+## Order Book Tests
 
 ```go
 // types/order_book_test.go
@@ -128,7 +128,7 @@ func TestRemoveOrderFromID(t *testing.T) {
 }
 ```
 
-##  Create Tests for the Buy Order
+## Buy Order Tests
 
 ```go
 // types/buy_order_book_test.go
@@ -418,7 +418,7 @@ func TestFillSellOrder(t *testing.T) {
 }
 ```
 
-## Create Tests for the Sell Order
+## Sell Order Tests
 
 ```go
 // types/sell_order_book_test.go
