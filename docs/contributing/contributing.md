@@ -17,7 +17,7 @@ parent:
     - [Preview Draft PRs on a Local Web Browser](#preview-draft-prs-on-a-local-web-browser)
   
 
-Thank you considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials.
+Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials.
 
 - To set up your environment for success, follow our [technical set up](technical-setup.md) guidelines.
 
