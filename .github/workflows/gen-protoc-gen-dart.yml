@@ -7,8 +7,10 @@ on:
 
 jobs:
   dart:
-    os: [ubuntu-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
     steps:
       - uses: actions/checkout@v2
 
@@ -21,10 +23,10 @@ jobs:
         id: cpr
         uses: peter-evans/create-pull-request@v3
         with:
-          title: "feat(pkg/protoc-gen-dart): update binaries"
-          commit-message: "feat(pkg/protoc-gen-dart): update binaries"
+          title: "feat(pkg/protoc-gen-dart): update binary on ${{ matrix.os }}"
+          commit-message: "feat(pkg/protoc-gen-dart): update binary on ${{ matrix.os }}"
           body: ""
-          branch: feat/gen-pgd
+          branch: feat/gen-pgd-${{ matrix.os }}
 
       - name: Check outputs
         run: |
