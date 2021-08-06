@@ -1,4 +1,10 @@
-
+---
+order: 1
+description: <add description>
+parent:
+  order: 9
+  title: Contributing Guide
+---
 # Contributing
 
 - [Contributing](#contributing)
