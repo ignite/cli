@@ -13,8 +13,7 @@ In this chapter you create the basic blockchain module for the interchain exchan
 Scaffold a new blockchain called `interchange`
 
 ```bash
-starport app github.com/username/interchange
-cd interchange
+starport scaffold chain github.com/cosmonaut/interchange
 ```
 
 A new directory named interchange is created. This directory contains a working blockchain app.
@@ -26,7 +25,7 @@ Scaffold a module inside your blockchain named `ibcdex` with IBC capabilities.
 The ibcdex module contains the logic for creating and maintaining order books and routing them through IBC to the second blockchain.
 
 ```bash
-starport module create ibcdex --ibc --ordering unordered
+starport scaffold module ibcdex --ibc --ordering unordered
 ```
 
 ## Create CRUD logic for Buy and Sell Order Books
@@ -35,8 +34,8 @@ To scaffold two types with create, read, update and delete (CRUD) actions use th
 The following commands create `sellOrderBook` and `buyOrderBook` types. 
 
 ```bash
-starport type sellOrderBook amountDenom priceDenom --indexed --no-message --module ibcdex
-starport type buyOrderBook amountDenom priceDenom --indexed --no-message --module ibcdex
+starport scaffold map sell-order-book amountDenom priceDenom --no-message --module ibcdex
+starport scaffold map buy-order-book amountDenom priceDenom --no-message --module ibcdex
 ```
 
 The values are: 
@@ -57,9 +56,9 @@ Create three packets for IBC:
 - a buy order `buyOrder`
 
 ```bash
-starport packet createPair sourceDenom targetDenom --module ibcdex
-starport packet sellOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module ibcdex
-starport packet buyOrder amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
+starport scaffold packet create-pair sourceDenom targetDenom --module ibcdex
+starport scaffold packet sell-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module ibcdex
+starport scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
 ```
 
 The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. Value of `--ack` is a comma-separated (no spaces) list of names with optional types appended after a colon.
@@ -70,8 +69,8 @@ Cancelling orders is done locally in the network, there is no packet to send.
 Use the `message` command to create a message to cancel a sell or buy order.
 
 ```go
-starport message cancelSellOrder port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module ibcdex
-starport message cancelBuyOrder port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module ibcdex
+starport scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module ibcdex
+starport scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module ibcdex
 ```
 
 The optional `--desc` flag lets you define a description of the CLI command that is used to broadcast a transaction with the message.
@@ -88,7 +87,7 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 For a `voucher` you store: the source port ID, source channel ID and the original denom
 
 ```go
-starport type denomTrace port channel origin --indexed --no-message --module ibcdex
+starport scaffold map denom-trace port channel origin --no-message --module ibcdex
 ```
 
 ## Create the Configuration

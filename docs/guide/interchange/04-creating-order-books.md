@@ -1,7 +1,6 @@
 ---
-order: 3
+order: 4
 ---
-
 # Creating Order Books
 
 In this chapter you will implement the logic for creating order books.
@@ -18,9 +17,9 @@ func OrderBookIndex( portID string, channelID string, sourceDenom string, target
 }
 ```
 
-`send-createPair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `ibcdex` module, processed by the message handler in `x/ibcdex/handler.go` and finally a `SendCreatePair` keeper method is called.
+`send-create-pair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `ibcdex` module, processed by the message handler in `x/ibcdex/handler.go` and finally a `SendCreatePair` keeper method is called.
 
-You need `send-createPair` to do the following:
+You need `send-create-pair` to do the following:
 
 * When processing `SendCreatePair` message on the source chain
   * Check that an order book with the given pair of denoms does not yet exist
@@ -37,21 +36,42 @@ You need `send-createPair` to do the following:
 `SendCreatePair` function was created during the IBC packet scaffolding. Currently, it creates an IBC packet, populates it with source and target denoms and transmits this packet over IBC. Add the logic to check for an existing order book for a particular pair of denoms.
 
 ```go
-// x/ibcdex/keeper/msg_server_createPair.go
-import "errors"
-
-//...
+// x/ibcdex/keeper/msg_server_create_pair.go
+import (
+  "errors"
+  //...
+)
 
 func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreatePair) (*types.MsgSendCreatePairResponse, error) {
-  ctx := sdk.UnwrapSDKContext(goCtx)
-  // Get an order book index
-  pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.SourceDenom, msg.TargetDenom)
-  // If an order book is found, return an error
-  _, found := k.GetSellOrderBook(ctx, pairIndex)
-  if found {
-    return &types.MsgSendCreatePairResponse{}, errors.New("the pair already exist")
-  }
-  // ...
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Get an order book index
+	pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.SourceDenom, msg.TargetDenom)
+	// If an order book is found, return an error
+	_, found := k.GetSellOrderBook(ctx, pairIndex)
+	if found {
+		return &types.MsgSendCreatePairResponse{}, errors.New("the pair already exist")
+	}
+
+	// Construct the packet
+	var packet types.CreatePairPacketData
+
+	packet.SourceDenom = msg.SourceDenom
+	packet.TargetDenom = msg.TargetDenom
+
+	// Transmit the packet
+	err := k.TransmitCreatePairPacket(
+		ctx,
+		packet,
+		msg.Port,
+		msg.ChannelID,
+		clienttypes.ZeroHeight(),
+		msg.TimeoutTimestamp,
+	)
+	if err != nil {
+		return nil, err
+	}
+
+	return &types.MsgSendCreatePairResponse{}, nil
 }
 ```
 
@@ -71,7 +91,7 @@ In the following section you'll be implementing packet reception logic in the `O
 On the target chain when an IBC packet is recieved, the module should check whether a book already exists, if not, create a new buy order book for specified denoms.
 
 ```go
-// x/ibcdex/keeper/createPair.go
+// x/ibcdex/keeper/create_pair.go
 func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData) (packetAck types.CreatePairPacketAck, err error) {
   // ...
   // Get an order book index
@@ -94,7 +114,9 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 Define `NewBuyOrderBook` creates a new buy order book.
 
 ```go
- // x/ibcdex/types/buy_order_book.go
+// x/ibcdex/types/buy_order_book.go
+package types
+
 func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 	book := NewOrderBook()
 	return BuyOrderBook{
@@ -105,20 +127,22 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 }
 ```
 
-Modify the `buyOrderBook.proto` file to add an order book to the buy order book.
+Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
 
 ```proto
-// proto/ibcdex/buyOrderBook.proto
+// proto/ibcdex/buy_order_book.proto
 import "ibcdex/order.proto";
 
 message BuyOrderBook {
   // ...
-  OrderBook book = 6;
+  OrderBook book = 5;
 }
 ```
 
 ```go
 // x/ibcdex/types/order_book.go
+package types
+
 func NewOrderBook() OrderBook {
 	return OrderBook{
 		IdCount: 0,
@@ -131,9 +155,9 @@ The protocol buffer definition defines the data that an order book has. Add the 
 ```proto
 // proto/ibcdex/order.proto
 syntax = "proto3";
-package username.interchange.ibcdex;
+package cosmonaut.interchange.ibcdex;
 
-option go_package = "github.com/username/interchange/x/ibcdex/types";
+option go_package = "github.com/cosmonaut/interchange/x/ibcdex/types";
 
 message OrderBook {
   int32 idCount = 1;
@@ -153,7 +177,7 @@ message Order {
 On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
 
 ```go
-// x/ibcdex/keeper/createPair.go
+// x/ibcdex/keeper/create_pair.go
 func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -182,6 +206,8 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 
 ```go
 // x/ibcdex/types/sell_order_book.go
+package types
+
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	book := NewOrderBook()
 	return SellOrderBook{
@@ -192,10 +218,10 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 }
 ```
 
-Modify the `sellOrderBook.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
+Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
 
 ```proto
-// proto/ibcdex/sellOrderBook.proto
+// proto/ibcdex/sell_order_book.proto
 // ...
 import "ibcdex/order.proto";
 
@@ -205,4 +231,4 @@ message SellOrderBook {
 }
 ```
 
-In this chapter we implemented the logic behind `send-createPair` command that upon recieving of an IBC packet on the target chain creates a buy order book and upon recieving of an IBC acknowledgement on the source chain creates a sell order book.
+In this chapter we implemented the logic behind `send-create-pair` command that upon recieving of an IBC packet on the target chain creates a buy order book and upon recieving of an IBC acknowledgement on the source chain creates a sell order book.

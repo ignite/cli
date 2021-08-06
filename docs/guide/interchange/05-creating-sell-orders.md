@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 5
 ---
 
 # Creating Sell Orders
@@ -18,7 +18,7 @@ message SellOrderPacketData {
 
 ## `SendSellOrder` Message Handling
 
-Sell orders are created using `send-sellOrder`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
+Sell orders are created using `send-sell-order`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
 
 `SendSellOrder` should:
 
@@ -30,10 +30,10 @@ Sell orders are created using `send-sellOrder`. This command creates a transacti
 * Transmit an IBC packet to the target chain
 
 ```go
-// x/ibcdex/keeper/msg_server_sellOrder.go
+// x/ibcdex/keeper/msg_server_sell_order.go
 import "errors"
 
-func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOrder) (*types.MsgSendSourceSellOrderResponse, error) {
+func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOrder) (*types.MsgSendSellOrderResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 	// If an order book doesn't exist, throw an error
 	pairIndex := types.OrderBookIndex(msg.Port, msg.ChannelID, msg.AmountDenom, msg.PriceDenom)
@@ -132,6 +132,10 @@ Implement the `LockTokens` keeper method.
 
 ```go
 // x/ibcdex/keeper/mint.go
+import (
+  ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+)
+
 func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, sender sdk.AccAddress, tokens sdk.Coin) error {
   // create the escrow address for the tokens
   escrowAddress := ibctransfertypes.GetEscrowAddress(sourcePort, sourceChannel)
@@ -187,7 +191,7 @@ Lastly, the `app.go` file that describes which modules are used in the blockchai
 
 ```go
 // app/app.go
-app.ibcdexKeeper = *ibcdexkeeper.NewKeeper(
+app.ibcdexKeeper = *ibcdexmodulekeeper.NewKeeper(
   // ...
   app.BankKeeper,
 )
@@ -199,7 +203,7 @@ The `ibcdex` module will need to mint and burn token using the `bank` account. T
 // app/app.go
 maccPerms = map[string][]string{
     // ...
-    ibcdextypes.ModuleName: {authtypes.Minter, authtypes.Burner},
+    ibcdexmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
 }
 ```
 
@@ -209,6 +213,8 @@ maccPerms = map[string][]string{
 
 ```go
 // x/ibcdex/keeper/denom.go
+package keeper
+
 func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, denom string) {
 	voucher := VoucherDenom(port, channel, denom)
 
@@ -256,7 +262,7 @@ When a "sell order" packet is received on the target chain, the module should  ?
 - Send to chain A the sell order after the fill attempt
 
 ```go
-// x/ibcdex/keeper/sellOrder.go
+// x/ibcdex/keeper/sell_order.go
 func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) (packetAck types.SellOrderPacketAck, err error) {
 	if err := data.ValidateBasic(); err != nil {
 		return packetAck, err
@@ -470,7 +476,7 @@ func (k Keeper) UnlockTokens(ctx sdk.Context, sourcePort string, sourceChannel s
 Once an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed in `OnAcknowledgementSellOrderPacket`. The module on the source chain will store the remaining sell order in the sell order book and will distribute sold tokens to the buyers and will distribute to the seller the price of the amount sold. On error the module mints the burned tokens.
 
 ```go
-// x/ibcdex/keeper/sellOrder.go
+// x/ibcdex/keeper/sell_order.go
 func (k Keeper) OnAcknowledgementSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -543,7 +549,7 @@ package types
 
 import (
 	"errors"
-	"sort"
+  "sort"
 )
 
 const (
@@ -666,7 +672,7 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 If a timeout occurs, we mint back the native token.
 
 ```go
-// x/ibcdex/keeper/sellOrder.go
+// x/ibcdex/keeper/sell_order.go
 func (k Keeper) OnTimeoutSellOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) error {
 	// In case of error we mint back the native token
 	receiver, err := sdk.AccAddressFromBech32(data.Seller)
