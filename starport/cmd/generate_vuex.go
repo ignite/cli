@@ -14,7 +14,7 @@ func NewGenerateVuex() *cobra.Command {
 		Short: "Generate Vuex store for you chain's frontend from your config.yml",
 		RunE:  generateVuexHandler,
 	}
-
+	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	return c
 }
 

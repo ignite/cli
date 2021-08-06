@@ -9,12 +9,18 @@ import (
 
 // generateOptions used to configure code generation.
 type generateOptions struct {
-	includeDirs         []string
-	gomodPath           string
+	includeDirs []string
+	gomodPath   string
+
 	jsOut               func(module.Module) string
 	jsIncludeThirdParty bool
-	specOut             string
 	vuexStoreRootPath   string
+
+	specOut string
+
+	dartOut               func(module.Module) string
+	dartIncludeThirdParty bool
+	dartRootPath          string
 }
 
 // TODO add WithInstall.
@@ -41,6 +47,14 @@ func WithVuexGeneration(includeThirdPartyModules bool, out func(module.Module) (
 		o.jsOut = out
 		o.jsIncludeThirdParty = includeThirdPartyModules
 		o.vuexStoreRootPath = storeRootPath
+	}
+}
+
+func WithDartGeneration(includeThirdPartyModules bool, out func(module.Module) (path string), rootPath string) Option {
+	return func(o *generateOptions) {
+		o.dartOut = out
+		o.dartIncludeThirdParty = includeThirdPartyModules
+		o.dartRootPath = rootPath
 	}
 }
 
@@ -107,6 +121,12 @@ func Generate(ctx context.Context, appPath, protoDir string, options ...Option) 
 	// so it needs to run after Go code gen.
 	if g.o.jsOut != nil {
 		if err := g.generateJS(); err != nil {
+			return err
+		}
+	}
+
+	if g.o.dartOut != nil {
+		if err := g.generateDart(); err != nil {
 			return err
 		}
 	}

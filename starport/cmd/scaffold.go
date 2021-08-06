@@ -41,6 +41,7 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldPacket())
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
+	c.AddCommand(NewScaffoldFlutter())
 	c.AddCommand(NewScaffoldWasm())
 
 	return c

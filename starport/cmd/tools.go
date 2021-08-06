@@ -73,7 +73,7 @@ func toolsProtocProxy(cmd *cobra.Command, args []string) error {
 	}
 	defer cleanup()
 
-	return toolsProxy(cmd.Context(), append(command, args...))
+	return toolsProxy(cmd.Context(), append(command.Command, args...))
 }
 
 func toolsProxy(ctx context.Context, command []string) error {

@@ -9,6 +9,7 @@ import (
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/flutter"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/localfs"
@@ -121,6 +122,11 @@ func (s *Scaffolder) generate(
 // Vue scaffolds a Vue.js app for a chain.
 func Vue(path string) error {
 	return localfs.Save(vue.Boilerplate(), path)
+}
+
+// Flutter scaffolds a Flutter app for a chain.
+func Flutter(path string) error {
+	return localfs.Save(flutter.Boilerplate(), path)
 }
 
 func initGit(path string) error {
