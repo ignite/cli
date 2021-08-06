@@ -14,7 +14,6 @@ func NewGenerateDart() *cobra.Command {
 		Short: "Generate a Dart client",
 		RunE:  generateDartHandler,
 	}
-	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	return c
 }
 
@@ -22,13 +21,7 @@ func generateDartHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
-	var chainOption []chain.Option
-
-	if flagGetProto3rdParty(cmd) {
-		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
-	}
-
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, appPath, chain.EnableThirdPartyModuleCodegen())
 	if err != nil {
 		return err
 	}
