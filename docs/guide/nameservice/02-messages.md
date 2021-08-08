@@ -6,38 +6,35 @@ order: 2
 
 Messages are a great place to start when building a module because they define the actions that your application can make.
 
-## `Msgs`
+## Message Type
 
-`Msgs` trigger state transitions. `Msgs` are wrapped in [`Txs`](https://github.com/cosmos/cosmos-sdk/blob/master/types/tx_msg.go#L34-L41) that clients submit to the network. The Cosmos SDK wraps and unwraps `Msgs` from `Txs`, which means, as an app developer, you only have to define `Msgs`. `Msgs` must satisfy the following interface:
+Messages trigger state transitions. Messages (`Msg`) are wrapped in transactions (`Tx`) that clients submit to the network. The Cosmos SDK wraps and unwraps `Msg` from `Tx`, which means, as an app developer, you only have to define messages. `Msgs` must satisfy the following interface:
 
 ```go
 // Transactions messages must fulfill the Msg
 type Msg interface {
-	// Return the message type.
-	// Must be alphanumeric or empty.
-	Type() string
-
-	// Returns a human-readable string for the message, intended for utilization
-	// within tags
-	Route() string
-
+  proto.Message
+  
 	// ValidateBasic does a simple validation check that
 	// doesn't require access to any other information.
-	ValidateBasic() Error
-
-	// Get the canonical byte representation of the Msg.
-	GetSignBytes() []byte
+	ValidateBasic() error
 
 	// Signers returns the addrs of signers that must sign.
-	// CONTRACT: All signatures must be present to be valid.
-	// CONTRACT: Returns addrs in some deterministic order.
+	// CONTRACT: All signatures must be present to be valid
 	GetSigners() []AccAddress
+
+  // Legacy methods
+	Type() string
+	Route() string
+	GetSignBytes() []byte
 }
 ```
 
-`GetSigners` defines whose signature is required on a `Tx` in order for it to be valid.
+The `Msg` type extends `proto.Message` and contains five methods. Three of them are legacy methods (`Type`, `Route` and `GetSignBytes`).
 
-`GetSignBytes` defines how the `Msg` gets encoded for signing. In most cases this means marshal to sorted JSON.
+`ValidateBasic` is called early in the processing of the message in order to discard obviously invalid messages. `ValidateBasic` should only include checks that do not require access to the state, for example, that the `amount` of tokens is a positive value.
+
+`GetSigners` Return the list of signers. The SDK will make sure that each message contained in a transaction is signed by all the signers listed in the list returned by this method.
 
 ## `Handlers`
 
@@ -70,8 +67,7 @@ The command has created and modified several files.
 * `x/nameservice/client/cli/tx_buy_name.go`: CLI command added to brodcast a transaction with a message.nameservice `x/nameservice/client/cli/tx.go`: CLI command is registered.
 * `x/nameservice/types/codec.go`: codecs are registered.
 
-In `x/nameservice/types/message_buy_name.go` you can notice that the message follows the `sdk.Msg` interface. The message `struct` contains all the necessary information when buying a name: `Name`, `Bid`, and `Creator` (which was added automatically).
-
+In `x/nameservice/types/message_buy_name.go` you can notice that the message follows the `Msg` interface. The message `struct` contains all the necessary information when buying a name: `Name`, `Bid`, and `Creator` (which was added automatically).
 
 ### `MsgSetName`
 

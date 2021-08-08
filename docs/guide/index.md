@@ -23,7 +23,7 @@ By following this guide you will learn how to:
   * Read data from the store and return it as a result a query
   * Use the blockchain's CLI to broadcast transactions
 * Build a blockchain for buying and selling names in the Nameservice tutorial
-  * Scaffold a `map` without messages
+  * Scaffold CRUD logic with `map`
   * Use other module's methods in your custom module
   * Send tokens between addresses
 * Build a guessing game with rewards in the Scavenge tutorial

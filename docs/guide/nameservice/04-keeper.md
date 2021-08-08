@@ -10,6 +10,13 @@ The main core of a Cosmos SDK module is a piece called the `Keeper`. It is what 
 
 ```go
 // x/nameservice/keeper/msg_server_buy_name.go
+import (
+	"context"
+	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types.MsgBuyNameResponse, error) {
   ctx := sdk.UnwrapSDKContext(goCtx)
   // Try getting a name from the store
@@ -58,6 +65,10 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 
 ```go
 // x/nameservice/types/expected_keepers.go
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 type BankKeeper interface {
   SubtractCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) error
   SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
@@ -68,6 +79,13 @@ type BankKeeper interface {
 
 ```go
 // x/nameservice/keeper/msg_server_set_name.go
+import (
+	"context"
+	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types.MsgSetNameResponse, error) {
   ctx := sdk.UnwrapSDKContext(goCtx)
   // Try getting name information from the store
@@ -94,6 +112,13 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ```go
 // x/nameservice/keeper/msg_server_delete_name.go
+import (
+	"context"
+	"github.com/cosmonaut/nameservice/x/nameservice/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (k msgServer) DeleteName(goCtx context.Context, msg *types.MsgDeleteName) (*types.MsgDeleteNameResponse, error) {
   ctx := sdk.UnwrapSDKContext(goCtx)
   // Try getting name information from the store
