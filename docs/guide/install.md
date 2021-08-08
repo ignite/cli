@@ -24,7 +24,7 @@ curl https://get.starport.network/starport! | bash
 
 This command invokes `curl` to download the install script and pipes the output to `bash` to perform the installation. The `starport` binary is installed in `/usr/local/bin`.
 
-Throughout the tutorial unless noted otherwise you'll be using a **specific version** of Starport. To install Starport v0.17.1 use the following command:
+Throughout the tutorials unless noted otherwise you'll be using a **specific version** of Starport. To install Starport v0.17.1 use the following command:
 
 ```
 curl https://get.starport.network/starport@v0.17.1! | bash

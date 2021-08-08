@@ -4,11 +4,25 @@ order: 5
 
 # Play
 
+If you haven't already, start a blockchain node in development:
+
+```
+starport chain serve -r
+```
+
+We're using the optional `-r` flag to reset the blockchain's state if it has been started before. Once the `serve` command has finished building the blockchain, you will get a `nameserviced` binary installed by default in `~/go/bin`.
+
+Open a second terminal window and use `nameserviced` to issue commands.
+
 ## Buying a New Name
+
+Purchase a new name using the `buy-name` command. The name is `foo` and the bid is `20token`. You've hard-coded the minimal bid to `10token`, so any bid below that will result in a rejected purchase. Use the `--from` flag to specify the account, from which the transaction will be sent.
 
 ```
 nameserviced tx nameservice buy-name foo 20token --from alice
 ```
+
+`buy-name` command accepts two arguments, creates a transaction and prompts the user to sign and broadcast the transaction. Here is how an unsigned transaction looks like:
 
 ```json
 {
@@ -33,6 +47,10 @@ nameserviced tx nameservice buy-name foo 20token --from alice
   "signatures": []
 }
 ```
+
+The transaction contains only one message: `MsgBuyName`. The message `@type` matches the package name of the corresponding proto file, `proto/nameservice/tx.proto`. `creator` field is populated automatically with the address of the account broadcasting the transaction (local account `alice` has an address `cosmos1p0f...km5d`). Values of `name` and `bid` are passed as CLI arguments.
+
+After the transaction has been broadcasted and included into a block, the blockchain returns a response. Code `0` means the transaction has been processed successfully.
 
 ```json
 {
@@ -62,9 +80,13 @@ nameserviced tx nameservice buy-name foo 20token --from alice
 }
 ```
 
+Query the chain for a list of name and correponding values. Query commands don't need the `--from` flag, because they don't broadcast transactions and only make side-effect free requests.
+
 ```
 nameserviced q nameservice list-whois
 ```
+
+You can confirm that the name `foo` has been successfully purchased by `alice` and the current `price` has been set to `20token`.
 
 ```yaml
 Whois:
@@ -79,6 +101,8 @@ pagination:
 ```
 
 ## Setting a Value to the Name
+
+Now that `alice` is an owner of the name, she can set the value to anything she wants. Use the `set-name` command to set the value to `bar`.
 
 ```
 nameserviced tx nameservice set-name foo bar --from alice
@@ -102,9 +126,13 @@ pagination:
 
 ## Buying an Existing Name
 
+Use `bob`'s account to purchase a name from `alice`. The bid has to be higher than `20token` for the transaction to be processed successfully.
+
 ```
 nameserviced tx nameservice buy-name foo 40token --from bob
 ```
+
+Notice that the `creator` address has been changed to `bob`'s address. The price has also been updated to the latest bid (`40token`).
 
 ```yaml
 Whois:
@@ -118,7 +146,15 @@ pagination:
   total: "0"
 ```
 
-## Setting a Value from an Authorized Account
+Use the following command to see how `alice`'s bank balance has changed after this transaction:
+
+```
+nameserviced q bank balances $(nameserviced keys show alice -a)
+```
+
+## Setting a Value From an Authorized Account
+
+Try updating the value by broadcasting a transaction from `alice`'s account and notice the error being returned, because `alice` is no longer the owner the name and isn't authorized to change the value.
 
 ```
 nameserviced tx nameservice set-name foo qoo --from alice
