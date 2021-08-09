@@ -7,7 +7,7 @@ parent:
 
 # Introduction
 
-In this tutorial, you will build a blockchain for a nameservice application. In the process you will learn how to:
+In this tutorial, you will build a blockchain for a scavenger hunt game. In the process you will learn how to:
 
 * Implement custom logic in the CLI commands
 * Use an escrow account to store tokens
