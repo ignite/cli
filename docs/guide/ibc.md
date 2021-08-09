@@ -18,29 +18,15 @@ This tutorial builds an understanding of how to create and send packets across b
 - Navigate between blockchains using the Cosmos SDK and the Starport Relayer.
 - Create a basic blog post and save the post on another blockchain.
 
-_Follow this tutorial on YouTube_
-
-[![IBC Hello World Tutorial](https://i.ytimg.com/vi/NmytpuD33lY/hq720.jpg)](https://www.youtube.com/watch?v=NmytpuD33lY)
-
-## What is Cosmos SDK and IBC?
-
-The Cosmos SDK is a framework to create a blockchain app. The Cosmos SDK allows developers to easily create custom blockchains that can natively interoperate with other blockchains.
+## What is IBC?
 
 The IBC module in the Cosmos SDK is the standard for the interaction between two blockchains. The IBC module defines how packets and messages are constructed to be interpreted by the sending and the receiving blockchain.
 
-The Cosmos IBC relayer package lets you can connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Starport to connect two blockchains.
+The IBC relayer lets you can connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Starport to connect two blockchains.
 
 This tutorial covers essentials like modules, IBC packets, relayer, and the lifecycle of packets routed through IBC.
 
-## Prerequisites
-
-*Note*: This tutorial uses a specific version of Starport. Use the following command to install the correct version:
-
-```
-curl https://get.starport.network/starport@v0.16.2! | bash
-```
-
-## Create a Blockchain App
+## Create a Blockchain
 
 Create a blockchain app with a blog module to write posts on other blockchains that contain the Hello World message. For this tutorial, you can write posts for the Cosmos SDK universe that contain Hello Mars, Hello Cosmos, and Hello Earth messages.
 
@@ -69,7 +55,7 @@ Use Starport to scaffold the blockchain app and the blog module.
 To scaffold a new blockchain named `planet`:
 
 ```go
-starport app github.com/user/planet
+starport scaffold chain github.com/cosmonaut/planet
 cd planet
 ```
 
@@ -82,7 +68,7 @@ Next, use Starport to scaffold a blog module with IBC capabilities. The blog mod
 To scaffold a module named `blog`:
 
 ```go
-starport module create blog --ibc
+starport scaffold module blog --ibc
 ```
 
 A new directory with the code for an IBC module is created in `planet/x/blog`. Modules scaffolded with the `--ibc` flag include all the logic for the scaffolded IBC module.
@@ -98,27 +84,27 @@ These `starport type` commands create CRUD code for the following transactions:
 - Creating blog posts
 
   ```go
-  starport type post title content --module blog --no-message
+  starport scaffold list post title content --module blog --no-message
   ```
 
 - Processing acknowledgments for sent posts
 
   ```go
-  starport type sentPost postID title chain --module blog --no-message
+  starport scaffold list sentPost postID title chain --module blog --no-message
   ```
 
 - Managing post timeouts
 
   ```go
-  starport type timedoutPost title chain --module blog --no-message
+  starport scaffold list timedoutPost title chain --module blog --no-message
   ```
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
 
-### Starport type command overview
+### Starport `starport scaffold list` Command Overview
 
 ```go
-starport type [typeName] [field1] [field2] ... [flags]
+starport scaffold list [typeName] [field1] [field2] ... [flags]
 ```
 
 The first argument of the `starport type [typeName]` command specifies the name of the type being created. For the blog app, you created `post`, `sentPost`, and `timedoutPost` types.
@@ -142,7 +128,7 @@ The `starport packet` command creates the logic for an IBC packet that can be se
 To scaffold a sendable and interpretable IBC packet:
 
 ```go
-starport packet ibcPost title content --ack postID --module blog
+starport scaffold packet ibcPost title content --ack postID --module blog
 ```
 
 Notice the fields in the `ibcPost` packet match the fields in the `post` type that you created earlier.
@@ -167,10 +153,8 @@ Start with the proto file that defines the structure of the IBC packet.
 
 To identify the creator of the post in the receiving blockchain, add the creator field inside the packet. This field was not specified directly in the command because it would automatically become a parameter in the `SendIbcPost` CLI command.
 
-```go
+```proto
 // planet/proto/blog/packet.proto
-// this line is used by starport scaffolding # ibc/packet/proto/message
-// IbcPostPacketData defines a struct for the packet payload
 message IbcPostPacketData {
     string title = 1;
     string content = 2;
@@ -181,14 +165,12 @@ message IbcPostPacketData {
 To make sure the receiving chain has content on the creator of a blog post, add this value to the IBC `packet`. The content of the `sender` of the message is automatically included in `SendIbcPost` message. The sender is verified as the signer of the message, so you can add the `msg.Sender` as the creator to the new packet before it is sent over IBC.
 
 ```go
-// planet/x/blog/keeper/msg_server_ibcPost.go
+// x/blog/keeper/msg_server_ibc_post.go
 // Construct the packet
     var packet types.IbcPostPacketData
-
     packet.Title = msg.Title
     packet.Content = msg.Content
     packet.Creator = msg.Sender // < ---
-
     // Transmit the packet
     err := k.TransmitIbcPostPacket(
         ctx,
@@ -229,14 +211,17 @@ Append the type instance as `PostID` on receiving the packet:
 In the `ibcPost.go` file, make sure to import `"strconv"` below `"errors"`, and then modify `OnRecvIbcPostPacket` with the following code:
 
 ```go
-// planet/x/blog/keeper/ibcPost.go
-// OnRecvIbcPostPacket processes packet reception
+// x/blog/keeper/ibc_post.go
+import (
+  //...
+  "strconv"
+)
+
 func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) (packetAck types.IbcPostPacketAck, err error) {
     // validate packet data upon receiving
     if err := data.ValidateBasic(); err != nil {
         return packetAck, err
     }
-
     id := k.AppendPost(
         ctx,
         types.Post{
@@ -246,7 +231,6 @@ func (k Keeper) OnRecvIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet,
         },
     )
     packetAck.PostID = strconv.FormatUint(id, 10)
-
     return packetAck, nil
 }
 ```
@@ -260,38 +244,34 @@ Store the title and the target to identify the post.
 When a packet is scaffolded, the default type for the received acknowledgment data is a type that identifies if the packet treatment has failed. The `Acknowledgement_Error` type is set if `OnRecvIbcPostPacket` returns an error from the packet.
 
 ```go
-// OnAcknowledgementIbcPostPacket responds to the the success or failure of a packet
-// acknowledgement written on the receiving chain.
+// x/blog/keeper/ibc_post.go
 func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData, ack channeltypes.Acknowledgement) error {
-    switch dispatchedAck := ack.Response.(type) {
-    case *channeltypes.Acknowledgement_Error:
-        // We will not treat acknowledgment error in this tutorial
-        return nil
-    case *channeltypes.Acknowledgement_Result:
-        // Decode the packet acknowledgment
-        var packetAck types.IbcPostPacketAck
-        
-        if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
-            // The counter-party module doesn't implement the correct acknowledgment format
-            return errors.New("cannot unmarshal acknowledgment")
-        }
+	switch dispatchedAck := ack.Response.(type) {
+	case *channeltypes.Acknowledgement_Error:
+		// We will not treat acknowledgment error in this tutorial
+		return nil
+	case *channeltypes.Acknowledgement_Result:
+		// Decode the packet acknowledgment
+		var packetAck types.IbcPostPacketAck
 
-        k.AppendSentPost(
-            ctx,
-            types.SentPost{
-                Creator: data.Creator,
-                PostID: packetAck.PostID,
-                Title: data.Title,
-                Chain: packet.DestinationPort+"-"+packet.DestinationChannel,
-            }, 
-        )
-
-
-        return nil
-    default:
-        // The counter-party module doesn't implement the correct acknowledgment format
-        return errors.New("invalid acknowledgment format")
-    }
+		if err := types.ModuleCdc.UnmarshalJSON(dispatchedAck.Result, &packetAck); err != nil {
+			// The counter-party module doesn't implement the correct acknowledgment format
+			return errors.New("cannot unmarshal acknowledgment")
+		}
+		k.AppendSentPost(
+			ctx,
+			types.SentPost{
+				Creator: data.Creator,
+				PostID:  packetAck.PostID,
+				Title:   data.Title,
+				Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+			},
+		)
+		return nil
+	default:
+		// The counter-party module doesn't implement the correct acknowledgment format
+		return errors.New("invalid acknowledgment format")
+	}
 }
 ```
 
@@ -300,19 +280,19 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 Store posts that have not been received by target chains in `timedoutPost` posts. This logic follows the same format as `sentPost`.
 
 ```go
-// OnTimeoutIbcPostPacket responds to the case where a packet has not been transmitted because of a timeout
+// x/blog/keeper/ibc_post.go
 func (k Keeper) OnTimeoutIbcPostPacket(ctx sdk.Context, packet channeltypes.Packet, data types.IbcPostPacketData) error {
-    k.AppendTimedoutPost(
-        ctx,
-        types.TimedoutPost{
-            Creator: data.Creator,
-            Title: data.Title,
-            Chain: packet.DestinationPort+"-"+packet.DestinationChannel,
-        },
-    )
-
-    return nil
+	k.AppendTimedoutPost(
+		ctx,
+		types.TimedoutPost{
+			Creator: data.Creator,
+			Title:   data.Title,
+			Chain:   packet.DestinationPort + "-" + packet.DestinationChannel,
+		},
+	)
+	return nil
 }
+
 ```
 
 This last step completes the basic `blog` module setup. The blockchain is now ready!
@@ -329,9 +309,8 @@ One blockchain is named `earth` and the other blockchain is named `mars`.
 
 The following files are required in the project directory:
 
-`planet/earth.yml`
-
 ```yaml
+# earth.yml
 accounts:
   - name: alice
     coins: ["1000token", "100000000stake"]
@@ -349,9 +328,8 @@ init:
   home: "$HOME/.earth"
 ```
 
-`planet/mars.yml`
-
 ```yaml
+# mars.yml
 accounts:
   - name: alice
     coins: ["1000token", "1000000000stake"]
@@ -381,13 +359,13 @@ init:
 Open a terminal window and run the following command to start the `earth` blockchain:
 
 ```
-starport serve -c earth.yml
+starport chain serve -c earth.yml
 ```
 
 Open a different terminal window and run the following command to start the `mars` blockchain:
 
 ```
-starport serve -c mars.yml
+starport chain serve -c mars.yml
 ```
 
 ### Configure and start the relayer
@@ -402,12 +380,14 @@ starport relayer configure -a \
 --source-version "blog-1" \
 --source-gasprice "0.0000025stake" \
 --source-prefix "cosmos" \
+--source-gaslimit 300000 \
 --target-rpc "http://0.0.0.0:26659" \
 --target-faucet "http://0.0.0.0:4501" \
 --target-port "blog" \
 --target-version "blog-1" \
 --target-gasprice "0.0000025stake" \
---target-prefix "cosmos"
+--target-prefix "cosmos" \
+--target-gaslimit 300000
 ```
 
 The output looks like:
@@ -459,7 +439,7 @@ Listening and relaying packets between chains...
 You can now send packets and verify the received posts:
 
 ```
-planetd tx blog send-ibcPost blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
+planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
 ```
 
 To verify that the post has been received on Mars:
@@ -484,7 +464,7 @@ pagination:
 To check if the packet has been acknowledged on Earth:
 
 ```
-planetd q blog list-sentPost
+planetd q blog list-sent-post
 ```
 
 Output:
@@ -504,13 +484,13 @@ pagination:
 To test timeout, set the timeout time of a packet to 1 nanosecond, verify that the packet is timed out, and check the timed-out posts:
 
 ```
-planetd tx blog send-ibcPost blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
+planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
 ```
 
 Check the timed-out posts:
 
 ```
-planetd q blog list-timedoutPost
+planetd q blog list-timedout-post
 ```
 
 Results:
@@ -529,7 +509,7 @@ pagination:
 You can also send a post from Mars:
 
 ```
-planetd tx blog send-ibcPost blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
+planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
 ```
 
 List post on Earth:
