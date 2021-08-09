@@ -3,6 +3,7 @@ module github.com/tendermint/starport
 go 1.16
 
 require (
+	github.com/99designs/keyring v1.1.6 // indirect
 	github.com/AlecAivazis/survey/v2 v2.1.1
 	github.com/Microsoft/hcsshim v0.8.17 // indirect
 	github.com/blang/semver v3.5.1+incompatible
