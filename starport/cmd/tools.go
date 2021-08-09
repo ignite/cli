@@ -73,7 +73,7 @@ func toolsProtocProxy(cmd *cobra.Command, args []string) error {
 	}
 	defer cleanup()
 
-	return toolsProxy(cmd.Context(), append(command, args...))
+	return toolsProxy(cmd.Context(), append(command.Command, args...))
 }
 
 func toolsProxy(ctx context.Context, command []string) error {
@@ -93,44 +93,52 @@ func NewToolsCompletions() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "completions",
 		Short: "Generate completions script",
-		Long: `To load completions:
+		Long: ` The completions command outputs a completion script you can use in your shell. The output script requires 
+				that [bash-completion](https://github.com/scop/bash-completion)	is installed and enabled in your 
+				system. Since most Unix-like operating systems come with bash-completion by default, bash-completion 
+				is probably already installed and operational.
 
 Bash:
 
   $ source <(starport  tools completions bash)
 
-  # To load completions for each session, execute once:
-  # Linux:
+  To load completions for every new session, run:
+
+  ** Linux **
   $ starport  tools completions bash > /etc/bash_completion.d/starport
-  # macOS:
+
+  ** macOS **
   $ starport  tools completions bash > /usr/local/etc/bash_completion.d/starport
 
 Zsh:
 
-  # If shell completions is not already enabled in your environment,
-  # you will need to enable it.  You can execute the following once:
+  If shell completions is not already enabled in your environment, you will need to enable it.  You can execute the following once:
 
   $ echo "autoload -U compinit; compinit" >> ~/.zshrc
 
-  # To load completions for each session, execute once:
+  To load completions for each session, execute once:
+  
   $ starport  tools completions zsh > "${fpath[1]}/_starport"
 
-  # You will need to start a new shell for this setup to take effect.
+  You will need to start a new shell for this setup to take effect.
 
 fish:
 
   $ starport  tools completions fish | source
 
-  # To load completions for each session, execute once:
+  To load completions for each session, execute once:
+  
   $ starport  tools completions fish > ~/.config/fish/completionss/starport.fish
 
 PowerShell:
 
   PS> starport  tools completions powershell | Out-String | Invoke-Expression
 
-  # To load completions for every new session, run:
+  To load completions for every new session, run:
+  
   PS> starport  tools completions powershell > starport.ps1
-  # and source this file from your PowerShell profile.
+  
+  and source this file from your PowerShell profile.
 `,
 		DisableFlagsInUseLine: true,
 		ValidArgs:             []string{"bash", "zsh", "fish", "powershell"},
