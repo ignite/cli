@@ -1,12 +1,9 @@
 ---
-order: 1
 description: IBC relayer to connect local and remote blockchains.
-parent:
-  order: 5
-  title: IBC and Relayer
+order: 7
 ---
 
-# Relayer
+# IBC Relayer
 
 A built-in IBC relayer in Starport lets you connect blockchains that run on your local computer to blockchains that run on remote computers. The Starport relayer uses the [TypeScript relayer](https://github.com/confio/ts-relayer).
 

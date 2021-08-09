@@ -4,6 +4,12 @@ order: 2
 
 # Hello, World!
 
+Throughout the tutorials unless noted otherwise you'll be using a specific version of Starport. To install Starport v0.17.1 use the following command:
+
+```
+curl https://get.starport.network/starport@v0.17.1! | bash
+```
+
 Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's necessary to start working on a particular task. One of these tasks is a `scaffold scaffold chain` command which provides you with a foundation of a fresh Cosmos SDK blockchain so that you don't have to write it yourself.
 
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:

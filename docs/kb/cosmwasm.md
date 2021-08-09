@@ -1,9 +1,9 @@
 ---
-order: 1
 description: Import module to add support for CosmWasm.
+order: 9
 ---
 
-# Add support for CosmWasm
+# Add Support for CosmWasm
 
 The `wasm` module allows using WebAssembly code (Wasm) on a Cosmos SDK blockchain.
 

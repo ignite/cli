@@ -1,9 +1,6 @@
 ---
-order: 1
+order: 2
 description: Use the Starport serve command to start your blockchain.
-parent:
-  order: 3
-  title: Run a Blockchain
 ---
 
 # Start a Blockchain

@@ -3,7 +3,7 @@ order: 1
 description: Starport CLI docs. 
 parent:
   order: 8
-  title: CLI 
+  title: CLI Reference
 ---
 
 # CLI

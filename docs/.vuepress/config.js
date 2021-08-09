@@ -34,11 +34,7 @@ module.exports = {
               path: "https://github.com/tendermint/starport",
             },
             {
-              title: "Tutorials",
-              path: "https://tutorials.cosmos.network",
-            },
-            {
-              title: "Cosmos SDK docs",
+              title: "Cosmos SDK Docs",
               path: "https://docs.cosmos.network",
             },
           ],
