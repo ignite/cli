@@ -3,22 +3,24 @@ package chain
 import (
 	"context"
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/giturl"
+	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
 const (
 	defaultVuexPath    = "vue/src/store"
+	defaultDartPath    = "flutter/lib"
 	defaultOpenAPIPath = "docs/static/openapi.yml"
 )
 
 type generateOptions struct {
 	isGoEnabled      bool
 	isVuexEnabled    bool
+	isDartEnabled    bool
 	isOpenAPIEnabled bool
 }
 
@@ -39,6 +41,13 @@ func GenerateVuex() GenerateTarget {
 	}
 }
 
+// GenerateDart enables generating Dart client.
+func GenerateDart() GenerateTarget {
+	return func(o *generateOptions) {
+		o.isDartEnabled = true
+	}
+}
+
 // GenerateOpenAPI enables generating OpenAPI spec for your chain.
 func GenerateOpenAPI() GenerateTarget {
 	return func(o *generateOptions) {
@@ -56,6 +65,10 @@ func (c *Chain) generateAll(ctx context.Context) error {
 
 	if conf.Client.Vuex.Path != "" {
 		additionalTargets = append(additionalTargets, GenerateVuex())
+	}
+
+	if conf.Client.Dart.Path != "" {
+		additionalTargets = append(additionalTargets, GenerateDart())
 	}
 
 	if conf.Client.OpenAPI.Path != "" {
@@ -106,7 +119,7 @@ func (c *Chain) Generate(
 		}
 
 		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
+		if err := localfs.MkdirAllReset(storeRootPath, 0766); err != nil {
 			return err
 		}
 
@@ -121,6 +134,30 @@ func (c *Chain) Generate(
 			),
 		)
 	}
+
+	if targetOptions.isDartEnabled {
+		dartPath := conf.Client.Dart.Path
+
+		if dartPath == "" {
+			dartPath = defaultDartPath
+		}
+
+		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
+		if err := localfs.MkdirAllReset(rootPath, 0766); err != nil {
+			return err
+		}
+
+		options = append(options,
+			cosmosgen.WithDartGeneration(
+				enableThirdPartyModuleCodegen,
+				func(m module.Module) string {
+					return filepath.Join(rootPath, m.Pkg.Name, "module")
+				},
+				rootPath,
+			),
+		)
+	}
+
 	if targetOptions.isOpenAPIEnabled {
 		openAPIPath := conf.Client.OpenAPI.Path
 
