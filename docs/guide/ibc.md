@@ -269,7 +269,7 @@ func (k Keeper) OnAcknowledgementIbcPostPacket(ctx sdk.Context, packet channelty
 		)
 		return nil
 	default:
-		return errors.New("invalid acknowledgment format")
+		return errors.New("the counter-party module does not implement the correct acknowledgment format")
 	}
 }
 ```
