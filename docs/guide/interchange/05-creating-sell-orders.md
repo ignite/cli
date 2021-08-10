@@ -640,7 +640,7 @@ func (book *OrderBook) IncrementNextOrderID() {
 }
 ```
 
-#### `insertOrder`
+#### Implement the insertOrder Function
 
 `insertOrder` inserts the order in the book with the provided order
 
