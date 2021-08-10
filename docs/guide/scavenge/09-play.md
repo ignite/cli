@@ -20,7 +20,7 @@ Let's follow the instructions and submit a new scavenge. The first parameter you
 
 Next you should specify the `reward`. Let's give away `100token` as a reward for solving the scavenge.
 
-Now we have all the pieces needed to create our message. Let's piece them all together, adding the flag `--from` so the CLI knows who is sending it:
+Now you have all the pieces needed to create our message. Piece them all together, adding the flag `--from` so the CLI knows who is sending it:
 
 ```
 scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100token --from alice
