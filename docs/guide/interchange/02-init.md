@@ -19,7 +19,7 @@ starport scaffold chain github.com/cosmonaut/interchange
 A new directory named interchange is created. This directory contains a working blockchain app.
 Create a new IBC module next.
 
-## Create the Module
+## Create the `ibcdex` Module
 
 Scaffold a module inside your blockchain named `ibcdex` with IBC capabilities.
 The ibcdex module contains the logic for creating and maintaining order books and routing them through IBC to the second blockchain.
