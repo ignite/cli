@@ -209,7 +209,7 @@ scavenged q scavenge list-scavenge --output json
 
 ## Committing a solution
 
-Let's follow the instructions and submit the answer as a commit on behalf of `bob`:
+Follow the instructions and submit the answer as a commit on behalf of `bob`:
 
 ```
 scavenged tx scavenge commit-solution "A stick" --from bob
