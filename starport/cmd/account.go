@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	flagAddressPrefix = "address-prefix"
+	flagAddressPrefix  = "address-prefix"
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "noninteractive"
 )

@@ -123,7 +123,7 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	return acc, mnemonic, nil
 }
 
-// Import imports an existing account with name andd passphrase and secret where secret can be a
+// Import imports an existing account with name and passphrase and secret where secret can be a
 // mnemonic or a private key.
 func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 	_, err := r.GetByName(name)
