@@ -47,7 +47,7 @@ The state of tokens and accounts is defined by the `auth` and `bank` modules, wh
 
 In the SDK, everything is stored in one store called the `multistore`. Any number of key/value stores (called [`KVStores`](https://pkg.go.dev/github.com/cosmos/cosmos-sdk/types#KVStore) in the Cosmos SDK) can be created in this multistore. For this application, we will use one store to map `name`s to its respective `whois`, a struct that holds a name's value, owner, and price.
 
-## Messages
+## The Application Messages
 
 Messages are contained in transactions. They trigger state transitions. Each module defines a list of messages and how to handle them. Here are the messages you need to implement the desired functionality for your nameservice application:
 
