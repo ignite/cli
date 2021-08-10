@@ -36,7 +36,7 @@ The `Msg` type extends `proto.Message` and contains five methods. Three of them 
 
 `GetSigners` Return the list of signers. The SDK will make sure that each message contained in a transaction is signed by all the signers listed in the list returned by this method.
 
-## `Handlers`
+## Handlers
 
 `Handlers` define the action that needs to be taken (which stores need to get updated, how, and under what conditions) when a given `Msg` is received.
 
