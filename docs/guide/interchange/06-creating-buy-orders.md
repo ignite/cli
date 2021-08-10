@@ -117,7 +117,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 }
 ```
 
-### `FillBuyOrder`
+### Implement the FillBuyOrder Function
 
 `FillBuyOrder` try to fill the buy order with the order book and returns all the side effects.
 
