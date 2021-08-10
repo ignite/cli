@@ -145,7 +145,7 @@ planetd tx blog send-ibcPost [portID] [channelID] [title] [content]
 
 ## Modify the Source Code
 
-After you create the types and transactions, you must manually insert the logic to manage updates in the data tables. Modify the source code to save the data as specified earlier in this tutorial.
+After you create the types and transactions, you must manually insert the logic to manage updates in the database. Modify the source code to save the data as specified earlier in this tutorial.
 
 ### Add creator to the blog post packet
 
