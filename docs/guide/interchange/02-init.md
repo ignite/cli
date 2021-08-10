@@ -90,7 +90,7 @@ For a `voucher` you store: the source port ID, source channel ID, and the origin
 starport scaffold map denom-trace port channel origin --no-message --module ibcdex
 ```
 
-## Create the Configuration
+## Create the Configuration for two Blockchains
 
 Add two config files `mars.yml` and `venus.yml` to test two blockchain networks with specific token for each.
 Add the config files in the `interchange` folder.
