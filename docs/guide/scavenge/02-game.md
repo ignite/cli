@@ -16,7 +16,7 @@ Something to note here is that when dealing with a public network with latency, 
 2. Someone else sees you posting the answer and posts it themselves right before you.
 3. Since they posted the answer first, they receive the reward instead of you.
 
-To prevent Front-Running, we will implement a **commit-reveal** scheme. A commit-reveal scheme converts a single exploitable interaction and turns it into two safe interactions.
+To prevent Front-Running, you will implement a **commit-reveal** scheme. A commit-reveal scheme converts a single exploitable interaction and turns it into two safe interactions.
 
 **The first interaction is the commit**. This is where you "commit" to posting an answer in a follow-up interaction. This commit consists of a cryptographic hash of your name combined with the answer that you think is correct. The app saves that value which is a claim that you know the answer but that it hasn't been confirmed whether the answer is correct.
 
