@@ -106,7 +106,7 @@ message QueryPostsResponse {
 }
 ```
 
-`QueryPostsRequest` is empty because requesting all posts doesn't require are parameters. `QueryPostsResponse` contains `title` and `body` that will be returned from the chain.
+`QueryPostsRequest` is empty because requesting all posts doesn't require parameters. `QueryPostsResponse` contains `title` and `body` that will be returned from the chain.
 
 `x/hello/keeper/grpc_query_posts.go` contains `Posts` keeper function that handles the query and returns data.
 
