@@ -86,7 +86,7 @@ During a successful transmission, an IBC packet goes through 4 stages:
 
 In the following section you'll be implementing packet reception logic in the `OnRecvCreatePairPacket` function and packet acknowledgement logic in the `OnAcknowledgementCreatePairPacket` function. Timeout function will be left empty.
 
-## `OnRecv`
+## Receiving an IBC packet
 
 On the target chain when an IBC packet is recieved, the module should check whether a book already exists, if not, create a new buy order book for specified denoms.
 
