@@ -13,7 +13,7 @@ import (
 const (
 	flagAddressPrefix  = "address-prefix"
 	flagPassphrase     = "passphrase"
-	flagNonInteractive = "noninteractive"
+	flagNonInteractive = "non-interactive"
 )
 
 func NewAccount() *cobra.Command {
