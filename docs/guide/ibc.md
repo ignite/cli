@@ -140,7 +140,7 @@ Notice the fields in the `ibcPost` packet match the fields in the `post` type th
 The `starport packet` command also scaffolds the CLI command that is capable of sending an IBC packet:
 
 ```go
-planetd tx blog send-ibcPost [portID] [channelD] [title] [content]
+planetd tx blog send-ibcPost [portID] [channelID] [title] [content]
 ```
 
 ## Modify the Source Code
