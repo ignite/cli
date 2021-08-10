@@ -14,6 +14,7 @@ import (
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
@@ -335,6 +336,52 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 	return filepath.Join(home, "config/client.toml"), nil
 }
 
+// KeyringBackend returns the keyring backend chosen for the chain.
+func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
+	// 1st.
+	if c.options.keyringBackend != "" {
+		return c.options.keyringBackend, nil
+	}
+
+	config, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+
+	// 2nd.
+	if config.Init.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+	}
+
+	// 3rd.
+	if config.Init.Client != nil {
+		if backend, ok := config.Init.Client["keyring-backend"]; ok {
+			if backendStr, ok := backend.(string); ok {
+				return chaincmd.KeyringBackendFromString(backendStr)
+			}
+		}
+	}
+
+	// 4th.
+	configTOMLPath, err := c.ClientTOMLPath()
+	if err != nil {
+		return "", err
+	}
+	cf := confile.New(confile.DefaultTOMLEncodingCreator, configTOMLPath)
+	var conf struct {
+		KeyringBackend string `toml:"keyring-backend"`
+	}
+	if err := cf.Load(&conf); err != nil {
+		return "", err
+	}
+	if conf.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
+	}
+
+	// 5th.
+	return chaincmd.KeyringBackendOS, nil
+}
+
 // Commands returns the runner execute commands on the chain's binary
 func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 	id, err := c.ID()
@@ -352,6 +399,11 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	backend, err := c.KeyringBackend()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
 	config, err := c.Config()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
@@ -362,23 +414,7 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
 		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
-	}
-
-	// use keyring backend if specified
-	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
-	} else {
-		// check if keyring backend is specified in config
-		if config.Init.KeyringBackend != "" {
-			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
-			if err != nil {
-				return chaincmdrunner.Runner{}, err
-			}
-			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(configKeyringBackend))
-		} else {
-			// default keyring backend used is OS
-			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
-		}
+		chaincmd.WithKeyringBackend(backend),
 	}
 
 	cc := chaincmd.New(binary, chainCommandOptions...)

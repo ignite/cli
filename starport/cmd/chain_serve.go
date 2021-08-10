@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -40,7 +39,6 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
-		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
 	if isRebuildProtoOnce {
