@@ -666,7 +666,7 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 }
 ```
 
-## `OnTimeout`
+## Add the OnTimeout of a Sell Order Packet Function
 
 If a timeout occurs, we mint back the native token.
 
