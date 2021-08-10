@@ -59,7 +59,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 }
 ```
 
-## `OnRecv`
+## On Receiving a Buy Order
 
 - Update the buy order book
 - Distribute sold token to the buyer
