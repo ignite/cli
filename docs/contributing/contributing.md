@@ -9,6 +9,7 @@ parent:
 
 - [Contributing](#contributing)
   - [Using this repo](#using-this-repo)
+  - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
   - [Folder structure](#folder-structure)
   - [Who works on the tutorials?](#who-works-on-the-tutorials)
@@ -19,13 +20,17 @@ parent:
 
 Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials.
 
-- To set up your environment for success, follow our [technical set up](technical-setup.md) guidelines.
+To set up your environment for success, follow our [technical set up](technical-setup.md) guidelines.
 
 ## Using this repo
 
 - To provide feedback, file an issue and provide abundant details to help us understand how we can make it better.
 - To provide feedback and a fix, you can make a direct contribution. This repo is protected since we provide the code and the docs to help you learn. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to master.
 - Start by creating a draft pull request. Create your draft PR early, even if your work is just beginning or incomplete. Your draft PR indicates to the community that you're working on something and provides a space for conversations early in the development process. Merging is blocked for `Draft` PRs, so it's a safe way to experiment and invite comments. 
+
+## Reviewing technical content PRs 
+
+Some of the best content contributions come during the PR review cycles. Follow best practices for technical content PR reviews just like you do for code reviews. For in-line suggestions, use the [GitHub suggesting feature](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request). The PR owner can merge in your suggested commits one at a time or in batch (preferred). When you do a more granular extensive review that results in more than 20 in-line suggestions, go ahead and check out the branch and make the changes yourself. 
 
 ## Writing and contributing
 
