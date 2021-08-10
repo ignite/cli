@@ -11,6 +11,7 @@ func NewAccountDelete() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "delete [name]",
 		Short: "Delete an account",
+		Args:  cobra.ExactArgs(1),
 		RunE:  accountDeleteHandler,
 	}
 
@@ -31,6 +32,6 @@ func accountDeleteHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	fmt.Println("Account deleted.")
+	fmt.Printf("Account %s deleted.\n", name)
 	return nil
 }

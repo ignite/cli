@@ -46,7 +46,7 @@ func New(backend string) (Registry, error) {
 	return r, nil
 }
 
-// Account represents an CosmosSDK account.
+// Account represents an Cosmos SDK account.
 type Account struct {
 	// Name of the account.
 	Name string
@@ -124,7 +124,7 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 }
 
 // Import imports an existing account with name andd passphrase and secret where secret can be a
-// mnemonic or private key.
+// mnemonic or a private key.
 func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 	_, err := r.GetByName(name)
 	if err == nil {

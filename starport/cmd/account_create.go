@@ -11,6 +11,7 @@ func NewAccountCreate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "create [name]",
 		Short: "Create a new account",
+		Args:  cobra.ExactArgs(1),
 		RunE:  accountCreateHandler,
 	}
 

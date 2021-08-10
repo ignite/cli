@@ -9,6 +9,7 @@ func NewAccountShow() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "show [name]",
 		Short: "Show account",
+		Args:  cobra.ExactArgs(1),
 		RunE:  accountShowHandler,
 	}
 

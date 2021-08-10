@@ -28,7 +28,7 @@ func NewAccountImport() *cobra.Command {
 func accountImportHandler(cmd *cobra.Command, args []string) error {
 	var (
 		name       = args[0]
-		secret     = args[1]
+		secret     = strings.TrimSpace(args[1])
 		passphrase = getPassphrase(cmd)
 	)
 

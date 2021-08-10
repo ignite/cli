@@ -12,9 +12,6 @@ import (
 
 const (
 	flagAddressPrefix = "address-prefix"
-)
-
-const (
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "noninteractive"
 )
@@ -22,7 +19,7 @@ const (
 func NewAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "account [command]",
-		Short:   "Manage your cosmos accounts",
+		Short:   "Manage your cosmos chain accounts",
 		Aliases: []string{"a"},
 		Args:    cobra.ExactArgs(1),
 	}
