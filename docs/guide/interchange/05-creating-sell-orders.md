@@ -16,7 +16,7 @@ message SellOrderPacketData {
 }
 ```
 
-## `SendSellOrder` Message Handling
+## Message Handling in `SendSellOrder`
 
 Sell orders are created using `send-sell-order`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
 
