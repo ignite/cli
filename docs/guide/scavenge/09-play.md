@@ -18,7 +18,7 @@ starport chain serve
 
 Let's follow the instructions and submit a new scavenge. The first parameter you need is the `solution`, but probably you should also know what the actual question is that your solution solves (the `description`). How about the challenge question be something family friendly like: `What's brown and sticky?`. Of course the only solution to this question is: `A stick`.
 
-Next we should specify our `reward`. Let's give away `100token` as a reward for solving our scavenge.
+Next you should specify the `reward`. Let's give away `100token` as a reward for solving the scavenge.
 
 Now we have all the pieces needed to create our message. Let's piece them all together, adding the flag `--from` so the CLI knows who is sending it:
 
