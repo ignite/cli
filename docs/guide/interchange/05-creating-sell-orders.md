@@ -253,7 +253,7 @@ func VoucherDenom(port string, channel string, denom string) string {
 }
 ```
 
-## `OnRecv`
+## On Receiving a Sell Order
 
 When a "sell order" packet is received on the target chain, the module should  ????
 
