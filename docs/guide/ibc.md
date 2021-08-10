@@ -117,7 +117,7 @@ When a new type is scaffolded, the default behavior is to scaffold messages that
 
 ### Scaffold a sendable and interpretable IBC packet
 
-Now you need to generate packet code that contains the title and the content of the blog post.
+Now you need to generate code for a packet that contains the title and the content of the blog post.
 
 The `starport packet` command creates the logic for an IBC packet that can be sent to another blockchain.
 
