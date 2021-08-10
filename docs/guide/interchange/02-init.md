@@ -6,7 +6,7 @@ order: 2
 
 ##  Initialize the Blockchain
 
-In this chapter you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets and messages. In the later chapters you  integrate more code into each of the transaction handlers.
+In this chapter you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets and messages. In the later chapters you integrate more code into each of the transaction handlers.
 
 ## Create the Blockchain
 
