@@ -540,7 +540,7 @@ func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (
 }
 ```
 
-### `appendOrder` Implementation
+### Implement the `appendOrder` Function to Add Orders to the Order Book
 
 ```go
 // x/ibcdex/types/order_book.go
