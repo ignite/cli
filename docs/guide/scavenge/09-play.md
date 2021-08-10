@@ -292,7 +292,7 @@ scavenged tx scavenge reveal-solution "A stick" --from bob
 }
 ```
 
-## Querying For a List of Scavenges (solved)
+## Querying For a List of solved Scavenges
 
 ```
 scavenged q scavenge list-scavenge --output json
