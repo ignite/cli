@@ -55,7 +55,7 @@ type Account struct {
 	Info keyring.Info
 }
 
-// Address returns an address for acocunt for given prefix.
+// Address returns the address of the account from given prefix.
 func (a Account) Address(accPrefix string) string {
 	if accPrefix == "" {
 		accPrefix = accountPrefixCosmos
