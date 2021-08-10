@@ -22,7 +22,7 @@ This tutorial builds an understanding of how to create and send packets across b
 
 The IBC module in the Cosmos SDK is the standard for the interaction between two blockchains. The IBC module defines how packets and messages are constructed to be interpreted by the sending and the receiving blockchain.
 
-The IBC relayer lets you can connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Starport to connect two blockchains.
+The IBC relayer lets you connect between sets of IBC-enabled chains. This tutorial teaches you how to create two blockchains and then start and use the relayer with Starport to connect two blockchains.
 
 This tutorial covers essentials like modules, IBC packets, relayer, and the lifecycle of packets routed through IBC.
 
