@@ -82,7 +82,7 @@ starport scaffold message set-name name value
 
 As you're using the same `starport scaffold message` command the set of modified and created files are the same.
 
-### `MsgDelete`
+### Add The MsgDelete Message
 
 ```
 starport scaffold message delete-name name
