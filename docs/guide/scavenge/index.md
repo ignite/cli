@@ -28,4 +28,4 @@ You might have guessed by now that what I'm really talking about are **blockchai
 
 The state machine you are building will use an implementation of **proof-of-stake** called **Tendermint**, which is energy efficient and can consist of one or many validators, either trusted or byzantine. When building a system that handles _real_ scarcity, the integrity of that system becomes very important. One way to ensure that integrity is by sharing the responsibility of maintaining it with a large group of independently motivated participants as validators.
 
-So, now that we know a little more about **why** we might build an app like this, let's dive into the game itself.
+So, now that you know a little more about **why** you might build an app like this, start to dive into the game itself.
