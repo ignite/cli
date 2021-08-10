@@ -377,7 +377,7 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) ( remainingSellOrder 
 }
 ```
 
-### `OriginalDenom`
+### Implement a `OriginalDenom` Function
 
 `OriginalDenom` returns back the original denom of the voucher. False is returned if the port ID and channel ID provided are not the origins of the voucher
 
