@@ -255,7 +255,7 @@ func VoucherDenom(port string, channel string, denom string) string {
 
 ## On Receiving a Sell Order
 
-When a "sell order" packet is received on the target chain, the module should  ????
+When a "sell order" packet is received on the target chain, the module should:
 
 - Update the sell order book
 - Distribute sold token to the buyer
