@@ -304,7 +304,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 }
 ```
 
-### `FillSellOrder`
+### Implement a `FillSellOrder` Function
 
 `FillSellOrder` try to fill the sell order with the order book and returns all the side effects.
 
