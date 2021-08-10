@@ -2,7 +2,7 @@
 order: 3
 ---
 
-# Types
+# Implement Types That Operate On The State
 
 Now that you've defined messages that trigger state transitions, it's time to implement types and methods that operate on the state.
 
