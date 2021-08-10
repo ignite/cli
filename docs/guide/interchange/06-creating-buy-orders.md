@@ -18,7 +18,7 @@ message BuyOrderPacketData {
 }
 ```
 
-## `SendBuyOrder` Message Handling
+## IBC Message Handling in SendBuyOrder
 
 * Check if the pair exists on the order book
 * If the token is an IBC token, burn the tokens
