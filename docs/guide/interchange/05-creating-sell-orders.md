@@ -423,7 +423,7 @@ func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver 
 }
 ```
 
-#### `MintTokens`
+#### Implement a `MintTokens` Function
 
 ```go
 // x/ibcdex/keeper/mint.go
