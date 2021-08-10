@@ -39,7 +39,7 @@ When exchanging a token from Mars to Venus, on the Venus blockchain you would en
 
 This token `ibc/Venus/mcx` cannot be sold back using the same order book. If you want to "reverse" the exchange and receive back the Mars token, a new order book `ibc/Venux/mcx` to `mcx` needs to be created.
 
-## Order books
+## The Design of the Order books
 
 As a typical exchange, a new pair implies the creation of an order book with orders to sell `MCX` or orders to buy `VCX`. Here, you have two chains and this data-structure must be split between `Mars` and `Venus`.
 
