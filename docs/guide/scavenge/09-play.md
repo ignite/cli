@@ -315,7 +315,7 @@ scavenged q scavenge list-scavenge --output json
 }
 ```
 
-## Committing a Solution Again to Get an Error
+## Committing a Solution Again, Expect To Get an Error
 
 ```
 scavenged tx scavenge commit-solution "A stick" --from bob
