@@ -172,7 +172,7 @@ message Order {
 }
 ```
 
-## `OnAcknowledgement`
+## Receiving an IBC Acknowledgement
 
 On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
 
