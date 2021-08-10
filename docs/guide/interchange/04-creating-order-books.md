@@ -31,7 +31,7 @@ You need `send-create-pair` to do the following:
 * Upon receiving the acknowledgement on the source chain
   * Create a new order book for sell orders
 
-## `SendCreatePair` Message Handling
+## Message Handling in `SendCreatePair`
 
 `SendCreatePair` function was created during the IBC packet scaffolding. Currently, it creates an IBC packet, populates it with source and target denoms and transmits this packet over IBC. Add the logic to check for an existing order book for a particular pair of denoms.
 
