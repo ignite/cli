@@ -2,7 +2,7 @@
 order: 5
 ---
 
-# Play
+# Play With Your Blockchain
 
 If you haven't already, start a blockchain node in development:
 
