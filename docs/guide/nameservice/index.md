@@ -39,7 +39,7 @@ Here are the modules you will need for the nameservice application:
 
 Now, take a look at the two main parts of your application: the state and the message types.
 
-## State
+## The Application State
 
 The state represents your application at a given moment. It tells how much token each account possesses, what are the owners and price of each name, and to what value each name resolves to.
 
