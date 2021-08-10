@@ -197,7 +197,7 @@ app.ibcdexKeeper = *ibcdexmodulekeeper.NewKeeper(
 )
 ```
 
-The `ibcdex` module will need to mint and burn token using the `bank` account. The use this feature, the module must have a _module account_. To enable the _module account_ declare this permission in the _module account permissions_ structure of the auth module.
+The `ibcdex` module will need to mint and burn voucher token using the `bank` account. The use this feature, the module must have a _module account_. To enable the _module account_ declare this permission in the _module account permissions_ structure of the auth module.
 
 ```go
 // app/app.go
