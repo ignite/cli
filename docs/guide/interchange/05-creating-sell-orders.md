@@ -16,7 +16,7 @@ message SellOrderPacketData {
 }
 ```
 
-## Message Handling in `SendSellOrder`
+## Message Handling in SendSellOrder
 
 Sell orders are created using `send-sell-order`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
 
@@ -69,7 +69,7 @@ func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOr
 
 `SendSellOrder` depends on two new keeper methods: `SafeBurn` and `SaveVoucherDenom`.
 
-### Create the `SafeBurn` Function to Burn Vouchers or Lock Tokens
+### Create the SafeBurn Function to Burn Vouchers or Lock Tokens
 
 `SafeBurn` burns tokens if they are IBC vouchers (have an `ibc/` prefix) and locks tokens if they are native to the chain.
 
@@ -207,7 +207,7 @@ maccPerms = map[string][]string{
 }
 ```
 
-### `SaveVoucherDenom`
+### SaveVoucherDenom
 
 `SaveVoucherDenom` saves the voucher denom to be able to convert it back later.
 
@@ -304,7 +304,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 }
 ```
 
-### Implement a `FillSellOrder` Function
+### Implement a FillSellOrder Function
 
 `FillSellOrder` try to fill the sell order with the order book and returns all the side effects.
 
@@ -377,7 +377,7 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) ( remainingSellOrder 
 }
 ```
 
-### Implement a `OriginalDenom` Function
+### Implement a OriginalDenom Function
 
 `OriginalDenom` returns back the original denom of the voucher. False is returned if the port ID and channel ID provided are not the origins of the voucher
 
@@ -397,7 +397,7 @@ func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, vouc
 ```
 
 
-### Implement a `SafeMint` Function
+### Implement a SafeMint Function
 If a token is an IBC token (has an `ibc/` prefix) `SafeMint` mints IBC tokens with `MintTokens`, otherwise, it unlocks native tokens with `UnlockTokens`.
 ```go
 // x/ibcdex/keeper/mint.go

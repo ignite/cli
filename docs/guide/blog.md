@@ -303,7 +303,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-## Using CLI to Create and Display Posts
+## Using CLI To Create And Display Posts
 
 Having implemened logic for both creating and querying posts we can use the node's binary to interact with our chain. To create a post:
 

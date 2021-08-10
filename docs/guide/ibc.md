@@ -101,7 +101,7 @@ These `starport type` commands create CRUD code for the following transactions:
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
 
-### Starport `starport scaffold list` Command Overview
+### Starport Scaffold List Command Overview
 
 ```go
 starport scaffold list [typeName] [field1] [field2] ... [flags]
@@ -530,7 +530,7 @@ pagination:
   total: "1"
 ```
 
-## 🎉 Congratulations 🎉
+## Congratulations 🎉
 
 By completing this tutorial, you've learned to build an IBC module for the Cosmos SDK, build your own blockchain app, modify the source code, and use the Inter-Blockchain Communication protocol (IBC).
 
