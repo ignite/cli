@@ -10,7 +10,7 @@ A keeper is an abstraction that let's your blockchain app interact with the stat
 
 Starport has several commands that scaffold the code for CRUD functionality for a list-like data structure, a map (key-value pairs) and a single element in the state. In this example, `whois` will be stored in a map-like data structure.
 
-## Whois
+## Add The Whois Type
 
 Use `starport scaffold map` command to scaffold the `whois` type and the code for creating, reading, updating, and deleting (CRUD) information about names. The first argument is the name of the type being created (`whois`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
 
