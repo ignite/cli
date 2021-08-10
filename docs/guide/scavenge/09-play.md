@@ -2,7 +2,7 @@
 order: 9
 ---
 
-# Play
+# Play With Your Blockchain
 
 ## Starting the Blockchain
 
