@@ -69,7 +69,7 @@ The command has created and modified several files.
 
 In `x/nameservice/types/message_buy_name.go` you can notice that the message follows the `Msg` interface. The message `struct` contains all the necessary information when buying a name: `Name`, `Bid`, and `Creator` (which was added automatically).
 
-### `MsgSetName`
+### Add The MsgSetName Message
 
 Set name message needs to contain the following fields:
 
