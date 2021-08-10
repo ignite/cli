@@ -336,7 +336,7 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (remainingSellOrder Order, liq
 }
 ```
 
-#### `LiquidateFromSellOrder`
+#### Implement a `LiquidateFromSellOrder` Function
 
 `LiquidateFromSellOrder` liquidates the first buy order of the book from the sell order if no match is found, return false for match.
 
