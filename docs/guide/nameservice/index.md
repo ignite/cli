@@ -21,7 +21,7 @@ By the end of this tutorial you will have a functional `nameservice` application
 
 The goal of the application you are building is to let users buy names and to set a value these names resolve to. The owner of a given name will be the current highest bidder. In this section, you will learn how these simple requirements translate to application design.
 
-A blockchain application is just a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a developer, you just have to define the state machine (i.e. what the state, a starting state and messages that trigger state transitions), and [_Tendermint_](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) will handle replication over the network for you.
+A blockchain application is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a developer, you have to define the state machine (i.e. what the state, a starting state and messages that trigger state transitions), and [_Tendermint_](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) will handle replication over the network for you.
 
 > Tendermint is an application-agnostic engine that is responsible for handling the _networking_ and _consensus_ layers of your blockchain. In practice, this means that Tendermint is responsible for propagating and ordering transaction bytes. Tendermint Core relies on an eponymous Byzantine-Fault-Tolerant (BFT) algorithm to reach consensus on the order of transactions. For more on Tendermint, click [here](https://en.wikipedia.org/wiki/State_machine_replication).
 
