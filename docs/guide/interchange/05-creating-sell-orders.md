@@ -397,7 +397,7 @@ func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, vouc
 ```
 
 
-### `SafeMint`
+### Implement a `SafeMint` Function
 If a token is an IBC token (has an `ibc/` prefix) `SafeMint` mints IBC tokens with `MintTokens`, otherwise, it unlocks native tokens with `UnlockTokens`.
 ```go
 // x/ibcdex/keeper/mint.go
