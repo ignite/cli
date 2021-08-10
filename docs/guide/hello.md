@@ -55,7 +55,7 @@ This will download dependencies, compile the source code into a binary called `h
 
 ![./images/api.png](./images/api.png)
 
-A validator node exposes two endpoints: [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API and [http://localhost:1317](http://localhost:1317) for the high-level blockchain API.
+By default a validator node exposes two endpoints: [http://localhost:26657](http://localhost:26657) for the low-level Tendermint API and [http://localhost:1317](http://localhost:1317) for the high-level blockchain API.
 
 When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running. In the development environment, Starport doesn't require you to restart the blockchain; changes you make in files will be automatically picked up by Starport.
 
