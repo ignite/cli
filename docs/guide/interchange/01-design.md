@@ -49,7 +49,7 @@ In this example blockchain `Mars` holds the sell oders and blockchain `Venus` ho
 
 ## Exchanging tokens back
 
-Like `ibc-transfer` each blockchain keep a trace of the token voucher created on the other blockchain.
+Like `ibc-transfer` each blockchain keeps a trace of the token voucher created on the other blockchain.
 
 If a blockchain `Mars` sells `MCX` to `Venus` and `ibc/Venus/mcx` is minted on `Venus` then, if `ibc/Venus/mcx` is sold back on `Mars` the token unlocked and received will be `MCX`.
 
