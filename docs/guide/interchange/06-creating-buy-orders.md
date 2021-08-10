@@ -282,7 +282,7 @@ func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (i
 }
 ```
 
-## `OnTimeout`
+## OnTimeout of a Buy Order Packet
 
 If a timeout occurs, we mint back the native token.
 
