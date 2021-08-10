@@ -69,7 +69,7 @@ func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOr
 
 `SendSellOrder` depends on two new keeper methods: `SafeBurn` and `SaveVoucherDenom`.
 
-### `SafeBurn`
+### Create the `SafeBurn` Function to Burn Vouchers or Lock Tokens
 
 `SafeBurn` burns tokens if they are IBC vouchers (have an `ibc/` prefix) and locks tokens if they are native to the chain.
 
