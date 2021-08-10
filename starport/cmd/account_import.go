@@ -8,7 +8,6 @@ import (
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
@@ -28,15 +27,13 @@ func NewAccountImport() *cobra.Command {
 
 func accountImportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name       = args[0]
-		secret     = strings.TrimSpace(args[1])
-		passphrase = getPassphrase(cmd)
+		name   = args[0]
+		secret = strings.TrimSpace(args[1])
 	)
 
-	if passphrase == "" && !getIsNonInteractive(cmd) {
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Passphrase", &passphrase, cliquiz.HideAnswer())); err != nil {
-			return err
-		}
+	passphrase, err := getPassphrase(cmd)
+	if err != nil {
+		return err
 	}
 
 	if !bip39.IsMnemonicValid(secret) {

@@ -6,7 +6,6 @@ import (
 	"path/filepath"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
@@ -27,15 +26,13 @@ func NewAccountExport() *cobra.Command {
 
 func accountExportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name       = args[0]
-		path, _    = cmd.Flags().GetString(flagPath)
-		passphrase = getPassphrase(cmd)
+		name    = args[0]
+		path, _ = cmd.Flags().GetString(flagPath)
 	)
 
-	if passphrase == "" && !getIsNonInteractive(cmd) {
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Passphrase", &passphrase, cliquiz.HideAnswer())); err != nil {
-			return err
-		}
+	passphrase, err := getPassphrase(cmd)
+	if err != nil {
+		return err
 	}
 
 	ca, err := cosmosaccount.New(getKeyringBackend(cmd))

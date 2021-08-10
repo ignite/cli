@@ -7,6 +7,7 @@ import (
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
@@ -90,7 +91,19 @@ func getIsNonInteractive(cmd *cobra.Command) bool {
 	return is
 }
 
-func getPassphrase(cmd *cobra.Command) string {
+func getPassphrase(cmd *cobra.Command) (string, error) {
 	pass, _ := cmd.Flags().GetString(flagPassphrase)
-	return pass
+
+	if pass == "" && !getIsNonInteractive(cmd) {
+		if err := cliquiz.Ask(
+			cliquiz.NewQuestion("Passphrase",
+				&pass,
+				cliquiz.HideAnswer(),
+				cliquiz.GetConfirmation(),
+			)); err != nil {
+			return "", err
+		}
+	}
+
+	return pass, nil
 }
