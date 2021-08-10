@@ -10,7 +10,7 @@ The CLI for our module is broken into two files called `tx.go` and `query.go` wh
 
 ## The tx.go File
 
-The `tx.go` file contains `GetTxCmd` which is a standard method within the Cosmos SDK. It is referenced later in the `module.go` file which describes exactly which attributes a modules has. This makes it easier to incorporate different modules for different reasons at the level of the actual application. After all, we are focusing on a module at this point, but later we will create an application that utilizes this module as well as other modules which are already available within the Cosmos SDK.
+The `tx.go` file contains `GetTxCmd` which is a standard method within the Cosmos SDK. It is referenced later in the `module.go` file which describes exactly which attributes a modules has. This makes it easier to incorporate different modules for different reasons at the level of the actual application. After all, you want to focus on a module at this point, but later you will create an application that utilizes this module as well as other modules which are already available within the Cosmos SDK.
 
 ## Commit Solution
 
