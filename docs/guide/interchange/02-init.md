@@ -84,7 +84,7 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 
 `Voucher` tokens are represented as hashes, therefore you must store which original denomination is related to a voucher, you can do this with an indexed type.
 
-For a `voucher` you store: the source port ID, source channel ID and the original denom
+For a `voucher` you store: the source port ID, source channel ID, and the original denom.
 
 ```go
 starport scaffold map denom-trace port channel origin --no-message --module ibcdex
