@@ -594,7 +594,7 @@ func (book *OrderBook) appendOrder(creator string, amount int32, price int32, or
 }
 ```
 
-#### `checkAmountAndPrice`
+#### Implement the checkAmountAndPrice For an Order
 
 `checkAmountAndPrice` checks correct amount or price.
 
