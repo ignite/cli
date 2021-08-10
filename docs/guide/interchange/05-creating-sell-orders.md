@@ -628,7 +628,7 @@ func (book OrderBook) GetNextOrderID() int32 {
 }
 ```
 
-#### `IncrementNextOrderID`
+#### Implement the IncrementNextOrderID Function
 
 `IncrementNextOrderID` updates the ID count for orders
 
