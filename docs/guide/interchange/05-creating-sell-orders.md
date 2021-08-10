@@ -617,7 +617,7 @@ func checkAmountAndPrice(amount int32, price int32) error {
 }
 ```
 
-#### `GetNextOrderID`
+#### Implement the GetNextOrderID Function
 
 `GetNextOrderID` gets the ID of the next order to append
 
