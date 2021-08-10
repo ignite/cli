@@ -15,7 +15,7 @@ When a user exchanges a token with the `ibcdex`, you receive a `voucher` of that
 
 This process can be reversed when the `voucher` get burned again to unlock the original token. This will be explained throghout the tutorial in more detail.
 
-## Assumption
+## Assumption of the Design
 
 An order book can be created for the exchange of any tokens between any pair of chains. The requirement is to have the `ibcdex` module available. There can only be one order book for a pair of token at the same time.
 
