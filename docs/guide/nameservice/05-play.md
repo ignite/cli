@@ -6,7 +6,7 @@ order: 5
 
 If you haven't already, start a blockchain node in development:
 
-```
+```bash
 starport chain serve -r
 ```
 
@@ -18,7 +18,7 @@ Open a second terminal window and use `nameserviced` to issue commands.
 
 Purchase a new name using the `buy-name` command. The name is `foo` and the bid is `20token`. You've hard-coded the minimal bid to `10token`, so any bid below that will result in a rejected purchase. Use the `--from` flag to specify the account, from which the transaction will be sent.
 
-```
+```bash
 nameserviced tx nameservice buy-name foo 20token --from alice
 ```
 
@@ -82,7 +82,7 @@ After the transaction has been broadcasted and included into a block, the blockc
 
 Query the chain for a list of name and correponding values. Query commands don't need the `--from` flag, because they don't broadcast transactions and only make side-effect free requests.
 
-```
+```bash
 nameserviced q nameservice list-whois
 ```
 
@@ -104,11 +104,11 @@ pagination:
 
 Now that `alice` is an owner of the name, she can set the value to anything she wants. Use the `set-name` command to set the value to `bar`.
 
-```
+```bash
 nameserviced tx nameservice set-name foo bar --from alice
 ```
 
-```
+```bash
 nameserviced q nameservice list-whois 
 ```
 
@@ -128,7 +128,7 @@ pagination:
 
 Use `bob`'s account to purchase a name from `alice`. The bid has to be higher than `20token` for the transaction to be processed successfully.
 
-```
+```bash
 nameserviced tx nameservice buy-name foo 40token --from bob
 ```
 
@@ -148,7 +148,7 @@ pagination:
 
 Use the following command to see how `alice`'s bank balance has changed after this transaction:
 
-```
+```bash
 nameserviced q bank balances $(nameserviced keys show alice -a)
 ```
 
@@ -156,7 +156,7 @@ nameserviced q bank balances $(nameserviced keys show alice -a)
 
 Try updating the value by broadcasting a transaction from `alice`'s account and notice the error being returned, because `alice` is no longer the owner the name and isn't authorized to change the value.
 
-```
+```bash
 nameserviced tx nameservice set-name foo qoo --from alice
 ```
 
@@ -188,3 +188,7 @@ pagination:
   next_key: null
   total: "0"
 ```
+
+Congratulations. Your nameservice application is complete.
+You have learned how to work with module dependencies, several scaffolding methods, Cosmos SDK types, functions and so much more.
+Continue your journey to lean about escrow accounts and IBC.
