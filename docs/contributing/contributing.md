@@ -1,17 +1,10 @@
----
-order: 1
-description: <add description>
-parent:
-  order: 9
-  title: Contributing Guide
----
 # Contributing
 
 - [Contributing](#contributing)
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
-  - [Folder structure](#folder-structure)
+  - [Where can I find the tutorials and docs?](#where-can-i-find-the-tutorials-and-docs)
   - [Who works on the tutorials?](#who-works-on-the-tutorials)
   - [Viewing Tutorial Builds](#viewing-tutorial-builds)
     - [Preview PRs on a Deployed Preview](#preview-prs-on-a-deployed-preview)
@@ -52,22 +45,22 @@ Other useful resources:
 - [Google Technical Writing Courses](https://developers.google.com/tech-writing)
 - [GitHub Guides Mastering Markdown](https://guides.github.com/features/mastering-markdown/)
 
-## Folder structure
-/TODO update for actual structure 
-Each tutorial lives in a self-describing folder: `blog`, `hello-world`, `voter`, and so on.
+## Where can I find the tutorials and docs?
 
-Two sub-folders are present for most of the production-ready tutorials:
+Technical content includes Knowledge Base article and interactive tutorials. 
+ 
+- The Knowledge Base content is in the `docs/kb` folder. 
+- The Starport Developer Guide content is in the `docs/guide` folder. 
 
-- A self-describing sub-folder for the app and the rest of the code that runs the tutorial.
-- A `tutorial` sub-folder for the Markdown files (*.md) that build the published tutorial docs.
+Locations and folders for other content can vary. Explore the self-describing folders for the content that you are interested in. Some articles and tutorials reside in a single Markdown file while sub-folders might be present for other tutorials.
 
-Work-in-progress tutorials might have content and code in other repos.
+As always, work-in-progress content might be happening in other locations and repos.
 
 ## Who works on the tutorials?
 
-- The Tendermint (All in Bits) DevX team develops the tutorial code and dependencies. Our team includes [@fadeev](https://github.com/fadeev), [@lubtd](https://github.com/lubtd), [@ilgooz](https://github.com/ilgooz), [@Pantani](https://github.com/Pantani), and other talented developers. Don't they do an amazing job?
+- The Tendermint (All in Bits) DevX team develops the tutorial code and dependencies. Our team includes [@fadeev](https://github.com/fadeev), [@lubtd](https://github.com/lubtd), [@ilgooz](https://github.com/ilgooz), [@Pantani](https://github.com/Pantani), [@shapkarin](https://github.com/shapkarin), and other talented developers. Don't they do an amazing job?
 
-- The Tendermint (All in Bits) Ecosystem Development team manages the developer experience and owns the technical content and tutorials. We are [@toschdev](https://github.com/toschdev), [@barriebyron](https://github.com/barriebyron), [@alijnmerchant21](https://github.com/alijnmerchant21), and [@soniasingla](https://github.com/soniasingla). 
+- The Tendermint (All in Bits) Ecosystem Development team manages the developer experience and owns the technical content and tutorials. We are [@toschdev](https://github.com/toschdev) Ecosystem Development Manager, [@barriebyron](https://github.com/barriebyron) Senior Technical Writer, and Developer Relations Engineers [@alijnmerchant21](https://github.com/alijnmerchant21) and [@soniasingla](https://github.com/soniasingla). 
 
 ## Viewing Tutorial Builds
 
