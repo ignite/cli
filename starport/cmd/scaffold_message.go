@@ -44,26 +44,31 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	var options []scaffolder.MessageOption
+
 	// Get description
 	desc, err := cmd.Flags().GetString(flagDescription)
 	if err != nil {
 		return err
 	}
 	if desc == "" {
-		// Use a default description
-		desc = fmt.Sprintf("Broadcast message %s", args[0])
+		options = append(options, scaffolder.WithDescription(desc))
 	}
 
+	// Get signer
 	signer, err := cmd.Flags().GetString(flagSigner)
 	if err != nil {
 		return err
+	}
+	if signer == "" {
+		options = append(options, scaffolder.WithSigner(signer))
 	}
 
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields)
+	sm, err := sc.AddMessage(placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}
