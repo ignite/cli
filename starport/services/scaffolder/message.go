@@ -94,6 +94,11 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
+	mfSigner, err := multiformatname.NewName(scaffoldingOpts.signer, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+
 	var (
 		g    *genny.Generator
 		opts = &message.Options{
@@ -105,6 +110,7 @@ func (s *Scaffolder) AddMessage(
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
 			MsgDesc:    scaffoldingOpts.description,
+			MsgSigner: mfSigner,
 		}
 	)
 
