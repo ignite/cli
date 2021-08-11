@@ -16,6 +16,20 @@ The `tx.go` file contains `GetTxCmd` which is a standard method within the Cosmo
 
 ```go
  // x/scavenge/client/cli/tx_commit_solution.go
+
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"strconv"
+
+	"github.com/spf13/cobra"
+
+	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+)
+
 func CmdCommitSolution() *cobra.Command {
 	cmd := &cobra.Command{
     // pass a solution as the only argument
@@ -56,14 +70,27 @@ func CmdCommitSolution() *cobra.Command {
 Note that this file makes use of the `sha256` library for hashing the plain text solutions into the scrambled hashes. This activity takes place on the client side so the solutions are never leaked to any public entity which might want to sneak a peak and steal the bounty reward associated with the scavenges. You can also notice that the hashes are converted into hexadecimal representation to make them easy to read as strings (which is how they are ultimately stored in the keeper).
 
 
-## Create Scavenge
+## Submit Scavenge
 
 ```go
-// x/scavenge/client/cli/tx_create_scavenge.go
-func CmdCreateScavenge() *cobra.Command {
+// x/scavenge/client/cli/tx_submit_scavenge.go
+import (
+	"crypto/sha256"
+	"encoding/hex"
+	"strconv"
+
+	"github.com/spf13/cobra"
+
+	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+)
+
+func CmdSubmitScavenge() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-scavenge [solution] [description] [reward]",
-		Short: "Broadcast message create-scavenge",
+		Use:   "submit-scavenge [solutionHash] [description] [reward]",
+		Short: "Broadcast message submit-scavenge",
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			clientCtx, err := client.GetClientTxContext(cmd)
@@ -77,7 +104,7 @@ func CmdCreateScavenge() *cobra.Command {
 			argsDescription := string(args[1])
 			argsReward := string(args[2])
       // create a new message
-			msg := types.NewMsgCreateScavenge(clientCtx.GetFromAddress().String(), string(solutionHashString), string(argsDescription), string(argsReward))
+			msg := types.NewMsgSubmitScavenge(clientCtx.GetFromAddress().String(), string(solutionHashString), string(argsDescription), string(argsReward))
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
