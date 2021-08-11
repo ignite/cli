@@ -92,8 +92,9 @@ Since the deploy preview doesn't work on Draft PRs, follow these steps to previe
 
     ```bash
     cd ~/github
-    git clone https://github.com/cosmos/sdk-tutorials
-    cd sdk-tutorials
+    git clone https://github.com/tendermint/starport
+    cd starport
+    cd docs
     ```
 
 2. Local tutorials require JavaScript. If needed, install [npm](https://docs.npmjs.com/cli/v6/commands/npm-install).
@@ -116,6 +117,6 @@ Since the deploy preview doesn't work on Draft PRs, follow these steps to previe
     > VuePress dev server listening at http://localhost:8080/ ✔ Client Compiled successfully in 280.71ms success [12:06:28] Build 03d41f finished in 283 ms! ( http://localhost:8080/ )
     ```
 
-5. You can now view the tutorial build on a local web browser. Isn't this fun?
+5. You can now view the docs build on a local web browser. Isn't this fun?
 
     Tip: On a mac, press the command key and click `http://localhost:8080/` for quick access to the local preview. If you are already using port 8080 on your local machine, the preview increments to the next available port 8081, and so on. 

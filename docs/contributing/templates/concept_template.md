@@ -54,7 +54,7 @@ Common requirements for tutorials include:
 
 Local software needed, such as Go and Starport. For example:
 -->
-- [Install Starport](../starport/index.md) v0.16.2 <!--(or whatever version applies)-->
+- [Install Starport](../starport/index.md) v0.17.1 <!--(or whatever version applies)-->
 
 ## 
 
