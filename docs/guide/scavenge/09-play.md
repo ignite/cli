@@ -8,7 +8,7 @@ order: 9
 
 To start your blockchain in development, run the following command:
 
-```
+```bash
 starport chain serve
 ```
 
@@ -22,7 +22,7 @@ Next you should specify the `reward`. Let's give away `100token` as a reward for
 
 Now you have all the pieces needed to create our message. Piece them all together, adding the flag `--from` so the CLI knows who is sending it:
 
-```
+```bash
 scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100token --from alice
 ```
 
@@ -99,7 +99,9 @@ scavenged tx scavenge submit-scavenge "A stick" "What's brown and sticky?" 100to
 }
 ```
 
-```
+Replace the `txhash` with your `txhash` from the previous output.
+
+```bash
 scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD --output json
 ```
 
@@ -186,7 +188,7 @@ scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD 
 
 ## Querying For a List of Scavenges
 
-```
+```bash
 scavenged q scavenge list-scavenge --output json
 ```
 
@@ -211,7 +213,7 @@ scavenged q scavenge list-scavenge --output json
 
 Follow the instructions and submit the answer as a commit on behalf of `bob`:
 
-```
+```bash
 scavenged tx scavenge commit-solution "A stick" --from bob
 ```
 
@@ -241,7 +243,7 @@ scavenged tx scavenge commit-solution "A stick" --from bob
 
 ## Querying For a List of Commits
 
-```
+```bash
 scavenged q scavenge list-commit --output json
 ```
 
@@ -265,7 +267,7 @@ Since all you need is the solution again, send and confirm the final message:
 
 ## Revealing a Solution
 
-```
+```bash
 scavenged tx scavenge reveal-solution "A stick" --from bob
 ```
 
@@ -294,7 +296,7 @@ scavenged tx scavenge reveal-solution "A stick" --from bob
 
 ## Querying For a List of solved Scavenges
 
-```
+```bash
 scavenged q scavenge list-scavenge --output json
 ```
 
@@ -317,7 +319,7 @@ scavenged q scavenge list-scavenge --output json
 
 ## Committing a Solution Again, Expect To Get an Error
 
-```
+```bash
 scavenged tx scavenge commit-solution "A stick" --from bob
 ```
 
@@ -337,3 +339,5 @@ scavenged tx scavenge commit-solution "A stick" --from bob
   "timestamp": ""
 }
 ```
+
+Congratulations! You have built a scavenge hunt blockchain!
