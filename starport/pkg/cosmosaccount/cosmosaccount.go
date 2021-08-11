@@ -78,7 +78,7 @@ func (a Account) PubKey(accPrefix string) string {
 	}
 
 	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
+	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
 
 	o, err := keyring.Bech32KeyOutput(a.Info)
 	if err != nil {
