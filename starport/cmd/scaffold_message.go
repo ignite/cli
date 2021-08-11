@@ -51,7 +51,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if desc == "" {
+	if desc != "" {
 		options = append(options, scaffolder.WithDescription(desc))
 	}
 
@@ -60,7 +60,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if signer == "" {
+	if signer != "" {
 		options = append(options, scaffolder.WithSigner(signer))
 	}
 

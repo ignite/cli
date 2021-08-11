@@ -94,7 +94,7 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	mfSigner, err := multiformatname.NewName(scaffoldingOpts.signer, multiformatname.NoNumber)
+	mfSigner, err := multiformatname.NewName(scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
