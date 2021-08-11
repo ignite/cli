@@ -6,7 +6,7 @@ order: 2
 
 The tutorials are based on the specific version of Starport. To install Starport v0.17.1 use the following command:
 
-```
+```bash
 curl https://get.starport.network/starport@v0.17.1! | bash
 ```
 
@@ -14,7 +14,7 @@ Starport comes with a number of scaffolding commands that are designed to make d
 
 To use this command, open a terminal, navigate to a directory where you have permissions to create files, and run:
 
-```
+```bash
 starport scaffold chain github.com/cosmonaut/hello
 ```
 
@@ -24,7 +24,7 @@ Note: You can see all the command line options that Starport provides by running
 
 After you create the blockchain, switch to its directory:
 
-```
+```bash
 cd hello
 ```
 
@@ -47,7 +47,7 @@ To get started, let's get our blockchain up and running locally on a single node
 
 You actually have a fully-functional blockchain already. To start it on your development machine, run the following command in the `hello` directory
 
-```
+```bash
 starport chain serve
 ```
 
@@ -67,7 +67,7 @@ In terms of workflow, developers usually work with proto files first to define C
 
 Create a `posts` query:
 
-```
+```bash
 starport scaffold query posts --response title,body
 ```
 
@@ -84,7 +84,7 @@ Let's examine some of these changes. For clarity, in the following code blocks w
 
 In `proto/hello/query.proto` a `Posts` `rpc` has been added to the `Query` `service`.
 
-```
+```proto
 service Query {
   rpc Posts(QueryPostsRequest) returns (QueryPostsResponse) {
     option (google.api.http).get = "/cosmonaut/hello/hello/posts";
@@ -96,7 +96,7 @@ service Query {
 
 Below you can see both request and response types.
 
-```
+```proto
 message QueryPostsRequest {
 }
 
@@ -167,3 +167,5 @@ The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that
 ```go
 hellod q hello posts
 ```
+
+Congratulations, you have built your first blockchain and your first Cosmos SDK module. Continue the journey to learn more about scaffolding Cosmos SDK messages, types in protocol buffer files, the keeper, and more.
