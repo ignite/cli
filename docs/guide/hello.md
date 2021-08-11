@@ -4,7 +4,7 @@ order: 2
 
 # Hello, World!
 
-Throughout the tutorials unless noted otherwise you'll be using a specific version of Starport. To install Starport v0.17.1 use the following command:
+The tutorials are based on the specific version of Starport. To install Starport v0.17.1 use the following command:
 
 ```
 curl https://get.starport.network/starport@v0.17.1! | bash
