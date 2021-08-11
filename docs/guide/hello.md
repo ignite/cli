@@ -132,7 +132,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-If we start our chain right now and visit the posts endpoint, we would get a "Not Implemented" error. To fix that we need to wire up our API by registering query handlers with gRPC.
+If we start our chain right now and visit the [posts endpoint](http://localhost:1317/cosmonaut/hello/hello/posts), we would get a "Not Implemented" error. To fix that we need to wire up our API by registering query handlers with gRPC.
 
 Inside `x/hello/module.go` import `"context"`, search for `RegisterGRPCGatewayRoutes` and register query handlers:
 
