@@ -3,6 +3,7 @@ package cliquiz
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"reflect"
 	"strings"
@@ -12,6 +13,9 @@ import (
 	"github.com/spf13/pflag"
 )
 
+// ErrConfirmationFailed is returned when second answer is not the same with first one.
+var ErrConfirmationFailed = errors.New("failed to confirm, your answers were different")
+
 // Question holds information on what to ask to user and where
 // the answer stored at.
 type Question struct {
@@ -19,6 +23,7 @@ type Question struct {
 	defaultAnswer interface{}
 	answer        interface{}
 	hidden        bool
+	shouldConfirm bool
 	required      bool
 }
 
@@ -46,6 +51,13 @@ func HideAnswer() Option {
 	}
 }
 
+// GetConfirmation prompts confirmation for the given answer.
+func GetConfirmation() Option {
+	return func(q *Question) {
+		q.shouldConfirm = true
+	}
+}
+
 // NewQuestion creates a new question.
 func NewQuestion(question string, answer interface{}, options ...Option) Question {
 	q := Question{
@@ -58,52 +70,84 @@ func NewQuestion(question string, answer interface{}, options ...Option) Questio
 	return q
 }
 
-// Ask asks questions and collect answers.
-func Ask(question ...Question) error {
-	for _, q := range question {
-		q := q
+func ask(q Question) error {
+	var prompt survey.Prompt
 
-		var prompt survey.Prompt
-		if !q.hidden {
-			input := &survey.Input{
-				Message: q.question,
-			}
-			if !q.required {
-				input.Message += " (optional)"
-			}
-			if q.defaultAnswer != nil {
-				input.Default = fmt.Sprintf("%v", q.defaultAnswer)
-			}
-			prompt = input
-		} else {
-			prompt = &survey.Password{
-				Message: q.question,
+	if !q.hidden {
+		input := &survey.Input{
+			Message: q.question,
+		}
+		if !q.required {
+			input.Message += " (optional)"
+		}
+		if q.defaultAnswer != nil {
+			input.Default = fmt.Sprintf("%v", q.defaultAnswer)
+		}
+		prompt = input
+	} else {
+		prompt = &survey.Password{
+			Message: q.question,
+		}
+	}
+
+	if err := survey.AskOne(prompt, q.answer); err != nil {
+		return err
+	}
+
+	isValid := func() bool {
+		if answer, ok := q.answer.(string); ok {
+			if strings.TrimSpace(answer) == "" {
+				return false
 			}
 		}
+		if reflect.ValueOf(q.answer).Elem().IsZero() {
+			return false
+		}
+		return true
+	}
 
-		if err := survey.AskOne(prompt, q.answer); err != nil {
-			if err == terminal.InterruptErr {
-				return context.Canceled
-			}
+	if q.required && !isValid() {
+		fmt.Println("This information is required, please retry:")
+
+		if err := ask(q); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// Ask asks questions and collect answers.
+func Ask(question ...Question) (err error) {
+	defer func() {
+		if err == terminal.InterruptErr {
+			err = context.Canceled
+		}
+	}()
+
+	for _, q := range question {
+		if err := ask(q); err != nil {
 			return err
 		}
 
-		isValid := func() bool {
-			if answer, ok := q.answer.(string); ok {
-				if strings.TrimSpace(answer) == "" {
-					return false
-				}
-			}
-			if reflect.ValueOf(q.answer).Elem().IsZero() {
-				return false
-			}
-			return true
-		}
+		if q.shouldConfirm {
+			var secondAnswer string
 
-		if q.required && !isValid() {
-			fmt.Println("This information is required, please retry:")
-			if err := Ask(q); err != nil {
+			options := []Option{}
+			if q.required {
+				options = append(options, Required())
+			}
+			if q.hidden {
+				options = append(options, HideAnswer())
+			}
+			if err := ask(NewQuestion("Confirm "+q.question, &secondAnswer, options...)); err != nil {
 				return err
+			}
+
+			t := reflect.TypeOf(secondAnswer)
+			compAnswer := reflect.ValueOf(q.answer).Elem().Convert(t).String()
+			if secondAnswer != compAnswer {
+				return ErrConfirmationFailed
 			}
 		}
 	}
