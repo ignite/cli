@@ -17,14 +17,14 @@ import (
 // messageOptions represents configuration for the message scaffolding
 type messageOptions struct {
 	description string
-	signer string
+	signer      string
 }
 
 // newMessageOptions returns a messageOptions with default options
 func newMessageOptions(messageName string) messageOptions {
-	return messageOptions {
+	return messageOptions{
 		description: fmt.Sprintf("Broadcast message %s", messageName),
-		signer: "creator",
+		signer:      "creator",
 	}
 }
 
@@ -110,7 +110,7 @@ func (s *Scaffolder) AddMessage(
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
 			MsgDesc:    scaffoldingOpts.description,
-			MsgSigner: mfSigner,
+			MsgSigner:  mfSigner,
 		}
 	)
 
