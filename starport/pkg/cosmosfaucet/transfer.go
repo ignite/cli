@@ -56,12 +56,12 @@ func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount ui
 	}
 
 	if (f.coinsMax[denom] != 0) {
-		if (totalSent >= f.coinsMax[denom] {
+		if (totalSent >= f.coinsMax[denom]) {
 			return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
 		}else if ((totalSent+amount) >= f.coinsMax[denom]) {
 			return fmt.Errorf("account can only receive up to (%d) in total", f.coinsMax[denom])
 		}
-        }
+	}
 		
 
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
