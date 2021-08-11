@@ -180,6 +180,7 @@ func (e env) Serve(msg, path, home, configPath string, options ...execOption) (o
 		"chain",
 		"serve",
 		"-v",
+		"--keyring-backend", "test",
 	}
 
 	if home != "" {
@@ -288,7 +289,6 @@ func (e env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Init.Home = e.TmpDir()
-	conf.Init.KeyringBackend = "test"
 	require.NoError(e.t, configyml.Truncate(0))
 	_, err = configyml.Seek(0, 0)
 	require.NoError(e.t, err)
