@@ -13,7 +13,7 @@ In this tutorial, you will build a blockchain for a nameservice application. In 
 * Create a Cosmos SDK module with a dependency on another module
 * Create CRUD actions for a type stored as a map
 * Declare which functions of the bank module will be available to the nameservice module
-* Implement keeper functions that implement the logic 
+* Implement keeper functions that implement the logic
 
 By the end of this tutorial you will have a functional `nameservice` application, a mapping of strings to other strings (`map[string]string`). This is similar to [Namecoin](https://namecoin.org/), [ENS](https://ens.domains/), or [Handshake](https://handshake.org/), which all model the traditional DNS systems (`map[domain]zonefile`). Users will be able to buy unused names, or sell/trade their name.
 

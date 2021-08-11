@@ -189,6 +189,6 @@ pagination:
   total: "0"
 ```
 
-Congratulations. Your nameservice application is complete.
+Congratulations 🎉. You have successfully completed the nameservice application.
 You have learned how to work with module dependencies, several scaffolding methods, Cosmos SDK types, functions and so much more.
-Continue your journey to lean about escrow accounts and IBC.
+Continue your journey to learn about escrow accounts and IBC.

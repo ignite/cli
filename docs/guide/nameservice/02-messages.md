@@ -54,7 +54,7 @@ The `nameservice` module will have three messages:
 
 Use the `starport scaffold message` command to scaffold a new Cosmos SDK message for your module. The command accepts message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name that matches the name of the project, in our case `nameservice` (this behaviour can be overwritten by using a flag).
 
-```
+```bash
 starport scaffold message buy-name name bid
 ```
 
@@ -76,7 +76,7 @@ Set name message needs to contain the following fields:
 * Name
 * Value - the value that the name resolves to
 
-```
+```bash
 starport scaffold message set-name name value
 ```
 
@@ -84,7 +84,7 @@ As you're using the same `starport scaffold message` command the set of modified
 
 ### Add The MsgDelete Message
 
-```
+```bash
 starport scaffold message delete-name name
 ```
 
