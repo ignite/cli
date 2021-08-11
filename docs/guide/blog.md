@@ -272,6 +272,19 @@ message QueryPostsResponse {
 Once the types are defined in proto files, we can implement post querying logic. In `grpc_query_posts.go`:
 
 ```go
+package keeper
+
+import (
+	"context"
+
+	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
   // Throw an error if request is nil
   if req == nil {
@@ -308,7 +321,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 Having implemened logic for both creating and querying posts we can use the node's binary to interact with our chain. To create a post:
 
 ```
-blogd tx blog createPost foo bar --from cosmonaut
+blogd tx blog create-post foo bar --from alice
 ```
 
 ```
