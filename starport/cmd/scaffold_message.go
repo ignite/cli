@@ -9,6 +9,8 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+const flagSigner = "signer"
+
 // NewScaffoldMessage returns the command to scaffold messages
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
@@ -21,6 +23,7 @@ func NewScaffoldMessage() *cobra.Command {
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
+	c.Flags().String(flagSigner, "", "Name of the message signer")
 
 	return c
 }
@@ -49,6 +52,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if desc == "" {
 		// Use a default description
 		desc = fmt.Sprintf("Broadcast message %s", args[0])
+	}
+
+	signer, err := cmd.Flags().GetString(flagSigner)
+	if err != nil {
+		return err
 	}
 
 	sc, err := scaffolder.New(appPath)
