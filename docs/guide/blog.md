@@ -7,7 +7,7 @@ order: 3
 
 First, create a new blockchain:
 
-```
+```bash
 starport scaffold chain github.com/cosmonaut/blog
 ```
 
@@ -21,9 +21,15 @@ You can think of the state as being a collection of key-value stores. Each modul
 
 A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
 
+First, change into the blog directory:
+
+```bash
+cd blog
+```
+
 To create a message type and its handler, use the `message` command:
 
-```go
+```bash
 starport scaffold message createPost title body
 ```
 
@@ -227,11 +233,11 @@ We've implemented all the code necessary to create new posts and store them on c
 
 Let's try it out! If the chain is yet not started, run `starport chain serve`. Create a post:
 
-```
+```bash
 blogd tx blog createPost foo bar --from cosmonaut
 ```
 
-```
+```bash
 "body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
@@ -242,7 +248,7 @@ Now that we've added the functionality to create posts and broadcast them to our
 
 ## Displaying Posts
 
-```
+```bash
 starport scaffold query posts --response title,body
 ```
 
@@ -275,14 +281,14 @@ Once the types are defined in proto files, we can implement post querying logic.
 package keeper
 
 import (
-	"context"
+  "context"
 
-	"github.com/cosmonaut/blog/x/blog/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
+  "github.com/cosmonaut/blog/x/blog/types"
+  "github.com/cosmos/cosmos-sdk/store/prefix"
+  sdk "github.com/cosmos/cosmos-sdk/types"
+  "github.com/cosmos/cosmos-sdk/types/query"  
+  "google.golang.org/grpc/codes"
+  "google.golang.org/grpc/status"
 )
 
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -320,11 +326,11 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 
 Having implemened logic for both creating and querying posts we can use the node's binary to interact with our chain. To create a post:
 
-```
+```bash
 blogd tx blog create-post foo bar --from alice
 ```
 
-```
+```bash
 {"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
@@ -333,11 +339,11 @@ confirm transaction before signing and broadcasting [y/N]: y
 
 To query the list of all posts on chain:
 
-```
+```bash
 blogd q blog posts
 ```
 
-```
+```bash
 Post:
 - body: bar
   creator: cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3
@@ -347,3 +353,5 @@ pagination:
   next_key: null
   total: "1"
 ```
+
+Congratulations. You have built a blog blockchain.
