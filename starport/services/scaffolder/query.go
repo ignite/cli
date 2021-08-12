@@ -42,7 +42,7 @@ func (s *Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
 		return sm, err
 	}
 

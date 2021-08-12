@@ -43,7 +43,7 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
