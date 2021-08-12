@@ -22,7 +22,7 @@ Submit scavenge message should contain all the necessary information when creati
 
 Use the `starport scaffold message` command to scaffold a new Cosmos SDK message for your module. The command accepts message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name that matches the name of the project, in our case `scavenge` (this behaviour can be overwritten by using a flag).
 
-```
+```bash
 starport scaffold message submit-scavenge solutionHash description reward
 ```
 
@@ -49,7 +49,7 @@ Commit solution message needs to contain the following fields:
 * Solution hash - the scrambled solution.
 * Solution scavenger hash - this is the hash of the combination of the solution and the person who solved it.
 
-```
+```bash
 starport scaffold message commit-solution solutionHash solutionScavengerHash
 ```
 
@@ -61,7 +61,7 @@ Reveal solution message needs only one field:
 
 * Solution - this is the plain text version of the solution.
 
-```
+```bash
 starport scaffold message reveal-solution solution
 ```
 
