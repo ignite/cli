@@ -12,7 +12,7 @@ Starport has several commands that scaffold the code for CRUD functionality for 
 
 ## Add The Whois Type
 
-Use `starport scaffold map` command to scaffold the `whois` type and the code for creating, reading, updating, and deleting (CRUD) information about names. The first argument is the name of the type being created (`whois`), the rest is list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip messages with a `--no-message` flag.
+Use the `starport scaffold map` command to scaffold the `whois` type and the code for creating, reading, updating, and deleting (CRUD) information about names. The first argument is the name of the type being created (`whois`) followed by a list of fields. By default, generic CRUD messages are scaffolded, but since you've already created messages specifically for this blockchain, skip message creation with a `--no-message` flag.
 
 ```bash
 starport scaffold map whois name value price --no-message
