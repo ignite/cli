@@ -379,7 +379,7 @@ func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	}
 
 	// 5th.
-	return chaincmd.KeyringBackendOS, nil
+	return chaincmd.KeyringBackendTest, nil
 }
 
 // Commands returns the runner execute commands on the chain's binary
