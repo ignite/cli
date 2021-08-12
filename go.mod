@@ -5,6 +5,7 @@ go 1.16
 require (
 	github.com/cosmos/cosmos-sdk v0.42.6
 	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/kr/text v0.2.0 // indirect
 	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.1.3
 	github.com/spf13/pflag v1.0.5
