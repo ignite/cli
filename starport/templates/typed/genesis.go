@@ -32,6 +32,21 @@ import "%[2]v/%[3]v.proto";`
 		)
 		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
 
+		// Add gogoproto dependency if it is not defined yet
+		gogoproto, err := GogoprotoImported(path)
+		if err != nil {
+			replacer.AppendMiscError(fmt.Sprintf("failed to check gogoproto dependency %s", err.Error()))
+		}
+		if !gogoproto {
+			templateGogoprotoImport := `%[1]v
+%[2]v`
+			replacementGogoprotoImport := fmt.Sprintf(
+				templateGogoprotoImport,
+				GogoprotoImport,
+			)
+			content = replacer.Replace(content, PlaceholderGenesisProtoImport, replacementGogoprotoImport)
+		}
+
 		// Determine the new field number
 		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
 
