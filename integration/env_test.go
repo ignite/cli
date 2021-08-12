@@ -180,7 +180,6 @@ func (e env) Serve(msg, path, home, configPath string, options ...execOption) (o
 		"chain",
 		"serve",
 		"-v",
-		"--keyring-backend", "test",
 	}
 
 	if home != "" {
