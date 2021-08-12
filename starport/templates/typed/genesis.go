@@ -42,6 +42,7 @@ import "%[2]v/%[3]v.proto";`
 %[2]v`
 			replacementGogoprotoImport := fmt.Sprintf(
 				templateGogoprotoImport,
+				PlaceholderGenesisProtoImport,
 				GogoprotoImport,
 			)
 			content = replacer.Replace(content, PlaceholderGenesisProtoImport, replacementGogoprotoImport)
