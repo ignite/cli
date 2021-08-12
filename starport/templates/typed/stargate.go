@@ -166,6 +166,9 @@ import "%s/%s.proto";`
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
+		// Add gogo.proto
+		content = AddGogoProtoImport(content, path, replacer)
+
 		// RPC service
 		templateRPC := `%[1]v
 
@@ -195,7 +198,7 @@ message QueryGet%[2]vRequest {
 }
 
 message QueryGet%[2]vResponse {
-	%[2]v %[2]v = 1;
+	%[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 }
 
 message QueryAll%[2]vRequest {
@@ -203,7 +206,7 @@ message QueryAll%[2]vRequest {
 }
 
 message QueryAll%[2]vResponse {
-	repeated %[2]v %[2]v = 1;
+	repeated %[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacementMessages := fmt.Sprintf(templateMessages, Placeholder3,
