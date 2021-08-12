@@ -228,7 +228,7 @@ We've implemented all the code necessary to create new posts and store them on c
 Let's try it out! If the chain is yet not started, run `starport chain serve`. Create a post:
 
 ```
-blogd tx blog createPost foo bar --from cosmonaut
+blogd tx blog create-post foo bar --from alice
 ```
 
 ```
