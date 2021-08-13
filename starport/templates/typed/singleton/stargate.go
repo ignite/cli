@@ -111,7 +111,7 @@ import "%s/%s.proto";`
 message QueryGet%[2]vRequest {}
 
 message QueryGet%[2]vResponse {
-	%[2]v %[2]v = 1;
+	%[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 }`
 		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
@@ -179,9 +179,6 @@ import "%[2]v/%[3]v.proto";`
 			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
-
-		// Add gogo.proto
-		content = typed.AddGogoProtoImport(content, path, typed.PlaceholderGenesisProtoImport, replacer)
 
 		// Determine the new field number
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1

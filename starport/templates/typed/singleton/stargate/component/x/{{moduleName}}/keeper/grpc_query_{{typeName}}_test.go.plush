@@ -24,7 +24,7 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{},
-			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &item},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: item},
 		},
 		{
 			desc: "InvalidRequest",
