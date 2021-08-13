@@ -15,7 +15,7 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
     cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
 		Short: "Create <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -45,7 +45,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
 		Short: "Update <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
