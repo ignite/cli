@@ -99,6 +99,9 @@ import "%s/%s.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
+		// Add gogo.proto
+		content = typed.AddGogoProtoImport(content, path, typed.Placeholder, replacer)
+
 		var lowerCamelIndexes []string
 		for _, index := range opts.Indexes {
 			lowerCamelIndexes = append(lowerCamelIndexes, fmt.Sprintf("{%s}", index.Name.LowerCamel))
@@ -225,6 +228,9 @@ import "%[2]v/%[3]v.proto";`
 			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
+
+		// Add gogo.proto
+		content = typed.AddGogoProtoImport(content, path, typed.PlaceholderGenesisProtoImport, replacer)
 
 		// Determine the new field number
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1

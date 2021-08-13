@@ -167,7 +167,7 @@ import "%s/%s.proto";`
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = AddGogoProtoImport(content, path, replacer)
+		content = AddGogoProtoImport(content, path, Placeholder, replacer)
 
 		// RPC service
 		templateRPC := `%[1]v
