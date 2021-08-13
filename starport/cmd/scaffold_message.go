@@ -32,34 +32,21 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
-
-	// Get response fields
-	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
-	if err != nil {
-		return err
-	}
+	var (
+		module, _ = cmd.Flags().GetString(flagModule)
+		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
+		desc, _ = cmd.Flags().GetString(flagDescription)
+		signer, _ = cmd.Flags().GetString(flagSigner)
+	)
 
 	var options []scaffolder.MessageOption
 
 	// Get description
-	desc, err := cmd.Flags().GetString(flagDescription)
-	if err != nil {
-		return err
-	}
 	if desc != "" {
 		options = append(options, scaffolder.WithDescription(desc))
 	}
 
 	// Get signer
-	signer, err := cmd.Flags().GetString(flagSigner)
-	if err != nil {
-		return err
-	}
 	if signer != "" {
 		options = append(options, scaffolder.WithSigner(signer))
 	}
