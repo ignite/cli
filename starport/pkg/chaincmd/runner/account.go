@@ -67,7 +67,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 	} else {
 		if err := r.run(ctx, runOptions{
 			stdout: b,
-			stderr: os.Stderr,
+			stderr: b,
 			stdin:  os.Stdin,
 		}, r.chainCmd.AddKeyCommand(name)); err != nil {
 			return Account{}, err
