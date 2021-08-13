@@ -58,9 +58,11 @@ As always, work-in-progress content might be happening in other locations and re
 
 ## Who works on the tutorials?
 
-- The Tendermint (All in Bits) DevX team develops the tutorial code and dependencies. Our team includes [@fadeev](https://github.com/fadeev), [@lubtd](https://github.com/lubtd), [@ilgooz](https://github.com/ilgooz), [@Pantani](https://github.com/Pantani), [@shapkarin](https://github.com/shapkarin), and other talented developers. Don't they do an amazing job?
+The Tendermint (All in Bits) Developer Experience team is focused on building Starport and developing tutorials.
 
-- The Tendermint (All in Bits) Ecosystem Development team manages the developer experience and owns the technical content and tutorials. We are [@toschdev](https://github.com/toschdev) Ecosystem Development Manager, [@barriebyron](https://github.com/barriebyron) Senior Technical Writer, and Developer Relations Engineers [@alijnmerchant21](https://github.com/alijnmerchant21) and [@soniasingla](https://github.com/soniasingla). 
+The Tendermint (All in Bits) Ecosystem Development team owns the technical content and tutorials and manages developer onboarding.
+
+Meet the [people behind Starport and contributors](https://github.com/tendermint/starport/graphs/contributors).
 
 ## Viewing Tutorial Builds
 
