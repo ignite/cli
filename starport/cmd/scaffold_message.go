@@ -33,10 +33,10 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	defer s.Stop()
 
 	var (
-		module, _ = cmd.Flags().GetString(flagModule)
+		module, _    = cmd.Flags().GetString(flagModule)
 		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
-		desc, _ = cmd.Flags().GetString(flagDescription)
-		signer, _ = cmd.Flags().GetString(flagSigner)
+		desc, _      = cmd.Flags().GetString(flagDescription)
+		signer, _    = cmd.Flags().GetString(flagSigner)
 	)
 
 	var options []scaffolder.MessageOption
