@@ -2,11 +2,13 @@ package typed
 
 import (
 	"fmt"
+
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const gogoProtoFile = "gogoproto/gogo.proto"
+
 var gogoProtoImport = fmt.Sprintf(`import "%s";`, gogoProtoFile)
 
 // gogoProtoImported returns true if gogo.proto is imported in the provided proto file
