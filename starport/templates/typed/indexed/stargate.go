@@ -148,7 +148,7 @@ message QueryGet%[2]vRequest {
 }
 
 message QueryGet%[2]vResponse {
-	%[2]v %[3]v = 1;
+	%[2]v %[3]v = 1 [(gogoproto.nullable) = false];
 }
 
 message QueryAll%[2]vRequest {
@@ -156,7 +156,7 @@ message QueryAll%[2]vRequest {
 }
 
 message QueryAll%[2]vResponse {
-	repeated %[2]v %[3]v = 1;
+	repeated %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacementMessage := fmt.Sprintf(templateMessage,
@@ -236,7 +236,7 @@ import "%[2]v/%[3]v.proto";`
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
 
 		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v; %[5]v`
+		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
@@ -266,7 +266,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
 
 		templateTypesDefault := `%[1]v
-%[2]vList: []*%[2]v{},`
+%[2]vList: []%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			typed.PlaceholderGenesisTypesDefault,
@@ -317,7 +317,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 		templateModuleInit := `%[1]v
 // Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	k.Set%[3]v(ctx, *elem)
+	k.Set%[3]v(ctx, elem)
 }
 
 `
@@ -330,12 +330,7 @@ for _, elem := range genState.%[3]vList {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `%[1]v
-// Get all %[2]v
-%[2]vList := k.GetAll%[3]v(ctx)
-for _, elem := range %[2]vList {
-	elem := elem
-	genesis.%[3]vList = append(genesis.%[3]vList, &elem)
-}
+genesis.%[3]vList = k.GetAll%[3]v(ctx)
 `
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
