@@ -5,6 +5,7 @@
 ### Features
 
 - `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
+- Support serving Cosmos SDK `v0.43.x` based chains.
 
 ## `v0.17.1`
 
