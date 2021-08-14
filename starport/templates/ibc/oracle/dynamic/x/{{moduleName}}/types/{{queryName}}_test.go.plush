@@ -1,0 +1,39 @@
+package types
+
+import (
+	"testing"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+)
+
+func TestMsg<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  Msg<%= TypeName.UpperCamel %>
+		err  error
+	}{
+		{
+			name: "invalid address",
+			msg: Msg<%= TypeName.UpperCamel %>{
+				Creator: "invalid_address",
+			},
+			err: sdkerrors.ErrInvalidAddress,
+		}, {
+			name: "valid address",
+			msg: Msg<%= TypeName.UpperCamel %>{
+				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.ValidateBasic()
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
