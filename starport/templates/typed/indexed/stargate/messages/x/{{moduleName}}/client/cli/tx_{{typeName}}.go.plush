@@ -17,19 +17,11 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
-            if err != nil {
-                return err
-            }
+        <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, index.Datatype, i) %>
         <% } %>
-
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+len(Indexes)) %>
-			if err != nil {
-				return err
-			}
+		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.Datatype, i+len(Indexes)) %>
 		<% } %>
-
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -59,19 +51,11 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
-            if err != nil {
-                return err
-            }
+        <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, index.Datatype, i) %>
         <% } %>
-
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+len(Indexes)) %>
-			if err != nil {
-				return err
-			}
+		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.Datatype, i+len(Indexes)) %>
 		<% } %>
-
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -100,12 +84,8 @@ func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            <%= for (i, index) in Indexes { %> index<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
-                if err != nil {
-                    return err
-                }
+            <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, index.Datatype, i) %>
             <% } %>
-
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
