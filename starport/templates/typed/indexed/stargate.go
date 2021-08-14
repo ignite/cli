@@ -378,7 +378,7 @@ import "%s/%s.proto";`
 				"  %s %s = %d;\n",
 				index.Datatype,
 				index.Name.LowerCamel,
-				i+1,
+				i+2,
 			)
 		}
 
@@ -388,7 +388,7 @@ import "%s/%s.proto";`
 				"  %s %s = %d;\n",
 				field.Datatype,
 				field.Name.LowerCamel,
-				i+1+len(opts.Indexes),
+				i+2+len(opts.Indexes),
 			)
 		}
 
