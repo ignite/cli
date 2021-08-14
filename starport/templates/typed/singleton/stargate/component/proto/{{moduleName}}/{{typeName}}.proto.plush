@@ -6,6 +6,6 @@ option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
 import "gogoproto/gogo.proto";
 
 message <%= TypeName.UpperCamel %> {
-  string creator = 1;<%= for (i, field) in Fields { %>
+  <%= if (!NoMessage) { %>string creator = 1;<% } %><%= for (i, field) in Fields { %>
   <%= field.Datatype %> <%= field.Name.LowerCamel %> = <%= i+2 %>; <% } %>
 }

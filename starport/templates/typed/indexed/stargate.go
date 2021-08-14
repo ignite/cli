@@ -372,49 +372,46 @@ import "%s/%s.proto";`
 		content = replacer.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC)
 
 		// Messages
-		var indexes string
-		for i, index := range opts.Indexes {
-			indexes += fmt.Sprintf(
+		var fields string
+		for i, index := range append(opts.Indexes, opts.Fields...) {
+			fields += fmt.Sprintf(
 				"  %s %s = %d;\n",
 				index.Datatype,
 				index.Name.LowerCamel,
-				i+2,
+				i+1,
 			)
 		}
 
-		var fields string
-		for i, field := range opts.Fields {
-			fields += fmt.Sprintf(
+		var deleteFields string
+		for i, field := range opts.Indexes {
+			deleteFields += fmt.Sprintf(
 				"  %s %s = %d;\n",
 				field.Datatype,
 				field.Name.LowerCamel,
-				i+2+len(opts.Indexes),
+				i+1+len(opts.Indexes),
 			)
 		}
 
 		templateMessages := `%[1]v
 message MsgCreate%[2]v {
   string creator = 1;
-%[3]v
-%[4]v}
-message MsgCreate%[2]vResponse { }
+%[3]v}
+message MsgCreate%[2]vResponse {}
 
 message MsgUpdate%[2]v {
   string creator = 1;
-%[3]v
-%[4]v}
-message MsgUpdate%[2]vResponse { }
+%[3]v}
+message MsgUpdate%[2]vResponse {}
 
 message MsgDelete%[2]v {
   string creator = 1;
-%[3]v
-}
-message MsgDelete%[2]vResponse { }
+%[4]v}
+message MsgDelete%[2]vResponse {}
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
-			indexes,
 			fields,
+			deleteFields,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
 
