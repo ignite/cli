@@ -20,7 +20,9 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Networ
 	state := types.GenesisState{}
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
-	state.<%= TypeName.UpperCamel %> = &types.<%= TypeName.UpperCamel %>{Creator: "ANY"}
+	state.<%= TypeName.UpperCamel %> = &types.<%= TypeName.UpperCamel %>{
+		<%= if (!NoMessage) { %>Creator: "ANY",<% } %>
+	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
 	cfg.GenesisState[types.ModuleName] = buf

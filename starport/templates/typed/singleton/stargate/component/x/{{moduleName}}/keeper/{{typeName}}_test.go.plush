@@ -11,7 +11,7 @@ import (
 
 func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
 	item := types.<%= TypeName.UpperCamel %>{
-	    Creator: "any",
+	    <%= if (!NoMessage) { %>Creator: "any",<% } %>
 	}
 	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
 	return item
