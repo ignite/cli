@@ -7,21 +7,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMsg<%= queryName.UpperCamel %>_ValidateBasic(t *testing.T) {
+func TestMsg<%= queryName.UpperCamel %>Data_ValidateBasic(t *testing.T) {
 	tests := []struct {
 		name string
-		msg  Msg<%= queryName.UpperCamel %>
+		msg  Msg<%= queryName.UpperCamel %>Data
 		err  error
 	}{
 		{
 			name: "invalid address",
-			msg: Msg<%= queryName.UpperCamel %>{
+			msg: Msg<%= queryName.UpperCamel %>Data{
 				Creator: "invalid_address",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "valid address",
-			msg: Msg<%= queryName.UpperCamel %>{
+			msg: Msg<%= queryName.UpperCamel %>Data{
 				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
 			},
 		},
