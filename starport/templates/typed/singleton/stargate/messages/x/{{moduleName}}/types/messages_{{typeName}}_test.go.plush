@@ -5,6 +5,7 @@ import (
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
+	"<%= ModulePath %>/testutil/sample"
 )
 
 func TestMsgCreate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
@@ -22,7 +23,7 @@ func TestMsgCreate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		}, {
 			name: "valid address",
 			msg: MsgCreate<%= TypeName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 			},
 		},
 	}
@@ -53,7 +54,7 @@ func TestMsgUpdate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		}, {
 			name: "valid address",
 			msg: MsgUpdate<%= TypeName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 			},
 		},
 	}
@@ -84,7 +85,7 @@ func TestMsgDelete<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		}, {
 			name: "valid address",
 			msg: MsgDelete<%= TypeName.UpperCamel %>{
-				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 			},
 		},
 	}

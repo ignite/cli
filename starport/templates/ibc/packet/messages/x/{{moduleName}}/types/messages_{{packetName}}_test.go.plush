@@ -5,6 +5,7 @@ import (
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
+	"<%= ModulePath %>/testutil/sample"
 )
 
 func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
@@ -22,7 +23,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		}, {
 			name: "valid address",
 			msg: MsgSend<%= packetName.UpperCamel %>{
-				Sender: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				Sender: sample.AccAddress(),
 			},
 		},
 	}
