@@ -7,7 +7,7 @@ import (
 	"io"
 	"io/ioutil"
 
-	"github.com/goccy/go-yaml"
+	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -169,6 +169,7 @@ func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	bytes := b.Buffer.Bytes()
 
 	var out interface{}
+
 	if err := yaml.Unmarshal(bytes, &out); err == nil {
 		return yaml.YAMLToJSON(bytes)
 	}
