@@ -23,7 +23,7 @@ func NewScaffoldMessage() *cobra.Command {
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
-	c.Flags().String(flagSigner, "", "Name of the message signer")
+	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
 	return c
 }
