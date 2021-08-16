@@ -16,13 +16,13 @@ func TestMsgCreate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		{
 			name: "invalid address",
 			msg: MsgCreate<%= TypeName.UpperCamel %>{
-				Creator: "invalid_address",
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgCreate<%= TypeName.UpperCamel %>{
-				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
 			},
 		},
 	}
@@ -47,13 +47,13 @@ func TestMsgUpdate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		{
 			name: "invalid address",
 			msg: MsgUpdate<%= TypeName.UpperCamel %>{
-				Creator: "invalid_address",
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgUpdate<%= TypeName.UpperCamel %>{
-				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
 			},
 		},
 	}
@@ -78,13 +78,13 @@ func TestMsgDelete<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		{
 			name: "invalid address",
 			msg: MsgDelete<%= TypeName.UpperCamel %>{
-				Creator: "invalid_address",
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: MsgDelete<%= TypeName.UpperCamel %>{
-				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
 			},
 		},
 	}

@@ -16,13 +16,13 @@ func TestMsg<%= MsgName.UpperCamel %>_ValidateBasic(t *testing.T) {
 		{
 			name: "invalid address",
 			msg: Msg<%= MsgName.UpperCamel %>{
-				Creator: "invalid_address",
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "valid address",
 			msg: Msg<%= MsgName.UpperCamel %>{
-				Creator: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
+				<%= MsgSigner.UpperCamel %>: "cosmos1uzv4v9g9xln2qx2vtqhz99yxum33calja5vruz",
 			},
 		},
 	}
