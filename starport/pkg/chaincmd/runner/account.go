@@ -79,6 +79,8 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 			return Account{}, err
 		}
 
+		b.Reset()
+
 		data, err := b.JSONEnsuredBytes()
 		if err != nil {
 			return Account{}, err
