@@ -153,19 +153,19 @@ func (r Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...s
 	return errors.Wrap(err, errb.GetBuffer().String())
 }
 
-func newBuffer() *Buffer {
-	return &Buffer{
+func newBuffer() *buffer {
+	return &buffer{
 		Buffer: new(bytes.Buffer),
 	}
 }
 
-type Buffer struct {
+type buffer struct {
 	*bytes.Buffer
 }
 
-// JSONEnsuredBytes ensures that encoding format for returned bytes is
-// alway JSON even if the written data is originally encoded in YAML.
-func (b *Buffer) JSONEnsuredBytes() ([]byte, error) {
+// JSONEnsuredBytes ensures that encoding format for returned bytes is always
+// JSON even if the written data is originally encoded in YAML.
+func (b *buffer) JSONEnsuredBytes() ([]byte, error) {
 	bytes := b.Buffer.Bytes()
 
 	var out interface{}

@@ -34,10 +34,10 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 
 	data, err := b.JSONEnsuredBytes()
 	if err != nil {
-		return nil, err
+		return Account{}, err
 	}
 	if err := json.Unmarshal(data, &accounts); err != nil {
-		return nil, err
+		return Account{}, err
 	}
 
 	for _, account := range accounts {
@@ -81,10 +81,10 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic string) (Account,
 
 		data, err := b.JSONEnsuredBytes()
 		if err != nil {
-			return nil, err
+			return Account{}, err
 		}
 		if err := json.Unmarshal(data, &accounts); err != nil {
-			return nil, err
+			return Account{}, err
 		}
 
 		b.Reset()
