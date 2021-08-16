@@ -22,7 +22,7 @@ require (
 	github.com/gobuffalo/packd v1.0.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
-	github.com/goccy/go-yaml v1.8.0
+	github.com/goccy/go-yaml v1.9.2
 	github.com/google/go-github/v37 v37.0.0
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0

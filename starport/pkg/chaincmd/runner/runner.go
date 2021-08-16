@@ -2,10 +2,12 @@
 package chaincmdrunner
 
 import (
+	"bytes"
 	"context"
 	"io"
 	"io/ioutil"
 
+	"github.com/goccy/go-yaml"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -149,4 +151,27 @@ func (r Runner) run(ctx context.Context, runOptions runOptions, stepOptions ...s
 		Run(ctx, step.New(stepOptions...))
 
 	return errors.Wrap(err, errb.GetBuffer().String())
+}
+
+func newBuffer() *Buffer {
+	return &Buffer{
+		Buffer: new(bytes.Buffer),
+	}
+}
+
+type Buffer struct {
+	*bytes.Buffer
+}
+
+// newJSONEnsuredBuffer ensures that data encoding format inside returned buffer is
+// alway JSON even if the written data is originally encoded in YAML.
+func (b *Buffer) JSONEnsuredBytes() ([]byte, error) {
+	bytes := b.Buffer.Bytes()
+
+	var out interface{}
+	if err := yaml.Unmarshal(bytes, &out); err == nil {
+		return yaml.YAMLToJSON(bytes)
+	}
+
+	return bytes, nil
 }
