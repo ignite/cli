@@ -10,7 +10,7 @@ import (
 )
 
 func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
-	item := types.<%= TypeName.UpperCamel %>{<%= if (!NoMessage) { %>Creator: "any"<% } %>}
+	item := types.<%= TypeName.UpperCamel %>{}
 	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
 	return item
 }

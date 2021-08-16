@@ -25,7 +25,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 
 	for i := 0; i < n; i++ {
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{
-			<%= if (!NoMessage) { %>Creator: "ANY",<% } %> Id: uint64(i),
+			Id: uint64(i),
 		})
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
