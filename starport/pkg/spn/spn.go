@@ -15,6 +15,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
 	"github.com/pkg/errors"
+	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
@@ -70,8 +71,10 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		return nil, err
 	}
 	out := &bytes.Buffer{}
-	clientCtx := NewClientCtx(kr, client, out, homePath)
-	factory := NewFactory(clientCtx)
+	clientCtx := cosmosclient.
+		NewContext(client, out, spn, homePath).
+		WithKeyring(kr)
+	factory := cosmosclient.NewFactory(clientCtx)
 	return &Client{
 		kr:            kr,
 		factory:       factory,
