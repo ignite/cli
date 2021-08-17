@@ -2,7 +2,7 @@ package cli
 
 import (
     "github.com/spf13/cobra"
-	"github.com/spf13/cast"
+    <%= if (Indexes.NeedCast() || Fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

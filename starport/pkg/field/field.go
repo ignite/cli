@@ -15,20 +15,25 @@ const (
 	TypeUint64 = "uint64"
 )
 
-// Field represents a field inside a structure for a component
-// it can a field contained in a type or inside the response of a query, etc...
-type Field struct {
-	Name         multiformatname.Name
-	Datatype     string
-	DatatypeName string
-}
+type (
+	// Field represents a field inside a structure for a component
+	// it can a field contained in a type or inside the response of a query, etc...
+	Field struct {
+		Name         multiformatname.Name
+		Datatype     string
+		DatatypeName string
+	}
+
+	// Fields represents a Field slice
+	Fields []Field
+)
 
 // parseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field, error) {
+func ParseFields(fields []string, isForbiddenField func(string) error) (Fields, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
-	var parsedFields []Field
+	var parsedFields Fields
 	for _, field := range fields {
 		fieldSplit := strings.Split(field, ":")
 		if len(fieldSplit) > 2 {
@@ -78,4 +83,13 @@ func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field,
 	}
 
 	return parsedFields, nil
+}
+
+func (f Fields) NeedCast() bool {
+	for _, field := range f {
+		if field.Datatype != TypeString {
+			return true
+		}
+	}
+	return false
 }

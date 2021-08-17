@@ -13,7 +13,7 @@ type Options struct {
 	OwnerName   string
 	QueryName   multiformatname.Name
 	Description string
-	ResFields   []field.Field
-	ReqFields   []field.Field
+	ResFields   field.Fields
+	ReqFields   field.Fields
 	Paginated   bool
 }

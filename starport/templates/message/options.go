@@ -13,8 +13,8 @@ type Options struct {
 	OwnerName  string
 	MsgName    multiformatname.Name
 	MsgDesc    string
-	Fields     []field.Field
-	ResFields  []field.Field
+	Fields     field.Fields
+	ResFields  field.Fields
 }
 
 // Validate that options are usuable

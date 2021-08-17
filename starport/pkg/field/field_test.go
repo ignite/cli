@@ -15,7 +15,7 @@ var (
 
 type testCases struct {
 	provided []string
-	expected []field.Field
+	expected field.Fields
 }
 
 func TestParseFields(t *testing.T) {
@@ -34,7 +34,7 @@ func TestParseFields(t *testing.T) {
 			names[3] + ":int",
 			names[4] + ":uint",
 		},
-		expected: []field.Field{
+		expected: field.Fields{
 			{
 				Datatype:     "string",
 				DatatypeName: "string",

@@ -36,8 +36,8 @@ type PacketOptions struct {
 	ModulePath string
 	OwnerName  string
 	PacketName multiformatname.Name
-	Fields     []field.Field
-	AckFields  []field.Field
+	Fields     field.Fields
+	AckFields  field.Fields
 	NoMessage  bool
 }
 

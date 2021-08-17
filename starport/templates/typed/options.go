@@ -13,9 +13,9 @@ type Options struct {
 	ModulePath string
 	OwnerName  string
 	TypeName   multiformatname.Name
-	Fields     []field.Field
+	Fields     field.Fields
 	NoMessage  bool
-	Indexes    []field.Field
+	Indexes    field.Fields
 }
 
 // Validate that options are usuable
