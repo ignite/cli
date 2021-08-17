@@ -16,13 +16,14 @@ require (
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.10.0
+	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/genny v0.6.0
 	github.com/gobuffalo/logger v1.0.3
 	github.com/gobuffalo/packd v1.0.0
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
-	github.com/goccy/go-yaml v1.8.0
+	github.com/goccy/go-yaml v1.9.2
 	github.com/google/go-github/v37 v37.0.0
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
