@@ -132,7 +132,7 @@ func (p *stargatePlugin) Home() string {
 
 func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+app.N())
+	return filepath.Join(home, "."+app.Name)
 }
 
 func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
