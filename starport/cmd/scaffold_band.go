@@ -38,11 +38,18 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
 
+	signer := flagGetSigner(cmd)
+
+	var options []scaffolder.OracleOption
+	if signer != "" {
+		options = append(options, scaffolder.OracleWithSigner(signer))
+	}
+
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddOracle(placeholder.New(), module, oracle)
+	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err
 	}

@@ -36,6 +36,7 @@ type OracleOptions struct {
 	ModulePath string
 	OwnerName  string
 	QueryName  multiformatname.Name
+	MsgSigner  multiformatname.Name
 }
 
 // NewOracle returns the generator to scaffold the implementation of the Oracle interface inside a module
@@ -62,6 +63,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("queryName", opts.QueryName)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("title", strings.Title)
 
 	// Used for proto package name

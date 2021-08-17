@@ -12,12 +12,40 @@ import (
 	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
+// OracleOption configures options for AddOracle.
+type OracleOption func(*oracleOptions)
+
+type oracleOptions struct {
+	signer string
+}
+
+// newOracleOptions returns a oracleOptions with default options
+func newOracleOptions() oracleOptions {
+	return oracleOptions{
+		signer: "creator",
+	}
+}
+
+// OracleWithSigner provides a custom signer name for the message
+func OracleWithSigner(signer string) OracleOption {
+	return func(m *oracleOptions) {
+		m.signer = signer
+	}
+}
+
 // AddOracle adds a new BandChain oracle integration.
 func (s *Scaffolder) AddOracle(
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName string,
+	options ...OracleOption,
 ) (sm xgenny.SourceModification, err error) {
+
+	o := newOracleOptions()
+	for _, apply := range options {
+		apply(&o)
+	}
+
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return sm, err
@@ -35,6 +63,11 @@ func (s *Scaffolder) AddOracle(
 	}
 
 	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+		return sm, err
+	}
+
+	mfSigner, err := multiformatname.NewName(o.signer)
+	if err != nil {
 		return sm, err
 	}
 
@@ -56,6 +89,7 @@ func (s *Scaffolder) AddOracle(
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
 			QueryName:  name,
+			MsgSigner:  mfSigner,
 		}
 	)
 	g, err = ibc.NewOracle(tracer, opts)
