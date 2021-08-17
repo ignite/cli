@@ -159,6 +159,7 @@ func newBuffer() *buffer {
 	}
 }
 
+// buffer is a bytes.Buffer with additional features.
 type buffer struct {
 	*bytes.Buffer
 }
