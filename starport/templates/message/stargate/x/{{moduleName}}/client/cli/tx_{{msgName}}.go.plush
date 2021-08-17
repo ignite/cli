@@ -2,6 +2,8 @@ package cli
 
 import (
     "strconv"
+
+	<%= if (Fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -18,14 +20,18 @@ func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in Fields { %>args<%= field.Name.UpperCamel %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+      		<%= for (i, field) in Fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
+            <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
 			}
 
-			msg := types.NewMsg<%= MsgName.UpperCamel %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, <%= field.Datatype %>(args<%= field.Name.UpperCamel %>)<% } %>)
+			msg := types.NewMsg<%= MsgName.UpperCamel %>(
+				clientCtx.GetFromAddress().String()
+				<%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>
+				<% } %>
+			)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

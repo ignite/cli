@@ -5,9 +5,9 @@ import (
 	"strings"
 )
 
-// CastArgs returns the line of code to cast a value received from CLI of type string into its datatype
+// castArg returns the line of code to cast a value received from CLI of type string into its datatype
 // Don't forget to import github.com/spf13/cast in templates
-func CastArgs(name, datatypeName, datatype string, argIndex int) string {
+func castArg(name, datatypeName, datatype string, argIndex int) string {
 	switch datatypeName {
 	case datatypeString:
 		return fmt.Sprintf("%s := args[%d]", name, argIndex)

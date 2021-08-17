@@ -54,7 +54,7 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 
             queryClient := types.NewQueryClient(clientCtx)
 
-            <%= for (i, index) in Indexes { %> args<%= castArgs(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+            <%= for (i, index) in Indexes { %> args<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
             <% } %>
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
                 <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: args<%= index.Name.UpperCamel %>,

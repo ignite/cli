@@ -17,10 +17,10 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, field.DatatypeName, index.Datatype, i) %>
+        <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, field.DatatypeName, index.Datatype, i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -51,10 +51,10 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+        <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -84,7 +84,7 @@ func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            <%= for (i, index) in Indexes { %> index<%= castArgs(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+            <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
