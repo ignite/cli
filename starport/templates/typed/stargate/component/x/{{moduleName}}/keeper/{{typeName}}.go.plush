@@ -8,9 +8,9 @@ import (
 	"strconv"
 )
 
-// Get<%= TypeName.UpperCamel %>Count get the total number of TypeName.LowerCamel
+// Get<%= TypeName.UpperCamel %>Count get the total number of <%= TypeName.LowerCamel %>
 func (k Keeper) Get<%= TypeName.UpperCamel %>Count(ctx sdk.Context) uint64 {
-	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey))
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
 	bz := store.Get(byteKey)
 
@@ -31,7 +31,7 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>Count(ctx sdk.Context) uint64 {
 
 // Set<%= TypeName.UpperCamel %>Count set the total number of <%= TypeName.LowerCamel %>
 func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count uint64)  {
-	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey))
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
 	bz := []byte(strconv.FormatUint(count, 10))
 	store.Set(byteKey, bz)

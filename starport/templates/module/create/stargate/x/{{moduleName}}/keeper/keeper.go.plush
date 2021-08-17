@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
 )
 
 type (

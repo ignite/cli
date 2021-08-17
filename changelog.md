@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+### Features
+
+- Added `--signer` flag to `scaffold message` to allow customising the name of the signer of the message
+
 ## `v0.17.2`
 
 ### Features

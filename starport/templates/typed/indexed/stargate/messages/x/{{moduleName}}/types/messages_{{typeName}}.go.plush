@@ -7,11 +7,17 @@ import (
 
 var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
-func NewMsgCreate<%= TypeName.UpperCamel %>(creator string, index string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
+func NewMsgCreate<%= TypeName.UpperCamel %>(
+    creator string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.Datatype %>,
+    <% } %>
+) *MsgCreate<%= TypeName.UpperCamel %> {
   return &MsgCreate<%= TypeName.UpperCamel %>{
 		Creator: creator,
-		Index: index,<%= for (field) in Fields { %>
-    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+		<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+		<% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
+        <% } %>
 	}
 }
 
@@ -46,11 +52,17 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
-func NewMsgUpdate<%= TypeName.UpperCamel %>(creator string, index string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
+func NewMsgUpdate<%= TypeName.UpperCamel %>(
+    creator string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.Datatype %>,
+    <% } %>
+) *MsgUpdate<%= TypeName.UpperCamel %> {
   return &MsgUpdate<%= TypeName.UpperCamel %>{
 		Creator: creator,
-		Index : index,<%= for (field) in Fields { %>
-    <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
+        <%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+        <% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
+        <% } %>
 	}
 }
 
@@ -85,10 +97,15 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
 
-func NewMsgDelete<%= TypeName.UpperCamel %>(creator string, index string) *MsgDelete<%= TypeName.UpperCamel %> {
+func NewMsgDelete<%= TypeName.UpperCamel %>(
+    creator string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <% } %>
+) *MsgDelete<%= TypeName.UpperCamel %> {
   return &MsgDelete<%= TypeName.UpperCamel %>{
 		Creator: creator,
-		Index : index,
+		<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+        <% } %>
 	}
 }
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {

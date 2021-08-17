@@ -5,7 +5,8 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/spf13/cobra"
+	"github.com/spf13/cast"
+    "github.com/spf13/cobra"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -44,16 +45,23 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-<%= TypeName.Kebab %> [index]",
+		Use:   "show-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
 		Short: "shows a <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
 
             queryClient := types.NewQueryClient(clientCtx)
 
+            <%= for (i, index) in Indexes { %> args<%= index.Name.UpperCamel %>, err := <%= castArgs(index.Datatype, i) %>
+                if err != nil {
+                    return err
+                }
+            <% } %>
+
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
-                Index: args[0],
+                <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: args<%= index.Name.UpperCamel %>,
+                <% } %>
             }
 
             res, err := queryClient.<%= TypeName.UpperCamel %>(context.Background(), params)
