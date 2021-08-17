@@ -3,7 +3,7 @@ title: "Module Basics: Blog"
 order: 3
 ---
 
-# Building a Blog
+# Build a Blog
 
 First, create a new blockchain:
 
@@ -11,13 +11,13 @@ First, create a new blockchain:
 starport scaffold chain github.com/cosmonaut/blog
 ```
 
-## Creating Posts
+## Create Posts
 
 So far, we've discussed how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
 
 You can think of the state as being a collection of key-value stores. Each module is responsible for its own store. Changes to the store are triggered by transactions signed and broadcasted by users. Each transaction contains Cosmos SDK messages (not to be confused with proto `message`). When a transaction is processsed, each message gets routed to its module. A module has message handlers that process messages. Processing a message can trigger changes in the state.
 
-### Handling Messages
+### Handle Messages
 
 A Cosmos SDK message contains information that can trigger changes in the state of a blockchain.
 
@@ -88,7 +88,7 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 Every module has a handler function like this to process messages and call keeper methods.
 
-### Processing Messages
+### Process Messages
 
 In the newly scaffolded file `x/blog/keeper/msg_server_createPost.go` we can see a placeholder implementation of `CreatePost`. Right now it does nothing and returns an empty response. For our blog chain we want the contents of the message (title and body) to be written to the state as a new post. To do so we need to do two things: create a variable of type `Post` with title and body from the message and append this `Post` to the store.
 
@@ -129,7 +129,7 @@ message Post {
 
 The contents of `post.proto` are fairly standard. We define a package name (that is used to identify messages, among other things), specify in which Go package new files should be generated, and finally define `message Post`. Now, after we build and start our chain with Starport, the `Post` type will be available.
 
-### Writing Data to the Store
+### Write Data to the Store
 
 The next step is to define `AppendPost` keeper method. Let's create a new file `x/blog/keeper/post.go` and start thinking about the logic of the function.
 
@@ -246,7 +246,7 @@ confirm transaction before signing and broadcasting [y/N]: y
 
 Now that we've added the functionality to create posts and broadcast them to our chain, let's add querying.
 
-## Displaying Posts
+## Display Posts
 
 ```bash
 starport scaffold query posts --response title,body
@@ -322,7 +322,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-## Using CLI To Create And Display Posts
+## Use the CLI To Create And Display Posts
 
 Having implemened logic for both creating and querying posts we can use the node's binary to interact with our chain. To create a post:
 

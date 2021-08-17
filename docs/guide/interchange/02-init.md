@@ -4,7 +4,7 @@ order: 2
 
 # App Init
 
-##  Initialize the Blockchain
+## Initialize the Blockchain
 
 In this chapter you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets and messages. In the later chapters you integrate more code into each of the transaction handlers.
 
@@ -13,16 +13,16 @@ In this chapter you create the basic blockchain module for the interchain exchan
 Scaffold a new blockchain called `interchange`
 
 ```bash
-starport scaffold chain github.com/cosmonaut/interchange
+starport scaffold chain github.com/cosmonaut/interchange --no-module
 ```
 
 A new directory named interchange is created. This directory contains a working blockchain app.
-Create a new IBC module next.
+Next, create a new IBC module.
 
 ## Create the ibcdex Module
 
 Scaffold a module inside your blockchain named `ibcdex` with IBC capabilities.
-The ibcdex module contains the logic for creating and maintaining order books and routing them through IBC to the second blockchain.
+The ibcdex module contains the logic to create and maintain order books and route them through IBC to the second blockchain.
 
 ```bash
 starport scaffold module ibcdex --ibc --ordering unordered
@@ -31,17 +31,17 @@ starport scaffold module ibcdex --ibc --ordering unordered
 ## Create CRUD logic for Buy and Sell Order Books
 
 To scaffold two types with create, read, update and delete (CRUD) actions use the Starport `type` command.
-The following commands create `sellOrderBook` and `buyOrderBook` types. 
+The following commands create `sellOrderBook` and `buyOrderBook` types.
 
 ```bash
 starport scaffold map sell-order-book amountDenom priceDenom --no-message --module ibcdex
 starport scaffold map buy-order-book amountDenom priceDenom --no-message --module ibcdex
 ```
 
-The values are: 
+The values are:
 
-- `amountDenom` represents which token will be sold and in which quantity
-- `priceDenom` the token selling price 
+- `amountDenom`: which token will be sold and in which quantity
+- `priceDenom`: the token selling price
 
 The flag `--indexed` flag creates an "indexed type". Without this flag, a type is implemented like a list with new items appended. Indexed types act like key-value stores.
 
@@ -51,8 +51,8 @@ The `--module ibcdex` flag specifies that the type should be scaffolded in the `
 
 Create three packets for IBC:
 
-- an order book pair `createPair` 
-- a sell order `sellOrder` 
+- an order book pair `createPair`
+- a sell order `sellOrder`
 - a buy order `buyOrder`
 
 ```bash

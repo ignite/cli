@@ -3,11 +3,11 @@ order: 2
 description: Step-by-step guidance to build your first blockchain and your first Cosmos SDK module. 
 ---
 
-# Hello, World!
+# Hello, World
 
 This tutorial is a great place to start your journey into the Cosmos ecosystem. Instead of wondering how to build a blockchain, follow these steps to build your first blockchain and your first Cosmos SDK module. 
 
-## Getting Started 
+## Get Started
 
 The first step is to install [Starport](https://docs.starport.network/), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. 
 
@@ -38,7 +38,6 @@ This new blockchain imports standard Cosmos SDK modules, including:
 
 Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
 
-
 ## Blockchain Directory Structure
 
 After you create the blockchain, switch to its directory:
@@ -62,7 +61,7 @@ The `hello` directory contains a number of generated files and directories that 
 
 Now you can get your blockchain up and running locally on a single node.
 
-## Starting a Blockchain
+## Start a Blockchain
 
 You already have a fully-functional blockchain. To start your chain on your development machine, run the following command in the `hello` directory
 
@@ -83,7 +82,7 @@ Now that you started your `hello` chain, you can use a web browser to see the hi
 
 ![./images/api.png](./images/api.png)
 
-## Stopping a Blockchain
+## Stop a Blockchain
 
 When you want to stop your blockchain, press Ctrl+C in the terminal window where it's running. 
 
@@ -95,8 +94,8 @@ To get your Cosmos SDK blockchain to say "Hello", you need to make these changes
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
-- Register a query function 
- 
+- Register a query function
+
 Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. rpc calls are also responsible for exposing an HTTP API. 
 
 For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/v0.42/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, you must register the query. You only need to register a query once.
