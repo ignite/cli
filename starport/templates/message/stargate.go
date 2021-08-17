@@ -84,16 +84,18 @@ func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.Ru
 
 		template := `%[1]v
 message Msg%[2]v {
-  string creator = 1;
+  string %[5]v = 1;
 %[3]v}
 
 message Msg%[2]vResponse {
 %[4]v}
 `
-		replacement := fmt.Sprintf(template, PlaceholderProtoTxMessage,
+		replacement := fmt.Sprintf(template,
+			PlaceholderProtoTxMessage,
 			opts.MsgName.UpperCamel,
 			msgFields,
 			resFields,
+			opts.MsgSigner.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
 		newFile := genny.NewFileS(path, content)
