@@ -19,9 +19,9 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	srv := NewMsgServerImpl(*keeper)
 	wctx := sdk.WrapSDKContext(ctx)
-	creator := "A"
+	<%= MsgSigner.LowerCamel %> := "A"
 	for i := 0; i < 5; i++ {
-		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genUniqueArg(index.DatatypeName) %>,
             <% } %>
 		}
@@ -32,12 +32,12 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
             <% } %>
 		)
 		require.True(t, found)
-		assert.Equal(t, expected.Creator, rst.Creator)
+		assert.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 	}
 }
 
 func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
-	creator := "A"
+	<%= MsgSigner.LowerCamel %> := "A"
 
 	for _, tc := range []struct {
 		desc    string
@@ -46,14 +46,14 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator,
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: "B",
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B",
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			},
@@ -61,7 +61,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{Creator: creator,
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
                 <% } %>
 			},
@@ -73,7 +73,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			keeper, ctx := setupKeeper(t)
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
-			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			}
@@ -90,14 +90,14 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
                     <% } %>
 				)
 				require.True(t, found)
-				assert.Equal(t, expected.Creator, rst.Creator)
+				assert.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
 		})
 	}
 }
 
 func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
-	creator := "A"
+	<%= MsgSigner.LowerCamel %> := "A"
 
 	for _, tc := range []struct {
 		desc    string
@@ -106,14 +106,14 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 	}{
 		{
 			desc:    "Completed",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator,
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			},
 		},
 		{
 			desc:    "Unauthorized",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: "B",
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B",
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			},
@@ -121,7 +121,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		},
 		{
 			desc:    "KeyNotFound",
-			request: &types.MsgDelete<%= TypeName.UpperCamel %>{Creator: creator,
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
                 <% } %>
 			},
@@ -134,7 +134,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			srv := NewMsgServerImpl(*keeper)
 			wctx := sdk.WrapSDKContext(ctx)
 
-			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator,
+			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
                 <% } %>
 			})

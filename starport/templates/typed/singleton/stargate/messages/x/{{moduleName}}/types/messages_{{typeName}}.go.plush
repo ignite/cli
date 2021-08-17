@@ -7,9 +7,9 @@ import (
 
 var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
-func NewMsgCreate<%= TypeName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
+func NewMsgCreate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
   return &MsgCreate<%= TypeName.UpperCamel %>{
-		Creator: creator,<%= for (field) in Fields { %>
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
@@ -23,11 +23,11 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) Type() string {
 }
 
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
     panic(err)
   }
-  return []sdk.AccAddress{creator}
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
@@ -36,18 +36,18 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   	if err != nil {
-  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
   	}
   return nil
 }
 
 var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
-func NewMsgUpdate<%= TypeName.UpperCamel %>(creator string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
+func NewMsgUpdate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.Datatype %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
   return &MsgUpdate<%= TypeName.UpperCamel %>{
-		Creator: creator,<%= for (field) in Fields { %>
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
@@ -61,11 +61,11 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
     panic(err)
   }
-  return []sdk.AccAddress{creator}
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
@@ -74,18 +74,18 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
-    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
   }
    return nil
 }
 
 var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
 
-func NewMsgDelete<%= TypeName.UpperCamel %>(creator string) *MsgDelete<%= TypeName.UpperCamel %> {
+func NewMsgDelete<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string) *MsgDelete<%= TypeName.UpperCamel %> {
   return &MsgDelete<%= TypeName.UpperCamel %>{
-		Creator: creator,
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 	}
 }
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {
@@ -97,11 +97,11 @@ func (msg *MsgDelete<%= TypeName.UpperCamel %>) Type() string {
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-  creator, err := sdk.AccAddressFromBech32(msg.Creator)
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
     panic(err)
   }
-  return []sdk.AccAddress{creator}
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
@@ -110,9 +110,9 @@ func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {
-  _, err := sdk.AccAddressFromBech32(msg.Creator)
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
   if err != nil {
-    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
   }
   return nil
 }

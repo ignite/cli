@@ -13,9 +13,10 @@ type Options struct {
 	ModulePath string
 	OwnerName  string
 	TypeName   multiformatname.Name
+	MsgSigner  multiformatname.Name
 	Fields     []field.Field
-	NoMessage  bool
 	Indexes    []field.Field
+	NoMessage  bool
 }
 
 // Validate that options are usuable

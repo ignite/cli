@@ -79,9 +79,9 @@ func (k Keeper) Has<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) bool {
 	return store.Has(Get<%= TypeName.UpperCamel %>IDBytes(id))
 }
 
-// Get<%= TypeName.UpperCamel %>Owner returns the creator of the <%= TypeName %>
+// Get<%= TypeName.UpperCamel %>Owner returns the <%= MsgSigner.LowerCamel %> of the <%= TypeName %>
 func (k Keeper) Get<%= TypeName.UpperCamel %>Owner(ctx sdk.Context, id uint64) string {
-    return k.Get<%= TypeName.UpperCamel %>(ctx, id).Creator
+    return k.Get<%= TypeName.UpperCamel %>(ctx, id).<%= MsgSigner.UpperCamel %>
 }
 
 // Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store

@@ -19,7 +19,7 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     }
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
-        Creator: msg.Creator,<%= for (field) in Fields { %>
+        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
         <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
     }
 
@@ -40,12 +40,12 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     }
 
     // Checks if the the msg sender is the same as the current owner
-    if msg.Creator != valFound.Creator {
+    if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
-		Creator: msg.Creator,<%= for (field) in Fields { %>
+		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
     	<%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
 	}
 
@@ -64,7 +64,7 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
     }
 
     // Checks if the the msg sender is the same as the current owner
-    if msg.Creator != valFound.Creator {
+    if msg.<%= MsgSigner.UpperCamel %> != valFound.<%= MsgSigner.UpperCamel %> {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
