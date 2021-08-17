@@ -82,7 +82,7 @@ After the PR moves from **Draft** to **Ready for review**, the CI status checks 
 
 To view a deployed preview on a **Ready for review** PR, click the **Details** link on the netlify commit status line:
 
-<!-- ![deploy-preview](./deploy-preview.png) -->
+![deploy-preview](./deploy-preview.png)
 
 ### Preview Draft PRs on a Local Web Browser
 
