@@ -5,6 +5,7 @@
 ### Features
 
 - `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
+- Added `--signer` flag to `scaffold message` to allow customising the name of the signer of the message
 
 ## `v0.17.1`
 
