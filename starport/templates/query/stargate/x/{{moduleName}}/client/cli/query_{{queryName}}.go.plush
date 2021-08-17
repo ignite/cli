@@ -2,6 +2,8 @@ package cli
 
 import (
     "strconv"
+
+	<%= if (ReqFields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -17,8 +19,8 @@ func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in ReqFields { %>req<%= field.Name.UpperCamel %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+      		<%= for (i, field) in ReqFields { %>req<%= castArgs(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
+
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -28,7 +30,7 @@ func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 
 			params := &types.Query<%= QueryName.UpperCamel %>Request{
                 <%= for (i, field) in ReqFields { %>
-                <%= field.Name.UpperCamel %>: <%= field.Datatype %>(req<%= field.Name.UpperCamel %>),<% } %>
+                <%= field.Name.UpperCamel %>: req<%= field.Name.UpperCamel %>,
             }
 
             <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())

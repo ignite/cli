@@ -16,7 +16,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Create <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.Datatype, i) %>
+		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -42,7 +42,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Update <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.Datatype, i) %>
+		<%= for (i, field) in Fields { %> args<%= castArgs(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
