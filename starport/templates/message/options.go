@@ -13,6 +13,7 @@ type Options struct {
 	OwnerName  string
 	MsgName    multiformatname.Name
 	MsgDesc    string
+	MsgSigner  multiformatname.Name
 	Fields     []field.Field
 	ResFields  []field.Field
 }
