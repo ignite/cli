@@ -16,7 +16,11 @@ var (
 	//go:embed msgserver/* msgserver/**/*
 	fsMsgServer embed.FS
 
+	//go:embed genesis_test/* genesis_test/**/*
+	fsGenesisTest embed.FS
+
 	stargateTemplate  = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 	ibcTemplate       = xgenny.NewEmbedWalker(fsIBC, "ibc/")
 	msgServerTemplate = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/")
+	genesisTestTemplate = xgenny.NewEmbedWalker(fsGenesisTest, "genesis_test/")
 )
