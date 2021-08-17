@@ -7,7 +7,7 @@ parent:
 
 # Introduction
 
-In this tutorial, you will build a blockchain for a nameservice application. In the process you will learn how to:
+In this guide, you will build a blockchain for a nameservice application. In the process you will learn how to:
 
 * Create a blockchain without a default module
 * Create a Cosmos SDK module with a dependency on another module

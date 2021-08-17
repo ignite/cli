@@ -190,5 +190,5 @@ pagination:
 ```
 
 Congratulations 🎉. You have successfully completed the nameservice application.
-You have learned how to work with module dependencies, several scaffolding methods, Cosmos SDK types, functions and so much more.
+You have learned how to work with module dependencies, how to use several scaffolding methods, learned about Cosmos SDK types and functions, and so much more.
 Continue your journey to learn about escrow accounts and IBC.
