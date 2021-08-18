@@ -1,3 +1,5 @@
+# Understanding [Some Concept]
+
 <!--
 Use this article template as a quick starting point when writing Cosmos SDK conceptual tutorials. 
 
@@ -13,9 +15,6 @@ We admire and respect these resources:
 [Create an issue](https://github.com/tendermint/starport/issues/new/choose) to let us know if you have questions. 
 
 -->
-
-
-# Understanding [Some Concept]
 
 <!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
 
