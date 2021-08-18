@@ -26,10 +26,10 @@ var (
 	Version = versionDev
 
 	// Date is the build date of Starport.
-	Date = ""
+	Date = "-"
 
 	// Head is the HEAD of the current branch.
-	Head = ""
+	Head = "-"
 )
 
 // CheckNext checks whether there is a new version of Starport.
@@ -81,10 +81,7 @@ func Long(ctx context.Context) string {
 
 	write("Starport version", Version)
 	write("Starport build date", Date)
-
-	if Head != "" {
-		write("Starport source hash", Head)
-	}
+	write("Starport source hash", Head)
 
 	write("Your os", runtime.GOOS)
 	write("Your arch", runtime.GOARCH)
