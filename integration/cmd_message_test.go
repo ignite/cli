@@ -39,9 +39,9 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		ExecShouldError(),
 	))
 
-	env.Must(env.Exec("create a second message",
+	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "do-bar", "bar"),
+			step.Exec("starport", "s", "message", "do-bar", "bar", "--signer", "bar-doer"),
 			step.Workdir(path),
 		)),
 	))
