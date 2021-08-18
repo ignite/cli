@@ -14,7 +14,7 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Network, *types.<%= TypeName.UpperCamel %>) {
+func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Network, types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
 	state := types.GenesisState{}
@@ -24,7 +24,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Networ
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
 	cfg.GenesisState[types.ModuleName] = buf
-	return network.New(t, cfg), state.<%= TypeName.UpperCamel %>
+	return network.New(t, cfg), *state.<%= TypeName.UpperCamel %>
 }
 
 func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
@@ -38,7 +38,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		desc string
 		args []string
 		err  error
-		obj  *types.<%= TypeName.UpperCamel %>
+		obj  types.<%= TypeName.UpperCamel %>
 	}{
 		{
 			desc: "get",
