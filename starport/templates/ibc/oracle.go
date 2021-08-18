@@ -210,7 +210,7 @@ import "%[2]v/%[3]v.proto";`
 
 		templateMessage := `%[1]v
 message Msg%[2]vData {
-  string creator = 1;
+  string %[3]v = 1;
   int64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.moretags) = "yaml:\"oracle_script_id\""
@@ -232,7 +232,10 @@ message Msg%[2]vData {
 message Msg%[2]vDataResponse {
 }
 `
-		replacementMessage := fmt.Sprintf(templateMessage, PlaceholderProtoTxMessage, opts.QueryName.UpperCamel)
+		replacementMessage := fmt.Sprintf(templateMessage, PlaceholderProtoTxMessage,
+			opts.QueryName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
+		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)
 
 		newFile := genny.NewFileS(path, content)

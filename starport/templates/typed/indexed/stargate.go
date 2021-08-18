@@ -394,25 +394,25 @@ import "%s/%s.proto";`
 
 		templateMessages := `%[1]v
 message MsgCreate%[2]v {
-  string creator = 1;
-%[3]v
-%[4]v}
-message MsgCreate%[2]vResponse { }
+  string %[3]v = 1;
+%[4]v
+%[5]v}
+message MsgCreate%[2]vResponse {}
 
 message MsgUpdate%[2]v {
-  string creator = 1;
-%[3]v
-%[4]v}
-message MsgUpdate%[2]vResponse { }
+  string %[3]v = 1;
+%[4]v
+%[5]v}
+message MsgUpdate%[2]vResponse {}
 
 message MsgDelete%[2]v {
-  string creator = 1;
-%[3]v
-}
-message MsgDelete%[2]vResponse { }
+  string %[3]v = 1;
+%[4]v}
+message MsgDelete%[2]vResponse {}
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
 			indexes,
 			fields,
 		)
