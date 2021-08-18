@@ -2,13 +2,21 @@
 
 ## Unreleased
 
-### Features
+### Features:
 
-- Added `--signer` flag to `scaffold message` to allow customising the name of the signer of the message
+- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customising the name of the signer of the message
+- Added `--index` flag to `scaffold map` to provide a custom list of indices
+- Added `scaffold type` to scaffold a protocol buffer definition of a type
+- Automatically check for new Starport versions
+
+### Fixes:
+
+- Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
+- Generate Go code only from proto files only from directories specified in `config.yml` or default ones
 
 ## `v0.17.2`
 
-### Features
+### Features:
 
 - `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
 - Support serving Cosmos SDK `v0.43.x` based chains.
