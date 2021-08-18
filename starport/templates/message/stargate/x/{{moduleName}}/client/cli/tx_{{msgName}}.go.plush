@@ -29,7 +29,8 @@ func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 
 			msg := types.NewMsg<%= MsgName.UpperCamel %>(
 				clientCtx.GetFromAddress().String(),
-				<%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,<% } %>
+				<%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
+				<% } %>
 			)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
