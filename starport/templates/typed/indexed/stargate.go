@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -56,6 +57,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
+	g.RunFn(genesisTestsModify(replacer, opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -338,6 +340,52 @@ for _, elem := range %[2]vList {
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		var duplicatedIndex string
+		for _, index := range opts.Fields {
+			switch index.DatatypeName {
+			case "string":
+				duplicatedIndex += fmt.Sprintf("%s: \"foo\",\n", index.Name.UpperCamel)
+			case "int", "uint":
+				duplicatedIndex += fmt.Sprintf("%s: 0,\n", index.Name.UpperCamel)
+			case "bool":
+				duplicatedIndex += fmt.Sprintf("%s: false,\n", index.Name.UpperCamel)
+			}
+		}
+
+		templateDuplicated := `%[1]v
+{
+	desc:     "duplicated %[2]v",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				%[4]v},
+			{
+				%[4]v},
+		},
+	},
+	valid:    false,
+},`
+		replacementDuplicated := fmt.Sprintf(
+			templateDuplicated,
+			module.PlaceholderTypesGenesisTestcase,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
