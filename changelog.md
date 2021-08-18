@@ -8,11 +8,17 @@
 - Added `--index` flag to `scaffold map` to provide a custom list of indices
 - Added `scaffold type` to scaffold a protocol buffer definition of a type
 - Automatically check for new Starport versions
+- Added `starport tools completions` to generate CLI completions
+- Added `starport generate dart` to generate a Dart client from protocol buffer files
+- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+- Added `starport account` commands to manage accounts (key pairs)
 
 ### Fixes:
 
 - Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
 - Generate Go code only from proto files only from directories specified in `config.yml` or default ones
+- Fixed faucet token transfer calculation
+- Removed `creator` field for types scaffolded with the `--no-message` flag
 
 ## `v0.17.2`
 
