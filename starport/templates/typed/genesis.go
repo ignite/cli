@@ -2,6 +2,7 @@ package typed
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -12,6 +13,7 @@ func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Optio
 	g.RunFn(t.genesisProtoModify(replacer, opts))
 	g.RunFn(t.genesisTypesModify(replacer, opts))
 	g.RunFn(t.genesisModuleModify(replacer, opts))
+	g.RunFn(genesisTestsModify(replacer, opts))
 }
 
 func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
@@ -145,6 +147,51 @@ genesis.%[3]vCount = k.Get%[3]vCount(ctx)
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateTests := `%[1]v
+{
+	desc:     "duplicated %[2]v",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				Id: 0},
+			{
+				Id: 0},
+		},
+	},
+	valid:    false,
+},
+{
+	desc:     "invalid %[2]v count",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				Id: 1},
+		},
+		%[3]vCount: 0,
+	},
+	valid:    false,
+},`
+		replacementTests := fmt.Sprintf(
+			templateTests,
+			module.PlaceholderTypesGenesisTestcase,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisTestcase, replacementTests)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
