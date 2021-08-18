@@ -12,9 +12,10 @@ type Options struct {
 	ModulePath string
 	OwnerName  string
 	MsgName    multiformatname.Name
+	MsgSigner  multiformatname.Name
 	MsgDesc    string
-	Fields     field.Fields
-	ResFields  field.Fields
+	Fields     []field.Field
+	ResFields  []field.Field
 }
 
 // Validate that options are usuable
