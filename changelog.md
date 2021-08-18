@@ -4,7 +4,7 @@
 
 ### Features
 
-- Added `--signer` flag to `scaffold message` to allow customising the name of the signer of the message
+- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customising the name of the signer of the message
 
 ## `v0.17.2`
 
