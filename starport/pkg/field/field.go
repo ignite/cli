@@ -23,7 +23,7 @@ type Field struct {
 	DatatypeName string
 }
 
-// parseFields parses the provided fields, analyses the types and checks there is no duplicated field
+// ParseFields parses the provided fields, analyses the types and checks there is no duplicated field
 func ParseFields(fields []string, isForbiddenField func(string) error) ([]Field, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
