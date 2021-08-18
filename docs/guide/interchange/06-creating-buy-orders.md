@@ -18,6 +18,12 @@ message BuyOrderPacketData {
 }
 ```
 
+Now build the proto with the already known command.
+
+```bash
+starport generate proto-go
+```
+
 ## IBC Message Handling in SendBuyOrder
 
 * Check if the pair exists on the order book

@@ -88,6 +88,92 @@ In the following section you'll be implementing packet reception logic in the `O
 
 ## Receiving an IBC packet
 
+The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
+First you will need to add the proto buffer files. This builds the according go code files that you can then modify for the purpose of your app.
+
+```proto
+// proto/ibcdex/order.proto
+syntax = "proto3";
+package cosmonaut.interchange.ibcdex;
+
+option go_package = "github.com/cosmonaut/interchange/x/ibcdex/types";
+
+message OrderBook {
+  int32 idCount = 1;
+  repeated Order orders = 2;
+}
+
+message Order {
+  int32 id = 1;
+  string creator = 2;
+  int32 amount = 3;
+  int32 price = 4;
+}
+```
+
+Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
+
+```proto
+// proto/ibcdex/buy_order_book.proto
+import "ibcdex/order.proto";
+
+message BuyOrderBook {
+  // ...
+  OrderBook book = 5;
+}
+```
+
+Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
+
+```proto
+// proto/ibcdex/sell_order_book.proto
+// ...
+import "ibcdex/order.proto";
+
+message SellOrderBook {
+  // ...
+  OrderBook book = 6;
+}
+```
+
+Now build the proto files to go with the command:
+
+```bash
+starport generate proto-go
+```
+
+Start enhancing the functions for the IBC packets.
+
+Create a new file `x/ibcdex/types/order_book.go`.
+Add the new order book function to the corresponing Go file.
+
+```go
+// x/ibcdex/types/order_book.go
+package types
+
+func NewOrderBook() OrderBook {
+	return OrderBook{
+		IdCount: 0,
+	}
+}
+```
+
+Define `NewBuyOrderBook` in a new file `x/ibcdex/types/buy_order_book.go` creates a new buy order book.
+
+```go
+// x/ibcdex/types/buy_order_book.go
+package types
+
+func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
+	book := NewOrderBook()
+	return BuyOrderBook{
+		AmountDenom: AmountDenom,
+		PriceDenom: PriceDenom,
+		Book: &book,
+	}
+}
+```
+
 On the target chain when an IBC packet is recieved, the module should check whether a book already exists, if not, create a new buy order book for specified denoms.
 
 ```go
@@ -111,15 +197,20 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 }
 ```
 
-Define `NewBuyOrderBook` creates a new buy order book.
+## Receiving an IBC Acknowledgement
+
+On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
+
+Create a new file `x/ibcdex/types/sell_order_book.go`.
+Insert the `NewSellOrderBook` function which creates a new sell order book.
 
 ```go
-// x/ibcdex/types/buy_order_book.go
+// x/ibcdex/types/sell_order_book.go
 package types
 
-func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
+func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 	book := NewOrderBook()
-	return BuyOrderBook{
+	return SellOrderBook{
 		AmountDenom: AmountDenom,
 		PriceDenom: PriceDenom,
 		Book: &book,
@@ -127,54 +218,7 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 }
 ```
 
-Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
-
-```proto
-// proto/ibcdex/buy_order_book.proto
-import "ibcdex/order.proto";
-
-message BuyOrderBook {
-  // ...
-  OrderBook book = 5;
-}
-```
-
-```go
-// x/ibcdex/types/order_book.go
-package types
-
-func NewOrderBook() OrderBook {
-	return OrderBook{
-		IdCount: 0,
-	}
-}
-```
-
-The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
-
-```proto
-// proto/ibcdex/order.proto
-syntax = "proto3";
-package cosmonaut.interchange.ibcdex;
-
-option go_package = "github.com/cosmonaut/interchange/x/ibcdex/types";
-
-message OrderBook {
-  int32 idCount = 1;
-  repeated Order orders = 2;
-}
-
-message Order {
-  int32 id = 1;
-  string creator = 2;
-  int32 amount = 3;
-  int32 price = 4;
-}
-```
-
-## Receiving an IBC Acknowledgement
-
-On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
+Modify the Acknowledgement function in the `create_pair.go` file.
 
 ```go
 // x/ibcdex/keeper/create_pair.go
@@ -199,35 +243,6 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 		// The counter-party module doesn't implement the correct acknowledgment format
 		return errors.New("invalid acknowledgment format")
 	}
-}
-```
-
-`NewSellOrderBook` creates a new sell order book.
-
-```go
-// x/ibcdex/types/sell_order_book.go
-package types
-
-func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
-	book := NewOrderBook()
-	return SellOrderBook{
-		AmountDenom: AmountDenom,
-		PriceDenom: PriceDenom,
-		Book: &book,
-	}
-}
-```
-
-Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
-
-```proto
-// proto/ibcdex/sell_order_book.proto
-// ...
-import "ibcdex/order.proto";
-
-message SellOrderBook {
-  // ...
-  OrderBook book = 6;
 }
 ```
 

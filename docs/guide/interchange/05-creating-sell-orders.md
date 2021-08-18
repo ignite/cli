@@ -16,6 +16,12 @@ message SellOrderPacketData {
 }
 ```
 
+Now build the proto with the already known command.
+
+```bash
+starport generate proto-go
+```
+
 ## Message Handling in SendSellOrder
 
 Sell orders are created using `send-sell-order`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
