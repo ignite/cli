@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -76,7 +76,7 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 	// password. This happens because Gitpod uses containers.
 	//
 	// when not on Gitpod, OS keyring backend is used which only asks password once.
-	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+	if gitpod.IsOnGitpod() {
 		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
 	}
 

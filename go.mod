@@ -50,6 +50,7 @@ require (
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.11
 	github.com/tendermint/vue v0.1.49
+	github.com/zcalusic/sysinfo v0.0.0-20210609180555-aff387a52b3a // indirect
 	go.opencensus.io v0.22.6 // indirect
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
