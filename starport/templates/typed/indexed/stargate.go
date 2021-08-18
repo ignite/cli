@@ -408,8 +408,7 @@ message MsgUpdate%[2]vResponse { }
 
 message MsgDelete%[2]v {
   string creator = 1;
-%[3]v
-}
+%[3]v}
 message MsgDelete%[2]vResponse { }
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
