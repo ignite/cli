@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
@@ -33,6 +34,8 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("ResFields", opts.ResFields)
 	ctx.Set("Paginated", opts.Paginated)
 	ctx.Set("title", strings.Title)
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
