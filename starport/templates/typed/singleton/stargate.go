@@ -87,7 +87,7 @@ import "%s/%s.proto";`
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.AddGogoProtoImport(content, path, typed.Placeholder, replacer)
+		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
 
 		// Add the service
 		templateService := `%[1]v

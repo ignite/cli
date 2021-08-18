@@ -33,7 +33,7 @@ import "%[2]v/%[3]v.proto";`
 		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Add gogo.proto
-		content = AddGogoProtoImport(content, path, PlaceholderGenesisProtoImport, replacer)
+		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
 
 		// Determine the new field number
 		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
