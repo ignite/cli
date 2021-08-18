@@ -384,6 +384,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			module.PlaceholderTypesGenesisTestcase,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
+			duplicatedIndex,
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
 
