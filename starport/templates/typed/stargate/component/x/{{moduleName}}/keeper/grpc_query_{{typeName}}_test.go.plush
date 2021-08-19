@@ -27,12 +27,12 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 		{
 			desc:     "First",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Id: msgs[0].Id},
-			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[0]},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[0]},
 		},
 		{
 			desc:     "Second",
 			request:  &types.QueryGet<%= TypeName.UpperCamel %>Request{Id: msgs[1].Id},
-			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &msgs[1]},
+			response: &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: msgs[1]},
 		},
 		{
 			desc:    "KeyNotFound",
@@ -78,7 +78,7 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
 			for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
+				assert.Equal(t, msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 		}
 	})
@@ -89,7 +89,7 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
 			for j := i; j < len(msgs) && j < i+step; j++ {
-				assert.Equal(t, &msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
+				assert.Equal(t, msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 			next = resp.Pagination.NextKey
 		}
