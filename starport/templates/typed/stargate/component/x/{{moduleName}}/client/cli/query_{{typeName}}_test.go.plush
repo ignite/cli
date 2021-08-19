@@ -17,14 +17,16 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
+func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
 	state := types.GenesisState{}
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	for i := 0; i < n; i++ {
-		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{Creator: "ANY", Id: uint64(i)})
+		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, types.<%= TypeName.UpperCamel %>{
+			Id: uint64(i),
+		})
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
@@ -44,7 +46,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 		id   string
 		args []string
 		err  error
-		obj  *types.<%= TypeName.UpperCamel %>
+		obj  types.<%= TypeName.UpperCamel %>
 	}{
 		{
 			desc: "found",

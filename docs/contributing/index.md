@@ -1,3 +1,8 @@
+---
+parent:
+  order: false
+---
+
 # Contributing
 
 - [Contributing](#contributing)

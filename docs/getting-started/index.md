@@ -218,10 +218,10 @@ The `message` command has created and modified several files:
 
 - modified `proto/blog/tx.proto`
 - modified `x/blog/handler.go`
-- created `x/blog/keeper/msg_server_createPost.go`
+- created `x/blog/keeper/msg_server_create_post.go`
 - modified `x/blog/client/cli/tx.go`
-- created `x/blog/client/cli/txCreatePost.go`
-- created `x/blog/types/message_createPost.go`
+- created `x/blog/client/cli/tx_create_post.go`
+- created `x/blog/types/message_create_post.go`
 - modified `x/blog/types/codec.go`
 
 As always, we start with a proto file. Inside `proto/blog/tx.proto`:
@@ -269,7 +269,7 @@ Every module has a handler function like this to process messages and call keepe
 
 ### Processing Messages
 
-In the newly scaffolded file `x/blog/keeper/msg_server_createPost.go` we can see a placeholder implementation of `CreatePost`. Right now it does nothing and returns an empty response. For our blog chain we want the contents of the message (title and body) to be written to the state as a new post. To do so we need to do two things: create a variable of type `Post` with title and body from the message and append this `Post` to the store.
+In the newly scaffolded file `x/blog/keeper/msg_server_create_post.go` we can see a placeholder implementation of `CreatePost`. Right now it does nothing and returns an empty response. For our blog chain we want the contents of the message (title and body) to be written to the state as a new post. To do so we need to do two things: create a variable of type `Post` with title and body from the message and append this `Post` to the store.
 
 ```go
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
