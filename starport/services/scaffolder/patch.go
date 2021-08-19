@@ -1,11 +1,12 @@
 package scaffolder
 
 import (
+	"os"
+	"path/filepath"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
-	"os"
-	"path/filepath"
 )
 
 // supportGenesisTests checks if types/genesis_test.go exists

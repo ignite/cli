@@ -2,11 +2,11 @@ package typed
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/module"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Options, g *genny.Generator) {
