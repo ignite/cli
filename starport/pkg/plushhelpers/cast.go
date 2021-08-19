@@ -5,11 +5,20 @@ import (
 	"strings"
 )
 
-// CastArgs returns the line of code to cast a value received from CLI of type string into its datatype
+// castArg returns the line of code to cast a value received from CLI of type string into its datatype
 // Don't forget to import github.com/spf13/cast in templates
-// TODO: Refactor this method to depend on datatypeName instead of datatype to make this method more maintainable if we add new types in the future
-func CastArgs(datatype string, argIndex int) string {
-	return fmt.Sprintf("cast.To%sE(args[%d])", strings.Title(datatype), argIndex)
+func castArg(name, datatypeName, datatype string, argIndex int) string {
+	switch datatypeName {
+	case datatypeString:
+		return fmt.Sprintf("%s := args[%d]", name, argIndex)
+	case datatypeUint, datatypeInt, datatypeBool:
+		return fmt.Sprintf(`%s, err := cast.To%sE(args[%d])
+            if err != nil {
+                return err
+            }`, name, strings.Title(datatype), argIndex)
+	default:
+		panic(fmt.Sprintf("unknown type %s", datatype))
+	}
 }
 
 // CastToBytes returns the lines of code to cast a value into bytes

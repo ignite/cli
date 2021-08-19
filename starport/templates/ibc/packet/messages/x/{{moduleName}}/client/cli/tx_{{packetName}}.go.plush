@@ -2,6 +2,8 @@ package cli
 
 import (
     "strconv"
+
+    <%= if (fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -19,8 +21,8 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in fields { %>args<%= field.Name.UpperCamel %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i+2 %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+            <%= for (i, field) in fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
+      		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -43,7 +45,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
                 timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp
             }
 
-			msg := types.NewMsgSend<%= packetName.UpperCamel %>(sender, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= field.Name.UpperCamel %>)<% } %>)
+			msg := types.NewMsgSend<%= packetName.UpperCamel %>(sender, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, arg<%= field.Name.UpperCamel %><% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}
