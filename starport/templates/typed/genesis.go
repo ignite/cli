@@ -162,10 +162,10 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunF
 	genState: &types.GenesisState{
 		%[3]vList: []types.%[3]v{
 			{
-				Id: 0
+				Id: 0,
 			},
 			{
-				Id: 0
+				Id: 0,
 			},
 		},
 	},
