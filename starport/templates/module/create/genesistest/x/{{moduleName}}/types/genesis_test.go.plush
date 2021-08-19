@@ -22,7 +22,7 @@ func TestGenesisState_Validate(t *testing.T) {
         tc := tc
         t.Run(tc.desc, func(t *testing.T) {
             err := tc.genState.Validate()
-            if tc.shouldBeValid {
+            if tc.valid {
                 require.NoError(t, err)
             } else {
                 require.Error(t, err)

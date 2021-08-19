@@ -355,7 +355,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		var duplicatedIndex string
-		for _, index := range opts.Fields {
+		for _, index := range opts.Indexes {
 			switch index.DatatypeName {
 			case "string":
 				duplicatedIndex += fmt.Sprintf("%s: \"foo\",\n", index.Name.UpperCamel)
