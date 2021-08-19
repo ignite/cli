@@ -37,8 +37,8 @@ type PacketOptions struct {
 	OwnerName  string
 	PacketName multiformatname.Name
 	MsgSigner  multiformatname.Name
-	Fields     []field.Field
-	AckFields  []field.Field
+	Fields     field.Fields
+	AckFields  field.Fields
 	NoMessage  bool
 }
 
@@ -76,6 +76,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ackFields", opts.AckFields)
 	ctx.Set("title", strings.Title)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))

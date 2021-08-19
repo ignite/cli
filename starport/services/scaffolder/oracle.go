@@ -1,15 +1,24 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/ibc"
+)
+
+const (
+	bandImport  = "github.com/bandprotocol/bandchain-packet"
+	bandVersion = "v0.0.0"
 )
 
 // OracleOption configures options for AddOracle.
@@ -40,6 +49,10 @@ func (s *Scaffolder) AddOracle(
 	queryName string,
 	options ...OracleOption,
 ) (sm xgenny.SourceModification, err error) {
+	if err := s.installBandPacket(); err != nil {
+		return sm, err
+	}
+
 
 	o := newOracleOptions()
 	for _, apply := range options {
@@ -105,4 +118,11 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 	return sm, s.finish(pwd, path.RawPath)
+}
+
+func (s *Scaffolder) installBandPacket() error {
+	return cmdrunner.New().
+		Run(context.Background(),
+			step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(bandImport, bandVersion))),
+		)
 }

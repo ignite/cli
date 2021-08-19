@@ -14,8 +14,8 @@ type Options struct {
 	OwnerName  string
 	TypeName   multiformatname.Name
 	MsgSigner  multiformatname.Name
-	Fields     []field.Field
-	Indexes    []field.Field
+	Fields     field.Fields
+	Indexes    field.Fields
 	NoMessage  bool
 }
 

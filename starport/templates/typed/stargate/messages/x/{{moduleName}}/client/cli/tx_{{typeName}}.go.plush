@@ -4,9 +4,7 @@ import (
     "strconv"
 
 	"github.com/spf13/cobra"
-<%= if (len(Fields) > 0) { %> 
-	"github.com/spf13/cast"
-<% } %>
+	<%= if (Fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
 
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -20,10 +18,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-	  	<%= for (i, field) in Fields { %> args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i) %>
-			if err != nil {
-				return err
-			}
+	  	<%= for (i, field) in Fields { %> args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -55,10 +50,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
             }
 
 	    <%= for (i, field) in Fields { %>
-	  		args<%= field.Name.UpperCamel %>, err := <%= castArgs(field.Datatype, i+1) %>
-			if err != nil {
-				return err
-			}
+	  		args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+1) %>
         <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
