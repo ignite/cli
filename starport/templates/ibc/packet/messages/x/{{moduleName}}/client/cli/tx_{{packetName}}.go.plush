@@ -26,7 +26,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 				return err
 			}
 
-			sender := clientCtx.GetFromAddress().String()
+			<%= MsgSigner.LowerCamel %> := clientCtx.GetFromAddress().String()
             srcPort := args[0]
             srcChannel := args[1]
 
@@ -43,7 +43,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
                 timeoutTimestamp = consensusState.GetTimestamp() + timeoutTimestamp
             }
 
-			msg := types.NewMsgSend<%= packetName.UpperCamel %>(sender, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= field.Name.UpperCamel %>)<% } %>)
+			msg := types.NewMsgSend<%= packetName.UpperCamel %>(<%= MsgSigner.LowerCamel %>, srcPort, srcChannel, timeoutTimestamp<%= for (i, field) in fields { %>, <%= field.Datatype %>(args<%= field.Name.UpperCamel %>)<% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
 			}

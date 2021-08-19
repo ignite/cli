@@ -8,14 +8,14 @@ import (
 var _ sdk.Msg = &MsgSend<%= packetName.UpperCamel %>{}
 
 func NewMsgSend<%= packetName.UpperCamel %>(
-    sender string,
+    <%= MsgSigner.LowerCamel %> string,
     port string,
     channelID string,
     timeoutTimestamp uint64,<%= for (field) in fields { %>
     <%= field.Name.LowerCamel %> <%= field.Datatype %>,<% } %>
 ) *MsgSend<%= packetName.UpperCamel %> {
     return &MsgSend<%= packetName.UpperCamel %>{
-		Sender: sender,
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 		Port: port,
 		ChannelID: channelID,
 		TimeoutTimestamp: timeoutTimestamp,<%= for (field) in fields { %>
@@ -32,11 +32,11 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) Type() string {
 }
 
 func (msg *MsgSend<%= packetName.UpperCamel %>) GetSigners() []sdk.AccAddress {
-    sender, err := sdk.AccAddressFromBech32(msg.Sender)
+    <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {
         panic(err)
     }
-    return []sdk.AccAddress{sender}
+    return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
 func (msg *MsgSend<%= packetName.UpperCamel %>) GetSignBytes() []byte {
@@ -45,9 +45,9 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) GetSignBytes() []byte {
 }
 
 func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
-    _, err := sdk.AccAddressFromBech32(msg.Sender)
+    _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
     }
     return nil
 }

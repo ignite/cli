@@ -36,6 +36,7 @@ type PacketOptions struct {
 	ModulePath string
 	OwnerName  string
 	PacketName multiformatname.Name
+	MsgSigner  multiformatname.Name
 	Fields     []field.Field
 	AckFields  []field.Field
 	NoMessage  bool
@@ -69,6 +70,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("packetName", opts.PacketName)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
@@ -264,11 +266,11 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
 		templateMessage := `%[1]v
 message MsgSend%[2]v {
-  string sender = 1;
+  string %[3]v = 1;
   string port = 2;
   string channelID = 3;
   uint64 timeoutTimestamp = 4;
-%[3]v}
+%[4]v}
 
 message MsgSend%[2]vResponse {
 }
@@ -277,6 +279,7 @@ message MsgSend%[2]vResponse {
 			templateMessage,
 			PlaceholderProtoTxMessage,
 			opts.PacketName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
 			sendFields,
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)

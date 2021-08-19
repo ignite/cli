@@ -88,7 +88,7 @@ func TypeWithFields(fields ...string) AddTypeOption {
 }
 
 // TypeWithoutMessage disables generating sdk compatible messages and tx related APIs.
-func TypeWithoutMessage(fields ...string) AddTypeOption {
+func TypeWithoutMessage() AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.withoutMessage = true
 	}

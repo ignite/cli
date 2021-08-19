@@ -42,7 +42,7 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
 
-    // Checks if the the msg sender is the same as the current owner
+    // Checks if the the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
     if msg.<%= MsgSigner.UpperCamel %> != k.Get<%= TypeName.UpperCamel %>Owner(ctx, msg.Id) {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
