@@ -43,7 +43,7 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, noMessage); err != nil {
 		return sm, err
 	}
 

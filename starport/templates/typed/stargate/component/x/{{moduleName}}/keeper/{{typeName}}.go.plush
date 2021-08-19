@@ -78,12 +78,12 @@ func (k Keeper) Has<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) bool {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	return store.Has(Get<%= TypeName.UpperCamel %>IDBytes(id))
 }
-
+<%= if (!NoMessage) { %>
 // Get<%= TypeName.UpperCamel %>Owner returns the creator of the <%= TypeName %>
 func (k Keeper) Get<%= TypeName.UpperCamel %>Owner(ctx sdk.Context, id uint64) string {
     return k.Get<%= TypeName.UpperCamel %>(ctx, id).Creator
 }
-
+<% } %>
 // Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
 func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
