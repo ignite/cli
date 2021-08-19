@@ -83,7 +83,7 @@ func Long(ctx context.Context) string {
 	write("Starport build date", Date)
 	write("Starport source hash", Head)
 
-	write("Your os", runtime.GOOS)
+	write("Your OS", runtime.GOOS)
 	write("Your arch", runtime.GOARCH)
 
 	cmdOut := &bytes.Buffer{}
