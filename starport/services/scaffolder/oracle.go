@@ -53,7 +53,6 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 
-
 	o := newOracleOptions()
 	for _, apply := range options {
 		apply(&o)

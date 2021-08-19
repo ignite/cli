@@ -7,7 +7,6 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -211,8 +210,13 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 
 // checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
 func checkForbiddenOracleFieldName(name string) error {
+	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
+	if err != nil {
+		return err
+	}
+
 	// Check with names already used from the scaffolded code
-	switch strings.ToUpper(name) {
+	switch mfName.UpperCase {
 	case
 		"CLIENTID",
 		"ORACLESCRIPTID",
