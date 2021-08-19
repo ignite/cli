@@ -4,7 +4,6 @@ import (
 	"testing"
 
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -16,7 +15,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	for i := 0; i < 5; i++ {
 		resp, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{Creator: creator})
 		require.NoError(t, err)
-		assert.Equal(t, i, int(resp.Id))
+		require.Equal(t, i, int(resp.Id))
 	}
 }
 

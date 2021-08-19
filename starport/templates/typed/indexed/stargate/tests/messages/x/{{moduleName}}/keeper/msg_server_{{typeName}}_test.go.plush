@@ -6,7 +6,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -32,7 +31,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
             <% } %>
 		)
 		require.True(t, found)
-		assert.Equal(t, expected.Creator, rst.Creator)
+		require.Equal(t, expected.Creator, rst.Creator)
 	}
 }
 
@@ -90,7 +89,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
                     <% } %>
 				)
 				require.True(t, found)
-				assert.Equal(t, expected.Creator, rst.Creator)
+				require.Equal(t, expected.Creator, rst.Creator)
 			}
 		})
 	}

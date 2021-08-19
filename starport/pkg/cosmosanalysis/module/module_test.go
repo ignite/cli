@@ -4,7 +4,6 @@ import (
 	"context"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
@@ -63,7 +62,7 @@ func TestDiscover(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			got, err := Discover(context.Background(), tt.args.sourcePath, tt.args.protoDir)
 			require.NoError(t, err)
-			assert.Equal(t, tt.want, got)
+			require.Equal(t, tt.want, got)
 		})
 	}
 }

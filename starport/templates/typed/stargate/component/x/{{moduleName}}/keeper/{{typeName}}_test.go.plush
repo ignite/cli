@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -20,7 +20,7 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		assert.Equal(t, item, keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id))
+		require.Equal(t, item, keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
@@ -28,7 +28,7 @@ func Test<%= TypeName.UpperCamel %>Exist(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
-		assert.True(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
+		require.True(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
@@ -37,19 +37,19 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.Remove<%= TypeName.UpperCamel %>(ctx, item.Id)
-		assert.False(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
+		require.False(t, keeper.Has<%= TypeName.UpperCamel %>(ctx, item.Id))
 	}
 }
 
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	assert.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
+	require.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }
 
 func Test<%= TypeName.UpperCamel %>Count(t *testing.T) {
 	keeper, ctx := setupKeeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	count := uint64(len(items))
-	assert.Equal(t, count, keeper.Get<%= TypeName.UpperCamel %>Count(ctx))
+	require.Equal(t, count, keeper.Get<%= TypeName.UpperCamel %>Count(ctx))
 }
