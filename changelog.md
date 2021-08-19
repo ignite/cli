@@ -20,6 +20,12 @@
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
 
+## `v0.17.3`
+
+### Fixes:
+
+- oracle: add a specific BandChain pkg version to avoid Cosmos SDK version conflicts
+
 ## `v0.17.2`
 
 ### Features:
