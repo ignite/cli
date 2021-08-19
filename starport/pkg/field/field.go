@@ -87,7 +87,7 @@ func ParseFields(fields []string, isForbiddenField func(string) error) (Fields, 
 
 func (f Fields) NeedCast() bool {
 	for _, field := range f {
-		if field.Datatype != TypeString {
+		if field.DatatypeName != TypeString {
 			return true
 		}
 	}
