@@ -118,13 +118,18 @@ type NodeStatus struct {
 
 // Status returns the node's status.
 func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
-	b := &bytes.Buffer{}
+	b := newBuffer()
 
 	if err := r.run(ctx, runOptions{stdout: b, stderr: b}, r.chainCmd.StatusCommand()); err != nil {
 		return NodeStatus{}, err
 	}
 
 	var chainID string
+
+	data, err := b.JSONEnsuredBytes()
+	if err != nil {
+		return NodeStatus{}, err
+	}
 
 	switch r.chainCmd.SDKVersion() {
 	case cosmosver.StargateZeroFourtyAndAbove:
@@ -134,7 +139,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 			} `json:"NodeInfo"`
 		}{}
 
-		if err := json.NewDecoder(b).Decode(&out); err != nil {
+		if err := json.Unmarshal(data, &out); err != nil {
 			return NodeStatus{}, err
 		}
 
@@ -146,7 +151,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 			} `json:"node_info"`
 		}{}
 
-		if err := json.NewDecoder(b).Decode(&out); err != nil {
+		if err := json.Unmarshal(data, &out); err != nil {
 			return NodeStatus{}, err
 		}
 
@@ -160,7 +165,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 
 // BankSend sends amount from fromAccount to toAccount.
 func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
-	b := &bytes.Buffer{}
+	b := newBuffer()
 	opt := []step.Option{
 		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
 	}
@@ -188,7 +193,11 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 		Error string `json:"raw_log"`
 	}{}
 
-	if err := json.NewDecoder(b).Decode(&out); err != nil {
+	data, err := b.JSONEnsuredBytes()
+	if err != nil {
+		return err
+	}
+	if err := json.Unmarshal(data, &out); err != nil {
 		return err
 	}
 
@@ -235,7 +244,7 @@ type EventAttribute struct {
 	Value string
 }
 
-// r queries tx events by event selectors.
+// QueryTxEvents queries tx events by event selectors.
 func (r Runner) QueryTxEvents(
 	ctx context.Context,
 	selector EventSelector,
@@ -253,7 +262,7 @@ func (r Runner) QueryTxEvents(
 	query := strings.Join(list, "&")
 
 	// execute the commnd and parse the output.
-	b := &bytes.Buffer{}
+	b := newBuffer()
 
 	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxEventsCommand(query)); err != nil {
 		return nil, err
@@ -274,7 +283,11 @@ func (r Runner) QueryTxEvents(
 		} `json:"txs"`
 	}{}
 
-	if err := json.NewDecoder(b).Decode(&out); err != nil {
+	data, err := b.JSONEnsuredBytes()
+	if err != nil {
+		return nil, err
+	}
+	if err := json.Unmarshal(data, &out); err != nil {
 		return nil, err
 	}
 

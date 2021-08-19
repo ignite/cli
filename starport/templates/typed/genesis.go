@@ -34,11 +34,14 @@ import "%[2]v/%[3]v.proto";`
 		)
 		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
 
+		// Add gogo.proto
+		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
+
 		// Determine the new field number
 		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
 
 		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v; %[5]v
+		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
 		uint64 %[3]vCount = %[6]v; %[5]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
@@ -70,7 +73,7 @@ func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *
 		content = replacer.ReplaceOnce(content, PlaceholderGenesisTypesImport, templateTypesImport)
 
 		templateTypesDefault := `%[1]v
-%[2]vList: []*%[2]v{},`
+%[2]vList: []%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			PlaceholderGenesisTypesDefault,
@@ -115,7 +118,7 @@ func (t *typedStargate) genesisModuleModify(replacer placeholder.Replacer, opts 
 		templateModuleInit := `%[1]v
 // Set all the %[2]v
 for _, elem := range genState.%[3]vList {
-	k.Set%[3]v(ctx, *elem)
+	k.Set%[3]v(ctx, elem)
 }
 
 // Set %[2]v count
@@ -130,20 +133,12 @@ k.Set%[3]vCount(ctx, genState.%[3]vCount)
 		content := replacer.Replace(f.String(), PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `%[1]v
-// Get all %[2]v
-%[2]vList := k.GetAll%[3]v(ctx)
-for _, elem := range %[2]vList {
-	elem := elem
-	genesis.%[3]vList = append(genesis.%[3]vList, &elem)
-}
-
-// Set the current count
-genesis.%[3]vCount = k.Get%[3]vCount(ctx)
+genesis.%[2]vList = k.GetAll%[2]v(ctx)
+genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 `
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			PlaceholderGenesisModuleExport,
-			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport)
