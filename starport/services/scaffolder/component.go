@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -206,4 +207,24 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 		}
 	}
 	return err
+}
+
+// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
+func checkForbiddenOracleFieldName(name string) error {
+	// Check with names already used from the scaffolded code
+	switch strings.ToUpper(name) {
+	case
+		"CLIENTID",
+		"ORACLESCRIPTID",
+		"SOURCECHANNEL",
+		"CALLDATA",
+		"ASKCOUNT",
+		"MINCOUNT",
+		"FEELIMIT",
+		"REQUESTKEY",
+		"PREPAREGAS",
+		"EXECUTEGAS":
+		return fmt.Errorf("%s is used by Starport scaffolder", name)
+	}
+	return nil
 }

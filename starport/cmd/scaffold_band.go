@@ -21,6 +21,7 @@ func NewScaffoldBandchain() *cobra.Command {
 	}
 
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
+	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
 	return c
 }

@@ -66,7 +66,7 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 
-	mfSigner, err := multiformatname.NewName(o.signer)
+	mfSigner, err := multiformatname.NewName(o.signer, checkForbiddenOracleFieldName)
 	if err != nil {
 		return sm, err
 	}
