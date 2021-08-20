@@ -69,7 +69,7 @@ The `message` command has created and modified several files:
 * created `x/blog/types/message_createPost.go`
 * modified `x/blog/types/codec.go`
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created:
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to define the id for `message MsgCreatePostResponse`:
 
 ```go
 message MsgCreatePost {
@@ -79,6 +79,7 @@ message MsgCreatePost {
 }
 
 message MsgCreatePostResponse {
+  uint64 id = 1;
 }
 ```
 
@@ -113,7 +114,11 @@ Every module has a handler function like this to process messages and call keepe
 
 ## Register the Query Handler 
 
-In the `x/blog/module.go` file, register the query handler:
+In the `x/blog/module.go` file:
+
+1. Add `"context"` to the imports.
+ 
+2. Register the query handler:
 
 ```bash
 // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
@@ -286,6 +291,8 @@ By following these steps, you have implemented all of the code required to creat
 - `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`. 
 - `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID.
 
+## Create a Post
+
 Try it out! If the chain is yet not started, run `starport chain serve`. 
 
 Create a post:
@@ -386,7 +393,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 
 Now that you have implemented logic for creating and querying posts, you can use the node's binary to interact with your chain. Your blog chain binary is `blogd`.
 
-To create a post:
+To create a post using the command line:
 
 ```bash
 blogd tx blog create-post foo bar --from alice
