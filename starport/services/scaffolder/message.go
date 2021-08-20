@@ -2,6 +2,8 @@ package scaffolder
 
 import (
 	"fmt"
+	"os"
+	
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -10,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
-	"os"
 )
 
 // messageOptions represents configuration for the message scaffolding

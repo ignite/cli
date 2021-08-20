@@ -3,10 +3,10 @@ package field
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"path/filepath"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
