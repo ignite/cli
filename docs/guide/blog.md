@@ -111,6 +111,17 @@ The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePos
 
 Every module has a handler function like this to process messages and call keeper methods.
 
+## Register the Query Handler 
+
+In the `x/blog/module.go` file, register the query handler:
+
+```bash
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+```
+
 ## Process Messages
 
 In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post. 
