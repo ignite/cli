@@ -14,6 +14,16 @@ Create scavenge method should do the following:
 
 ```go
 // x/scavenge/keeper/msg_server_submit_scavenge.go
+
+import (
+  "context"
+
+  "github.com/cosmonaut/scavenge/x/scavenge/types"
+  sdk "github.com/cosmos/cosmos-sdk/types"
+  sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+  "github.com/tendermint/tendermint/crypto"
+)
+
 func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitScavenge) (*types.MsgSubmitScavengeResponse, error) {
   // get context that contains information about the environment, such as block height
 	ctx := sdk.UnwrapSDKContext(goCtx)
@@ -60,6 +70,10 @@ Notice the use of `moduleAcct`. This account is not controlled by a public key p
 
 ```go
 // x/scavenge/types/expected_keepers.go
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
 type BankKeeper interface {
 	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
@@ -74,6 +88,15 @@ Commit solution method should do the following:
 
 ```go
 // x/scavenge/keeper/msg_server_commit_solution.go
+
+import (
+	"context"
+
+	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSolution) (*types.MsgCommitSolutionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
   // create a new commit from the information in the MsgCommitSolution message
@@ -107,6 +130,17 @@ Reveal solution method should do the following:
 
 ```go
 // x/scavenge/keeper/msg_server_reveal_solution.go
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
+
+	"github.com/cosmonaut/scavenge/x/scavenge/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/tendermint/tendermint/crypto"
+)
+
 func (k msgServer) RevealSolution(goCtx context.Context, msg *types.MsgRevealSolution) (*types.MsgRevealSolutionResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
   // concatenate a solution and a scavenger address and convert it to bytes

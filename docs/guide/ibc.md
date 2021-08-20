@@ -55,7 +55,7 @@ Use Starport to scaffold the blockchain app and the blog module.
 To scaffold a new blockchain named `planet`:
 
 ```go
-starport scaffold chain github.com/cosmonaut/planet
+starport scaffold chain github.com/cosmonaut/planet --no-module
 cd planet
 ```
 
@@ -357,21 +357,33 @@ init:
 
 Open a terminal window and run the following command to start the `earth` blockchain:
 
-```
+```bash
 starport chain serve -c earth.yml
 ```
 
 Open a different terminal window and run the following command to start the `mars` blockchain:
 
-```
+```bash
 starport chain serve -c mars.yml
 ```
+
+### Remove Existing Relayer and Starport Configurations
+
+If you previously used the relayer, follow these steps to remove exiting relayer and Starport configurations:
+
+- Stop your blockchains and delete previous configuration files:
+
+    ```bash
+    rm -rf ~/.starport/relayer
+    ```
+
+If existing configurations do not exist, the command returns `no matches found` and no action is taken.
 
 ### Configure and start the relayer
 
 First, configure the relayer. Use the Starport `configure` command with the `--advanced` option:
 
-```
+```bash
 starport relayer configure -a \
 --source-rpc "http://0.0.0.0:26657" \
 --source-faucet "http://0.0.0.0:4500" \
@@ -391,7 +403,7 @@ starport relayer configure -a \
 
 The output looks like:
 
-```
+```bash
 ---------------------------------------------
 Setting up chains
 ---------------------------------------------
@@ -411,13 +423,13 @@ Setting up chains
 
 Then, start the relayer process in a separate terminal window:
 
-```
+```bash
 starport relayer connect
 ```
 
 Results:
 
-```
+```bash
 🔌  Linked chains with 1 paths.
 
 ---------------------------------------------
@@ -437,19 +449,19 @@ Listening and relaying packets between chains...
 
 You can now send packets and verify the received posts:
 
-```
+```bash
 planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Mars, I'm Alice from Earth" --from alice --chain-id earth --home ~/.earth
 ```
 
 To verify that the post has been received on Mars:
 
-```
+```bash
 planetd q blog list-post --node tcp://localhost:26659
 ```
 
 The packet has been received:
 
-```
+```bash
 Post:
 - content: Hello Mars, I'm Alice from Earth
   creator: blog-channel-0-cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
@@ -462,13 +474,13 @@ pagination:
 
 To check if the packet has been acknowledged on Earth:
 
-```
+```bash
 planetd q blog list-sent-post
 ```
 
 Output:
 
-```
+```bash
 SentPost:
 - chain: blog-channel-0
   creator: cosmos1aew8dk9cs3uzzgeldatgzvm5ca2k4m98xhy20x
@@ -482,19 +494,19 @@ pagination:
 
 To test timeout, set the timeout time of a packet to 1 nanosecond, verify that the packet is timed out, and check the timed-out posts:
 
-```
+```bash
 planetd tx blog send-ibc-post blog channel-0 "Sorry" "Sorry Mars, you will never see this post" --from alice --chain-id earth --home ~/.earth --packet-timeout-timestamp 1
 ```
 
 Check the timed-out posts:
 
-```
+```bash
 planetd q blog list-timedout-post
 ```
 
 Results:
 
-```
+```bash
 TimedoutPost:
 - chain: blog-channel-0
   creator: cosmos1fhpcsxn0g8uask73xpcgwxlfxtuunn3ey5ptjv
@@ -507,19 +519,19 @@ pagination:
 
 You can also send a post from Mars:
 
-```
+```bash
 planetd tx blog send-ibc-post blog channel-0 "Hello" "Hello Earth, I'm Alice from Mars" --from alice --chain-id mars --home ~/.mars --node tcp://localhost:26659
 ```
 
 List post on Earth:
 
-```
+```bash
 planetd q blog list-post
 ```
 
 Results:
 
-```
+```bash
 Post:
 - content: Hello Earth, I'm Alice from Mars
   creator: blog-channel-0-cosmos1xtpx43l826348s59au24p22pxg6q248638q2tf
