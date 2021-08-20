@@ -4,7 +4,7 @@ order: 3
 description: Learn module basics by writing and reading blog posts to your chain.
 ---
 
-# Building a Blog
+# Build a Blog
 
 Learn module basics by building a blockchain app to write and read blog posts. 
 
@@ -389,7 +389,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-## Using CLI to Create and Display Posts
+## Use the CLI To Create And Display Posts
 
 Now that you have implemented logic for creating and querying posts, you can use the node's binary to interact with your chain. Your blog chain binary is `blogd`.
 

@@ -6,9 +6,11 @@ order: 3
 
 ## Order Book
 
-Using the exchange starts from creating a order book for a pair of tokens:
+In this chapter you will build learn how to build the order book.
+The next chapter contains the code for the implementation. First, learn what you are going to implement.
+To use the exchange start from creating a order book for a pair of tokens:
 
-```
+```bash
 interchanged tx ibcdex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
 
 # Create pair broadcasted to the source blockchain
@@ -45,7 +47,7 @@ To make it possible `createPair` first sends an IBC packet to the target chain. 
 
 Once an order book is created, the next step is to create a sell order:
 
-```
+```bash
 interchanged tx ibcdex send-sell-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]
 
 # Sell order broadcasted to the source blockchain
@@ -76,7 +78,7 @@ SellOrderBook:
 
 A buy order has the same set of arguments: amount of tokens to be purchased and a price.
 
-```
+```bash
 `interchanged tx ibcdex send-buy-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]`
 
 # Buy order broadcasted to the target blockchain
@@ -107,7 +109,7 @@ BuyOrderBook:
 
 We now have two orders open for MCX: a sell order on the source chain (for 10mcx at 15vcx) and a buy order on the target chain (for 5mcx at 5vcx). Let's perform an exchange by sending a sell order to the source chain.
 
-```
+```bash
 # Sell order broadcasted to the source chain
 interchanged tx ibcdex send-sell-order ibcdex channel-0 mcx 5 vcx 3
 ```
@@ -153,7 +155,7 @@ balances:
 
 An order is sent to buy 5mcx for 15vcx.
 
-```
+```bash
 # Buy order broadcasted to the target chain
 interchanged tx ibcdex send-buy-order ibcdex channel-0 mcx 5 vcx 15
 ```
@@ -193,7 +195,7 @@ balances:
 
 An order is sent to sell 10mcx for 3vcx.
 
-```
+```bash
 # Source blockchain
 interchanged tx ibcdex send-sell-order ibcdex channel-0 mcx 10 vcx 3
 ```
@@ -243,7 +245,7 @@ SellOrderBook:
 
 An order is created to buy 10 mcx for 5 vcx.
 
-```
+```bash
 # Target blockchain
 interchanged tx ibcdex send-buy-order ibcdex channel-0 mcx 10 vcx 5
 ```
@@ -297,7 +299,7 @@ After the exchanges we have two orders open: sell order on the source chain (5mc
 
 Cancelling a sell order:
 
-```
+```bash
 # Source blockchain
 interchanged tx ibcdex cancel-sell-order ibcdex channel-0 mcx vcx 2
 ```
@@ -309,11 +311,11 @@ balances:
   denom: mcx
 ```
 
-Sell order book on the source blokchain is now empty.
+The sell order book on the source blokchain is now empty.
 
 Cancelling a buy order:
 
-```
+```bash
 # Target blockchain
 interchanged tx ibcdex cancel-buy-order ibcdex channel-0 mcx vcx 5
 ```
@@ -325,4 +327,4 @@ balances:
   denom: vcx
 ```
 
-Buy order book on the target blokchain is now empty.
+The buy order book on the target blokchain is now empty.

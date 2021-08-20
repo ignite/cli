@@ -8,7 +8,7 @@ Scaffold a new Cosmos SDK blockchain using the `starport scaffold chain` command
 
 By default a chain is scaffolded with a new empty Cosmos SDK module. Use the `--no-module` flag to skip module scaffolding.
 
-```
+```bash
 starport scaffold chain github.com/cosmonaut/scavenge --no-module
 ```
 
@@ -16,7 +16,7 @@ This command created a new directory `scavenge` with a brand new Cosmos SDK bloc
 
 Change the current directory to `scavenge`:
 
-```
+```bash
 cd scavenge
 ```
 
@@ -26,7 +26,7 @@ In a Cosmos SDK blockchain, application-specific logic is implemented in separat
 
 Scaffold a new module called `scavenge`. Based on our design the `scavenge` module will be sending tokens between participants. Sending tokens is implemented in the standard `bank` module. Specify `bank` as a dependency using the optional `--dep` flag.
 
-```
+```bash
 starport scaffold module scavenge --dep bank
 ```
 
