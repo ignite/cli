@@ -124,7 +124,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(o.fields, moduleName, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
 	}
@@ -206,7 +206,7 @@ func checkForbiddenTypeField(name string) error {
 // mapGenerator returns the template generator for a map
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeField)
+	parsedIndexes, err := field.ParseFields(indexes, opts.ModuleName, checkForbiddenTypeField)
 	if err != nil {
 		return nil, err
 	}

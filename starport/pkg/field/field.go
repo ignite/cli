@@ -3,6 +3,8 @@ package field
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
+	"path/filepath"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -13,6 +15,31 @@ const (
 	TypeBool   = "bool"
 	TypeInt32  = "int32"
 	TypeUint64 = "uint64"
+)
+
+var (
+	protoInterfaces = []string{
+		"Reset",
+		"String",
+		"ProtoMessage",
+		"Descriptor",
+		"XXX_Unmarshal",
+		"XXX_Marshal",
+		"XXX_Merge",
+		"XXX_Size",
+		"XXX_DiscardUnknown",
+		"Size",
+		"Marshal",
+		"MarshalTo",
+		"MarshalToSizedBuffer",
+		"Unmarshal",
+	}
+	staticTypes = map[string]string{
+		"string": TypeString,
+		"bool":   TypeBool,
+		"int":    TypeInt32,
+		"uint":   TypeUint64,
+	}
 )
 
 type (
@@ -28,8 +55,32 @@ type (
 	Fields []Field
 )
 
+func getAcceptedTypes(field string, module string) (string, bool) {
+	// check static types before use cosmosanalysis package
+	datatype, ok := staticTypes[field]
+	if ok || module == "" {
+		return datatype, ok
+	}
+
+	// find declared struct types that implement the proto interfaces
+	impls, err := cosmosanalysis.FindImplementation(
+		filepath.Join("x", module, "types"),
+		protoInterfaces,
+	)
+	if err != nil {
+		return "", false
+	}
+
+	for _, impl := range impls {
+		if impl == field {
+			return impl, true
+		}
+	}
+	return "", false
+}
+
 // ParseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func ParseFields(fields []string, isForbiddenField func(string) error) (Fields, error) {
+func ParseFields(fields []string, module string, isForbiddenField func(string) error) (Fields, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
@@ -60,14 +111,7 @@ func ParseFields(fields []string, isForbiddenField func(string) error) (Fields, 
 		datatypeName, datatype := TypeString, TypeString
 		isTypeSpecified := len(fieldSplit) == 2
 		if isTypeSpecified {
-			acceptedTypes := map[string]string{
-				"string": TypeString,
-				"bool":   TypeBool,
-				"int":    TypeInt32,
-				"uint":   TypeUint64,
-			}
-
-			if t, ok := acceptedTypes[fieldSplit[1]]; ok {
+			if t, ok := getAcceptedTypes(fieldSplit[1], module); ok {
 				datatype = t
 				datatypeName = fieldSplit[1]
 			} else {

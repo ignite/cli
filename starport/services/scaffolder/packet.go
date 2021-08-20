@@ -57,13 +57,13 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Parse packet fields
-	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
+	parsedPacketFields, err := field.ParseFields(packetFields, moduleName, checkForbiddenPacketField)
 	if err != nil {
 		return sm, err
 	}
 
 	// Parse acknowledgment fields
-	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
+	parsedAcksFields, err := field.ParseFields(ackFields, moduleName, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}

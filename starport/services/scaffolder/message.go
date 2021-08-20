@@ -2,8 +2,6 @@ package scaffolder
 
 import (
 	"fmt"
-	"os"
-
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -12,6 +10,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"os"
 )
 
 // messageOptions represents configuration for the message scaffolding
@@ -85,11 +84,11 @@ func (s *Scaffolder) AddMessage(
 	}
 
 	// Parse provided fields
-	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, moduleName, checkForbiddenMessageField)
 	if err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, moduleName, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}
