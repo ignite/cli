@@ -113,7 +113,7 @@ Every module has a handler function like this to process messages and call keepe
 
 ## Process Messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost`. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post. 
+In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post. 
 
 You need to do two things: 
 
@@ -124,6 +124,7 @@ You need to do two things:
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
   // Get the context
   ctx := sdk.UnwrapSDKContext(goCtx)
+  // Create variable of type Post
   var post = types.Post{
     Creator: msg.Creator,
     Title:   msg.Title,
@@ -158,7 +159,7 @@ message Post {
 
 The contents of the `post.proto` file are fairly standard. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Post`. 
 
-Now, after you build and start your chain with Starport, the `Post` type is available.
+Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Post` type is available.
 
 ### Define Keeper Methods 
 
