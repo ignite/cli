@@ -12,7 +12,7 @@ const (
 
 // ExtendPlushContext sets available helpers on the provided context.
 func ExtendPlushContext(ctx *plush.Context) {
-	ctx.Set("castArgs", CastArgs)
+	ctx.Set("castArg", castArg)
 	ctx.Set("castToBytes", CastToBytes)
 	ctx.Set("castToString", CastToString)
 	ctx.Set("genValidArg", GenerateValidArg)
