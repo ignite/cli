@@ -12,7 +12,7 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
     cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -54,7 +54,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
 		Short: "Update a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -96,7 +96,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.LowerCamel %>]<% } %>",
+		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {

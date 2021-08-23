@@ -1,4 +1,4 @@
-package spn
+package cosmosclient
 
 import (
 	"io"
@@ -8,7 +8,6 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	cryptocodec "github.com/cosmos/cosmos-sdk/crypto/codec"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
@@ -22,7 +21,13 @@ const (
 	defaultGasLimit      = 300000
 )
 
-func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer, home string) client.Context {
+// NewContext creates a new client context.
+func NewContext(
+	c *rpchttp.HTTP,
+	out io.Writer,
+	chainID,
+	home string,
+) client.Context {
 	encodingConfig := params.MakeEncodingConfig()
 	authtypes.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 	cryptocodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
@@ -31,8 +36,7 @@ func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer, home strin
 	cryptocodec.RegisterInterfaces(encodingConfig.InterfaceRegistry)
 
 	return client.Context{}.
-		WithChainID(spn).
-		WithKeyring(kr).
+		WithChainID(chainID).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
 		WithJSONMarshaler(encodingConfig.Marshaler).
 		WithTxConfig(encodingConfig.TxConfig).
@@ -46,7 +50,7 @@ func NewClientCtx(kr keyring.Keyring, c *rpchttp.HTTP, out io.Writer, home strin
 		WithSkipConfirmation(true)
 }
 
-// NewFactory creates a new Factory.
+// NewFactory creates a new tx factory.
 func NewFactory(clientCtx client.Context) tx.Factory {
 	return tx.Factory{}.
 		WithChainID(clientCtx.ChainID).

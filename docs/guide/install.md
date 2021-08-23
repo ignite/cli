@@ -11,14 +11,14 @@ You can run Starport in a web-based Gitpod IDE or you can install Starport on yo
 
 Starport is written in the Go programming language. To use Starport on a local system:
 
- - Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
- - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
- 
+- Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
+- Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
+
 ## Installing Starport
 
 To install the latest version of the `starport` binary use the following command.
 
-```
+```bash
 curl https://get.starport.network/starport! | bash
 ```
 
@@ -30,13 +30,13 @@ To learn more or customize the installation process, see [Starport installer doc
 
 Starport installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
 
-```
+```bash
 curl https://get.starport.network/starport | bash
 ```
 
 Then run this command to move the `starport` executable to `/usr/local/bin/`:
 
-```
+```bash
 sudo mv starport /usr/local/bin/
 ```
 
@@ -51,17 +51,17 @@ To remove the current Starport installation:
    Depending on your user permissions, run the command with or without `sudo`.
 1. Repeat this step until all `starport` installations are removed from your system.
 
-After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo. 
+After all existing Starport installations are removed, follow the [Installing Starport with cURL](#installing-starport-with-curl) instructions. For details on version features and changes, see the [changelog.md](https://github.com/tendermint/starport/blob/develop/changelog.md) in the repo.
 
 ## Installing Starport on macOS with Homebrew
 
-```
+```bash
 brew install tendermint/tap/starport
 ```
 
 ## Build from source
 
-```
+```bash
 git clone https://github.com/tendermint/starport --depth=1
 cd starport && make install
 ```

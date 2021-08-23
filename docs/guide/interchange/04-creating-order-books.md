@@ -91,8 +91,11 @@ In the following section you'll be implementing packet reception logic in the `O
 The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
 First you will need to add the proto buffer files. This builds the according go code files that you can then modify for the purpose of your app.
 
+<<<<<<< HEAD
 Create a new `order.proto` file in the `proto/ibcdex` directory and add the content.
 
+=======
+>>>>>>> docs-dev-guide
 ```proto
 // proto/ibcdex/order.proto
 syntax = "proto3";

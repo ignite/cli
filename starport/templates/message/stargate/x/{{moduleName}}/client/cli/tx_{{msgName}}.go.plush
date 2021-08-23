@@ -14,7 +14,7 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= MsgName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "<%= MsgName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {

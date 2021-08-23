@@ -10,7 +10,6 @@ import (
 )
 
 const (
-	flagAddressPrefix   = "address-prefix"
 	flagNoDefaultModule = "no-module"
 )
 

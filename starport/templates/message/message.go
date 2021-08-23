@@ -27,6 +27,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("MsgName", opts.MsgName)
 	ctx.Set("MsgDesc", opts.MsgDesc)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
