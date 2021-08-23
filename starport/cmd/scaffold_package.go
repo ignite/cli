@@ -58,11 +58,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-
-	signer, err := cmd.Flags().GetString(flagSigner)
-	if err != nil {
-		return err
-	}
+	signer := flagGetSigner(cmd)
 
 	var options []scaffolder.PacketOption
 	if noMessage {
