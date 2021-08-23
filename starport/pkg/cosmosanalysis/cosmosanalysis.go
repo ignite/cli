@@ -72,6 +72,50 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	return found, nil
 }
 
+// FindStruct finds the specific struct
+func FindStruct(modulePath string) (map[string][]string, error) {
+	// parse go packages/files under path
+	fset := token.NewFileSet()
+	fields := make(map[string][]string, 0)
+	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
+	if err != nil {
+		return nil, err
+	}
+
+	for _, pkg := range pkgs {
+		for _, f := range pkg.Files {
+			ast.Inspect(f, func(n ast.Node) bool {
+				// look for struct types.
+				structType, ok := n.(*ast.StructType)
+				if !ok {
+					return true
+				}
+
+				for _, field := range structType.Fields.List {
+					i, ok := field.Type.(*ast.Ident)
+					if !ok {
+						return true
+					}
+
+					fieldType := i.Name
+					//if _, ok := fields[fieldType]; !ok {
+						fields[fieldType] = make([]string, 0)
+					//}
+
+					for _, name := range field.Names {
+						fields[fieldType] = append(fields[fieldType], name.Name)
+					}
+
+				}
+
+				return true
+			})
+		}
+	}
+
+	return fields, nil
+}
+
 // newImplementation returns a new object to parse implementation of an interface
 func newImplementation(interfaceList []string) implementation {
 	impl := make(implementation)

@@ -3,7 +3,7 @@ package scaffolder
 import (
 	"fmt"
 	"os"
-	
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"

@@ -63,19 +63,18 @@ func getAcceptedTypes(field string, module string) (string, bool) {
 	}
 
 	// find declared struct types that implement the proto interfaces
-	impls, err := cosmosanalysis.FindImplementation(
+	_, err := cosmosanalysis.FindStruct(
 		filepath.Join("x", module, "types"),
-		protoInterfaces,
 	)
 	if err != nil {
 		return "", false
 	}
 
-	for _, impl := range impls {
-		if impl == field {
-			return impl, true
-		}
-	}
+	//for _, impl := range impls {
+		//if impl == field {
+		//	return impl, true
+		//}
+	//}
 	return "", false
 }
 

@@ -15,9 +15,10 @@ func castArg(name, datatypeName, datatype string, argIndex int) string {
 		return fmt.Sprintf(`%s, err := cast.To%sE(args[%d])
             if err != nil {
                 return err
-            }`, name, strings.Title(datatype), argIndex)
+            }`,
+			name, strings.Title(datatype), argIndex)
 	default:
-		panic(fmt.Sprintf("unknown type %s", datatype))
+		return fmt.Sprintf(`%[1]v := types.%[2]v{}`, name, datatype)
 	}
 }
 
@@ -39,7 +40,9 @@ func CastToBytes(varName string, datatypeName string) string {
 			%[1]vBytes = []byte{1}
 		}`, varName)
 	default:
-		panic(fmt.Sprintf("unknown type %s", datatypeName))
+		return fmt.Sprintf(`%[1]vBufferBytes := new(bytes.Buffer)
+		json.NewEncoder(%[1]vBytes).Encode(%[1]v)
+		%[1]vBytes := reqBodyBytes.Bytes()`, varName)
 	}
 }
 
@@ -53,6 +56,6 @@ func CastToString(varName string, datatypeName string) string {
 	case datatypeBool:
 		return fmt.Sprintf("strconv.FormatBool(%s)", varName)
 	default:
-		panic(fmt.Sprintf("unknown type %s", datatypeName))
+		return fmt.Sprintf("fmt.Sprintf(\"%s\", %s)", "%+v", varName)
 	}
 }
