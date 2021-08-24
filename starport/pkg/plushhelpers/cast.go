@@ -3,22 +3,24 @@ package plushhelpers
 import (
 	"fmt"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/field"
 )
 
 // castArg returns the line of code to cast a value received from CLI of type string into its datatype
 // Don't forget to import github.com/spf13/cast in templates
-func castArg(name, datatypeName, datatype string, argIndex int) string {
-	switch datatypeName {
+func castArg(field field.Field, argIndex int) string {
+	switch field.DatatypeName {
 	case datatypeString:
-		return fmt.Sprintf("%s := args[%d]", name, argIndex)
+		return fmt.Sprintf("%s := args[%d]", field.Name.UpperCamel, argIndex)
 	case datatypeUint, datatypeInt, datatypeBool:
 		return fmt.Sprintf(`%s, err := cast.To%sE(args[%d])
             if err != nil {
                 return err
             }`,
-			name, strings.Title(datatype), argIndex)
+			field.Name.UpperCamel, strings.Title(field.Datatype), argIndex)
 	default:
-		return fmt.Sprintf(`%[1]v := types.%[2]v{}`, name, datatype)
+		return fmt.Sprintf(`%[1]v := types.%[2]v{}`, field.Name.UpperCamel, field.Datatype)
 	}
 }
 

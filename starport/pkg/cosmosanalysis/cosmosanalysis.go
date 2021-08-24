@@ -3,6 +3,7 @@
 package cosmosanalysis
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -72,48 +73,81 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	return found, nil
 }
 
-// FindStruct finds the specific struct
-func FindStruct(modulePath string) (map[string][]string, error) {
+const (
+	TypeString = "string"
+	TypeBool   = "bool"
+	TypeInt32  = "int32"
+	TypeInt    = "int"
+	TypeUint64 = "uint64"
+	TypeUint   = "uint"
+)
+
+var (
+	staticTypes = map[string]string{
+		TypeString: TypeString,
+		TypeBool:   TypeBool,
+		TypeInt32:  TypeInt,
+		TypeUint64: TypeUint,
+	}
+)
+
+// FindStructFields finds the fields from a specific struct declared into the app
+func FindStructFields(modulePath, structName string) ([]string, error) {
 	// parse go packages/files under path
 	fset := token.NewFileSet()
-	fields := make(map[string][]string, 0)
+	fields := make([]string, 0)
 	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
 	if err != nil {
 		return nil, err
 	}
 
+	found := false
 	for _, pkg := range pkgs {
 		for _, f := range pkg.Files {
 			ast.Inspect(f, func(n ast.Node) bool {
-				// look for struct types.
-				structType, ok := n.(*ast.StructType)
+				// look for struct methods.
+				structSpec, ok := n.(*ast.TypeSpec)
 				if !ok {
 					return true
 				}
+				specName := structSpec.Name.Name
 
+				structType, ok := structSpec.Type.(*ast.StructType)
+				if !ok || structName != specName {
+					return true
+				}
+				found = true
+
+				// Search for the keeper specific field
 				for _, field := range structType.Fields.List {
 					i, ok := field.Type.(*ast.Ident)
-					if !ok {
-						return true
+					if !ok || len(field.Names) == 0 {
+						continue
 					}
-
 					fieldType := i.Name
-					//if _, ok := fields[fieldType]; !ok {
-						fields[fieldType] = make([]string, 0)
-					//}
-
-					for _, name := range field.Names {
-						fields[fieldType] = append(fields[fieldType], name.Name)
+					if fieldType, ok := staticTypes[fieldType]; ok {
+						for _, fieldName := range field.Names {
+							fieldString := fmt.Sprintf("%s:%s", fieldName.Name, fieldType)
+							fields = append(fields, fieldString)
+						}
+						continue
 					}
 
+					customFields, err := FindStructFields(modulePath, fieldType)
+					if err != nil {
+						return false
+					}
+					fields = append(fields, customFields...)
 				}
-
 				return true
 			})
 		}
 	}
 
-	return fields, nil
+	if !found {
+		return fields, fmt.Errorf("struct '%s' not found", structName)
+	}
+	return fields, err
 }
 
 // newImplementation returns a new object to parse implementation of an interface

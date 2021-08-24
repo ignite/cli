@@ -11,29 +11,17 @@ import (
 )
 
 const (
+	TypeCustom = "custom"
 	TypeString = "string"
 	TypeBool   = "bool"
 	TypeInt32  = "int32"
 	TypeUint64 = "uint64"
+
+	FolderX     = "x"
+	FolderTypes = "types"
 )
 
 var (
-	protoInterfaces = []string{
-		"Reset",
-		"String",
-		"ProtoMessage",
-		"Descriptor",
-		"XXX_Unmarshal",
-		"XXX_Marshal",
-		"XXX_Merge",
-		"XXX_Size",
-		"XXX_DiscardUnknown",
-		"Size",
-		"Marshal",
-		"MarshalTo",
-		"MarshalToSizedBuffer",
-		"Unmarshal",
-	}
 	staticTypes = map[string]string{
 		"string": TypeString,
 		"bool":   TypeBool,
@@ -49,55 +37,51 @@ type (
 		Name         multiformatname.Name
 		Datatype     string
 		DatatypeName string
+		Nested       Fields
 	}
 
 	// Fields represents a Field slice
 	Fields []Field
 )
 
-func getAcceptedTypes(field string, module string) (string, bool) {
-	// check static types before use cosmosanalysis package
-	datatype, ok := staticTypes[field]
-	if ok || module == "" {
-		return datatype, ok
+func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, string, error) {
+	fieldSplit := strings.Split(field, ":")
+	if len(fieldSplit) > 2 {
+		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
 	}
 
-	// find declared struct types that implement the proto interfaces
-	_, err := cosmosanalysis.FindStruct(
-		filepath.Join("x", module, "types"),
-	)
+	name, err := multiformatname.NewName(fieldSplit[0])
 	if err != nil {
-		return "", false
+		return name, "", err
+
 	}
 
-	//for _, impl := range impls {
-		//if impl == field {
-		//	return impl, true
-		//}
-	//}
-	return "", false
+	// Ensure the field name is not a Go reserved name, it would generate an incorrect code
+	if err := isForbiddenField(name.LowerCamel); err != nil {
+		return name, "", fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
+	}
+
+	dataTypeName := TypeString
+	isTypeSpecified := len(fieldSplit) == 2
+	if isTypeSpecified {
+		dataTypeName = fieldSplit[1]
+	}
+	return name, dataTypeName, nil
 }
 
 // ParseFields parses the provided fields, analyses the types and checks there is no duplicated field
-func ParseFields(fields []string, module string, isForbiddenField func(string) error) (Fields, error) {
+func ParseFields(
+	fields []string,
+	module string,
+	isForbiddenField func(string) error,
+) (parsedFields Fields, err error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
-	var parsedFields Fields
 	for _, field := range fields {
-		fieldSplit := strings.Split(field, ":")
-		if len(fieldSplit) > 2 {
-			return parsedFields, fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
-		}
-
-		name, err := multiformatname.NewName(fieldSplit[0])
+		name, datatypeName, err := validateField(field, isForbiddenField)
 		if err != nil {
 			return parsedFields, err
-		}
-
-		// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-		if err := isForbiddenField(name.LowerCamel); err != nil {
-			return parsedFields, fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
 		}
 
 		// Ensure the field is not duplicated
@@ -106,26 +90,37 @@ func ParseFields(fields []string, module string, isForbiddenField func(string) e
 		}
 		existingFields[name.LowerCamel] = true
 
-		// Parse the type if it is provided, otherwise string is used by defaut
-		datatypeName, datatype := TypeString, TypeString
-		isTypeSpecified := len(fieldSplit) == 2
-		if isTypeSpecified {
-			if t, ok := getAcceptedTypes(fieldSplit[1], module); ok {
-				datatype = t
-				datatypeName = fieldSplit[1]
-			} else {
-				return parsedFields, fmt.Errorf("the field type %s doesn't exist", fieldSplit[1])
-			}
+		// Parse the type if it is provided, otherwise string is used by default
+		datatype := TypeString
+		if t, ok := staticTypes[datatypeName]; ok {
+			datatype = t
+			parsedFields = append(parsedFields, Field{
+				Name:         name,
+				Datatype:     datatype,
+				DatatypeName: datatypeName,
+			})
+			continue
+		}
+
+		datatype = datatypeName
+		path := filepath.Join(FolderX, module, FolderTypes)
+		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName)
+		if err != nil {
+			return parsedFields, err
+		}
+		nestedFields, err := ParseFields(structFields, module, isForbiddenField)
+		if err != nil {
+			return parsedFields, err
 		}
 
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
 			Datatype:     datatype,
-			DatatypeName: datatypeName,
+			DatatypeName: TypeCustom,
+			Nested:       nestedFields,
 		})
 	}
-
-	return parsedFields, nil
+	return
 }
 
 func (f Fields) NeedCast() bool {

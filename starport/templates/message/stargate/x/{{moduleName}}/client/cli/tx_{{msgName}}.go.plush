@@ -20,7 +20,7 @@ func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-      		<%= for (i, field) in Fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
+      		<%= for (i, field) in Fields { %> arg<%= castArg(field, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
