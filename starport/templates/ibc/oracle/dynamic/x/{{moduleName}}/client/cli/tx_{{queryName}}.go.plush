@@ -9,7 +9,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 // CmdRequest<%= queryName.UpperCamel %>Data creates and broadcast a <%= queryName.UpperCamel %> request transaction

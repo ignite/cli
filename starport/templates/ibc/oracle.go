@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -33,6 +34,7 @@ var (
 // OracleOptions are options to scaffold an oracle query in a IBC module
 type OracleOptions struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
@@ -60,7 +62,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
-	ctx.Set("modulePath", opts.ModulePath)
+	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("queryName", opts.QueryName)
@@ -69,6 +71,10 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
+
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return g, err
+	}
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

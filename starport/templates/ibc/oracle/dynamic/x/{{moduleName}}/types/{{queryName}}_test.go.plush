@@ -18,12 +18,21 @@ func TestMsg<%= queryName.UpperCamel %>Data_ValidateBasic(t *testing.T) {
 			name: "invalid address",
 			msg: Msg<%= queryName.UpperCamel %>Data{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
+				SourceChannel: "channel-0",
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
-			name: "valid address",
+			name: "invalid source channel",
 			msg: Msg<%= queryName.UpperCamel %>Data{
 				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				SourceChannel: "",
+			},
+			err: sdkerrors.ErrInvalidRequest,
+		}, {
+			name: "valid message",
+			msg: Msg<%= queryName.UpperCamel %>Data{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				SourceChannel: "channel-0",
 			},
 		},
 	}
