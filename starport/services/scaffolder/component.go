@@ -207,3 +207,28 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 	}
 	return err
 }
+
+// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
+func checkForbiddenOracleFieldName(name string) error {
+	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
+	if err != nil {
+		return err
+	}
+
+	// Check with names already used from the scaffolded code
+	switch mfName.UpperCase {
+	case
+		"CLIENTID",
+		"ORACLESCRIPTID",
+		"SOURCECHANNEL",
+		"CALLDATA",
+		"ASKCOUNT",
+		"MINCOUNT",
+		"FEELIMIT",
+		"REQUESTKEY",
+		"PREPAREGAS",
+		"EXECUTEGAS":
+		return fmt.Errorf("%s is used by Starport scaffolder", name)
+	}
+	return nil
+}

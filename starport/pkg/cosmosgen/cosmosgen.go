@@ -86,6 +86,7 @@ type generator struct {
 	appPath      string
 	protoDir     string
 	o            *generateOptions
+	sdkImport    string
 	deps         []gomodmodule.Version
 	appModules   []module.Module
 	thirdModules map[string][]module.Module // app dependency-modules pair.

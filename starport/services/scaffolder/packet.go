@@ -18,6 +18,36 @@ const (
 	ibcModuleImplementation = "module_ibc.go"
 )
 
+// packetOptions represents configuration for the packet scaffolding
+type packetOptions struct {
+	withoutMessage bool
+	signer         string
+}
+
+// newPacketOptions returns a packetOptions with default options
+func newPacketOptions() packetOptions {
+	return packetOptions{
+		signer: "creator",
+	}
+}
+
+// PacketOption configures the packet scaffolding
+type PacketOption func(*packetOptions)
+
+// PacketWithoutMessage disables generating sdk compatible messages and tx related APIs.
+func PacketWithoutMessage() PacketOption {
+	return func(o *packetOptions) {
+		o.withoutMessage = true
+	}
+}
+
+// PacketWithSigner provides a custom signer name for the packet
+func PacketWithSigner(signer string) PacketOption {
+	return func(m *packetOptions) {
+		m.signer = signer
+	}
+}
+
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(
 	tracer *placeholder.Tracer,
@@ -25,11 +55,17 @@ func (s *Scaffolder) AddPacket(
 	packetName string,
 	packetFields,
 	ackFields []string,
-	noMessage bool,
+	options ...PacketOption,
 ) (sm xgenny.SourceModification, err error) {
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return sm, err
+	}
+
+	// apply options.
+	o := newPacketOptions()
+	for _, apply := range options {
+		apply(&o)
 	}
 
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
@@ -43,7 +79,12 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, noMessage); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+		return sm, err
+	}
+
+	mfSigner, err := multiformatname.NewName(o.signer)
+	if err != nil {
 		return sm, err
 	}
 
@@ -79,7 +120,8 @@ func (s *Scaffolder) AddPacket(
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
-			NoMessage:  noMessage,
+			NoMessage:  o.withoutMessage,
+			MsgSigner:  mfSigner,
 		}
 	)
 	g, err = ibc.NewPacket(tracer, opts)
