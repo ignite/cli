@@ -9,7 +9,7 @@ import (
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
 	channelutils "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/client/utils"
 )
 
@@ -21,8 +21,6 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
-            <%= for (i, field) in fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
-      		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -31,6 +29,9 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 			<%= MsgSigner.LowerCamel %> := clientCtx.GetFromAddress().String()
             srcPort := args[0]
             srcChannel := args[1]
+
+            <%= for (i, field) in fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+2) %>
+      		<% } %>
 
             // Get the relative timeout timestamp
             timeoutTimestamp, err := cmd.Flags().GetUint64(flagPacketTimeoutTimestamp)

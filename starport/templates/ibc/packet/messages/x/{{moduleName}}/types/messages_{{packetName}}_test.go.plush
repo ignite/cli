@@ -16,14 +16,47 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 	}{
 		{
 			name: "invalid address",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				Sender: "invalid_address",
+			msg: MsgSendBar{
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
+				Port:             "port",
+				ChannelID:        "channel-0",
+				TimeoutTimestamp: 100,
 			},
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
-			name: "valid address",
-			msg: MsgSend<%= packetName.UpperCamel %>{
-				Sender: sample.AccAddress(),
+			name: "invalid port",
+			msg: MsgSendBar{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				Port:             "",
+				ChannelID:        "channel-0",
+				TimeoutTimestamp: 100,
+			},
+			err: sdkerrors.ErrInvalidRequest,
+		}, {
+			name: "invalid channel",
+			msg: MsgSendBar{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				Port:             "port",
+				ChannelID:        "",
+				TimeoutTimestamp: 100,
+			},
+			err: sdkerrors.ErrInvalidRequest,
+		}, {
+			name: "invalid timeout",
+			msg: MsgSendBar{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				Port:             "port",
+				ChannelID:        "channel-0",
+				TimeoutTimestamp: 0,
+			},
+			err: sdkerrors.ErrInvalidRequest,
+		}, {
+			name: "valid message",
+			msg: MsgSendBar{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+				Port:             "port",
+				ChannelID:        "channel-0",
+				TimeoutTimestamp: 100,
 			},
 		},
 	}
