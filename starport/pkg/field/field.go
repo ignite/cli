@@ -91,9 +91,7 @@ func ParseFields(
 		existingFields[name.LowerCamel] = true
 
 		// Parse the type if it is provided, otherwise string is used by default
-		datatype := TypeString
-		if t, ok := staticTypes[datatypeName]; ok {
-			datatype = t
+		if datatype, ok := staticTypes[datatypeName]; ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
 				Datatype:     datatype,
@@ -102,7 +100,6 @@ func ParseFields(
 			continue
 		}
 
-		datatype = datatypeName
 		path := filepath.Join(FolderX, module, FolderTypes)
 		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName)
 		if err != nil {
@@ -115,7 +112,7 @@ func ParseFields(
 
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
-			Datatype:     datatype,
+			Datatype:     datatypeName,
 			DatatypeName: TypeCustom,
 			Nested:       nestedFields,
 		})

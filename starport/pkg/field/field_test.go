@@ -61,12 +61,12 @@ func TestParseFields(t *testing.T) {
 		cases.expected[i].Name, _ = multiformatname.NewName(name)
 	}
 
-	actual, _, err := field.ParseFields(cases.provided, "", noCheck)
+	actual, err := field.ParseFields(cases.provided, "", noCheck)
 	require.NoError(t, err)
 	require.Equal(t, cases.expected, actual)
 
 	// No field provided
-	actual, _, err = field.ParseFields([]string{}, "", noCheck)
+	actual, err = field.ParseFields([]string{}, "", noCheck)
 	require.NoError(t, err)
 	require.Empty(t, actual)
 }
@@ -75,22 +75,22 @@ func TestParseFields2(t *testing.T) {
 	// test failing cases
 
 	// check doesn't pass
-	_, _, err := field.ParseFields([]string{"foo"}, "", alwaysInvalid)
+	_, err := field.ParseFields([]string{"foo"}, "", alwaysInvalid)
 	require.Error(t, err)
 
 	// duplicated field
-	_, _, err = field.ParseFields([]string{"foo", "foo:int"}, "", noCheck)
+	_, err = field.ParseFields([]string{"foo", "foo:int"}, "", noCheck)
 	require.Error(t, err)
 
 	// invalid type
-	_, _, err = field.ParseFields([]string{"foo:invalid"}, "", alwaysInvalid)
+	_, err = field.ParseFields([]string{"foo:invalid"}, "", alwaysInvalid)
 	require.Error(t, err)
 
 	// invalid field name
-	_, _, err = field.ParseFields([]string{"foo@bar:int"}, "", alwaysInvalid)
+	_, err = field.ParseFields([]string{"foo@bar:int"}, "", alwaysInvalid)
 	require.Error(t, err)
 
 	// invalid format
-	_, _, err = field.ParseFields([]string{"foo:int:int"}, "", alwaysInvalid)
+	_, err = field.ParseFields([]string{"foo:int:int"}, "", alwaysInvalid)
 	require.Error(t, err)
 }
