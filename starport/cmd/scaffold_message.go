@@ -36,7 +36,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		module, _    = cmd.Flags().GetString(flagModule)
 		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
 		desc, _      = cmd.Flags().GetString(flagDescription)
-		signer, _    = cmd.Flags().GetString(flagSigner)
+		signer       = flagGetSigner(cmd)
 	)
 
 	var options []scaffolder.MessageOption
