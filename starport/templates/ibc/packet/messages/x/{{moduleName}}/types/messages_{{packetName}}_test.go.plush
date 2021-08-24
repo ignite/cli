@@ -16,7 +16,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 	}{
 		{
 			name: "invalid address",
-			msg: MsgSendBar{
+			msg: MsgSend<%= packetName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: "invalid_address",
 				Port:             "port",
 				ChannelID:        "channel-0",
@@ -25,7 +25,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			err: sdkerrors.ErrInvalidAddress,
 		}, {
 			name: "invalid port",
-			msg: MsgSendBar{
+			msg: MsgSend<%= packetName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 				Port:             "",
 				ChannelID:        "channel-0",
@@ -34,7 +34,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "invalid channel",
-			msg: MsgSendBar{
+			msg: MsgSend<%= packetName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 				Port:             "port",
 				ChannelID:        "",
@@ -43,7 +43,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "invalid timeout",
-			msg: MsgSendBar{
+			msg: MsgSend<%= packetName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 				Port:             "port",
 				ChannelID:        "channel-0",
@@ -52,7 +52,7 @@ func TestMsgSend<%= packetName.UpperCamel %>_ValidateBasic(t *testing.T) {
 			err: sdkerrors.ErrInvalidRequest,
 		}, {
 			name: "valid message",
-			msg: MsgSendBar{
+			msg: MsgSend<%= packetName.UpperCamel %>{
 				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
 				Port:             "port",
 				ChannelID:        "channel-0",
