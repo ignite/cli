@@ -19,6 +19,8 @@ const (
 
 	FolderX     = "x"
 	FolderTypes = "types"
+
+	TypeSeparator = ":"
 )
 
 var (
@@ -44,8 +46,9 @@ type (
 	Fields []Field
 )
 
+// validateField validate the field name and type, and run the forbidden method
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, string, error) {
-	fieldSplit := strings.Split(field, ":")
+	fieldSplit := strings.Split(field, TypeSeparator)
 	if len(fieldSplit) > 2 {
 		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
 	}
@@ -61,6 +64,7 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 		return name, "", fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
 	}
 
+	// Check if the object has an explicit type. The default is a string
 	dataTypeName := TypeString
 	isTypeSpecified := len(fieldSplit) == 2
 	if isTypeSpecified {
@@ -69,7 +73,8 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	return name, dataTypeName, nil
 }
 
-// ParseFields parses the provided fields, analyses the types and checks there is no duplicated field
+// ParseFields parses the provided fields, analyses the types
+// and checks there is no duplicated field
 func ParseFields(
 	fields []string,
 	module string,
@@ -100,6 +105,7 @@ func ParseFields(
 			continue
 		}
 
+		// Check if the custom type is valid and fetch the fields
 		path := filepath.Join(FolderX, module, FolderTypes)
 		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName)
 		if err != nil {
@@ -120,6 +126,8 @@ func ParseFields(
 	return
 }
 
+// NeedCast return true if the field slice needs
+// external cast library
 func (f Fields) NeedCast() bool {
 	for _, field := range f {
 		if field.DatatypeName != TypeString {

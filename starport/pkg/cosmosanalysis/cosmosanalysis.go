@@ -93,7 +93,7 @@ var (
 
 // FindStructFields finds the fields from a specific struct declared into the app
 func FindStructFields(modulePath, structName string) ([]string, error) {
-	// parse go packages/files under path
+	// Parse go packages/files under path
 	fset := token.NewFileSet()
 	fields := make([]string, 0)
 	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
@@ -105,20 +105,21 @@ func FindStructFields(modulePath, structName string) ([]string, error) {
 	for _, pkg := range pkgs {
 		for _, f := range pkg.Files {
 			ast.Inspect(f, func(n ast.Node) bool {
-				// look for struct methods.
+				// Look for struct methods.
 				structSpec, ok := n.(*ast.TypeSpec)
 				if !ok {
 					return true
 				}
 				specName := structSpec.Name.Name
 
+				// Check if it is the struct we want
 				structType, ok := structSpec.Type.(*ast.StructType)
 				if !ok || structName != specName {
 					return true
 				}
 				found = true
 
-				// Search for the keeper specific field
+				// Collect all struct fields
 				for _, field := range structType.Fields.List {
 					i, ok := field.Type.(*ast.Ident)
 					if !ok || len(field.Names) == 0 {
@@ -133,6 +134,7 @@ func FindStructFields(modulePath, structName string) ([]string, error) {
 						continue
 					}
 
+					// Find nested custom fields
 					customFields, err := FindStructFields(modulePath, fieldType)
 					if err != nil {
 						return false
@@ -143,7 +145,6 @@ func FindStructFields(modulePath, structName string) ([]string, error) {
 			})
 		}
 	}
-
 	if !found {
 		return fields, fmt.Errorf("struct '%s' not found", structName)
 	}
