@@ -79,10 +79,11 @@ func ParseFields(
 	fields []string,
 	module string,
 	isForbiddenField func(string) error,
-) (parsedFields Fields, err error) {
+) (Fields, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]bool)
 
+	var parsedFields Fields
 	for _, field := range fields {
 		name, datatypeName, err := validateField(field, isForbiddenField)
 		if err != nil {
@@ -123,7 +124,7 @@ func ParseFields(
 			Nested:       nestedFields,
 		})
 	}
-	return
+	return parsedFields, nil
 }
 
 // NeedCast return true if the field slice needs
