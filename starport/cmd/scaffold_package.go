@@ -26,6 +26,7 @@ func NewScaffoldPacket() *cobra.Command {
 
 	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
+	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 	c.Flags().Bool(flagNoMessage, false, "Disable send message scaffolding")
 
 	return c
@@ -57,12 +58,21 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	signer := flagGetSigner(cmd)
+
+	var options []scaffolder.PacketOption
+	if noMessage {
+		options = append(options, scaffolder.PacketWithoutMessage())
+	}
+	if signer != "" {
+		options = append(options, scaffolder.PacketWithSigner(signer))
+	}
 
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, noMessage)
+	sm, err := sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}
