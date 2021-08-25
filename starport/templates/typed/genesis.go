@@ -13,7 +13,7 @@ func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Optio
 	g.RunFn(t.genesisProtoModify(replacer, opts))
 	g.RunFn(t.genesisTypesModify(replacer, opts))
 	g.RunFn(t.genesisModuleModify(replacer, opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(t.genesisTestsModify(replacer, opts))
 }
 
 func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
@@ -148,13 +148,30 @@ genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 	}
 }
 
-func genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func (t *typedStargate) genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
+
+		templateValid := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		Id: 0,
+	},
+	{
+		Id: 1,
+	},
+},
+%[2]vCount: 2,`
+		replacementValid := fmt.Sprintf(
+			templateValid,
+			module.PlaceholderTypesGenesisValidField,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
 
 		templateTests := `%[1]v
 {
@@ -189,7 +206,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunF
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisTestcase, replacementTests)
+		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementTests)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

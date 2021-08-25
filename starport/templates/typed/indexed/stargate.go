@@ -321,7 +321,6 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 for _, elem := range genState.%[3]vList {
 	k.Set%[3]v(ctx, elem)
 }
-
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
@@ -355,17 +354,37 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		var duplicatedIndex string
-		for _, index := range opts.Indexes {
-			switch index.DatatypeName {
-			case "string":
-				duplicatedIndex += fmt.Sprintf("%s: \"foo\",\n", index.Name.UpperCamel)
-			case "int", "uint":
-				duplicatedIndex += fmt.Sprintf("%s: 0,\n", index.Name.UpperCamel)
-			case "bool":
-				duplicatedIndex += fmt.Sprintf("%s: false,\n", index.Name.UpperCamel)
+		// Create a list of two different indexes to use as sample
+		sampleIndexes := make([]string, 2)
+		for i := 0; i < 2; i++ {
+			for _, index := range opts.Indexes {
+				switch index.DatatypeName {
+				case "string":
+					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
+				case "int", "uint":
+					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
+				case "bool":
+					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i!=0)
+				}
 			}
 		}
+
+		templateValid := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		%[3]v},
+	{
+		%[4]v},
+},
+`
+		replacementValid := fmt.Sprintf(
+			templateValid,
+			module.PlaceholderTypesGenesisValidField,
+			opts.TypeName.UpperCamel,
+			sampleIndexes[0],
+			sampleIndexes[1],
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
 
 		templateDuplicated := `%[1]v
 {
@@ -385,9 +404,9 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			module.PlaceholderTypesGenesisTestcase,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
-			duplicatedIndex,
+			sampleIndexes[0],
 		)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
+		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
