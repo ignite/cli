@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protopath"
 )
 
-var sdkImport = "github.com/cosmos/cosmos-sdk"
+const defaultSdkImport = "github.com/cosmos/cosmos-sdk"
 
 func (g *generator) setup() (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
@@ -32,6 +32,15 @@ func (g *generator) setup() (err error) {
 	modfile, err := gomodule.ParseAt(g.appPath)
 	if err != nil {
 		return err
+	}
+
+	g.sdkImport = defaultSdkImport
+	// look for any cosmos-sdk replace directive in mod file
+	for _, r := range modfile.Replace {
+		if r.Old.Path == defaultSdkImport {
+			g.sdkImport = r.New.Path
+			break
+		}
 	}
 
 	g.deps, err = gomodule.ResolveDependencies(modfile)
@@ -80,7 +89,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	}
 
 	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.appPath, g.deps,
-		protopath.NewModule(sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
+		protopath.NewModule(g.sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
 	if err != nil {
 		return nil, err
 	}

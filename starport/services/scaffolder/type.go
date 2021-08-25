@@ -34,6 +34,15 @@ type addTypeOptions struct {
 	indexes []string
 
 	withoutMessage bool
+	signer         string
+}
+
+// newAddTypeOptions returns a addTypeOptions with default options
+func newAddTypeOptions(moduleName string) addTypeOptions {
+	return addTypeOptions{
+		moduleName: moduleName,
+		signer:     "creator",
+	}
 }
 
 // ListType makes the type stored in a list convention in the storage.
@@ -79,9 +88,16 @@ func TypeWithFields(fields ...string) AddTypeOption {
 }
 
 // TypeWithoutMessage disables generating sdk compatible messages and tx related APIs.
-func TypeWithoutMessage(fields ...string) AddTypeOption {
+func TypeWithoutMessage() AddTypeOption {
 	return func(o *addTypeOptions) {
 		o.withoutMessage = true
+	}
+}
+
+// TypeWithSigner provides a custom signer name for the message
+func TypeWithSigner(signer string) AddTypeOption {
+	return func(o *addTypeOptions) {
+		o.signer = signer
 	}
 }
 
@@ -101,10 +117,7 @@ func (s *Scaffolder) AddType(
 	}
 
 	// apply options.
-	o := addTypeOptions{
-		moduleName: path.Package, // app's default module.
-	}
-
+	o := newAddTypeOptions(path.Package)
 	for _, apply := range append(options, AddTypeOption(kind)) {
 		apply(&o)
 	}
@@ -120,11 +133,16 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
 	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+	if err != nil {
+		return sm, err
+	}
+
+	mfSigner, err := multiformatname.NewName(o.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -140,6 +158,7 @@ func (s *Scaffolder) AddType(
 			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
+			MsgSigner:  mfSigner,
 		}
 		gens []*genny.Generator
 	)

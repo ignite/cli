@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 )
@@ -36,8 +37,9 @@ type PacketOptions struct {
 	ModulePath string
 	OwnerName  string
 	PacketName multiformatname.Name
-	Fields     []field.Field
-	AckFields  []field.Field
+	MsgSigner  multiformatname.Name
+	Fields     field.Fields
+	AckFields  field.Fields
 	NoMessage  bool
 }
 
@@ -69,11 +71,13 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("packetName", opts.PacketName)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
 	ctx.Set("title", strings.Title)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
@@ -264,11 +268,11 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
 		templateMessage := `%[1]v
 message MsgSend%[2]v {
-  string sender = 1;
+  string %[3]v = 1;
   string port = 2;
   string channelID = 3;
   uint64 timeoutTimestamp = 4;
-%[3]v}
+%[4]v}
 
 message MsgSend%[2]vResponse {
 }
@@ -277,6 +281,7 @@ message MsgSend%[2]vResponse {
 			templateMessage,
 			PlaceholderProtoTxMessage,
 			opts.PacketName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
 			sendFields,
 		)
 		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessage)

@@ -38,8 +38,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("Indexes", opts.Indexes)
+	ctx.Set("NoMessage", opts.NoMessage)
 	ctx.Set("title", strings.Title)
 	ctx.Set("strconv", func() bool {
 		strconv := false

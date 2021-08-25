@@ -7,7 +7,6 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	clitestutil "github.com/cosmos/cosmos-sdk/testutil/cli"
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	tmcli "github.com/tendermint/tendermint/libs/cli"
 	"google.golang.org/grpc/codes"
@@ -21,14 +20,14 @@ import (
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
-func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []*types.<%= TypeName.UpperCamel %>) {
+func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network.Network, []types.<%= TypeName.UpperCamel %>) {
 	t.Helper()
 	cfg := network.DefaultConfig()
 	state := types.GenesisState{}
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	for i := 0; i < n; i++ {
-		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, &types.<%= TypeName.UpperCamel %>{
+		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, types.<%= TypeName.UpperCamel %>{
 		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genUniqueArg(index.DatatypeName) %>,
 		    <% } %>
 		})
@@ -52,7 +51,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
         <% } %>
 		args []string
 		err  error
-		obj  *types.<%= TypeName.UpperCamel %>
+		obj  types.<%= TypeName.UpperCamel %>
 	}{
 		{
 			desc: "found",
@@ -120,7 +119,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			for j := i; j < len(objs) && j < i+step; j++ {
-				assert.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
+				require.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 		}
 	})
@@ -134,7 +133,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			for j := i; j < len(objs) && j < i+step; j++ {
-				assert.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
+				require.Equal(t, objs[j], resp.<%= TypeName.UpperCamel %>[j-i])
 			}
 			next = resp.Pagination.NextKey
 		}

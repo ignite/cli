@@ -64,6 +64,14 @@ func TestCreateMapWithStargate(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "message", "create-scavenge", "description"),
+			step.Exec("starport", "s", "map", "scavenge", "description", "--no-message"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("should prevent creating a map with duplicated indexes",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "map_with_duplicated_index", "email", "--index", "foo,foo"),

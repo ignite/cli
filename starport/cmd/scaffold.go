@@ -57,6 +57,7 @@ func scaffoldType(
 		fields         = args[1:]
 		moduleName     = flagGetModule(cmd)
 		withoutMessage = flagGetNoMessage(cmd)
+		signer         = flagGetSigner(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -69,6 +70,9 @@ func scaffoldType(
 	}
 	if withoutMessage {
 		options = append(options, scaffolder.TypeWithoutMessage())
+	}
+	if signer != "" {
+		options = append(options, scaffolder.TypeWithSigner(signer))
 	}
 
 	s := clispinner.New().SetText("Scaffolding...")
@@ -95,6 +99,7 @@ func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
 	f.String(flagModule, "", "Module to add into. Default is app's main module")
 	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
+	f.String(flagSigner, "", "Label for the message signer (default: creator)")
 	return f
 }
 
@@ -106,4 +111,9 @@ func flagGetModule(cmd *cobra.Command) string {
 func flagGetNoMessage(cmd *cobra.Command) bool {
 	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 	return noMessage
+}
+
+func flagGetSigner(cmd *cobra.Command) string {
+	signer, _ := cmd.Flags().GetString(flagSigner)
+	return signer
 }

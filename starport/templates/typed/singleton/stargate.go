@@ -86,6 +86,9 @@ import "%s/%s.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
+		// Add gogo.proto
+		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+
 		// Add the service
 		templateService := `%[1]v
 
@@ -108,7 +111,7 @@ import "%s/%s.proto";`
 message QueryGet%[2]vRequest {}
 
 message QueryGet%[2]vResponse {
-	%[2]v %[2]v = 1;
+	%[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 }`
 		replacementMessage := fmt.Sprintf(templateMessage, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
@@ -299,22 +302,23 @@ import "%s/%s.proto";`
 
 		templateMessages := `%[1]v
 message MsgCreate%[2]v {
-  string creator = 1;
-%[3]v}
-message MsgCreate%[2]vResponse { }
+  string %[3]v = 1;
+%[4]v}
+message MsgCreate%[2]vResponse {}
 
 message MsgUpdate%[2]v {
-  string creator = 1;
-%[3]v}
-message MsgUpdate%[2]vResponse { }
+  string %[3]v = 1;
+%[4]v}
+message MsgUpdate%[2]vResponse {}
 
 message MsgDelete%[2]v {
-  string creator = 1;
+  string %[3]v = 1;
 }
-message MsgDelete%[2]vResponse { }
+message MsgDelete%[2]vResponse {}
 `
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
 			fields,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
