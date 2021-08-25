@@ -4,9 +4,10 @@ package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
 option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
 
 import "gogoproto/gogo.proto";
+<%= for (i, importName) in Fields.CustomImports() { %>import "<%= ModuleName %>/<%= importName %>.proto"; <% } %>
 
 message <%= TypeName.UpperCamel %> {
   uint64 id = 1;<%= for (i, field) in Fields { %>
-  <%= field.GetDatatype() %> <%= field.Name.LowerCamel %> = <%= i+2 %>; <% } %>
+  <%= field.GetProtoDatatype() %> <%= field.Name.LowerCamel %> = <%= i+2 %>; <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+2 %>;<% } %>
 }

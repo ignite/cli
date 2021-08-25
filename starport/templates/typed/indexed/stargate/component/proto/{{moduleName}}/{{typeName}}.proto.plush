@@ -2,10 +2,12 @@ syntax = "proto3";
 package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
 
 option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
+<%= for (i, importName) in Indexes.CustomImports() { %>import "<%= ModuleName %>/<%= importName %>.proto"; <% } %>
+<%= for (i, importName) in Fields.CustomImports() { %>import "<%= ModuleName %>/<%= importName %>.proto"; <% } %>
 
 message <%= TypeName.UpperCamel %> {<%= for (i, index) in Indexes { %>
-  <%= index.GetDatatype() %> <%= index.Name.LowerCamel %> = <%= i+1 %>; <% } %><%= for (i, field) in Fields { %>
-  <%= field.GetDatatype() %> <%= field.Name.LowerCamel %> = <%= i+1+len(Indexes) %>; <% } %>
+  <%= index.GetProtoDatatype() %> <%= index.Name.LowerCamel %> = <%= i+1 %>; <% } %><%= for (i, field) in Fields { %>
+  <%= field.GetProtoDatatype() %> <%= field.Name.LowerCamel %> = <%= i+1+len(Indexes) %>; <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+len(Indexes)+1 %>;<% } %>
 }
 

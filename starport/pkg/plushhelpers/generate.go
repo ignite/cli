@@ -15,6 +15,8 @@ func GenerateValidArg(datatypeName string) string {
 		return "111"
 	case datatypeBool:
 		return valueFalse
+	case datatypeCustom:
+		return "nil"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -33,6 +35,8 @@ func GenerateUniqueArg(datatypeName string) string {
 		return "int32(i)"
 	case datatypeBool:
 		return valueFalse
+	case datatypeCustom:
+		return "nil"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -47,6 +51,8 @@ func GenerateValidIndex(datatypeName string) string {
 		return "0"
 	case datatypeBool:
 		return valueFalse
+	case datatypeCustom:
+		return "nil"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
@@ -63,6 +69,8 @@ func GenerateNotFoundIndex(datatypeName string) string {
 		return "100000"
 	case datatypeBool:
 		return valueFalse
+	case datatypeCustom:
+		return "nil"
 	default:
 		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}

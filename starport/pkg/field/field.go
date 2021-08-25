@@ -141,6 +141,18 @@ func (f Field) GetDatatype() string {
 	}
 }
 
+// GetProtoDatatype return the proto Datatype based in the DatatypeName
+func (f Field) GetProtoDatatype() string {
+	switch f.DatatypeName {
+	case TypeString, TypeBool, TypeInt, TypeUint:
+		return f.Datatype
+	case TypeCustom:
+		return fmt.Sprintf("%s", f.Datatype)
+	default:
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+}
+
 // NeedCastImport return true if the field slice
 // needs import the cast library
 func (f Fields) NeedCastImport() bool {
