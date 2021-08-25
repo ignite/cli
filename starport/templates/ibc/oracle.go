@@ -72,6 +72,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
+	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
 		return g, err
 	}
