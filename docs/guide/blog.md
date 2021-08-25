@@ -6,7 +6,7 @@ description: Learn module basics by writing and reading blog posts to your chain
 
 # Build a Blog
 
-Learn module basics by building a blockchain app to write and read blog posts. 
+Learn module basics by building a blockchain app to write and read blog posts.
 
 By completing this tutorial, you will:
 
@@ -17,15 +17,15 @@ By completing this tutorial, you will:
 * Read data from the store and return it as a result a query
 * Use the blockchain's CLI to broadcast transactions
 
-### Prerequisite 
+### Prerequisite
 
 To complete this tutorial, you will need:
 
-- A supported version of Starport. This tutorial is verified for Starport 0.17.2. See [Install Starport](./install.md). 
+- A supported version of Starport. This tutorial is verified for Starport 0.17.2. See [Install Starport](./install.md).
 
 ## Create Your Blog Chain
 
-First, create a new blockchain. 
+First, create a new blockchain.
 
 Open a terminal and navigate to a directory where you have permissions to create files. To create your Cosmos SDK blockchain, run this command:
 
@@ -33,9 +33,9 @@ Open a terminal and navigate to a directory where you have permissions to create
 starport scaffold chain github.com/cosmonaut/blog
 ```
 
-The `blog` directory is created with the default directory structure. 
+The `blog` directory is created with the default directory structure.
 
-## High Level Transaction Review 
+## High Level Transaction Review
 
 So far, you have learned how to modify proto files to define a new API endpoint and modify a keeper query function to return static data back to the user. Of course, a keeper can do more than return a string of data. Its purpose is to manage access to the state of the blockchain.
 
@@ -112,31 +112,13 @@ The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePos
 
 Every module has a handler function like this to process messages and call keeper methods.
 
-## Add GRPC to the Module Handler
-
-In the `x/blog/module.go` file:
-
-1. Add `"context"` to the imports.
-import (
-	"context"
-	// ... other imports
-)
-2. Register the query handler:
-
-```bash
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
-
 ## Process Messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post. 
+In the newly scaffolded `x/blog/keeper/msg_server_create_post.go` file, you can see a placeholder implementation of the `CreatePost` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new post.
 
-You need to do two things: 
+You need to do two things:
 
-- Create a variable of type `Post` with title and body from the message 
+- Create a variable of type `Post` with title and body from the message
 - Append this `Post` to the store
 
 ```go
@@ -155,7 +137,27 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
   return &types.MsgCreatePostResponse{Id: id}, nil
 }
 ```
-## Write Data to the Store 
+
+## Add GRPC to the Module Handler
+
+In the `x/blog/module.go` file:
+
+1. Add `"context"` to the imports.
+import (
+	"context"
+	// ... other imports
+)
+
+2. Register the query handler:
+
+```bash
+// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+}
+```
+
+## Write Data to the Store
 
 Define the `Post` type and the `AppendPost` keeper method.
 
@@ -180,7 +182,7 @@ The contents of the `post.proto` file are fairly standard. The file defines a pa
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Post` type is available.
 
-### Define Keeper Methods 
+### Define Keeper Methods
 
 The next step is to define the `AppendPost` keeper method. Create the `x/blog/keeper/post.go` file and start thinking about the logic of the function.
 
@@ -291,12 +293,12 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
 
 By following these steps, you have implemented all of the code required to create new posts and store them on-chain. Now, when a transaction that contains a message of type `MsgCreatePost` is broadcast, the message is routed to your blog module.
 
-- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`. 
+- `x/blog/handler.go` calls `k.CreatePost` which in turn calls `AppendPost`.
 - `AppendPost` gets the number of posts from the store, adds a post using the count as an ID, increments the count, and returns the ID.
 
 ## Create a Post
 
-Try it out! If the chain is yet not started, run `starport chain serve`. 
+Try it out! If the chain is yet not started, run `starport chain serve`.
 
 Create a post:
 
@@ -319,9 +321,9 @@ Now that you have added the functionality to create posts and broadcast them to 
 starport scaffold query posts --response title,body
 ```
 
-Two components are responsible for querying data: 
+Two components are responsible for querying data:
 
-- An rpc inside `service Query` in a proto file that defines data types and specifies the HTTP API endpoint 
+- An rpc inside `service Query` in a proto file that defines data types and specifies the HTTP API endpoint
 - A keeper method that performs the querying from the key-value store
 
 First, review the services and messages in `proto/blog/query.proto`. The `Posts` rpc accepts an empty request and returns an object with two fields: title and body. Now you can make changes so it can return a list of posts. The list of posts can be long, so add pagination. When pagination is added, the request and response include a page number so you can request a particular page when you know what page has been returned.
@@ -426,8 +428,8 @@ pagination:
   total: "1"
 ```
 
-## Conclusion 
- 
+## Conclusion
+
 Congratulations. You have built a blog blockchain! You can:
 
 * Write blog posts to your chain
