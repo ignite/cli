@@ -112,7 +112,7 @@ The `case *types.MsgCreatePost` statement handles messages of type `MsgCreatePos
 
 Every module has a handler function like this to process messages and call keeper methods.
 
-## Register the Query Handler 
+## Add GRPC to the Module Handler
 
 In the `x/blog/module.go` file:
 
