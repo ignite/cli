@@ -2,13 +2,34 @@
 
 ## Unreleased
 
-### Features
+### Features:
 
-- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customising the name of the signer of the message
+- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customizing the name of the signer of the message
+- Added `--index` flag to `scaffold map` to provide a custom list of indices
+- Added `scaffold type` to scaffold a protocol buffer definition of a type
+- Automatically check for new Starport versions
+- Added `starport tools completions` to generate CLI completions
+- Added `starport generate dart` to generate a Dart client from protocol buffer files
+- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+- Added `starport account` commands to manage accounts (key pairs)
+- `starport version` now prints out detailed information about OS, Go version and more.
+
+### Fixes:
+
+- Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
+- Generate Go code only from proto files only from directories specified in `config.yml` or default ones
+- Fixed faucet token transfer calculation
+- Removed `creator` field for types scaffolded with the `--no-message` flag
+
+## `v0.17.3`
+
+### Fixes:
+
+- oracle: add a specific BandChain pkg version to avoid Cosmos SDK version conflicts
 
 ## `v0.17.2`
 
-### Features
+### Features:
 
 - `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
 - Support serving Cosmos SDK `v0.43.x` based chains.
