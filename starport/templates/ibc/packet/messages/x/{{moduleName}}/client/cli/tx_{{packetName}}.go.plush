@@ -2,7 +2,7 @@ package cli
 
 import (
     "strconv"
-	<%= if (fields.NeedJsonImport()) { %> "encoding/json" <% } %>
+	<%= if (fields.NeedJSONImport()) { %> "encoding/json" <% } %>
 
     <%= if (fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"

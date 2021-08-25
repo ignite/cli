@@ -153,9 +153,9 @@ func (f Fields) NeedCastImport() bool {
 	return false
 }
 
-// NeedJsonImport return true if the field slice
+// NeedJSONImport return true if the field slice
 // needs import the json library
-func (f Fields) NeedJsonImport() bool {
+func (f Fields) NeedJSONImport() bool {
 	for _, field := range f {
 		if field.DatatypeName == TypeCustom {
 			return true
