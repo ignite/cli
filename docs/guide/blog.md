@@ -117,7 +117,10 @@ Every module has a handler function like this to process messages and call keepe
 In the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports.
- 
+import (
+	"context"
+	// ... other imports
+)
 2. Register the query handler:
 
 ```bash
