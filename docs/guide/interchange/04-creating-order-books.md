@@ -91,6 +91,8 @@ In the following section you'll be implementing packet reception logic in the `O
 The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
 First you will need to add the proto buffer files. This builds the according go code files that you can then modify for the purpose of your app.
 
+Create a new `order.proto` file in the `proto/ibcdex` directory and add the content.
+
 ```proto
 // proto/ibcdex/order.proto
 syntax = "proto3";
@@ -247,3 +249,131 @@ func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channe
 ```
 
 In this chapter we implemented the logic behind `send-create-pair` command that upon recieving of an IBC packet on the target chain creates a buy order book and upon recieving of an IBC acknowledgement on the source chain creates a sell order book.
+
+### Implement the `appendOrder` Function to Add Orders to the Order Book
+
+```go
+// x/ibcdex/types/order_book.go
+package types
+
+import (
+	"errors"
+  "sort"
+)
+
+const (
+	MaxAmount = int32(100000)
+	MaxPrice  = int32(100000)
+)
+
+type Ordering int
+
+const (
+	Increasing Ordering = iota
+	Decreasing
+)
+
+var (
+	ErrMaxAmount     = errors.New("max amount reached")
+	ErrMaxPrice      = errors.New("max price reached")
+	ErrZeroAmount    = errors.New("amount is zero")
+	ErrZeroPrice     = errors.New("price is zero")
+	ErrOrderNotFound = errors.New("order not found")
+)
+```
+
+`AppendOrder` initializes and appends a new order to an order book from the order information.
+
+```go
+// x/ibcdex/types/order_book.go
+func (book *OrderBook) appendOrder(creator string, amount int32, price int32, ordering Ordering) (int32, error) {
+	if err := checkAmountAndPrice(amount, price); err != nil {
+		return 0, err
+	}
+	// Initialize the order
+	var order Order
+	order.Id = book.GetNextOrderID()
+	order.Creator = creator
+	order.Amount = amount
+	order.Price = price
+	// Increment ID tracker
+	book.IncrementNextOrderID()
+	// Insert the order
+	book.insertOrder(order, ordering)
+	return order.Id, nil
+}
+```
+
+#### Implement the checkAmountAndPrice For an Order
+
+`checkAmountAndPrice` checks correct amount or price.
+
+```go
+// x/ibcdex/types/order_book.go
+func checkAmountAndPrice(amount int32, price int32) error {
+	if amount == int32(0) {
+		return ErrZeroAmount
+	}
+	if amount > MaxAmount {
+		return ErrMaxAmount
+	}
+	if price == int32(0) {
+		return ErrZeroPrice
+	}
+	if price > MaxPrice {
+		return ErrMaxPrice
+	}
+	return nil
+}
+```
+
+#### Implement the GetNextOrderID Function
+
+`GetNextOrderID` gets the ID of the next order to append
+
+```go
+// x/ibcdex/types/order_book.go
+func (book OrderBook) GetNextOrderID() int32 {
+	return book.IdCount
+}
+```
+
+#### Implement the IncrementNextOrderID Function
+
+`IncrementNextOrderID` updates the ID count for orders
+
+```go
+// x/ibcdex/types/order_book.go
+func (book *OrderBook) IncrementNextOrderID() {
+	// Even numbers to have different ID than buy orders
+	book.IdCount++
+}
+```
+
+#### Implement the insertOrder Function
+
+`insertOrder` inserts the order in the book with the provided order
+
+```go
+// x/ibcdex/types/order_book.go
+func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
+	if len(book.Orders) > 0 {
+		var i int
+		// get the index of the new order depending on the provided ordering
+		if ordering == Increasing {
+			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price > order.Price })
+		} else {
+			i = sort.Search(len(book.Orders), func(i int) bool { return book.Orders[i].Price < order.Price })
+		}
+		// insert order
+		orders := append(book.Orders, &order)
+		copy(orders[i+1:], orders[i:])
+		orders[i] = &order
+		book.Orders = orders
+	} else {
+		book.Orders = append(book.Orders, &order)
+	}
+}
+```
+
+This completes the order book setup. In the next chapter, you will learn how to deal with vouchers, minting and burning vouchers as well as locking and unlocking native blockchain token in your app.

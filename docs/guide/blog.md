@@ -61,13 +61,13 @@ The `message` command accepts message name (`createPost`) and a list of fields (
 
 The `message` command has created and modified several files:
 
-* modified `proto/blog/tx.proto`
-* modified `x/blog/handler.go`
-* created `x/blog/keeper/msg_server_createPost.go`
-* modified `x/blog/client/cli/tx.go`
-* created `x/blog/client/cli/txCreatePost.go`
-* created `x/blog/types/message_createPost.go`
-* modified `x/blog/types/codec.go`
+- modified `proto/blog/tx.proto`
+- modified `x/blog/handler.go`
+- created `x/blog/keeper/msg_server_create_post.go`
+- modified `x/blog/client/cli/tx.go`
+- created `x/blog/client/cli/tx_create_post.go`
+- created `x/blog/types/message_create_post.go`
+- modified `x/blog/types/codec.go`
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreatePost` message has been created. Edit the file to define the id for `message MsgCreatePostResponse`:
 

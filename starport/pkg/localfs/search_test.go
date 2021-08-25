@@ -5,7 +5,6 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -101,11 +100,11 @@ func TestSearch(t *testing.T) {
 			got, err := Search(tt.args.path, tt.args.pattern)
 			if tt.err != nil {
 				require.Error(t, err)
-				assert.EqualValues(t, tt.err, err)
+				require.EqualValues(t, tt.err, err)
 				return
 			}
 			require.NoError(t, err)
-			assert.EqualValues(t, tt.want, got)
+			require.EqualValues(t, tt.want, got)
 		})
 	}
 }

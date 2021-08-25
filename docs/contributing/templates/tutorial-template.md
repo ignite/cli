@@ -1,3 +1,5 @@
+# How To [Build/Create/Do Something] in Starport
+
 <!--
 Use this tutorial template as a quick starting point when writing Cosmos SDK how-to tutorials. 
 
@@ -13,13 +15,11 @@ We admire, respect, and rely on these resources:
 [Create an issue](https://github.com/tendermint/starport/issues/new/choose) to let us know if you have questions. 
 
 -->
-<-- To preview a content deploy so you can see what your article looks like before it is published, see [../CONTRIBUTING.md#viewing-tutorial-builds]. 
+
+<!-- To preview a content deploy so you can see what your article looks like before it is published, see [../CONTRIBUTING.md#viewing-tutorial-builds]. 
 
 Our users must be able to follow the tutorial from beginning to end on their own computer. Before submitting a tutorial for PR review, be sure to test the content by completing all steps from start to finish exactly as they are written. Cut and paste commands from the article into your terminal to make sure that typos are not present in the commands. If you find yourself executing a command that isn't in the article, incorporate that command into the article to make sure the user gets the exact same results. 
 -->
-
-
-# How To [Build/Create/Do Something] in Starport
 
 <!-- Use Title Case for all Titles, see https://capitalizemytitle.com/ -->
 

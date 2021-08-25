@@ -17,7 +17,7 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.Quer
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
 
-	var <%= TypeName.LowerCamel %>s []*types.<%= TypeName.UpperCamel %>
+	var <%= TypeName.LowerCamel %>s []types.<%= TypeName.UpperCamel %>
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
@@ -29,7 +29,7 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.Quer
 			return err
 		}
 
-		<%= TypeName.LowerCamel %>s = append(<%= TypeName.LowerCamel %>s, &<%= TypeName.LowerCamel %>)
+		<%= TypeName.LowerCamel %>s = append(<%= TypeName.LowerCamel %>s, <%= TypeName.LowerCamel %>)
 		return nil
 	})
 
@@ -55,5 +55,5 @@ func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGe
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
 	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= TypeName.UpperCamel %>IDBytes(req.Id)), &<%= TypeName.LowerCamel %>)
 
-	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &<%= TypeName.LowerCamel %>}, nil
+	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: <%= TypeName.LowerCamel %>}, nil
 }
