@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/jsondoc"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
@@ -75,7 +76,7 @@ func (b *Blockchain) init(
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
 	// password. This happens because Gitpod uses containers.
-	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+	if gitpod.IsOnGitpod() {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	} else {
 		// Otherwise use the keyring backend specified by the user
@@ -109,7 +110,7 @@ func (b *Blockchain) init(
 	if _, err := chain.Build(ctx); err != nil {
 		return err
 	}
-	if err := chain.Init(ctx); err != nil {
+	if err := chain.Init(ctx, false); err != nil {
 		return err
 	}
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))

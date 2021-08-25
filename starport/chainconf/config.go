@@ -13,7 +13,7 @@ import (
 
 var (
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/1%20Introduction/4%20Configuration.md")
+	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/configure/index.md")
 
 	// FileNames holds a list of appropriate names for the config file.
 	FileNames = []string{"config.yml", "config.yaml"}
@@ -104,6 +104,9 @@ type Client struct {
 	// Vuex configures code generation for Vuex.
 	Vuex Vuex `yaml:"vuex"`
 
+	// Dart configures client code generation for Dart.
+	Dart Dart `yaml:"dart"`
+
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
@@ -111,6 +114,12 @@ type Client struct {
 // Vuex configures code generation for Vuex.
 type Vuex struct {
 	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
+}
+
+// Dart configures client code generation for Dart.
+type Dart struct {
+	// Path configures out location for generated Dart code.
 	Path string `yaml:"path"`
 }
 
@@ -145,6 +154,9 @@ type Faucet struct {
 type Init struct {
 	// App overwrites appd's config/app.toml configs.
 	App map[string]interface{} `yaml:"app"`
+
+	// Client overwrites appd's config/client.toml configs.
+	Client map[string]interface{} `yaml:"client"`
 
 	// Config overwrites appd's config/config.toml configs.
 	Config map[string]interface{} `yaml:"config"`

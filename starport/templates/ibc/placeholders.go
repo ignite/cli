@@ -1,7 +1,9 @@
 package ibc
 
 const (
-	Placeholder = "// this line is used by starport scaffolding # 1"
+	Placeholder  = "// this line is used by starport scaffolding # 1"
+	Placeholder2 = "// this line is used by starport scaffolding # 2"
+	Placeholder3 = "// this line is used by starport scaffolding # 3"
 
 	// Placeholders IBC packets
 	PlaceholderIBCPacketProtoField       = "// this line is used by starport scaffolding # ibc/packet/proto/field"
@@ -16,4 +18,11 @@ const (
 	PlaceholderProtoTxRPC       = "// this line is used by starport scaffolding # proto/tx/rpc"
 	PlaceholderProtoTxMessage   = "// this line is used by starport scaffolding # proto/tx/message"
 	PlaceholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
+
+	// Placeholders for Oracle
+	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
+	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
+	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"
+	PlaceholderOracleModuleRecv       = "// this line is used by starport scaffolding # oracle/module/recv"
+	PlaceholderOracleModuleAck        = "// this line is used by starport scaffolding # oracle/module/ack"
 )

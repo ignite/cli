@@ -45,10 +45,13 @@ type Chain struct {
 
 // chainOptions holds options to be used setting up the chain.
 type chainOptions struct {
-	// gasPrice is the gas price used when sending transactions to the chain
+	// GasPrice is the gas price used when sending transactions to the chain
 	GasPrice string `json:"gasPrice"`
 
-	// addressPrefix is the address prefix of the chain.
+	// GasLimit is the gas limit used when sending transactions to the chain
+	GasLimit int64 `json:"gasLimit"`
+
+	// AddressPrefix is the address prefix of the chain.
 	AddressPrefix string `json:"addressPrefix"`
 }
 
@@ -73,6 +76,13 @@ func WithFaucet(address string) Option {
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
 		c.options.GasPrice = gasPrice
+	}
+}
+
+// WithGasLimit gives the gas limit to use to send ibc transactions to the chain.
+func WithGasLimit(limit int64) Option {
+	return func(c *Chain) {
+		c.options.GasLimit = limit
 	}
 }
 

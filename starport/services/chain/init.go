@@ -18,7 +18,7 @@ const (
 )
 
 // Init initializes the chain and applies all optional configurations.
-func (c *Chain) Init(ctx context.Context) error {
+func (c *Chain) Init(ctx context.Context, initAccounts bool) error {
 	conf, err := c.Config()
 	if err != nil {
 		return &CannotBuildAppError{err}
@@ -28,7 +28,10 @@ func (c *Chain) Init(ctx context.Context) error {
 		return err
 	}
 
-	return c.InitAccounts(ctx, conf)
+	if initAccounts {
+		return c.InitAccounts(ctx, conf)
+	}
+	return nil
 }
 
 // InitChain initializes the chain.
@@ -65,6 +68,10 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	// overwrite configuration changes from Starport's config.yml to
 	// over app's sdk configs.
 
+	if err := c.plugin.Configure(home, conf); err != nil {
+		return err
+	}
+
 	// make sure that chain id given during chain.New() has the most priority.
 	if conf.Genesis != nil {
 		conf.Genesis["chain_id"] = chainID
@@ -76,6 +83,10 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 	appTOMLPath, err := c.AppTOMLPath()
+	if err != nil {
+		return err
+	}
+	clientTOMLPath, err := c.ClientTOMLPath()
 	if err != nil {
 		return err
 	}
@@ -91,6 +102,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	}{
 		{confile.DefaultJSONEncodingCreator, genesisPath, conf.Genesis},
 		{confile.DefaultTOMLEncodingCreator, appTOMLPath, conf.Init.App},
+		{confile.DefaultTOMLEncodingCreator, clientTOMLPath, conf.Init.Client},
 		{confile.DefaultTOMLEncodingCreator, configTOMLPath, conf.Init.Config},
 	}
 
@@ -108,8 +120,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		}
 	}
 
-	// run post init handler
-	return c.plugin.PostInit(home, conf)
+	return nil
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
@@ -156,11 +167,6 @@ func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
 		}
 	}
 
-	// perform configuration in the chain config
-	if err := c.configure(ctx); err != nil {
-		return err
-	}
-
 	// create the gentx from the validator from the config
 	if _, err := c.plugin.Gentx(ctx, commands, Validator{
 		Name:          conf.Validator.Name,
@@ -195,21 +201,6 @@ func (c *Chain) IsInitialized() (bool, error) {
 	}
 
 	return true, nil
-}
-
-func (c *Chain) configure(ctx context.Context) error {
-	// configure blockchain.
-	chainID, err := c.ID()
-	if err != nil {
-		return err
-	}
-
-	commands, err := c.Commands(ctx)
-	if err != nil {
-		return err
-	}
-
-	return c.plugin.Configure(ctx, commands, chainID)
 }
 
 type Validator struct {

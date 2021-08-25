@@ -116,29 +116,30 @@ import "%s/%s.proto";`
 
 		templateMessages := `%[1]v
 message MsgCreate%[2]v {
-  string creator = 1;
-%[3]v}
+  string %[3]v = 1;
+%[4]v}
 
 message MsgCreate%[2]vResponse {
   uint64 id = 1;
 }
 
 message MsgUpdate%[2]v {
-  string creator = 1;
+  string %[3]v = 1;
   uint64 id = 2;
-%[4]v}
+%[5]v}
 
-message MsgUpdate%[2]vResponse { }
+message MsgUpdate%[2]vResponse {}
 
 message MsgDelete%[2]v {
-  string creator = 1;
+  string %[3]v = 1;
   uint64 id = 2;
 }
 
-message MsgDelete%[2]vResponse { }
+message MsgDelete%[2]vResponse {}
 `
 		replacementMessages := fmt.Sprintf(templateMessages, PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
+			opts.MsgSigner.LowerCamel,
 			createFields,
 			updateFields,
 		)
@@ -165,6 +166,9 @@ import "%s/%s.proto";`
 			opts.TypeName.Snake,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
+
+		// Add gogo.proto
+		content = EnsureGogoProtoImported(content, path, Placeholder, replacer)
 
 		// RPC service
 		templateRPC := `%[1]v
@@ -195,7 +199,7 @@ message QueryGet%[2]vRequest {
 }
 
 message QueryGet%[2]vResponse {
-	%[2]v %[2]v = 1;
+	%[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 }
 
 message QueryAll%[2]vRequest {
@@ -203,7 +207,7 @@ message QueryAll%[2]vRequest {
 }
 
 message QueryAll%[2]vResponse {
-	repeated %[2]v %[2]v = 1;
+	repeated %[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
 		replacementMessages := fmt.Sprintf(templateMessages, Placeholder3,

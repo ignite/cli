@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protopath"
 )
 
-var sdkImport = "github.com/cosmos/cosmos-sdk"
+const defaultSdkImport = "github.com/cosmos/cosmos-sdk"
 
 func (g *generator) setup() (err error) {
 	// Cosmos SDK hosts proto files of own x/ modules and some third party ones needed by itself and
@@ -34,13 +34,22 @@ func (g *generator) setup() (err error) {
 		return err
 	}
 
+	g.sdkImport = defaultSdkImport
+	// look for any cosmos-sdk replace directive in mod file
+	for _, r := range modfile.Replace {
+		if r.Old.Path == defaultSdkImport {
+			g.sdkImport = r.New.Path
+			break
+		}
+	}
+
 	g.deps, err = gomodule.ResolveDependencies(modfile)
 	if err != nil {
 		return err
 	}
 
 	// this is for user's app itself. it may contain custom modules. it is the first place to look for.
-	g.appModules, err = g.discoverModules(g.appPath)
+	g.appModules, err = g.discoverModules(g.appPath, g.protoDir)
 	if err != nil {
 		return err
 	}
@@ -63,7 +72,7 @@ func (g *generator) setup() (err error) {
 		if err != nil {
 			return err
 		}
-		modules, err := g.discoverModules(path)
+		modules, err := g.discoverModules(path, "")
 		if err != nil {
 			return err
 		}
@@ -80,7 +89,7 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	}
 
 	includePaths, err := protopath.ResolveDependencyPaths(g.ctx, g.appPath, g.deps,
-		protopath.NewModule(sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
+		protopath.NewModule(g.sdkImport, append([]string{g.protoDir}, g.o.includeDirs...)...))
 	if err != nil {
 		return nil, err
 	}
@@ -89,10 +98,10 @@ func (g *generator) resolveInclude(path string) (paths []string, err error) {
 	return paths, nil
 }
 
-func (g *generator) discoverModules(path string) ([]module.Module, error) {
+func (g *generator) discoverModules(path, protoDir string) ([]module.Module, error) {
 	var filteredModules []module.Module
 
-	modules, err := module.Discover(g.ctx, path)
+	modules, err := module.Discover(g.ctx, path, protoDir)
 	if err != nil {
 		return nil, err
 	}

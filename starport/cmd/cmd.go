@@ -1,16 +1,20 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
 	"path/filepath"
 	"sort"
 	"strings"
+	"time"
 
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -18,37 +22,50 @@ import (
 )
 
 const (
-	flagHome = "home"
+	flagHome          = "home"
+	flagProto3rdParty = "proto-all-modules"
 )
+
+const checkVersionTimeout = time.Millisecond * 600
 
 var (
 	infoColor = color.New(color.FgYellow).SprintFunc()
 )
 
 // New creates a new root command for `starport` with its sub commands.
-func New() *cobra.Command {
+func New(ctx context.Context) *cobra.Command {
+	cobra.EnableCommandSorting = false
+
+	checkNewVersion(ctx)
+
 	c := &cobra.Command{
-		Use:           "starport",
-		Short:         "A developer tool for building Cosmos SDK blockchains",
+		Use:   "starport",
+		Short: "Starport offers everything you need to scaffold, test, build, and launch your blockchain",
+		Long: `Starport is a tool for creating sovereign blockchains built with Cosmos SDK, the world’s
+most popular modular blockchain framework. Starport offers everything you need to scaffold,
+test, build, and launch your blockchain.
+
+To get started, create a blockchain:
+
+starport scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
 			return goenv.ConfigurePath()
 		},
 	}
+
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
-	c.AddCommand(NewDocs())
-	c.AddCommand(NewType())
-	c.AddCommand(NewModule())
-	c.AddCommand(NewRelayer())
-	c.AddCommand(NewVersion())
+	c.AddCommand(NewGenerate())
 	c.AddCommand(NewNetwork())
-	c.AddCommand(NewIBCPacket())
-	c.AddCommand(NewMessage())
-	c.AddCommand(NewQuery())
+	c.AddCommand(NewAccount())
+	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
+	c.AddCommand(NewDocs())
+	c.AddCommand(NewVersion())
 	c.AddCommand(deprecated()...)
+
 	return c
 }
 
@@ -81,6 +98,23 @@ func flagSetHome() *flag.FlagSet {
 func getHomeFlag(cmd *cobra.Command) (home string) {
 	home, _ = cmd.Flags().GetString(flagHome)
 	return
+}
+
+func flagSetProto3rdParty(additonalInfo string) *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+
+	info := "Enables proto code generation for 3rd party modules used in your chain"
+	if additonalInfo != "" {
+		info += ". " + additonalInfo
+	}
+
+	fs.Bool(flagProto3rdParty, false, info)
+	return fs
+}
+
+func flagGetProto3rdParty(cmd *cobra.Command) bool {
+	isEnabled, _ := cmd.Flags().GetBool(flagProto3rdParty)
+	return isEnabled
 }
 
 func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...chain.Option) (*chain.Chain, error) {
@@ -154,4 +188,27 @@ func deprecated() []*cobra.Command {
 			Deprecated: "use `starport chain faucet` instead.",
 		},
 	}
+}
+
+func checkNewVersion(ctx context.Context) {
+	if gitpod.IsOnGitpod() {
+		return
+	}
+
+	ctx, cancel := context.WithTimeout(ctx, checkVersionTimeout)
+	defer cancel()
+
+	isAvailable, next, err := version.CheckNext(ctx)
+	if err != nil || !isAvailable {
+		return
+	}
+
+	fmt.Printf(`·
+· 🛸 Starport %q is available!
+·
+· If you're looking to upgrade check out the instructions: https://docs.starport.network/intro/install.html#upgrading-your-starport-installation
+·
+··
+
+`, next)
 }

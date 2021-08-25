@@ -89,7 +89,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 	}
 
 	// initial checks and setup.
-	if err := c.setup(ctx); err != nil {
+	if err := c.setup(); err != nil {
 		return err
 	}
 
@@ -201,13 +201,10 @@ If the new code is no longer compatible with the saved state, you can reset the 
 	return g.Wait()
 }
 
-func (c *Chain) setup(ctx context.Context) error {
+func (c *Chain) setup() error {
 	fmt.Fprintf(c.stdLog().out, "Cosmos SDK's version is: %s\n\n", infoColor(c.Version))
 
 	if err := c.checkSystem(); err != nil {
-		return err
-	}
-	if err := c.plugin.Setup(ctx); err != nil {
 		return err
 	}
 	return nil
@@ -343,7 +340,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	if !isInit || (appModified && !exportGenesisExists) {
 		fmt.Fprintln(c.stdLog().out, "💿 Initializing the app...")
 
-		if err := c.Init(ctx); err != nil {
+		if err := c.Init(ctx, true); err != nil {
 			return err
 		}
 	} else if appModified {

@@ -1,11 +1,10 @@
 package typed
 
 const (
-	Placeholder   = "// this line is used by starport scaffolding # 1"
-	Placeholder2  = "// this line is used by starport scaffolding # 2"
-	Placeholder3  = "// this line is used by starport scaffolding # 3"
-	Placeholder4  = "<!-- this line is used by starport scaffolding # 4 -->"
-	Placeholder44 = "// this line is used by starport scaffolding # 4"
+	Placeholder  = "// this line is used by starport scaffolding # 1"
+	Placeholder2 = "// this line is used by starport scaffolding # 2"
+	Placeholder3 = "// this line is used by starport scaffolding # 3"
+	Placeholder4 = "<!-- this line is used by starport scaffolding # 4 -->"
 
 	PlaceholderProtoTxImport  = "// this line is used by starport scaffolding # proto/tx/import"
 	PlaceholderProtoTxRPC     = "// this line is used by starport scaffolding # proto/tx/rpc"

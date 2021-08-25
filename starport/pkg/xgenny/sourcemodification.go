@@ -29,7 +29,7 @@ func (sm SourceModification) CreatedFiles() (createdFiles []string) {
 	return
 }
 
-// AppendModifiedFile appends modified files in the source modification that are not already documented
+// AppendModifiedFiles appends modified files in the source modification that are not already documented
 func (sm *SourceModification) AppendModifiedFiles(modifiedFiles ...string) {
 	for _, modifiedFile := range modifiedFiles {
 		_, alreadyModified := sm.modified[modifiedFile]

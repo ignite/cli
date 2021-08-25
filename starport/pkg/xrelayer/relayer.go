@@ -6,14 +6,14 @@ import (
 	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-relayer"
 )
 
-// Link links all chains that has a path to each other.
-// paths are optional and acts as a filter to only link some chains.
-// calling Link multiple times for the same paths does not have any side effects.
 type LinkStatus struct {
 	ID       string `json:"pathName"`
 	ErrorMsg string `json:"error"`
 }
 
+// Link links all chains that has a path to each other.
+// paths are optional and acts as a filter to only link some chains.
+// calling Link multiple times for the same paths does not have any side effects.
 func Link(ctx context.Context, paths ...string) (linkedPaths, alreadyLinkedPaths []string, failedToLinkPaths []LinkStatus, err error) {
 	var reply struct {
 		LinkedPaths        []string     `json:"linkedPaths"`

@@ -101,3 +101,8 @@ func ParseTarget(t string) (goos, goarch string, err error) {
 
 	return parsed[0], parsed[1], nil
 }
+
+// PackageLiteral returns the string representation of package part of go get [package].
+func PackageLiteral(path, version string) string {
+	return fmt.Sprintf("%s@%s", path, version)
+}

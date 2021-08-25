@@ -5,6 +5,7 @@ package main
 import (
 	"bufio"
 	"bytes"
+	"context"
 	"flag"
 	"fmt"
 	"io"
@@ -23,25 +24,25 @@ order: 1
 description: Starport CLI docs. 
 parent:
   order: 8
-  title: CLI 
+  title: CLI Reference
 ---
 
-# CLI
+# Reference
+
 Documentation for Starport CLI.
-Note: CLI docs reflect the changes in an upcoming release.
 `
 
 func main() {
 	outPath := flag.String("out", ".", ".md file path to place Starport CLI docs inside")
 	flag.Parse()
 
-	if err := generate(starportcmd.New(), *outPath); err != nil {
+	if err := generate(starportcmd.New(context.Background()), *outPath); err != nil {
 		log.Fatal(err)
 	}
 }
 
 func generate(cmd *cobra.Command, outPath string) error {
-	if err := os.MkdirAll(filepath.Dir(outPath), 755); err != nil {
+	if err := os.MkdirAll(filepath.Dir(outPath), 0755); err != nil {
 		return err
 	}
 	f, err := os.OpenFile(outPath, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)

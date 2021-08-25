@@ -34,6 +34,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("ibcOrdering", opts.IBCOrdering)
 	ctx.Set("title", strings.Title)
+	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)

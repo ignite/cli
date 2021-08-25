@@ -2,7 +2,6 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -22,28 +21,22 @@ func NewChainServe() *cobra.Command {
 		RunE:  chainServeHandler,
 	}
 	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules")
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
-	if err != nil {
-		return err
-	}
-
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
-		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	if isRebuildProtoOnce {
+	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 

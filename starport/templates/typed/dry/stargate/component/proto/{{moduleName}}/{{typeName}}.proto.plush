@@ -1,0 +1,9 @@
+syntax = "proto3";
+package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
+
+option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
+
+message <%= TypeName.UpperCamel %> {
+  <%= for (i, field) in Fields { %>
+  <%= field.Datatype %> <%= field.Name.LowerCamel %> = <%= i+1 %>; <% } %>
+}

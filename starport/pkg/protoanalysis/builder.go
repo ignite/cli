@@ -18,6 +18,7 @@ func build(p pkg) Package {
 	pk := Package{
 		Name:     p.name,
 		Path:     p.dir,
+		Files:    br.buildFiles(),
 		Messages: br.buildMessages(),
 		Services: br.toServices(p.services()),
 	}
@@ -30,6 +31,14 @@ func build(p pkg) Package {
 	}
 
 	return pk
+}
+
+func (b builder) buildFiles() (files []File) {
+	for _, f := range b.p.files {
+		files = append(files, File{f.path, f.imports})
+	}
+
+	return
 }
 
 func (b builder) buildMessages() (messages []Message) {

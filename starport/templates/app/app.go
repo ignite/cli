@@ -37,7 +37,9 @@ func New(opts *Options) (*genny.Generator, error) {
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
-	testutil.Register(ctx, g)
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return g, err
+	}
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{appName}}", opts.AppName))

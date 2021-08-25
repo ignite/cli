@@ -2,32 +2,14 @@ package module
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"path/filepath"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
-
-// ErrModuleNotFound error returned when an sdk module cannot be found.
-var ErrModuleNotFound = errors.New("sdk module not found")
-
-// requirements holds a list of sdk.Msg's method names.
-type requirements map[string]bool
-
-// newRequirements creates a new list of requirements(method names) that needed by a sdk.Msg impl.
-// TODO(low priority): dynamically get these from the source code of underlying version of the sdk.
-func newRequirements() requirements {
-	return requirements{
-		"Route":         false,
-		"Type":          false,
-		"GetSigners":    false,
-		"GetSignBytes":  false,
-		"ValidateBasic": false,
-	}
-}
 
 // Msgs is a module import path-sdk msgs pair.
 type Msgs map[string][]string
@@ -62,7 +44,7 @@ type Msg struct {
 	FilePath string
 }
 
-// Query is an sdk Query.
+// HTTPQuery is an sdk Query.
 type HTTPQuery struct {
 	// Name of the RPC func.
 	Name string
@@ -83,7 +65,9 @@ type Type struct {
 }
 
 type moduleDiscoverer struct {
-	sourcePath, basegopath string
+	sourcePath string
+	protoPath  string
+	basegopath string
 }
 
 // Discover discovers and returns modules and their types that implements sdk.Msg.
@@ -96,7 +80,7 @@ type moduleDiscoverer struct {
 // for a more opinionated check:
 //   - go/types.Implements() might be utilized and as needed.
 //   - instead of just comparing method names, their full signatures can be compared.
-func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
+func Discover(ctx context.Context, sourcePath, protoDir string) ([]Module, error) {
 	// find out base Go import path of the blockchain.
 	gm, err := gomodule.ParseAt(sourcePath)
 	if err != nil {
@@ -107,6 +91,7 @@ func Discover(ctx context.Context, sourcePath string) ([]Module, error) {
 	}
 
 	md := &moduleDiscoverer{
+		protoPath:  filepath.Join(sourcePath, protoDir),
 		sourcePath: sourcePath,
 		basegopath: gm.Module.Mod.Path,
 	}
@@ -136,12 +121,13 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 	pkgrelpath := strings.TrimPrefix(pkg.GoImportPath(), d.basegopath)
 	pkgpath := filepath.Join(d.sourcePath, pkgrelpath)
 
-	msgs, err := DiscoverMessages(pkgpath)
-	if err == ErrModuleNotFound {
-		return Module{}, nil
-	}
+	msgs, err := cosmosanalysis.FindImplementation(pkgpath, messageImplementation)
 	if err != nil {
 		return Module{}, err
+	}
+	if len(msgs) == 0 {
+		// No message means the module has not been found
+		return Module{}, nil
 	}
 
 	namesplit := strings.Split(pkg.Name, ".")
@@ -224,7 +210,7 @@ func (d *moduleDiscoverer) discover(pkg protoanalysis.Package) (Module, error) {
 
 func (d *moduleDiscoverer) findModuleProtoPkgs(ctx context.Context) ([]protoanalysis.Package, error) {
 	// find out all proto packages inside blockchain.
-	allprotopkgs, err := protoanalysis.Parse(ctx, protoanalysis.PatternRecursive(d.sourcePath))
+	allprotopkgs, err := protoanalysis.Parse(ctx, nil, d.protoPath)
 	if err != nil {
 		return nil, err
 	}

@@ -8,7 +8,7 @@ import (
 func NewRelayer() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "relayer",
-		Short: "Connects blockchains via IBC protocol",
+		Short: "Connect blockchains by using IBC protocol",
 	}
 
 	c.AddCommand(NewRelayerConfigure())

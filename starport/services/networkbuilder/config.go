@@ -58,6 +58,10 @@ func ConfigGet() (*Config, error) {
 
 // ConfigSave saves the current state of Config.
 func ConfigSave(c *Config) error {
+	if err := services.InitConfig(); err != nil {
+		return err
+	}
+
 	conf, err := confPath()
 	if err != nil {
 		return nil

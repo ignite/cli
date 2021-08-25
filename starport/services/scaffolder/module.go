@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -14,6 +13,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
@@ -26,15 +26,13 @@ import (
 	moduleimport "github.com/tendermint/starport/starport/templates/module/import"
 )
 
-var (
-	ErrNoIBCRouterPlaceholder = errors.New("app.go doesn't contain the necessary placeholder to generate an IBC module")
-)
-
 const (
-	wasmImport  = "github.com/CosmWasm/wasmd"
-	apppkg      = "app"
-	moduleDir   = "x"
-	wasmVersion = "v0.16.0"
+	wasmImport    = "github.com/CosmWasm/wasmd"
+	wasmVersion   = "v0.16.0"
+	extrasImport  = "github.com/tendermint/spm-extras"
+	extrasVersion = "v0.1.0"
+	appPkg        = "app"
+	moduleDir     = "x"
 )
 
 // moduleCreationOptions holds options for creating a new module
@@ -44,6 +42,9 @@ type moduleCreationOptions struct {
 
 	// homePath of the chain's config dir.
 	ibcChannelOrdering string
+
+	// list of module depencies
+	dependencies []modulecreate.Dependency
 }
 
 // ModuleCreationOption configures Chain.
@@ -67,6 +68,13 @@ func WithIBCChannelOrdering(ordering string) ModuleCreationOption {
 		default:
 			m.ibcChannelOrdering = "NONE"
 		}
+	}
+}
+
+// WithDependencies specifies the name of the modules that the module depends on
+func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		m.dependencies = dependencies
 	}
 }
 
@@ -101,26 +109,24 @@ func (s *Scaffolder) CreateModule(
 	for _, apply := range options {
 		apply(&creationOpts)
 	}
+
+	// Check dependencies
+	if err := checkDependencies(creationOpts.dependencies); err != nil {
+		return sm, err
+	}
+
 	path, err := gomodulepath.ParseAt(s.path)
 	if err != nil {
 		return sm, err
 	}
 	opts := &modulecreate.CreateOptions{
-		ModuleName:  moduleName,
-		ModulePath:  path.RawPath,
-		AppName:     path.Package,
-		OwnerName:   owner(path.RawPath),
-		IsIBC:       creationOpts.ibc,
-		IBCOrdering: creationOpts.ibcChannelOrdering,
-	}
-	if opts.IsIBC {
-		ibcPlaceholder, err := checkIBCRouterPlaceholder(s.path)
-		if err != nil {
-			return sm, err
-		}
-		if !ibcPlaceholder {
-			return sm, ErrNoIBCRouterPlaceholder
-		}
+		ModuleName:   moduleName,
+		ModulePath:   path.RawPath,
+		AppName:      path.Package,
+		OwnerName:    owner(path.RawPath),
+		IsIBC:        creationOpts.ibc,
+		IBCOrdering:  creationOpts.ibcChannelOrdering,
+		Dependencies: creationOpts.dependencies,
 	}
 
 	// Generator from Cosmos SDK version
@@ -143,6 +149,7 @@ func (s *Scaffolder) CreateModule(
 		return sm, err
 	}
 
+	// Modify app.go to register the module
 	newSourceModification, runErr := xgenny.RunWithValidation(tracer, modulecreate.NewStargateAppModify(tracer, opts))
 	sm.Merge(newSourceModification)
 	var validationErr validation.Error
@@ -193,6 +200,11 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
+		var validationErr validation.Error
+		if errors.As(err, &validationErr) {
+			// TODO: implement a more generic method when there will be new methods to import wasm
+			return sm, errors.New("wasm cannot be imported. Apps initialized with Starport <=0.16.2 must downgrade Starport to 0.16.2 to import wasm")
+		}
 		return sm, err
 	}
 
@@ -255,7 +267,7 @@ func checkModuleName(moduleName string) error {
 }
 
 func isWasmImported(appPath string) (bool, error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, apppkg))
+	abspath, err := filepath.Abs(filepath.Join(appPath, appPkg))
 	if err != nil {
 		return false, err
 	}
@@ -280,36 +292,36 @@ func (s *Scaffolder) installWasm() error {
 	switch s.version {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
-			New(
-				cmdrunner.DefaultStderr(os.Stderr),
-			).
+			New().
 			Run(context.Background(),
-				step.New(
-					step.Exec(
-						gocmd.Name(),
-						"get",
-						wasmImport+"@"+wasmVersion,
-					),
-				),
+				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(wasmImport, wasmVersion))),
+				step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(extrasImport, extrasVersion))),
 			)
 	default:
 		return errors.New("version not supported")
 	}
 }
 
-// checkIBCRouterPlaceholder checks if app.go contains PlaceholderIBCAppRouter
-// this placeholder is necessary to scaffold a new IBC module
-// if it doesn't exist, we give instruction to add it to the user
-func checkIBCRouterPlaceholder(appPath string) (bool, error) {
-	appGo, err := filepath.Abs(filepath.Join(appPath, module.PathAppGo))
-	if err != nil {
-		return false, err
+// checkDependencies perform checks on the dependencies
+func checkDependencies(dependencies []modulecreate.Dependency) error {
+	depMap := make(map[string]struct{})
+	for _, dep := range dependencies {
+		// check the dependency has been registered
+		if err := appanalysis.CheckKeeper(module.PathAppModule, dep.KeeperName); err != nil {
+			return fmt.Errorf(
+				"the module cannot have %s as a dependency: %s",
+				dep.Name,
+				err.Error(),
+			)
+		}
+
+		// check duplicated
+		_, ok := depMap[dep.Name]
+		if ok {
+			return fmt.Errorf("%s is a duplicated dependency", dep)
+		}
+		depMap[dep.Name] = struct{}{}
 	}
 
-	content, err := ioutil.ReadFile(appGo)
-	if err != nil {
-		return false, err
-	}
-
-	return strings.Contains(string(content), module.PlaceholderIBCAppRouter), nil
+	return nil
 }
