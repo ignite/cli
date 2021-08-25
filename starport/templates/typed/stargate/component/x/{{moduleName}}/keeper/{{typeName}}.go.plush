@@ -29,7 +29,7 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count uint64
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
 	bz := make([]byte, 8)
-    binary.BigEndian.PutUint64(bz, count)
+	binary.BigEndian.PutUint64(bz, count)
 	store.Set(byteKey, bz)
 }
 
