@@ -256,7 +256,7 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind `AppendPost`. The `import` section is also shown in this example:
+Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind `AppendPost`.:
 
 ```go
 package keeper
