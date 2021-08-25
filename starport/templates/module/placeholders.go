@@ -46,6 +46,6 @@ const (
 	PlaceholderIBCAppRouter                  = "// this line is used by starport scaffolding # ibc/app/router"
 
 	// Genesis test
-	PlaceholderTypesGenesisTestcase = "// this line is used by starport scaffolding # types/genesis/testcase"
+	PlaceholderTypesGenesisTestcase   = "// this line is used by starport scaffolding # types/genesis/testcase"
 	PlaceholderTypesGenesisValidField = "// this line is used by starport scaffolding # types/genesis/validField"
 )

@@ -364,7 +364,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 				case "int", "uint":
 					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
 				case "bool":
-					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i!=0)
+					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i != 0)
 				}
 			}
 		}
