@@ -192,7 +192,7 @@ func (f Fields) CustomImports() []string {
 			if err != nil {
 				panic(err)
 			}
-			fields = append(fields, dataType.Kebab)
+			fields = append(fields, dataType.Snake)
 		}
 	}
 	return fields
