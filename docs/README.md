@@ -15,6 +15,14 @@ With just a few commands, you can use Starport to:
 * Use automatically generated TypeScript/Vuex clients to interact with your blockchain
 * Use the Vue.js web app template with a set of components and Vuex modules
 
+## Install Starport
+
+To install the `starport` binary in `/usr/local/bin` run the following command:
+
+```
+curl https://get.starport.network/starport! | bash
+```
+
 ## Projects using Tendermint and Cosmos SDK
 
 Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
@@ -23,6 +31,10 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 
 * [Sifchain: omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
+* [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
+* [Cudos](https://github.com/CudoVentures/cudos-node)
+* [Zenchain](https://github.com/zenchainprotocol/zenchain)
+* [Onomy Protocol](https://github.com/onomyprotocol/ochain)
 * [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
 * [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
 * [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
@@ -31,9 +43,3 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 * [Affondra](https://github.com/EG-easy/affondra)
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
 * [Flares payment network](https://github.com/wangfeiping/flares)
-
-## Summary
-
-- Starport lets you create, develop, and build a blockchain.
-- Starport and Cosmos SDK modules are written in Go.
-- Create Cosmos SDK modules to implement custom functionality.
