@@ -141,12 +141,23 @@ func (f Field) GetDatatype() string {
 	}
 }
 
-// NeedCast return true if the field slice needs
-// external cast library
-func (f Fields) NeedCast() bool {
+// NeedCastImport return true if the field slice
+// needs import the cast library
+func (f Fields) NeedCastImport() bool {
 	for _, field := range f {
 		if field.DatatypeName != TypeString &&
 			field.DatatypeName != TypeCustom {
+			return true
+		}
+	}
+	return false
+}
+
+// NeedJsonImport return true if the field slice
+// needs import the json library
+func (f Fields) NeedJsonImport() bool {
+	for _, field := range f {
+		if field.DatatypeName == TypeCustom {
 			return true
 		}
 	}

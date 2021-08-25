@@ -2,8 +2,9 @@ package cli
 
 import (
     "context"
+	<%= if (Indexes.NeedJsonImport()) { %> "encoding/json" <% } %>
 
-	<%= if (Indexes.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+	<%= if (Indexes.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
     "github.com/spf13/cobra"
     
 	"github.com/cosmos/cosmos-sdk/client"

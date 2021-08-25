@@ -2,8 +2,9 @@ package cli
 
 import (
     "strconv"
+	<%= if (fields.NeedJsonImport()) { %> "encoding/json" <% } %>
 
-    <%= if (fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+    <%= if (fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -21,7 +22,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-            <%= for (i, field) in fields { %> arg<%= castArg(field, i) %>
+            <%= for (i, field) in fields { %> <%= castArg("arg", field, i) %>
       		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

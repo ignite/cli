@@ -9,22 +9,22 @@ import (
 
 // castArg returns the line of code to cast a value received from CLI of type string into its datatype
 // Don't forget to import github.com/spf13/cast in templates
-func castArg(field field.Field, argIndex int) string {
+func castArg(prefix string, field field.Field, argIndex int) string {
 	switch field.DatatypeName {
 	case datatypeString:
-		return fmt.Sprintf("%s := args[%d]", field.Name.UpperCamel, argIndex)
+		return fmt.Sprintf("%s%s := args[%d]", prefix, field.Name.UpperCamel, argIndex)
 	case datatypeUint, datatypeInt, datatypeBool:
-		return fmt.Sprintf(`%s, err := cast.To%sE(args[%d])
+		return fmt.Sprintf(`%s%s, err := cast.To%sE(args[%d])
             if err != nil {
                 return err
             }`,
-			field.Name.UpperCamel, strings.Title(field.Datatype), argIndex)
+			prefix, field.Name.UpperCamel, strings.Title(field.Datatype), argIndex)
 	case datatypeCustom:
-		return fmt.Sprintf(`%[1]v := new(types.%[2]v)
-			err = json.Unmarshal([]byte(args[%[3]v]), %[1]v)
+		return fmt.Sprintf(`%[1]v%[2]v := new(types.%[3]v)
+			err = json.Unmarshal([]byte(args[%[4]v]), %[1]v%[2]v)
     		if err != nil {
                 return err
-            }`, field.Name.UpperCamel, field.Datatype, argIndex)
+            }`, prefix, field.Name.UpperCamel, field.Datatype, argIndex)
 	default:
 		panic(fmt.Sprintf("unknown type %s", field.DatatypeName))
 	}
