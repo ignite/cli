@@ -3,6 +3,7 @@ package plushhelpers
 import "github.com/gobuffalo/plush"
 
 const (
+	datatypeCustom = "custom"
 	datatypeString = "string"
 	datatypeUint   = "uint"
 	datatypeInt    = "int"

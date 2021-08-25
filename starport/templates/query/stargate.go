@@ -2,9 +2,11 @@ package query
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
@@ -60,6 +62,19 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		}
 		if opts.Paginated {
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
+		}
+
+		// Ensure custom types are imported
+		customFields := append(opts.ResFields.CustomImports(), opts.ReqFields.CustomImports()...)
+		for _, f := range customFields {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				Placeholder,
+				replacer,
+			)
 		}
 
 		// Messages

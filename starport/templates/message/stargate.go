@@ -2,9 +2,12 @@ package message
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 // NewStargate returns the generator to scaffold a empty message in a Stargate module
@@ -98,6 +101,20 @@ message Msg%[2]vResponse {
 			opts.MsgSigner.LowerCamel,
 		)
 		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
+
+		// Ensure custom types are imported
+		customFields := append(opts.ResFields.CustomImports(), opts.Fields.CustomImports()...)
+		for _, f := range customFields {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				typed.PlaceholderProtoTxImport,
+				replacer,
+			)
+		}
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

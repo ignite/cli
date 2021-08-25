@@ -19,8 +19,14 @@ func castArg(field field.Field, argIndex int) string {
                 return err
             }`,
 			field.Name.UpperCamel, strings.Title(field.Datatype), argIndex)
+	case datatypeCustom:
+		return fmt.Sprintf(`%[1]v := new(types.%[2]v)
+			err = json.Unmarshal([]byte(args[%[3]v]), %[1]v)
+    		if err != nil {
+                return err
+            }`, field.Name.UpperCamel, field.Datatype, argIndex)
 	default:
-		return fmt.Sprintf(`%[1]v := types.%[2]v{}`, field.Name.UpperCamel, field.Datatype)
+		panic(fmt.Sprintf("unknown type %s", field.DatatypeName))
 	}
 }
 
@@ -41,10 +47,12 @@ func CastToBytes(varName string, datatypeName string) string {
 		if %[1]v {
 			%[1]vBytes = []byte{1}
 		}`, varName)
-	default:
+	case datatypeCustom:
 		return fmt.Sprintf(`%[1]vBufferBytes := new(bytes.Buffer)
 		json.NewEncoder(%[1]vBytes).Encode(%[1]v)
 		%[1]vBytes := reqBodyBytes.Bytes()`, varName)
+	default:
+		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
 }
 
@@ -57,7 +65,9 @@ func CastToString(varName string, datatypeName string) string {
 		return fmt.Sprintf("strconv.Itoa(int(%s))", varName)
 	case datatypeBool:
 		return fmt.Sprintf("strconv.FormatBool(%s)", varName)
-	default:
+	case datatypeCustom:
 		return fmt.Sprintf("fmt.Sprintf(\"%s\", %s)", "%+v", varName)
+	default:
+		panic(fmt.Sprintf("unknown type %s", datatypeName))
 	}
 }

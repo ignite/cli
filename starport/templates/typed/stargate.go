@@ -3,9 +3,11 @@ package typed
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 type typedStargate struct {
@@ -112,6 +114,18 @@ import "%s/%s.proto";`
 		var updateFields string
 		for i, field := range opts.Fields {
 			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+		}
+
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.CustomImports() {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				PlaceholderProtoTxImport,
+				replacer,
+			)
 		}
 
 		templateMessages := `%[1]v

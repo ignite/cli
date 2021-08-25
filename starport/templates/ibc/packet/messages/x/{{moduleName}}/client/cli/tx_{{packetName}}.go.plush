@@ -17,10 +17,10 @@ var _ = strconv.Itoa(0)
 
 func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= for (i, field) in fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= fields.Args() %>",
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             <%= for (i, field) in fields { %> arg<%= castArg(field, i) %>
       		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)

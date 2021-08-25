@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -12,6 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 )
@@ -192,6 +194,19 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.CustomImports(), opts.AckFields.CustomImports()...)
+		for _, f := range customFields {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				Placeholder,
+				replacer,
+			)
+		}
+
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
@@ -260,6 +275,18 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		var sendFields string
 		for i, field := range opts.Fields {
 			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+5)
+		}
+
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.CustomImports() {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				Placeholder,
+				replacer,
+			)
 		}
 
 		// Message

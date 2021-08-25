@@ -3,10 +3,12 @@ package singleton
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -296,8 +298,18 @@ import "%s/%s.proto";`
 
 		// Messages
 		var fields string
-		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+		for i, f := range opts.Fields {
+			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		}
+		for _, f := range opts.Fields.CustomImports() {
+			importModule := filepath.Join(opts.ModuleName, f)
+			content = protoanalysis.EnsureProtoImported(
+				content,
+				importModule,
+				path,
+				typed.PlaceholderProtoTxImport,
+				replacer,
+			)
 		}
 
 		templateMessages := `%[1]v

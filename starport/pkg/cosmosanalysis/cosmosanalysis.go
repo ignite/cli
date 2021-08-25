@@ -128,7 +128,7 @@ func FindStructFields(modulePath, structName string) ([]string, error) {
 					fieldType := i.Name
 					if fieldType, ok := staticTypes[fieldType]; ok {
 						for _, fieldName := range field.Names {
-							fieldString := fmt.Sprintf("%s:%s", fieldName.Name, fieldType)
+							fieldString := fmt.Sprintf("%s%s:%s", structName, fieldName.Name, fieldType)
 							fields = append(fields, fieldString)
 						}
 						continue

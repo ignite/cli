@@ -14,8 +14,10 @@ const (
 	TypeCustom = "custom"
 	TypeString = "string"
 	TypeBool   = "bool"
+	TypeInt    = "int"
 	TypeInt32  = "int32"
 	TypeUint64 = "uint64"
+	TypeUint   = "uint"
 
 	FolderX     = "x"
 	FolderTypes = "types"
@@ -25,10 +27,10 @@ const (
 
 var (
 	staticTypes = map[string]string{
-		"string": TypeString,
-		"bool":   TypeBool,
-		"int":    TypeInt32,
-		"uint":   TypeUint64,
+		TypeString: TypeString,
+		TypeBool:   TypeBool,
+		TypeInt:    TypeInt32,
+		TypeUint:   TypeUint64,
 	}
 )
 
@@ -127,13 +129,50 @@ func ParseFields(
 	return parsedFields, nil
 }
 
+// GetDatatype return the Datatype based in the DatatypeName
+func (f Field) GetDatatype() string {
+	switch f.DatatypeName {
+	case TypeString, TypeBool, TypeInt, TypeUint:
+		return f.Datatype
+	case TypeCustom:
+		return fmt.Sprintf("*%s", f.Datatype)
+	default:
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+}
+
 // NeedCast return true if the field slice needs
 // external cast library
 func (f Fields) NeedCast() bool {
 	for _, field := range f {
-		if field.DatatypeName != TypeString {
+		if field.DatatypeName != TypeString &&
+			field.DatatypeName != TypeCustom {
 			return true
 		}
 	}
 	return false
+}
+
+// Args return all inline fields args for command usage
+func (f Fields) Args() string {
+	args := ""
+	for _, field := range f {
+		args += fmt.Sprintf(" [%s]", field.Name.Kebab)
+	}
+	return args
+}
+
+// CustomImports return a list of custom fields
+func (f Fields) CustomImports() []string {
+	fields := make([]string, 0)
+	for _, field := range f {
+		if field.DatatypeName == TypeCustom {
+			dataType, err := multiformatname.NewName(field.Datatype)
+			if err != nil {
+				panic(err)
+			}
+			fields = append(fields, dataType.Kebab)
+		}
+	}
+	return fields
 }

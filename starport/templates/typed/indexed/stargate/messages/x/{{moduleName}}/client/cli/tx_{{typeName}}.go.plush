@@ -12,10 +12,10 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
     cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= Indexes.Args() %><%= Fields.Args() %>",
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
         <%= for (i, index) in Indexes { %> index<%= castArg(index, i) %>
         <% } %>
@@ -46,10 +46,10 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %><%= Indexes.Args() %><%= Fields.Args() %>",
 		Short: "Update a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
         <%= for (i, index) in Indexes { %> index<%= castArg(index, i) %>
         <% } %>
@@ -80,10 +80,10 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
+		Use:   "delete-<%= TypeName.Kebab %><%= Indexes.Args() %>",
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             <%= for (i, index) in Indexes { %> index<%= castArg(index, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)

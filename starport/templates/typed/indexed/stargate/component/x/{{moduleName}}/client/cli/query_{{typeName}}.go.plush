@@ -46,10 +46,10 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
+		Use:   "show-<%= TypeName.Kebab %><%= Indexes.Args() %>",
 		Short: "shows a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             clientCtx := client.GetClientContextFromCmd(cmd)
 
             queryClient := types.NewQueryClient(clientCtx)

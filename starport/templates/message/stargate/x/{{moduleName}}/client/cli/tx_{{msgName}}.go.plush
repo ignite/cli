@@ -16,10 +16,10 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= MsgName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "<%= MsgName.Kebab %><%= Fields.Args() %>",
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
       		<%= for (i, field) in Fields { %> arg<%= castArg(field, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
