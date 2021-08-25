@@ -47,9 +47,15 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create with a custom type",
+	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "custom-type", "customField:uint"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a query with the custom field type",
+		step.NewSteps(step.New(
 			step.Exec("starport", "s", "query", "foobaz", "bar:CustomType"),
 			step.Workdir(path),
 		)),
