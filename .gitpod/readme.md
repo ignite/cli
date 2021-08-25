@@ -42,7 +42,7 @@ starport serve
 curl https://get.starport.network/starport! | bash
 ```
 
-The latest `starport` binary is downloaded from the Github repo and installed in `/usr/local/bin`. Learn more about [installing Starport](https://docs.starport.network/intro/install).
+The latest `starport` binary is downloaded from the Github repo and installed in `/usr/local/bin`. Learn more about [installing Starport](https://docs.starport.network/guide/install.html).
 
 ## Stay in touch
 
