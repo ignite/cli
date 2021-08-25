@@ -160,6 +160,15 @@ func (r Registry) Export(name, passphrase string) (key string, err error) {
 
 }
 
+// ExportHex exports an account as a private key in hex.
+func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
+	if _, err = r.GetByName(name); err != nil {
+		return "", err
+	}
+
+	return keyring.NewUnsafe(r.kr).UnsafeExportPrivKeyHex(name)
+}
+
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	info, err := r.kr.Key(name)
