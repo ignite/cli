@@ -35,6 +35,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a list with custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "custom", "document:Document"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("should prevent creating a list with duplicated fields",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "company", "name", "name"),

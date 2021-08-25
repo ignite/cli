@@ -47,6 +47,13 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create with a custom type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "query", "foobaz", "bar:Bar"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create an empty query",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "query", "foobar"),

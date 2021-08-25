@@ -46,6 +46,13 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a message with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "message", "foo-baz", "do-bar:DoBar"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "module", "foo", "--require-registration"),
