@@ -144,10 +144,8 @@ func (f Field) GetDatatype() string {
 // GetProtoDatatype return the proto Datatype based in the DatatypeName
 func (f Field) GetProtoDatatype() string {
 	switch f.DatatypeName {
-	case TypeString, TypeBool, TypeInt, TypeUint:
+	case TypeString, TypeBool, TypeInt, TypeUint, TypeCustom:
 		return f.Datatype
-	case TypeCustom:
-		return fmt.Sprintf("%s", f.Datatype)
 	default:
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}

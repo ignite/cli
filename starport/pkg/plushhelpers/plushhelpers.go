@@ -9,6 +9,7 @@ const (
 	datatypeInt    = "int"
 	datatypeBool   = "bool"
 	valueFalse     = "false"
+	valueNil       = "nil"
 )
 
 // ExtendPlushContext sets available helpers on the provided context.
