@@ -237,12 +237,7 @@ func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
     return 0
   }
   // Convert the count into a uint64
-  count, err := strconv.ParseUint(string(bz), 10, 64)
-  // Panic if the count cannot be converted to uint64
-  if err != nil {
-    panic("cannot decode count")
-  }
-  return count
+  return binary.BigEndian.Uint64(bz)
 }
 ```
 
@@ -255,7 +250,8 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
   // Convert count from uint64 to string and get bytes
-  bz := []byte(strconv.FormatUint(count, 10))
+  bz := make([]byte, 8)
+  binary.BigEndian.PutUint64(bz, count)
   // Set the value of Post-count- to count
   store.Set(byteKey, bz)
 }
