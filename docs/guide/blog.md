@@ -138,24 +138,27 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Add GRPC to the Module Handler
+## Add gRPC to the Module Handler
 
 In the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports.
-import (
+
+    ```go
+    import (
 	"context"
 	// ... other imports
-)
+    )
+    ```
 
 2. Register the query handler:
 
-```bash
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
+    ```go
+    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
 
 ## Write Data to the Store
 
@@ -258,7 +261,7 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind `AppendPost`.:
+Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind the `AppendPost` function:
 
 ```go
 package keeper
@@ -430,7 +433,9 @@ pagination:
 
 ## Conclusion
 
-Congratulations. You have built a blog blockchain! You can:
+Congratulations. You have built a blog blockchain! 
+
+You have successfully completed these steps:
 
 * Write blog posts to your chain
 * Read from blog posts
