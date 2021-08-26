@@ -26,11 +26,17 @@ const (
 )
 
 var (
-	staticTypes = map[string]string{
+	StaticDataTypes = map[string]string{
 		TypeString: TypeString,
 		TypeBool:   TypeBool,
 		TypeInt:    TypeInt32,
 		TypeUint:   TypeUint64,
+	}
+	staticDataTypeNames = map[string]string{
+		TypeString: TypeString,
+		TypeBool:   TypeBool,
+		TypeInt32:  TypeInt,
+		TypeUint64: TypeUint,
 	}
 )
 
@@ -99,7 +105,7 @@ func ParseFields(
 		existingFields[name.LowerCamel] = true
 
 		// Parse the type if it is provided, otherwise string is used by default
-		if datatype, ok := staticTypes[datatypeName]; ok {
+		if datatype, ok := StaticDataTypes[datatypeName]; ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
 				Datatype:     datatype,
@@ -110,7 +116,7 @@ func ParseFields(
 
 		// Check if the custom type is valid and fetch the fields
 		path := filepath.Join(FolderX, module, FolderTypes)
-		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName)
+		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName, staticDataTypeNames)
 		if err != nil {
 			return parsedFields, err
 		}

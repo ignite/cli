@@ -2,16 +2,6 @@ package plushhelpers
 
 import "github.com/gobuffalo/plush"
 
-const (
-	datatypeCustom = "custom"
-	datatypeString = "string"
-	datatypeUint   = "uint"
-	datatypeInt    = "int"
-	datatypeBool   = "bool"
-	valueFalse     = "false"
-	valueNull      = "null"
-)
-
 // ExtendPlushContext sets available helpers on the provided context.
 func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("castArg", castArg)

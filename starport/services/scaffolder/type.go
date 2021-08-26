@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
@@ -218,12 +219,35 @@ func (s *Scaffolder) AddType(
 	return sm, s.finish(pwd, path.RawPath)
 }
 
+// checkForbiddenTypeIndex returns true if the name is forbidden as a field name
+func checkForbiddenTypeIndex(name string) error {
+	fieldSplit := strings.Split(name, ":")
+	if len(fieldSplit) > 1 {
+		name = fieldSplit[0]
+		fieldType := fieldSplit[1]
+		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+			return fmt.Errorf("invalid index type %s", fieldType)
+		}
+	}
+	return checkForbiddenTypeField(name)
+}
+
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	switch name {
+	fieldSplit := strings.Split(name, ":")
+	if len(fieldSplit) > 1 {
+		name = fieldSplit[0]
+	}
+
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.Lowercase {
 	case
 		"id",
-		"appendedValue",
+		"appendedvalue",
 		"creator":
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
@@ -234,7 +258,7 @@ func checkForbiddenTypeField(name string) error {
 // mapGenerator returns the template generator for a map
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	parsedIndexes, err := field.ParseFields(indexes, opts.ModuleName, checkForbiddenTypeField)
+	parsedIndexes, err := field.ParseFields(indexes, opts.ModuleName, checkForbiddenTypeIndex)
 	if err != nil {
 		return nil, err
 	}

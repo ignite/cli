@@ -73,26 +73,13 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	return found, nil
 }
 
-const (
-	TypeString = "string"
-	TypeBool   = "bool"
-	TypeInt32  = "int32"
-	TypeInt    = "int"
-	TypeUint64 = "uint64"
-	TypeUint   = "uint"
-)
-
-var (
-	staticTypes = map[string]string{
-		TypeString: TypeString,
-		TypeBool:   TypeBool,
-		TypeInt32:  TypeInt,
-		TypeUint64: TypeUint,
-	}
-)
-
-// FindStructFields finds the fields from a specific struct declared into the app
-func FindStructFields(modulePath, structName string) ([]string, error) {
+// FindStructFields finds the fields from a
+// specific struct declared into the app
+func FindStructFields(
+	modulePath,
+	structName string,
+	staticTypes map[string]string,
+) ([]string, error) {
 	// Parse go packages/files under path
 	fset := token.NewFileSet()
 	fields := make([]string, 0)
@@ -135,7 +122,7 @@ func FindStructFields(modulePath, structName string) ([]string, error) {
 					}
 
 					// Find nested custom fields
-					customFields, err := FindStructFields(modulePath, fieldType)
+					customFields, err := FindStructFields(modulePath, fieldType, staticTypes)
 					if err != nil {
 						return false
 					}
