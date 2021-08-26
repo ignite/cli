@@ -7,7 +7,7 @@ Starport is the all-in-one platform to build, launch and maintain any crypto app
 
 ## Quick start
 
-Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/intro/install). Create and start a blockchain:
+Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/guide/install.html). Create and start a blockchain:
 
 ```
 starport scaffold chain github.com/cosmonaut/mars
@@ -19,7 +19,7 @@ starport chain serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/configure/reference). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/intro/install).
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/configure/reference). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/guide/install.html).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [`tendermint/vue`](https://github.com/tendermint/vue).
 
