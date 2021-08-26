@@ -6,12 +6,14 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/templates/module"
 )
 
 func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Options, g *genny.Generator) {
 	g.RunFn(t.genesisProtoModify(replacer, opts))
 	g.RunFn(t.genesisTypesModify(replacer, opts))
 	g.RunFn(t.genesisModuleModify(replacer, opts))
+	g.RunFn(t.genesisTestsModify(replacer, opts))
 }
 
 func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
@@ -140,6 +142,71 @@ genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateValid := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		Id: 0,
+	},
+	{
+		Id: 1,
+	},
+},
+%[2]vCount: 2,`
+		replacementValid := fmt.Sprintf(
+			templateValid,
+			module.PlaceholderTypesGenesisValidField,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
+
+		templateTests := `%[1]v
+{
+	desc:     "duplicated %[2]v",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				Id: 0,
+			},
+			{
+				Id: 0,
+			},
+		},
+	},
+	valid:    false,
+},
+{
+	desc:     "invalid %[2]v count",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				Id: 1,
+			},
+		},
+		%[3]vCount: 0,
+	},
+	valid:    false,
+},`
+		replacementTests := fmt.Sprintf(
+			templateTests,
+			module.PlaceholderTypesGenesisTestcase,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+		)
+		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementTests)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

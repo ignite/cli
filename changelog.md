@@ -13,6 +13,7 @@
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
 - Added `starport account` commands to manage accounts (key pairs)
 - `starport version` now prints out detailed information about OS, Go version and more.
+- Module scaffolding now creates `x/.../types/genesis_test.go` for genesis validation tests
 
 ### Fixes:
 

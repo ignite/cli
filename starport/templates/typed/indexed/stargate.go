@@ -8,6 +8,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -56,6 +57,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
+	g.RunFn(genesisTestsModify(replacer, opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -319,7 +321,6 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 for _, elem := range genState.%[3]vList {
 	k.Set%[3]v(ctx, elem)
 }
-
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
@@ -339,6 +340,73 @@ genesis.%[3]vList = k.GetAll%[3]v(ctx)
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Create a list of two different indexes to use as sample
+		sampleIndexes := make([]string, 2)
+		for i := 0; i < 2; i++ {
+			for _, index := range opts.Indexes {
+				switch index.DatatypeName {
+				case "string":
+					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
+				case "int", "uint":
+					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
+				case "bool":
+					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i != 0)
+				}
+			}
+		}
+
+		templateValid := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		%[3]v},
+	{
+		%[4]v},
+},
+`
+		replacementValid := fmt.Sprintf(
+			templateValid,
+			module.PlaceholderTypesGenesisValidField,
+			opts.TypeName.UpperCamel,
+			sampleIndexes[0],
+			sampleIndexes[1],
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
+
+		templateDuplicated := `%[1]v
+{
+	desc:     "duplicated %[2]v",
+	genState: &types.GenesisState{
+		%[3]vList: []types.%[3]v{
+			{
+				%[4]v},
+			{
+				%[4]v},
+		},
+	},
+	valid:    false,
+},`
+		replacementDuplicated := fmt.Sprintf(
+			templateDuplicated,
+			module.PlaceholderTypesGenesisTestcase,
+			opts.TypeName.LowerCamel,
+			opts.TypeName.UpperCamel,
+			sampleIndexes[0],
+		)
+		content = replacer.Replace(content, module.PlaceholderTypesGenesisTestcase, replacementDuplicated)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

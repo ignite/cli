@@ -138,24 +138,27 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Add GRPC to the Module Handler
+## Add gRPC to the Module Handler
 
 In the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports.
-import (
+
+    ```go
+    import (
 	"context"
 	// ... other imports
-)
+    )
+    ```
 
 2. Register the query handler:
 
-```bash
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
+    ```go
+    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
 
 ## Write Data to the Store
 
@@ -234,12 +237,7 @@ func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
     return 0
   }
   // Convert the count into a uint64
-  count, err := strconv.ParseUint(string(bz), 10, 64)
-  // Panic if the count cannot be converted to uint64
-  if err != nil {
-    panic("cannot decode count")
-  }
-  return count
+  return binary.BigEndian.Uint64(bz)
 }
 ```
 
@@ -252,13 +250,14 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
   // Convert count from uint64 to string and get bytes
-  bz := []byte(strconv.FormatUint(count, 10))
+  bz := make([]byte, 8)
+  binary.BigEndian.PutUint64(bz, count)
   // Set the value of Post-count- to count
   store.Set(byteKey, bz)
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind `AppendPost`.:
+Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind the `AppendPost` function:
 
 ```go
 package keeper
@@ -430,7 +429,9 @@ pagination:
 
 ## Conclusion
 
-Congratulations. You have built a blog blockchain! You can:
+Congratulations. You have built a blog blockchain! 
+
+You have successfully completed these steps:
 
 * Write blog posts to your chain
 * Read from blog posts
