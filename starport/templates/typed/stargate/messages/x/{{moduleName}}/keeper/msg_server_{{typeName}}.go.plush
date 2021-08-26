@@ -38,12 +38,13 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	}
 
     // Checks that the element exists
-    if !k.Has<%= TypeName.UpperCamel %>(ctx, msg.Id) {
+    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
+    if !found {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
 
-    // Checks if the the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
-    if msg.<%= MsgSigner.UpperCamel %> != k.Get<%= TypeName.UpperCamel %>Owner(ctx, msg.Id) {
+    // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
+    if msg.<%= MsgSigner.UpperCamel %> != val.Creator {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
@@ -55,10 +56,14 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg *types.MsgDelete<%= TypeName.UpperCamel %>) (*types.MsgDelete<%= TypeName.UpperCamel %>Response, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-    if !k.Has<%= TypeName.UpperCamel %>(ctx, msg.Id) {
+    // Checks that the element exists
+    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
+    if !found {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
-    if msg.<%= MsgSigner.UpperCamel %> != k.Get<%= TypeName.UpperCamel %>Owner(ctx, msg.Id) {
+
+    // Checks if the msg <%= MsgSigner.LowerCamel %> is the same as the current owner
+    if msg.<%= MsgSigner.UpperCamel %> != val.Creator {
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
