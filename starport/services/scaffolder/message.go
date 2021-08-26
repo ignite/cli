@@ -116,7 +116,8 @@ func (s *Scaffolder) AddMessage(
 
 	// Check and support MsgServer convention
 	var gens []*genny.Generator
-	g, err = supportMsgServer(
+	gens, err = supportMsgServer(
+		gens,
 		tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
@@ -128,9 +129,6 @@ func (s *Scaffolder) AddMessage(
 	)
 	if err != nil {
 		return sm, err
-	}
-	if g != nil {
-		gens = append(gens, g)
 	}
 
 	// Scaffold

@@ -2,10 +2,10 @@ package keeper
 
 import (
 	"encoding/binary"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
-	"strconv"
 )
 
 // Get<%= TypeName.UpperCamel %>Count get the total number of <%= TypeName.LowerCamel %>
@@ -20,20 +20,15 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>Count(ctx sdk.Context) uint64 {
 	}
 
 	// Parse bytes
-	count, err := strconv.ParseUint(string(bz), 10, 64)
-	if err != nil {
-		// Panic because the count should be always formattable to uint64
-		panic("cannot decode count")
-	}
-
-	return count
+	return binary.BigEndian.Uint64(bz)
 }
 
 // Set<%= TypeName.UpperCamel %>Count set the total number of <%= TypeName.LowerCamel %>
 func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count uint64)  {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
 	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
-	bz := []byte(strconv.FormatUint(count, 10))
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
 	store.Set(byteKey, bz)
 }
 
@@ -66,24 +61,16 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.Lowe
 }
 
 // Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its id
-func (k Keeper) Get<%=TypeName.UpperCamel %>(ctx sdk.Context, id uint64) types.<%= TypeName.UpperCamel %> {
+func (k Keeper) Get<%=TypeName.UpperCamel %>(ctx sdk.Context, id uint64) (val types.<%= TypeName.UpperCamel %>, found bool) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-	var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
-	k.cdc.MustUnmarshalBinaryBare(store.Get(Get<%= TypeName.UpperCamel %>IDBytes(id)), &<%= TypeName.LowerCamel %>)
-	return <%= TypeName.LowerCamel %>
+	b := store.Get(Get<%= TypeName.UpperCamel %>IDBytes(id))
+	if b == nil {
+		return val, false
+	}
+	k.cdc.MustUnmarshalBinaryBare(b, &val)
+	return val, true
 }
 
-// Has<%= TypeName.UpperCamel %> checks if the <%= TypeName.LowerCamel %> exists in the store
-func (k Keeper) Has<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) bool {
-	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
-	return store.Has(Get<%= TypeName.UpperCamel %>IDBytes(id))
-}
-<%= if (!NoMessage) { %>
-// Get<%= TypeName.UpperCamel %>Owner returns the <%= MsgSigner.LowerCamel %> of the <%= TypeName %>
-func (k Keeper) Get<%= TypeName.UpperCamel %>Owner(ctx sdk.Context, id uint64) string {
-    return k.Get<%= TypeName.UpperCamel %>(ctx, id).<%= MsgSigner.UpperCamel %>
-}
-<% } %>
 // Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
 func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))

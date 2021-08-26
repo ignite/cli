@@ -163,7 +163,8 @@ func (s *Scaffolder) AddType(
 		gens []*genny.Generator
 	)
 	// Check and support MsgServer convention
-	g, err = supportMsgServer(
+	gens, err = supportMsgServer(
+		gens,
 		tracer,
 		s.path,
 		&modulecreate.MsgServerOptions{
@@ -176,8 +177,16 @@ func (s *Scaffolder) AddType(
 	if err != nil {
 		return sm, err
 	}
-	if g != nil {
-		gens = append(gens, g)
+
+	gens, err = supportGenesisTests(
+		gens,
+		opts.AppPath,
+		opts.AppName,
+		opts.ModulePath,
+		opts.ModuleName,
+	)
+	if err != nil {
+		return sm, err
 	}
 
 	// create the type generator depending on the model
