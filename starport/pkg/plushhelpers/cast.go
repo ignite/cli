@@ -61,10 +61,8 @@ func CastToString(varName string, datatypeName string) string {
 	switch datatypeName {
 	case field.TypeString:
 		return varName
-	case field.TypeUint:
+	case field.TypeUint, field.TypeInt:
 		return fmt.Sprintf("strconv.Itoa(int(%s))", varName)
-	case field.TypeInt:
-		return fmt.Sprintf("strconv.Itoa(%s)", varName)
 	case field.TypeBool:
 		return fmt.Sprintf("strconv.FormatBool(%s)", varName)
 	case field.TypeCustom:
