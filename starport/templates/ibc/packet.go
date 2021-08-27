@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -33,6 +34,7 @@ var (
 // PacketOptions are options to scaffold a packet in a IBC module
 type PacketOptions struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
@@ -86,7 +88,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -159,7 +161,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 
 func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/packet.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -217,7 +219,7 @@ message %[2]vPacketAck {
 
 func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -241,7 +243,7 @@ EventType%[2]vPacket       = "%[3]v_packet"
 
 func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -293,7 +295,7 @@ message MsgSend%[2]vResponse {
 
 func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -320,7 +322,7 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -337,7 +339,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 
 func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

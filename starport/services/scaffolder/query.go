@@ -60,6 +60,7 @@ func (s *Scaffolder) AddQuery(
 		g    *genny.Generator
 		opts = &query.Options{
 			AppName:     path.Package,
+			AppPath:     s.path,
 			ModulePath:  path.RawPath,
 			ModuleName:  moduleName,
 			OwnerName:   owner(path.RawPath),

@@ -17,7 +17,6 @@ func NewChainInit() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 
 	return c
 }

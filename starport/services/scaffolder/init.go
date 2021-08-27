@@ -30,16 +30,26 @@ var (
 
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModule bool) (path string, err error) {
+func (s *Scaffolder) Init(tracer *placeholder.Tracer, name, appPath string, noDefaultModule bool) (path string, err error) {
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
+
 	pwd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
-	absRoot := filepath.Join(pwd, pathInfo.Root)
+	// if the path is not set, use the current directory
+	if appPath == "" {
+		appPath = pwd
+	} else {
+		appPath, err = filepath.Abs(appPath)
+		if err != nil {
+			return "", err
+		}
+	}
+	absRoot := filepath.Join(appPath, pathInfo.Root)
 
 	// create the project
 	if err := s.generate(tracer, pathInfo, absRoot, noDefaultModule); err != nil {
@@ -51,10 +61,16 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModu
 	}
 
 	// initialize git repository and perform the first commit
-	if err := initGit(pathInfo.Root); err != nil {
+	if err := initGit(absRoot); err != nil {
 		return "", err
 	}
-	return pathInfo.Root, nil
+
+	// get the relative app path from the current directory
+	relativePath, err := filepath.Rel(pwd, appPath)
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(relativePath, pathInfo.Root), nil
 }
 
 //nolint:interfacer
@@ -98,6 +114,7 @@ func (s *Scaffolder) generate(
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
+			AppPath:    s.path,
 			OwnerName:  owner(pathInfo.RawPath),
 			IsIBC:      false,
 		}

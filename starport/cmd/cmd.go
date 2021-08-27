@@ -22,13 +22,16 @@ import (
 )
 
 const (
+	flagAppPath       = "path"
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
+
+	checkVersionTimeout = time.Millisecond * 600
 )
 
-const checkVersionTimeout = time.Millisecond * 600
-
 var (
+	appPath string
+
 	infoColor = color.New(color.FgYellow).SprintFunc()
 )
 
@@ -87,6 +90,10 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
 		}
 	}
+}
+
+func flagSetAppPath(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringVarP(&appPath, "path", "p", ".", "path of the app")
 }
 
 func flagSetHome() *flag.FlagSet {

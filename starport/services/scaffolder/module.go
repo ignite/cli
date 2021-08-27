@@ -123,6 +123,7 @@ func (s *Scaffolder) CreateModule(
 		ModuleName:   moduleName,
 		ModulePath:   path.RawPath,
 		AppName:      path.Package,
+		AppPath:      s.path,
 		OwnerName:    owner(path.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,

@@ -14,7 +14,6 @@ func NewScaffoldType() *cobra.Command {
 		RunE:  scaffoldTypeHandler,
 	}
 
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

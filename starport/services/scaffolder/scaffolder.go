@@ -62,13 +62,17 @@ func AddressPrefix(prefix string) Option {
 
 // New initializes a new Scaffolder for app at path.
 func New(path string, options ...Option) (*Scaffolder, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
 	s := &Scaffolder{
 		path:    path,
 		options: newOptions(options...),
 	}
 
 	// determine the chain version.
-	var err error
 	s.version, err = cosmosver.Detect(path)
 	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
 		return nil, err

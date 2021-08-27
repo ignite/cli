@@ -171,6 +171,7 @@ func (s *Scaffolder) AddType(
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
+			AppPath:    opts.AppPath,
 			OwnerName:  opts.OwnerName,
 		},
 	)

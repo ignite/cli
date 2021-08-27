@@ -5,11 +5,11 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-const flagForceReset = "force-reset"
-const flagResetOnce = "reset-once"
-const flagConfig = "config"
-
-var appPath string
+const (
+	flagForceReset = "force-reset"
+	flagResetOnce  = "reset-once"
+	flagConfig     = "config"
+)
 
 // NewChainServe creates a new serve command to serve a blockchain.
 func NewChainServe() *cobra.Command {
@@ -20,9 +20,9 @@ func NewChainServe() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  chainServeHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
-	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")

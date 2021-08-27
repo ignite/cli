@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -47,7 +48,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 
 func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -68,7 +69,7 @@ func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -99,7 +100,7 @@ if !k.IsBound(ctx, genState.PortId) {
 
 func errorsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/errors.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/errors.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -117,7 +118,7 @@ ErrInvalidVersion = sdkerrors.Register(ModuleName, 1501, "invalid version")`
 
 func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -145,7 +146,7 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -166,7 +167,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -182,7 +183,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -212,7 +213,7 @@ PortID = "%[1]v"`
 
 func keeperModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/keeper.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "keeper/keeper.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
