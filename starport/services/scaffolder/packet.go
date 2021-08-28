@@ -133,11 +133,7 @@ func (s *Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, s.finish(opts.AppPath, path.Root)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

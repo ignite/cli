@@ -3,7 +3,6 @@ package scaffolder
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
@@ -113,11 +112,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, s.finish(opts.AppPath, path.Root)
 }
 
 func (s *Scaffolder) installBandPacket() error {

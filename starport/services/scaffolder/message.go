@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
@@ -143,11 +142,7 @@ func (s *Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, s.finish(opts.AppPath, path.Root)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
