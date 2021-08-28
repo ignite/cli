@@ -3,5 +3,5 @@
   "workbench.colorTheme": "Gitpod Dark",
   "editor.wordWrap": "on",
   "editor.minimap.enabled": false,
-  "workbench.startupEditor": "none"
+  "workbench.startupEditor": "readme"
 }
