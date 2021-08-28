@@ -20,7 +20,6 @@ import (
 var spnHomePath = xfilepath.JoinFromHome(xfilepath.Path("spnd"))
 
 const (
-	spn             = "spn"
 	faucetDenom     = "token"
 	faucetMinAmount = 100
 )
@@ -60,6 +59,10 @@ func New(ctx context.Context, nodeAddress, apiAddress, faucetAddress string, opt
 		cosmosclient.WithHome(homePath),
 		cosmosclient.WithKeyringBackend(cosmosclient.KeyringBackend(opts.keyringBackend)),
 	)
+	if err != nil {
+		return nil, err
+	}
+
 	return &Client{
 		cosmos:        cosmos,
 		apiAddress:    apiAddress,

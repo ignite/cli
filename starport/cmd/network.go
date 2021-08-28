@@ -136,14 +136,14 @@ func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Acco
 		createAccount = "Create a new account"
 		importAccount = "Import an account from mnemonic"
 	)
-	list := append(accounts, createAccount, importAccount)
+	accounts = append(accounts, createAccount, importAccount)
 	var (
 		qs = []*survey.Question{
 			{
 				Name: "account",
 				Prompt: &survey.Select{
 					Message: "Choose an account:",
-					Options: list,
+					Options: accounts,
 				},
 			},
 		}
