@@ -35,6 +35,6 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 
 Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
 
-- [Twitter](https://twitter.com/tendermint_team)
+- [Twitter](https://twitter.com/starportHQ)
 - [Blog](https://medium.com/tendermint)
 - [Jobs](https://tendermint.com/careers)
