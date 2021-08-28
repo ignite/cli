@@ -1,7 +1,6 @@
 package spn
 
 import (
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -24,7 +23,7 @@ func Keyring(keyring string) Option {
 
 // AccountGet retrieves an account by name from the keyring.
 func (c *Client) AccountGet(accountName string) (Account, error) {
-	info, err := c.kr.Key(accountName)
+	info, err := c.cosmos.Keyring.Key(accountName)
 	if err != nil {
 		return Account{}, err
 	}
@@ -34,7 +33,7 @@ func (c *Client) AccountGet(accountName string) (Account, error) {
 // AccountList returns a list of accounts.
 func (c *Client) AccountList() ([]Account, error) {
 	var accounts []Account
-	infos, err := c.kr.List()
+	infos, err := c.cosmos.Keyring.List()
 	if err != nil {
 		return nil, err
 	}
@@ -56,13 +55,13 @@ func (c *Client) AccountCreate(accountName, mnemonic string) (Account, error) {
 			return Account{}, err
 		}
 	}
-	algos, _ := c.kr.SupportedAlgorithms()
+	algos, _ := c.cosmos.Keyring.SupportedAlgorithms()
 	algo, err := keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
 	if err != nil {
 		return Account{}, err
 	}
 	hdPath := hd.CreateHDPath(types.GetConfig().GetCoinType(), 0, 0).String()
-	info, err := c.kr.NewAccount(accountName, mnemonic, "", hdPath, algo)
+	info, err := c.cosmos.Keyring.NewAccount(accountName, mnemonic, "", hdPath, algo)
 	if err != nil {
 		return Account{}, err
 	}
@@ -82,21 +81,10 @@ func toAccount(info keyring.Info) Account {
 // AccountExport exports an account in the keyring by name and an encryption password into privateKey.
 // password later can be used to decrypt the privateKey.
 func (c *Client) AccountExport(accountName, password string) (privateKey string, err error) {
-	return c.kr.ExportPrivKeyArmor(accountName, password)
+	return c.cosmos.Keyring.ExportPrivKeyArmor(accountName, password)
 }
 
 // AccountImport imports an account to the keyring by account name, privateKey and decryption password.
 func (c *Client) AccountImport(accountName, privateKey, password string) error {
-	return c.kr.ImportPrivKey(accountName, privateKey, password)
-}
-
-// buildClientCtx builds the context for the client
-func (c *Client) buildClientCtx(accountName string) (client.Context, error) {
-	info, err := c.kr.Key(accountName)
-	if err != nil {
-		return client.Context{}, err
-	}
-	return c.clientCtx.
-		WithFromName(accountName).
-		WithFromAddress(info.GetAddress()), nil
+	return c.cosmos.Keyring.ImportPrivKey(accountName, privateKey, password)
 }

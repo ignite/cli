@@ -1,16 +1,13 @@
 package spn
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
 	"net/http"
-	"os"
 	"strconv"
 	"strings"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
@@ -18,7 +15,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
 var spnHomePath = xfilepath.JoinFromHome(xfilepath.Path("spnd"))
@@ -31,12 +27,9 @@ const (
 
 // Client is client to interact with SPN.
 type Client struct {
-	kr            keyring.Keyring
-	factory       tx.Factory
-	clientCtx     client.Context
 	apiAddress    string
 	faucetAddress string
-	out           *bytes.Buffer
+	cosmos        cosmosclient.Client
 }
 
 type options struct {
@@ -48,7 +41,7 @@ type Option func(*options)
 
 // New creates a new SPN Client with nodeAddress of a full SPN node.
 // by default, OS is used as keyring backend.
-func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Client, error) {
+func New(ctx context.Context, nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Client, error) {
 	opts := &options{
 		keyringBackend: keyring.BackendOS,
 	}
@@ -61,27 +54,16 @@ func New(nodeAddress, apiAddress, faucetAddress string, option ...Option) (*Clie
 		return nil, err
 	}
 
-	kr, err := keyring.New(types.KeyringServiceName(), opts.keyringBackend, homePath, os.Stdin)
-	if err != nil {
-		return nil, err
-	}
-
-	client, err := rpchttp.New(nodeAddress, "/websocket")
-	if err != nil {
-		return nil, err
-	}
-	out := &bytes.Buffer{}
-	clientCtx := cosmosclient.
-		NewContext(client, out, spn, homePath).
-		WithKeyring(kr)
-	factory := cosmosclient.NewFactory(clientCtx)
+	cosmos, err := cosmosclient.New(
+		ctx,
+		cosmosclient.WithNodeAddress(nodeAddress),
+		cosmosclient.WithHome(homePath),
+		cosmosclient.WithKeyringBackend(cosmosclient.KeyringBackend(opts.keyringBackend)),
+	)
 	return &Client{
-		kr:            kr,
-		factory:       factory,
-		clientCtx:     clientCtx,
+		cosmos:        cosmos,
 		apiAddress:    apiAddress,
 		faucetAddress: faucetAddress,
-		out:           out,
 	}, nil
 }
 
@@ -142,22 +124,23 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 }
 
 // handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
-func (c *Client) handleBroadcastResult() error {
-	out := struct {
-		Code int    `json:"code"`
-		Log  string `json:"raw_log"`
-	}{}
-	if err := json.NewDecoder(c.out).Decode(&out); err != nil {
+func handleBroadcastResult(resp *types.TxResponse, err error) error {
+	if err != nil {
+		if strings.Contains(err.Error(), "not found") {
+			return errors.New("make sure that your SPN account has enough balance")
+		}
+
 		return err
 	}
-	if out.Code > 0 {
-		return fmt.Errorf("SPN error with '%d' code: %s", out.Code, out.Log)
+
+	if resp.Code > 0 {
+		return fmt.Errorf("SPN error with '%d' code: %s", resp.Code, resp.RawLog)
 	}
 	return nil
 }
 
 // prepareBroadcast performs checks and operations before broadcasting messages
-func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
+func (c *Client) prepareBroadcast(ctx context.Context, accountName string, msgs ...types.Msg) error {
 	// validate msgs.
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
@@ -165,42 +148,41 @@ func (c *Client) prepareBroadcast(ctx context.Context, clientCtx client.Context,
 		}
 	}
 
-	// make sure that account has enough balances before broadcasting.
-	if err := c.makeSureAccountHasTokens(ctx, clientCtx.GetFromAddress().String()); err != nil {
+	addr, err := c.cosmos.Address(accountName)
+	if err != nil {
 		return err
 	}
 
-	c.out.Reset()
+	// make sure that account has enough balances before broadcasting.
+	if err := c.makeSureAccountHasTokens(ctx, addr.String()); err != nil {
+		return err
+	}
 
 	return nil
 }
 
 // broadcast directly broadcasts the messages into spn handlers
-func (c *Client) broadcast(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) error {
-	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+func (c *Client) broadcast(ctx context.Context, accountName string, msgs ...types.Msg) error {
+	if err := c.prepareBroadcast(ctx, accountName, msgs...); err != nil {
 		return err
 	}
 
 	// broadcast tx.
-	if err := tx.BroadcastTx(clientCtx, c.factory, msgs...); err != nil {
-		return handleBroadcastError(err)
-	}
-
-	return c.handleBroadcastResult()
+	return handleBroadcastResult(c.cosmos.BroadcastTx(accountName, msgs...))
 }
 
 // broadcastProvision provides a provision function to broadcast the messages with returned amount of gas
-func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Context, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
-	if err := c.prepareBroadcast(ctx, clientCtx, msgs...); err != nil {
+func (c *Client) broadcastProvision(ctx context.Context, accountName string, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
+	if err := c.prepareBroadcast(ctx, accountName, msgs...); err != nil {
 		return 0, nil, err
 	}
 
 	// calculate the necessary gas for the transaction
-	txf, err := tx.PrepareFactory(clientCtx, c.factory)
+	txf, err := tx.PrepareFactory(c.cosmos.Context, c.cosmos.Factory)
 	if err != nil {
 		return 0, nil, err
 	}
-	_, gas, err = tx.CalculateGas(clientCtx.QueryWithData, txf, msgs...)
+	_, gas, err = tx.CalculateGas(c.cosmos.Context.QueryWithData, txf, msgs...)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -212,21 +194,6 @@ func (c *Client) broadcastProvision(ctx context.Context, clientCtx client.Contex
 	// Return the provision function
 	return gas, func() error {
 		// broadcast tx.
-		if err := tx.BroadcastTx(clientCtx, txf, msgs...); err != nil {
-			return handleBroadcastError(err)
-		}
-
-		return c.handleBroadcastResult()
+		return handleBroadcastResult(c.cosmos.BroadcastTx(accountName, msgs...))
 	}, nil
-}
-
-// handleBroadcastError returns a correct error message following the error from  the broadcast
-func handleBroadcastError(err error) error {
-	if err == nil {
-		return nil
-	}
-	if strings.Contains(err.Error(), "not found") {
-		return errors.New("make sure that your SPN account has enough balance")
-	}
-	return err
 }

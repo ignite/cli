@@ -35,7 +35,7 @@ func networkProposalRejectHandler(cmd *cobra.Command, args []string) error {
 		proposalList = args[1]
 	)
 
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}
