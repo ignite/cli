@@ -212,7 +212,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, s.finish(opts.AppPath, path.Root)
+	return sm, s.finish(opts.AppPath, path.RawPath)
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name

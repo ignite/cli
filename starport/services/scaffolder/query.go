@@ -79,5 +79,5 @@ func (s *Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.Root)
+	return sm, s.finish(opts.AppPath, path.RawPath)
 }

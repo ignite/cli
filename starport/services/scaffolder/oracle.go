@@ -112,7 +112,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.Root)
+	return sm, s.finish(opts.AppPath, path.RawPath)
 }
 
 func (s *Scaffolder) installBandPacket() error {

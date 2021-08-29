@@ -158,7 +158,7 @@ func (s *Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, s.finish(opts.AppPath, path.Root)
+	return sm, s.finish(opts.AppPath, path.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
