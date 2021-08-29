@@ -24,7 +24,7 @@ func NewEmbedWalker(fs embed.FS, trimPrefix, path string) Walker {
 
 // Walk implements packd.Walker.
 func (w Walker) Walk(wl packd.WalkFunc) error {
-	return w.walkDir(wl, w.path)
+	return w.walkDir(wl, ".")
 }
 
 func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
@@ -47,7 +47,7 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 		}
 
 		ppath := strings.TrimPrefix(path, w.trimPrefix)
-
+		ppath = filepath.Join(w.path, ppath)
 		f, err := packd.NewFile(ppath, bytes.NewReader(data))
 		if err != nil {
 			return err
