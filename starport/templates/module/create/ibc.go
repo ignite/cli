@@ -248,7 +248,7 @@ scopedKeeper:  scopedKeeper,`
 
 func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := module.PathAppGo
+		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

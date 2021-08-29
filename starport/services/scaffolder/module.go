@@ -111,7 +111,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return sm, err
 	}
 
@@ -292,11 +292,12 @@ func (s *Scaffolder) installWasm() error {
 }
 
 // checkDependencies perform checks on the dependencies
-func checkDependencies(dependencies []modulecreate.Dependency) error {
+func checkDependencies(dependencies []modulecreate.Dependency, appPath string) error {
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {
 		// check the dependency has been registered
-		if err := appanalysis.CheckKeeper(module.PathAppModule, dep.KeeperName); err != nil {
+		path := filepath.Join(appPath, module.PathAppModule)
+		if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
 			return fmt.Errorf(
 				"the module cannot have %s as a dependency: %s",
 				dep.Name,

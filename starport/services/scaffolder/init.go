@@ -89,7 +89,7 @@ func (s *Scaffolder) generate(
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
-		AppPath:          s.path,
+		AppPath:          absRoot,
 		OwnerName:        owner(pathInfo.RawPath),
 		OwnerAndRepoName: gu.UserAndRepo(),
 		BinaryNamePrefix: pathInfo.Root,
@@ -114,7 +114,7 @@ func (s *Scaffolder) generate(
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
-			AppPath:    s.path,
+			AppPath:    absRoot,
 			OwnerName:  owner(pathInfo.RawPath),
 			IsIBC:      false,
 		}

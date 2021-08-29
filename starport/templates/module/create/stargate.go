@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -71,7 +72,7 @@ func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *g
 // app.go modification on Stargate when creating a module
 func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := module.PathAppGo
+		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
