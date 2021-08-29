@@ -23,7 +23,7 @@ func supportGenesisTests(
 		return nil, err
 	}
 	if _, err := os.Stat(filepath); os.IsNotExist(err) {
-		g, err := modulecreate.AddGenesisTest(appName, modulePath, moduleName)
+		g, err := modulecreate.AddGenesisTest(appName, appPath, modulePath, moduleName)
 		if err != nil {
 			return nil, err
 		}
