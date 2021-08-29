@@ -18,17 +18,23 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
-
-	// stargateIndexedComponentTemplate allows to scaffold a new indexed type component in a Stargate module
-	stargateSingletonComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateIndexedMessagesTemplate allows to scaffold indexed type CRUD messages in a Stargate module
-	stargateSingletonMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g                = genny.New()
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateMessages,
+			"stargate/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(protoRPCModify(replacer, opts))
@@ -45,12 +51,12 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
-		if err := typed.Box(stargateSingletonMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
-	return g, typed.Box(stargateSingletonComponentTemplate, opts, g)
+	return g, typed.Box(componentTemplate, opts, g)
 }
 
 func typesKeyModify(opts *typed.Options) genny.RunFn {

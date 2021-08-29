@@ -13,17 +13,18 @@ import (
 type Walker struct {
 	fs         embed.FS
 	trimPrefix string
+	path       string
 }
 
 // NewEmbedWalker returns a new Walker for fs.
 // trimPrefix is used to trim parent paths from the paths of found files.
-func NewEmbedWalker(fs embed.FS, trimPrefix string) Walker {
-	return Walker{fs, trimPrefix}
+func NewEmbedWalker(fs embed.FS, trimPrefix, path string) Walker {
+	return Walker{fs: fs, trimPrefix: trimPrefix, path: path}
 }
 
 // Walk implements packd.Walker.
 func (w Walker) Walk(wl packd.WalkFunc) error {
-	return w.walkDir(wl, ".")
+	return w.walkDir(wl, w.path)
 }
 
 func (w Walker) walkDir(wl packd.WalkFunc, path string) error {

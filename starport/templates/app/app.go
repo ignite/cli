@@ -15,14 +15,15 @@ import (
 var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
-
-	tpl = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 // New returns the generator to scaffold a new Cosmos SDK app
 func New(opts *Options) (*genny.Generator, error) {
-	g := genny.New()
-	if err := g.Box(tpl); err != nil {
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(fsStargate, "stargate/", opts.AppPath)
+	)
+	if err := g.Box(template); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()

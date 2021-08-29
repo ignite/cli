@@ -8,13 +8,31 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
 // NewStargate returns the generator to scaffold a module inside a Stargate app
 func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		msgServerTemplate = xgenny.NewEmbedWalker(
+			fsMsgServer,
+			"msgserver/",
+			opts.AppPath,
+		)
+		genesisTestTemplate = xgenny.NewEmbedWalker(
+			fsGenesisTest,
+			"genesistest/",
+			opts.AppPath,
+		)
+		stargateTemplate = xgenny.NewEmbedWalker(fsStargate,
+			"stargate/",
+			opts.AppPath,
+		)
+	)
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}

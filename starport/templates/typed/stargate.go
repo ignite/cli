@@ -7,6 +7,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 type typedStargate struct {
@@ -14,8 +15,20 @@ type typedStargate struct {
 
 // NewStargate returns the generator to scaffold a new type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	t := typedStargate{}
-	g := genny.New()
+	var (
+		t                = typedStargate{}
+		g                = genny.New()
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateMessages,
+			"stargate/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(t.protoQueryModify(replacer, opts))
 	g.RunFn(t.moduleGRPCGatewayModify(replacer, opts))
@@ -33,14 +46,14 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 		g.RunFn(t.clientCliTxModify(replacer, opts))
 
 		// Messages template
-		if err := Box(stargateMessagesTemplate, opts, g); err != nil {
+		if err := Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
 	g.RunFn(t.frontendSrcStoreAppModify(replacer, opts))
 
-	return g, Box(stargateComponentTemplate, opts, g)
+	return g, Box(componentTemplate, opts, g)
 }
 
 func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {

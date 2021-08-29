@@ -21,14 +21,8 @@ var (
 	//go:embed oracle/static/* oracle/static/**/*
 	fsOracleStatic embed.FS
 
-	// ibcOracleStaticTemplate is the template to scaffold a new static oracle templates in an IBC module
-	ibcOracleStaticTemplate = xgenny.NewEmbedWalker(fsOracleStatic, "oracle/static/")
-
 	//go:embed oracle/dynamic/* oracle/dynamic/**/*
 	fsOracleDynamic embed.FS
-
-	// ibcOracleDynamicTemplate is the template to scaffold a new dynamic oracle templates in an IBC module
-	ibcOracleDynamicTemplate = xgenny.NewEmbedWalker(fsOracleDynamic, "oracle/dynamic/")
 )
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
@@ -80,15 +74,27 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 }
 
 func box(g *genny.Generator, opts *OracleOptions) error {
-	gs := genny.New()
-	path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
+	var (
+		gs             = genny.New()
+		path           = filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
+		staticTemplate = xgenny.NewEmbedWalker(
+			fsOracleStatic,
+			"oracle/static/",
+			opts.AppPath,
+		)
+		dynamicTemplate = xgenny.NewEmbedWalker(
+			fsOracleDynamic,
+			"oracle/dynamic/",
+			opts.AppPath,
+		)
+	)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := gs.Box(ibcOracleStaticTemplate); err != nil {
+		if err := gs.Box(staticTemplate); err != nil {
 			return err
 		}
 	}
 	g.Merge(gs)
-	return g.Box(ibcOracleDynamicTemplate)
+	return g.Box(dynamicTemplate)
 }
 
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {

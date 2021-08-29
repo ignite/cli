@@ -25,18 +25,6 @@ var (
 
 	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
 	fsStargateTestsMessages embed.FS
-
-	// stargateMapComponentTemplate allows to scaffold a new map component in a Stargate module
-	stargateMapComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateMapMessagesTemplate allows to scaffold map CRUD messages in a Stargate module
-	stargateMapMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
-
-	// stargateMapTestsComponentTemplate allows to scaffold tests for map component in a Stargate module
-	stargateMapTestsComponentTemplate = xgenny.NewEmbedWalker(fsStargateTestsComponent, "stargate/tests/component/")
-
-	// stargateMapTestsMessagesTemplate allows to scaffold tests for map CRUD messages in a Stargate module
-	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateTestsMessages, "stargate/tests/messages/")
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
@@ -50,7 +38,30 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		}
 	}
 
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateMessages,
+			"stargate/messages/",
+			opts.AppPath,
+		)
+		testsMessagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateTestsMessages,
+			"stargate/tests/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+		testsComponentTemplate = xgenny.NewEmbedWalker(
+			fsStargateTestsComponent,
+			"stargate/tests/component/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(protoRPCModify(replacer, opts))
 	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
@@ -67,22 +78,22 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
-		if err := typed.Box(stargateMapMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 		if generateTest {
-			if err := typed.Box(stargateMapTestsMessagesTemplate, opts, g); err != nil {
+			if err := typed.Box(testsMessagesTemplate, opts, g); err != nil {
 				return nil, err
 			}
 		}
 	}
 
 	if generateTest {
-		if err := typed.Box(stargateMapTestsComponentTemplate, opts, g); err != nil {
+		if err := typed.Box(testsComponentTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
-	return g, typed.Box(stargateMapComponentTemplate, opts, g)
+	return g, typed.Box(componentTemplate, opts, g)
 }
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {

@@ -2,8 +2,6 @@ package modulecreate
 
 import (
 	"embed"
-
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 var (
@@ -18,9 +16,4 @@ var (
 
 	//go:embed genesistest/* genesistest/**/*
 	fsGenesisTest embed.FS
-
-	stargateTemplate    = xgenny.NewEmbedWalker(fsStargate, "stargate/")
-	ibcTemplate         = xgenny.NewEmbedWalker(fsIBC, "ibc/")
-	msgServerTemplate   = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/")
-	genesisTestTemplate = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/")
 )

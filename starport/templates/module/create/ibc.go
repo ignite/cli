@@ -9,13 +9,17 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(fsIBC, "ibc/", opts.AppPath)
+	)
 
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(genesisModify(replacer, opts))
@@ -26,7 +30,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(keysModify(replacer, opts))
 	g.RunFn(keeperModify(replacer, opts))
 
-	if err := g.Box(ibcTemplate); err != nil {
+	if err := g.Box(template); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()

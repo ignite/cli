@@ -6,6 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // NewStargate returns the generator to scaffold a empty message in a Stargate module
@@ -18,7 +19,12 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(typesCodecModify(replacer, opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
 
-	return g, Box(stargateTemplate, opts, g)
+	template := xgenny.NewEmbedWalker(
+		fsStargate,
+		"stargate/",
+		opts.AppPath,
+	)
+	return g, Box(template, opts, g)
 }
 
 func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {

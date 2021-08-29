@@ -19,8 +19,6 @@ const (
 var (
 	//go:embed stargate/* stargate/**/*
 	fs embed.FS
-
-	testutilTemplate = xgenny.NewEmbedWalker(fs, "stargate/")
 )
 
 // Register testutil template using existing generator.
@@ -34,5 +32,7 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 	if _, err := os.Stat(path); !os.IsNotExist(err) {
 		return nil
 	}
-	return gen.Box(testutilTemplate)
+
+	template := xgenny.NewEmbedWalker(fs, "stargate/", appPath)
+	return gen.Box(template)
 }

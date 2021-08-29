@@ -23,12 +23,6 @@ var (
 
 	//go:embed packet/messages/* packet/messages/**/*
 	fsPacketMessages embed.FS
-
-	// ibcTemplateComponent is the template to scaffold a new packet in an IBC module
-	ibcTemplateComponent = xgenny.NewEmbedWalker(fsPacketComponent, "packet/component/")
-
-	// ibcTemplateMessages is the template to scaffold send message for a packet
-	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketMessages, "packet/messages/")
 )
 
 // PacketOptions are options to scaffold a packet in a IBC module
@@ -47,13 +41,25 @@ type PacketOptions struct {
 
 // NewPacket returns the generator to scaffold a packet in an IBC module
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g                = genny.New()
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"packet/messages/",
+			opts.AppPath,
+		)
+		ComponentTemplate = xgenny.NewEmbedWalker(
+			fsPacketComponent,
+			"packet/component/",
+			opts.AppPath,
+		)
+	)
 
 	// Add the component
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(replacer, opts))
 	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(ibcTemplateComponent); err != nil {
+	if err := g.Box(ComponentTemplate); err != nil {
 		return g, err
 	}
 
@@ -63,7 +69,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 		g.RunFn(handlerTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
-		if err := g.Box(ibcTemplateMessages); err != nil {
+		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
 		}
 	}

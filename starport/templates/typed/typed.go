@@ -9,7 +9,6 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/testutil"
 )
@@ -20,12 +19,6 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
-
-	// stargateComponentTemplate is the template for a Stargate module type component
-	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
-	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {

@@ -4,12 +4,20 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // AddGenesisTest returns the generator to generate genesis_test.go
-func AddGenesisTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
-	g := genny.New()
-	if err := g.Box(genesisTestTemplate); err != nil {
+func AddGenesisTest(appName, appPath, modulePath, moduleName string) (*genny.Generator, error) {
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(
+			fsGenesisTest,
+			"genesistest/",
+			appPath,
+		)
+	)
+	if err := g.Box(template); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
