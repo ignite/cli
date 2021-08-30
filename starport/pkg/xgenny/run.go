@@ -3,13 +3,11 @@ package xgenny
 import (
 	"context"
 	"errors"
-	"os"
-	"path/filepath"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
+	"os"
 )
 
 var _ validation.Error = (*dryRunError)(nil)
@@ -60,10 +58,6 @@ func RunWithValidation(
 		sm = NewSourceModification()
 		for _, file := range dryRunner.Results().Files {
 			fileName := file.Name()
-			if !filepath.IsAbs(fileName) {
-				fileName = filepath.Join(dryRunner.Root, fileName)
-			}
-
 			_, err := os.Stat(fileName)
 
 			// nolint:gocritic

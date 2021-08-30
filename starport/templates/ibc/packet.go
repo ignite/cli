@@ -42,13 +42,14 @@ type PacketOptions struct {
 // NewPacket returns the generator to scaffold a packet in an IBC module
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
 	var (
-		g                = genny.New()
+		g = genny.New()
+
 		messagesTemplate = xgenny.NewEmbedWalker(
 			fsPacketMessages,
 			"packet/messages/",
 			opts.AppPath,
 		)
-		ComponentTemplate = xgenny.NewEmbedWalker(
+		componentTemplate = xgenny.NewEmbedWalker(
 			fsPacketComponent,
 			"packet/component/",
 			opts.AppPath,
@@ -59,7 +60,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(replacer, opts))
 	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(ComponentTemplate); err != nil {
+	if err := g.Box(componentTemplate); err != nil {
 		return g, err
 	}
 

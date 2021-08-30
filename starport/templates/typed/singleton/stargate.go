@@ -23,7 +23,8 @@ var (
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	var (
-		g                = genny.New()
+		g = genny.New()
+
 		messagesTemplate = xgenny.NewEmbedWalker(
 			fsStargateMessages,
 			"stargate/messages/",

@@ -16,8 +16,9 @@ type typedStargate struct {
 // NewStargate returns the generator to scaffold a new type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
 	var (
-		t                = typedStargate{}
-		g                = genny.New()
+		t = typedStargate{}
+		g = genny.New()
+
 		messagesTemplate = xgenny.NewEmbedWalker(
 			fsStargateMessages,
 			"stargate/messages/",

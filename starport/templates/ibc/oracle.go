@@ -75,8 +75,9 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 
 func box(g *genny.Generator, opts *OracleOptions) error {
 	var (
-		gs             = genny.New()
-		path           = filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
+		gs   = genny.New()
+		path = filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
+
 		staticTemplate = xgenny.NewEmbedWalker(
 			fsOracleStatic,
 			"oracle/static/",
