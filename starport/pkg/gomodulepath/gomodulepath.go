@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -15,6 +16,10 @@ import (
 
 // Path represents a Go module's path.
 type Path struct {
+	// AppPath is application absolute path.
+	// e.g.: /Users/foo/go/src/github.com/tendermint/starport.
+	AppPath string
+
 	// Path is Go module's full path.
 	// e.g.: github.com/tendermint/starport.
 	RawPath string
@@ -30,7 +35,7 @@ type Path struct {
 }
 
 // Parse parses rawpath into a module Path.
-func Parse(rawpath string) (Path, error) {
+func Parse(rawpath, appPath string) (Path, error) {
 	if err := validateModulePath(rawpath); err != nil {
 		return Path{}, err
 	}
@@ -42,11 +47,25 @@ func Parse(rawpath string) (Path, error) {
 		return Path{}, err
 	}
 	p := Path{
+		AppPath: appPath,
 		RawPath: rawpath,
 		Root:    rootName,
 		Package: packageName,
 	}
 	return p, nil
+}
+
+// Find search the Go module in the current and parent paths until finding it.
+func Find(path string) (Path, error) {
+	for len(path) != 0 && path != "." && path != "/" {
+		parsed, err := ParseAt(path)
+		if errors.Is(err, gomodule.ErrGoModNotFound) {
+			path = filepath.Dir(path)
+			continue
+		}
+		return parsed, err
+	}
+	return Path{}, gomodule.ErrGoModNotFound
 }
 
 // ParseAt parses Go module path of an app resides at path.
@@ -55,7 +74,7 @@ func ParseAt(path string) (Path, error) {
 	if err != nil {
 		return Path{}, err
 	}
-	return Parse(parsed.Module.Mod.Path)
+	return Parse(parsed.Module.Mod.Path, path)
 }
 
 func validateModulePath(path string) error {

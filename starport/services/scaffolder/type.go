@@ -110,7 +110,7 @@ func (s *Scaffolder) AddType(
 	kind AddTypeKind,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
+	path, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -132,7 +132,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(path.AppPath, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -150,7 +150,7 @@ func (s *Scaffolder) AddType(
 		g    *genny.Generator
 		opts = &typed.Options{
 			AppName:    path.Package,
-			AppPath:    s.path,
+			AppPath:    path.AppPath,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
@@ -165,7 +165,7 @@ func (s *Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		s.path,
+		path.AppPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

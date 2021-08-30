@@ -84,6 +84,11 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
+	path, err := gomodulepath.Find(s.path)
+	if err != nil {
+		return sm, err
+	}
+
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return sm, err
@@ -96,7 +101,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.path, moduleName)
+	ok, err := moduleExists(path.AppPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -111,19 +116,15 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, path.AppPath); err != nil {
 		return sm, err
 	}
 
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
 	opts := &modulecreate.CreateOptions{
 		ModuleName:   moduleName,
 		ModulePath:   path.RawPath,
 		AppName:      path.Package,
-		AppPath:      s.path,
+		AppPath:      path.AppPath,
 		OwnerName:    owner(path.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
@@ -168,17 +169,17 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	ok, err := isWasmImported(s.path)
+	path, err := gomodulepath.Find(s.path)
+	if err != nil {
+		return sm, err
+	}
+
+	ok, err := isWasmImported(path.AppPath)
 	if err != nil {
 		return sm, err
 	}
 	if ok {
 		return sm, errors.New("wasm is already imported")
-	}
-
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
 	}
 
 	// run generator
@@ -207,7 +208,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, err
 	}
 
-	return sm, s.finish(s.path, path.RawPath)
+	return sm, s.finish(path.AppPath, path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {

@@ -53,7 +53,7 @@ func (s *Scaffolder) AddMessage(
 	resFields []string,
 	options ...MessageOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
+	path, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -79,7 +79,7 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(path.AppPath, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -102,7 +102,7 @@ func (s *Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:    path.Package,
-			AppPath:    s.path,
+			AppPath:    path.AppPath,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
@@ -119,7 +119,7 @@ func (s *Scaffolder) AddMessage(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		s.path,
+		path.AppPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,

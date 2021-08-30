@@ -57,7 +57,7 @@ func (s *Scaffolder) AddPacket(
 	ackFields []string,
 	options ...PacketOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
+	path, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -79,7 +79,7 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(path.AppPath, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -89,7 +89,7 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.path, moduleName)
+	ok, err := isIBCModule(path.AppPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -114,7 +114,7 @@ func (s *Scaffolder) AddPacket(
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
 			AppName:    path.Package,
-			AppPath:    s.path,
+			AppPath:    path.AppPath,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),

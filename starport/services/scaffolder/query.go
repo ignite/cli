@@ -20,7 +20,7 @@ func (s *Scaffolder) AddQuery(
 	resFields []string,
 	paginated bool,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
+	path, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -40,7 +40,7 @@ func (s *Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
+	if err := checkComponentValidity(path.AppPath, moduleName, name, true); err != nil {
 		return sm, err
 	}
 
@@ -58,7 +58,7 @@ func (s *Scaffolder) AddQuery(
 		g    *genny.Generator
 		opts = &query.Options{
 			AppName:     path.Package,
-			AppPath:     s.path,
+			AppPath:     path.AppPath,
 			ModulePath:  path.RawPath,
 			ModuleName:  moduleName,
 			OwnerName:   owner(path.RawPath),

@@ -168,7 +168,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	chainPath, err := gomodulepath.ParseAt(g.g.appPath)
+	chainPath, err := gomodulepath.Find(g.g.appPath)
 	if err != nil {
 		return err
 	}

@@ -16,12 +16,12 @@ type App struct {
 
 // NewAppAt creates an App from the blockchain source code located at path.
 func NewAppAt(path string) (App, error) {
-	p, err := gomodulepath.ParseAt(path)
+	p, err := gomodulepath.Find(path)
 	if err != nil {
 		return App{}, err
 	}
 	return App{
-		Path:       path,
+		Path:       p.AppPath,
 		Name:       p.Root,
 		ImportPath: p.RawPath,
 	}, nil

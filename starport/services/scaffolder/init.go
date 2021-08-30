@@ -31,15 +31,11 @@ var (
 // Init initializes a new app with name and given options.
 // path is the relative path to the scaffoled app.
 func (s *Scaffolder) Init(tracer *placeholder.Tracer, name, appPath string, noDefaultModule bool) (path string, err error) {
-	pathInfo, err := gomodulepath.Parse(name)
-	if err != nil {
-		return "", err
-	}
-
 	pwd, err := os.Getwd()
 	if err != nil {
 		return "", err
 	}
+
 	// if the path is not set, use the current directory
 	if appPath == "" {
 		appPath = pwd
@@ -48,6 +44,11 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name, appPath string, noDe
 		if err != nil {
 			return "", err
 		}
+	}
+
+	pathInfo, err := gomodulepath.Parse(name, appPath)
+	if err != nil {
+		return "", err
 	}
 	absRoot := filepath.Join(appPath, pathInfo.Root)
 
