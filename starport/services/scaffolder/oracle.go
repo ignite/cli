@@ -97,6 +97,7 @@ func (s *Scaffolder) AddOracle(
 		g    *genny.Generator
 		opts = &ibc.OracleOptions{
 			AppName:    path.Package,
+			AppPath:    s.path,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),

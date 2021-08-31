@@ -114,6 +114,7 @@ func (s *Scaffolder) AddPacket(
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
 			AppName:    path.Package,
+			AppPath:    s.path,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),
