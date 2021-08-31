@@ -11,7 +11,7 @@ import (
 	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
 	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
 	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 // <%= queryName.UpperCamel %>Data creates the <%= queryName.UpperCamel %> packet

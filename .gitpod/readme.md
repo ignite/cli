@@ -9,18 +9,18 @@ In this browser-based development environment, the terminal window is in the low
 To create a blockchain and start a node in development:
 
 ```
-starport app github.com/user/hello
+starport scaffold chain github.com/cosmonaut/mars
 
-cd hello
+cd mars
 
-starport serve
+starport chain serve
 ```
 
 ## Next steps
 
 📺 **[Introduction to Starport](https://www.youtube.com/watch?v=5RqAIE0b8Kw)**: Watch an introductory video to learn about Starport.
 
-🧑‍🏫 **[Tutorials](https://tutorials.cosmos.network)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
+🧑‍🏫 **[Developer Guide](https://docs.starport.network/guide/)**: Learn by building a simple IBC-enabled module, nameservice, or a decentralized exchange (DEX).
 
 📕 **[Starport Documentation](https://docs.starport.network)**: Explore the features of Starport.
 
@@ -46,4 +46,4 @@ The latest `starport` binary is downloaded from the Github repo and installed in
 
 ## Stay in touch
 
-Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us on [Twitter](https://twitter.com/tendermint_team) and [Medium](https://medium.com/tendermint) to get the latest updates!
+Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us on [Twitter](https://twitter.com/starportHQ) and [Medium](https://medium.com/tendermint) to get the latest updates!

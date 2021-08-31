@@ -1,0 +1,102 @@
+package types
+
+import (
+	"testing"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+	"<%= ModulePath %>/testutil/sample"
+)
+
+func TestMsgCreate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  MsgCreate<%= TypeName.UpperCamel %>
+		err  error
+	}{
+		{
+			name: "invalid address",
+			msg: MsgCreate<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
+			},
+			err: sdkerrors.ErrInvalidAddress,
+		}, {
+			name: "valid address",
+			msg: MsgCreate<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.ValidateBasic()
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestMsgUpdate<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  MsgUpdate<%= TypeName.UpperCamel %>
+		err  error
+	}{
+		{
+			name: "invalid address",
+			msg: MsgUpdate<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
+			},
+			err: sdkerrors.ErrInvalidAddress,
+		}, {
+			name: "valid address",
+			msg: MsgUpdate<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.ValidateBasic()
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
+
+func TestMsgDelete<%= TypeName.UpperCamel %>_ValidateBasic(t *testing.T) {
+	tests := []struct {
+		name string
+		msg  MsgDelete<%= TypeName.UpperCamel %>
+		err  error
+	}{
+		{
+			name: "invalid address",
+			msg: MsgDelete<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: "invalid_address",
+			},
+			err: sdkerrors.ErrInvalidAddress,
+		}, {
+			name: "valid address",
+			msg: MsgDelete<%= TypeName.UpperCamel %>{
+				<%= MsgSigner.UpperCamel %>: sample.AccAddress(),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			err := tt.msg.ValidateBasic()
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+		})
+	}
+}
