@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -156,13 +157,30 @@ var (
 )
 
 func sourceModificationToString(sm xgenny.SourceModification) string {
+	pwd, err := os.Getwd()
+	if err != nil {
+		panic(err)
+	}
+
 	// get file names and add prefix
 	var files []string
 	for _, modified := range sm.ModifiedFiles() {
-		files = append(files, modifyPrefix+modified)
+		// get the relative app path from the current directory
+		relativePath, err := filepath.Rel(pwd, modified)
+		if err != nil {
+			files = append(files, modifyPrefix+modified)
+			continue
+		}
+		files = append(files, modifyPrefix+relativePath)
 	}
 	for _, created := range sm.CreatedFiles() {
-		files = append(files, createPrefix+created)
+		// get the relative app path from the current directory
+		relativePath, err := filepath.Rel(pwd, created)
+		if err != nil {
+			files = append(files, createPrefix+created)
+			continue
+		}
+		files = append(files, createPrefix+relativePath)
 	}
 
 	// sort filenames without prefix
