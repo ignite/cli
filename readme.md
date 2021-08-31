@@ -19,7 +19,7 @@ starport chain serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/configure/reference). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/guide/install.html).
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/kb/config.html). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/guide/install.html).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [`tendermint/vue`](https://github.com/tendermint/vue).
 
@@ -35,6 +35,6 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 
 Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
 
-- [Twitter](https://twitter.com/tendermint_team)
+- [Twitter](https://twitter.com/starportHQ)
 - [Blog](https://medium.com/tendermint)
 - [Jobs](https://tendermint.com/careers)

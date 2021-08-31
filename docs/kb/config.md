@@ -137,15 +137,16 @@ Overwrites properties in `config/config.toml` in the data directory.
 
 Overwrites properties in `config/app.toml` in the data directory.
 
-## `init.keyring-backend`
+## `init.client`
 
-The [keyring backend](https://docs.cosmos.network/master/run-node/keyring.html) to store the private key. Default value is `test`.
+Overwrites properties in `config/client.toml` in the data directory.
 
-**init.keyring-backend example**
+**init.client example**
 
 ```yaml
 init:
-  keyring-backend: "os"
+  client:
+    keyring-backend: "os"
 ```
 
 ## `host`
