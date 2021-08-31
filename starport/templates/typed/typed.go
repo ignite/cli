@@ -57,6 +57,7 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 	plushhelpers.ExtendPlushContext(ctx)
 
+	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
 		return err
 	}
