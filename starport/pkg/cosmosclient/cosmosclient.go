@@ -30,7 +30,7 @@ const (
 type KeyringBackend string
 
 const (
-	// KeyringTest is the test keyring backend. with this backend, your keys will be
+	// KeyringTest is the test keyring backend. With this backend, your keys will be
 	// stored under your app's data dir,
 	KeyringTest KeyringBackend = "test"
 
@@ -64,15 +64,15 @@ type Client struct {
 // Option configures your client.
 type Option func(*Client)
 
-// WithNodeAddress sets the node address of your chain. when this option is not provided
-// `http://localhost:26657` used as default.
+// WithNodeAddress sets the node address of your chain. When this option is not provided
+// `http://localhost:26657` is used as default.
 func WithNodeAddress(addr string) Option {
 	return func(c *Client) {
 		c.nodeAddress = addr
 	}
 }
 
-// WithHome sets the data dir of your chain. this option is used to access to your chain's
+// WithHome sets the data dir of your chain. This option is used to access your chain's
 // file based keyring which is only needed when you deal with creating and signing transactions.
 // when it is not provided, your data dir will be assumed as `$HOME/.your-chain-id`.
 func WithHome(path string) Option {
@@ -89,7 +89,7 @@ func WithKeyringServiceName(name string) Option {
 	}
 }
 
-// WithKeyringBackend sets your keyring backend. by default it is `test`.
+// WithKeyringBackend sets your keyring backend. By default, it is `test`.
 func WithKeyringBackend(backend KeyringBackend) Option {
 	return func(c *Client) {
 		c.keyringBackend = backend
