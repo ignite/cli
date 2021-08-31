@@ -52,7 +52,12 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		return err
 	}
 
-	return gocmd.InstallAll(ctx, c.app.Path, buildFlags)
+	binary, err := c.Binary()
+	if err != nil {
+		return err
+	}
+
+	return gocmd.InstallAll(ctx, binary, filepath.Join(c.app.Path, "cmd", c.app.D()), buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
@@ -142,17 +147,12 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 		return nil, err
 	}
 
-	binary, err := c.Binary()
-	if err != nil {
-		return nil, err
-	}
-
 	ldflags := gocmd.Ldflags(
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Name=%s", strings.Title(c.app.Name)),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.AppName=%sd", c.app.Name),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Version=%s", c.sourceVersion.tag),
 		fmt.Sprintf("-X github.com/cosmos/cosmos-sdk/version.Commit=%s", c.sourceVersion.hash),
-		fmt.Sprintf("-X %s/cmd/%s/cmd.ChainID=%s", c.app.ImportPath, binary, chainID),
+		fmt.Sprintf("-X %s/cmd/%s/cmd.ChainID=%s", c.app.ImportPath, c.app.D(), chainID),
 	)
 	buildFlags = []string{
 		gocmd.FlagMod, gocmd.FlagModValueReadOnly,

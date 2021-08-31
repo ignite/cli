@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
@@ -12,9 +13,6 @@ import (
 )
 
 const (
-	// CommandInstall represents go "install" command.
-	CommandInstall = "install"
-
 	// CommandBuild represents go "build" command.
 	CommandBuild = "build"
 
@@ -33,9 +31,11 @@ const (
 	FlagModValueReadOnly = "readonly"
 	FlagLdflags          = "-ldflags"
 	FlagOut              = "-o"
+	FlagI                = "-i"
 )
 
 const (
+	GOBIN     = "$GOPATH/bin"
 	EnvGOOS   = "GOOS"
 	EnvGOARCH = "GOARCH"
 )
@@ -72,10 +72,12 @@ func BuildAll(ctx context.Context, out, path string, flags []string, options ...
 }
 
 // InstallAll runs go install ./... on path with options.
-func InstallAll(ctx context.Context, path string, flags []string, options ...exec.Option) error {
+func InstallAll(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
 	command := []string{
 		Name(),
-		CommandInstall,
+		CommandBuild,
+		FlagI,
+		FlagOut, binaryPath(binary),
 	}
 	command = append(command, flags...)
 	command = append(command, "./...")
@@ -105,4 +107,9 @@ func ParseTarget(t string) (goos, goarch string, err error) {
 // PackageLiteral returns the string representation of package part of go get [package].
 func PackageLiteral(path, version string) string {
 	return fmt.Sprintf("%s@%s", path, version)
+}
+
+// binaryPath get the binary path into the go bin folder.
+func binaryPath(binary string) string {
+	return os.ExpandEnv(filepath.Join(GOBIN, binary))
 }
