@@ -15,6 +15,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -77,7 +78,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
-	ctx.Set("modulePath", opts.ModulePath)
+	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
@@ -85,6 +86,11 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
 	ctx.Set("title", strings.Title)
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return g, err
+	}
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

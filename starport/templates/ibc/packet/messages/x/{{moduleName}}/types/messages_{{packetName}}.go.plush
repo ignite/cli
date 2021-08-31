@@ -49,5 +49,14 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
     if err != nil {
         return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
     }
+	if msg.Port == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+	if msg.ChannelID == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+	if msg.TimeoutTimestamp == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
     return nil
 }
