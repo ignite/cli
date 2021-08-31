@@ -37,16 +37,29 @@ func (b builder) buildFiles() (files []File) {
 	for _, f := range b.p.files {
 		files = append(files, File{f.path, f.imports})
 	}
-
 	return
 }
 
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+			fields := make(map[string]string)
+			for _, element := range message.Elements {
+				switch f := element.(type) {
+				case *proto.NormalField:
+					fields[f.Name] = f.Type
+				case *proto.MapField:
+					fields[f.Name] = f.Type
+				case *proto.OneOfField:
+					fields[f.Name] = f.Type
+				case *proto.EnumField:
+					fields[f.Name] = "enum"
+				}
+			}
 			messages = append(messages, Message{
-				Name: message.Name,
-				Path: f.path,
+				Name:   message.Name,
+				Path:   f.path,
+				Fields: fields,
 			})
 		}
 	}

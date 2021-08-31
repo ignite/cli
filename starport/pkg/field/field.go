@@ -3,11 +3,10 @@ package field
 
 import (
 	"fmt"
-	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const (
@@ -115,8 +114,7 @@ func ParseFields(
 		}
 
 		// Check if the custom type is valid and fetch the fields
-		path := filepath.Join(FolderX, module, FolderTypes)
-		structFields, err := cosmosanalysis.FindStructFields(path, datatypeName, staticDataTypeNames)
+		structFields, err := protoanalysis.FindMessage(module, datatypeName, staticDataTypeNames)
 		if err != nil {
 			return parsedFields, err
 		}
