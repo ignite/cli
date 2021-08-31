@@ -17,6 +17,11 @@ import (
 	"golang.org/x/mod/module"
 )
 
+const (
+	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
+	tendermintModulePath = "github.com/tendermint/tendermint"
+)
+
 // ErrGoModNotFound returned when go.mod file cannot be found for an app.
 var ErrGoModNotFound = errors.New("go.mod not found")
 
@@ -30,6 +35,21 @@ func ParseAt(path string) (*modfile.File, error) {
 		return nil, err
 	}
 	return modfile.Parse("", gomod, nil)
+}
+
+// ValidateGoModule check if the cosmos-sdk and the tendermint packages are imported.
+func ValidateGoModule(module *modfile.File) error {
+	moduleCheck := map[string]bool{
+		cosmosModulePath:     true,
+		tendermintModulePath: true,
+	}
+	for _, r := range module.Require {
+		delete(moduleCheck, r.Mod.Path)
+	}
+	for m := range moduleCheck {
+		return fmt.Errorf("invalid go module, missing %s package dependency", m)
+	}
+	return nil
 }
 
 // FilterVersions filters dependencies under require section by their paths.

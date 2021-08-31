@@ -74,6 +74,9 @@ func ParseAt(path string) (Path, error) {
 	if err != nil {
 		return Path{}, err
 	}
+	if err := gomodule.ValidateGoModule(parsed); err != nil {
+		return Path{}, err
+	}
 	return Parse(parsed.Module.Mod.Path, path)
 }
 
