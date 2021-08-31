@@ -3,9 +3,9 @@ package cosmosclient
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"os"
+	"path/filepath"
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -123,7 +123,11 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.chainID = statusResp.NodeInfo.Network
 
 	if c.homePath == "" {
-		c.homePath = os.ExpandEnv(fmt.Sprintf("$HOME/.%s", c.chainID))
+		home, err := os.UserHomeDir()
+		if err != nil {
+			return Client{}, err
+		}
+		c.homePath = filepath.Join(home, "."+c.chainID)
 	}
 
 	if c.Keyring, err = keyring.New(c.keyringServiceName, string(c.keyringBackend), c.homePath, os.Stdin); err != nil {

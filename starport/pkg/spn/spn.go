@@ -143,7 +143,7 @@ func handleBroadcastResult(resp *types.TxResponse, err error) error {
 }
 
 // prepareBroadcast performs checks and operations before broadcasting messages
-func (c *Client) prepareBroadcast(ctx context.Context, accountName string, msgs ...types.Msg) error {
+func (c *Client) prepareBroadcast(ctx context.Context, accountName string, msgs []types.Msg) error {
 	// validate msgs.
 	for _, msg := range msgs {
 		if err := msg.ValidateBasic(); err != nil {
@@ -166,7 +166,7 @@ func (c *Client) prepareBroadcast(ctx context.Context, accountName string, msgs 
 
 // broadcast directly broadcasts the messages into spn handlers
 func (c *Client) broadcast(ctx context.Context, accountName string, msgs ...types.Msg) error {
-	if err := c.prepareBroadcast(ctx, accountName, msgs...); err != nil {
+	if err := c.prepareBroadcast(ctx, accountName, msgs); err != nil {
 		return err
 	}
 
@@ -176,7 +176,7 @@ func (c *Client) broadcast(ctx context.Context, accountName string, msgs ...type
 
 // broadcastProvision provides a provision function to broadcast the messages with returned amount of gas
 func (c *Client) broadcastProvision(ctx context.Context, accountName string, msgs ...types.Msg) (gas uint64, broadcast func() error, err error) {
-	if err := c.prepareBroadcast(ctx, accountName, msgs...); err != nil {
+	if err := c.prepareBroadcast(ctx, accountName, msgs); err != nil {
 		return 0, nil, err
 	}
 
