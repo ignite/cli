@@ -61,7 +61,7 @@ func (c *Chain) build(ctx context.Context) (err error) {
 	}
 
 	cmdPath := filepath.Join(c.app.Path, cmdFolder, c.app.D())
-	return gocmd.BuildCmd(ctx, binary, cmdPath, buildFlags)
+	return gocmd.BuildPath(ctx, binary, cmdPath, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list

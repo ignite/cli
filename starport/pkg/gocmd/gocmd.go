@@ -84,15 +84,15 @@ func InstallAll(ctx context.Context, path string, flags []string, options ...exe
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
-// BuildCmd runs go install on cmd folder with options.
-func BuildCmd(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
+// BuildPath runs go install on cmd folder with options.
+func BuildPath(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
 	command := []string{
 		Name(),
 		CommandBuild,
 		FlagOut, binaryPath(binary),
 	}
 	command = append(command, flags...)
-	command = append(command, "./...")
+	command = append(command, ".")
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
