@@ -7,6 +7,7 @@ import (
 	"go/token"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
@@ -29,8 +30,8 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if err := checkForbiddenComponentName(compName.LowerCamel); err != nil {
-		return fmt.Errorf("%s can't be used as a component name: %s", compName, err.Error())
+	if err := checkForbiddenComponentName(compName); err != nil {
+		return fmt.Errorf("%s can't be used as a component name: %s", compName.LowerCamel, err.Error())
 	}
 
 	// Check component name is not already used
@@ -38,9 +39,9 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 }
 
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
-func checkForbiddenComponentName(name string) error {
+func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
-	switch name {
+	switch name.LowerCamel {
 	case
 		"oracle",
 		"logger",
@@ -49,10 +50,14 @@ func checkForbiddenComponentName(name string) error {
 		"genesis",
 		"types",
 		"tx":
-		return fmt.Errorf("%s is used by Starport scaffolder", name)
+		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
 	}
 
-	return checkGoReservedWord(name)
+	if strings.HasSuffix(name.LowerCase, "test") {
+		return fmt.Errorf("'test' suffix is used by Go test files")
+	}
+
+	return checkGoReservedWord(name.LowerCamel)
 }
 
 // checkGoReservedWord checks if the name can't be used because it is a go reserved keyword

@@ -88,7 +88,7 @@ func (s *Scaffolder) CreateModule(
 	if err != nil {
 		return sm, err
 	}
-	moduleName = mfName.Lowercase
+	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
 	if err := checkModuleName(moduleName); err != nil {
