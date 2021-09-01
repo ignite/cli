@@ -23,7 +23,7 @@ func networkChainStartHandler(cmd *cobra.Command, args []string) error {
 	// Check if custom home is provided
 	initOptions := initOptionWithHomeFlag(cmd, []networkbuilder.InitOption{})
 
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}
