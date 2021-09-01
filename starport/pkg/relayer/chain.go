@@ -132,11 +132,11 @@ func (c *Chain) TryRetrieve(ctx context.Context) (sdk.Coins, error) {
 
 // channelOptions represents options for configuring the IBC channel between two chains
 type channelOptions struct {
-	sourcePort    string `json:"sourcePort"`
-	sourceVersion string `json:"sourceVersion"`
-	targetPort    string `json:"targetPort"`
-	targetVersion string `json:"targetVersion"`
-	ordering      string `json:"ordering"`
+	sourcePort    string
+	sourceVersion string
+	targetPort    string
+	targetVersion string
+	ordering      string
 }
 
 // newChannelOptions returns default channel options
