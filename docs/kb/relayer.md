@@ -1,6 +1,6 @@
 ---
 description: IBC relayer to connect local and remote blockchains.
-order: 7
+order: 8
 ---
 
 # IBC Relayer
@@ -27,7 +27,7 @@ By default, relayer configuration is stored in `$HOME/.relayer/`.
 
 All values can be passed with flags.
 
-```
+```bash
 starport relayer configure --advanced --source-rpc "http://0.0.0.0:26657" --source-faucet "http://0.0.0.0:4500" --source-port "blog" --source-version "blog-1" --target-rpc "http://0.0.0.0:26659" --target-faucet "http://0.0.0.0:4501" --target-port "blog" --target-version "blog-1"
 ```
 

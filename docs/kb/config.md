@@ -166,4 +166,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/configure/genesis.html).
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/kb/genesis.html).
