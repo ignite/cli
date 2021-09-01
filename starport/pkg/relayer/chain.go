@@ -38,22 +38,16 @@ type Chain struct {
 	// faucetAddress is the faucet address to get tokens for relayer accounts.
 	faucetAddress string
 
+	// gasPrice is the gas price used when sending transactions to the chain
+	gasPrice string
+
+	// gasLimit is the gas limit used when sending transactions to the chain
+	gasLimit int64
+
+	// addressPrefix is the address prefix of the chain.
+	addressPrefix string
+
 	r Relayer
-
-	// options are used to set up the chain.
-	options chainOptions
-}
-
-// chainOptions holds options to be used setting up the chain.
-type chainOptions struct {
-	// GasPrice is the gas price used when sending transactions to the chain
-	GasPrice string `json:"gasPrice"`
-
-	// GasLimit is the gas limit used when sending transactions to the chain
-	GasLimit int64 `json:"gasLimit"`
-
-	// AddressPrefix is the address prefix of the chain.
-	AddressPrefix string `json:"addressPrefix"`
 }
 
 // Account represents an account in relayer.
@@ -76,21 +70,21 @@ func WithFaucet(address string) Option {
 // WithGasPrice gives the gas price to use to send ibc transactions to the chain.
 func WithGasPrice(gasPrice string) Option {
 	return func(c *Chain) {
-		c.options.GasPrice = gasPrice
+		c.gasPrice = gasPrice
 	}
 }
 
 // WithGasLimit gives the gas limit to use to send ibc transactions to the chain.
 func WithGasLimit(limit int64) Option {
 	return func(c *Chain) {
-		c.options.GasLimit = limit
+		c.gasLimit = limit
 	}
 }
 
 // WithAddressPrefix configures the account key prefix used on the chain.
 func WithAddressPrefix(addressPrefix string) Option {
 	return func(c *Chain) {
-		c.options.AddressPrefix = addressPrefix
+		c.addressPrefix = addressPrefix
 	}
 }
 
@@ -127,32 +121,32 @@ func (c *Chain) TryRetrieve(ctx context.Context) (sdk.Coins, error) {
 		return nil, err
 	}
 
-	addr := acc.Address(c.options.AddressPrefix)
+	addr := acc.Address(c.addressPrefix)
 
 	err = cosmosfaucet.TryRetrieve(ctx, c.ID, c.rpcAddress, c.faucetAddress, addr)
 	if err != nil {
 		return nil, err
 	}
-	return c.r.balance(ctx, c.rpcAddress, c.accountName, c.options.AddressPrefix)
+	return c.r.balance(ctx, c.rpcAddress, c.accountName, c.addressPrefix)
 }
 
 // channelOptions represents options for configuring the IBC channel between two chains
 type channelOptions struct {
-	SourcePort    string `json:"sourcePort"`
-	SourceVersion string `json:"sourceVersion"`
-	TargetPort    string `json:"targetPort"`
-	TargetVersion string `json:"targetVersion"`
-	Ordering      string `json:"ordering"`
+	sourcePort    string `json:"sourcePort"`
+	sourceVersion string `json:"sourceVersion"`
+	targetPort    string `json:"targetPort"`
+	targetVersion string `json:"targetVersion"`
+	ordering      string `json:"ordering"`
 }
 
 // newChannelOptions returns default channel options
 func newChannelOptions() channelOptions {
 	return channelOptions{
-		SourcePort:    TransferPort,
-		SourceVersion: TransferVersion,
-		TargetPort:    TransferPort,
-		TargetVersion: TransferVersion,
-		Ordering:      OrderingUnordered,
+		sourcePort:    TransferPort,
+		sourceVersion: TransferVersion,
+		targetPort:    TransferPort,
+		targetVersion: TransferVersion,
+		ordering:      OrderingUnordered,
 	}
 }
 
@@ -162,35 +156,35 @@ type ChannelOption func(*channelOptions)
 // SourcePort configures the source port of the new channel
 func SourcePort(port string) ChannelOption {
 	return func(c *channelOptions) {
-		c.SourcePort = port
+		c.sourcePort = port
 	}
 }
 
 // TargetPort configures the target port of the new channel
 func TargetPort(port string) ChannelOption {
 	return func(c *channelOptions) {
-		c.TargetPort = port
+		c.targetPort = port
 	}
 }
 
 // SourceVersion configures the source version of the new channel
 func SourceVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
-		c.SourceVersion = version
+		c.sourceVersion = version
 	}
 }
 
 // TargetVersion configures the target version of the new channel
 func TargetVersion(version string) ChannelOption {
 	return func(c *channelOptions) {
-		c.TargetVersion = version
+		c.targetVersion = version
 	}
 }
 
 // Ordered sets the new channel as ordered
 func Ordered() ChannelOption {
 	return func(c *channelOptions) {
-		c.Ordering = OrderingOrdered
+		c.ordering = OrderingOrdered
 	}
 }
 
@@ -226,16 +220,16 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOptio
 
 	confPath := relayerconfig.Path{
 		ID:       pathID,
-		Ordering: channelOptions.Ordering,
+		Ordering: channelOptions.ordering,
 		Src: relayerconfig.PathEnd{
 			ChainID: c.ID,
-			PortID:  channelOptions.SourcePort,
-			Version: channelOptions.SourceVersion,
+			PortID:  channelOptions.sourcePort,
+			Version: channelOptions.sourceVersion,
 		},
 		Dst: relayerconfig.PathEnd{
 			ChainID: dst.ID,
-			PortID:  channelOptions.TargetPort,
-			Version: channelOptions.TargetVersion,
+			PortID:  channelOptions.targetPort,
+			Version: channelOptions.targetVersion,
 		},
 	}
 
@@ -263,10 +257,10 @@ func (c *Chain) ensureChainSetup(ctx context.Context) error {
 	confChain := relayerconfig.Chain{
 		ID:            c.ID,
 		Account:       c.accountName,
-		AddressPrefix: c.options.AddressPrefix,
+		AddressPrefix: c.addressPrefix,
 		RPCAddress:    c.rpcAddress,
-		GasPrice:      c.options.GasPrice,
-		GasLimit:      c.options.GasLimit,
+		GasPrice:      c.gasPrice,
+		GasLimit:      c.gasLimit,
 	}
 
 	conf, err := relayerconfig.Get()

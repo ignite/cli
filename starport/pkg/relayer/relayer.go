@@ -24,10 +24,12 @@ const (
 	relayDuration       = time.Second * 5
 )
 
+// Relayer is an IBC relayer.
 type Relayer struct {
 	ca cosmosaccount.Registry
 }
 
+// New creates a new IBC relayer and uses ca to access accounts.
 func New(ca cosmosaccount.Registry) Relayer {
 	r := Relayer{
 		ca: ca,
@@ -214,28 +216,6 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 	}
 
 	return res.Balances, nil
-}
-
-// Path represents a path between two chains.
-type Path struct {
-	// ID is id of the path.
-	ID string `json:"id"`
-
-	// IsLinked indicates that chains of these paths are linked or not.
-	IsLinked bool `json:"isLinked"`
-
-	// Src end of the path.
-	Src PathEnd `json:"src"`
-
-	// Dst end of the path.
-	Dst PathEnd `json:"dst"`
-}
-
-// PathEnd represents the chain at one side of a Path.
-type PathEnd struct {
-	ChannelID string `json:"channelID"`
-	ChainID   string `json:"chainID"`
-	PortID    string `json:"portID"`
 }
 
 // GetPath returns a path by its id.
