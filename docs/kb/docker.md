@@ -1,6 +1,6 @@
 ---
 description: Run Starport CLI using a Docker container.
-order: 8
+order: 9
 ---
 
 # Run Starport in Docker
@@ -33,7 +33,7 @@ When Docker is installed, you can build a blockchain with a single command.
 
 To scaffold a blockchain `planet` in the `/apps` directory in the container, run this command in a terminal window:
 
-```
+```bash
 docker run -ti -w /app -v $HOME/sdh:/home/tendermint -v $PWD:/app starport/cli:0.16.0 app github.com/hello/planet
 ```
 
@@ -53,13 +53,13 @@ Be patient, this command takes a minute or two to run because it does everything
 
 To start the blockchain node in the Docker container you just created, run this command:
 
-```
+```bash
 docker run -ti -v $HOME/sdh:/home/tendermint -v $PWD:/apps -p 1317:1317 -p 26657:26657 starport/cli:0.16.0 serve -p planet
 ```
 
 This command does the following:
 
-- `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container. 
+- `-v $HOME/sdh:/home/tendermint` maps the `$HOME/sdh` directory in your local computer (the host machine) to the home directory `/home/tendermint` inside the container.
 - `-v $PWD:/apps` persists the scaffolded app in the container to the host machine at current working directory.
 - `serve -p planet` specifies to use the `planet` directory that contains the source code of the blockchain.
 - `-p 1317:1317` maps the API server port (cosmos-sdk) to the host machine to forward port 1317 listening inside the container to port 1317 on the host machine.
@@ -89,6 +89,6 @@ For example:
 
 To get the latest image, run `docker pull`.
 
-```
+```bash
 docker pull starport/cli:develop
 ```
