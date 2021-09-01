@@ -34,13 +34,16 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 	if !ctx.Has(modulePathKey) {
 		return fmt.Errorf("ctx is missing value for the key %s", modulePathKey)
 	}
+	// Check if the testutil folder already exists
 	path := filepath.Join(appPath, testUtilDir)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
+		// if not, box the entire testutil folder
 		return gen.Box(stargateTemplate)
 	} else if err != nil {
 		return err
 	}
 
+	// if yes, only box the sample folder
 	path = filepath.Join(path, sampleDir)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
