@@ -1,6 +1,6 @@
 ---
 description: Details on the Vue frontend app created by Starport.
-order: 6
+order: 7
 ---
 
 # Frontend Overview
@@ -11,7 +11,7 @@ The frontend app is built using the `@starport/vue` and `@starport/vuex` package
 
 ## Client Code Generation
 
-JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules. 
+JavaScript (JS), TypeScript (TS), and Vuex clients are automatically generated for your blockchain for custom and standard Cosmos SDK modules.
 
 To enable client code generation, add the `client` entries to `config.yml`:
 
@@ -29,4 +29,4 @@ By default, the filesystem is watched and the clients are regenerated automatica
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
-`starport chain serve --reset-once --rebuild-proto-once` 
+`starport chain serve --reset-once --rebuild-proto-once`

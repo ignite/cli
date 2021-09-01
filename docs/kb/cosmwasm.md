@@ -1,6 +1,6 @@
 ---
 description: Import module to add support for CosmWasm.
-order: 9
+order: 10
 ---
 
 # Add Support for CosmWasm

@@ -73,6 +73,7 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 		fmt.Println()
 	}
 
+	// nolint:gocritic
 	pathsToConnect := append(linkedPaths, alreadyLinkedPaths...)
 
 	if len(failedToLinkPaths) != 0 {

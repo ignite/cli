@@ -49,7 +49,7 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 	go printEvents(ev, s)
 
 	// Initialize the blockchain
-	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
+	nb, err := newNetworkBuilder(cmd.Context(), networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
