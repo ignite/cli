@@ -3,7 +3,6 @@
 package cosmosanalysis
 
 import (
-	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
@@ -71,71 +70,6 @@ func FindImplementation(modulePath string, interfaceList []string) (found []stri
 	}
 
 	return found, nil
-}
-
-// FindStructFields finds the fields from a
-// specific struct declared into the app
-func FindStructFields(
-	modulePath,
-	structName string,
-	staticTypes map[string]string,
-) ([]string, error) {
-	// Parse go packages/files under path
-	fset := token.NewFileSet()
-	fields := make([]string, 0)
-	pkgs, err := parser.ParseDir(fset, modulePath, nil, 0)
-	if err != nil {
-		return nil, err
-	}
-
-	found := false
-	for _, pkg := range pkgs {
-		for _, f := range pkg.Files {
-			ast.Inspect(f, func(n ast.Node) bool {
-				// Look for struct methods.
-				structSpec, ok := n.(*ast.TypeSpec)
-				if !ok {
-					return true
-				}
-				specName := structSpec.Name.Name
-
-				// Check if it is the struct we want
-				structType, ok := structSpec.Type.(*ast.StructType)
-				if !ok || structName != specName {
-					return true
-				}
-				found = true
-
-				// Collect all struct fields
-				for _, field := range structType.Fields.List {
-					i, ok := field.Type.(*ast.Ident)
-					if !ok || len(field.Names) == 0 {
-						continue
-					}
-					fieldType := i.Name
-					if fieldType, ok := staticTypes[fieldType]; ok {
-						for _, fieldName := range field.Names {
-							fieldString := fmt.Sprintf("%s%s:%s", structName, fieldName.Name, fieldType)
-							fields = append(fields, fieldString)
-						}
-						continue
-					}
-
-					// Find nested custom fields
-					customFields, err := FindStructFields(modulePath, fieldType, staticTypes)
-					if err != nil {
-						return false
-					}
-					fields = append(fields, customFields...)
-				}
-				return true
-			})
-		}
-	}
-	if !found {
-		return fields, fmt.Errorf("struct '%s' not found", structName)
-	}
-	return fields, err
 }
 
 // newImplementation returns a new object to parse implementation of an interface
