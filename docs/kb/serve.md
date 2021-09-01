@@ -8,23 +8,24 @@ description: Use the Starport serve command to start your blockchain.
 Blockchains are decentralized applications.
 
 - In production, blockchains often run the same software on many validator nodes that are run by different people and entities. To launch a blockchain in production, the validator entities coordinate the launch process to start their nodes simultaneously.
-- During development, a blockchain can be started locally on a single validator node. This convenient process lets you can restart a chain quickly and iterate faster. Starting a chain on a single node in development is similar to starting a traditional web application on a local server. 
+- During development, a blockchain can be started locally on a single validator node. This convenient process lets you can restart a chain quickly and iterate faster. Starting a chain on a single node in development is similar to starting a traditional web application on a local server.
 
 ## Start a Blockchain Node in Development
 
 Switch to the directory that contains a blockchain that was scaffolded with Starport. To start the blockchain node, run the following command:
 
-```
+```bash
 starport chain serve
 ```
 
-This command initializes a chain, builds the code, starts a single validator node, and starts watching for file changes. 
+This command initializes a chain, builds the code, starts a single validator node, and starts watching for file changes.
 
-Whenever a file is changed, the chain is automatically reinitialized, rebuilt, and started again. The chain's state is preserved if the changes to the source code are compatible with the previous state. This state preservation is beneficial for development purposes. 
+Whenever a file is changed, the chain is automatically reinitialized, rebuilt, and started again. The chain's state is preserved if the changes to the source code are compatible with the previous state. This state preservation is beneficial for development purposes.
 
-Because the `starport chain serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production. 
+Because the `starport chain serve` command is a development tool, it should not be used in a production environment. Read on to learn the process of running a blockchain in production.
 
 ## The Magic of `starport chain serve`
+
 The `starport chain serve` command starts a fully operational blockchain.
 
 The `starport chain serve` command performs the following tasks:

@@ -38,7 +38,7 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		return 0, nil, errors.New("at least one reviewal required")
 	}
 
-	clientCtx, err := c.buildClientCtx(accountName)
+	addr, err := c.cosmos.Address(accountName)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -50,11 +50,11 @@ func (c *Client) SubmitReviewals(ctx context.Context, accountName, chainID strin
 		r(&rev)
 
 		if rev.isApproved {
-			msgs = append(msgs, launchtypes.NewMsgApprove(chainID, int32(rev.id), clientCtx.GetFromAddress().String()))
+			msgs = append(msgs, launchtypes.NewMsgApprove(chainID, int32(rev.id), addr.String()))
 		} else {
-			msgs = append(msgs, launchtypes.NewMsgReject(chainID, int32(rev.id), clientCtx.GetFromAddress().String()))
+			msgs = append(msgs, launchtypes.NewMsgReject(chainID, int32(rev.id), addr.String()))
 		}
 	}
 
-	return c.broadcastProvision(ctx, clientCtx, msgs...)
+	return c.broadcastProvision(ctx, accountName, msgs...)
 }
