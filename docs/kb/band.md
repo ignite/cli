@@ -14,7 +14,7 @@ BandChain oracle queries can be scaffolded only in IBC modules.
 
 To scaffold an oracle:
 
-```
+```bash
 starport scaffold band [queryName] --module [moduleName]
 ```
 
@@ -45,11 +45,13 @@ $ starport s band coinRates --module consuming
 Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
 
 `x/ibcoracle/types/keys.go`
+
 ```go
 const Version = "bandchain-1"
 ```
 
 After scaffold and change the data, configure and run the starport relayer.
+
 ```shell
 $ starport relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet2.bandchain.org:26657" \
@@ -234,12 +236,14 @@ func CmdRequestGoldPriceData() *cobra.Command {
 ```
 
 Make the request transaction.
+
 ```shell
 # Gold Price (script 33 into the testnet)
 $ ibcoracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --request-key "random_string" --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id ibcoracle
 ```
 
 Check the last request id returned by ack and the package data.
+
 ```shell
 $ ibcoracled query consuming last-gold-price-id
 request_id: "101290"

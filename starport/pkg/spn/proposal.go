@@ -114,7 +114,7 @@ func (c *Client) ProposalList(ctx context.Context, acccountName, chainID string,
 	var proposals []Proposal
 	var spnProposals []*launchtypes.Proposal
 
-	queryClient := launchtypes.NewQueryClient(c.clientCtx)
+	queryClient := launchtypes.NewQueryClient(c.cosmos.Context)
 
 	// Send query
 	res, err := queryClient.ListProposals(ctx, &launchtypes.QueryListProposalsRequest{
@@ -165,7 +165,7 @@ func (c *Client) toProposal(proposal launchtypes.Proposal) (Proposal, error) {
 }
 
 func (c *Client) ProposalGet(ctx context.Context, accountName, chainID string, id int) (Proposal, error) {
-	queryClient := launchtypes.NewQueryClient(c.clientCtx)
+	queryClient := launchtypes.NewQueryClient(c.cosmos.Context)
 
 	// Query the proposal
 	param := &launchtypes.QueryShowProposalRequest{
@@ -203,7 +203,7 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 		return errors.New("at least one proposal required")
 	}
 
-	clientCtx, err := c.buildClientCtx(accountName)
+	addr, err := c.cosmos.Address(accountName)
 	if err != nil {
 		return err
 	}
@@ -224,7 +224,7 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 
 			msgs = append(msgs, launchtypes.NewMsgProposalAddAccount(
 				chainID,
-				clientCtx.GetFromAddress().String(),
+				addr.String(),
 				payload,
 			))
 
@@ -239,11 +239,11 @@ func (c *Client) Propose(ctx context.Context, accountName, chainID string, propo
 
 			msgs = append(msgs, launchtypes.NewMsgProposalAddValidator(
 				chainID,
-				clientCtx.GetFromAddress().String(),
+				addr.String(),
 				payload,
 			))
 		}
 	}
 
-	return c.broadcast(ctx, clientCtx, msgs...)
+	return c.broadcast(ctx, accountName, msgs...)
 }
