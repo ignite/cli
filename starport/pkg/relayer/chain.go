@@ -8,6 +8,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/imdario/mergo"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	relayerconfig "github.com/tendermint/starport/starport/pkg/relayer/config"
 )
@@ -249,11 +250,11 @@ func (c *Chain) Connect(ctx context.Context, dst *Chain, options ...ChannelOptio
 
 // ensureChainSetup sets up the new or existing chain.
 func (c *Chain) ensureChainSetup(ctx context.Context) error {
-	client, err := rpcClient(c.rpcAddress)
+	client, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(c.rpcAddress))
 	if err != nil {
 		return err
 	}
-	status, err := client.Status(ctx)
+	status, err := client.RPC.Status(ctx)
 	if err != nil {
 		return err
 	}

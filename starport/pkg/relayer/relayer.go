@@ -3,12 +3,10 @@ package relayer
 import (
 	"context"
 	"fmt"
-	"io"
 	"strings"
 	"sync"
 	"time"
 
-	"github.com/cosmos/cosmos-sdk/client"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
@@ -18,7 +16,6 @@ import (
 	tsrelayer "github.com/tendermint/starport/starport/pkg/nodetime/programs/ts-relayer"
 	relayerconf "github.com/tendermint/starport/starport/pkg/relayer/config"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -195,7 +192,7 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 }
 
 func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix string) (sdk.Coins, error) {
-	context, err := clientCtx(rpcAddress)
+	client, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(rpcAddress))
 	if err != nil {
 		return nil, err
 	}
@@ -210,7 +207,7 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 		return nil, err
 	}
 
-	queryClient := banktypes.NewQueryClient(context)
+	queryClient := banktypes.NewQueryClient(client.Context)
 	res, err := queryClient.AllBalances(ctx, banktypes.NewQueryAllBalancesRequest(addr, &query.PageRequest{}))
 	if err != nil {
 		return nil, err
@@ -263,18 +260,4 @@ func (r Relayer) ListPaths(_ context.Context) ([]relayerconf.Path, error) {
 
 func fixRPCAddress(rpcAddress string) string {
 	return strings.TrimSuffix(xurl.HTTPEnsurePort(rpcAddress), "/")
-}
-
-func rpcClient(rpcAddress string) (*rpchttp.HTTP, error) {
-	rpcAddress = fixRPCAddress(rpcAddress)
-	return rpchttp.New(rpcAddress, "/websocket")
-}
-
-func clientCtx(rpcAddress string) (client.Context, error) {
-	rpcClient, err := rpcClient(rpcAddress)
-	if err != nil {
-		return client.Context{}, err
-	}
-	cc := cosmosclient.NewContext(rpcClient, io.Discard, "", "")
-	return cc, nil
 }
