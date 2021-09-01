@@ -18,8 +18,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
-const releaseDir = "release"
-const checksumTxt = "checksum.txt"
+const (
+	releaseDir  = "release"
+	checksumTxt = "checksum.txt"
+	cmdFolder   = "cmd"
+)
 
 // Build builds and installs app binaries.
 func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
@@ -57,7 +60,8 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		return err
 	}
 
-	return gocmd.InstallAll(ctx, binary, filepath.Join(c.app.Path, "cmd", c.app.D()), buildFlags)
+	cmdPath := filepath.Join(c.app.Path, cmdFolder, c.app.D())
+	return gocmd.BuildCmd(ctx, binary, cmdPath, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
