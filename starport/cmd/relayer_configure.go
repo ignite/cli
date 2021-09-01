@@ -80,7 +80,20 @@ func NewRelayerConfigure() *cobra.Command {
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
+func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+	defer func() {
+		err = handleRelayerAccountErr(err)
+	}()
+
+	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	if err != nil {
+		return err
+	}
+
+	if err := ca.EnsureDefaultAccount(); err != nil {
+		return err
+	}
+
 	s := clispinner.New().Stop()
 	defer s.Stop()
 
@@ -115,11 +128,13 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		questionSourceAccount = cliquiz.NewQuestion(
 			"Source Account",
 			&sourceAccount,
+			cliquiz.DefaultAnswer(cosmosaccount.DefaultAccount),
 			cliquiz.Required(),
 		)
 		questionTargetAccount = cliquiz.NewQuestion(
 			"Target Account",
 			&targetAccount,
+			cliquiz.DefaultAnswer(cosmosaccount.DefaultAccount),
 			cliquiz.Required(),
 		)
 		questionSourceRPCAddress = cliquiz.NewQuestion(
@@ -337,11 +352,6 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		if err := cliquiz.Ask(questions...); err != nil {
 			return err
 		}
-	}
-
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
-	if err != nil {
-		return err
 	}
 
 	r := relayer.New(ca)

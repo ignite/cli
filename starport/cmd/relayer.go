@@ -1,7 +1,9 @@
 package starportcmd
 
 import (
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
 // NewRelayer returns a new relayer command.
@@ -16,4 +18,13 @@ func NewRelayer() *cobra.Command {
 	c.AddCommand(NewRelayerConnect())
 
 	return c
+}
+
+func handleRelayerAccountErr(err error) error {
+	var accountErr *cosmosaccount.AccountDoesNotExistError
+	if !errors.As(err, &accountErr) {
+		return err
+	}
+
+	return errors.Wrap(accountErr, `make sure to create or import your account through "starport account" commands`)
 }

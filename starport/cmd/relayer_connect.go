@@ -26,16 +26,24 @@ func NewRelayerConnect() *cobra.Command {
 	return c
 }
 
-func relayerConnectHandler(cmd *cobra.Command, args []string) error {
-	ids := args
-
-	s := clispinner.New()
-	defer s.Stop()
+func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
+	defer func() {
+		err = handleRelayerAccountErr(err)
+	}()
 
 	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
 	if err != nil {
 		return err
 	}
+
+	if err := ca.EnsureDefaultAccount(); err != nil {
+		return err
+	}
+
+	ids := args
+
+	s := clispinner.New()
+	defer s.Stop()
 
 	var use []string
 

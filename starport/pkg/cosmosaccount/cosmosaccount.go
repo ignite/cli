@@ -2,6 +2,7 @@ package cosmosaccount
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	dkeyring "github.com/99designs/keyring"
@@ -11,15 +12,19 @@ import (
 	"github.com/cosmos/go-bip39"
 )
 
-// KeyringServiceName used for the name of keyring in OS backend.
-const KeyringServiceName = "starport"
+const (
+	// KeyringServiceName used for the name of keyring in OS backend.
+	KeyringServiceName = "starport"
+
+	// DefaultAccount is the name of the default account.
+	DefaultAccount = "default"
+)
 
 // KeyringHome used to store account related data.
 var KeyringHome = os.ExpandEnv("$HOME/.starport/accounts")
 
 var (
-	ErrAccountExists       = errors.New("account already exists")
-	ErrAccountDoesNotExist = errors.New("account does not exist")
+	ErrAccountExists = errors.New("account already exists")
 )
 
 const (
@@ -87,13 +92,27 @@ func (a Account) PubKey(accPrefix string) string {
 	return o.PubKey
 }
 
+// EnsureDefaultAccount ensures that default account exist.
+func (r Registry) EnsureDefaultAccount() error {
+	_, err := r.GetByName(DefaultAccount)
+
+	var accErr *AccountDoesNotExistError
+	if errors.As(err, &accErr) {
+		_, _, err = r.Create(DefaultAccount)
+		return err
+	}
+
+	return err
+}
+
 // Create creates a new account with name.
 func (r Registry) Create(name string) (acc Account, mnemonic string, err error) {
 	acc, err = r.GetByName(name)
 	if err == nil {
 		return Account{}, "", ErrAccountExists
 	}
-	if !errors.Is(err, ErrAccountDoesNotExist) {
+	var accErr *AccountDoesNotExistError
+	if !errors.As(err, &accErr) {
 		return Account{}, "", err
 	}
 
@@ -130,7 +149,8 @@ func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 	if err == nil {
 		return Account{}, ErrAccountExists
 	}
-	if !errors.Is(err, ErrAccountDoesNotExist) {
+	var accErr *AccountDoesNotExistError
+	if errors.As(err, accErr) {
 		return Account{}, err
 	}
 
@@ -173,7 +193,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 func (r Registry) GetByName(name string) (Account, error) {
 	info, err := r.kr.Key(name)
 	if err == dkeyring.ErrKeyNotFound {
-		return Account{}, ErrAccountDoesNotExist
+		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {
 		return Account{}, nil
@@ -210,7 +230,7 @@ func (r Registry) List() ([]Account, error) {
 func (r Registry) DeleteByName(name string) error {
 	err := r.kr.Delete(name)
 	if err == dkeyring.ErrKeyNotFound {
-		return ErrAccountDoesNotExist
+		return &AccountDoesNotExistError{name}
 	}
 	return err
 }
@@ -222,4 +242,12 @@ func (r Registry) hdPath() string {
 func (r Registry) algo() (keyring.SignatureAlgo, error) {
 	algos, _ := r.kr.SupportedAlgorithms()
 	return keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
+}
+
+type AccountDoesNotExistError struct {
+	Name string
+}
+
+func (e *AccountDoesNotExistError) Error() string {
+	return fmt.Sprintf("account %q does not exist", e.Name)
 }

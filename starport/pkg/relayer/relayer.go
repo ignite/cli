@@ -161,14 +161,28 @@ func (r Relayer) prepare(ctx context.Context, conf relayerconf.Config, chainID s
 		return relayerconf.Chain{}, "", err
 	}
 
+	account, err := r.ca.GetByName(chain.Account)
+	if err != nil {
+		return relayerconf.Chain{}, "", err
+	}
+
+	errMissingBalance := fmt.Errorf(`account "%s(%s)" on %q chain does not have enough balances`,
+		account.Address(chain.AddressPrefix),
+		chain.Account,
+		chain.ID,
+	)
+
+	if len(coins) == 0 {
+		return relayerconf.Chain{}, "", errMissingBalance
+	}
+
 	for _, coin := range coins {
 		if gasPrice.Denom != coin.Denom {
 			continue
 		}
 
 		if gasPrice.Amount.Int64()*ibcSetupGas > coin.Amount.Int64() {
-			err = fmt.Errorf("account %q on %q chain does not have enough balances", chain.Account, chain.ID)
-			return relayerconf.Chain{}, "", err
+			return relayerconf.Chain{}, "", errMissingBalance
 		}
 	}
 
