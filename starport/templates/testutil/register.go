@@ -14,13 +14,17 @@ import (
 const (
 	modulePathKey = "ModulePath"
 	testUtilDir   = "testutil"
+	sampleDir     = "sample"
 )
 
 var (
 	//go:embed stargate/* stargate/**/*
-	fs embed.FS
+	fsStargate embed.FS
+	//go:embed stargate/testutil/sample/*
+	fsSample embed.FS
 
-	testutilTemplate = xgenny.NewEmbedWalker(fs, "stargate/")
+	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	sampleTemplate   = xgenny.NewEmbedWalker(fsSample, "stargate/")
 )
 
 // Register testutil template using existing generator.
@@ -31,8 +35,16 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 		return fmt.Errorf("ctx is missing value for the key %s", modulePathKey)
 	}
 	path := filepath.Join(appPath, testUtilDir)
-	if _, err := os.Stat(path); !os.IsNotExist(err) {
-		return nil
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return gen.Box(stargateTemplate)
+	} else if err != nil {
+		return err
 	}
-	return gen.Box(testutilTemplate)
+
+	path = filepath.Join(path, sampleDir)
+	_, err := os.Stat(path)
+	if os.IsNotExist(err) {
+		return gen.Box(sampleTemplate)
+	}
+	return err
 }
