@@ -7,7 +7,7 @@ workspaceLocation: "./starport/.gitpod"
 
 tasks:
   - name: Open the Readme
-    command: gp open readme.md
+    init: gp preview https://docs.starport.network/
 
   - name: Setup
 
