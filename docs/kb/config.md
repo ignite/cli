@@ -12,7 +12,7 @@ Only a default set of parameters is provided. If more nuanced configuration is r
 
 ## `accounts`
 
-A list of user accounts created during genesis of the blockc
+A list of user accounts created during genesis of the blockchain.
 
 | Key      | Required | Type            | Description                                                                                                                     |
 | -------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
