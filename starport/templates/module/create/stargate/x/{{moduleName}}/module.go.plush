@@ -19,13 +19,13 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	// this line is used by starport scaffolding # ibc/module/import
+	<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/module/import<% } %>
 )
 
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	// this line is used by starport scaffolding # ibc/module/interface
+	<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/module/interface<% } %>
 )
 
 // ----------------------------------------------------------------------------
