@@ -28,12 +28,7 @@ const (
 	// Placeholders IBC
 	PlaceholderIBCModuleImport               = "// this line is used by starport scaffolding # ibc/module/import"
 	PlaceholderIBCModuleInterface            = "// this line is used by starport scaffolding # ibc/module/interface"
-	PlaceholderIBCGenesisInit                = "// this line is used by starport scaffolding # ibc/genesis/init"
-	PlaceholderIBCGenesisExport              = "// this line is used by starport scaffolding # ibc/genesis/export"
 	PlaceholderIBCErrors                     = "// this line is used by starport scaffolding # ibc/errors"
-	PlaceholderIBCGenesisTypeImport          = "// this line is used by starport scaffolding # ibc/genesistype/import"
-	PlaceholderIBCGenesisTypeDefault         = "// this line is used by starport scaffolding # ibc/genesistype/default"
-	PlaceholderIBCGenesisTypeValidate        = "// this line is used by starport scaffolding # ibc/genesistype/validate"
 	PlaceholderIBCGenesisProto               = "// this line is used by starport scaffolding # ibc/genesis/proto"
 	PlaceholderIBCKeysName                   = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort                   = "// this line is used by starport scaffolding # ibc/keys/port"

@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/typed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -86,11 +87,11 @@ if !k.IsBound(ctx, genState.PortId) {
 		panic("could not claim port capability: " + err.Error())
 	}
 }`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCGenesisInit, templateInit)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, templateInit)
 
 		// Genesis export
 		templateExport := `genesis.PortId = k.GetPort(ctx)`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisExport, templateExport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, templateExport)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -125,18 +126,18 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 		// Import
 		templateImport := `host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCGenesisTypeImport, templateImport)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, templateImport)
 
 		// Default genesis
 		templateDefault := `PortId: PortID,`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisTypeDefault, templateDefault)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, templateDefault)
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
 		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
 }`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisTypeValidate, templateValidate)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, templateValidate)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
