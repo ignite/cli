@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
@@ -54,7 +55,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 	}
 
 	if strings.HasSuffix(name.LowerCase, "test") {
-		return fmt.Errorf("'test' suffix is used by Go test files")
+		return errors.New(`name cannot end with "test"`)
 	}
 
 	return checkGoReservedWord(name.LowerCamel)
