@@ -2,7 +2,6 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/typed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -11,6 +10,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
