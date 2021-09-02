@@ -9,5 +9,6 @@ import (
 // x/<%= moduleName %> module sentinel errors
 var (
 	ErrSample = sdkerrors.Register(ModuleName, 1100, "sample error")
-	<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/errors<% } %>
+	<%= if (isIBC) { %>ErrInvalidPacketTimeout = sdkerrors.Register(ModuleName, 1500, "invalid packet timeout")
+    ErrInvalidVersion = sdkerrors.Register(ModuleName, 1501, "invalid version")<% } %>
 )

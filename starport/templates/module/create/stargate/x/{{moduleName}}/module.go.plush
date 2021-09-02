@@ -19,13 +19,13 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/module/import<% } %>
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"<% } %>
 )
 
 var (
 	_ module.AppModule      = AppModule{}
 	_ module.AppModuleBasic = AppModuleBasic{}
-	<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/module/interface<% } %>
+	<%= if (isIBC) { %>_ porttypes.IBCModule   = AppModule{}<% } %>
 )
 
 // ----------------------------------------------------------------------------
