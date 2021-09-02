@@ -156,10 +156,10 @@ var (
 	}
 )
 
-func sourceModificationToString(sm xgenny.SourceModification) string {
+func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
 	pwd, err := os.Getwd()
 	if err != nil {
-		panic(err)
+		return "", err
 	}
 
 	// get file names and add prefix
@@ -168,8 +168,7 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 		// get the relative app path from the current directory
 		relativePath, err := filepath.Rel(pwd, modified)
 		if err != nil {
-			files = append(files, modifyPrefix+modified)
-			continue
+			return "", err
 		}
 		files = append(files, modifyPrefix+relativePath)
 	}
@@ -177,8 +176,7 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 		// get the relative app path from the current directory
 		relativePath, err := filepath.Rel(pwd, created)
 		if err != nil {
-			files = append(files, createPrefix+created)
-			continue
+			return "", err
 		}
 		files = append(files, createPrefix+relativePath)
 	}
@@ -191,7 +189,7 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 		return strings.Compare(s1, s2) == -1
 	})
 
-	return "\n" + strings.Join(files, "\n")
+	return "\n" + strings.Join(files, "\n"), nil
 }
 
 func deprecated() []*cobra.Command {

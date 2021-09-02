@@ -65,7 +65,7 @@ func Find(path string) (Path, error) {
 		}
 		return parsed, err
 	}
-	return Path{}, gomodule.ErrGoModNotFound
+	return Path{}, errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
 // ParseAt parses Go module path of an app resides at path.

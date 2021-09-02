@@ -35,7 +35,13 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf("\n🎉 Imported wasm.\n\n")
 	return nil
 }

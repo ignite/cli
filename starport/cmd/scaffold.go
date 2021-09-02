@@ -90,7 +90,13 @@ func scaffoldType(
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil

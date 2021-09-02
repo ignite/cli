@@ -79,7 +79,13 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
 	return nil
 }

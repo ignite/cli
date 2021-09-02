@@ -57,7 +57,13 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf(`
 🎉 Created a Band oracle query "%[1]v".
 

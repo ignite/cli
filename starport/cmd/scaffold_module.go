@@ -108,7 +108,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		fmt.Println(sourceModificationToString(sm))
+		modificationsStr, err := sourceModificationToString(sm)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(modificationsStr)
 	}
 
 	if len(dependencies) > 0 {
