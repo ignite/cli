@@ -150,7 +150,7 @@ func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 		return Account{}, ErrAccountExists
 	}
 	var accErr *AccountDoesNotExistError
-	if errors.As(err, &accErr) {
+	if !errors.As(err, &accErr) {
 		return Account{}, err
 	}
 
