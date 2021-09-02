@@ -76,7 +76,8 @@ func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.Run
 		}
 
 		// Genesis init
-		templateInit := `k.SetPort(ctx, genState.PortId)
+		templateInit := `%s
+k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
 if !k.IsBound(ctx, genState.PortId) {
@@ -87,11 +88,14 @@ if !k.IsBound(ctx, genState.PortId) {
 		panic("could not claim port capability: " + err.Error())
 	}
 }`
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, templateInit)
+		replacementInit := fmt.Sprintf(templateInit, typed.PlaceholderGenesisModuleInit)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementInit)
 
 		// Genesis export
-		templateExport := `genesis.PortId = k.GetPort(ctx)`
-		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, templateExport)
+		templateExport := `%s
+genesis.PortId = k.GetPort(ctx)`
+		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -125,19 +129,25 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
-		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, templateImport)
+		templateImport := `%s
+host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
 
 		// Default genesis
-		templateDefault := `PortId: PortID,`
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, templateDefault)
+		templateDefault := `%s
+PortId: PortID,`
+		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		templateValidate := `%s
+if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
 }`
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, templateValidate)
+		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
