@@ -35,7 +35,7 @@ const (
 	PlaceholderIBCGenesisProto               = "// this line is used by starport scaffolding # ibc/genesis/proto"
 	PlaceholderIBCKeysName                   = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort                   = "// this line is used by starport scaffolding # ibc/keys/port"
- d	PlaceholderIBCAppScopedKeeperDeclaration = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/declaration"
+	PlaceholderIBCAppScopedKeeperDeclaration = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/declaration"
 	PlaceholderIBCAppScopedKeeperDefinition  = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/definition"
 	PlaceholderIBCAppKeeperArgument          = "// this line is used by starport scaffolding # ibc/app/keeper/argument"
 	PlaceholderIBCAppRouter                  = "// this line is used by starport scaffolding # ibc/app/router"
