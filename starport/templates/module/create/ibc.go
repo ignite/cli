@@ -22,6 +22,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(genesisTypeModify(replacer, opts))
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(replacer, opts))
 	g.RunFn(keysModify(replacer, opts))
 	g.RunFn(keeperModify(replacer, opts))
 
@@ -165,6 +166,25 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 }
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		replacementState := fmt.Sprintf("PortId: types.PortID,\n%s", module.PlaceholderGenesisTestState)
+		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
+
+		replacementAssert := fmt.Sprintf("require.Equal(t, genesisState.PortID, got.PortID)\n%s", module.PlaceholderGenesisTestAssert)
+		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementAssert)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTypesTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
