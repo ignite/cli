@@ -123,5 +123,5 @@ func PackageLiteral(path, version string) string {
 
 // binaryPath get the binary path into the go bin folder.
 func binaryPath(binary string) string {
-	return os.ExpandEnv(filepath.Join(goenv.Bin(), binary))
+	return filepath.Join(goenv.Bin(), binary)
 }
