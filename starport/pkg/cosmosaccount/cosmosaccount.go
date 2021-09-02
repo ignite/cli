@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"sync"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
@@ -26,6 +27,8 @@ var KeyringHome = os.ExpandEnv("$HOME/.starport/accounts")
 var (
 	ErrAccountExists = errors.New("account already exists")
 )
+
+var mconf sync.Mutex // protects types.Config (sdk).
 
 const (
 	accountPrefixCosmos = "cosmos"
@@ -66,6 +69,9 @@ func (a Account) Address(accPrefix string) string {
 		accPrefix = accountPrefixCosmos
 	}
 
+	mconf.Lock()
+	defer mconf.Unlock()
+
 	conf := types.GetConfig()
 	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
 
@@ -81,6 +87,9 @@ func (a Account) PubKey(accPrefix string) string {
 	if accPrefix == "" {
 		accPrefix = accountPrefixCosmos
 	}
+
+	mconf.Lock()
+	defer mconf.Unlock()
 
 	conf := types.GetConfig()
 	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
