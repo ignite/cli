@@ -9,7 +9,7 @@ Starport is the all-in-one platform to build, launch and maintain any crypto app
 
 Open Starport [in your browser](https://gitpod.io/#https://github.com/tendermint/starport/tree/master), or [install it](https://docs.starport.network/guide/install.html). Create and start a blockchain:
 
-```
+```bash
 starport scaffold chain github.com/cosmonaut/mars
 
 cd mars

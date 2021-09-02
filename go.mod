@@ -46,7 +46,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.1
-	github.com/tendermint/spm v0.0.0-20210705094313-42e72ad05b63
+	github.com/tendermint/spm v0.1.4
 	github.com/tendermint/spn v0.0.0-20210406123257-decaff8dcaf9
 	github.com/tendermint/tendermint v0.34.11
 	github.com/tendermint/vue v0.1.49
@@ -54,7 +54,7 @@ require (
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
-	google.golang.org/genproto v0.0.0-20210426193834-eac7f76ac494 // indirect
+	google.golang.org/genproto v0.0.0-20210617175327-b9e0b3197ced // indirect
 )
 
 replace (

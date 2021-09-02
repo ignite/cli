@@ -42,12 +42,7 @@ func (c *Client) ChainList(ctx context.Context, accountName string, options ...C
 		apply(o)
 	}
 
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	q := launchtypes.NewQueryClient(clientCtx)
+	q := launchtypes.NewQueryClient(c.cosmos.Context)
 	chainList, err := q.ListChains(ctx, &launchtypes.QueryListChainsRequest{
 		Prefix: o.prefix,
 		Pagination: &query.PageRequest{
@@ -76,13 +71,13 @@ func (c *Client) ChainCreate(
 	genesisURL,
 	genesisHash string,
 ) error {
-	clientCtx, err := c.buildClientCtx(accountName)
+	addr, err := c.cosmos.Address(accountName)
 	if err != nil {
 		return err
 	}
-	return c.broadcast(ctx, clientCtx, launchtypes.NewMsgChainCreate(
+	return c.broadcast(ctx, accountName, launchtypes.NewMsgChainCreate(
 		chainID,
-		clientCtx.GetFromAddress().String(),
+		addr.String(),
 		sourceURL,
 		sourceHash,
 		genesisURL,
@@ -109,13 +104,8 @@ type Chain struct {
 
 // ShowChain shows chain info.
 func (c *Client) ShowChain(ctx context.Context, accountName, chainID string) (Chain, error) {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return Chain{}, err
-	}
-
 	// Query the chain from spnd
-	q := launchtypes.NewQueryClient(clientCtx)
+	q := launchtypes.NewQueryClient(c.cosmos.Context)
 	res, err := q.ShowChain(ctx, &launchtypes.QueryShowChainRequest{
 		ChainID: chainID,
 	})
@@ -154,13 +144,8 @@ type LaunchInformation struct {
 
 // LaunchInformation retrieves chain's launch information.
 func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID string) (LaunchInformation, error) {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return LaunchInformation{}, err
-	}
-
 	// Query the chain from spnd
-	q := launchtypes.NewQueryClient(clientCtx)
+	q := launchtypes.NewQueryClient(c.cosmos.Context)
 	res, err := q.LaunchInformation(ctx, &launchtypes.QueryLaunchInformationRequest{
 		ChainID: chainID,
 	})
@@ -188,11 +173,6 @@ func (c *Client) LaunchInformation(ctx context.Context, accountName, chainID str
 
 // SimulatedLaunchInformation retrieves chain's simulated launch information.
 func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, chainID string, proposalIDs []int) (LaunchInformation, error) {
-	clientCtx, err := c.buildClientCtx(accountName)
-	if err != nil {
-		return LaunchInformation{}, err
-	}
-
 	// Convert proposal ids to int32
 	var proposalIDs32 []int32
 	for _, proposalID := range proposalIDs {
@@ -200,7 +180,7 @@ func (c *Client) SimulatedLaunchInformation(ctx context.Context, accountName, ch
 	}
 
 	// Query the chain from spnd
-	q := launchtypes.NewQueryClient(clientCtx)
+	q := launchtypes.NewQueryClient(c.cosmos.Context)
 	res, err := q.SimulatedLaunchInformation(ctx, &launchtypes.QuerySimulatedLaunchInformationRequest{
 		ChainID:     chainID,
 		ProposalIDs: proposalIDs32,

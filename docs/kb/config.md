@@ -12,7 +12,7 @@ Only a default set of parameters is provided. If more nuanced configuration is r
 
 ## `accounts`
 
-A list of user accounts created during genesis of the blockc
+A list of user accounts created during genesis of the blockchain.
 
 | Key      | Required | Type            | Description                                                                                                                     |
 | -------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -166,4 +166,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/configure/genesis.html).
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/kb/genesis.html).
