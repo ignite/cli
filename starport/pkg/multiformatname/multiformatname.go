@@ -15,10 +15,10 @@ type Name struct {
 	Original   string
 	LowerCamel string
 	UpperCamel string
+	LowerCase  string
 	UpperCase  string
 	Kebab      string
 	Snake      string
-	Lowercase  string
 }
 
 type Checker func(name string) error
@@ -40,7 +40,7 @@ func NewName(name string, additionalChecks ...Checker) (Name, error) {
 		UpperCase:  strings.ToUpper(name),
 		Kebab:      strcase.ToKebab(name),
 		Snake:      strcase.ToSnake(name),
-		Lowercase:  lowercase(name),
+		LowerCase:  lowercase(name),
 	}, nil
 }
 

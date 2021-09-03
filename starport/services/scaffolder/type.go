@@ -126,7 +126,7 @@ func (s *Scaffolder) AddType(
 	if err != nil {
 		return sm, err
 	}
-	moduleName := mfName.Lowercase
+	moduleName := mfName.LowerCase
 
 	name, err := multiformatname.NewName(typeName)
 	if err != nil {
