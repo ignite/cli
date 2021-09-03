@@ -44,9 +44,20 @@ func (b builder) buildFiles() (files []File) {
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+
+			// Parse message field count
+			var fieldCount int
+			for _, elem := range message.Elements {
+				_, ok := elem.(*proto.NormalField)
+				if ok {
+					fieldCount++
+				}
+			}
+
 			messages = append(messages, Message{
 				Name: message.Name,
 				Path: f.path,
+				FieldCount: fieldCount,
 			})
 		}
 	}

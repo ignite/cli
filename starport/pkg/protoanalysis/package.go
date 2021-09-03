@@ -77,6 +77,9 @@ type Message struct {
 
 	// Path of the file where message is defined at.
 	Path string
+
+	// FieldCount is the number of field for the message
+	FieldCount int
 }
 
 // Service is an RPC service.
