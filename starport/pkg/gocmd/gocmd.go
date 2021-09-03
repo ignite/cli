@@ -61,6 +61,18 @@ func ModVerify(ctx context.Context, path string, options ...exec.Option) error {
 	return exec.Exec(ctx, []string{Name(), CommandMod, CommandModVerify}, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
+// BuildPath runs go install on cmd folder with options.
+func BuildPath(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
+	command := []string{
+		Name(),
+		CommandBuild,
+		FlagOut, binaryPath(binary),
+	}
+	command = append(command, flags...)
+	command = append(command, ".")
+	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
+}
+
 // BuildAll runs go build ./... on path with options.
 func BuildAll(ctx context.Context, out, path string, flags []string, options ...exec.Option) error {
 	command := []string{
@@ -81,18 +93,6 @@ func InstallAll(ctx context.Context, path string, flags []string, options ...exe
 	}
 	command = append(command, flags...)
 	command = append(command, "./...")
-	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
-}
-
-// BuildPath runs go install on cmd folder with options.
-func BuildPath(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
-	command := []string{
-		Name(),
-		CommandBuild,
-		FlagOut, binaryPath(binary),
-	}
-	command = append(command, flags...)
-	command = append(command, ".")
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 

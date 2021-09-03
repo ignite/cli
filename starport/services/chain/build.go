@@ -15,13 +15,13 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/goanalysis"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
 const (
 	releaseDir  = "release"
 	checksumTxt = "checksum.txt"
-	cmdFolder   = "cmd"
 )
 
 // Build builds and installs app binaries.
@@ -60,8 +60,12 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		return err
 	}
 
-	cmdPath := filepath.Join(c.app.Path, cmdFolder, c.app.D())
-	return gocmd.BuildPath(ctx, binary, cmdPath, buildFlags)
+	p, err := goanalysis.DiscoverMain(c.app.Path)
+	if err != nil {
+		return err
+	}
+
+	return gocmd.BuildPath(ctx, binary, p, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
@@ -115,7 +119,12 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 			)),
 		}
 
-		if err := gocmd.BuildAll(ctx, out, c.app.Path, buildFlags, buildOptions...); err != nil {
+		mainPath, err := goanalysis.DiscoverMain(c.app.Path)
+		if err != nil {
+			return "", err
+		}
+
+		if err := gocmd.BuildAll(ctx, out, mainPath, buildFlags, buildOptions...); err != nil {
 			return "", err
 		}
 
