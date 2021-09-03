@@ -2,6 +2,7 @@ package scaffolder
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/typed/list"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -13,7 +14,7 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
-	"github.com/tendermint/starport/starport/templates/typed/indexed"
+	maptype "github.com/tendermint/starport/starport/templates/typed/map"
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
 )
 
@@ -193,7 +194,7 @@ func (s *Scaffolder) AddType(
 	// TODO: rename the template packages to make it consistent with the type new naming
 	switch {
 	case o.isList:
-		g, err = typed.NewStargate(tracer, opts)
+		g, err = list.NewStargate(tracer, opts)
 	case o.isMap:
 		g, err = mapGenerator(tracer, opts, o.indexes)
 	case o.isSingleton:
@@ -251,5 +252,5 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 	}
 
 	opts.Indexes = parsedIndexes
-	return indexed.NewStargate(replacer, opts)
+	return maptype.NewStargate(replacer, opts)
 }

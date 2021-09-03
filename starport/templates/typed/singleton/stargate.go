@@ -3,6 +3,7 @@ package singleton
 import (
 	"embed"
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/typed/list"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -208,7 +209,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := typed.PatchGenesisTypeImport(replacer, f.String())
+		content := list.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesDefault := `%[1]v
 %[2]v: nil,`
