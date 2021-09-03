@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/typed/list"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -14,6 +13,7 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
+	"github.com/tendermint/starport/starport/templates/typed/list"
 	maptype "github.com/tendermint/starport/starport/templates/typed/map"
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
 )
