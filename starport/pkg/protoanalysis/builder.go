@@ -55,8 +55,8 @@ func (b builder) buildMessages() (messages []Message) {
 			}
 
 			messages = append(messages, Message{
-				Name: message.Name,
-				Path: f.path,
+				Name:       message.Name,
+				Path:       f.path,
 				FieldCount: fieldCount,
 			})
 		}

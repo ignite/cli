@@ -3,11 +3,11 @@ package typed
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
