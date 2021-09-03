@@ -51,9 +51,9 @@ func Parse(rawpath string) (Path, error) {
 }
 
 // Find search the Go module in the current and parent paths until finding it.
-func Find(path string) (Path, string, error) {
+func Find(path string) (parsed Path, appPath string, err error) {
 	for len(path) != 0 && path != "." && path != "/" {
-		parsed, err := ParseAt(path)
+		parsed, err = ParseAt(path)
 		if errors.Is(err, gomodule.ErrGoModNotFound) {
 			path = filepath.Dir(path)
 			continue
