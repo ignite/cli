@@ -73,7 +73,7 @@ func (s *Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	moduleName = mfName.Lowercase
+	moduleName = mfName.LowerCase
 
 	name, err := multiformatname.NewName(msgName)
 	if err != nil {

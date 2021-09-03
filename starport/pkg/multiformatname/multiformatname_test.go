@@ -58,7 +58,7 @@ func TestNewMultiFormatName(t *testing.T) {
 		require.Equal(
 			t,
 			testCase[5],
-			name.Lowercase,
+			name.LowerCase,
 			fmt.Sprintf("%s should be converted the correct lowercase format", testCase[0]),
 		)
 	}
