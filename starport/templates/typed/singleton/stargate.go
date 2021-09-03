@@ -3,8 +3,6 @@ package singleton
 import (
 	"embed"
 	"fmt"
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -180,18 +178,20 @@ import "%[2]v/%[3]v.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		count, err := typed.GenesisStateFieldCount(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[1]v
-		%[2]v %[3]v = %[4]v; %[5]v`
+		templateProtoState := `%[2]v %[3]v = %[4]v;
+  %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
+			count+1,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 

@@ -41,7 +41,7 @@ import "%[2]v/%[3]v.proto";`
 		// Add gogo.proto
 		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
 
-		// Parse proto files to determine the field numbers
+		// Parse proto file to determine the field numbers
 		count, err := GenesisStateFieldCount(path)
 		if err != nil {
 			return err
