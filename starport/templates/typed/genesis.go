@@ -1,13 +1,17 @@
 package typed
 
 import (
+	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/templates/module"
 )
+
+const ProtoGenesisStateMessage = "GenesisState"
 
 func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Options, g *genny.Generator) {
 	g.RunFn(t.genesisProtoModify(replacer, opts))
@@ -37,20 +41,22 @@ import "%[2]v/%[3]v.proto";`
 		// Add gogo.proto
 		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, PlaceholderGenesisProtoStateField) + 1
+		// Parse proto files to determine the field numbers
+		count, err := GenesisStateFieldCount(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
-		uint64 %[3]vCount = %[6]v; %[5]v`
+		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
+		uint64 %[3]vCount = %[5]v;
+		%[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			PlaceholderGenesisProtoStateField,
-			fieldNumber+1,
+			count+1,
+			count+2,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -226,4 +232,18 @@ func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) strin
 	}
 
 	return content
+}
+
+// GenesisStateFieldCount returns the count of field in the genesis state proto message to determine the field numbers
+func GenesisStateFieldCount(path string) (int, error) {
+	pkgs, err := protoanalysis.Parse(context.Background(), nil, path)
+	if err != nil {
+		return 0, err
+	}
+	m, err := pkgs[0].MessageByName(ProtoGenesisStateMessage)
+	if err != nil {
+		return 0, err
+	}
+
+	return m.FieldCount, nil
 }
