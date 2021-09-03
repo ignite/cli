@@ -8,7 +8,7 @@ parent:
 
 # Nameservice Tutorial
 
-The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. This nameservice app lets users buy names and set a value these names resolve to. 
+The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. This nameservice app sends tokens between participants so that end users buy names and set a value to the names. 
 <!-- rewrite intro for clarity 
 - what problem does this nameservice solve?
 - why should user care?
@@ -85,13 +85,7 @@ For your nameservice app, use one store to map a `name` key to its respective `w
 
 In the Cosmos SDK, [messages](https://docs.cosmos.network/master/building-modules/messages-and-queries.html#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
 
-You must implement the following messages to achieve the desired functionality for your nameservice application:
-
-- `MsgSetName`: Allows name owners to set a value for a given name.
-- `MsgBuyName`: Allows accounts to buy a name and become its owner. When an end user buys a name, they are required to pay the previous owner of the name a price higher than the price the previous owner paid for it. If a name does not have a previous owner yet, the end user must burn a `MinPrice` amount.
-- `MsgDeleteName`: Allows name owners to delete names that belong to them.
-
-You will develop the nameservice app to process messages like this:
+You must create [messages for the nameservice module](02-messages.md) that support this functionality:
 
 - When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the [ABCI](https://docs.cosmos.network/master/intro/sdk-app-architecture.html#abci) interface between Tendermint and your app. 
 - The transaction is decoded to get the message. 
