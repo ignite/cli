@@ -184,6 +184,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	// run generator
 	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+		AppPath:          appPath,
 		Feature:          name,
 		AppName:          path.Package,
 		BinaryNamePrefix: path.Root,
@@ -257,10 +258,7 @@ func checkModuleName(moduleName string) error {
 }
 
 func isWasmImported(appPath string) (bool, error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, appPkg))
-	if err != nil {
-		return false, err
-	}
+	abspath := filepath.Join(appPath, appPkg)
 	fset := token.NewFileSet()
 	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ImportsOnly)
 	if err != nil {
