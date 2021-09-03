@@ -16,10 +16,6 @@ import (
 
 // Path represents a Go module's path.
 type Path struct {
-	// AppPath is application absolute path.
-	// e.g.: /Users/foo/go/src/github.com/tendermint/starport.
-	AppPath string
-
 	// Path is Go module's full path.
 	// e.g.: github.com/tendermint/starport.
 	RawPath string
@@ -35,7 +31,7 @@ type Path struct {
 }
 
 // Parse parses rawpath into a module Path.
-func Parse(rawpath, appPath string) (Path, error) {
+func Parse(rawpath string) (Path, error) {
 	if err := validateModulePath(rawpath); err != nil {
 		return Path{}, err
 	}
@@ -47,7 +43,6 @@ func Parse(rawpath, appPath string) (Path, error) {
 		return Path{}, err
 	}
 	p := Path{
-		AppPath: appPath,
 		RawPath: rawpath,
 		Root:    rootName,
 		Package: packageName,
@@ -56,16 +51,16 @@ func Parse(rawpath, appPath string) (Path, error) {
 }
 
 // Find search the Go module in the current and parent paths until finding it.
-func Find(path string) (Path, error) {
+func Find(path string) (Path, string, error) {
 	for len(path) != 0 && path != "." && path != "/" {
 		parsed, err := ParseAt(path)
 		if errors.Is(err, gomodule.ErrGoModNotFound) {
 			path = filepath.Dir(path)
 			continue
 		}
-		return parsed, err
+		return parsed, path, err
 	}
-	return Path{}, errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
+	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
 // ParseAt parses Go module path of an app resides at path.
@@ -77,7 +72,7 @@ func ParseAt(path string) (Path, error) {
 	if err := gomodule.ValidateGoModule(parsed); err != nil {
 		return Path{}, err
 	}
-	return Parse(parsed.Module.Mod.Path, path)
+	return Parse(parsed.Module.Mod.Path)
 }
 
 func validateModulePath(path string) error {

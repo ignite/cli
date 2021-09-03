@@ -59,7 +59,7 @@ func TestParse(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
-			path, err := Parse(tt.rawpath, "")
+			path, err := Parse(tt.rawpath)
 			if err != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.err, err)

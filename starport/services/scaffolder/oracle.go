@@ -57,7 +57,7 @@ func (s *Scaffolder) AddOracle(
 		apply(&o)
 	}
 
-	path, err := gomodulepath.Find(s.path)
+	path, appPath, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -73,7 +73,7 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(path.AppPath, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(appPath, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -83,7 +83,7 @@ func (s *Scaffolder) AddOracle(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(path.AppPath, moduleName)
+	ok, err := isIBCModule(appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -96,7 +96,7 @@ func (s *Scaffolder) AddOracle(
 		g    *genny.Generator
 		opts = &ibc.OracleOptions{
 			AppName:    path.Package,
-			AppPath:    path.AppPath,
+			AppPath:    appPath,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),

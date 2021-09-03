@@ -84,7 +84,7 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.Find(s.path)
+	path, appPath, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -101,7 +101,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(path.AppPath, moduleName)
+	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -116,7 +116,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, path.AppPath); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, appPath); err != nil {
 		return sm, err
 	}
 
@@ -124,7 +124,7 @@ func (s *Scaffolder) CreateModule(
 		ModuleName:   moduleName,
 		ModulePath:   path.RawPath,
 		AppName:      path.Package,
-		AppPath:      path.AppPath,
+		AppPath:      appPath,
 		OwnerName:    owner(path.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
@@ -169,12 +169,12 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	path, err := gomodulepath.Find(s.path)
+	path, appPath, err := gomodulepath.Find(s.path)
 	if err != nil {
 		return sm, err
 	}
 
-	ok, err := isWasmImported(path.AppPath)
+	ok, err := isWasmImported(appPath)
 	if err != nil {
 		return sm, err
 	}
@@ -208,7 +208,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, err
 	}
 
-	return sm, s.finish(path.AppPath, path.RawPath)
+	return sm, s.finish(appPath, path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {

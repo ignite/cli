@@ -46,7 +46,7 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name, appPath string, noDe
 		}
 	}
 
-	pathInfo, err := gomodulepath.Parse(name, appPath)
+	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
