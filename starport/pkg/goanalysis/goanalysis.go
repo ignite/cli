@@ -24,7 +24,7 @@ func DiscoverMain(appPath string) (string, error) {
 	)
 	err := filepath.Walk(appPath, func(filePath string, f os.FileInfo, err error) error {
 		if f.IsDir() || !strings.HasSuffix(filePath, goFileExtension) {
-			return nil
+			return err
 		}
 		parsed, err := parser.ParseFile(fset, filePath, nil, parser.PackageClauseOnly)
 		if err != nil {
