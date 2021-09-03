@@ -244,7 +244,7 @@ func checkForbiddenTypeField(name string) error {
 		return err
 	}
 
-	switch mfName.Lowercase {
+	switch mfName.LowerCase {
 	case
 		"id",
 		"appendedvalue",
