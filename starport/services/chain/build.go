@@ -119,12 +119,7 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 			)),
 		}
 
-		mainPath, err := goanalysis.DiscoverMain(c.app.Path)
-		if err != nil {
-			return "", err
-		}
-
-		if err := gocmd.BuildAll(ctx, out, mainPath, buildFlags, buildOptions...); err != nil {
+		if err := gocmd.BuildAll(ctx, out, c.app.Path, buildFlags, buildOptions...); err != nil {
 			return "", err
 		}
 
