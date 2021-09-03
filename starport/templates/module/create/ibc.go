@@ -16,15 +16,12 @@ import (
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(errorsModify(replacer, opts))
 	g.RunFn(genesisTypeModify(replacer, opts))
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
 	g.RunFn(keysModify(replacer, opts))
-	g.RunFn(keeperModify(replacer, opts))
 
 	if err := g.Box(ibcTemplate); err != nil {
 		return g, err
@@ -44,27 +41,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
-}
-
-func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Import
-		templateImport := `porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCModuleImport, templateImport)
-
-		// Interface to implement
-		templateInterface := `_ porttypes.IBCModule   = AppModule{}`
-		content = replacer.Replace(content, module.PlaceholderIBCModuleInterface, templateInterface)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
 }
 
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
@@ -92,24 +68,6 @@ if !k.IsBound(ctx, genState.PortId) {
 		// Genesis export
 		templateExport := `genesis.PortId = k.GetPort(ctx)`
 		content = replacer.Replace(content, module.PlaceholderIBCGenesisExport, templateExport)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func errorsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/errors.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// IBC errors
-		template := `ErrInvalidPacketTimeout = sdkerrors.Register(ModuleName, 1500, "invalid packet timeout")
-ErrInvalidVersion = sdkerrors.Register(ModuleName, 1501, "invalid version")`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCErrors, template)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -224,37 +182,6 @@ PortID = "%[1]v"`
 )`
 		replacementPort := fmt.Sprintf(templatePort, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderIBCKeysPort, replacementPort)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func keeperModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/keeper.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Keeper new attributes
-		templateAttribute := `channelKeeper types.ChannelKeeper
-portKeeper    types.PortKeeper
-scopedKeeper  types.ScopedKeeper`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCKeeperAttribute, templateAttribute)
-
-		// New parameter for the constructor
-		templateParameter := `channelKeeper types.ChannelKeeper,
-portKeeper types.PortKeeper,
-scopedKeeper types.ScopedKeeper,`
-		content = replacer.Replace(content, module.PlaceholderIBCKeeperParameter, templateParameter)
-
-		// New return values for the constructor
-		templateReturn := `channelKeeper: channelKeeper,
-portKeeper:    portKeeper,
-scopedKeeper:  scopedKeeper,`
-		content = replacer.Replace(content, module.PlaceholderIBCKeeperReturn, templateReturn)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
