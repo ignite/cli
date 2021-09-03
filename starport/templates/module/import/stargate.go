@@ -146,7 +146,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 // main.go modification on Stargate when importing wasm
 func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "cmd/" + opts.BinaryNamePrefix + "d/main.go"
+		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/main.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

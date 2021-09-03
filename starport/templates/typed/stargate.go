@@ -349,7 +349,7 @@ func (t *typedStargate) clientCliQueryModify(replacer placeholder.Replacer, opts
 
 func (t *typedStargate) frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "vue/src/views/Types.vue"
+		path := filepath.Join(opts.AppPath, "vue/src/views/Types.vue")
 		f, err := r.Disk.Find(path)
 		if os.IsNotExist(err) {
 			// Skip modification if the app doesn't contain front-end

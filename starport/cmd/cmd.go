@@ -136,7 +136,7 @@ func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...ch
 		return nil, err
 	}
 
-	return chain.New(cmd.Context(), appPath, chainOption...)
+	return chain.New(appPath, chainOption...)
 }
 
 func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
