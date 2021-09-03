@@ -18,12 +18,12 @@ func supportGenesisTests(
 	modulePath,
 	moduleName string,
 ) ([]*genny.Generator, error) {
-	modulePath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName))
+	path, err := filepath.Abs(filepath.Join(appPath, "x", moduleName))
 	if err != nil {
 		return nil, err
 	}
 
-	gmPath := filepath.Join(modulePath, "genesis_test.go")
+	gmPath := filepath.Join(path, "genesis_test.go")
 	if _, err := os.Stat(gmPath); os.IsNotExist(err) {
 		g, err := modulecreate.AddGenesisModuleTest(appName, modulePath, moduleName)
 		if err != nil {
@@ -34,7 +34,7 @@ func supportGenesisTests(
 		return nil, err
 	}
 
-	gtPath := filepath.Join(modulePath, "types/genesis_test.go")
+	gtPath := filepath.Join(path, "types/genesis_test.go")
 	if _, err := os.Stat(gtPath); os.IsNotExist(err) {
 		g, err := modulecreate.AddGenesisTypesTest(appName, modulePath, moduleName)
 		if err != nil {
