@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
-	"golang.org/x/mod/modfile"
 	"path/filepath"
 	"regexp"
 	"strings"
 
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
 )
