@@ -1,5 +1,5 @@
 ---
-order: 99
+order: 12
 description: IBC oracle integration with BandChain
 ---
 
