@@ -7,6 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
     
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
 func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
@@ -16,14 +17,14 @@ func createTest<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context) types
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
 	rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
     require.True(t, found)
     require.Equal(t, item, rst)
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	createTest<%= TypeName.UpperCamel %>(keeper, ctx)
 	keeper.Remove<%= TypeName.UpperCamel %>(ctx)
     _, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)

@@ -12,7 +12,7 @@ import (
 )
 
 func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
 	for _, tc := range []struct {

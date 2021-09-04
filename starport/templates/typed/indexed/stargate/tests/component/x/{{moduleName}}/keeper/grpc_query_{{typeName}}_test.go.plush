@@ -11,13 +11,14 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
 func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 2)
 	for _, tc := range []struct {
@@ -68,7 +69,7 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
 	msgs := createN<%= TypeName.UpperCamel %>(keeper, ctx, 5)
 

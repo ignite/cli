@@ -8,6 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
     
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
 // Prevent strconv unused error
@@ -24,7 +25,7 @@ func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) [
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
@@ -36,7 +37,7 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	}
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.Remove<%= TypeName.UpperCamel %>(ctx,
@@ -52,7 +53,7 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	require.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }
