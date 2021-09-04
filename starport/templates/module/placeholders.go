@@ -24,8 +24,6 @@ const (
 	PlaceholderSgRootArgument            = "// this line is used by starport scaffolding # root/arguments"
 
 	// Placeholders IBC
-	PlaceholderIBCModuleImport               = "// this line is used by starport scaffolding # ibc/module/import"
-	PlaceholderIBCModuleInterface            = "// this line is used by starport scaffolding # ibc/module/interface"
 	PlaceholderIBCGenesisInit                = "// this line is used by starport scaffolding # ibc/genesis/init"
 	PlaceholderIBCGenesisExport              = "// this line is used by starport scaffolding # ibc/genesis/export"
 	PlaceholderIBCErrors                     = "// this line is used by starport scaffolding # ibc/errors"
@@ -35,9 +33,6 @@ const (
 	PlaceholderIBCGenesisProto               = "// this line is used by starport scaffolding # ibc/genesis/proto"
 	PlaceholderIBCKeysName                   = "// this line is used by starport scaffolding # ibc/keys/name"
 	PlaceholderIBCKeysPort                   = "// this line is used by starport scaffolding # ibc/keys/port"
-	PlaceholderIBCKeeperAttribute            = "// this line is used by starport scaffolding # ibc/keeper/attribute"
-	PlaceholderIBCKeeperParameter            = "// this line is used by starport scaffolding # ibc/keeper/parameter"
-	PlaceholderIBCKeeperReturn               = "// this line is used by starport scaffolding # ibc/keeper/return"
 	PlaceholderIBCAppScopedKeeperDeclaration = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/declaration"
 	PlaceholderIBCAppScopedKeeperDefinition  = "// this line is used by starport scaffolding # ibc/app/scopedKeeper/definition"
 	PlaceholderIBCAppKeeperArgument          = "// this line is used by starport scaffolding # ibc/app/keeper/argument"
