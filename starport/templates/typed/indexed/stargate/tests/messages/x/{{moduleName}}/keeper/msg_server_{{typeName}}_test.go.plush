@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
     "strconv"
@@ -68,7 +68,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := NewMsgServerImpl(*keeper)
@@ -128,7 +127,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 			srv := NewMsgServerImpl(*keeper)

@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -44,7 +44,6 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 			err:  status.Error(codes.InvalidArgument, "invalid request"),
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			response, err := keeper.<%= TypeName.UpperCamel %>(wctx, tc.request)
 			if tc.err != nil {

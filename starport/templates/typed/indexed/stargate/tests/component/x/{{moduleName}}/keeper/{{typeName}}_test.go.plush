@@ -1,20 +1,20 @@
-package keeper
+package keeper_test
 
 import (
 	"strconv"
 	"testing"
 
+	keepertest "<%= ModulePath %>/testutil/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-    
-	"<%= ModulePath %>/x/<%= ModuleName %>/types"
-	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
-func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= genUniqueArg(index.DatatypeName) %>
