@@ -7,19 +7,20 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/stretchr/testify/require"
 
-    "<%= ModulePath %>/x/<%= ModuleName %>/types"
     keepertest "<%= ModulePath %>/testutil/keeper"
+    "<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
-	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-	srv := NewMsgServerImpl(*keeper)
+	k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	srv := keeper.NewMsgServerImpl(*k)
 	wctx := sdk.WrapSDKContext(ctx)
 	<%= MsgSigner.LowerCamel %> := "A"
 	expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
     _, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
     require.NoError(t, err)
-    rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    rst, found := k.Get<%= TypeName.UpperCamel %>(ctx)
     require.True(t, found)
     require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 }
@@ -43,8 +44,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
-			keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-			srv := NewMsgServerImpl(*keeper)
+			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+			srv := keeper.NewMsgServerImpl(*k)
 			wctx := sdk.WrapSDKContext(ctx)
 			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>}
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
@@ -55,7 +56,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+				rst, found := k.Get<%= TypeName.UpperCamel %>(ctx)
 				require.True(t, found)
 				require.Equal(t, expected.<%= MsgSigner.UpperCamel %>, rst.<%= MsgSigner.UpperCamel %>)
 			}
@@ -82,8 +83,8 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		},
 	} {
 		t.Run(tc.desc, func(t *testing.T) {
-			keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
-			srv := NewMsgServerImpl(*keeper)
+			k, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+			srv := keeper.NewMsgServerImpl(*k)
 			wctx := sdk.WrapSDKContext(ctx)
 
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
@@ -93,7 +94,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 				require.NoError(t, err)
-				_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+				_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
 				require.False(t, found)
 			}
 		})
