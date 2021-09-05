@@ -134,7 +134,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		replacementState := fmt.Sprintf("PortId: types.PortID,\n%s", module.PlaceholderGenesisTestState)
 		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
 
-		replacementAssert := fmt.Sprintf("require.Equal(t, genesisState.PortID, got.PortID)\n%s", module.PlaceholderGenesisTestAssert)
+		replacementAssert := fmt.Sprintf("require.Equal(t, genesisState.PortId, got.PortId)\n%s", module.PlaceholderGenesisTestAssert)
 		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementAssert)
 
 		newFile := genny.NewFileS(path, content)
