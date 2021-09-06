@@ -19,7 +19,7 @@ Starport is written in the Go programming language. To use Starport on a local s
 To verify the version of Starport you have installed, run the following command:
 
 ```sh
-starport --version
+starport version
 ```
 
 ## Installing Starport
