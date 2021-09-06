@@ -10,6 +10,9 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
+	ibckeeper "github.com/cosmos/cosmos-sdk/x/ibc/core/keeper"
+	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -17,6 +20,8 @@ import (
 )
 
 func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) {
+	logger := log.NewNopLogger()
+
 	storeKey := sdk.NewKVStoreKey(types.StoreKey)
 	memStoreKey := storetypes.NewMemoryStoreKey(types.MemStoreKey)
 
@@ -27,16 +32,34 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
+	appCodec := codec.NewProtoCodec(registry)
+	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
+
+	amino := codec.NewLegacyAmino()
+	ss := typesparams.NewSubspace(appCodec,
+		amino,
+		storeKey,
+		memStoreKey,
+		"<%= title(moduleName) %>SubSpace",
+	)
+	IBCKeeper := ibckeeper.NewKeeper(
+		appCodec,
+		storeKey,
+		ss,
+		nil,
+		capabilityKeeper.ScopeToModule("<%= title(moduleName) %>IBCKeeper"),
+	)
+
 	k := keeper.NewKeeper(
         codec.NewProtoCodec(registry),
         storeKey,
         memStoreKey,
-        nil,
-        nil,
-        nil,<%= for (dependency) in dependencies { %>
+		IBCKeeper.ChannelKeeper,
+		&IBCKeeper.PortKeeper,
+        capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>
         nil,<% } %>
     )
 
-	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
+	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, logger)
 	return k, ctx
 }
