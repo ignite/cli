@@ -240,6 +240,9 @@ func GenesisStateFieldCount(path string) (int, error) {
 	if err != nil {
 		return 0, err
 	}
+	if len(pkgs) == 0 {
+		return 0, fmt.Errorf("%s is not a proto file", path)
+	}
 	m, err := pkgs[0].MessageByName(ProtoGenesisStateMessage)
 	if err != nil {
 		return 0, err
