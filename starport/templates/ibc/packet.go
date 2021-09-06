@@ -209,7 +209,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 				content,
 				importModule,
 				path,
-				Placeholder,
+				PlaceholderProtoPacketImport,
 				replacer,
 			)
 		}
@@ -217,11 +217,11 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
-	%[3]v}
+%[3]v}
 
 // %[2]vPacketAck defines a struct for the packet acknowledgment
 message %[2]vPacketAck {
-	%[4]v}
+%[4]v}
 `
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
@@ -291,7 +291,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 				content,
 				importModule,
 				path,
-				Placeholder,
+				PlaceholderProtoTxImport,
 				replacer,
 			)
 		}
