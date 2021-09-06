@@ -35,7 +35,7 @@ func (s *Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	moduleName = mfName.Lowercase
+	moduleName = mfName.LowerCase
 
 	name, err := multiformatname.NewName(queryName)
 	if err != nil {
