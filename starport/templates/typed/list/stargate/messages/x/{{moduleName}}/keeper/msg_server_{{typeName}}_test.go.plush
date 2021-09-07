@@ -1,0 +1,96 @@
+package keeper_test
+
+import (
+	"testing"
+
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+	"github.com/stretchr/testify/require"
+
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
+	srv, ctx := setupMsgServer(t)
+	<%= MsgSigner.LowerCamel %> := "A"
+	for i := 0; i < 5; i++ {
+		resp, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+		require.NoError(t, err)
+		require.Equal(t, i, int(resp.Id))
+	}
+}
+
+func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
+	<%= MsgSigner.LowerCamel %> := "A"
+
+	for _, tc := range []struct {
+		desc    string
+		request *types.MsgUpdate<%= TypeName.UpperCamel %>
+		err     error
+	}{
+		{
+			desc:    "Completed",
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>},
+		},
+		{
+			desc:    "Unauthorized",
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B"},
+			err:     sdkerrors.ErrUnauthorized,
+		},
+		{
+			desc:    "Unauthorized",
+			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>, Id: 10},
+			err:     sdkerrors.ErrKeyNotFound,
+		},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			srv, ctx := setupMsgServer(t)
+			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+			require.NoError(t, err)
+
+			_, err = srv.Update<%= TypeName.UpperCamel %>(ctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}
+
+func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
+	<%= MsgSigner.LowerCamel %> := "A"
+
+	for _, tc := range []struct {
+		desc    string
+		request *types.MsgDelete<%= TypeName.UpperCamel %>
+		err     error
+	}{
+		{
+			desc:    "Completed",
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>},
+		},
+		{
+			desc:    "Unauthorized",
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B"},
+			err:     sdkerrors.ErrUnauthorized,
+		},
+		{
+			desc:    "KeyNotFound",
+			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>, Id: 10},
+			err:     sdkerrors.ErrKeyNotFound,
+		},
+	} {
+		t.Run(tc.desc, func(t *testing.T) {
+			srv, ctx := setupMsgServer(t)
+
+			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
+			require.NoError(t, err)
+			_, err = srv.Delete<%= TypeName.UpperCamel %>(ctx, tc.request)
+			if tc.err != nil {
+				require.ErrorIs(t, err, tc.err)
+			} else {
+				require.NoError(t, err)
+			}
+		})
+	}
+}

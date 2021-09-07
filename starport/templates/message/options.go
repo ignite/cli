@@ -8,6 +8,7 @@ import (
 // Options ...
 type Options struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
