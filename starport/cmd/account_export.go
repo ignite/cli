@@ -19,15 +19,15 @@ func NewAccountExport() *cobra.Command {
 
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountImportExport())
-	c.Flags().String(flagPath, "", "path to export private key. default: ./key_[name]")
+	c.Flags().String(flagAppPath, "", "path to export private key. default: ./key_[name]")
 
 	return c
 }
 
 func accountExportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name    = args[0]
-		path, _ = cmd.Flags().GetString(flagPath)
+		name = args[0]
+		path = flagGetAppPath(cmd)
 	)
 
 	passphrase, err := getPassphrase(cmd)
