@@ -14,6 +14,14 @@ Starport is written in the Go programming language. To use Starport on a local s
 - Install [Go](https://golang.org/doc/install) (**version 1.16** or higher)
 - Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system
 
+## Verify Your Starport Version 
+
+To verify the version of Starport you have installed, run the following command:
+
+```sh
+starport version
+```
+
 ## Installing Starport
 
 To install the latest version of the `starport` binary use the following command.
