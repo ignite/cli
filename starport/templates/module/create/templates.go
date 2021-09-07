@@ -14,6 +14,9 @@ var (
 	//go:embed msgserver/* msgserver/**/*
 	fsMsgServer embed.FS
 
-	//go:embed genesistest/* genesistest/**/*
-	fsGenesisTest embed.FS
+	//go:embed genesistest/module/* genesistest/module/**/*
+	fsGenesisModuleTest embed.FS
+
+	//go:embed genesistest/types/* genesistest/types/**/*
+	fsGenesisTypesTest embed.FS
 )

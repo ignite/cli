@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
@@ -42,7 +42,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
 			_, err := srv.Create<%= TypeName.UpperCamel %>(ctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>})
@@ -81,7 +80,6 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			err:     sdkerrors.ErrKeyNotFound,
 		},
 	} {
-		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 			srv, ctx := setupMsgServer(t)
 
