@@ -23,7 +23,7 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	)
 
 	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(genesisTypeModify(replacer, opts))
+	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
 	g.RunFn(genesisTypesTestsModify(replacer, opts))
@@ -84,7 +84,7 @@ genesis.PortId = k.GetPort(ctx)`
 	}
 }
 
-func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
