@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -31,6 +32,12 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("ResFields", opts.ResFields)
 	ctx.Set("title", strings.Title)
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return err
+	}
+
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
