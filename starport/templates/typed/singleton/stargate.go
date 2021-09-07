@@ -3,10 +3,13 @@ package singleton
 import (
 	"embed"
 	"fmt"
+	"math/rand"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -35,6 +38,8 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
+	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(replacer, opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -219,6 +224,92 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Create a fields
+		sampleFields := ""
+		for _, f := range opts.Fields {
+			switch f.DatatypeName {
+			case field.TypeString:
+				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
+			case field.TypeInt, field.TypeUint:
+				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
+			case field.TypeBool:
+				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
+			}
+		}
+
+		templateState := `%[1]v
+%[2]v: &types.%[2]v{
+		%[3]v},
+`
+		replacementState := fmt.Sprintf(
+			templateState,
+			module.PlaceholderGenesisTestState,
+			opts.TypeName.UpperCamel,
+			sampleFields,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
+
+		templateAssert := `%[1]v
+require.Equal(t, genesisState.%[2]v, got.%[2]v)
+`
+		replacementTests := fmt.Sprintf(
+			templateAssert,
+			module.PlaceholderGenesisTestAssert,
+			opts.TypeName.UpperCamel,
+		)
+		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Create a fields
+		sampleFields := ""
+		for _, f := range opts.Fields {
+			switch f.DatatypeName {
+			case field.TypeString:
+				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
+			case field.TypeInt, field.TypeUint:
+				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
+			case field.TypeBool:
+				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
+			}
+		}
+
+		templateValid := `%[1]v
+%[2]v: &types.%[2]v{
+		%[3]v},
+`
+		replacementValid := fmt.Sprintf(
+			templateValid,
+			module.PlaceholderTypesGenesisValidField,
+			opts.TypeName.UpperCamel,
+			sampleFields,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

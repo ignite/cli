@@ -1,14 +1,16 @@
-package keeper
+package keeper_test
 
 import (
 	"testing"
 
+	keepertest "<%= ModulePath %>/testutil/keeper"
+    "<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
-func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		items[i].Id = keeper.Append<%= TypeName.UpperCamel%>(ctx, items[i])
@@ -17,7 +19,7 @@ func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) [
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		got, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id)
@@ -27,7 +29,7 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.Remove<%= TypeName.UpperCamel %>(ctx, item.Id)
@@ -37,13 +39,13 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	require.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }
 
 func Test<%= TypeName.UpperCamel %>Count(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	count := uint64(len(items))
 	require.Equal(t, count, keeper.Get<%= TypeName.UpperCamel %>Count(ctx))

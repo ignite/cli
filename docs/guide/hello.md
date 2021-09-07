@@ -9,12 +9,12 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 ## Get Started
 
-The first step is to install [Starport](https://docs.starport.network/), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
+In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This tutorial is based on a specific version of Starport, so to install Starport v0.17.1 use the following command:
+This series of tutorials is based on a specific version of Starport, so to install Starport v0.17.3 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.17.1! | bash
+curl https://get.starport.network/starport@v0.17.3! | bash
 ```
 
 Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
@@ -48,16 +48,16 @@ cd hello
 
 The `hello` directory contains a number of generated files and directories that make up the structure of a Cosmos SDK blockchain. Most of the work in this tutorial happens in the `x` directory. Here is a quick overview of files and directories that are created by default:
 
-| File/directory | Purpose                                                                                                                                                                        |
-| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| File/directory | Purpose                                                                                                                                                                 |
+| -------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | app/           | Files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it. |
-| cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                          |
-| docs/          | Directory for project's documentation. By default, an OpenAPI spec is generated.                                                                                                |
-| proto/         | Protocol buffer files describing the data structure>                                                                                                                                             |
-| testutil/      | Helper functions for testing.                                                                                                                                          |
-| vue/           | A Vue 3 web app template.                                                                                                                                             |
-| x/             | Cosmos SDK modules and custom modules.                                                                                                                                                        |
-| config.yml     | A configuration file for customizing a chain in development.                                                                                                                    |
+| cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                            |
+| docs/          | Directory for project's documentation. By default, an OpenAPI spec is generated.                                                                                        |
+| proto/         | Protocol buffer files describing the data structure>                                                                                                                    |
+| testutil/      | Helper functions for testing.                                                                                                                                           |
+| vue/           | A Vue 3 web app template.                                                                                                                                               |
+| x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
+| config.yml     | A configuration file for customizing a chain in development.                                                                                                            |
 
 Now you can get your blockchain up and running locally on a single node.
 
