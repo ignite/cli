@@ -8,18 +8,8 @@ import (
 )
 
 // genesisTestCtx returns the generator to generate genesis_test.go
-func genesisTestCtx(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
-	var (
-		g        = genny.New()
-		template = xgenny.NewEmbedWalker(
-			fsGenesisTest,
-			"genesistest/",
-			appPath,
-		)
-	)
-	if err := g.Box(template); err != nil {
-		return g, err
-	}
+func genesisTestCtx(appName, modulePath, moduleName string) (*genny.Generator, error) {
+	g := genny.New()
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", moduleName)
 	ctx.Set("modulePath", modulePath)
@@ -32,18 +22,28 @@ func genesisTestCtx(appPath, appName, modulePath, moduleName string) (*genny.Gen
 
 // AddGenesisModuleTest returns the generator to generate genesis_test.go
 func AddGenesisModuleTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
-	g, err := genesisTestCtx(appPath, appName, modulePath, moduleName)
+	g, err := genesisTestCtx(appName, modulePath, moduleName)
 	if err != nil {
 		return g, err
 	}
-	return g, g.Box(genesisModuleTestTemplate)
+
+	return g, g.Box(xgenny.NewEmbedWalker(
+		fsGenesisModuleTest,
+		"genesistest/module/",
+		appPath,
+	))
 }
 
 // AddGenesisTypesTest returns the generator to generate types/genesis_test.go
 func AddGenesisTypesTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
-	g, err := genesisTestCtx(appPath, appName, modulePath, moduleName)
+	g, err := genesisTestCtx(appName, modulePath, moduleName)
 	if err != nil {
 		return g, err
 	}
-	return g, g.Box(genesisTypesTestTemplate)
+
+	return g, g.Box(xgenny.NewEmbedWalker(
+		fsGenesisTypesTest,
+		"genesistest/types/",
+		appPath,
+	))
 }

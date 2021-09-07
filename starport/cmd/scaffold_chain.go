@@ -46,7 +46,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appdir, err := sc.Init(placeholder.New(), name, appPath, noDefaultModule)
+	appdir, err := sc.Init(placeholder.New(), name, noDefaultModule)
 	if err != nil {
 		return err
 	}
