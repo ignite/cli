@@ -2,7 +2,7 @@ package cli
 
 import (
     "strconv"
-	<%= if (Fields.NeedJSONImport()) { %> "encoding/json" <% } %>
+	<%= if (Fields.IsComplex()) { %> "encoding/json" <% } %>
 
 	<%= if (Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
@@ -17,7 +17,7 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= MsgName.Kebab %><%= Fields.Args() %>",
+		Use:   "<%= MsgName.Kebab %><%= Fields.String() %>",
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {

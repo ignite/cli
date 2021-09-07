@@ -17,10 +17,6 @@ const (
 	TypeInt32  = "int32"
 	TypeUint   = "uint"
 	TypeUint64 = "uint64"
-	TypeUint   = "uint"
-
-	FolderX     = "x"
-	FolderTypes = "types"
 
 	TypeSeparator = ":"
 )
@@ -168,9 +164,9 @@ func (f Fields) NeedCastImport() bool {
 	return false
 }
 
-// NeedJSONImport return true if the field slice
+// IsComplex return true if the field slice
 // needs import the json library
-func (f Fields) NeedJSONImport() bool {
+func (f Fields) IsComplex() bool {
 	for _, field := range f {
 		if field.DatatypeName == TypeCustom {
 			return true
@@ -179,8 +175,8 @@ func (f Fields) NeedJSONImport() bool {
 	return false
 }
 
-// Args return all inline fields args for command usage
-func (f Fields) Args() string {
+// String return all inline fields args for command usage
+func (f Fields) String() string {
 	args := ""
 	for _, field := range f {
 		args += fmt.Sprintf(" [%s]", field.Name.Kebab)

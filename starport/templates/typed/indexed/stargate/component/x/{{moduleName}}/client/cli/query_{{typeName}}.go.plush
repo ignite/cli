@@ -2,7 +2,7 @@ package cli
 
 import (
     "context"
-	<%= if (Indexes.NeedJSONImport()) { %> "encoding/json" <% } %>
+	<%= if (Indexes.IsComplex()) { %> "encoding/json" <% } %>
 
 	<%= if (Indexes.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
     "github.com/spf13/cobra"
@@ -47,7 +47,7 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-<%= TypeName.Kebab %><%= Indexes.Args() %>",
+		Use:   "show-<%= TypeName.Kebab %><%= Indexes.String() %>",
 		Short: "shows a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {

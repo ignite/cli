@@ -1,7 +1,7 @@
 package cli
 
 import (
-	<%= if (Fields.NeedJSONImport()) { %> "encoding/json" <% } %>
+	<%= if (Fields.IsComplex()) { %> "encoding/json" <% } %>
     "strconv"
 
 	"github.com/spf13/cobra"
@@ -15,7 +15,7 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= Fields.Args() %>",
+		Use:   "create-<%= TypeName.Kebab %><%= Fields.String() %>",
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -41,7 +41,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %> [id]<%= Fields.Args() %>",
+		Use:   "update-<%= TypeName.Kebab %> [id]<%= Fields.String() %>",
 		Short: "Update a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
