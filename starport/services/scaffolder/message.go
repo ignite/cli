@@ -103,6 +103,7 @@ func (s *Scaffolder) AddMessage(
 		g    *genny.Generator
 		opts = &message.Options{
 			AppName:    path.Package,
+			AppPath:    s.path,
 			ModulePath: path.RawPath,
 			ModuleName: moduleName,
 			OwnerName:  owner(path.RawPath),

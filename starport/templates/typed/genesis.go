@@ -14,6 +14,7 @@ func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Optio
 	g.RunFn(t.genesisTypesModify(replacer, opts))
 	g.RunFn(t.genesisModuleModify(replacer, opts))
 	g.RunFn(t.genesisTestsModify(replacer, opts))
+	g.RunFn(t.genesisTypesTestsModify(replacer, opts))
 }
 
 func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
@@ -149,6 +150,48 @@ genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 }
 
 func (t *typedStargate) genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		templateState := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		Id: 0,
+	},
+	{
+		Id: 1,
+	},
+},
+%[2]vCount: 2,`
+		replacementValid := fmt.Sprintf(
+			templateState,
+			module.PlaceholderGenesisTestState,
+			opts.TypeName.UpperCamel,
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementValid)
+
+		templateAssert := `%[1]v
+require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
+require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
+require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
+`
+		replacementTests := fmt.Sprintf(
+			templateAssert,
+			module.PlaceholderGenesisTestAssert,
+			opts.TypeName.UpperCamel,
+		)
+		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func (t *typedStargate) genesisTypesTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)

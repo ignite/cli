@@ -37,4 +37,6 @@ const (
 	// Genesis test
 	PlaceholderTypesGenesisTestcase   = "// this line is used by starport scaffolding # types/genesis/testcase"
 	PlaceholderTypesGenesisValidField = "// this line is used by starport scaffolding # types/genesis/validField"
+	PlaceholderGenesisTestState       = "// this line is used by starport scaffolding # genesis/test/state"
+	PlaceholderGenesisTestAssert      = "// this line is used by starport scaffolding # genesis/test/assert"
 )

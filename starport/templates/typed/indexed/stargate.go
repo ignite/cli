@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -46,7 +47,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	// because the we can't generate reliable tests for this type
 	var generateTest bool
 	for _, index := range opts.Indexes {
-		if index.DatatypeName != "bool" {
+		if index.DatatypeName != field.TypeBool {
 			generateTest = true
 		}
 	}
@@ -60,6 +61,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(replacer, opts))
 
 	// Modifications for new messages
 	if !opts.NoMessage {
@@ -362,6 +364,62 @@ genesis.%[3]vList = k.GetAll%[3]v(ctx)
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
+		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Create a list of two different indexes to use as sample
+		sampleIndexes := make([]string, 2)
+		for i := 0; i < 2; i++ {
+			for _, index := range opts.Indexes {
+				switch index.DatatypeName {
+				case field.TypeString:
+					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
+				case field.TypeInt, field.TypeUint:
+					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
+				case field.TypeBool:
+					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i%2 == 0)
+				}
+			}
+		}
+
+		templateState := `%[1]v
+%[2]vList: []types.%[2]v{
+	{
+		%[3]v},
+	{
+		%[4]v},
+},
+`
+		replacementState := fmt.Sprintf(
+			templateState,
+			module.PlaceholderGenesisTestState,
+			opts.TypeName.UpperCamel,
+			sampleIndexes[0],
+			sampleIndexes[1],
+		)
+		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
+
+		templateAssert := `%[1]v
+require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
+require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
+`
+		replacementTests := fmt.Sprintf(
+			templateAssert,
+			module.PlaceholderGenesisTestAssert,
+			opts.TypeName.UpperCamel,
+		)
+		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementTests)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
 		if err != nil {
@@ -373,11 +431,11 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
 				switch index.DatatypeName {
-				case "string":
+				case field.TypeString:
 					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
-				case "int", "uint":
+				case field.TypeInt, field.TypeUint:
 					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
-				case "bool":
+				case field.TypeBool:
 					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i != 0)
 				}
 			}

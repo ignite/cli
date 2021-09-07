@@ -15,6 +15,7 @@ const (
 	TypeBool   = "bool"
 	TypeInt    = "int"
 	TypeInt32  = "int32"
+	TypeUint   = "uint"
 	TypeUint64 = "uint64"
 	TypeUint   = "uint"
 
