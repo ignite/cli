@@ -6,7 +6,7 @@ description: Learn module basics by writing and reading blog posts to your chain
 
 # Build a Blog
 
-In this tutorial you will learn how to create a blockchain with a module that let's you write to and read data from the blockchain. This module will implement create and read functionality for a blog-like application. A user will be able to submit new blog posts and show a list of blog posts on the blockchain.
+In this tutorial, you will learn how to create a blockchain with a module that lets you write to and read data from the blockchain. This module will implement create and read functionalities for a blog-like application. A user will be able to submit new blog posts and show a list of blog posts on the blockchain.
 
 The purpose of this tutorial is to guide you through the imlementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
 
