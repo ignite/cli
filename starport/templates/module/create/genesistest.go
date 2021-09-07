@@ -6,12 +6,8 @@ import (
 	"github.com/gobuffalo/plushgen"
 )
 
-// AddGenesisTest returns the generator to generate genesis_test.go
-func AddGenesisTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
+func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
 	g := genny.New()
-	if err := g.Box(genesisTestTemplate); err != nil {
-		return g, err
-	}
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", moduleName)
 	ctx.Set("modulePath", modulePath)
@@ -19,5 +15,17 @@ func AddGenesisTest(appName, modulePath, moduleName string) (*genny.Generator, e
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
-	return g, nil
+	return g
+}
+
+// AddGenesisModuleTest returns the generator to generate genesis_test.go
+func AddGenesisModuleTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
+	g := genesisTestCtx(appName, modulePath, moduleName)
+	return g, g.Box(genesisModuleTestTemplate)
+}
+
+// AddGenesisTypesTest returns the generator to generate types/genesis_test.go
+func AddGenesisTypesTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
+	g := genesisTestCtx(appName, modulePath, moduleName)
+	return g, g.Box(genesisTypesTestTemplate)
 }
