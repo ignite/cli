@@ -136,7 +136,7 @@ import "%s/%s.proto";`
 				content,
 				importModule,
 				path,
-				PlaceholderProtoTxImport,
+				typed.PlaceholderProtoTxImport,
 				replacer,
 			)
 		}
