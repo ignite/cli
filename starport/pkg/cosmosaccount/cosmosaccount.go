@@ -101,7 +101,7 @@ func (a Account) PubKey(accPrefix string) string {
 	return o.PubKey
 }
 
-// EnsureDefaultAccount ensures that default account exist.
+// EnsureDefaultAccount ensures that default account exists.
 func (r Registry) EnsureDefaultAccount() error {
 	_, err := r.GetByName(DefaultAccount)
 
