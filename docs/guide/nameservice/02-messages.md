@@ -35,15 +35,18 @@ type Msg interface {
 
 The `Msg` type extends `proto.Message` and contains three legacy methods (`Type`, `Route`, and `GetSignBytes`) and these methods:
 
-- `ValidateBasic` is called early in the processing of the message to discard obviously invalid messages. `ValidateBasic` includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a positive value.
+- `ValidateBasic` 
+	- Called early in the processing of the message to discard obviously invalid messages. 
+	- Includes only checks that do not require access to the state. For example, check that the `amount` of tokens is a positive value.
 
-- `GetSigners` returns the list of signers. The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that is returned by this method.
+- `GetSigners` 
+	Returns the list of signers. The Cosmos SDK ensures that each message contained in a transaction is signed by all the signers in the list that is returned by this method.
 
 ## Handlers
 
 Handlers define the action that needs to be taken. For example, which stores to update, how to update, and under what conditions to act when a given `Msg` is received.
 
-In your `nameservice` module, three types of `Msgs` can be sent to interact with the application state:
+In your `nameservice` module, end users can send three types of messages (`Msgs`) to interact with the application state:
 
 - `BuyName` 
 - `SetName`
@@ -55,13 +58,16 @@ Each message has an associated `Handler`.
 
 You must implement these three messages to achieve the desired functionality for your nameservice app:
 
-- `MsgBuyName`: Allow accounts to buy a name and become its owner. When an end user buys a name, they are required to pay the previous owner of the name a price higher than the price the previous owner paid for it. If a name does not have a previous owner yet, the end user must burn a `MinPrice` amount.
-- `MsgSetName`: Allow name owners to set a value for a given name.
-- `MsgDeleteName`: Allow name owners to delete names that belong to them.
+- `MsgBuyName`
+	Allow accounts to buy a name and become its owner. When an end user buys a name, they are required to pay the previous owner of the name a price higher than the price the previous owner paid for it. If a name does not have a previous owner yet, the end user must burn a `MinPrice` amount.
+- `MsgSetName`
+	Allow name owners to set a value for a given name.
+- `MsgDeleteName`
+	Allow name owners to delete names that belong to them.
 
 Use the `starport scaffold message` command to scaffold a new Cosmos SDK message for your module. 
 
-The [starport scaffold message](https://docs.starport.network/cli/#starport-scaffold-message) command accepts message name as the first argument and a list of fields. By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
+The [starport scaffold message](https://docs.starport.network/cli/#starport-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
 
 ### Add The MsgBuyName Message
 
