@@ -3,7 +3,7 @@ description: Blockchain Client in Go
 order: 10
 ---
 
-# Connect to Blockchain with RPC
+# Creating a Blockchain Client in Go
 
 **Learn how to connect your Blockchain to an independent application with RPC**
 
