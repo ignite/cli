@@ -1,19 +1,20 @@
-package keeper
+package keeper_test
 
 import (
 	"strconv"
 	"testing"
 
+	keepertest "<%= ModulePath %>/testutil/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-    
-	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
-func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
 		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= genUniqueArg(index.DatatypeName) %>
@@ -24,7 +25,7 @@ func createN<%= TypeName.UpperCamel %>(keeper *Keeper, ctx sdk.Context, n int) [
 }
 
 func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
@@ -36,7 +37,7 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	}
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	for _, item := range items {
 		keeper.Remove<%= TypeName.UpperCamel %>(ctx,
@@ -52,7 +53,7 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 }
 
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
-	keeper, ctx := setupKeeper(t)
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	require.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }

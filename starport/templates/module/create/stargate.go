@@ -18,7 +18,10 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}
-	if err := g.Box(genesisTestTemplate); err != nil {
+	if err := g.Box(genesisModuleTestTemplate); err != nil {
+		return g, err
+	}
+	if err := g.Box(genesisTypesTestTemplate); err != nil {
 		return g, err
 	}
 	if err := g.Box(stargateTemplate); err != nil {
