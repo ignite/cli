@@ -1,5 +1,6 @@
 ---
 order: 3
+description: Implement types and methods that operate on the state.
 ---
 
 # Implement Types That Operate On The State
