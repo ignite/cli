@@ -1,7 +1,6 @@
 package typed
 
 import (
-	"embed"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -11,14 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/testutil"
-)
-
-var (
-	//go:embed stargate/component/* stargate/component/**/*
-	fsStargateComponent embed.FS
-
-	//go:embed stargate/messages/* stargate/messages/**/*
-	fsStargateMessages embed.FS
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
