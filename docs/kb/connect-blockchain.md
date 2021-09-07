@@ -1,5 +1,5 @@
 ---
-description: Connect to Blockchain with RPC
+description: Blockchain Client in Go
 order: 10
 ---
 
