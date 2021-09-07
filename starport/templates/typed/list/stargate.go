@@ -1,6 +1,7 @@
-package typed
+package list
 
 import (
+	"embed"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -8,43 +9,55 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
-type typedStargate struct {
-}
+var (
+	//go:embed stargate/component/* stargate/component/**/*
+	fsStargateComponent embed.FS
+
+	//go:embed stargate/messages/* stargate/messages/**/*
+	fsStargateMessages embed.FS
+
+	// stargateComponentTemplate is the template for a Stargate module type component
+	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
+
+	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
+	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
+)
 
 // NewStargate returns the generator to scaffold a new type in a Stargate module
-func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	t := typedStargate{}
+func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	g := genny.New()
 
-	g.RunFn(t.protoQueryModify(replacer, opts))
-	g.RunFn(t.moduleGRPCGatewayModify(replacer, opts))
-	g.RunFn(t.typesKeyModify(opts))
-	g.RunFn(t.clientCliQueryModify(replacer, opts))
+	g.RunFn(protoQueryModify(replacer, opts))
+	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
+	g.RunFn(typesKeyModify(opts))
+	g.RunFn(clientCliQueryModify(replacer, opts))
 
 	// Genesis modifications
-	t.genesisModify(replacer, opts, g)
+	genesisModify(replacer, opts, g)
 
 	if !opts.NoMessage {
 		// Modifications for new messages
-		g.RunFn(t.handlerModify(replacer, opts))
-		g.RunFn(t.protoTxModify(replacer, opts))
-		g.RunFn(t.typesCodecModify(replacer, opts))
-		g.RunFn(t.clientCliTxModify(replacer, opts))
+		g.RunFn(handlerModify(replacer, opts))
+		g.RunFn(protoTxModify(replacer, opts))
+		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(clientCliTxModify(replacer, opts))
 
 		// Messages template
-		if err := Box(stargateMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(stargateMessagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
-	g.RunFn(t.frontendSrcStoreAppModify(replacer, opts))
+	g.RunFn(frontendSrcStoreAppModify(replacer, opts))
 
-	return g, Box(stargateComponentTemplate, opts, g)
+	return g, typed.Box(stargateComponentTemplate, opts, g)
 }
 
-func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -54,7 +67,7 @@ func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Optio
 
 		// Set once the MsgServer definition if it is not defined yet
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
-		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
+		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
 
 		templateHandlers := `%[1]v
 		case *types.MsgCreate%[2]v:
@@ -70,16 +83,16 @@ func (t *typedStargate) handlerModify(replacer placeholder.Replacer, opts *Optio
 					return sdk.WrapServiceResult(ctx, res, err)
 `
 		replacementHandlers := fmt.Sprintf(templateHandlers,
-			Placeholder,
+			typed.Placeholder,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, Placeholder, replacementHandlers)
+		content = replacer.Replace(content, typed.Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) protoTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -90,21 +103,21 @@ func (t *typedStargate) protoTxModify(replacer placeholder.Replacer, opts *Optio
 		// Import
 		templateImport := `%s
 import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport,
+		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 		)
-		content := replacer.Replace(f.String(), PlaceholderProtoTxImport, replacementImport)
+		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 
 		// RPC service
 		templateRPC := `%[1]v
   rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
   rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
-		replacementRPC := fmt.Sprintf(templateRPC, PlaceholderProtoTxRPC,
+		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
+		content = replacer.Replace(content, typed.PlaceholderProtoTxRPC, replacementRPC)
 
 		// Messages
 		var createFields string
@@ -151,20 +164,20 @@ message MsgDelete%[2]v {
 
 message MsgDelete%[2]vResponse {}
 `
-		replacementMessages := fmt.Sprintf(templateMessages, PlaceholderProtoTxMessage,
+		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
 			opts.MsgSigner.LowerCamel,
 			createFields,
 			updateFields,
 		)
-		content = replacer.Replace(content, PlaceholderProtoTxMessage, replacementMessages)
+		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func protoQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -175,14 +188,14 @@ func (t *typedStargate) protoQueryModify(replacer placeholder.Replacer, opts *Op
 		// Import
 		templateImport := `%s
 import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, Placeholder,
+		replacementImport := fmt.Sprintf(templateImport, typed.Placeholder,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 		)
-		content := replacer.Replace(f.String(), Placeholder, replacementImport)
+		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = EnsureGogoProtoImported(content, path, Placeholder, replacer)
+		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
 
 		// RPC service
 		templateRPC := `%[1]v
@@ -197,14 +210,14 @@ import "%s/%s.proto";`
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
 `
-		replacementRPC := fmt.Sprintf(templateRPC, Placeholder2,
+		replacementRPC := fmt.Sprintf(templateRPC, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
 		)
-		content = replacer.Replace(content, Placeholder2, replacementRPC)
+		content = replacer.Replace(content, typed.Placeholder2, replacementRPC)
 
 		// Messages
 		templateMessages := `%[1]v
@@ -224,18 +237,18 @@ message QueryAll%[2]vResponse {
 	repeated %[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }`
-		replacementMessages := fmt.Sprintf(templateMessages, Placeholder3,
+		replacementMessages := fmt.Sprintf(templateMessages, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
 		)
-		content = replacer.Replace(content, Placeholder3, replacementMessages)
+		content = replacer.Replace(content, typed.Placeholder3, replacementMessages)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -243,15 +256,15 @@ func (t *typedStargate) moduleGRPCGatewayModify(replacer placeholder.Replacer, o
 			return err
 		}
 		replacement := `"context"`
-		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
+		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacement)
 		replacement = `types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))`
-		content = replacer.ReplaceOnce(content, Placeholder2, replacement)
+		content = replacer.ReplaceOnce(content, typed.Placeholder2, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) typesKeyModify(opts *Options) genny.RunFn {
+func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -269,7 +282,7 @@ const (
 	}
 }
 
-func (t *typedStargate) typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -279,7 +292,7 @@ func (t *typedStargate) typesCodecModify(replacer placeholder.Replacer, opts *Op
 
 		// Import
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
-		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
+		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacementImport)
 
 		// Concrete
 		templateConcrete := `%[1]v
@@ -287,8 +300,8 @@ cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 `
-		replacementConcrete := fmt.Sprintf(templateConcrete, Placeholder2, opts.TypeName.UpperCamel, opts.ModuleName)
-		content = replacer.Replace(content, Placeholder2, replacementConcrete)
+		replacementConcrete := fmt.Sprintf(templateConcrete, typed.Placeholder2, opts.TypeName.UpperCamel, opts.ModuleName)
+		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
 		templateInterface := `%[1]v
@@ -297,15 +310,15 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
 )`
-		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, opts.TypeName.UpperCamel)
-		content = replacer.Replace(content, Placeholder3, replacementInterface)
+		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, opts.TypeName.UpperCamel)
+		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -318,14 +331,14 @@ func (t *typedStargate) clientCliTxModify(replacer placeholder.Replacer, opts *O
 	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
 `
-		replacement := fmt.Sprintf(template, Placeholder, opts.TypeName.UpperCamel)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
+		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) clientCliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -337,16 +350,16 @@ func (t *typedStargate) clientCliQueryModify(replacer placeholder.Replacer, opts
 	cmd.AddCommand(CmdList%[2]v())
 	cmd.AddCommand(CmdShow%[2]v())
 `
-		replacement := fmt.Sprintf(template, Placeholder,
+		replacement := fmt.Sprintf(template, typed.Placeholder,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), Placeholder, replacement)
+		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func frontendSrcStoreAppModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := "vue/src/views/Types.vue"
 		f, err := r.Disk.Find(path)
@@ -359,13 +372,13 @@ func (t *typedStargate) frontendSrcStoreAppModify(replacer placeholder.Replacer,
 		}
 		replacement := fmt.Sprintf(`%[1]v
 		<SpType modulePath="%[2]v.%[3]v.%[4]v" moduleType="%[5]v"  />`,
-			Placeholder4,
+			typed.Placeholder4,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), Placeholder4, replacement)
+		content := replacer.Replace(f.String(), typed.Placeholder4, replacement)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

@@ -9,10 +9,10 @@ import (
 )
 
 func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
-	var (
-		env  = newEnv(t)
-		path = env.Scaffold("blog")
-	)
+var (
+	env  = newEnv(t)
+	path = env.Scaffold("blog")
+)
 
 	env.Must(env.Exec("create a list",
 		step.NewSteps(step.New(
