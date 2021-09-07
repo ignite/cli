@@ -5,7 +5,7 @@ description: Steps to install Starport on your local computer.
 
 # Install Starport
 
-You can run Starport in a web-based Gitpod IDE or you can install Starport on your local computer running GNU/Linux, macOS or WSL.
+You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer running GNU/Linux, macOS or Windows (with WSL).
 
 ## Prerequisite
 

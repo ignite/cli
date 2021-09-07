@@ -6,22 +6,17 @@ description: Learn module basics by writing and reading blog posts to your chain
 
 # Build a Blog
 
-Learn module basics by building a blockchain app to write and read blog posts.
+In this tutorial, you create a blockchain with a module that lets you write to and read data from the blockchain. This module implements create and read functionalities for a blog-like application. The end user will be able to submit new blog posts and show a list of blog posts on the blockchain.
 
-By completing this tutorial, you will:
+> The purpose of this tutorial is to guide you through the imlementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
 
-* Write and read blog posts to your chain
-* Scaffold a Cosmos SDK message
-* Define new types in protocol buffer files
-* Write keeper methods to write data to the store
-* Read data from the store and return it as a result a query
-* Use the blockchain's CLI to broadcast transactions
+By completing this tutorial, you will learn about:
 
-### Prerequisite
-
-To complete this tutorial, you will need:
-
-- A supported version of Starport. This tutorial is verified for Starport 0.17.2. See [Install Starport](./install.md).
+* Scaffolding a Cosmos SDK message
+* Defining new types in protocol buffer files
+* Implementing keeper methods to write data to the store
+* Reading data from the store and return it as a result of a query
+* Using the blockchain's CLI to broadcast transactions and query the blockchain
 
 ## Create Your Blog Chain
 
