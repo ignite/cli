@@ -59,6 +59,7 @@ func scaffoldType(
 		moduleName     = flagGetModule(cmd)
 		withoutMessage = flagGetNoMessage(cmd)
 		signer         = flagGetSigner(cmd)
+		appPath        = flagGetAppPath(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption

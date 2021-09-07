@@ -17,7 +17,7 @@ func NewScaffoldFlutter() *cobra.Command {
 		RunE:  scaffoldFlutterHandler,
 	}
 
-	c.Flags().StringP(flagPath, "p", "./flutter", "path to scaffold content of the Flutter app")
+	c.Flags().StringP(flagAppPath, "p", "./flutter", "path to scaffold content of the Flutter app")
 
 	return c
 }
@@ -26,8 +26,7 @@ func scaffoldFlutterHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path, _ := cmd.Flags().GetString(flagPath)
-
+	path := flagGetAppPath(cmd)
 	if err := scaffolder.Flutter(path); err != nil {
 		return err
 	}

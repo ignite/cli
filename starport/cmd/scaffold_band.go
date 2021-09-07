@@ -30,7 +30,12 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	oracle := args[0]
+	var (
+		oracle  = args[0]
+		appPath = flagGetAppPath(cmd)
+		signer  = flagGetSigner(cmd)
+	)
+
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
 		return err
@@ -38,8 +43,6 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	if module == "" {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
-
-	signer := flagGetSigner(cmd)
 
 	var options []scaffolder.OracleOption
 	if signer != "" {

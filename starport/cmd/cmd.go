@@ -30,11 +30,7 @@ const (
 	checkVersionTimeout = time.Millisecond * 600
 )
 
-var (
-	appPath string
-
-	infoColor = color.New(color.FgYellow).SprintFunc()
-)
+var infoColor = color.New(color.FgYellow).SprintFunc()
 
 // New creates a new root command for `starport` with its sub commands.
 func New(ctx context.Context) *cobra.Command {
@@ -94,7 +90,12 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 }
 
 func flagSetAppPath(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringVarP(&appPath, flagAppPath, "p", ".", "path to the app")
+	cmd.PersistentFlags().StringP(flagAppPath, "p", ".", "path to the app")
+}
+
+func flagGetAppPath(cmd *cobra.Command) (path string) {
+	path, _ = cmd.Flags().GetString(flagAppPath)
+	return
 }
 
 func flagSetHome() *flag.FlagSet {
@@ -125,18 +126,19 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	return isEnabled
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...chain.Option) (*chain.Chain, error) {
+func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHomeFlag(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
 
-	appPath, err := filepath.Abs(appPath)
+	appPath := flagGetAppPath(cmd)
+	absPath, err := filepath.Abs(appPath)
 	if err != nil {
 		return nil, err
 	}
 
-	return chain.New(appPath, chainOption...)
+	return chain.New(absPath, chainOption...)
 }
 
 func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {

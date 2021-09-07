@@ -42,9 +42,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	var options []scaffolder.ModuleCreationOption
+	var (
+		options []scaffolder.ModuleCreationOption
 
-	name := args[0]
+		name    = args[0]
+		appPath = flagGetAppPath(cmd)
+	)
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {

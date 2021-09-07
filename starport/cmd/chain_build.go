@@ -45,9 +45,11 @@ Sample usages:
 }
 
 func chainBuildHandler(cmd *cobra.Command, args []string) error {
-	isRelease, _ := cmd.Flags().GetBool(flagRelease)
-	releaseTargets, _ := cmd.Flags().GetStringSlice(flagReleaseTargets)
-	releasePrefix, _ := cmd.Flags().GetString(flagReleasePrefix)
+	var (
+		isRelease, _      = cmd.Flags().GetBool(flagRelease)
+		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
+		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
+	)
 
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
@@ -58,7 +60,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

@@ -35,6 +35,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name               = args[0]
 		addressPrefix, _   = cmd.Flags().GetString(flagAddressPrefix)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
+		appPath            = flagGetAppPath(cmd)
 	)
 
 	sc, err := scaffolder.New(
