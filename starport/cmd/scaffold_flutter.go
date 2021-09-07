@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
@@ -17,8 +18,6 @@ func NewScaffoldFlutter() *cobra.Command {
 		RunE:  scaffoldFlutterHandler,
 	}
 
-	c.Flags().StringP(flagAppPath, "p", "./flutter", "path to scaffold content of the Flutter app")
-
 	return c
 }
 
@@ -26,7 +25,7 @@ func scaffoldFlutterHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path := flagGetAppPath(cmd)
+	path := filepath.Join(flagGetAppPath(cmd), "flutter")
 	if err := scaffolder.Flutter(path); err != nil {
 		return err
 	}
