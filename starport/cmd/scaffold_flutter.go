@@ -25,7 +25,7 @@ func scaffoldFlutterHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path := filepath.Join(flagGetAppPath(cmd), "flutter")
+	path := filepath.Join(flagGetPath(cmd), "flutter")
 	if err := scaffolder.Flutter(path); err != nil {
 		return err
 	}

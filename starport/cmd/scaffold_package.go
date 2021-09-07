@@ -39,7 +39,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	var (
 		packet       = args[0]
 		packetFields = args[1:]
-		appPath      = flagGetAppPath(cmd)
+		appPath      = flagGetPath(cmd)
 		signer       = flagGetSigner(cmd)
 	)
 

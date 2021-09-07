@@ -46,7 +46,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		options []scaffolder.ModuleCreationOption
 
 		name    = args[0]
-		appPath = flagGetAppPath(cmd)
+		appPath = flagGetPath(cmd)
 	)
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)

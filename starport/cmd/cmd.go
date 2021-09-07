@@ -23,7 +23,7 @@ import (
 )
 
 const (
-	flagAppPath       = "path"
+	flagPath          = "path"
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 
@@ -89,12 +89,12 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 	}
 }
 
-func flagSetAppPath(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringP(flagAppPath, "p", ".", "sets the working directory for the command")
+func flagSetPath(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringP(flagPath, "p", ".", "sets the working directory for the command")
 }
 
-func flagGetAppPath(cmd *cobra.Command) (path string) {
-	path, _ = cmd.Flags().GetString(flagAppPath)
+func flagGetPath(cmd *cobra.Command) (path string) {
+	path, _ = cmd.Flags().GetString(flagPath)
 	return
 }
 
@@ -132,7 +132,7 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
 
-	appPath := flagGetAppPath(cmd)
+	appPath := flagGetPath(cmd)
 	absPath, err := filepath.Abs(appPath)
 	if err != nil {
 		return nil, err

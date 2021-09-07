@@ -61,7 +61,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appPath := flagGetAppPath(cmd)
+	appPath := flagGetPath(cmd)
 	sc, err := scaffolder.New(appPath)
 	if err != nil {
 		return err

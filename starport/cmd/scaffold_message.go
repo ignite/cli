@@ -37,7 +37,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
 		desc, _      = cmd.Flags().GetString(flagDescription)
 		signer       = flagGetSigner(cmd)
-		appPath      = flagGetAppPath(cmd)
+		appPath      = flagGetPath(cmd)
 	)
 
 	var options []scaffolder.MessageOption

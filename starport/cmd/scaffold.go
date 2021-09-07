@@ -30,7 +30,7 @@ CRUD stands for "create, read, update, delete".`,
 		Args:    cobra.ExactArgs(1),
 	}
 
-	flagSetAppPath(c)
+	flagSetPath(c)
 	c.AddCommand(NewScaffoldChain())
 	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewScaffoldList())
@@ -59,7 +59,7 @@ func scaffoldType(
 		moduleName     = flagGetModule(cmd)
 		withoutMessage = flagGetNoMessage(cmd)
 		signer         = flagGetSigner(cmd)
-		appPath        = flagGetAppPath(cmd)
+		appPath        = flagGetPath(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption

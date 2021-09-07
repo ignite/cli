@@ -32,7 +32,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	var (
 		oracle  = args[0]
-		appPath = flagGetAppPath(cmd)
+		appPath = flagGetPath(cmd)
 		signer  = flagGetSigner(cmd)
 	)
 

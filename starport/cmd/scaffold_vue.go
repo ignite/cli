@@ -17,7 +17,7 @@ func NewScaffoldVue() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  scaffoldVueHandler,
 	}
-	
+
 	return c
 }
 
@@ -25,7 +25,7 @@ func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path := filepath.Join(flagGetAppPath(cmd), "vue")
+	path := filepath.Join(flagGetPath(cmd), "vue")
 	if err := scaffolder.Vue(path); err != nil {
 		return err
 	}
