@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/tendermint/starport/starport/templates/typed/list"
 )
 
 var (
@@ -213,7 +214,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := typed.PatchGenesisTypeImport(replacer, f.String())
+		content := list.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesDefault := `%[1]v
 %[2]v: nil,`
