@@ -19,10 +19,14 @@ Use the `starport scaffold map` command to scaffold the `whois` type and the cod
 starport scaffold map whois name value price --no-message
 ```
 
-`starport scaffold map` created and mofidied several files:
+The `starport scaffold map` command created and modified several files:
 
-* `proto/nameservice/whois.proto`: the `Whois` type defined as a proto message.
-* `proto/nameservice/query.proto`: queries to get data from the blockchain defined as proto messages and registered in the `Query` service.
+* `proto/nameservice/whois.proto`
+    Defines the `Whois` type as a proto message.
+* `proto/nameservice/query.proto`
+    * Queries to get data from the blockchain. 
+    * Define queries as proto messages.
+    * Register the messages in the `Query` service.
 * `proto/nameservice/genesis.proto`: a type for exporting the state of the blockchain (for example, during software upgrades)
 * `x/nameservice/keeper/grpc_query_whois.go`: keeper methods to query the blockchain.
 * `x/nameservice/keeper/grpc_query_whois_test.go`: tests for query keeper methods.
