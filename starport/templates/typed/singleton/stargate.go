@@ -185,7 +185,7 @@ import "%[2]v/%[3]v.proto";`
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Parse proto file to determine the field numbers
-		count, err := typed.GenesisStateFieldCount(path)
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
 		if err != nil {
 			return err
 		}
@@ -197,7 +197,7 @@ import "%[2]v/%[3]v.proto";`
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			count+1,
+			highestNumber+1,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 

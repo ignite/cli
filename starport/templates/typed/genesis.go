@@ -43,7 +43,7 @@ import "%[2]v/%[3]v.proto";`
 		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
 
 		// Parse proto file to determine the field numbers
-		count, err := GenesisStateFieldCount(path)
+		highestNumber, err := GenesisStateHighestFieldNumber(path)
 		if err != nil {
 			return err
 		}
@@ -56,8 +56,8 @@ import "%[2]v/%[3]v.proto";`
 			PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			count+1,
-			count+2,
+			highestNumber+1,
+			highestNumber+2,
 		)
 		content = replacer.Replace(content, PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -277,8 +277,9 @@ func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) strin
 	return content
 }
 
-// GenesisStateFieldCount returns the count of field in the genesis state proto message to determine the field numbers
-func GenesisStateFieldCount(path string) (int, error) {
+// GenesisStateHighestFieldNumber returns the highest field number in the genesis state proto message
+// This allows to determine next the field numbers
+func GenesisStateHighestFieldNumber(path string) (int, error) {
 	pkgs, err := protoanalysis.Parse(context.Background(), nil, path)
 	if err != nil {
 		return 0, err
@@ -291,5 +292,5 @@ func GenesisStateFieldCount(path string) (int, error) {
 		return 0, err
 	}
 
-	return m.FieldCount, nil
+	return m.HighestFieldNumber, nil
 }
