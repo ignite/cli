@@ -9,15 +9,10 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"golang.org/x/mod/modfile"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
-)
-
-const (
-	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
-	tendermintModulePath = "github.com/tendermint/tendermint"
 )
 
 // Path represents a Go module's path.
@@ -75,7 +70,7 @@ func ParseAt(path string) (Path, error) {
 	if err != nil {
 		return Path{}, err
 	}
-	if err := validateGoModule(parsed); err != nil {
+	if err := cosmosanalysis.ValidateGoMod(parsed); err != nil {
 		return Path{}, err
 	}
 	return Parse(parsed.Module.Mod.Path)
@@ -95,21 +90,6 @@ func validatePackageName(name string) error {
 		// parser error is very low level here so let's hide it from the user
 		// completely.
 		return errors.New("app name is an invalid go package name")
-	}
-	return nil
-}
-
-// validateGoModule check if the cosmos-sdk and the tendermint packages are imported.
-func validateGoModule(module *modfile.File) error {
-	moduleCheck := map[string]bool{
-		cosmosModulePath:     true,
-		tendermintModulePath: true,
-	}
-	for _, r := range module.Require {
-		delete(moduleCheck, r.Mod.Path)
-	}
-	for m := range moduleCheck {
-		return fmt.Errorf("invalid go module, missing %s package dependency", m)
 	}
 	return nil
 }
