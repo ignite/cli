@@ -1,18 +1,13 @@
 package list
 
 import (
-	"context"
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
-
-const ProtoGenesisStateMessage = "GenesisState"
 
 func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
 	g.RunFn(genesisProtoModify(replacer, opts))
@@ -44,7 +39,7 @@ import "%[2]v/%[3]v.proto";`
 		content = typed.EnsureGogoProtoImported(content, path, typed.PlaceholderGenesisProtoImport, replacer)
 
 		// Parse proto file to determine the field numbers
-		highestNumber, err := GenesisStateHighestFieldNumber(path)
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
 		if err != nil {
 			return err
 		}
@@ -75,7 +70,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
@@ -261,37 +256,4 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
-}
-
-// PatchGenesisTypeImport patches types/genesis.go content from the issue:
-// https://github.com/tendermint/starport/issues/992
-func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) string {
-	patternToCheck := "import ("
-	replacement := fmt.Sprintf(`import (
-%[1]v
-)`, typed.PlaceholderGenesisTypesImport)
-
-	if !strings.Contains(content, patternToCheck) {
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, replacement)
-	}
-
-	return content
-}
-
-// GenesisStateHighestFieldNumber returns the highest field number in the genesis state proto message
-// This allows to determine next the field numbers
-func GenesisStateHighestFieldNumber(path string) (int, error) {
-	pkgs, err := protoanalysis.Parse(context.Background(), nil, path)
-	if err != nil {
-		return 0, err
-	}
-	if len(pkgs) == 0 {
-		return 0, fmt.Errorf("%s is not a proto file", path)
-	}
-	m, err := pkgs[0].MessageByName(ProtoGenesisStateMessage)
-	if err != nil {
-		return 0, err
-	}
-
-	return m.HighestFieldNumber, nil
 }
