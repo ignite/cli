@@ -21,7 +21,7 @@ func NewAccountImport() *cobra.Command {
 		RunE:  accountImportHandler,
 	}
 
-	c.Flags().String(flagSecret, "", "Your mnemonic or path to your private key (use interactive mode to secure your mnemonic)")
+	c.Flags().String(flagSecret, "", "Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountImportExport())
 
