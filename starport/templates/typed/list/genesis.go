@@ -1,4 +1,4 @@
-package typed
+package list
 
 import (
 	"context"
@@ -9,19 +9,20 @@ import (
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 const ProtoGenesisStateMessage = "GenesisState"
 
-func (t *typedStargate) genesisModify(replacer placeholder.Replacer, opts *Options, g *genny.Generator) {
-	g.RunFn(t.genesisProtoModify(replacer, opts))
-	g.RunFn(t.genesisTypesModify(replacer, opts))
-	g.RunFn(t.genesisModuleModify(replacer, opts))
-	g.RunFn(t.genesisTestsModify(replacer, opts))
-	g.RunFn(t.genesisTypesTestsModify(replacer, opts))
+func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.Generator) {
+	g.RunFn(genesisProtoModify(replacer, opts))
+	g.RunFn(genesisTypesModify(replacer, opts))
+	g.RunFn(genesisModuleModify(replacer, opts))
+	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
 
-func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -33,14 +34,14 @@ func (t *typedStargate) genesisProtoModify(replacer placeholder.Replacer, opts *
 import "%[2]v/%[3]v.proto";`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
-			PlaceholderGenesisProtoImport,
+			typed.PlaceholderGenesisProtoImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
 		)
-		content := replacer.Replace(f.String(), PlaceholderGenesisProtoImport, replacementProtoImport)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Add gogo.proto
-		content = EnsureGogoProtoImported(content, path, PlaceholderGenesisProtoImport, replacer)
+		content = typed.EnsureGogoProtoImported(content, path, typed.PlaceholderGenesisProtoImport, replacer)
 
 		// Parse proto file to determine the field numbers
 		highestNumber, err := GenesisStateHighestFieldNumber(path)
@@ -53,20 +54,20 @@ import "%[2]v/%[3]v.proto";`
 		%[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
-			PlaceholderGenesisProtoState,
+			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
 			highestNumber+1,
 			highestNumber+2,
 		)
-		content = replacer.Replace(content, PlaceholderGenesisProtoState, replacementProtoState)
+		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -77,16 +78,16 @@ func (t *typedStargate) genesisTypesModify(replacer placeholder.Replacer, opts *
 		content := PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
-		content = replacer.ReplaceOnce(content, PlaceholderGenesisTypesImport, templateTypesImport)
+		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
 
 		templateTypesDefault := `%[1]v
 %[2]vList: []%[2]v{},`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
-			PlaceholderGenesisTypesDefault,
+			typed.PlaceholderGenesisTypesDefault,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderGenesisTypesDefault, replacementTypesDefault)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
 		templateTypesValidate := `%[1]v
 // Check for duplicated ID in %[2]v
@@ -103,18 +104,18 @@ for _, elem := range gs.%[3]vList {
 }`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
-			PlaceholderGenesisTypesValidate,
+			typed.PlaceholderGenesisTypesValidate,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderGenesisTypesValidate, replacementTypesValidate)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementTypesValidate)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) genesisModuleModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -133,11 +134,11 @@ k.Set%[3]vCount(ctx, genState.%[3]vCount)
 `
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
-			PlaceholderGenesisModuleInit,
+			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
 		)
-		content := replacer.Replace(f.String(), PlaceholderGenesisModuleInit, replacementModuleInit)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `%[1]v
 genesis.%[2]vList = k.GetAll%[2]v(ctx)
@@ -145,17 +146,17 @@ genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 `
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
-			PlaceholderGenesisModuleExport,
+			typed.PlaceholderGenesisModuleExport,
 			opts.TypeName.UpperCamel,
 		)
-		content = replacer.Replace(content, PlaceholderGenesisModuleExport, replacementModuleExport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementModuleExport)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func (t *typedStargate) genesisTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -197,7 +198,7 @@ require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
 	}
 }
 
-func (t *typedStargate) genesisTypesTestsModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
 		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
 		f, err := r.Disk.Find(path)
@@ -268,10 +269,10 @@ func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) strin
 	patternToCheck := "import ("
 	replacement := fmt.Sprintf(`import (
 %[1]v
-)`, PlaceholderGenesisTypesImport)
+)`, typed.PlaceholderGenesisTypesImport)
 
 	if !strings.Contains(content, patternToCheck) {
-		content = replacer.Replace(content, PlaceholderGenesisTypesImport, replacement)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, replacement)
 	}
 
 	return content

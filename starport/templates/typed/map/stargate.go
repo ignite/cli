@@ -1,4 +1,4 @@
-package indexed
+package maptype
 
 import (
 	"embed"
@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
+	"github.com/tendermint/starport/starport/templates/typed/list"
 )
 
 var (
@@ -39,7 +40,7 @@ var (
 	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateTestsMessages, "stargate/tests/messages/")
 )
 
-// NewStargate returns the generator to scaffold a new indexed type in a Stargate module
+// NewStargate returns the generator to scaffold a new map type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
 	// because the we can't generate reliable tests for this type
@@ -266,7 +267,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := typed.PatchGenesisTypeImport(replacer, f.String())
+		content := list.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
