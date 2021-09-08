@@ -12,10 +12,11 @@ import (
 // NewScaffoldFlutter scaffolds a Flutter app for a chain.
 func NewScaffoldFlutter() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "flutter",
-		Short: "A Flutter app for your chain",
-		Args:  cobra.NoArgs,
-		RunE:  scaffoldFlutterHandler,
+		Hidden: true,
+		Use:    "flutter",
+		Short:  "A Flutter app for your chain",
+		Args:   cobra.NoArgs,
+		RunE:   scaffoldFlutterHandler,
 	}
 
 	return c

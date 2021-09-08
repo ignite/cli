@@ -12,7 +12,7 @@ import (
 func NewAccountExport() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "export [name]",
-		Short: "Export an account",
+		Short: "Export an account as a private key",
 		Args:  cobra.ExactArgs(1),
 		RunE:  accountExportHandler,
 	}
