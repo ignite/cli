@@ -37,10 +37,10 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModu
 	}
 
 	// if the path is not set, use the current directory
-	if s.path == "" {
-		s.path = pwd
+	if s.appPath == "" {
+		s.appPath = pwd
 	} else {
-		s.path, err = filepath.Abs(s.path)
+		s.appPath, err = filepath.Abs(s.appPath)
 		if err != nil {
 			return "", err
 		}
@@ -50,7 +50,7 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModu
 	if err != nil {
 		return "", err
 	}
-	absRoot := filepath.Join(s.path, pathInfo.Root)
+	absRoot := filepath.Join(s.appPath, pathInfo.Root)
 
 	// create the project
 	if err := s.generate(tracer, pathInfo, absRoot, noDefaultModule); err != nil {
@@ -67,7 +67,7 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModu
 	}
 
 	// get the relative app path from the current directory
-	relativePath, err := filepath.Rel(pwd, s.path)
+	relativePath, err := filepath.Rel(pwd, s.appPath)
 	if err != nil {
 		return "", err
 	}
