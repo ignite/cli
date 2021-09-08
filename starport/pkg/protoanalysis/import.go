@@ -6,8 +6,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
-// IsProtoImported returns true if the proto file is imported in the provided proto file
-func IsProtoImported(path, protoImport string) (bool, error) {
+// IsImported returns true if the proto file is imported in the provided proto file
+func IsImported(path, protoImport string) (bool, error) {
 	f, err := ParseFile(path)
 	if err != nil {
 		return false, err
@@ -25,7 +25,7 @@ func IsProtoImported(path, protoImport string) (bool, error) {
 
 // EnsureProtoImported add the proto file import in the proto file content in case it's not defined
 func EnsureProtoImported(content, protoImport, protoPath, importPlaceholder string, replacer placeholder.Replacer) string {
-	isImported, err := IsProtoImported(protoPath, protoImport)
+	isImported, err := IsImported(protoPath, protoImport)
 	if err != nil {
 		replacer.AppendMiscError(fmt.Sprintf("failed to check %s dependency %s", protoImport, err.Error()))
 		return content

@@ -28,7 +28,7 @@ var (
 		TypeInt:    TypeInt32,
 		TypeUint:   TypeUint64,
 	}
-	staticDataTypeNames = map[string]string{
+	StaticDataTypeNames = map[string]string{
 		TypeString: TypeString,
 		TypeBool:   TypeBool,
 		TypeInt32:  TypeInt,
@@ -111,7 +111,7 @@ func ParseFields(
 		}
 
 		// Check if the custom type is valid and fetch the fields
-		structFields, err := protoanalysis.FindMessage(module, datatypeName, staticDataTypeNames)
+		structFields, err := protoanalysis.FindMessage(module, datatypeName, StaticDataTypeNames)
 		if err != nil {
 			return parsedFields, err
 		}
