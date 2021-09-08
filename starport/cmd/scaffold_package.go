@@ -24,6 +24,7 @@ func NewScaffoldPacket() *cobra.Command {
 		RunE:  createPacketHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")

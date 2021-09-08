@@ -30,7 +30,6 @@ CRUD stands for "create, read, update, delete".`,
 		Args:    cobra.ExactArgs(1),
 	}
 
-	flagSetPath(c)
 	c.AddCommand(NewScaffoldChain())
 	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewScaffoldList())

@@ -90,7 +90,7 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 }
 
 func flagSetPath(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringP(flagPath, "p", ".", "sets the working directory for the command")
+	cmd.PersistentFlags().StringP(flagPath, "p", ".", "path to the app")
 }
 
 func flagGetPath(cmd *cobra.Command) (path string) {

@@ -20,6 +20,7 @@ func NewScaffoldBandchain() *cobra.Command {
 		RunE:  createBandchainHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 

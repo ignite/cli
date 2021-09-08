@@ -2,8 +2,6 @@ package starportcmd
 
 import (
 	"fmt"
-	"path/filepath"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/scaffolder"
@@ -18,6 +16,8 @@ func NewScaffoldVue() *cobra.Command {
 		RunE:  scaffoldVueHandler,
 	}
 
+	c.Flags().StringP(flagPath, "p", "./vue", "path to scaffold content of the Vue.js app")
+
 	return c
 }
 
@@ -25,7 +25,7 @@ func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path := filepath.Join(flagGetPath(cmd), "vue")
+	path := flagGetPath(cmd)
 	if err := scaffolder.Vue(path); err != nil {
 		return err
 	}

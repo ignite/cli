@@ -22,8 +22,11 @@ func NewScaffoldChain() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  scaffoldChainHandler,
 	}
+
+	c.Flags().StringP(flagPath, "p", ".", "path to scaffold the chain")
 	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Prevent scaffolding a default module in the app")
+
 	return c
 }
 

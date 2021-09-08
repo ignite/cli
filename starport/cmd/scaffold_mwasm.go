@@ -17,6 +17,9 @@ func NewScaffoldWasm() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  scaffoldWasmHandler,
 	}
+
+	flagSetPath(c)
+
 	return c
 }
 

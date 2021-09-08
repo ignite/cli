@@ -22,6 +22,7 @@ func NewScaffoldQuery() *cobra.Command {
 		RunE:  queryHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")

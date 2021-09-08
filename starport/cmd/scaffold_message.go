@@ -20,6 +20,7 @@ func NewScaffoldMessage() *cobra.Command {
 		RunE:  messageHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")

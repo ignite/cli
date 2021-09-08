@@ -14,6 +14,7 @@ func NewScaffoldList() *cobra.Command {
 		RunE:  scaffoldListHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

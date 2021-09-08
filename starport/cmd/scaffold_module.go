@@ -31,10 +31,13 @@ func NewScaffoldModule() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldModuleHandler,
 	}
+
+	flagSetPath(c)
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
+
 	return c
 }
 
