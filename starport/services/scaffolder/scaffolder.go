@@ -65,6 +65,19 @@ func AddressPrefix(prefix string) Option {
 	}
 }
 
+// NewChain initializes a new chain Scaffolder at path.
+func NewChain(path string, options ...Option) (*Scaffolder, error) {
+	absPath, err := filepath.Abs(path)
+	if err != nil {
+		return nil, err
+	}
+
+	return &Scaffolder{
+		appPath: absPath,
+		options: newOptions(options...),
+	}, nil
+}
+
 // New initializes a new Scaffolder for app at path.
 func New(path string, options ...Option) (*Scaffolder, error) {
 	absPath, err := filepath.Abs(path)

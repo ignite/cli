@@ -41,7 +41,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath            = flagGetPath(cmd)
 	)
 
-	sc, err := scaffolder.New(
+	sc, err := scaffolder.NewChain(
 		appPath,
 		scaffolder.AddressPrefix(addressPrefix),
 	)
