@@ -7,7 +7,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -57,11 +56,6 @@ func (s *Scaffolder) AddPacket(
 	ackFields []string,
 	options ...PacketOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// apply options.
 	o := newPacketOptions()
 	for _, apply := range options {
@@ -79,7 +73,7 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(appPath, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -89,7 +83,7 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(appPath, moduleName)
+	ok, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -113,11 +107,11 @@ func (s *Scaffolder) AddPacket(
 	var (
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
-			AppName:    path.Package,
-			AppPath:    appPath,
-			ModulePath: path.RawPath,
+			AppName:    s.path.Package,
+			AppPath:    s.appPath,
+			ModulePath: s.path.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.path.RawPath),
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
@@ -133,7 +127,7 @@ func (s *Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

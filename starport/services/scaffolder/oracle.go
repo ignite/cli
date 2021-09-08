@@ -8,7 +8,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -57,11 +56,6 @@ func (s *Scaffolder) AddOracle(
 		apply(&o)
 	}
 
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return sm, err
@@ -73,7 +67,7 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(appPath, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -83,7 +77,7 @@ func (s *Scaffolder) AddOracle(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(appPath, moduleName)
+	ok, err := isIBCModule(s.appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -95,11 +89,11 @@ func (s *Scaffolder) AddOracle(
 	var (
 		g    *genny.Generator
 		opts = &ibc.OracleOptions{
-			AppName:    path.Package,
-			AppPath:    appPath,
-			ModulePath: path.RawPath,
+			AppName:    s.path.Package,
+			AppPath:    s.appPath,
+			ModulePath: s.path.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.path.RawPath),
 			QueryName:  name,
 			MsgSigner:  mfSigner,
 		}
@@ -112,7 +106,7 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }
 
 func (s *Scaffolder) installBandPacket() error {

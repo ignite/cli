@@ -3,7 +3,6 @@ package scaffolder
 import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -20,14 +19,9 @@ func (s *Scaffolder) AddQuery(
 	resFields []string,
 	paginated bool,
 ) (sm xgenny.SourceModification, err error) {
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
-		moduleName = path.Package
+		moduleName = s.path.Package
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
@@ -40,7 +34,7 @@ func (s *Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(appPath, moduleName, name, true); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, true); err != nil {
 		return sm, err
 	}
 
@@ -57,11 +51,11 @@ func (s *Scaffolder) AddQuery(
 	var (
 		g    *genny.Generator
 		opts = &query.Options{
-			AppName:     path.Package,
-			AppPath:     appPath,
-			ModulePath:  path.RawPath,
+			AppName:     s.path.Package,
+			AppPath:     s.appPath,
+			ModulePath:  s.path.RawPath,
 			ModuleName:  moduleName,
-			OwnerName:   owner(path.RawPath),
+			OwnerName:   owner(s.path.RawPath),
 			QueryName:   name,
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
@@ -79,5 +73,5 @@ func (s *Scaffolder) AddQuery(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }

@@ -13,18 +13,23 @@ import (
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
-	// path is app's path on the filesystem.
-	path string
+	// appPath is app's path on the filesystem.
+	appPath string
+
+	// path represents the app module.
+	path gomodulepath.Path
 
 	// options to configure scaffolding.
 	options *scaffoldingOptions
@@ -62,13 +67,23 @@ func AddressPrefix(prefix string) Option {
 
 // New initializes a new Scaffolder for app at path.
 func New(path string, options ...Option) (*Scaffolder, error) {
-	path, err := filepath.Abs(path)
+	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
 	}
 
+	mod, appPath, err := gomodulepath.Find(absPath)
+	if err != nil {
+		return nil, err
+	}
+
+	if err := validateAppModule(appPath); err != nil {
+		return nil, err
+	}
+
 	s := &Scaffolder{
-		path:    path,
+		path:    mod,
+		appPath: appPath,
 		options: newOptions(options...),
 	}
 
@@ -82,6 +97,15 @@ func New(path string, options ...Option) (*Scaffolder, error) {
 	}
 
 	return s, nil
+}
+
+// validateAppModule validate the go module from the app path.
+func validateAppModule(appPath string) error {
+	parsed, err := gomodule.ParseAt(appPath)
+	if err != nil {
+		return err
+	}
+	return cosmosanalysis.ValidateGoMod(parsed)
 }
 
 func owner(modulePath string) string {

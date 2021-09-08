@@ -16,7 +16,6 @@ import (
 	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
@@ -84,11 +83,6 @@ func (s *Scaffolder) CreateModule(
 	moduleName string,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return sm, err
@@ -101,7 +95,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(appPath, moduleName)
+	ok, err := moduleExists(s.appPath, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -116,16 +110,16 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, appPath); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.appPath); err != nil {
 		return sm, err
 	}
 
 	opts := &modulecreate.CreateOptions{
 		ModuleName:   moduleName,
-		ModulePath:   path.RawPath,
-		AppName:      path.Package,
-		AppPath:      appPath,
-		OwnerName:    owner(path.RawPath),
+		ModulePath:   s.path.RawPath,
+		AppName:      s.path.Package,
+		AppPath:      s.appPath,
+		OwnerName:    owner(s.path.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
@@ -159,7 +153,7 @@ func (s *Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
@@ -169,12 +163,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
-	ok, err := isWasmImported(appPath)
+	ok, err := isWasmImported(s.appPath)
 	if err != nil {
 		return sm, err
 	}
@@ -184,10 +173,10 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	// run generator
 	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
-		AppPath:          appPath,
+		AppPath:          s.appPath,
 		Feature:          name,
-		AppName:          path.Package,
-		BinaryNamePrefix: path.Root,
+		AppName:          s.path.Package,
+		BinaryNamePrefix: s.path.Root,
 	})
 	if err != nil {
 		return sm, err
@@ -209,7 +198,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, err
 	}
 
-	return sm, s.finish(appPath, path.RawPath)
+	return sm, s.finish(s.appPath, s.path.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {

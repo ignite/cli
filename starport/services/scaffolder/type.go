@@ -5,7 +5,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -111,13 +110,8 @@ func (s *Scaffolder) AddType(
 	kind AddTypeKind,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// apply options.
-	o := newAddTypeOptions(path.Package)
+	o := newAddTypeOptions(s.path.Package)
 	for _, apply := range append(options, AddTypeOption(kind)) {
 		apply(&o)
 	}
@@ -133,7 +127,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(appPath, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -150,11 +144,11 @@ func (s *Scaffolder) AddType(
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
-			AppName:    path.Package,
-			AppPath:    appPath,
-			ModulePath: path.RawPath,
+			AppName:    s.path.Package,
+			AppPath:    s.appPath,
+			ModulePath: s.path.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.path.RawPath),
 			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
@@ -166,7 +160,7 @@ func (s *Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		appPath,
+		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -213,7 +207,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name

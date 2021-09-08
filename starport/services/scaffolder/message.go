@@ -5,7 +5,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -53,11 +52,6 @@ func (s *Scaffolder) AddMessage(
 	resFields []string,
 	options ...MessageOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, appPath, err := gomodulepath.Find(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// Create the options
 	scaffoldingOpts := newMessageOptions(msgName)
 	for _, apply := range options {
@@ -66,7 +60,7 @@ func (s *Scaffolder) AddMessage(
 
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
-		moduleName = path.Package
+		moduleName = s.path.Package
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
@@ -79,7 +73,7 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(appPath, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -101,11 +95,11 @@ func (s *Scaffolder) AddMessage(
 	var (
 		g    *genny.Generator
 		opts = &message.Options{
-			AppName:    path.Package,
-			AppPath:    appPath,
-			ModulePath: path.RawPath,
+			AppName:    s.path.Package,
+			AppPath:    s.appPath,
+			ModulePath: s.path.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.path.RawPath),
 			MsgName:    name,
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
@@ -119,7 +113,7 @@ func (s *Scaffolder) AddMessage(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		appPath,
+		s.appPath,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -142,7 +136,7 @@ func (s *Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, path.RawPath)
+	return sm, s.finish(opts.AppPath, s.path.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
