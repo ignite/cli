@@ -42,9 +42,9 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// Determine the new field number
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
 
-		templateProtoState := `  repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
+		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
   uint64 %[3]vCount = %[6]v; %[5]v
-%[1]v`
+  %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
