@@ -2,6 +2,7 @@ package chain
 
 import (
 	"context"
+	"errors"
 	"io"
 	"io/ioutil"
 	"os"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gookit/color"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	sperrors "github.com/tendermint/starport/starport/errors"
@@ -182,16 +184,31 @@ func (c *Chain) appVersion() (v version, err error) {
 	if err != nil {
 		return version{}, err
 	}
-	iter, err := repo.Tags()
+	tags, err := repo.TagObjects()
 	if err != nil {
 		return version{}, err
 	}
-	ref, err := iter.Next()
+
+	var lastTag *object.Tag = nil
+
+	err = tags.ForEach(func(t *object.Tag) error {
+		if t == nil {
+			return errors.New("nil Tag exist in the TagObjects")
+		}
+
+		lastTag = t
+		return nil
+	})
+
 	if err != nil {
-		return version{}, nil
+		return version{}, err
 	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
+
+	if lastTag != nil {
+		v.tag = strings.TrimPrefix(lastTag.Name, "v")
+		v.hash = lastTag.Target.String()
+	}
+
 	return v, nil
 }
 
