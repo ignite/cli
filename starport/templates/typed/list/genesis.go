@@ -26,8 +26,8 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateProtoImport := `%[1]v
-import "%[2]v/%[3]v.proto";`
+		templateProtoImport := `import "%[2]v/%[3]v.proto";
+%[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
 			typed.PlaceholderGenesisProtoImport,
@@ -42,9 +42,9 @@ import "%[2]v/%[3]v.proto";`
 		// Determine the new field number
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
 
-		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
-		uint64 %[3]vCount = %[6]v; %[5]v`
+		templateProtoState := `  repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
+  uint64 %[3]vCount = %[6]v; %[5]v
+%[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
@@ -74,8 +74,8 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
 
-		templateTypesDefault := `%[1]v
-%[2]vList: []%[2]v{},`
+		templateTypesDefault := `%[2]vList: []%[2]v{},
+%[1]v`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			typed.PlaceholderGenesisTypesDefault,
@@ -83,8 +83,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementTypesDefault)
 
-		templateTypesValidate := `%[1]v
-// Check for duplicated ID in %[2]v
+		templateTypesValidate := `// Check for duplicated ID in %[2]v
 %[2]vIdMap := make(map[uint64]bool)
 %[2]vCount := gs.Get%[3]vCount()
 for _, elem := range gs.%[3]vList {
@@ -95,7 +94,8 @@ for _, elem := range gs.%[3]vList {
 		return fmt.Errorf("%[2]v id should be lower or equal than the last id")
 	}
 	%[2]vIdMap[elem.Id] = true
-}`
+}
+%[1]v`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
 			typed.PlaceholderGenesisTypesValidate,
@@ -117,15 +117,14 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			return err
 		}
 
-		templateModuleInit := `%[1]v
-// Set all the %[2]v
+		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
 	k.Set%[3]v(ctx, elem)
 }
 
 // Set %[2]v count
 k.Set%[3]vCount(ctx, genState.%[3]vCount)
-`
+%[1]v`
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
 			typed.PlaceholderGenesisModuleInit,
@@ -134,10 +133,9 @@ k.Set%[3]vCount(ctx, genState.%[3]vCount)
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
-		templateModuleExport := `%[1]v
-genesis.%[2]vList = k.GetAll%[2]v(ctx)
+		templateModuleExport := `genesis.%[2]vList = k.GetAll%[2]v(ctx)
 genesis.%[2]vCount = k.Get%[2]vCount(ctx)
-`
+%[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
@@ -158,8 +156,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateState := `%[1]v
-%[2]vList: []types.%[2]v{
+		templateState := `%[2]vList: []types.%[2]v{
 	{
 		Id: 0,
 	},
@@ -167,7 +164,8 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		Id: 1,
 	},
 },
-%[2]vCount: 2,`
+%[2]vCount: 2,
+%[1]v`
 		replacementValid := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -175,11 +173,10 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementValid)
 
-		templateAssert := `%[1]v
-require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
+		templateAssert := `require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
 require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
 require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
-`
+%[1]v`
 		replacementTests := fmt.Sprintf(
 			templateAssert,
 			module.PlaceholderGenesisTestAssert,
@@ -200,8 +197,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 			return err
 		}
 
-		templateValid := `%[1]v
-%[2]vList: []types.%[2]v{
+		templateValid := `%[2]vList: []types.%[2]v{
 	{
 		Id: 0,
 	},
@@ -209,7 +205,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		Id: 1,
 	},
 },
-%[2]vCount: 2,`
+%[2]vCount: 2,
+%[1]v`
 		replacementValid := fmt.Sprintf(
 			templateValid,
 			module.PlaceholderTypesGenesisValidField,
@@ -217,8 +214,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
 
-		templateTests := `%[1]v
-{
+		templateTests := `{
 	desc:     "duplicated %[2]v",
 	genState: &types.GenesisState{
 		%[3]vList: []types.%[3]v{
@@ -243,7 +239,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		%[3]vCount: 0,
 	},
 	valid:    false,
-},`
+},
+%[1]v`
 		replacementTests := fmt.Sprintf(
 			templateTests,
 			module.PlaceholderTypesGenesisTestcase,
