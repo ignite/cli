@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -51,16 +50,7 @@ func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModu
 		return "", err
 	}
 
-	// get the relative app path from the current directory
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	relativePath, err := filepath.Rel(pwd, s.appPath)
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(relativePath, pathInfo.Root), nil
+	return filepath.Join(s.appPath, pathInfo.Root), nil
 }
 
 //nolint:interfacer

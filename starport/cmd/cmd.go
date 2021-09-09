@@ -90,7 +90,7 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 }
 
 func flagSetPath(cmd *cobra.Command) {
-	cmd.PersistentFlags().StringP(flagPath, "p", ".", "path to the app")
+	cmd.PersistentFlags().StringP(flagPath, "p", ".", "path of the app")
 }
 
 func flagGetPath(cmd *cobra.Command) (path string) {
@@ -159,16 +159,11 @@ var (
 )
 
 func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-
 	// get file names and add prefix
 	var files []string
 	for _, modified := range sm.ModifiedFiles() {
 		// get the relative app path from the current directory
-		relativePath, err := filepath.Rel(pwd, modified)
+		relativePath, err := relativePath(modified)
 		if err != nil {
 			return "", err
 		}
@@ -176,7 +171,7 @@ func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
 	}
 	for _, created := range sm.CreatedFiles() {
 		// get the relative app path from the current directory
-		relativePath, err := filepath.Rel(pwd, created)
+		relativePath, err := relativePath(created)
 		if err != nil {
 			return "", err
 		}
@@ -213,6 +208,19 @@ func deprecated() []*cobra.Command {
 			Deprecated: "use `starport chain faucet` instead.",
 		},
 	}
+}
+
+// relativePath return the relative app path from the current directory
+func relativePath(appPath string) (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	path, err := filepath.Rel(pwd, appPath)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
 }
 
 func checkNewVersion(ctx context.Context) {

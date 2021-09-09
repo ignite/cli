@@ -56,6 +56,11 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
+	path, err := relativePath(appdir)
+	if err != nil {
+		return err
+	}
+
 	message := `
 ⭐️ Successfully created a new blockchain '%[1]v'.
 👉 Get started with the following commands:
@@ -65,7 +70,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 
 Documentation: https://docs.starport.network
 `
-	fmt.Printf(message, appdir)
+	fmt.Printf(message, path)
 
 	return nil
 }
