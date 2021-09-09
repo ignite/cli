@@ -83,6 +83,10 @@ func scaffoldType(
 	if err != nil {
 		return err
 	}
+	if err := sc.ValidateApp(); err != nil {
+		return err
+	}
+
 	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err

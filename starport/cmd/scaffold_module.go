@@ -101,6 +101,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if err := sc.ValidateApp(); err != nil {
+		return err
+	}
+
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 	sm, err := sc.CreateModule(placeholder.New(), name, options...)

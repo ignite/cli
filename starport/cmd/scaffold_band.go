@@ -54,6 +54,10 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	if err := sc.ValidateApp(); err != nil {
+		return err
+	}
+
 	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
 	if err != nil {
 		return err

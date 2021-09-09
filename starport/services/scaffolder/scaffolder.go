@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -65,8 +64,8 @@ func AddressPrefix(prefix string) Option {
 	}
 }
 
-// NewChain initializes a new chain Scaffolder at path.
-func NewChain(path string, options ...Option) (*Scaffolder, error) {
+// New initializes a new Scaffolder for app at path.
+func New(path string, options ...Option) (*Scaffolder, error) {
 	absPath, err := filepath.Abs(path)
 	if err != nil {
 		return nil, err
@@ -78,38 +77,25 @@ func NewChain(path string, options ...Option) (*Scaffolder, error) {
 	}, nil
 }
 
-// New initializes a new Scaffolder for app at path.
-func New(path string, options ...Option) (*Scaffolder, error) {
-	absPath, err := filepath.Abs(path)
+// ValidateApp validates go module for the Scaffolder app path.
+func (s *Scaffolder) ValidateApp() (err error) {
+	s.path, s.appPath, err = gomodulepath.Find(s.appPath)
 	if err != nil {
-		return nil, err
+		return err
 	}
-
-	mod, appPath, err := gomodulepath.Find(absPath)
-	if err != nil {
-		return nil, err
-	}
-
-	if err := validateAppModule(appPath); err != nil {
-		return nil, err
-	}
-
-	s := &Scaffolder{
-		path:    mod,
-		appPath: appPath,
-		options: newOptions(options...),
+	if err := validateAppModule(s.appPath); err != nil {
+		return err
 	}
 
 	// determine the chain version.
-	s.version, err = cosmosver.Detect(path)
-	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
-		return nil, err
+	s.version, err = cosmosver.Detect(s.appPath)
+	if err != nil {
+		return err
 	}
-	if err == nil && !s.version.Major().Is(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
+	if !s.version.Major().Is(cosmosver.Stargate) {
+		return sperrors.ErrOnlyStargateSupported
 	}
-
-	return s, nil
+	return
 }
 
 // validateAppModule validate the go module from the app path.
