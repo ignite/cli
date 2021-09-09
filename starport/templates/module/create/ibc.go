@@ -69,8 +69,8 @@ if !k.IsBound(ctx, genState.PortId) {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementInit)
 
 		// Genesis export
-		templateExport := `%s
-genesis.PortId = k.GetPort(ctx)`
+		templateExport := `genesis.PortId = k.GetPort(ctx)
+%s`
 		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
 
@@ -88,23 +88,23 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 		}
 
 		// Import
-		templateImport := `%s
-host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+		templateImport := `host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
+%s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
 
 		// Default genesis
-		templateDefault := `%s
-PortId: PortID,`
+		templateDefault := `PortId: PortID,
+%s`
 		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `%s
-if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
-}`
+}
+%s`
 		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
 
@@ -125,8 +125,8 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		content := f.String()
 		fieldNumber := strings.Count(content, module.PlaceholderGenesisProtoStateField) + 1
 
-		template := `%[1]v
-  string port_id = %[2]v; %[3]v`
+		template := `  string port_id = %[2]v; %[3]v
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState, fieldNumber, module.PlaceholderGenesisProtoStateField)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
 
@@ -209,8 +209,8 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// Add route to IBC router
-		templateRouter := `%[1]v
-ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)`
+		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)
+%[1]v`
 		replacementRouter := fmt.Sprintf(
 			templateRouter,
 			module.PlaceholderIBCAppRouter,
