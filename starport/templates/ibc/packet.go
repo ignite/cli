@@ -205,13 +205,12 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		customFields := append(opts.Fields.CustomImports(), opts.AckFields.CustomImports()...)
 		for _, f := range customFields {
 			importModule := filepath.Join(opts.ModuleName, f)
-			content = protoanalysis.EnsureProtoImported(
-				content,
+			replacementImport := protoanalysis.EnsureProtoImported(
 				importModule,
 				path,
 				PlaceholderProtoPacketImport,
-				replacer,
 			)
+			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
 		}
 
 		templateMessage := `%[1]v
@@ -287,13 +286,12 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		// Ensure custom types are imported
 		for _, f := range opts.Fields.CustomImports() {
 			importModule := filepath.Join(opts.ModuleName, f)
-			content = protoanalysis.EnsureProtoImported(
-				content,
+			replacementImport := protoanalysis.EnsureProtoImported(
 				importModule,
 				path,
 				PlaceholderProtoTxImport,
-				replacer,
 			)
+			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 		}
 
 		// Message

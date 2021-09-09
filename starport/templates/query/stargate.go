@@ -68,13 +68,12 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		customFields := append(opts.ResFields.CustomImports(), opts.ReqFields.CustomImports()...)
 		for _, f := range customFields {
 			importModule := filepath.Join(opts.ModuleName, f)
-			content = protoanalysis.EnsureProtoImported(
-				content,
+			replacementImport := protoanalysis.EnsureProtoImported(
 				importModule,
 				path,
 				Placeholder,
-				replacer,
 			)
+			content = replacer.Replace(content, Placeholder, replacementImport)
 		}
 
 		// Messages

@@ -2,8 +2,6 @@ package protoanalysis
 
 import (
 	"fmt"
-
-	"github.com/tendermint/starport/starport/pkg/placeholder"
 )
 
 // IsImported returns true if the proto file is imported in the provided proto file
@@ -24,11 +22,10 @@ func IsImported(path, protoImport string) (bool, error) {
 }
 
 // EnsureProtoImported add the proto file import in the proto file content in case it's not defined
-func EnsureProtoImported(content, protoImport, protoPath, importPlaceholder string, replacer placeholder.Replacer) string {
+func EnsureProtoImported(protoImport, protoPath, importPlaceholder string) string {
 	isImported, err := IsImported(protoPath, protoImport)
 	if err != nil {
-		replacer.AppendMiscError(fmt.Sprintf("failed to check %s dependency %s", protoImport, err.Error()))
-		return content
+		return importPlaceholder
 	}
 	if !isImported {
 		templateGogoProtoImport := `%[1]v
@@ -38,7 +35,7 @@ import "%[2]v.proto";`
 			importPlaceholder,
 			protoImport,
 		)
-		content = replacer.Replace(content, importPlaceholder, replacementGogoProtoImport)
+		return replacementGogoProtoImport
 	}
-	return content
+	return importPlaceholder
 }

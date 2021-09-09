@@ -132,13 +132,12 @@ import "%s/%s.proto";`
 		// Ensure custom types are imported
 		for _, f := range opts.Fields.CustomImports() {
 			importModule := filepath.Join(opts.ModuleName, f)
-			content = protoanalysis.EnsureProtoImported(
-				content,
+			replacementImport := protoanalysis.EnsureProtoImported(
 				importModule,
 				path,
 				typed.PlaceholderProtoTxImport,
-				replacer,
 			)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessages := `%[1]v
@@ -195,7 +194,8 @@ import "%s/%s.proto";`
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// RPC service
 		templateRPC := `%[1]v

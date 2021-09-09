@@ -106,13 +106,12 @@ message Msg%[2]vResponse {
 		customFields := append(opts.ResFields.CustomImports(), opts.Fields.CustomImports()...)
 		for _, f := range customFields {
 			importModule := filepath.Join(opts.ModuleName, f)
-			content = protoanalysis.EnsureProtoImported(
-				content,
+			replacementImport := protoanalysis.EnsureProtoImported(
 				importModule,
 				path,
 				typed.PlaceholderProtoTxImport,
-				replacer,
 			)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		newFile := genny.NewFileS(path, content)
