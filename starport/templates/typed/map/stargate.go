@@ -98,9 +98,10 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		// Import the type
 		templateImport := `import "%s/%s.proto";
 %s`
-		replacementImport := fmt.Sprintf(templateImport, typed.Placeholder,
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.Placeholder,
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
@@ -478,9 +479,10 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Import
 		templateImport := `import "%s/%s.proto";
 %s`
-		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.PlaceholderProtoTxImport,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 

@@ -35,8 +35,8 @@ func EnsureGogoProtoImported(content, protoFile, importPlaceholder string, repla
 		return content
 	}
 	if !isImported {
-		templateGogoProtoImport := `%[2]v
-%[1]v`
+		templateGogoProtoImport := `%[1]v
+%[2]v`
 		replacementGogoProtoImport := fmt.Sprintf(
 			templateGogoProtoImport,
 			importPlaceholder,
