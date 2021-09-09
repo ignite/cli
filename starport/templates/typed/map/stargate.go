@@ -203,11 +203,9 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-
-	cmd.AddCommand(CmdList%[2]v())
+		template := `cmd.AddCommand(CmdList%[2]v())
 	cmd.AddCommand(CmdShow%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.Placeholder,
 			opts.TypeName.UpperCamel,
 		)
