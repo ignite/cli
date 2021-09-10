@@ -1,9 +1,9 @@
 package starportcmd
 
 import (
+	"fmt"
 	"io/fs"
 
-	"github.com/skratchdot/open-golang/open"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/docs"
 	"github.com/tendermint/starport/starport/pkg/offlinepage"
@@ -28,8 +28,6 @@ func migrationHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	path, err := offlinepage.SaveTemp(sub)
-	if err != nil {
-		return err
-	}
-	return open.Run(path)
+	fmt.Println(path)
+	return err
 }
