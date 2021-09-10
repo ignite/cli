@@ -28,9 +28,7 @@ starport chain serve
 ```zsh
 touch main.go && touch go.mod
 ```
-**`go.main`**
-
-- **Import files**
+### Import files
 
 ```go
 package main
