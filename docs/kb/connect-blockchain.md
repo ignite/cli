@@ -54,7 +54,10 @@ func main() {
 		log.Fatal(err)	
 	}
 ```
-- **Using the account name Alice (obtained while scaffolding the blockchain), define the account address**
+
+The Alice account was created when you scaffolded the blockchain. 
+
+Use the Alice account to define the account address:
 
 ```go
 accountName := "alice"
