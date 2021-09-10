@@ -1,12 +1,28 @@
 package typed
 
 import (
-	"github.com/tendermint/starport/starport/pkg/protoimport"
+	"fmt"
+
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const gogoProtoFile = "gogoproto/gogo.proto"
 
 // EnsureGogoProtoImported add the gogo.proto import in the proto file content in case it's not defined
 func EnsureGogoProtoImported(protoFile, importPlaceholder string) string {
-	return protoimport.EnsureProtoImported(gogoProtoFile, protoFile, importPlaceholder)
+	isImported, err := protoanalysis.IsImported(gogoProtoFile, protoFile)
+	if err != nil {
+		return importPlaceholder
+	}
+	if !isImported {
+		templateGogoProtoImport := `%[1]v
+import "%[2]v";`
+		replacementGogoProtoImport := fmt.Sprintf(
+			templateGogoProtoImport,
+			importPlaceholder,
+			gogoProtoFile,
+		)
+		return replacementGogoProtoImport
+	}
+	return importPlaceholder
 }

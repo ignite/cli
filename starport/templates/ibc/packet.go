@@ -3,7 +3,6 @@ package ibc
 import (
 	"embed"
 	"fmt"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -13,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
-	"github.com/tendermint/starport/starport/pkg/protoimport"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/testutil"
@@ -203,12 +201,11 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Ensure custom types are imported
 		customFields := append(opts.Fields.CustomImports(), opts.AckFields.CustomImports()...)
 		for _, f := range customFields {
-			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoimport.EnsureProtoImported(
-				importModule,
-				path,
-				PlaceholderProtoPacketImport,
-			)
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
 			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
 		}
 
@@ -284,12 +281,11 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 
 		// Ensure custom types are imported
 		for _, f := range opts.Fields.CustomImports() {
-			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoimport.EnsureProtoImported(
-				importModule,
-				path,
-				PlaceholderProtoTxImport,
-			)
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
 			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 		}
 

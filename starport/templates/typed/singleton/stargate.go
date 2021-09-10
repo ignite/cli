@@ -4,13 +4,11 @@ import (
 	"embed"
 	"fmt"
 	"math/rand"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoimport"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -395,12 +393,11 @@ import "%s/%s.proto";`
 			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
 		}
 		for _, f := range opts.Fields.CustomImports() {
-			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoimport.EnsureProtoImported(
-				importModule,
-				path,
-				typed.PlaceholderProtoTxImport,
-			)
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
 			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 

@@ -2,11 +2,10 @@ package query
 
 import (
 	"fmt"
-	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoimport"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
@@ -67,12 +66,11 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Ensure custom types are imported
 		customFields := append(opts.ResFields.CustomImports(), opts.ReqFields.CustomImports()...)
 		for _, f := range customFields {
-			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoimport.EnsureProtoImported(
-				importModule,
-				path,
-				Placeholder,
-			)
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
 			content = replacer.Replace(content, Placeholder, replacementImport)
 		}
 

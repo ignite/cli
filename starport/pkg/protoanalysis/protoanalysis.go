@@ -81,3 +81,19 @@ func checkMsgName(pkgs Packages, name string) error {
 	}
 	return fmt.Errorf("invalid proto message name %s", name)
 }
+
+// IsImported returns true if the proto file is imported in the provided proto file
+func IsImported(protoImport, protoPath string) (bool, error) {
+	f, err := ParseFile(protoPath)
+	if err != nil {
+		return false, err
+	}
+
+	for _, dep := range f.Dependencies {
+		if dep == protoImport {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
