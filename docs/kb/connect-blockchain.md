@@ -67,7 +67,11 @@ address, err := cosmos.Address(accountName)
 	}
 ```
 
-- **`Create` a new post, `broadcast` it on the chain and `display` the results**
+In the `go.main` file, add content to:
+
+ - Create a post
+ - Broadcast the post on the chain
+ - Display the results
 
 ```go
 // Create a post
