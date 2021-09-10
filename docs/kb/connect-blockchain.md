@@ -158,7 +158,10 @@ Similaryly, you can `update` and `delete` the POST
 	}
 ```
 
-**Final code `main.go`**
+## Final Code in main.go 
+
+After completing the steps in this article, your `main.go` file looks like:
+
 
 ```go
 package main
