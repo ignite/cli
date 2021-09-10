@@ -125,7 +125,8 @@ replace github.com/tendermint/starport => github.com/ilgooz/starport v0.0.500
 ```
 **Tip:** Instead of using `github.com/cosmonaut/blog v0.0.0-20210825193134-b6859adfa282` as shown, use your own `blog` package.
 
-## Step 3
+## Running the Blockchain
+
 To run the blockchain that you created, take these steps:
 
 
