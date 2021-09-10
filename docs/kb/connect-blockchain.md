@@ -157,8 +157,8 @@ Post:<creator:"cosmos1u27xu76zamjzgus2py87r8kmafea8cp6rvgtv9"
 title:"Hello cosmonaut" body:"I created this post by sending a message." >
 ```
 
-## Step 4
-Similaryly, you can `update` and `delete` the POST
+## Update a Post 
+
 ```go
 // Update a Post
 	msgUpd := &types.MsgUpdatePost{
