@@ -108,7 +108,7 @@ import "%s/%s.proto";`
 
 		// Add gogo.proto
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
-		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		var lowerCamelIndexes []string
 		for _, index := range opts.Indexes {
