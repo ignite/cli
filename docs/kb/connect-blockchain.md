@@ -94,7 +94,10 @@ queryResp, err := queryClient.Post(context.Background(), &types.QueryGetPostRequ
 	fmt.Print("\n\nUser:\n\n")
 	fmt.Println(queryResp)
 
-// Tip: To display result of all users, replace POST with POSTALL
+```
+**Tip:** To display the results of all users, replace `POST` with `POSTALL` as shown in this example code:
+
+```go
 queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
 ```
 
