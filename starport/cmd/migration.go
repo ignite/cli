@@ -2,11 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
+	"io/fs"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/docs"
 	"github.com/tendermint/starport/starport/pkg/offlinepage"
 )
+
+const migrationDocsPath = "guide/migration"
 
 // NewMigration print the migration guide.
 func NewMigration() *cobra.Command {
@@ -20,7 +23,11 @@ func NewMigration() *cobra.Command {
 }
 
 func migrationHandler(cmd *cobra.Command, args []string) error {
-	path, err := offlinepage.SaveTemp(docs.MigrationDocs)
+	sub, err := fs.Sub(docs.Docs, migrationDocsPath)
+	if err != nil {
+		return err
+	}
+	path, err := offlinepage.SaveTemp(sub)
 	fmt.Println(path)
 	return err
 }
