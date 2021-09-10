@@ -151,7 +151,7 @@ Response:
 User:
 
 Post:<creator:"cosmos1u27xu76zamjzgus2py87r8kmafea8cp6rvgtv9" 
-title:"Hello Ali" body:"This is the first post" >
+title:"Hello cosmonaut" body:"I created this post by sending a message." >
 ```
 
 ## Step 4
