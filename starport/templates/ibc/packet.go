@@ -13,7 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoimport"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/testutil"
@@ -205,7 +205,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		customFields := append(opts.Fields.CustomImports(), opts.AckFields.CustomImports()...)
 		for _, f := range customFields {
 			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoanalysis.EnsureProtoImported(
+			replacementImport := protoimport.EnsureProtoImported(
 				importModule,
 				path,
 				PlaceholderProtoPacketImport,
@@ -286,7 +286,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		// Ensure custom types are imported
 		for _, f := range opts.Fields.CustomImports() {
 			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoanalysis.EnsureProtoImported(
+			replacementImport := protoimport.EnsureProtoImported(
 				importModule,
 				path,
 				PlaceholderProtoTxImport,

@@ -6,7 +6,7 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoimport"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -106,7 +106,7 @@ message Msg%[2]vResponse {
 		customFields := append(opts.ResFields.CustomImports(), opts.Fields.CustomImports()...)
 		for _, f := range customFields {
 			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoanalysis.EnsureProtoImported(
+			replacementImport := protoimport.EnsureProtoImported(
 				importModule,
 				path,
 				typed.PlaceholderProtoTxImport,

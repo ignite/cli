@@ -1,15 +1,17 @@
-package protoanalysis
+package protoimport
 
 import (
 	"fmt"
 	"strings"
+
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const protoFileSuffix = ".proto"
 
 // IsImported returns true if the proto file is imported in the provided proto file
 func IsImported(protoImport, protoPath string) (bool, error) {
-	f, err := ParseFile(protoPath)
+	f, err := protoanalysis.ParseFile(protoPath)
 	if err != nil {
 		return false, err
 	}

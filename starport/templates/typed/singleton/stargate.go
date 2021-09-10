@@ -10,7 +10,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoimport"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -396,7 +396,7 @@ import "%s/%s.proto";`
 		}
 		for _, f := range opts.Fields.CustomImports() {
 			importModule := filepath.Join(opts.ModuleName, f)
-			replacementImport := protoanalysis.EnsureProtoImported(
+			replacementImport := protoimport.EnsureProtoImported(
 				importModule,
 				path,
 				typed.PlaceholderProtoTxImport,
