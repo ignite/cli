@@ -15,7 +15,7 @@ starport scaffold chain github.com/cosmonaut/blog
 
 Scaffold create, read, update, delete functionality for a type `post` with two fields: `title` and `body`. Use `starport scaffold list` to scaffold code for storing posts in a list-like data structure.
 ```zsh
-starport s list post title body
+starport scaffold list post title body
 ```
 
 **Awesome! You have scaffolded a Blockchain with list. Lets us start the chain.**
