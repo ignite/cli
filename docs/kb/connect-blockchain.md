@@ -44,7 +44,7 @@ import (
 )
 ```
 
-- **Instance of cosmosclient.**
+Create an instance of cosmosclient:
 
 ```go
 func main() {
