@@ -8,13 +8,13 @@ parent:
 
 # Nameservice Tutorial
 
-The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. This nameservice app sends tokens between participants so that end users buy names and set a value to the names. 
+The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. This nameservice app sends tokens between participants so that end users can buy names and set a value to the names. 
 <!-- rewrite intro for clarity 
 - what problem does this nameservice solve?
 - why should user care?
 -->
 
-This tutorial builds on knowlege and skills developed in the earlier tutorials in the Starport Developer Guide. Before you start this building your nameservice app, we recommend that you complete these foundation tutorials:
+This tutorial builds on knowlege and skills developed in the earlier tutorials in the Starport Developer Guide. Before you start this building your nameservice app, we recommend that you complete these foundational tutorials:
 
 - [Install Starport](../install.md)
 - [Hello, World](../hello.md)
@@ -40,7 +40,7 @@ The goal of this tutorial is to build a functional nameservice app and a mapping
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 
 
-## Nameservice app Goals
+## Nameservice App Goals
 
 The goal of the app you are building is to let users buy names and to set a value these names resolve to. The owner of a given name is the current highest bidder. 
 
@@ -77,11 +77,11 @@ The state represents your app at a given moment. The state of your nameservice a
 
 The state of tokens and accounts is defined by the `auth` and `bank` modules so you can direct your focus instead on defining the part of the state that relates specifically to your `nameservice` module.
 
-The Cosmos SDK comes with a large set of stores to persist the state of applications. By default, the main store of Cosmos SDK applications is a multistore (a store of stores). You can add any number of key-value stores [KVStores in Go](https://pkg.go.dev/github.com/cosmos/cosmos-sdk/types#KVStore) to the multistore. 
+The Cosmos SDK comes with a large set of stores to persist the state of applications. By default, the main store of Cosmos SDK apps is a multistore (a store of stores). You can add any number of key-value stores [KVStores in Go](https://pkg.go.dev/github.com/cosmos/cosmos-sdk/types#KVStore) to the multistore. 
 
 For your nameservice app, use one store to map a `name` key to its respective `whois` value that holds a name's value, owner, and price.
 
-## Application Messages
+## Messages
 
 In the Cosmos SDK, [messages](https://docs.cosmos.network/master/building-modules/messages-and-queries.html#messages) are objects that are contained in transactions to trigger state transitions. Each Cosmos SDK module defines a list of messages and how to handle them. 
 
@@ -92,6 +92,6 @@ You must create [messages for the nameservice module](02-messages.md) that suppo
 - The message is then routed to the appropriate module and handled according to the logic defined in the corresponding `Handler`. 
 - If the state needs to be updated, the `Handler` calls the `Keeper` to perform the update. 
 
-You learn more about these concepts in the next steps of this tutorial.
+You will learn more about these concepts in the next steps of this tutorial.
 
-Now that you have an idea of how your application functions from a high-level perspective, it is time to start implementing it.
+Now that you have an idea of how your app functions from a high-level perspective, it is time to start implementing it.
