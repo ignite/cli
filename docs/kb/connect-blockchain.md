@@ -23,7 +23,7 @@ Start a blockchain node in development:
 starport chain serve
 ```
 
-## Step 2
+## Creating a Blockchain Client
 **In a new directory (outside the blockchain directory) create two files - `go.main` and `go.mod`**
 ```zsh
 touch main.go && touch go.mod
