@@ -4,7 +4,6 @@ import (
 	"io/fs"
 	"os"
 	"path/filepath"
-	"regexp"
 	"strings"
 
 	"github.com/Depado/bfchroma"
@@ -22,21 +21,21 @@ var (
 		blackfriday.Autolink |
 		blackfriday.Footnotes |
 		blackfriday.HeadingIDs |
+		blackfriday.Titleblock |
 		blackfriday.FencedCode |
-		blackfriday.TabSizeEight |
+		blackfriday.LaxHTMLBlocks |
 		blackfriday.HardLineBreak |
 		blackfriday.Strikethrough |
 		blackfriday.SpaceHeadings |
 		blackfriday.AutoHeadingIDs |
-		blackfriday.NoIntraEmphasis |
 		blackfriday.DefinitionLists |
 		blackfriday.BackslashLineBreak
 
 	// flags defines the HTML rendering flags that are used
 	flags = blackfriday.TOC |
-		blackfriday.UseXHTML |
-		blackfriday.Smartypants |
 		blackfriday.CompletePage |
+		blackfriday.FootnoteReturnLinks |
+		blackfriday.Smartypants |
 		blackfriday.SmartypantsDashes |
 		blackfriday.SmartypantsFractions |
 		blackfriday.SmartypantsQuotesNBSP |
@@ -76,10 +75,6 @@ func save(f fs.FS, path string) error {
 
 // markdown creates a html content based in the markdown path
 func markdown(src []byte) []byte {
-	// remove file description by regex
-	noTileRegex := regexp.MustCompile(`---[\s\S]*?---`)
-	noTitle := noTileRegex.ReplaceAllString(string(src), "")
-
 	// create the html styles
 	r := bfchroma.NewRenderer(
 		bfchroma.EmbedCSS(),
@@ -87,16 +82,16 @@ func markdown(src []byte) []byte {
 		bfchroma.Extend(
 			blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{Flags: flags}),
 		),
-		bfchroma.ChromaStyle(styles.Monokai),
+		bfchroma.ChromaStyle(styles.GitHub),
 		bfchroma.ChromaOptions(
 			html.WithLineNumbers(true),
-			html.WithAllClasses(true),
+			html.LineNumbersInTable(true),
 			html.WithClasses(true),
 		),
 	)
 
 	// render the markdown to html with options
-	unsafe := blackfriday.Run([]byte(noTitle), blackfriday.WithRenderer(r), blackfriday.WithExtensions(exts))
+	unsafe := blackfriday.Run(src, blackfriday.WithRenderer(r), blackfriday.WithExtensions(exts))
 	p := bluemonday.UGCPolicy()
 	result := p.SanitizeBytes(unsafe)
 
