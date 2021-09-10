@@ -70,11 +70,8 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.App(appPath)
 	if err != nil {
-		return err
-	}
-	if err := sc.ValidateApp(); err != nil {
 		return err
 	}
 

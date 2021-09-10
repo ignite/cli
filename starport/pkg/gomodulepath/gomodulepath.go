@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
 	"golang.org/x/mod/module"
 	"golang.org/x/mod/semver"
@@ -51,6 +50,15 @@ func Parse(rawpath string) (Path, error) {
 	return p, nil
 }
 
+// ParseAt parses Go module path of an app resides at path.
+func ParseAt(path string) (Path, error) {
+	parsed, err := gomodule.ParseAt(path)
+	if err != nil {
+		return Path{}, err
+	}
+	return Parse(parsed.Module.Mod.Path)
+}
+
 // Find search the Go module in the current and parent paths until finding it.
 func Find(path string) (parsed Path, appPath string, err error) {
 	for len(path) != 0 && path != "." && path != "/" {
@@ -62,18 +70,6 @@ func Find(path string) (parsed Path, appPath string, err error) {
 		return parsed, path, err
 	}
 	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
-}
-
-// ParseAt parses Go module path of an app resides at path.
-func ParseAt(path string) (Path, error) {
-	parsed, err := gomodule.ParseAt(path)
-	if err != nil {
-		return Path{}, err
-	}
-	if err := cosmosanalysis.ValidateGoMod(parsed); err != nil {
-		return Path{}, err
-	}
-	return Parse(parsed.Module.Mod.Path)
 }
 
 func validateModulePath(path string) error {

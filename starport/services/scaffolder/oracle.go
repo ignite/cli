@@ -67,7 +67,7 @@ func (s *Scaffolder) AddOracle(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -77,7 +77,7 @@ func (s *Scaffolder) AddOracle(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.appPath, moduleName)
+	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -89,11 +89,11 @@ func (s *Scaffolder) AddOracle(
 	var (
 		g    *genny.Generator
 		opts = &ibc.OracleOptions{
-			AppName:    s.path.Package,
-			AppPath:    s.appPath,
-			ModulePath: s.path.RawPath,
+			AppName:    s.modpath.Package,
+			AppPath:    s.path,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			QueryName:  name,
 			MsgSigner:  mfSigner,
 		}
@@ -106,10 +106,10 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, s.path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
-func (s *Scaffolder) installBandPacket() error {
+func (s Scaffolder) installBandPacket() error {
 	return cmdrunner.New().
 		Run(context.Background(),
 			step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(bandImport, bandVersion))),

@@ -104,14 +104,14 @@ func TypeWithSigner(signer string) AddTypeOption {
 // if non of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.
-func (s *Scaffolder) AddType(
+func (s Scaffolder) AddType(
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
 	// apply options.
-	o := newAddTypeOptions(s.path.Package)
+	o := newAddTypeOptions(s.modpath.Package)
 	for _, apply := range append(options, AddTypeOption(kind)) {
 		apply(&o)
 	}
@@ -127,7 +127,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -144,11 +144,11 @@ func (s *Scaffolder) AddType(
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
-			AppName:    s.path.Package,
-			AppPath:    s.appPath,
-			ModulePath: s.path.RawPath,
+			AppName:    s.modpath.Package,
+			AppPath:    s.path,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
@@ -160,7 +160,7 @@ func (s *Scaffolder) AddType(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		s.appPath,
+		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -207,7 +207,7 @@ func (s *Scaffolder) AddType(
 		return sm, err
 	}
 
-	return sm, s.finish(opts.AppPath, s.path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name

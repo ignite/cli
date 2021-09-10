@@ -48,7 +48,7 @@ func PacketWithSigner(signer string) PacketOption {
 }
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddPacket(
+func (s Scaffolder) AddPacket(
 	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
@@ -73,7 +73,7 @@ func (s *Scaffolder) AddPacket(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.appPath, moduleName, name, o.withoutMessage); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, o.withoutMessage); err != nil {
 		return sm, err
 	}
 
@@ -83,7 +83,7 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Module must implement IBC
-	ok, err := isIBCModule(s.appPath, moduleName)
+	ok, err := isIBCModule(s.path, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -107,11 +107,11 @@ func (s *Scaffolder) AddPacket(
 	var (
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
-			AppName:    s.path.Package,
-			AppPath:    s.appPath,
-			ModulePath: s.path.RawPath,
+			AppName:    s.modpath.Package,
+			AppPath:    s.path,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
@@ -127,7 +127,7 @@ func (s *Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, s.path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

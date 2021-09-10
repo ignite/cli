@@ -24,94 +24,58 @@ import (
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
-	// appPath is app's path on the filesystem.
-	appPath string
+	// path of the app.
+	path string
 
-	// path represents the app module.
-	path gomodulepath.Path
-
-	// options to configure scaffolding.
-	options *scaffoldingOptions
+	// modpath represents the go module path of the app.
+	modpath gomodulepath.Path
 
 	// version of the chain
 	version cosmosver.Version
 }
 
-// Option configures scaffolding.
-type Option func(*scaffoldingOptions)
-
-// scaffoldingOptions keeps set of options to apply scaffolding.
-type scaffoldingOptions struct {
-	addressPrefix string
-}
-
-func newOptions(options ...Option) *scaffoldingOptions {
-	opts := &scaffoldingOptions{}
-	opts.apply(options...)
-	return opts
-}
-
-func (s *scaffoldingOptions) apply(options ...Option) {
-	for _, o := range options {
-		o(s)
-	}
-}
-
-// AddressPrefix configures address prefix for the app.
-func AddressPrefix(prefix string) Option {
-	return func(o *scaffoldingOptions) {
-		o.addressPrefix = strings.ToLower(prefix)
-	}
-}
-
-// New initializes a new Scaffolder for app at path.
-func New(path string, options ...Option) (*Scaffolder, error) {
-	absPath, err := filepath.Abs(path)
+// App creates a new scaffolder for an existent app.
+func App(path string) (Scaffolder, error) {
+	path, err := filepath.Abs(path)
 	if err != nil {
-		return nil, err
+		return Scaffolder{}, err
 	}
 
-	return &Scaffolder{
-		appPath: absPath,
-		options: newOptions(options...),
-	}, nil
-}
-
-// ValidateApp validates go module for the Scaffolder app path.
-func (s *Scaffolder) ValidateApp() (err error) {
-	s.path, s.appPath, err = gomodulepath.Find(s.appPath)
+	modpath, path, err := gomodulepath.Find(path)
 	if err != nil {
-		return err
+		return Scaffolder{}, err
 	}
-	if err := validateAppModule(s.appPath); err != nil {
-		return err
+	modfile, err := gomodule.ParseAt(path)
+	if err != nil {
+		return Scaffolder{}, err
+	}
+	if err := cosmosanalysis.ValidateGoMod(modfile); err != nil {
+		return Scaffolder{}, err
 	}
 
-	// determine the chain version.
-	s.version, err = cosmosver.Detect(s.appPath)
+	version, err := cosmosver.Detect(path)
 	if err != nil {
-		return err
+		return Scaffolder{}, err
 	}
-	if !s.version.Major().Is(cosmosver.Stargate) {
-		return sperrors.ErrOnlyStargateSupported
-	}
-	return
-}
 
-// validateAppModule validate the go module from the app path.
-func validateAppModule(appPath string) error {
-	parsed, err := gomodule.ParseAt(appPath)
-	if err != nil {
-		return err
+	if !version.Major().Is(cosmosver.Stargate) {
+		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
-	return cosmosanalysis.ValidateGoMod(parsed)
+
+	s := Scaffolder{
+		path:    path,
+		modpath: modpath,
+		version: version,
+	}
+
+	return s, nil
 }
 
 func owner(modulePath string) string {
 	return strings.Split(modulePath, "/")[1]
 }
 
-func (s *Scaffolder) finish(path, gomodPath string) error {
+func finish(path, gomodPath string) error {
 	if err := protoc(path, gomodPath); err != nil {
 		return err
 	}
