@@ -2,6 +2,7 @@ package query
 
 import (
 	"embed"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
