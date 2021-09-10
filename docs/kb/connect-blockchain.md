@@ -165,7 +165,7 @@ To update a post:
 	msgUpd := &types.MsgUpdatePost{
 		Creator: address.String(),
 		Id:      0,
-		Title:   "Hello Ali",
+		Title:   "Hello cosmonaut",
 		Body:    "This is a modified post",
 	}
 ```
