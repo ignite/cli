@@ -10,7 +10,7 @@ import (
 func NewAccountDelete() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "delete [name]",
-		Short: "Delete an account",
+		Short: "Delete an account by name",
 		Args:  cobra.ExactArgs(1),
 		RunE:  accountDeleteHandler,
 	}

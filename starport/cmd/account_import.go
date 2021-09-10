@@ -4,21 +4,24 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"strings"
 
 	"github.com/cosmos/go-bip39"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 )
 
+const flagSecret = "secret"
+
 func NewAccountImport() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "import [name] [mnemonic or private_key_path]",
-		Short: "Import an account",
-		Args:  cobra.ExactArgs(2),
+		Use:   "import [name]",
+		Short: "Import an account by using a mnemonic or a private key",
+		Args:  cobra.ExactArgs(1),
 		RunE:  accountImportHandler,
 	}
 
+	c.Flags().String(flagSecret, "", "Your mnemonic or path to your private key (use interactive mode instead to securely pass your mnemonic)")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetAccountImportExport())
 
@@ -27,9 +30,16 @@ func NewAccountImport() *cobra.Command {
 
 func accountImportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name   = args[0]
-		secret = strings.TrimSpace(args[1])
+		name      = args[0]
+		secret, _ = cmd.Flags().GetString(flagSecret)
 	)
+
+	if secret == "" {
+		if err := cliquiz.Ask(
+			cliquiz.NewQuestion("Your mnemonic or path to your private key", &secret, cliquiz.Required())); err != nil {
+			return err
+		}
+	}
 
 	passphrase, err := getPassphrase(cmd)
 	if err != nil {
