@@ -40,7 +40,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/alijnmerchant21/blog/x/blog/types"
+	"github.com/cosmonaut/blog/x/blog/types"
 	blogtypes "github.com/alijnmerchant21/blog/x/blog/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 )
