@@ -184,19 +184,31 @@ func (c *Chain) appVersion() (v version, err error) {
 	if err != nil {
 		return version{}, err
 	}
+
 	tags, err := repo.TagObjects()
 	if err != nil {
 		return version{}, err
 	}
 
-	var lastTag *object.Tag = nil
+	var taggerTimestamp int64
+
+	var (
+		tag  string
+		hash string
+	)
 
 	err = tags.ForEach(func(t *object.Tag) error {
 		if t == nil {
 			return errors.New("nil Tag exist in the TagObjects")
 		}
 
-		lastTag = t
+		if taggerTimestamp < t.Tagger.When.Unix() {
+			taggerTimestamp = t.Tagger.When.Unix()
+
+			tag = strings.TrimPrefix(t.Name, "v")
+			hash = t.Target.String()
+		}
+
 		return nil
 	})
 
@@ -204,11 +216,8 @@ func (c *Chain) appVersion() (v version, err error) {
 		return version{}, err
 	}
 
-	if lastTag != nil {
-		v.tag = strings.TrimPrefix(lastTag.Name, "v")
-		v.hash = lastTag.Target.String()
-	}
-
+	v.tag = tag
+	v.hash = hash
 	return v, nil
 }
 
