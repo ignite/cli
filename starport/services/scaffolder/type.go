@@ -226,7 +226,7 @@ func (s *Scaffolder) AddType(
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name
 func checkForbiddenTypeIndex(name string) error {
-	fieldSplit := strings.Split(name, ":")
+	fieldSplit := strings.Split(name, typeSeparator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 		fieldType := fieldSplit[1]
@@ -239,7 +239,7 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, ":")
+	fieldSplit := strings.Split(name, typeSeparator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 	}

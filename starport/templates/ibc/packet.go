@@ -79,7 +79,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
-	ctx.Set("title", strings.Title)
 
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {

@@ -21,7 +21,8 @@ const (
 	componentQuery   = "query"
 	componentPacket  = "packet"
 
-	protoFolder = "proto"
+	protoFolder   = "proto"
+	typeSeparator = ":"
 )
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
@@ -211,7 +212,7 @@ func checkCustomTypes(path, module string, fields []string) error {
 	protoPath := filepath.Join(path, protoFolder, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
-		fieldSplit := strings.Split(name, ":")
+		fieldSplit := strings.Split(name, typeSeparator)
 		if len(fieldSplit) <= 1 {
 			continue
 		}

@@ -2,8 +2,6 @@ package query
 
 import (
 	"embed"
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
@@ -33,7 +31,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("ReqFields", opts.ReqFields)
 	ctx.Set("ResFields", opts.ResFields)
 	ctx.Set("Paginated", opts.Paginated)
-	ctx.Set("title", strings.Title)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))

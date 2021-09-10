@@ -2,8 +2,6 @@ package message
 
 import (
 	"embed"
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
@@ -34,7 +32,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("ResFields", opts.ResFields)
-	ctx.Set("title", strings.Title)
 
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
