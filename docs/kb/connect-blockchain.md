@@ -115,7 +115,7 @@ module github.com/tendermint/starport/local_test/client
 go 1.17
 
 require (
-	github.com/alijnmerchant21/blog v0.0.0-20210825193134-b6859adfa282
+	github.com/cosmonaut/blog v0.0.0-20210825193134-b6859adfa282
 	github.com/tendermint/starport v0.15.0
 )
 
