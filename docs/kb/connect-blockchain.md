@@ -123,7 +123,7 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 
 replace github.com/tendermint/starport => github.com/ilgooz/starport v0.0.500
 ```
-***Tip:** Instead of `github.com/alijnmerchant21/blog v0.0.0-20210825193134-b6859adfa282` using your own `blog` package*
+**Tip:** Instead of using `github.com/cosmonaut/blog v0.0.0-20210825193134-b6859adfa282` as shown, use your own `blog` package.
 
 ## Step 3
 To run the blockchain that you created, take these steps:
