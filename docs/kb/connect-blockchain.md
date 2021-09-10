@@ -253,7 +253,7 @@ func main() {
 	fmt.Print("MsgUpdatePost:\n\n")
 	fmt.Println(txResp)
 
-	// Display the results
+	// Display the Results
 	queryClient := blogtypes.NewQueryClient(cosmos.Context)
 	queryRespAll, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
 	if err != nil {
