@@ -84,12 +84,20 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	// Parse provided fields
-	parsedMsgFields, err := field.ParseFields(fields, moduleName, checkForbiddenMessageField)
+	// Check and parse provided fields
+	if err := checkCustomTypes(s.path, moduleName, fields); err != nil {
+		return sm, err
+	}
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, moduleName, checkGoReservedWord)
+
+	// Check and parse provided response fields
+	if err := checkCustomTypes(s.path, moduleName, resFields); err != nil {
+		return sm, err
+	}
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}

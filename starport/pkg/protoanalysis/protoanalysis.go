@@ -95,3 +95,30 @@ func FindMessage(
 	}
 	return nil, fmt.Errorf("struct '%s' not found", structName)
 }
+
+// CheckTypes check if the proto files into a folder contains a list of message names
+func CheckTypes(path string, names []string) error {
+	pkgs, err := Parse(context.Background(), NewCache(), path)
+	if err != nil {
+		return err
+	}
+
+	for _, name := range names {
+		if err := checkMsgName(pkgs, name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// checkMsgName check if a message name exist into the package list
+func checkMsgName(pkgs Packages, name string) error {
+	for _, pkg := range pkgs {
+		for _, msg := range pkg.Messages {
+			if msg.Name == name {
+				return nil
+			}
+		}
+	}
+	return fmt.Errorf("invalid proto message name %s", name)
+}

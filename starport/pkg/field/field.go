@@ -6,7 +6,6 @@ import (
 	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const (
@@ -27,12 +26,6 @@ var (
 		TypeBool:   TypeBool,
 		TypeInt:    TypeInt32,
 		TypeUint:   TypeUint64,
-	}
-	StaticDataTypeNames = map[string]string{
-		TypeString: TypeString,
-		TypeBool:   TypeBool,
-		TypeInt32:  TypeInt,
-		TypeUint64: TypeUint,
 	}
 )
 
@@ -81,7 +74,6 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 // and checks there is no duplicated field
 func ParseFields(
 	fields []string,
-	module string,
 	isForbiddenField func(string) error,
 ) (Fields, error) {
 	// Used to check duplicated field
@@ -100,7 +92,7 @@ func ParseFields(
 		}
 		existingFields[name.LowerCamel] = true
 
-		// Parse the type if it is provided, otherwise string is used by default
+		// Check if is a static type
 		if datatype, ok := StaticDataTypes[datatypeName]; ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
@@ -110,21 +102,10 @@ func ParseFields(
 			continue
 		}
 
-		// Check if the custom type is valid and fetch the fields
-		structFields, err := protoanalysis.FindMessage(module, datatypeName, StaticDataTypeNames)
-		if err != nil {
-			return parsedFields, err
-		}
-		nestedFields, err := ParseFields(structFields, module, isForbiddenField)
-		if err != nil {
-			return parsedFields, err
-		}
-
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
 			Datatype:     datatypeName,
 			DatatypeName: TypeCustom,
-			Nested:       nestedFields,
 		})
 	}
 	return parsedFields, nil

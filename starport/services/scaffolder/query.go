@@ -46,12 +46,20 @@ func (s *Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	// Parse provided fields
-	parsedReqFields, err := field.ParseFields(reqFields, moduleName, checkGoReservedWord)
+	// Check and parse provided request fields
+	if err := checkCustomTypes(s.path, moduleName, reqFields); err != nil {
+		return sm, err
+	}
+	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, moduleName, checkGoReservedWord)
+
+	// Check and parse provided response fields
+	if err := checkCustomTypes(s.path, moduleName, resFields); err != nil {
+		return sm, err
+	}
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}

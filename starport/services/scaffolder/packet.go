@@ -97,14 +97,20 @@ func (s *Scaffolder) AddPacket(
 		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Parse packet fields
-	parsedPacketFields, err := field.ParseFields(packetFields, moduleName, checkForbiddenPacketField)
+	// Check and parse packet fields
+	if err := checkCustomTypes(s.path, moduleName, packetFields); err != nil {
+		return sm, err
+	}
+	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return sm, err
 	}
 
-	// Parse acknowledgment fields
-	parsedAcksFields, err := field.ParseFields(ackFields, moduleName, checkGoReservedWord)
+	// check and parse acknowledgment fields
+	if err := checkCustomTypes(s.path, moduleName, ackFields); err != nil {
+		return sm, err
+	}
+	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
 	}

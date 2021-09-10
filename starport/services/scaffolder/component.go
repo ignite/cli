@@ -10,7 +10,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const (
@@ -18,6 +20,8 @@ const (
 	componentMessage = "message"
 	componentQuery   = "query"
 	componentPacket  = "packet"
+
+	protoFolder = "proto"
 )
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
@@ -200,4 +204,16 @@ func checkForbiddenOracleFieldName(name string) error {
 		return fmt.Errorf("%s is used by Starport scaffolder", name)
 	}
 	return nil
+}
+
+// checkCustomTypes returns error if one of the types is invalid
+func checkCustomTypes(path, module string, fields []string) error {
+	protoPath := filepath.Join(path, protoFolder, module)
+	customFields := make([]string, 0)
+	for _, name := range fields {
+		if _, ok := field.StaticDataTypes[name]; !ok {
+			customFields = append(customFields, name)
+		}
+	}
+	return protoanalysis.CheckTypes(protoPath, customFields)
 }
