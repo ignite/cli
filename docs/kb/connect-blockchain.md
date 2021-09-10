@@ -45,7 +45,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 )
 ```
-***Tip:** Use your own module instead of `github.com/alijnmerchant21/blog/x/blog/types`*
 
 - **Instance of cosmosclient.**
 
