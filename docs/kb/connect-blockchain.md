@@ -24,7 +24,10 @@ starport chain serve
 ```
 
 ## Creating a Blockchain Client
-**In a new directory (outside the blockchain directory) create two files - `go.main` and `go.mod`**
+In a new directory that is outside the blockchain directory, create two files:
+- `go.main`
+- `go.mod`
+
 ```zsh
 touch main.go && touch go.mod
 ```
