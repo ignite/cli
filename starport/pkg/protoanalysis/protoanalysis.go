@@ -4,15 +4,11 @@ package protoanalysis
 import (
 	"context"
 	"fmt"
-	"path/filepath"
 
 	"github.com/pkg/errors"
 )
 
-const (
-	protoFolder      = "proto"
-	protoFilePattern = "*.proto"
-)
+const protoFilePattern = "*.proto"
 
 type Cache map[string]Packages // proto dir path-proto packages pair.
 
@@ -57,43 +53,6 @@ func ParseFile(path string) (File, error) {
 		return File{}, errors.New("path does not point to single file or it cannot be found")
 	}
 	return files[0], nil
-}
-
-// FindMessage finds a message from a
-// specific module declared into the app
-func FindMessage(
-	module,
-	structName string,
-	staticTypes map[string]string,
-) ([]string, error) {
-	path := filepath.Join(protoFolder, module)
-	path, err := filepath.Abs(path)
-	if err != nil {
-		return nil, err
-	}
-
-	pkgs, err := Parse(context.Background(), NewCache(), path)
-	if err != nil {
-		return nil, err
-	}
-
-	for _, pkg := range pkgs {
-		for _, msg := range pkg.Messages {
-			if msg.Name != structName {
-				continue
-			}
-			fields := make([]string, 0)
-			for fieldName, fieldType := range msg.Fields {
-				if staticType, ok := staticTypes[fieldType]; ok {
-					fieldType = staticType
-				}
-				fieldString := fmt.Sprintf("%s%s:%s", structName, fieldName, fieldType)
-				fields = append(fields, fieldString)
-			}
-			return fields, nil
-		}
-	}
-	return nil, fmt.Errorf("struct '%s' not found", structName)
 }
 
 // CheckTypes check if the proto files into a folder contains a list of message names
