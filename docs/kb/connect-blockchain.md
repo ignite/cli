@@ -159,8 +159,9 @@ title:"Hello cosmonaut" body:"I created this post by sending a message." >
 
 ## Update a Post 
 
+To update a post: 
+
 ```go
-// Update a Post
 	msgUpd := &types.MsgUpdatePost{
 		Creator: address.String(),
 		Id:      0,
