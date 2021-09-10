@@ -151,7 +151,11 @@ Similaryly, you can `update` and `delete` the POST
 		Title:   "Hello Ali",
 		Body:    "This is a modified post",
 	}
-// Delete a Post
+```
+
+## Delete a Post
+
+To delete a post:
 	msgDel := &types.MsgDeletePost{
 		Creator: address.String(),
 		Id:      1,
