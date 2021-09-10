@@ -28,6 +28,9 @@ func migrationHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	path, err := offlinepage.SaveTemp(sub)
-	fmt.Println(path)
-	return err
+	if err != nil {
+		return err
+	}
+	fmt.Printf("file://%s\n", path)
+	return nil
 }
