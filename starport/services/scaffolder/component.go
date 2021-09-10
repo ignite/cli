@@ -211,8 +211,13 @@ func checkCustomTypes(path, module string, fields []string) error {
 	protoPath := filepath.Join(path, protoFolder, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
-		if _, ok := field.StaticDataTypes[name]; !ok {
-			customFields = append(customFields, name)
+		fieldSplit := strings.Split(name, ":")
+		if len(fieldSplit) <= 1 {
+			continue
+		}
+		fieldType := fieldSplit[1]
+		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+			customFields = append(customFields, fieldType)
 		}
 	}
 	return protoanalysis.CheckTypes(protoPath, customFields)
