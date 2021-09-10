@@ -10,7 +10,7 @@ order: 10
 ## Creating a Blockchain
 - **Scaffold a new Blockchain using `starport`**
 ```zsh
-starport scaffold chain github.com/alijnmerchant21/blog
+starport scaffold chain github.com/cosmonaut/blog
 ```
 
 - **Scaffold a new list post with title and body**
