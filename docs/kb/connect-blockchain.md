@@ -13,7 +13,7 @@ Scaffold a new blockchain using `starport`:
 starport scaffold chain github.com/cosmonaut/blog
 ```
 
-- **Scaffold a new list post with title and body**
+Scaffold create, read, update, delete functionality for a type `post` with two fields: `title` and `body`. Use `starport scaffold list` to scaffold code for storing posts in a list-like data structure.
 ```zsh
 starport s list post title body
 ```
