@@ -18,7 +18,7 @@ Scaffold create, read, update, delete functionality for a type `post` with two f
 starport scaffold list post title body
 ```
 
-**Awesome! You have scaffolded a Blockchain with list. Lets us start the chain.**
+Start a blockchain node in development:
 ```zsh
 starport chain serve
 ```
