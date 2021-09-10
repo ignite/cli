@@ -124,7 +124,8 @@ replace github.com/tendermint/starport => github.com/ilgooz/starport v0.0.500
 ***Tip:** Instead of `github.com/alijnmerchant21/blog v0.0.0-20210825193134-b6859adfa282` using your own `blog` package*
 
 ## Step 3
-To run this program, you need follow these steps:
+To run the blockchain that you created, take these steps:
+
 - Populate the file `main.go` with the code given above
 - Run `go mod tidy`
 - Run the main file `go run main.go`
