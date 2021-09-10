@@ -132,7 +132,9 @@ To run the blockchain that you created, take these steps:
 3. Run the `go run main.go` command (this is your main file).
 
 
-**Output**
+
+If successful, the results of running the commands are output to the terminal:
+
 ```zsh
 MsgCreatePost:
 
