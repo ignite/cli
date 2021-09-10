@@ -107,6 +107,8 @@ queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostR
 ```
 
 - **Add `go.mod` file**
+In the `go.mod` file you created earlier, define the client modules:
+
 ```go
 module github.com/tendermint/starport/local_test/client
 
