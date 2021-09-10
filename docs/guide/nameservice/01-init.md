@@ -3,11 +3,11 @@ order: 1
 description: Scaffold a blockchain and create a nameservice module.
 ---
 
-# Scaffolding the Nameservice Module
+# Scaffold the Nameservice Module
 
-Scaffold a blockchain and create a nameservice module.
+Scaffold a blockchain and create a `nameservice` module for the nameservice app. Remember, the goal of the nameservice app is to send tokens between participants so that end users can buy names and set a value to the names.
 
-## Creating a Blockchain
+## Create a Blockchain
 
 Scaffold a new Cosmos SDK blockchain using the `starport scaffold chain` command. The [starport scaffold chain](https://docs.starport.network/cli/#starport-scaffold-chain) command accepts one argument: the Go module path that is used for the project.
 
@@ -27,7 +27,7 @@ cd nameservice
 
 Inside the `nameservice` project directory you can execute other Starport commands to start a blockchain node, scaffold modules, messages, types, generate code, and much more.
 
-## Creating the Nameservice Module
+## Create the Module
 
 Scaffold a new module called `nameservice`. By design, the `nameservice` module must send tokens between participants. The send tokens functionality is implemented in the standard `bank` module. 
 
