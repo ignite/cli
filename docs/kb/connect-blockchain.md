@@ -166,7 +166,7 @@ To update a post:
 		Creator: address.String(),
 		Id:      0,
 		Title:   "Hello cosmonaut",
-		Body:    "This is a modified post",
+		Body:    "You can change the world by building blockchains.",
 	}
 ```
 
