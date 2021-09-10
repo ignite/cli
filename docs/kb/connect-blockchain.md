@@ -7,7 +7,7 @@ order: 10
 
 **Learn how to connect your Blockchain to an independent application with RPC**
 
-## Step 1
+## Creating a Blockchain
 - **Scaffold a new Blockchain using `starport`**
 ```zsh
 starport scaffold chain github.com/alijnmerchant21/blog
