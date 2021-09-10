@@ -24,7 +24,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map with custom path",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "appPath", "email", "--path", "blog"),
+			step.Exec("starport", "s", "map", "appPath", "email", "--path", filepath.Join(path, "app")),
 			step.Workdir(filepath.Dir(path)),
 		)),
 	))
