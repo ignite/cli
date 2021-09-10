@@ -14,6 +14,8 @@ import (
 	"github.com/russross/blackfriday/v2"
 )
 
+const migrationTempDir = "migration"
+
 var (
 	// exts defines the extensions that are used
 	exts = blackfriday.Tables |
@@ -45,7 +47,7 @@ var (
 // SaveTemp saves file system f markdown in converted html to a temporary path
 // and returns that path.
 func SaveTemp(f fs.FS) (string, error) {
-	path, err := os.MkdirTemp("", "")
+	path, err := os.MkdirTemp("", migrationTempDir)
 	if err != nil {
 		return path, err
 	}
@@ -64,18 +66,16 @@ func save(f fs.FS, path string) error {
 			return err
 		}
 
-		htmlContent, err := markdown(content)
-		if err != nil {
-			return err
-		}
 		name := strings.ReplaceAll(d.Name(), ".md", ".html")
 		out := filepath.Join(path, name)
+
+		htmlContent := markdown(content)
 		return os.WriteFile(out, htmlContent, 0644)
 	})
 }
 
 // markdown creates a html content based in the markdown path
-func markdown(src []byte) ([]byte, error) {
+func markdown(src []byte) []byte {
 	// remove file description by regex
 	noTileRegex := regexp.MustCompile(`---[\s\S]*?---`)
 	noTitle := noTileRegex.ReplaceAllString(string(src), "")
@@ -100,5 +100,5 @@ func markdown(src []byte) ([]byte, error) {
 	p := bluemonday.UGCPolicy()
 	result := p.SanitizeBytes(unsafe)
 
-	return result, nil
+	return result
 }
