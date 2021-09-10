@@ -4,7 +4,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
-const gogoProtoFile = "gogoproto/gogo"
+const gogoProtoFile = "gogoproto/gogo.proto"
 
 // EnsureGogoProtoImported add the gogo.proto import in the proto file content in case it's not defined
 func EnsureGogoProtoImported(protoFile, importPlaceholder string) string {
