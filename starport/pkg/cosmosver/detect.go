@@ -6,9 +6,10 @@ import (
 )
 
 const (
-	cosmosModulePath            = "github.com/cosmos/cosmos-sdk"
-	cosmosModuleMaxLaunchpadTag = "v0.39.99"
-	cosmosModuleStargateTag     = "v0.40.0"
+	cosmosModulePath                  = "github.com/cosmos/cosmos-sdk"
+	cosmosModuleMaxLaunchpadTag       = "v0.39.99"
+	cosmosModuleStargateFortyTag      = "v0.40.0"
+	cosmosModuleStargateFortyThreeTag = "v0.43.0"
 )
 
 // Detect dedects major version of Cosmos.
@@ -21,14 +22,17 @@ func Detect(appPath string) (Version, error) {
 		v := r.Mod
 		if v.Path == cosmosModulePath {
 			switch {
-			case semver.Compare(v.Version, cosmosModuleStargateTag) >= 0:
-				return StargateZeroFourtyAndAbove, nil
+			case semver.Compare(v.Version, cosmosModuleStargateFortyThreeTag) >= 0:
+				return StargateZeroFortyThreeAndAbove, nil
+
+			case semver.Compare(v.Version, cosmosModuleStargateFortyTag) >= 0:
+				return StargateZeroFortyToZeroFortyTwo, nil
 
 			case semver.Compare(v.Version, cosmosModuleMaxLaunchpadTag) <= 0:
 				return LaunchpadAny, nil
 
 			default:
-				return StargateBelowZeroFourty, nil
+				return StargateBelowZeroForty, nil
 			}
 		}
 	}

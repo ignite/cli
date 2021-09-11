@@ -16,9 +16,11 @@ const (
 const (
 	LaunchpadAny Version = iota
 
-	StargateBelowZeroFourty
+	StargateBelowZeroForty
 
-	StargateZeroFourtyAndAbove
+	StargateZeroFortyToZeroFortyTwo
+
+	StargateZeroFortyThreeAndAbove
 )
 
 // MajorVersions are the list of supported Cosmos-SDK major versions.
@@ -30,8 +32,9 @@ var (
 
 	Versions = versions{
 		LaunchpadAny,
-		StargateBelowZeroFourty,
-		StargateZeroFourtyAndAbove,
+		StargateBelowZeroForty,
+		StargateZeroFortyToZeroFortyTwo,
+		StargateZeroFortyThreeAndAbove,
 	}
 )
 
@@ -52,7 +55,7 @@ func (v Version) Is(comparedTo Version) bool {
 // Major returns the MajorVersion of the version.
 func (v Version) Major() MajorVersion {
 	switch v {
-	case StargateBelowZeroFourty, StargateZeroFourtyAndAbove:
+	case StargateBelowZeroForty, StargateZeroFortyToZeroFortyTwo, StargateZeroFortyThreeAndAbove:
 		return Stargate
 	default:
 		return Launchpad
@@ -61,11 +64,14 @@ func (v Version) Major() MajorVersion {
 
 func (v Version) String() string {
 	switch v {
-	case StargateZeroFourtyAndAbove:
-		return "Stargate v0.40.0 (or later)"
+	case StargateZeroFortyToZeroFortyTwo:
+		return "Stargate v0.40.x - v0.42.x"
 
-	case StargateBelowZeroFourty:
-		return "Stargate v0.40.0 (pre-release)"
+	case StargateBelowZeroForty:
+		return "Stargate v0.39.9"
+
+	case StargateZeroFortyThreeAndAbove:
+		return "Stargate v0.43 (or later)"
 
 	default:
 		return "Launchpad"

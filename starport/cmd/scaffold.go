@@ -6,6 +6,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
@@ -84,6 +85,7 @@ func scaffoldType(
 	}
 	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
 	if err != nil {
+		checkVersion(appPath)
 		return err
 	}
 
@@ -116,4 +118,27 @@ func flagGetNoMessage(cmd *cobra.Command) bool {
 func flagGetSigner(cmd *cobra.Command) string {
 	signer, _ := cmd.Flags().GetString(flagSigner)
 	return signer
+}
+
+func checkVersion(path string) {
+	mdPath, err := markdown()
+	if err != nil {
+		return
+	}
+
+	version, err := cosmosver.Detect(path)
+	if err != nil {
+		return
+	}
+
+	if !version.Is(cosmosver.StargateZeroFortyThreeAndAbove) {
+		fmt.Printf(`
+
+⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
+Please make sure that your chain is updated following the migration guidelines from this folder:
+
+%[2]v
+
+`, version.String(), mdPath)
+	}
 }

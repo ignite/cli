@@ -30,6 +30,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	}
 	sm, err := sc.ImportModule(placeholder.New(), "wasm")
 	if err != nil {
+		checkVersion(appPath)
 		return err
 	}
 

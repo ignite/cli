@@ -57,6 +57,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	}
 	sm, err := sc.AddMessage(placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
+		checkVersion(appPath)
 		return err
 	}
 

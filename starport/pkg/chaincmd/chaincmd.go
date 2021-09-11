@@ -336,14 +336,14 @@ func (c ChainCmd) GentxCommand(
 		commandGentx,
 	}
 
-	if c.sdkVersion.Is(cosmosver.StargateZeroFourtyAndAbove) {
+	if c.sdkVersion.Is(cosmosver.StargateZeroFortyToZeroFortyTwo) {
 		command = append(command,
 			validatorName,
 			selfDelegation,
 		)
 	}
 
-	if c.sdkVersion.Is(cosmosver.StargateBelowZeroFourty) {
+	if c.sdkVersion.Is(cosmosver.StargateBelowZeroForty) {
 		command = append(command,
 			validatorName,
 			optionAmount,

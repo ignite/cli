@@ -1,6 +1,7 @@
 package offlinepage
 
 import (
+	"fmt"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -29,10 +30,12 @@ var (
 		blackfriday.SpaceHeadings |
 		blackfriday.AutoHeadingIDs |
 		blackfriday.DefinitionLists |
+		blackfriday.NoIntraEmphasis |
 		blackfriday.BackslashLineBreak
 
 	// flags defines the HTML rendering flags that are used
 	flags = blackfriday.TOC |
+		blackfriday.UseXHTML |
 		blackfriday.CompletePage |
 		blackfriday.FootnoteReturnLinks |
 		blackfriday.Smartypants |
@@ -43,14 +46,14 @@ var (
 		blackfriday.SmartypantsAngledQuotes
 )
 
-// SaveTemp saves file system f markdown in converted html to a temporary path
-// and returns that path.
-func SaveTemp(f fs.FS) (string, error) {
+// Markdown saves file system f markdown in converted html
+// to a temporary path and returns that path.
+func Markdown(f fs.FS) (string, error) {
 	path, err := os.MkdirTemp("", migrationTempDir)
 	if err != nil {
 		return path, err
 	}
-	return path, save(f, path)
+	return fmt.Sprintf("file://%s", path), save(f, path)
 }
 
 // save saves the markdown file converted to html to path.
@@ -68,17 +71,15 @@ func save(f fs.FS, path string) error {
 		name := strings.ReplaceAll(d.Name(), ".md", ".html")
 		out := filepath.Join(path, name)
 
-		htmlContent := markdown(content)
+		htmlContent := markdownToHTML(content)
 		return os.WriteFile(out, htmlContent, 0644)
 	})
 }
 
-// markdown creates a html content based in the markdown path
-func markdown(src []byte) []byte {
+// markdownToHTML creates a html content based in the markdown path
+func markdownToHTML(src []byte) []byte {
 	// create the html styles
 	r := bfchroma.NewRenderer(
-		bfchroma.EmbedCSS(),
-		bfchroma.WithoutAutodetect(),
 		bfchroma.Extend(
 			blackfriday.NewHTMLRenderer(blackfriday.HTMLRendererParameters{Flags: flags}),
 		),
@@ -86,7 +87,6 @@ func markdown(src []byte) []byte {
 		bfchroma.ChromaOptions(
 			html.WithLineNumbers(true),
 			html.LineNumbersInTable(true),
-			html.WithClasses(true),
 		),
 	)
 
