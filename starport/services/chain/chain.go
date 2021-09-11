@@ -190,11 +190,10 @@ func (c *Chain) appVersion() (v version, err error) {
 		return version{}, err
 	}
 
-	var taggerTimestamp int64
-
 	var (
-		tag  string
-		hash string
+		taggerTimestamp int64
+		tag             string
+		hash            string
 	)
 
 	err = tags.ForEach(func(t *object.Tag) error {
