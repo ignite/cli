@@ -81,18 +81,24 @@ func HasMessages(ctx context.Context, path string, names ...string) error {
 	return nil
 }
 
-// IsImported checks if the proto package under path imports a dependency.
-func IsImported(path string, dependency string) error {
+// IsImported checks if the proto package under path imports list of dependencies.
+func IsImported(path string, dependencies ...string) error {
 	f, err := ParseFile(path)
 	if err != nil {
 		return err
 	}
 
-	for _, dep := range f.Dependencies {
-		if dep == dependency {
-			return nil
+	for _, wantDep := range dependencies {
+		found := false
+		for _, fileDep := range f.Dependencies {
+			if wantDep == fileDep {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return fmt.Errorf("invalid proto dependency %s for file %s", wantDep, path)
 		}
 	}
-	return fmt.Errorf("invalid proto dependency %s for file %s", dependency, path)
-
+	return nil
 }
