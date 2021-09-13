@@ -8,6 +8,9 @@ import (
 	"github.com/pkg/errors"
 )
 
+// ErrImportNotFound returned when proto file import cannot be found.
+var ErrImportNotFound = errors.New("go.mod not found")
+
 const protoFilePattern = "*.proto"
 
 type Cache map[string]Packages // proto dir path-proto packages pair.
@@ -97,7 +100,7 @@ func IsImported(path string, dependencies ...string) error {
 			}
 		}
 		if !found {
-			return fmt.Errorf("invalid proto dependency %s for file %s", wantDep, path)
+			return ErrImportNotFound
 		}
 	}
 	return nil

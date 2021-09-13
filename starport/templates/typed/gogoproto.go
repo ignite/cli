@@ -1,6 +1,7 @@
 package typed
 
 import (
+	"errors"
 	"fmt"
 
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
@@ -14,12 +15,15 @@ func EnsureGogoProtoImported(protoFile, importPlaceholder string) string {
 	if err != nil {
 		return importPlaceholder
 	}
-	templateGogoProtoImport := `%[1]v
+	if errors.Is(err, protoanalysis.ErrImportNotFound) {
+		templateGogoProtoImport := `%[1]v
 import "%[2]v";`
-	replacementGogoProtoImport := fmt.Sprintf(
-		templateGogoProtoImport,
-		importPlaceholder,
-		gogoProtoFile,
-	)
-	return replacementGogoProtoImport
+		replacementGogoProtoImport := fmt.Sprintf(
+			templateGogoProtoImport,
+			importPlaceholder,
+			gogoProtoFile,
+		)
+		return replacementGogoProtoImport
+	}
+	return importPlaceholder
 }
