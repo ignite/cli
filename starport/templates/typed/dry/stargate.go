@@ -11,13 +11,17 @@ import (
 var (
 	//go:embed stargate/component/* stargate/component/**/*
 	fsStargateComponent embed.FS
-
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
 )
 
 // NewStargate returns the generator to scaffold a basic type in a Stargate module.
 func NewStargate(opts *typed.Options) (*genny.Generator, error) {
-	g := genny.New()
-
-	return g, typed.Box(stargateTemplate, opts, g)
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+	)
+	return g, typed.Box(template, opts, g)
 }

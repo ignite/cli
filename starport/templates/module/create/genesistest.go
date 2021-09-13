@@ -5,8 +5,10 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
+// genesisTestCtx returns the generator to generate genesis_test.go
 func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
 	g := genny.New()
 	ctx := plush.NewContext()
@@ -21,13 +23,21 @@ func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
 }
 
 // AddGenesisModuleTest returns the generator to generate genesis_test.go
-func AddGenesisModuleTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
+func AddGenesisModuleTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
 	g := genesisTestCtx(appName, modulePath, moduleName)
-	return g, g.Box(genesisModuleTestTemplate)
+	return g, g.Box(xgenny.NewEmbedWalker(
+		fsGenesisModuleTest,
+		"genesistest/module/",
+		appPath,
+	))
 }
 
 // AddGenesisTypesTest returns the generator to generate types/genesis_test.go
-func AddGenesisTypesTest(appName, modulePath, moduleName string) (*genny.Generator, error) {
+func AddGenesisTypesTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
 	g := genesisTestCtx(appName, modulePath, moduleName)
-	return g, g.Box(genesisTypesTestTemplate)
+	return g, g.Box(xgenny.NewEmbedWalker(
+		fsGenesisTypesTest,
+		"genesistest/types/",
+		appPath,
+	))
 }

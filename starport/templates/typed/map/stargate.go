@@ -3,6 +3,7 @@ package maptype
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -26,24 +27,12 @@ var (
 
 	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
 	fsStargateTestsMessages embed.FS
-
-	// stargateMapComponentTemplate allows to scaffold a new map component in a Stargate module
-	stargateMapComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateMapMessagesTemplate allows to scaffold map CRUD messages in a Stargate module
-	stargateMapMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
-
-	// stargateMapTestsComponentTemplate allows to scaffold tests for map component in a Stargate module
-	stargateMapTestsComponentTemplate = xgenny.NewEmbedWalker(fsStargateTestsComponent, "stargate/tests/component/")
-
-	// stargateMapTestsMessagesTemplate allows to scaffold tests for map CRUD messages in a Stargate module
-	stargateMapTestsMessagesTemplate = xgenny.NewEmbedWalker(fsStargateTestsMessages, "stargate/tests/messages/")
 )
 
 // NewStargate returns the generator to scaffold a new map type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
 	// Tests are not generated for map with a custom index that contains only booleans
-	// because the we can't generate reliable tests for this type
+	// because we can't generate reliable tests for this type
 	var generateTest bool
 	for _, index := range opts.Indexes {
 		if index.DatatypeName != field.TypeBool {
@@ -51,7 +40,30 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		}
 	}
 
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateMessages,
+			"stargate/messages/",
+			opts.AppPath,
+		)
+		testsMessagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateTestsMessages,
+			"stargate/tests/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+		testsComponentTemplate = xgenny.NewEmbedWalker(
+			fsStargateTestsComponent,
+			"stargate/tests/component/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(protoRPCModify(replacer, opts))
 	g.RunFn(moduleGRPCGatewayModify(replacer, opts))
@@ -69,27 +81,27 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
-		if err := typed.Box(stargateMapMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 		if generateTest {
-			if err := typed.Box(stargateMapTestsMessagesTemplate, opts, g); err != nil {
+			if err := typed.Box(testsMessagesTemplate, opts, g); err != nil {
 				return nil, err
 			}
 		}
 	}
 
 	if generateTest {
-		if err := typed.Box(stargateMapTestsComponentTemplate, opts, g); err != nil {
+		if err := typed.Box(testsComponentTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
-	return g, typed.Box(stargateMapComponentTemplate, opts, g)
+	return g, typed.Box(componentTemplate, opts, g)
 }
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -190,7 +202,7 @@ message QueryAll%[2]vResponse {
 
 func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -208,7 +220,7 @@ func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -229,7 +241,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -271,7 +283,7 @@ import "%[2]v/%[3]v.proto";`
 
 func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -325,7 +337,7 @@ for _, elem := range gs.%[3]vList {
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -363,7 +375,7 @@ genesis.%[3]vList = k.GetAll%[3]v(ctx)
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -419,7 +431,7 @@ require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
 
 func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -486,7 +498,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -576,7 +588,7 @@ message MsgDelete%[2]vResponse {}
 
 func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -609,7 +621,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -628,7 +640,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -26,6 +27,25 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 				"foo,bar:int,foobar:bool",
 			),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a query with custom path",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"query",
+				"AppPath",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+				"--path",
+				"./blog",
+			),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 

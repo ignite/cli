@@ -33,20 +33,23 @@ Sample usages:
 		Args: cobra.ExactArgs(0),
 		RunE: chainBuildHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
-	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+
 	return c
 }
 
 func chainBuildHandler(cmd *cobra.Command, args []string) error {
-	isRelease, _ := cmd.Flags().GetBool(flagRelease)
-	releaseTargets, _ := cmd.Flags().GetStringSlice(flagReleaseTargets)
-	releasePrefix, _ := cmd.Flags().GetString(flagReleasePrefix)
+	var (
+		isRelease, _      = cmd.Flags().GetBool(flagRelease)
+		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
+		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
+	)
 
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
@@ -57,7 +60,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

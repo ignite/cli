@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -19,6 +20,21 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an IBC module with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport",
+				"s",
+				"module",
+				"appPath",
+				"--ibc",
+				"--require-registration",
+				"--path",
+				"./ibcblog",
+			),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
