@@ -12,7 +12,7 @@ import (
 func NewAccountExport() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "export [name]",
-		Short: "Export an account",
+		Short: "Export an account as a private key",
 		Args:  cobra.ExactArgs(1),
 		RunE:  accountExportHandler,
 	}
@@ -26,8 +26,8 @@ func NewAccountExport() *cobra.Command {
 
 func accountExportHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name    = args[0]
-		path, _ = cmd.Flags().GetString(flagPath)
+		name = args[0]
+		path = flagGetPath(cmd)
 	)
 
 	passphrase, err := getPassphrase(cmd)

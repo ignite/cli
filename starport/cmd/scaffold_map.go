@@ -18,7 +18,7 @@ func NewScaffoldMap() *cobra.Command {
 		RunE:  scaffoldMapHandler,
 	}
 
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 	c.Flags().StringSlice(FlagIndexes, []string{"index"}, "fields that index the value")
 

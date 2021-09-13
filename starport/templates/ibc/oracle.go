@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -21,14 +22,8 @@ var (
 	//go:embed oracle/static/* oracle/static/**/*
 	fsOracleStatic embed.FS
 
-	// ibcOracleStaticTemplate is the template to scaffold a new static oracle templates in an IBC module
-	ibcOracleStaticTemplate = xgenny.NewEmbedWalker(fsOracleStatic, "oracle/static/")
-
 	//go:embed oracle/dynamic/* oracle/dynamic/**/*
 	fsOracleDynamic embed.FS
-
-	// ibcOracleDynamicTemplate is the template to scaffold a new dynamic oracle templates in an IBC module
-	ibcOracleDynamicTemplate = xgenny.NewEmbedWalker(fsOracleDynamic, "oracle/dynamic/")
 )
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
@@ -85,20 +80,33 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 }
 
 func box(g *genny.Generator, opts *OracleOptions) error {
-	gs := genny.New()
-	path := fmt.Sprintf("x/%s/oracle.go", opts.ModuleName)
+	var (
+		gs   = genny.New()
+		path = filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
+
+		staticTemplate = xgenny.NewEmbedWalker(
+			fsOracleStatic,
+			"oracle/static/",
+			opts.AppPath,
+		)
+		dynamicTemplate = xgenny.NewEmbedWalker(
+			fsOracleDynamic,
+			"oracle/dynamic/",
+			opts.AppPath,
+		)
+	)
 	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := gs.Box(ibcOracleStaticTemplate); err != nil {
+		if err := gs.Box(staticTemplate); err != nil {
 			return err
 		}
 	}
 	g.Merge(gs)
-	return g.Box(ibcOracleDynamicTemplate)
+	return g.Box(dynamicTemplate)
 }
 
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -137,7 +145,7 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 
 func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -192,7 +200,7 @@ message QueryLast%[2]vIdResponse {int64 request_id = 1;}
 
 func protoTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -254,7 +262,7 @@ message Msg%[2]vDataResponse {
 
 func handlerTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -278,7 +286,7 @@ func handlerTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) g
 
 func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -297,7 +305,7 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 
 func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -314,7 +322,7 @@ func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions)
 
 func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -346,7 +354,7 @@ registry.RegisterImplementations((*sdk.Msg)(nil),
 
 func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/oracle.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

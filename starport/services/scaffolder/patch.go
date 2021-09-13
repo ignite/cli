@@ -18,18 +18,33 @@ func supportGenesisTests(
 	modulePath,
 	moduleName string,
 ) ([]*genny.Generator, error) {
-	filepath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types", "genesis_test.go"))
+	path, err := filepath.Abs(filepath.Join(appPath, "x", moduleName))
 	if err != nil {
 		return nil, err
 	}
-	if _, err := os.Stat(filepath); os.IsNotExist(err) {
-		g, err := modulecreate.AddGenesisTest(appName, modulePath, moduleName)
+
+	gmPath := filepath.Join(path, "genesis_test.go")
+	if _, err := os.Stat(gmPath); os.IsNotExist(err) {
+		g, err := modulecreate.AddGenesisModuleTest(appPath, appName, modulePath, moduleName)
 		if err != nil {
 			return nil, err
 		}
 		gens = append(gens, g)
+	} else if err != nil {
+		return nil, err
 	}
-	return gens, err
+
+	gtPath := filepath.Join(path, "types/genesis_test.go")
+	if _, err := os.Stat(gtPath); os.IsNotExist(err) {
+		g, err := modulecreate.AddGenesisTypesTest(appPath, appName, modulePath, moduleName)
+		if err != nil {
+			return nil, err
+		}
+		gens = append(gens, g)
+	} else if err != nil {
+		return nil, err
+	}
+	return gens, nil
 }
 
 // supportMsgServer checks if the module supports the MsgServer convention

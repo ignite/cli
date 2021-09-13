@@ -2,30 +2,34 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/typed"
 )
 
 // NewIBC returns the generator to scaffold the implementation of the IBCModule interface inside a module
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(fsIBC, "ibc/", opts.AppPath)
+	)
 
-	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(genesisModify(replacer, opts))
-	g.RunFn(errorsModify(replacer, opts))
-	g.RunFn(genesisTypeModify(replacer, opts))
+	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTestsModify(replacer, opts))
+	g.RunFn(genesisTypesTestsModify(replacer, opts))
 	g.RunFn(keysModify(replacer, opts))
-	g.RunFn(keeperModify(replacer, opts))
 
-	if err := g.Box(ibcTemplate); err != nil {
+	if err := g.Box(template); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
@@ -45,37 +49,17 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	return g, nil
 }
 
-func moduleModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Import
-		templateImport := `porttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/05-port/types"`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCModuleImport, templateImport)
-
-		// Interface to implement
-		templateInterface := `_ porttypes.IBCModule   = AppModule{}`
-		content = replacer.Replace(content, module.PlaceholderIBCModuleInterface, templateInterface)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
 func genesisModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Genesis init
-		templateInit := `k.SetPort(ctx, genState.PortId)
+		templateInit := `%s
+k.SetPort(ctx, genState.PortId)
 // Only try to bind to port if it is not already bound, since we may already own
 // port capability from capability InitGenesis
 if !k.IsBound(ctx, genState.PortId) {
@@ -86,57 +70,48 @@ if !k.IsBound(ctx, genState.PortId) {
 		panic("could not claim port capability: " + err.Error())
 	}
 }`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCGenesisInit, templateInit)
+		replacementInit := fmt.Sprintf(templateInit, typed.PlaceholderGenesisModuleInit)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementInit)
 
 		// Genesis export
-		templateExport := `genesis.PortId = k.GetPort(ctx)`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisExport, templateExport)
+		templateExport := `%s
+genesis.PortId = k.GetPort(ctx)`
+		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
 }
 
-func errorsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/errors.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// IBC errors
-		template := `ErrInvalidPacketTimeout = sdkerrors.Register(ModuleName, 1500, "invalid packet timeout")
-ErrInvalidVersion = sdkerrors.Register(ModuleName, 1501, "invalid version")`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCErrors, template)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Import
-		templateImport := `host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCGenesisTypeImport, templateImport)
+		templateImport := `%s
+host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
+		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
 
 		// Default genesis
-		templateDefault := `PortId: PortID,`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisTypeDefault, templateDefault)
+		templateDefault := `%s
+PortId: PortID,`
+		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		templateValidate := `%s
+if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
 }`
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisTypeValidate, templateValidate)
+		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
+		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -145,7 +120,7 @@ func genesisTypeModify(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -155,9 +130,10 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		content := f.String()
 		fieldNumber := strings.Count(content, module.PlaceholderGenesisProtoStateField) + 1
 
-		template := `string port_id = %[1]v; %[2]v`
-		replacement := fmt.Sprintf(template, fieldNumber, module.PlaceholderGenesisProtoStateField)
-		content = replacer.Replace(content, module.PlaceholderIBCGenesisProto, replacement)
+		template := `%[1]v
+  string port_id = %[2]v; %[3]v`
+		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState, fieldNumber, module.PlaceholderGenesisProtoStateField)
+		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
@@ -166,7 +142,26 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		replacementState := fmt.Sprintf("PortId: types.PortID,\n%s", module.PlaceholderGenesisTestState)
+		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
+
+		replacementAssert := fmt.Sprintf("require.Equal(t, genesisState.PortId, got.PortId)\n%s", module.PlaceholderGenesisTestAssert)
+		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementAssert)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func genesisTypesTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -182,7 +177,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 func keysModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -210,40 +205,9 @@ PortID = "%[1]v"`
 	}
 }
 
-func keeperModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/keeper/keeper.go", opts.ModuleName)
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		// Keeper new attributes
-		templateAttribute := `channelKeeper types.ChannelKeeper
-portKeeper    types.PortKeeper
-scopedKeeper  types.ScopedKeeper`
-		content := replacer.Replace(f.String(), module.PlaceholderIBCKeeperAttribute, templateAttribute)
-
-		// New parameter for the constructor
-		templateParameter := `channelKeeper types.ChannelKeeper,
-portKeeper types.PortKeeper,
-scopedKeeper types.ScopedKeeper,`
-		content = replacer.Replace(content, module.PlaceholderIBCKeeperParameter, templateParameter)
-
-		// New return values for the constructor
-		templateReturn := `channelKeeper: channelKeeper,
-portKeeper:    portKeeper,
-scopedKeeper:  scopedKeeper,`
-		content = replacer.Replace(content, module.PlaceholderIBCKeeperReturn, templateReturn)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
 func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := module.PathAppGo
+		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

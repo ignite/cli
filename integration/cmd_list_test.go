@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -18,6 +19,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "user", "email"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a list with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "AppPath", "email", "--path", "blog"),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 

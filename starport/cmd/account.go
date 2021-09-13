@@ -19,8 +19,10 @@ const (
 
 func NewAccount() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "account [command]",
-		Short:   "Manage your cosmos chain accounts",
+		Use:   "account [command]",
+		Short: "Commands for managing accounts",
+		Long: `Commands for managing accounts. An account is a pair of a private key and a public key.
+Starport uses accounts to interact with the Starport Network blockchain, use an IBC relayer, and more.`,
 		Aliases: []string{"a"},
 		Args:    cobra.ExactArgs(1),
 	}
