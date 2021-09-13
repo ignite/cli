@@ -102,7 +102,7 @@ go 1.17
 
 require (
 	github.com/cosmonaut/blog v0.0.0
-	github.com/tendermint/starport v0.15.0
+	github.com/tendermint/starport v0.18.0
 )
 
 replace github.com/cosmonaut/blog => ../blog
