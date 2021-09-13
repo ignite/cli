@@ -41,15 +41,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		appPath            = flagGetPath(cmd)
 	)
 
-	sc, err := scaffolder.New(
-		appPath,
-		scaffolder.AddressPrefix(addressPrefix),
-	)
-	if err != nil {
-		return err
-	}
-
-	appdir, err := sc.Init(placeholder.New(), name, noDefaultModule)
+	appdir, err := scaffolder.Init(placeholder.New(), appPath, name, addressPrefix, noDefaultModule)
 	if err != nil {
 		return err
 	}
@@ -65,8 +57,7 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 ⭐️ Successfully created a new blockchain '%[1]v'.
 👉 Get started with the following commands:
 
- %% cd %[1]v
- %% starport chain serve
+ %% starport chain serve -p %[1]v
 
 Documentation: https://docs.starport.network
 `

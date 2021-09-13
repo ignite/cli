@@ -44,7 +44,7 @@ func WithSigner(signer string) MessageOption {
 }
 
 // AddMessage adds a new message to scaffolded app
-func (s *Scaffolder) AddMessage(
+func (s Scaffolder) AddMessage(
 	tracer *placeholder.Tracer,
 	moduleName,
 	msgName string,
@@ -60,7 +60,7 @@ func (s *Scaffolder) AddMessage(
 
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
-		moduleName = s.path.Package
+		moduleName = s.modpath.Package
 	}
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
@@ -73,7 +73,7 @@ func (s *Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	if err := checkComponentValidity(s.appPath, moduleName, name, false); err != nil {
+	if err := checkComponentValidity(s.path, moduleName, name, false); err != nil {
 		return sm, err
 	}
 
@@ -95,11 +95,11 @@ func (s *Scaffolder) AddMessage(
 	var (
 		g    *genny.Generator
 		opts = &message.Options{
-			AppName:    s.path.Package,
-			AppPath:    s.appPath,
-			ModulePath: s.path.RawPath,
+			AppName:    s.modpath.Package,
+			AppPath:    s.path,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(s.path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			MsgName:    name,
 			Fields:     parsedMsgFields,
 			ResFields:  parsedResFields,
@@ -113,7 +113,7 @@ func (s *Scaffolder) AddMessage(
 	gens, err = supportMsgServer(
 		gens,
 		tracer,
-		s.appPath,
+		s.path,
 		&modulecreate.MsgServerOptions{
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
@@ -136,7 +136,7 @@ func (s *Scaffolder) AddMessage(
 	if err != nil {
 		return sm, err
 	}
-	return sm, s.finish(opts.AppPath, s.path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name

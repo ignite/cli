@@ -78,7 +78,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(
+func (s Scaffolder) CreateModule(
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
@@ -95,7 +95,7 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check if the module already exist
-	ok, err := moduleExists(s.appPath, moduleName)
+	ok, err := moduleExists(s.path, moduleName)
 	if err != nil {
 		return sm, err
 	}
@@ -110,16 +110,16 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies, s.appPath); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return sm, err
 	}
 
 	opts := &modulecreate.CreateOptions{
 		ModuleName:   moduleName,
-		ModulePath:   s.path.RawPath,
-		AppName:      s.path.Package,
-		AppPath:      s.appPath,
-		OwnerName:    owner(s.path.RawPath),
+		ModulePath:   s.modpath.RawPath,
+		AppName:      s.modpath.Package,
+		AppPath:      s.path,
+		OwnerName:    owner(s.modpath.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
@@ -153,17 +153,17 @@ func (s *Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	return sm, s.finish(opts.AppPath, s.path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
 	}
 
-	ok, err := isWasmImported(s.appPath)
+	ok, err := isWasmImported(s.path)
 	if err != nil {
 		return sm, err
 	}
@@ -173,10 +173,10 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 
 	// run generator
 	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
-		AppPath:          s.appPath,
+		AppPath:          s.path,
 		Feature:          name,
-		AppName:          s.path.Package,
-		BinaryNamePrefix: s.path.Root,
+		AppName:          s.modpath.Package,
+		BinaryNamePrefix: s.modpath.Root,
 	})
 	if err != nil {
 		return sm, err
@@ -198,7 +198,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, err
 	}
 
-	return sm, s.finish(s.appPath, s.path.RawPath)
+	return sm, finish(s.path, s.modpath.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {
@@ -265,7 +265,7 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func (s *Scaffolder) installWasm() error {
+func (s Scaffolder) installWasm() error {
 	switch s.version {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
