@@ -2,24 +2,33 @@ package query
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(
+			fsStargate,
+			"stargate/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(protoQueryModify(replacer, opts))
 	g.RunFn(cliQueryModify(replacer, opts))
 
-	return g, Box(stargateTemplate, opts, g)
+	return g, Box(template, opts, g)
 }
 
 func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -86,7 +95,7 @@ message Query%[2]vResponse {
 
 func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

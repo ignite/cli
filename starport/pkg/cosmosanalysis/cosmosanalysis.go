@@ -3,9 +3,17 @@
 package cosmosanalysis
 
 import (
+	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
+
+	"golang.org/x/mod/modfile"
+)
+
+const (
+	cosmosModulePath     = "github.com/cosmos/cosmos-sdk"
+	tendermintModulePath = "github.com/tendermint/tendermint"
 )
 
 // implementation tracks the implementation of an interface for a given struct
@@ -89,4 +97,19 @@ func checkImplementation(r implementation) bool {
 		}
 	}
 	return true
+}
+
+// ValidateGoMod check if the cosmos-sdk and the tendermint packages are imported.
+func ValidateGoMod(module *modfile.File) error {
+	moduleCheck := map[string]bool{
+		cosmosModulePath:     true,
+		tendermintModulePath: true,
+	}
+	for _, r := range module.Require {
+		delete(moduleCheck, r.Mod.Path)
+	}
+	for m := range moduleCheck {
+		return fmt.Errorf("invalid go module, missing %s package dependency", m)
+	}
+	return nil
 }
