@@ -149,7 +149,7 @@ import "%s/%s.proto";`
 		}
 
 		// Ensure custom types are imported
-		for _, f := range opts.Indexes.CustomImports() {
+		for _, f := range opts.Indexes.Custom() {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
 			content = strings.ReplaceAll(content, importModule, "")
@@ -533,7 +533,7 @@ import "%s/%s.proto";`
 		}
 
 		// Ensure custom types are imported
-		customFields := append(opts.Fields.CustomImports(), opts.Indexes.CustomImports()...)
+		customFields := append(opts.Fields.Custom(), opts.Indexes.Custom()...)
 		for _, f := range customFields {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)

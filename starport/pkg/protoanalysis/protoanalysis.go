@@ -55,9 +55,9 @@ func ParseFile(path string) (File, error) {
 	return files[0], nil
 }
 
-// CheckTypes check if the proto files into a folder contains a list of message names
-func CheckTypes(path string, names []string) error {
-	pkgs, err := Parse(context.Background(), NewCache(), path)
+// HasMessages checks if the proto package under path contains messages with given names.
+func HasMessages(ctx context.Context, path string, names []string) error {
+	pkgs, err := Parse(ctx, NewCache(), path)
 	if err != nil {
 		return err
 	}

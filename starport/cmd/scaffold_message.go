@@ -55,7 +55,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddMessage(placeholder.New(), module, args[0], args[1:], resFields, options...)
+	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}

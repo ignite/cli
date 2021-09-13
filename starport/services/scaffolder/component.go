@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"errors"
 	"fmt"
 	"go/ast"
@@ -208,7 +209,7 @@ func checkForbiddenOracleFieldName(name string) error {
 }
 
 // checkCustomTypes returns error if one of the types is invalid
-func checkCustomTypes(path, module string, fields []string) error {
+func checkCustomTypes(ctx context.Context, path, module string, fields []string) error {
 	protoPath := filepath.Join(path, protoFolder, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
@@ -221,5 +222,5 @@ func checkCustomTypes(path, module string, fields []string) error {
 			customFields = append(customFields, fieldType)
 		}
 	}
-	return protoanalysis.CheckTypes(protoPath, customFields)
+	return protoanalysis.HasMessages(ctx, protoPath, customFields)
 }

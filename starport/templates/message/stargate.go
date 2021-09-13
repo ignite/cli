@@ -102,7 +102,7 @@ message Msg%[2]vResponse {
 		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
 
 		// Ensure custom types are imported
-		customFields := append(opts.ResFields.CustomImports(), opts.Fields.CustomImports()...)
+		customFields := append(opts.ResFields.Custom(), opts.Fields.Custom()...)
 		for _, f := range customFields {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)

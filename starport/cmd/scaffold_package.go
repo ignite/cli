@@ -72,7 +72,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddPacket(placeholder.New(), module, packet, packetFields, ackFields, options...)
+	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
 		return err
 	}

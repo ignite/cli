@@ -392,7 +392,7 @@ import "%s/%s.proto";`
 		for i, f := range opts.Fields {
 			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
 		}
-		for _, f := range opts.Fields.CustomImports() {
+		for _, f := range opts.Fields.Custom() {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
 			content = strings.ReplaceAll(content, importModule, "")

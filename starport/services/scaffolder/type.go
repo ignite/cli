@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"strings"
@@ -108,6 +109,7 @@ func TypeWithSigner(signer string) AddTypeOption {
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.
 func (s *Scaffolder) AddType(
+	ctx context.Context,
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
@@ -140,7 +142,7 @@ func (s *Scaffolder) AddType(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(s.path, moduleName, o.fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
 	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)

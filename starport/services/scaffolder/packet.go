@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -50,6 +51,7 @@ func PacketWithSigner(signer string) PacketOption {
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s *Scaffolder) AddPacket(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
@@ -98,7 +100,7 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// Check and parse packet fields
-	if err := checkCustomTypes(s.path, moduleName, packetFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
 		return sm, err
 	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
@@ -107,7 +109,7 @@ func (s *Scaffolder) AddPacket(
 	}
 
 	// check and parse acknowledgment fields
-	if err := checkCustomTypes(s.path, moduleName, ackFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
 		return sm, err
 	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)

@@ -165,8 +165,8 @@ func (f Fields) String() string {
 	return args
 }
 
-// CustomImports return a list of custom fields
-func (f Fields) CustomImports() []string {
+// Custom return a list of custom fields
+func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {
 		if field.DatatypeName == TypeCustom {

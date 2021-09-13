@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"os"
 
 	"github.com/gobuffalo/genny"
@@ -14,6 +15,7 @@ import (
 
 // AddQuery adds a new query to scaffolded app
 func (s *Scaffolder) AddQuery(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
@@ -47,7 +49,7 @@ func (s *Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided request fields
-	if err := checkCustomTypes(s.path, moduleName, reqFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, reqFields); err != nil {
 		return sm, err
 	}
 	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
@@ -56,7 +58,7 @@ func (s *Scaffolder) AddQuery(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(s.path, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)

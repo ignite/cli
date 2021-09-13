@@ -65,7 +65,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
 	}

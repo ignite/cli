@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -47,6 +48,7 @@ func WithSigner(signer string) MessageOption {
 
 // AddMessage adds a new message to scaffolded app
 func (s *Scaffolder) AddMessage(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	msgName string,
@@ -85,7 +87,7 @@ func (s *Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided fields
-	if err := checkCustomTypes(s.path, moduleName, fields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
 		return sm, err
 	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
@@ -94,7 +96,7 @@ func (s *Scaffolder) AddMessage(
 	}
 
 	// Check and parse provided response fields
-	if err := checkCustomTypes(s.path, moduleName, resFields); err != nil {
+	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)

@@ -77,9 +77,6 @@ type Message struct {
 
 	// Path of the file where message is defined at.
 	Path string
-
-	// Fields represents a list of field name.
-	Fields map[string]string
 }
 
 // Service is an RPC service.

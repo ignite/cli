@@ -199,7 +199,7 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		}
 
 		// Ensure custom types are imported
-		customFields := append(opts.Fields.CustomImports(), opts.AckFields.CustomImports()...)
+		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
 		for _, f := range customFields {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
@@ -280,7 +280,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		}
 
 		// Ensure custom types are imported
-		for _, f := range opts.Fields.CustomImports() {
+		for _, f := range opts.Fields.Custom() {
 			importModule := fmt.Sprintf(`
 import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
 			content = strings.ReplaceAll(content, importModule, "")
