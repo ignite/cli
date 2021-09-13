@@ -22,8 +22,11 @@ func NewScaffoldChain() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  scaffoldChainHandler,
 	}
+
+	c.Flags().StringP(flagPath, "p", ".", "path to scaffold the chain")
 	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Prevent scaffolding a default module in the app")
+
 	return c
 }
 
@@ -35,32 +38,30 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		name               = args[0]
 		addressPrefix, _   = cmd.Flags().GetString(flagAddressPrefix)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
+		appPath            = flagGetPath(cmd)
 	)
 
-	sc, err := scaffolder.New("",
-		scaffolder.AddressPrefix(addressPrefix),
-	)
-	if err != nil {
-		return err
-	}
-
-	appdir, err := sc.Init(placeholder.New(), name, noDefaultModule)
+	appdir, err := scaffolder.Init(placeholder.New(), appPath, name, addressPrefix, noDefaultModule)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
+	path, err := relativePath(appdir)
+	if err != nil {
+		return err
+	}
+
 	message := `
 ⭐️ Successfully created a new blockchain '%[1]v'.
 👉 Get started with the following commands:
 
- %% cd %[1]v
- %% starport chain serve
+ %% starport chain serve -p %[1]v
 
 Documentation: https://docs.starport.network
 `
-	fmt.Printf(message, appdir)
+	fmt.Printf(message, path)
 
 	return nil
 }

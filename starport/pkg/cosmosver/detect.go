@@ -12,7 +12,7 @@ const (
 	cosmosModuleStargateFortyThreeTag = "v0.43.0"
 )
 
-// Detect dedects major version of Cosmos.
+// Detect detects major version of Cosmos.
 func Detect(appPath string) (Version, error) {
 	parsed, err := gomodule.ParseAt(appPath)
 	if err != nil {

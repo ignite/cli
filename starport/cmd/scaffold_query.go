@@ -21,7 +21,8 @@ func NewScaffoldQuery() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  queryHandler,
 	}
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -61,10 +62,12 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := scaffolder.New(appPath)
+	appPath := flagGetPath(cmd)
+	sc, err := scaffolder.App(appPath)
 	if err != nil {
 		return err
 	}
+
 	sm, err := sc.AddQuery(placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		checkVersion(appPath)
@@ -73,7 +76,13 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
 	return nil
 }

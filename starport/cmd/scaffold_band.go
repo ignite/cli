@@ -20,6 +20,7 @@ func NewScaffoldBandchain() *cobra.Command {
 		RunE:  createBandchainHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
@@ -30,7 +31,12 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	oracle := args[0]
+	var (
+		oracle  = args[0]
+		appPath = flagGetPath(cmd)
+		signer  = flagGetSigner(cmd)
+	)
+
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
 		return err
@@ -39,17 +45,16 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("please specify a module to create the BandChain oracle into: --module <module_name>")
 	}
 
-	signer := flagGetSigner(cmd)
-
 	var options []scaffolder.OracleOption
 	if signer != "" {
 		options = append(options, scaffolder.OracleWithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.App(appPath)
 	if err != nil {
 		return err
 	}
+
 	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
 	if err != nil {
 		checkVersion(appPath)
@@ -58,7 +63,13 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf(`
 🎉 Created a Band oracle query "%[1]v".
 

@@ -18,9 +18,10 @@ func NewChainFaucet() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  chainFaucetHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+
 	return c
 }
 
@@ -35,7 +36,7 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

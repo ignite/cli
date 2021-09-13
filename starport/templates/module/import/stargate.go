@@ -2,6 +2,7 @@ package moduleimport
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -13,7 +14,7 @@ import (
 // NewStargate returns the generator to scaffold code to import wasm module inside a Stargate app
 func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Generator, error) {
 	g := genny.New()
-	g.RunFn(appModifyStargate(replacer))
+	g.RunFn(appModifyStargate(replacer, opts))
 	g.RunFn(cmdModifyStargate(replacer, opts))
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
@@ -23,9 +24,9 @@ func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Gen
 }
 
 // app.go modification on Stargate when importing wasm
-func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
+func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := module.PathAppGo
+		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -145,7 +146,7 @@ func appModifyStargate(replacer placeholder.Replacer) genny.RunFn {
 // main.go modification on Stargate when importing wasm
 func cmdModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := "cmd/" + opts.BinaryNamePrefix + "d/main.go"
+		path := filepath.Join(opts.AppPath, "cmd", opts.BinaryNamePrefix+"d/main.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -17,7 +17,6 @@ func NewChainInit() *cobra.Command {
 	}
 
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
 
 	return c
 }
@@ -28,7 +27,7 @@ func chainInitHandler(cmd *cobra.Command, args []string) error {
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
