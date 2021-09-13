@@ -10,7 +10,7 @@ const gogoProtoFile = "gogoproto/gogo.proto"
 
 // EnsureGogoProtoImported add the gogo.proto import in the proto file content in case it's not defined
 func EnsureGogoProtoImported(protoFile, importPlaceholder string) string {
-	isImported, err := protoanalysis.IsImported(gogoProtoFile, protoFile)
+	isImported, err := protoanalysis.IsImported(protoFile, gogoProtoFile)
 	if err != nil {
 		return importPlaceholder
 	}

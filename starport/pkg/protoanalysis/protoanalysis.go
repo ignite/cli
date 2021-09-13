@@ -56,41 +56,40 @@ func ParseFile(path string) (File, error) {
 }
 
 // HasMessages checks if the proto package under path contains messages with given names.
-func HasMessages(ctx context.Context, path string, names []string) error {
+func HasMessages(ctx context.Context, path string, names ...string) error {
 	pkgs, err := Parse(ctx, NewCache(), path)
 	if err != nil {
 		return err
 	}
 
+	hasName := func(name string) error {
+		for _, pkg := range pkgs {
+			for _, msg := range pkg.Messages {
+				if msg.Name == name {
+					return nil
+				}
+			}
+		}
+		return fmt.Errorf("invalid proto message name %s", name)
+	}
+
 	for _, name := range names {
-		if err := checkMsgName(pkgs, name); err != nil {
+		if err := hasName(name); err != nil {
 			return err
 		}
 	}
 	return nil
 }
 
-// checkMsgName check if a message name exist into the package list
-func checkMsgName(pkgs Packages, name string) error {
-	for _, pkg := range pkgs {
-		for _, msg := range pkg.Messages {
-			if msg.Name == name {
-				return nil
-			}
-		}
-	}
-	return fmt.Errorf("invalid proto message name %s", name)
-}
-
-// IsImported returns true if the proto file is imported in the provided proto file
-func IsImported(protoImport, protoPath string) (bool, error) {
-	f, err := ParseFile(protoPath)
+// IsImported checks if the proto package under path imports a dependency.
+func IsImported(path, dependency string) (bool, error) {
+	f, err := ParseFile(path)
 	if err != nil {
 		return false, err
 	}
 
 	for _, dep := range f.Dependencies {
-		if dep == protoImport {
+		if dep == dependency {
 			return true, nil
 		}
 	}

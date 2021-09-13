@@ -222,5 +222,5 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 			customFields = append(customFields, fieldType)
 		}
 	}
-	return protoanalysis.HasMessages(ctx, protoPath, customFields)
+	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }
