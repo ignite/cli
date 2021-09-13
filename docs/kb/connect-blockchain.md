@@ -5,33 +5,35 @@ order: 10
 
 # Creating a Blockchain Client in Go
 
-**Learn how to connect your Blockchain to an independent application with RPC**
+Learn how to connect your Blockchain to an independent application with RPC.
 
 ## Creating a Blockchain
+
 Scaffold a new blockchain using `starport`:
-```zsh
+
+```
 starport scaffold chain github.com/cosmonaut/blog
 ```
 
 Scaffold create, read, update, delete functionality for a type `post` with two fields: `title` and `body`. Use `starport scaffold list` to scaffold code for storing posts in a list-like data structure.
-```zsh
+
+```
 starport scaffold list post title body
 ```
 
 Start a blockchain node in development:
-```zsh
+
+```
 starport chain serve
 ```
 
 ## Creating a Blockchain Client
-In a new directory that is outside the blockchain directory, create two files:
-- `go.main`
-- `go.mod`
 
-```zsh
-touch main.go && touch go.mod
-```
-### Import files
+Create a new directory called `blogclient` on the same level as the `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that will act as a client to your `blog` blockchain.
+
+`blogclient` will have two files: `main.go` for the main logic of the client and `go.mod` for specifying dependencies.
+
+### Main Logic of the Client in main.go
 
 ```go
 package main
@@ -41,107 +43,105 @@ import (
 	"fmt"
 	"log"
 
+	// importing the types package of your blog blockchain
 	"github.com/cosmonaut/blog/x/blog/types"
-	blogtypes "github.com/alijnmerchant21/blog/x/blog/types"
+	// importing the general purpose Cosmos blockchain client
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 )
-```
 
-Create an instance of cosmosclient:
-
-```go
 func main() {
-
+	// create an instance of cosmosclient
 	cosmos, err := cosmosclient.New(context.Background())
 	if err != nil {
-		log.Fatal(err)	
+		log.Fatal(err)
 	}
-```
-
-The Alice account was created when you scaffolded the blockchain. 
-
-Use the Alice account to define the account address:
-
-```go
-accountName := "alice"
-address, err := cosmos.Address(accountName)
+	// account `alice` was initialized during `starport chain serve`
+	accountName := "alice"
+	// get account from the keyring by account name and return a bech32 address
+	address, err := cosmos.Address(accountName)
 	if err != nil {
 		log.Fatal(err)
 	}
-```
-
-In the `go.main` file, add content to:
-
- - Create a post
- - Broadcast the post on the chain
- - Display the results
-
-```go
-// Create a post
-msg := &types.MsgCreatePost {
-	Creator: address.String(),
-	Title: "Hello Ali",
-	Body: "This is the first post",
-}
-
-// Broadcast the post
-txResp, err := cosmos.BroadcastTx(accountName, msg)
-if err != nil {
-	log.Fatal(err)
-}
-fmt.Print("MsgCreatePost:\n\n")
-fmt.Println(txResp)
-
-// Display the results
-queryClient := blogtypes.NewQueryClient(cosmos.Context)
-queryResp, err := queryClient.Post(context.Background(), &types.QueryGetPostRequest{})
-
+	// define a message to create a post
+	msg := &types.MsgCreatePost{
+		Creator: address.String(),
+		Title:   "Hello!",
+		Body:    "This is the first post",
+	}
+	// broadcast a transaction from account `alice` with the message to create a post
+	// store response in txResp
+	txResp, err := cosmos.BroadcastTx(accountName, msg)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Print("\n\nUser:\n\n")
+	// print response from broadcasting a transaction
+	fmt.Print("MsgCreatePost:\n\n")
+	fmt.Println(txResp)
+	// instantiate a query client for your `blog` blockchain
+	queryClient := types.NewQueryClient(cosmos.Context)
+	// query the blockchain using the client's `PostAll` method to get all posts
+	// store all posts in queryResp
+	queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
+	if err != nil {
+		log.Fatal(err)
+	}
+	// print response from querying all the posts
+	fmt.Print("\n\nAll posts:\n\n")
 	fmt.Println(queryResp)
-
-```
-**Tip:** To display the results of all users, replace `POST` with `POSTALL` as shown in this example code:
-
-```go
-queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
+}
 ```
 
-- **Add `go.mod` file**
-In the `go.mod` file you created earlier, define the client modules:
+### Specifying Dependencies in go.mod
+
+Your blockchain client has only two dependencies: the `blog` blockchain (`types` for message types and a query client) and `starport` (for the `cosmosclient` blockchain client).
 
 ```go
-module github.com/tendermint/starport/local_test/client
+module blogclient
 
 go 1.17
 
 require (
-	github.com/cosmonaut/blog v0.0.0-20210825193134-b6859adfa282
-	github.com/tendermint/starport v0.15.0
+	github.com/cosmonaut/blog v0.0.0
+	github.com/tendermint/starport v0.18.0
 )
 
+replace github.com/cosmonaut/blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-
+// DON'T FORGET TO REMOVE BEFORE THE STARPORT RELEASE!
 replace github.com/tendermint/starport => github.com/ilgooz/starport v0.0.500
 ```
-**Tip:** Instead of using `github.com/cosmonaut/blog v0.0.0-20210825193134-b6859adfa282` as shown, use your own `blog` package.
 
-## Running the Blockchain
+Use the `replace` directive to use the package from the local `blog` directory (specified as a relative path). Skip this if you've pushed the source code for your blockchain to a location accessible online (like GitHub).
 
-To run the blockchain that you created, take these steps:
+Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency.
 
+## Running the Blockchain and the Client
 
-1. Add the required code to the `main.go` file as described.
-2. Run the `go mod tidy` command.
-3. Run the `go run main.go` command (this is your main file).
+Start a blockchain node in development (if you haven't already):
 
+```
+cd blog
 
+starport chain serve
+```
 
-If successful, the results of running the commands are output to the terminal:
+Install dependencies:
 
-```zsh
+```
+cd blogclient
+
+go mod tidy
+```
+
+Run the blockchain client:
+
+```
+go run main.go
+```
+
+If successful, the results of running the command are printed to the terminal:
+
+```
 MsgCreatePost:
 
 Response:
@@ -154,18 +154,17 @@ Response:
   GasUsed: 45764
 
 
-User:
+All posts:
 
-Post:<creator:"cosmos1u27xu76zamjzgus2py87r8kmafea8cp6rvgtv9" 
-title:"Hello cosmonaut" body:"I created this post by sending a message." >
+Post:<title:"Hello!" body:"This is the first post" creator:"cosmos1v8xuglg3xjj50nt2k253nrppzrtvp2yjw40eae" >
 ```
 
-## Update a Post 
+### Updating and Deleting Posts
 
-To update a post: 
+To update a post modify the message type to `MsgUpdatePost` and provide the correct `Id`:
 
 ```go
-	msgUpd := &types.MsgUpdatePost{
+	msg := &types.MsgUpdatePost{
 		Creator: address.String(),
 		Id:      0,
 		Title:   "Hello cosmonaut",
@@ -173,120 +172,13 @@ To update a post:
 	}
 ```
 
+To delete a post use the `MsgDeletePost` message type.
+
 ## Delete a Post
 
-To delete a post:
-	msgDel := &types.MsgDeletePost{
-		Creator: address.String(),
-		Id:      1,
-	}
-```
-
-## Final Code in main.go 
-
-After completing the steps in this article, your `main.go` file looks like:
-
-
 ```go
-package main
-
-import (
-	"context"
-	"fmt"
-	"log"
-
-	"github.com/alijnmerchant21/blog/x/blog/types"
-	blogtypes "github.com/alijnmerchant21/blog/x/blog/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-)
-
-func main() {
-
-	cosmos, err := cosmosclient.New(context.Background())
-	if err != nil {
-		log.Fatal(err)	
-	}
-
-	accountName := "alice"
-	address, err := cosmos.Address(accountName)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	// Create a post
-	msg := &types.MsgCreatePost {
-		Creator: address.String(),
-		Title: "Hello Ali",
-		Body: "This is the first post",
-	}
-
-	// Broadcast the post
-	txResp, err := cosmos.BroadcastTx(accountName, msg)
-	if err != nil {
-	log.Fatal(err)
-	}
-	fmt.Print("MsgCreatePost:\n\n")
-	fmt.Println(txResp)
-
-	// Display the results
-	queryClient := blogtypes.NewQueryClient(cosmos.Context)
-	queryResp, err := queryClient.Post(context.Background(), &types.QueryGetPostRequest{})
-
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("\n\nUser:\n\n")
-	fmt.Println(queryResp)
-
-	// Tip: To display result of all users, replace POST with POSTALL
-	queryResp, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
-
-	// Delete a Post
-	msgDel := &types.MsgDeletePost{
+	msg := &types.MsgDeletePost{
 		Creator: address.String(),
 		Id:      1,
 	}
-
-	// Broadcast Delete Post
-	txResp, err := cosmos.BroadcastTx(accountName, msgDel)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("MsgDeletePost:\n\n")
-	fmt.Println(txResp)
-
-	// Display the Results
-	queryClient := blogtypes.NewQueryClient(cosmos.Context)
-	queryRespAll, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("\n\nUser All:\n\n")
-	fmt.Println(queryRespAll)
-
-	// Update a Post
-	msgUpd := &types.MsgUpdatePost{
-		Creator: address.String(),
-		Id:      0,
-		Title:   "Hello Ali",
-		Body:    "This is a modified post",
-	}
-
-	// Broadcast Update Post
-	txResp, err := cosmos.BroadcastTx(accountName, msgUpd)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("MsgUpdatePost:\n\n")
-	fmt.Println(txResp)
-
-	// Display the Results
-	queryClient := blogtypes.NewQueryClient(cosmos.Context)
-	queryRespAll, err := queryClient.PostAll(context.Background(), &types.QueryAllPostRequest{})
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Print("\n\nUser All:\n\n")
-	fmt.Println(queryRespAll)
-}
 ```
