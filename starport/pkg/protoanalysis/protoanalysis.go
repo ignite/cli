@@ -9,7 +9,7 @@ import (
 )
 
 // ErrImportNotFound returned when proto file import cannot be found.
-var ErrImportNotFound = errors.New("go.mod not found")
+var ErrImportNotFound = errors.New("proto import not found")
 
 const protoFilePattern = "*.proto"
 
@@ -100,7 +100,9 @@ func IsImported(path string, dependencies ...string) error {
 			}
 		}
 		if !found {
-			return ErrImportNotFound
+			return errors.Wrap(ErrImportNotFound, fmt.Sprintf(
+				"invalid proto dependency %s for file %s", wantDep, path),
+			)
 		}
 	}
 	return nil
