@@ -63,7 +63,7 @@ func (b *Builder) SimulateProposals(ctx context.Context, chainID string, proposa
 
 	// Initialize command runner
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath,
+	chainHandler, err := chain.New(appPath,
 		chain.HomePath(tmpHome),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

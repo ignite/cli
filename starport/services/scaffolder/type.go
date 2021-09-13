@@ -2,11 +2,9 @@ package scaffolder
 
 import (
 	"fmt"
-	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -106,19 +104,14 @@ func TypeWithSigner(signer string) AddTypeOption {
 // if non of the list, map or singleton given, a dry type without anything extra (like a storage layer, models, CLI etc.)
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.
-func (s *Scaffolder) AddType(
+func (s Scaffolder) AddType(
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// apply options.
-	o := newAddTypeOptions(path.Package)
+	o := newAddTypeOptions(s.modpath.Package)
 	for _, apply := range append(options, AddTypeOption(kind)) {
 		apply(&o)
 	}
@@ -151,11 +144,11 @@ func (s *Scaffolder) AddType(
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
-			AppName:    path.Package,
+			AppName:    s.modpath.Package,
 			AppPath:    s.path,
-			ModulePath: path.RawPath,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			TypeName:   name,
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
@@ -172,6 +165,7 @@ func (s *Scaffolder) AddType(
 			ModuleName: opts.ModuleName,
 			ModulePath: opts.ModulePath,
 			AppName:    opts.AppName,
+			AppPath:    opts.AppPath,
 			OwnerName:  opts.OwnerName,
 		},
 	)
@@ -212,11 +206,8 @@ func (s *Scaffolder) AddType(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
