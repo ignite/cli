@@ -18,15 +18,19 @@ func supportGenesisTests(
 	modulePath,
 	moduleName string,
 ) ([]*genny.Generator, error) {
-	genesisTypesTest, err := modulecreate.AddGenesisTypesTest(appPath, appName, modulePath, moduleName)
+	isIBC, err := isIBCModule(appPath, moduleName)
 	if err != nil {
-		return nil, err
+		return gens, err
 	}
-	gens = append(gens, genesisTypesTest)
-
-	genesisTest, err := modulecreate.AddGenesisModuleTest(appPath, appName, modulePath, moduleName)
+	genesisTest, err := modulecreate.AddGenesisTest(
+		appPath,
+		appName,
+		modulePath,
+		moduleName,
+		isIBC,
+	)
 	if err != nil {
-		return nil, err
+		return gens, err
 	}
 	gens = append(gens, genesisTest)
 	return gens, nil

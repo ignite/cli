@@ -9,38 +9,25 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
-// genesisTestCtx returns the generator to generate genesis_test.go
-func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
-	g := genny.New()
+// AddGenesisTest returns the generator to generate genesis_test.go files
+func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool) (*genny.Generator, error) {
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/", appPath, true)
+	)
+	if err := g.Box(template); err != nil {
+		return nil, err
+	}
+
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", moduleName)
 	ctx.Set("modulePath", modulePath)
 	ctx.Set("appName", appName)
+	ctx.Set("isIBC", isIBC)
 	ctx.Set("title", strings.Title)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
-	return g
-}
 
-// AddGenesisModuleTest returns the generator to generate genesis_test.go
-func AddGenesisModuleTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
-	g := genesisTestCtx(appName, modulePath, moduleName)
-	return g, g.Box(xgenny.NewEmbedWalker(
-		fsGenesisModuleTest,
-		"genesistest/module/",
-		appPath,
-		true,
-	))
-}
-
-// AddGenesisTypesTest returns the generator to generate types/genesis_test.go
-func AddGenesisTypesTest(appPath, appName, modulePath, moduleName string) (*genny.Generator, error) {
-	g := genesisTestCtx(appName, modulePath, moduleName)
-	return g, g.Box(xgenny.NewEmbedWalker(
-		fsGenesisTypesTest,
-		"genesistest/types/",
-		appPath,
-		true,
-	))
+	return g, nil
 }
