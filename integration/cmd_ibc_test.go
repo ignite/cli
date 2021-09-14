@@ -227,6 +227,20 @@ func TestCreateIBCPacket(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "type", "custom-type", "customField:uint", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a packet with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "packet", "foo-baz", "customField:CustomType", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create a packet with no send message",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "packet", "nomessage", "foo", "--no-message", "--module", "foo"),

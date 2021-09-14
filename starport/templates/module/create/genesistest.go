@@ -4,6 +4,7 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
@@ -15,6 +16,7 @@ func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
 	ctx.Set("modulePath", modulePath)
 	ctx.Set("appName", appName)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
 	return g

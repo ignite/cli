@@ -2,8 +2,9 @@ package cli
 
 import (
     "context"
+	<%= if (Indexes.IsComplex()) { %> "encoding/json" <% } %>
 
-	<%= if (Indexes.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+	<%= if (Indexes.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
     "github.com/spf13/cobra"
     
 	"github.com/cosmos/cosmos-sdk/client"
@@ -46,18 +47,18 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
+		Use:   "show-<%= TypeName.Kebab %><%= Indexes.String() %>",
 		Short: "shows a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             clientCtx := client.GetClientContextFromCmd(cmd)
 
             queryClient := types.NewQueryClient(clientCtx)
 
-            <%= for (i, index) in Indexes { %> args<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+            <%= for (i, index) in Indexes { %> <%= castArg("arg", index, i) %>
             <% } %>
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
-                <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: args<%= index.Name.UpperCamel %>,
+                <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: arg<%= index.Name.UpperCamel %>,
                 <% } %>
             }
 
