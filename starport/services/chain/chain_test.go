@@ -1,7 +1,6 @@
 package chain
 
 import (
-	"context"
 	"os"
 	"path/filepath"
 	"testing"
@@ -13,7 +12,7 @@ import (
 
 func TestSourceVersion(t *testing.T) {
 	t.Run("tagged latest commit", func(t *testing.T) {
-		c, err := New(context.Background(), tempSource(t, "testdata/version/mars.v0.2.tar.gz"))
+		c, err := New(tempSource(t, "testdata/version/mars.v0.2.tar.gz"))
 		require.NoError(t, err)
 
 		assert.Equal(t, "v0.2", c.sourceVersion.tag)
@@ -21,7 +20,7 @@ func TestSourceVersion(t *testing.T) {
 	})
 
 	t.Run("tagged older commit", func(t *testing.T) {
-		c, err := New(context.Background(), tempSource(t, "testdata/version/mars.v0.2-3-gaae48b7.tar.gz"))
+		c, err := New(tempSource(t, "testdata/version/mars.v0.2-3-gaae48b7.tar.gz"))
 		require.NoError(t, err)
 
 		assert.Equal(t, "v0.2-3-gaae48b7", c.sourceVersion.tag)
