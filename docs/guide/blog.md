@@ -276,7 +276,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   byteKey := make([]byte, 8)
   binary.BigEndian.PutUint64(byteKey, post.Id)
   // Marshal the post into bytes
-  appendedValue := k.cdc.MustMarshalBinaryBare(&post)
+  appendedValue := k.cdc.MustMarshal(&post)
   // Insert the post bytes using post ID as a key
   store.Set(byteKey, appendedValue)
   // Update the post count

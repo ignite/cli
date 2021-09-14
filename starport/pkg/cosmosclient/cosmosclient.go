@@ -166,12 +166,12 @@ func (c Client) BroadcastTx(accountName string, messages ...sdktypes.Msg) (*sdkt
 		WithFromName(accountName).
 		WithFromAddress(accountAddress)
 
-	txf, err := tx.PrepareFactory(context, c.Factory)
+	txf, err := c.Factory.Prepare(context)
 	if err != nil {
 		return nil, err
 	}
 
-	txUnsigned, err := tx.BuildUnsignedTx(txf, messages...)
+	txUnsigned, err := txf.BuildUnsignedTx(messages...)
 	if err != nil {
 		return nil, err
 	}
@@ -203,7 +203,7 @@ func newContext(
 	return client.Context{}.
 		WithChainID(chainID).
 		WithInterfaceRegistry(encodingConfig.InterfaceRegistry).
-		WithJSONMarshaler(encodingConfig.Marshaler).
+		WithCodec(encodingConfig.Marshaler).
 		WithTxConfig(encodingConfig.TxConfig).
 		WithLegacyAmino(encodingConfig.Amino).
 		WithInput(os.Stdin).
