@@ -3,11 +3,11 @@ package moduleimport
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
@@ -16,9 +16,10 @@ func NewStargate(replacer placeholder.Replacer, opts *ImportOptions) (*genny.Gen
 	g := genny.New()
 	g.RunFn(appModifyStargate(replacer, opts))
 	g.RunFn(cmdModifyStargate(replacer, opts))
+
 	ctx := plush.NewContext()
 	ctx.Set("AppName", opts.AppName)
-	ctx.Set("title", strings.Title)
+	plushhelpers.ExtendPlushContext(ctx)
 
 	return g, nil
 }

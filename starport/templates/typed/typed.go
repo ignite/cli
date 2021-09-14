@@ -1,8 +1,6 @@
 package typed
 
 import (
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
@@ -26,7 +24,6 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("Indexes", opts.Indexes)
 	ctx.Set("NoMessage", opts.NoMessage)
-	ctx.Set("title", strings.Title)
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
@@ -39,13 +36,13 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
-	plushhelpers.ExtendPlushContext(ctx)
 
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
 		return err
 	}
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
