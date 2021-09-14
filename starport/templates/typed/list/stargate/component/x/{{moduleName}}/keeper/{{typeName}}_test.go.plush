@@ -41,7 +41,7 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	require.Equal(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
+	require.ElementsMatch(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
 }
 
 func Test<%= TypeName.UpperCamel %>Count(t *testing.T) {
