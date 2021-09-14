@@ -3,10 +3,13 @@ package protoanalysis
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/pkg/errors"
-	"github.com/tendermint/starport/starport/pkg/localfs"
 )
+
+// ErrImportNotFound returned when proto file import cannot be found.
+var ErrImportNotFound = errors.New("proto import not found")
 
 const protoFilePattern = "*.proto"
 
@@ -55,7 +58,52 @@ func ParseFile(path string) (File, error) {
 	return files[0], nil
 }
 
-// SearchRecursive recursively finds all proto files under path.
-func SearchRecursive(path string) ([]string, error) {
-	return localfs.Search(path, protoFilePattern)
+// HasMessages checks if the proto package under path contains messages with given names.
+func HasMessages(ctx context.Context, path string, names ...string) error {
+	pkgs, err := Parse(ctx, NewCache(), path)
+	if err != nil {
+		return err
+	}
+
+	hasName := func(name string) error {
+		for _, pkg := range pkgs {
+			for _, msg := range pkg.Messages {
+				if msg.Name == name {
+					return nil
+				}
+			}
+		}
+		return fmt.Errorf("invalid proto message name %s", name)
+	}
+
+	for _, name := range names {
+		if err := hasName(name); err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+// IsImported checks if the proto package under path imports list of dependencies.
+func IsImported(path string, dependencies ...string) error {
+	f, err := ParseFile(path)
+	if err != nil {
+		return err
+	}
+
+	for _, wantDep := range dependencies {
+		found := false
+		for _, fileDep := range f.Dependencies {
+			if wantDep == fileDep {
+				found = true
+				break
+			}
+		}
+		if !found {
+			return errors.Wrap(ErrImportNotFound, fmt.Sprintf(
+				"invalid proto dependency %s for file %s", wantDep, path),
+			)
+		}
+	}
+	return nil
 }

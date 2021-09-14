@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -49,6 +50,7 @@ func PacketWithSigner(signer string) PacketOption {
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
 func (s Scaffolder) AddPacket(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
@@ -91,13 +93,19 @@ func (s Scaffolder) AddPacket(
 		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Parse packet fields
+	// Check and parse packet fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
+		return sm, err
+	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return sm, err
 	}
 
-	// Parse acknowledgment fields
+	// check and parse acknowledgment fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
+		return sm, err
+	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err

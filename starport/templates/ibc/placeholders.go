@@ -20,6 +20,7 @@ const (
 	PlaceholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
 
 	// Placeholders for Oracle
+	PlaceholderProtoPacketImport      = "// this line is used by starport scaffolding # proto/packet/import"
 	PlaceholderProtoTxImport          = "// this line is used by starport scaffolding # proto/tx/import"
 	PlaceholderOraclePacketModuleRecv = "// this line is used by starport scaffolding # oracle/packet/module/recv"
 	PlaceholderOraclePacketModuleAck  = "// this line is used by starport scaffolding # oracle/packet/module/ack"

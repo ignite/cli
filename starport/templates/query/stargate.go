@@ -3,6 +3,7 @@ package query
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -70,6 +71,17 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		}
 		if opts.Paginated {
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
+		}
+
+		// Ensure custom types are imported
+		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
+			content = replacer.Replace(content, Placeholder, replacementImport)
 		}
 
 		// Messages

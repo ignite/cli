@@ -1,6 +1,8 @@
 syntax = "proto3";
 package <%= formatOwnerName(ownerName) %>.<%= appName %>.<%= moduleName %>;
 
+// this line is used by starport scaffolding # proto/packet/import
+
 option go_package = "<%= modulePath %>/x/<%= moduleName %>/types";
 
 message <%= title(moduleName) %>PacketData {

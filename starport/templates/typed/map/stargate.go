@@ -121,7 +121,8 @@ import "%s/%s.proto";`
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		var lowerCamelIndexes []string
 		for _, index := range opts.Indexes {
@@ -161,6 +162,16 @@ import "%s/%s.proto";`
 				index.Name.LowerCamel,
 				i+1,
 			)
+		}
+
+		// Ensure custom types are imported
+		for _, f := range opts.Indexes.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessage := `%[1]v
@@ -251,7 +262,8 @@ import "%[2]v/%[3]v.proto";`
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.PlaceholderGenesisProtoImport, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
 
 		// Determine the new field number
 		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
@@ -534,6 +546,17 @@ import "%s/%s.proto";`
 				field.Name.LowerCamel,
 				i+2+len(opts.Indexes),
 			)
+		}
+
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.Indexes.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessages := `%[1]v

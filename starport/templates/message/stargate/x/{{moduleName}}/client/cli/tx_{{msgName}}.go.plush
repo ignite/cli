@@ -2,8 +2,9 @@ package cli
 
 import (
     "strconv"
+	<%= if (Fields.IsComplex()) { %> "encoding/json" <% } %>
 
-	<%= if (Fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+	<%= if (Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -16,11 +17,11 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= MsgName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= MsgName.Kebab %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "<%= MsgName.Kebab %><%= Fields.String() %>",
 		Short: "<%= MsgDesc %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
-      		<%= for (i, field) in Fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i) %>
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+      		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

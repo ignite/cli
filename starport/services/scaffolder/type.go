@@ -1,7 +1,9 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
@@ -105,6 +107,7 @@ func TypeWithSigner(signer string) AddTypeOption {
 // will be scaffolded.
 // if no module is given, the type will be scaffolded inside the app's default module.
 func (s Scaffolder) AddType(
+	ctx context.Context,
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
@@ -131,6 +134,10 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	// Check and parse provided fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
+		return sm, err
+	}
 	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
@@ -216,12 +223,35 @@ func (s Scaffolder) AddType(
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
+// checkForbiddenTypeIndex returns true if the name is forbidden as a field name
+func checkForbiddenTypeIndex(name string) error {
+	fieldSplit := strings.Split(name, typeSeparator)
+	if len(fieldSplit) > 1 {
+		name = fieldSplit[0]
+		fieldType := fieldSplit[1]
+		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+			return fmt.Errorf("invalid index type %s", fieldType)
+		}
+	}
+	return checkForbiddenTypeField(name)
+}
+
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	switch name {
+	fieldSplit := strings.Split(name, typeSeparator)
+	if len(fieldSplit) > 1 {
+		name = fieldSplit[0]
+	}
+
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
 	case
 		"id",
-		"appendedValue",
+		"appendedvalue",
 		"creator":
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
@@ -232,15 +262,15 @@ func checkForbiddenTypeField(name string) error {
 // mapGenerator returns the template generator for a map
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeField)
+	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)
 	if err != nil {
 		return nil, err
 	}
 
 	// Indexes and type fields must be disjoint
 	exists := make(map[string]struct{})
-	for _, field := range opts.Fields {
-		exists[field.Name.LowerCamel] = struct{}{}
+	for _, name := range opts.Fields {
+		exists[name.Name.LowerCamel] = struct{}{}
 	}
 	for _, index := range parsedIndexes {
 		if _, ok := exists[index.Name.LowerCamel]; ok {

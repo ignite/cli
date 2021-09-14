@@ -87,7 +87,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
-	ctx.Set("title", strings.Title)
 
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
@@ -209,14 +208,25 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
+		}
+
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
-	%[3]v}
+%[3]v}
 
 // %[2]vPacketAck defines a struct for the packet acknowledgment
 message %[2]vPacketAck {
-	%[4]v}
+%[4]v}
 `
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
@@ -277,6 +287,16 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		var sendFields string
 		for i, field := range opts.Fields {
 			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+5)
+		}
+
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 		}
 
 		// Message

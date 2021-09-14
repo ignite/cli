@@ -103,7 +103,8 @@ import "%s/%s.proto";`
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// Add the service
 		templateService := `%[1]v
@@ -398,8 +399,16 @@ import "%s/%s.proto";`
 
 		// Messages
 		var fields string
-		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+		for i, f := range opts.Fields {
+			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		}
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessages := `%[1]v
