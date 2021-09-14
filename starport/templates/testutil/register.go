@@ -3,8 +3,6 @@ package testutil
 import (
 	"embed"
 	"fmt"
-	"os"
-	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
@@ -13,15 +11,11 @@ import (
 
 const (
 	modulePathKey = "ModulePath"
-	testUtilDir   = "testutil"
-	sampleDir     = "sample"
 )
 
 var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
-	//go:embed stargate/testutil/sample/*
-	fsSample embed.FS
 )
 
 // Register testutil template using existing generator.
@@ -32,19 +26,5 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 		return fmt.Errorf("ctx is missing value for the key %s", modulePathKey)
 	}
 	// Check if the testutil folder already exists
-	path := filepath.Join(appPath, testUtilDir)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		// if not, box the entire testutil folder
-		return gen.Box(xgenny.NewEmbedWalker(fsStargate, "stargate/", appPath))
-	} else if err != nil {
-		return err
-	}
-
-	// if yes, only box the sample folder
-	path = filepath.Join(path, sampleDir)
-	_, err := os.Stat(path)
-	if os.IsNotExist(err) {
-		return gen.Box(xgenny.NewEmbedWalker(fsSample, "stargate/", appPath))
-	}
-	return err
+	return gen.Box(xgenny.NewEmbedWalker(fsStargate, "stargate/", appPath, true))
 }

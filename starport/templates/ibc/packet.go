@@ -49,11 +49,13 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 			fsPacketMessages,
 			"packet/messages/",
 			opts.AppPath,
+			false,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsPacketComponent,
 			"packet/component/",
 			opts.AppPath,
+			false,
 		)
 	)
 

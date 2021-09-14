@@ -19,7 +19,7 @@ import (
 func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsIBC, "ibc/", opts.AppPath)
+		template = xgenny.NewEmbedWalker(fsIBC, "ibc/", opts.AppPath, false)
 	)
 
 	g.RunFn(genesisModify(replacer, opts))

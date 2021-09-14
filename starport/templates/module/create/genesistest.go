@@ -27,6 +27,7 @@ func AddGenesisModuleTest(appPath, appName, modulePath, moduleName string) (*gen
 		fsGenesisModuleTest,
 		"genesistest/module/",
 		appPath,
+		true,
 	))
 }
 
@@ -37,5 +38,6 @@ func AddGenesisTypesTest(appPath, appName, modulePath, moduleName string) (*genn
 		fsGenesisTypesTest,
 		"genesistest/types/",
 		appPath,
+		true,
 	))
 }

@@ -23,6 +23,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 		fsStargate,
 		"stargate/",
 		opts.AppPath,
+		false,
 	)
 	return g, Box(template, opts, g)
 }

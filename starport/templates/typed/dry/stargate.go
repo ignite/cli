@@ -21,6 +21,7 @@ func NewStargate(opts *typed.Options) (*genny.Generator, error) {
 			fsStargateComponent,
 			"stargate/component/",
 			opts.AppPath,
+			false,
 		)
 	)
 	return g, typed.Box(template, opts, g)

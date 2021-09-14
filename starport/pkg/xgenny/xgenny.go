@@ -3,6 +3,7 @@ package xgenny
 import (
 	"bytes"
 	"embed"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -14,12 +15,14 @@ type Walker struct {
 	fs         embed.FS
 	trimPrefix string
 	path       string
+	skip       bool
 }
 
 // NewEmbedWalker returns a new Walker for fs.
 // trimPrefix is used to trim parent paths from the paths of found files.
-func NewEmbedWalker(fs embed.FS, trimPrefix, path string) Walker {
-	return Walker{fs: fs, trimPrefix: trimPrefix, path: path}
+// skip flag is used to skip create the file if it already exists.
+func NewEmbedWalker(fs embed.FS, trimPrefix, path string, skip bool) Walker {
+	return Walker{fs: fs, trimPrefix: trimPrefix, path: path, skip: skip}
 }
 
 // Walk implements packd.Walker.
@@ -48,6 +51,11 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 
 		ppath := strings.TrimPrefix(path, w.trimPrefix)
 		ppath = filepath.Join(w.path, ppath)
+		if w.skip {
+			if _, err := os.Stat(ppath); os.IsExist(err) {
+				continue
+			}
+		}
 		f, err := packd.NewFile(ppath, bytes.NewReader(data))
 		if err != nil {
 			return err
