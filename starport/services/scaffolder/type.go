@@ -141,6 +141,11 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	isIBC, err := isIBCModule(s.path, moduleName)
+	if err != nil {
+		return sm, err
+	}
+
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
@@ -153,6 +158,7 @@ func (s Scaffolder) AddType(
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
 			MsgSigner:  mfSigner,
+			IsIBC:      isIBC,
 		}
 		gens []*genny.Generator
 	)
