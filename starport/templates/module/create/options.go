@@ -10,6 +10,7 @@ type CreateOptions struct {
 	ModuleName string
 	ModulePath string
 	AppName    string
+	AppPath    string
 	OwnerName  string
 
 	// True if the module should implement the IBC module interface
@@ -22,11 +23,12 @@ type CreateOptions struct {
 	Dependencies []Dependency
 }
 
-// CreateOptions defines options to add MsgServer
+// MsgServerOptions defines options to add MsgServer
 type MsgServerOptions struct {
 	ModuleName string
 	ModulePath string
 	AppName    string
+	AppPath    string
 	OwnerName  string
 }
 
