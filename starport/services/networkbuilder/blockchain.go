@@ -107,7 +107,7 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	if _, err := chain.Build(ctx); err != nil {
+	if _, err := chain.Build(ctx, ""); err != nil {
 		return err
 	}
 	if err := chain.Init(ctx, false); err != nil {

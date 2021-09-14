@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -9,6 +10,7 @@ import (
 )
 
 const (
+	flagOutput         = "output"
 	flagRelease        = "release"
 	flagReleaseTargets = "release.targets"
 	flagReleasePrefix  = "release.prefix"
@@ -39,6 +41,7 @@ Sample usages:
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
+	c.Flags().String(flagOutput, "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 
 	return c
@@ -49,6 +52,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		isRelease, _      = cmd.Flags().GetBool(flagRelease)
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
+		output, _         = cmd.Flags().GetString(flagOutput)
 	)
 
 	chainOption := []chain.Option{
@@ -76,12 +80,17 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context())
+	binaryName, err := c.Build(cmd.Context(), output)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
+	if output == "" {
+		fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
+	} else {
+		binaryPath := filepath.Join(output, binaryName)
+		fmt.Printf("🗃  Binary built at the path: %s\n", infoColor(binaryPath))
+	}
 
 	return nil
 }

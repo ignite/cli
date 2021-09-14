@@ -62,11 +62,15 @@ func ModVerify(ctx context.Context, path string, options ...exec.Option) error {
 }
 
 // BuildPath runs go install on cmd folder with options.
-func BuildPath(ctx context.Context, binary, path string, flags []string, options ...exec.Option) error {
+func BuildPath(ctx context.Context, output, binary, path string, flags []string, options ...exec.Option) error {
+	binaryOutput, err := binaryPath(output, binary)
+	if err != nil {
+		return err
+	}
 	command := []string{
 		Name(),
 		CommandBuild,
-		FlagOut, binaryPath(binary),
+		FlagOut, binaryOutput,
 	}
 	command = append(command, flags...)
 	command = append(command, ".")
@@ -122,6 +126,13 @@ func PackageLiteral(path, version string) string {
 }
 
 // binaryPath get the binary path into the go bin folder.
-func binaryPath(binary string) string {
-	return filepath.Join(goenv.Bin(), binary)
+func binaryPath(output, binary string) (string, error) {
+	if output != "" {
+		outputAbs, err := filepath.Abs(output)
+		if err != nil {
+			return "", err
+		}
+		return filepath.Join(outputAbs, binary), nil
+	}
+	return filepath.Join(goenv.Bin(), binary), nil
 }

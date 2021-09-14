@@ -25,19 +25,19 @@ const (
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
+func (c *Chain) Build(ctx context.Context, output string) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx); err != nil {
+	if err := c.build(ctx, output); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context) (err error) {
+func (c *Chain) build(ctx context.Context, output string) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
@@ -65,7 +65,7 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		return err
 	}
 
-	return gocmd.BuildPath(ctx, binary, p, buildFlags)
+	return gocmd.BuildPath(ctx, output, binary, p, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
