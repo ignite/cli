@@ -19,7 +19,8 @@ func NewScaffoldMessage() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  messageHandler,
 	}
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -37,6 +38,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
 		desc, _      = cmd.Flags().GetString(flagDescription)
 		signer       = flagGetSigner(cmd)
+		appPath      = flagGetPath(cmd)
 	)
 
 	var options []scaffolder.MessageOption
@@ -51,10 +53,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithSigner(signer))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := scaffolder.App(appPath)
 	if err != nil {
 		return err
 	}
+
 	sm, err := sc.AddMessage(placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
@@ -62,7 +65,13 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+
 	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
 	return nil
 }

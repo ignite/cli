@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"go/parser"
 	"go/token"
+	"path/filepath"
 	"regexp"
 	"strings"
 
@@ -56,6 +57,19 @@ func ParseAt(path string) (Path, error) {
 		return Path{}, err
 	}
 	return Parse(parsed.Module.Mod.Path)
+}
+
+// Find search the Go module in the current and parent paths until finding it.
+func Find(path string) (parsed Path, appPath string, err error) {
+	for len(path) != 0 && path != "." && path != "/" {
+		parsed, err = ParseAt(path)
+		if errors.Is(err, gomodule.ErrGoModNotFound) {
+			path = filepath.Dir(path)
+			continue
+		}
+		return parsed, path, err
+	}
+	return Path{}, "", errors.Wrap(gomodule.ErrGoModNotFound, "could not locate your app's root dir")
 }
 
 func validateModulePath(path string) error {

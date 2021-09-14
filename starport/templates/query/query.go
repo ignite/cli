@@ -9,14 +9,11 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
-
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
