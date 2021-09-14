@@ -115,7 +115,7 @@ func Determine(path string) (v Version, err error) {
 	v.Hash = headHashText
 
 	if tagHashIndex > 0 {
-		v.Tag = fmt.Sprintf("%s-g%s", tag, subHeadHash)
+		v.Tag = fmt.Sprintf("%s-%s", tag, subHeadHash)
 	}
 
 	return v, nil
