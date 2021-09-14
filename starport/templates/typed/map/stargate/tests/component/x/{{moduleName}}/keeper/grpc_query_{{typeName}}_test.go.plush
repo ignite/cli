@@ -87,9 +87,8 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 		for i := 0; i < len(msgs); i += step {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
-			for j := i; j < len(msgs) && j < i+step; j++ {
-				require.Equal(t, msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
-			}
+			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
+			require.Subset(t, msgs, resp.<%= TypeName.UpperCamel %>)
 		}
 	})
 	t.Run("ByKey", func(t *testing.T) {
@@ -98,9 +97,8 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 		for i := 0; i < len(msgs); i += step {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
-			for j := i; j < len(msgs) && j < i+step; j++ {
-				require.Equal(t, msgs[j], resp.<%= TypeName.UpperCamel %>[j-i])
-			}
+			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
+			require.Subset(t, msgs, resp.<%= TypeName.UpperCamel %>)
 			next = resp.Pagination.NextKey
 		}
 	})
