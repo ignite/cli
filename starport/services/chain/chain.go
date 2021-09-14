@@ -281,7 +281,7 @@ func (c *Chain) appVersion() (v version, err error) {
 	v.hash = headHashText
 
 	if tagHashIndex > 0 {
-		v.tag = fmt.Sprintf("%s-%d-g%s", tag, tagHashIndex, subHeadHash)
+		v.tag = fmt.Sprintf("%s-g%s", tag, subHeadHash)
 	}
 
 	return v, nil
