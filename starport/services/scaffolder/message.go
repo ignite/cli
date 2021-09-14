@@ -1,6 +1,7 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/gobuffalo/genny"
@@ -45,6 +46,7 @@ func WithSigner(signer string) MessageOption {
 
 // AddMessage adds a new message to scaffolded app
 func (s Scaffolder) AddMessage(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	msgName string,
@@ -77,9 +79,17 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
-	// Parse provided fields
+	// Check and parse provided fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
+		return sm, err
+	}
 	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
+		return sm, err
+	}
+
+	// Check and parse provided response fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)

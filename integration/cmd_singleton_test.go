@@ -50,6 +50,13 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create another type with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "user-detail", "user:User", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("should prevent creating an singleton type with a typename that already exist",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "single", "user", "email", "--module", "example"),

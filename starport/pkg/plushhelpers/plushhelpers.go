@@ -1,13 +1,9 @@
 package plushhelpers
 
-import "github.com/gobuffalo/plush"
+import (
+	"strings"
 
-const (
-	datatypeString = "string"
-	datatypeUint   = "uint"
-	datatypeInt    = "int"
-	datatypeBool   = "bool"
-	valueFalse     = "false"
+	"github.com/gobuffalo/plush"
 )
 
 // ExtendPlushContext sets available helpers on the provided context.
@@ -19,4 +15,5 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("genUniqueArg", GenerateUniqueArg)
 	ctx.Set("genValidIndex", GenerateValidIndex)
 	ctx.Set("genNotFoundIndex", GenerateNotFoundIndex)
+	ctx.Set("title", strings.Title)
 }

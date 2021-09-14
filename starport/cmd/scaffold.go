@@ -84,7 +84,7 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
+	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
