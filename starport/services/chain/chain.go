@@ -2,16 +2,12 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
-	"github.com/go-git/go-git/v5/plumbing"
-	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/gookit/color"
 	conf "github.com/tendermint/starport/starport/chainconf"
 	sperrors "github.com/tendermint/starport/starport/errors"
@@ -19,6 +15,7 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/repoversion"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
@@ -181,108 +178,14 @@ func New(path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(c.app.Path)
+
+	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
 
-	tags, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-
-	head, err := repo.Head()
-	if err != nil {
-		return version{}, err
-	}
-
-	cIter, err := repo.Log(&git.LogOptions{Order: git.LogOrderCommitterTime})
-	if err != nil {
-		return version{}, err
-	}
-
-	var (
-		tag             string
-		tagHash         string
-		commitIndex     int
-		taggerTimestamp int64
-	)
-
-	idMap := make(map[string]int)
-
-	err = cIter.ForEach(func(c *object.Commit) error {
-
-		idMap[c.Hash.String()] = commitIndex
-		commitIndex++
-
-		return nil
-	})
-
-	if err != nil {
-		return version{}, err
-	}
-
-	err = tags.ForEach(func(t *plumbing.Reference) error {
-		obj, err := repo.TagObject(t.Hash())
-
-		if err == nil {
-
-			_, exists := idMap[obj.Target.String()]
-
-			if !exists {
-				return nil
-			}
-
-			if taggerTimestamp < obj.Tagger.When.Unix() {
-				taggerTimestamp = obj.Tagger.When.Unix()
-
-				tag = strings.TrimPrefix(obj.Name, "v")
-				tagHash = obj.Target.String()
-			}
-		} else {
-			_, exists := idMap[t.Hash().String()]
-
-			if !exists {
-				return nil
-			}
-
-			commit, err := repo.CommitObject(t.Hash())
-
-			if err != nil {
-				return err
-			}
-
-			if taggerTimestamp < commit.Committer.When.Unix() {
-				taggerTimestamp = commit.Committer.When.Unix()
-
-				tag = strings.TrimPrefix(t.Name().Short(), "v")
-				tagHash = t.Hash().String()
-			}
-		}
-
-		return nil
-	})
-
-	if err != nil {
-		return version{}, err
-	}
-
-	const subHashLen int = 8
-
-	tagHashIndex := idMap[tagHash]
-	headHashText := head.Hash().String()
-	subHeadHash := headHashText
-
-	if len(headHashText) > subHashLen {
-		subHeadHash = subHeadHash[:subHashLen]
-	}
-
-	v.tag = tag
-	v.hash = headHashText
-
-	if tagHashIndex > 0 {
-		v.tag = fmt.Sprintf("%s-g%s", tag, subHeadHash)
-	}
+	v.hash = ver.Hash
+	v.tag = ver.Tag
 
 	return v, nil
 }
