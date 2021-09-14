@@ -23,7 +23,7 @@ func TestSourceVersion(t *testing.T) {
 		c, err := New(tempSource(t, "testdata/version/mars.v0.2-3-gaae48b7.tar.gz"))
 		require.NoError(t, err)
 
-		assert.Equal(t, "0.2-gaae48b7f", c.sourceVersion.tag)
+		assert.Equal(t, "0.2-aae48b7f", c.sourceVersion.tag)
 		assert.Equal(t, "aae48b7ffa4991bbe229f0969db8fe8623bf1fd4", c.sourceVersion.hash)
 	})
 }
