@@ -1,6 +1,8 @@
 package modulecreate
 
 import (
+	"strings"
+
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
@@ -14,6 +16,7 @@ func genesisTestCtx(appName, modulePath, moduleName string) *genny.Generator {
 	ctx.Set("moduleName", moduleName)
 	ctx.Set("modulePath", modulePath)
 	ctx.Set("appName", appName)
+	ctx.Set("title", strings.Title)
 
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
