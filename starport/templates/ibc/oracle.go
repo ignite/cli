@@ -62,7 +62,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("queryName", opts.QueryName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
-	ctx.Set("title", strings.Title)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)

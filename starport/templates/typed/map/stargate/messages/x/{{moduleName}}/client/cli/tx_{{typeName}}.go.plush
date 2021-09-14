@@ -1,8 +1,10 @@
 package cli
 
 import (
+    <%= if (Indexes.IsComplex() || Fields.IsComplex()) { %> "encoding/json" <% } %>
+
     "github.com/spf13/cobra"
-    <%= if (Indexes.NeedCast() || Fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+    <%= if (Indexes.NeedCastImport() || Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
@@ -12,15 +14,15 @@ import (
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
     cmd := &cobra.Command{
-		Use:   "create-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "create-<%= TypeName.Kebab %><%= Indexes.String() %><%= Fields.String() %>",
 		Short: "Create a new <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+        <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -30,7 +32,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(
 			    clientCtx.GetFromAddress().String(),
 			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
-                <% } %><%= for (i, field) in Fields { %>args<%= field.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
 			    <% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -46,15 +48,15 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %><%= for (i, field) in Fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "update-<%= TypeName.Kebab %><%= Indexes.String() %><%= Fields.String() %>",
 		Short: "Update a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
-        <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+        <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> args<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -64,7 +66,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(
 			    clientCtx.GetFromAddress().String(),
 			    <%= for (i, index) in Indexes { %>index<%= index.Name.UpperCamel %>,
-                <% } %><%= for (i, field) in Fields { %>args<%= field.Name.UpperCamel %>,
+                <% } %><%= for (i, field) in Fields { %>arg<%= field.Name.UpperCamel %>,
                 <% } %>)
 			if err := msg.ValidateBasic(); err != nil {
 				return err
@@ -80,11 +82,11 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName.Kebab %><%= for (i, index) in Indexes { %> [<%= index.Name.Kebab %>]<% } %>",
+		Use:   "delete-<%= TypeName.Kebab %><%= Indexes.String() %>",
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
-            <%= for (i, index) in Indexes { %> index<%= castArg(index.Name.UpperCamel, index.DatatypeName, index.Datatype, i) %>
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+            <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
