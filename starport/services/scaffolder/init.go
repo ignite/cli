@@ -2,7 +2,6 @@ package scaffolder
 
 import (
 	"context"
-	"os"
 	"path/filepath"
 	"time"
 
@@ -29,38 +28,40 @@ var (
 )
 
 // Init initializes a new app with name and given options.
-// path is the relative path to the scaffoled app.
-func (s *Scaffolder) Init(tracer *placeholder.Tracer, name string, noDefaultModule bool) (path string, err error) {
+func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
+	if root, err = filepath.Abs(root); err != nil {
+		return "", err
+	}
+
 	pathInfo, err := gomodulepath.Parse(name)
 	if err != nil {
 		return "", err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return "", err
-	}
-	absRoot := filepath.Join(pwd, pathInfo.Root)
+
+	path = filepath.Join(root, pathInfo.Root)
 
 	// create the project
-	if err := s.generate(tracer, pathInfo, absRoot, noDefaultModule); err != nil {
+	if err := generate(tracer, pathInfo, addressPrefix, path, noDefaultModule); err != nil {
 		return "", err
 	}
 
-	if err := s.finish(absRoot, pathInfo.RawPath); err != nil {
+	if err := finish(path, pathInfo.RawPath); err != nil {
 		return "", err
 	}
 
 	// initialize git repository and perform the first commit
-	if err := initGit(pathInfo.Root); err != nil {
+	if err := initGit(path); err != nil {
 		return "", err
 	}
-	return pathInfo.Root, nil
+
+	return path, nil
 }
 
 //nolint:interfacer
-func (s *Scaffolder) generate(
+func generate(
 	tracer *placeholder.Tracer,
 	pathInfo gomodulepath.Path,
+	addressPrefix,
 	absRoot string,
 	noDefaultModule bool,
 ) error {
@@ -73,11 +74,11 @@ func (s *Scaffolder) generate(
 		// generate application template
 		ModulePath:       pathInfo.RawPath,
 		AppName:          pathInfo.Package,
-		AppPath:          s.path,
+		AppPath:          absRoot,
 		OwnerName:        owner(pathInfo.RawPath),
 		OwnerAndRepoName: gu.UserAndRepo(),
 		BinaryNamePrefix: pathInfo.Root,
-		AddressPrefix:    s.options.addressPrefix,
+		AddressPrefix:    addressPrefix,
 	})
 	if err != nil {
 		return err
@@ -98,6 +99,7 @@ func (s *Scaffolder) generate(
 			ModuleName: pathInfo.Package, // App name
 			ModulePath: pathInfo.RawPath,
 			AppName:    pathInfo.Package,
+			AppPath:    absRoot,
 			OwnerName:  owner(pathInfo.RawPath),
 			IsIBC:      false,
 		}

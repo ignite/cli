@@ -8,8 +8,6 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
-const flagPath = "path"
-
 // NewScaffoldVue scaffolds a Vue.js app for a chain.
 func NewScaffoldVue() *cobra.Command {
 	c := &cobra.Command{
@@ -28,8 +26,7 @@ func scaffoldVueHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	path, _ := cmd.Flags().GetString(flagPath)
-
+	path := flagGetPath(cmd)
 	if err := scaffolder.Vue(path); err != nil {
 		return err
 	}

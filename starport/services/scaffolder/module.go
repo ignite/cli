@@ -16,7 +16,6 @@ import (
 	appanalysis "github.com/tendermint/starport/starport/pkg/cosmosanalysis/app"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
@@ -79,7 +78,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 }
 
 // CreateModule creates a new empty module in the scaffolded app
-func (s *Scaffolder) CreateModule(
+func (s Scaffolder) CreateModule(
 	tracer *placeholder.Tracer,
 	moduleName string,
 	options ...ModuleCreationOption,
@@ -111,19 +110,16 @@ func (s *Scaffolder) CreateModule(
 	}
 
 	// Check dependencies
-	if err := checkDependencies(creationOpts.dependencies); err != nil {
+	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return sm, err
 	}
 
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
 	opts := &modulecreate.CreateOptions{
 		ModuleName:   moduleName,
-		ModulePath:   path.RawPath,
-		AppName:      path.Package,
-		OwnerName:    owner(path.RawPath),
+		ModulePath:   s.modpath.RawPath,
+		AppName:      s.modpath.Package,
+		AppPath:      s.path,
+		OwnerName:    owner(s.modpath.RawPath),
 		IsIBC:        creationOpts.ibc,
 		IBCOrdering:  creationOpts.ibcChannelOrdering,
 		Dependencies: creationOpts.dependencies,
@@ -157,19 +153,11 @@ func (s *Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
-	// Generate proto and format the source
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	if err := s.finish(pwd, path.RawPath); err != nil {
-		return sm, err
-	}
-	return sm, runErr
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // ImportModule imports specified module with name to the scaffolded app.
-func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
+func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xgenny.SourceModification, err error) {
 	// Only wasm is currently supported
 	if name != "wasm" {
 		return sm, errors.New("module cannot be imported. Supported module: wasm")
@@ -183,16 +171,12 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, errors.New("wasm is already imported")
 	}
 
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// run generator
 	g, err := moduleimport.NewStargate(tracer, &moduleimport.ImportOptions{
+		AppPath:          s.path,
 		Feature:          name,
-		AppName:          path.Package,
-		BinaryNamePrefix: path.Root,
+		AppName:          s.modpath.Package,
+		BinaryNamePrefix: s.modpath.Root,
 	})
 	if err != nil {
 		return sm, err
@@ -214,11 +198,7 @@ func (s *Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm x
 		return sm, err
 	}
 
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, finish(s.path, s.modpath.RawPath)
 }
 
 func moduleExists(appPath string, moduleName string) (bool, error) {
@@ -267,10 +247,7 @@ func checkModuleName(moduleName string) error {
 }
 
 func isWasmImported(appPath string) (bool, error) {
-	abspath, err := filepath.Abs(filepath.Join(appPath, appPkg))
-	if err != nil {
-		return false, err
-	}
+	abspath := filepath.Join(appPath, appPkg)
 	fset := token.NewFileSet()
 	all, err := parser.ParseDir(fset, abspath, func(os.FileInfo) bool { return true }, parser.ImportsOnly)
 	if err != nil {
@@ -288,7 +265,7 @@ func isWasmImported(appPath string) (bool, error) {
 	return false, nil
 }
 
-func (s *Scaffolder) installWasm() error {
+func (s Scaffolder) installWasm() error {
 	switch s.version {
 	case cosmosver.StargateZeroFourtyAndAbove:
 		return cmdrunner.
@@ -303,11 +280,12 @@ func (s *Scaffolder) installWasm() error {
 }
 
 // checkDependencies perform checks on the dependencies
-func checkDependencies(dependencies []modulecreate.Dependency) error {
+func checkDependencies(dependencies []modulecreate.Dependency, appPath string) error {
 	depMap := make(map[string]struct{})
 	for _, dep := range dependencies {
 		// check the dependency has been registered
-		if err := appanalysis.CheckKeeper(module.PathAppModule, dep.KeeperName); err != nil {
+		path := filepath.Join(appPath, module.PathAppModule)
+		if err := appanalysis.CheckKeeper(path, dep.KeeperName); err != nil {
 			return fmt.Errorf(
 				"the module cannot have %s as a dependency: %s",
 				dep.Name,

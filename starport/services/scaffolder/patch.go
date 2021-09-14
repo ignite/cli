@@ -25,7 +25,7 @@ func supportGenesisTests(
 
 	gmPath := filepath.Join(path, "genesis_test.go")
 	if _, err := os.Stat(gmPath); os.IsNotExist(err) {
-		g, err := modulecreate.AddGenesisModuleTest(appName, modulePath, moduleName)
+		g, err := modulecreate.AddGenesisModuleTest(appPath, appName, modulePath, moduleName)
 		if err != nil {
 			return nil, err
 		}
@@ -36,7 +36,7 @@ func supportGenesisTests(
 
 	gtPath := filepath.Join(path, "types/genesis_test.go")
 	if _, err := os.Stat(gtPath); os.IsNotExist(err) {
-		g, err := modulecreate.AddGenesisTypesTest(appName, modulePath, moduleName)
+		g, err := modulecreate.AddGenesisTypesTest(appPath, appName, modulePath, moduleName)
 		if err != nil {
 			return nil, err
 		}
