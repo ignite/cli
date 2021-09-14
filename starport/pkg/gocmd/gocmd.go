@@ -125,7 +125,7 @@ func PackageLiteral(path, version string) string {
 	return fmt.Sprintf("%s@%s", path, version)
 }
 
-// binaryPath get the binary path into the go bin folder.
+// binaryPath determines the path where binary will be located at.
 func binaryPath(output, binary string) (string, error) {
 	if output != "" {
 		outputAbs, err := filepath.Abs(output)

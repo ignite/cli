@@ -60,18 +60,18 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 		return err
 	}
 
-	p, err := goanalysis.DiscoverMain(c.app.Path)
+	path, err := goanalysis.DiscoverMain(c.app.Path)
 	if err != nil {
 		return err
 	}
 
-	return gocmd.BuildPath(ctx, output, binary, p, buildFlags)
+	return gocmd.BuildPath(ctx, output, binary, path, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets ...string) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -89,13 +89,26 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 		return "", err
 	}
 
-	releasePath = filepath.Join(c.app.Path, releaseDir)
+	binary, err := c.Binary()
+	if err != nil {
+		return "", err
+	}
+
+	mainPath, err := goanalysis.DiscoverMain(c.app.Path)
+	if err != nil {
+		return "", err
+	}
+
+	releasePath = output
+	if output == "" {
+		releasePath = filepath.Join(c.app.Path, releaseDir)
+	}
 
 	// reset the release dir.
 	if err := os.RemoveAll(releasePath); err != nil {
 		return "", err
 	}
-	if err := os.Mkdir(releasePath, 0755); err != nil {
+	if err := os.MkdirAll(releasePath, 0755); err != nil {
 		return "", err
 	}
 
@@ -119,7 +132,7 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 			)),
 		}
 
-		if err := gocmd.BuildAll(ctx, out, c.app.Path, buildFlags, buildOptions...); err != nil {
+		if err := gocmd.BuildPath(ctx, out, binary, mainPath, buildFlags, buildOptions...); err != nil {
 			return "", err
 		}
 

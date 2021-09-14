@@ -70,7 +70,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
