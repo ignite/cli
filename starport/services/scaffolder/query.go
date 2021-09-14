@@ -1,6 +1,8 @@
 package scaffolder
 
 import (
+	"context"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -11,6 +13,7 @@ import (
 
 // AddQuery adds a new query to scaffolded app
 func (s Scaffolder) AddQuery(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
@@ -38,9 +41,17 @@ func (s Scaffolder) AddQuery(
 		return sm, err
 	}
 
-	// Parse provided fields
+	// Check and parse provided request fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, reqFields); err != nil {
+		return sm, err
+	}
 	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
+		return sm, err
+	}
+
+	// Check and parse provided response fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
 	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
