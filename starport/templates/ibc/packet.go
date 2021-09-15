@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -23,12 +24,6 @@ var (
 
 	//go:embed packet/messages/* packet/messages/**/*
 	fsPacketMessages embed.FS
-
-	// ibcTemplateComponent is the template to scaffold a new packet in an IBC module
-	ibcTemplateComponent = xgenny.NewEmbedWalker(fsPacketComponent, "packet/component/")
-
-	// ibcTemplateMessages is the template to scaffold send message for a packet
-	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketMessages, "packet/messages/")
 )
 
 // PacketOptions are options to scaffold a packet in a IBC module
@@ -47,13 +42,26 @@ type PacketOptions struct {
 
 // NewPacket returns the generator to scaffold a packet in an IBC module
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"packet/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsPacketComponent,
+			"packet/component/",
+			opts.AppPath,
+		)
+	)
 
 	// Add the component
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(replacer, opts))
 	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(ibcTemplateComponent); err != nil {
+	if err := g.Box(componentTemplate); err != nil {
 		return g, err
 	}
 
@@ -63,7 +71,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 		g.RunFn(handlerTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
-		if err := g.Box(ibcTemplateMessages); err != nil {
+		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
 		}
 	}
@@ -77,7 +85,6 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
-	ctx.Set("title", strings.Title)
 
 	// Create the 'testutil' package with the test helpers
 	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
@@ -93,7 +100,7 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -166,7 +173,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 
 func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/packet.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -199,14 +206,25 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
+		}
+
 		templateMessage := `%[1]v
 // %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
-	%[3]v}
+%[3]v}
 
 // %[2]vPacketAck defines a struct for the packet acknowledgment
 message %[2]vPacketAck {
-	%[4]v}
+%[4]v}
 `
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
@@ -224,7 +242,7 @@ message %[2]vPacketAck {
 
 func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -248,7 +266,7 @@ EventType%[2]vPacket       = "%[3]v_packet"
 
 func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -267,6 +285,16 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		var sendFields string
 		for i, field := range opts.Fields {
 			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+5)
+		}
+
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 		}
 
 		// Message
@@ -300,7 +328,7 @@ message MsgSend%[2]vResponse {
 
 func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -327,7 +355,7 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -344,7 +372,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 
 func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

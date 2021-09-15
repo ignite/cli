@@ -3,6 +3,7 @@ package moduleimport
 // ImportOptions ...
 type ImportOptions struct {
 	AppName          string
+	AppPath          string
 	Feature          string
 	BinaryNamePrefix string
 }

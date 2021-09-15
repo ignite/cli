@@ -83,7 +83,7 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
-	chain, err := chain.New(ctx, b.appPath, chainOption...)
+	chain, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}

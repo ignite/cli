@@ -26,7 +26,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
     fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
 	for _, tc := range []struct {
 		desc string
-        <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+        <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
         <% } %>
 		args []string
 		err  error
@@ -88,7 +88,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
         <% } %>
 		args []string
 		code uint32
@@ -153,7 +153,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
         <% } %>
 		args []string
 		code uint32

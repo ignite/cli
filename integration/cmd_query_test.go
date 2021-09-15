@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -29,6 +30,25 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a query with custom path",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"query",
+				"AppPath",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+				"--path",
+				"./blog",
+			),
+			step.Workdir(filepath.Dir(path)),
+		)),
+	))
+
 	env.Must(env.Exec("create a paginated query",
 		step.NewSteps(step.New(
 			step.Exec(
@@ -43,6 +63,20 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 				"foo,bar:int,foobar:bool",
 				"--paginated",
 			),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "type", "custom-type", "customField:uint"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a query with the custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "query", "foobaz", "bar:CustomType"),
 			step.Workdir(path),
 		)),
 	))

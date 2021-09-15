@@ -6,7 +6,6 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
@@ -16,6 +15,7 @@ import (
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/repoversion"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
@@ -133,7 +133,7 @@ func EnableThirdPartyModuleCodegen() Option {
 }
 
 // New initializes a new Chain with options that its source lives at path.
-func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
+func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -178,20 +178,15 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(c.app.Path)
+
+	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
-	iter, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-	ref, err := iter.Next()
-	if err != nil {
-		return version{}, nil
-	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
+
+	v.hash = ver.Hash
+	v.tag = ver.Tag
+
 	return v, nil
 }
 
