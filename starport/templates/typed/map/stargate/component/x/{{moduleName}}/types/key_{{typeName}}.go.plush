@@ -11,11 +11,11 @@ const (
 
 // <%= TypeName.UpperCamel %>Key returns the store key to retrieve a <%= TypeName.UpperCamel %> from the index fields
 func <%= TypeName.UpperCamel %>Key(
-<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataDeclaration() %>,
 <% } %>) []byte {
 	var key []byte
     <%= for (i, index) in Indexes { %>
-    <%= castToBytes(index.Name.LowerCamel, index.DatatypeName) %>
+    <%= index.ToBytes(index.Name.LowerCamel) %>
     key = append(key, <%= index.Name.LowerCamel %>Bytes...)
     key = append(key, []byte("/")...)
     <% } %>

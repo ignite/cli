@@ -129,11 +129,11 @@ import "%s/%s.proto";`
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s %s = %d;\n", field.GetProtoDatatype(), field.Name.LowerCamel, i+2)
+			createFields += fmt.Sprintf("  %s %s = %d;\n", field.ProtoDeclaration(), field.Name.LowerCamel, i+2)
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.GetProtoDatatype(), field.Name.LowerCamel, i+3)
+			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.ProtoDeclaration(), field.Name.LowerCamel, i+3)
 		}
 
 		// Ensure custom types are imported

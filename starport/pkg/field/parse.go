@@ -9,7 +9,7 @@ import (
 )
 
 // validateField validate the field name and type, and run the forbidden method
-func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, string, error) {
+func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, DataTypeName, error) {
 	fieldSplit := strings.Split(field, TypeSeparator)
 	if len(fieldSplit) > 2 {
 		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
@@ -27,10 +27,10 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	}
 
 	// Check if the object has an explicit type. The default is a string
-	dataTypeName := TypeString
+	dataTypeName := DataTypeString
 	isTypeSpecified := len(fieldSplit) == 2
 	if isTypeSpecified {
-		dataTypeName = fieldSplit[1]
+		dataTypeName = DataTypeName(fieldSplit[1])
 	}
 	return name, dataTypeName, nil
 }
@@ -58,10 +58,9 @@ func ParseFields(
 		existingFields[name.LowerCamel] = true
 
 		// Check if is a static type
-		if datatype, ok := StaticDataTypes[datatypeName]; ok {
+		if _, ok := SupportedTypes[datatypeName]; ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
-				Datatype:     datatype,
 				DatatypeName: datatypeName,
 			})
 			continue
@@ -69,7 +68,7 @@ func ParseFields(
 
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
-			Datatype:     datatypeName,
+			Datatype:     string(datatypeName),
 			DatatypeName: TypeCustom,
 		})
 	}

@@ -3,141 +3,128 @@ package field
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
-const (
-	TypeCustom      = "custom"
-	TypeString      = "string"
-	TypeStringSlice = "[]string"
-	TypeBool        = "bool"
-	TypeInt         = "int"
-	TypeIntSlice    = "[]int"
-	TypeUint        = "uint"
-	TypeUintSlice   = "[]uint"
+// Field represents a field inside a structure for a component
+// it can be a field contained in a type or inside the response of a query, etc...
+type Field struct {
+	Name         multiformatname.Name
+	DatatypeName DataTypeName
+	Datatype     string
+}
 
-	TypeNameInt  = "int32"
-	TypeNameUint = "uint64"
-
-	TypeSeparator = ":"
-)
-
-var (
-	StaticDataTypes = map[string]string{
-		TypeString:      TypeString,
-		TypeStringSlice: TypeString,
-		TypeBool:        TypeBool,
-		TypeInt:         TypeNameInt,
-		TypeIntSlice:    TypeNameInt,
-		TypeUint:        TypeNameUint,
-		TypeUintSlice:   TypeNameUint,
-	}
-)
-
-type (
-	// Field represents a field inside a structure for a component
-	// it can be a field contained in a type or inside the response of a query, etc...
-	Field struct {
-		Name         multiformatname.Name
-		Datatype     string
-		DatatypeName string
-	}
-
-	// Fields represents a Field slice
-	Fields []Field
-)
-
-// GetDatatype return the Datatype based in the DatatypeName
-func (f Field) GetDatatype() string {
-	switch f.DatatypeName {
-	case TypeString, TypeBool, TypeInt, TypeUint:
-		return f.Datatype
-	case TypeStringSlice, TypeIntSlice, TypeUintSlice:
-		return fmt.Sprintf("[]%s", f.Datatype)
-	case TypeCustom:
-		return fmt.Sprintf("*%s", f.Datatype)
-	default:
+// DataDeclaration return the Datatype data declaration
+func (f Field) DataDeclaration() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	return datatype.DataDeclaration(f.Datatype)
 }
 
-// GetProtoDatatype return the proto Datatype based in the DatatypeName
-func (f Field) GetProtoDatatype() string {
-	switch f.DatatypeName {
-	case TypeString, TypeBool, TypeInt, TypeUint, TypeCustom:
-		return f.Datatype
-	case TypeStringSlice, TypeIntSlice, TypeUintSlice:
-		return fmt.Sprintf("repeated %s", f.Datatype)
-	default:
+// ProtoDeclaration return the Datatype proto declaration
+func (f Field) ProtoDeclaration() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	return datatype.ProtoDeclaration(f.Datatype)
 }
 
-// NeedCastImport return true if the field slice
-// needs import the cast library
-func (f Fields) NeedCastImport() bool {
-	for _, field := range f {
-		if field.DatatypeName != TypeString &&
-			field.DatatypeName != TypeCustom {
-			return true
-		}
-	}
-	return false
-}
-
-// IsComplex return true if the field slice
-// needs import the json library
-func (f Fields) IsComplex() bool {
-	for _, field := range f {
-		if field.DatatypeName == TypeCustom {
-			return true
-		}
-	}
-	return false
-}
-
-// String return all inline fields args for command usage
-func (f Fields) String() string {
-	args := ""
-	for _, field := range f {
-		args += fmt.Sprintf(" [%s]", field.Name.Kebab)
-	}
-	return args
-}
-
-// Custom return a list of custom fields
-func (f Fields) Custom() []string {
-	fields := make([]string, 0)
-	for _, field := range f {
-		if field.DatatypeName == TypeCustom {
-			dataType, err := multiformatname.NewName(field.Datatype)
-			if err != nil {
-				panic(err)
-			}
-			fields = append(fields, dataType.Snake)
-		}
-	}
-	return fields
-}
-
-// GenesisField create a genesis field
-func (f Field) GenesisField(value int) string {
-	switch f.DatatypeName {
-	case TypeString:
-		return fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-	case TypeStringSlice:
-		return fmt.Sprintf("%s: []string{\"%s\"},\n", f.Name.UpperCamel, f.Name.LowerCamel)
-	case TypeInt, TypeUint:
-		return fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(value))
-	case TypeIntSlice:
-		return fmt.Sprintf("%s: []int32{%d},\n", f.Name.UpperCamel, rand.Intn(value))
-	case TypeUintSlice:
-		return fmt.Sprintf("%s: []uint64{%d},\n", f.Name.UpperCamel, rand.Intn(value))
-	case TypeBool:
-		return fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(value)%2 == 0)
-	default:
+// ValueDefault return the Datatype value default
+func (f Field) ValueDefault() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	return datatype.ValueDefault
+}
+
+// ValueLoop return the Datatype value for loop iteration
+func (f Field) ValueLoop() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ValueLoop
+}
+
+// ValueIndex return the Datatype value for indexes
+func (f Field) ValueIndex() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ValueIndex
+}
+
+// ValueInvalidIndex return the Datatype value for invalid indexes
+func (f Field) ValueInvalidIndex() string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ValueInvalidIndex
+}
+
+// GenesisArgs return the Datatype genesis args
+func (f Field) GenesisArgs(value int) string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.GenesisArgs(f.Name, value)
+}
+
+// CLIArgs return the Datatype CLI args
+func (f Field) CLIArgs(prefix string, argIndex int) string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.CLIArgs(f.Name, f.Datatype, prefix, argIndex)
+}
+
+// ToBytes return the Datatype byte array cast
+func (f Field) ToBytes(name string) string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ToBytes(name)
+}
+
+// ToString return the Datatype byte array cast
+func (f Field) ToString(name string) string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ToString(name)
+}
+
+// GoCLIImports return the Datatype imports for CLI package
+func (f Field) GoCLIImports() []string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.GoCLIImports
+}
+
+// ProtoImports return the Datatype imports for proto files
+func (f Field) ProtoImports() []string {
+	datatype, ok := SupportedTypes[f.DatatypeName]
+	// TODO remove panic
+	if !ok {
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	return datatype.ProtoImports
 }

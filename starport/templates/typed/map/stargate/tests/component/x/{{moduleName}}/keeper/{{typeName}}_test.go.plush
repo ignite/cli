@@ -17,7 +17,7 @@ var _ = strconv.IntSize
 func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
 	items := make([]types.<%= TypeName.UpperCamel %>, n)
 	for i := range items {
-		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= genUniqueArg(index.DatatypeName) %>
+		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= index.ValueLoop() %>
         <% } %>
 		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
 	}

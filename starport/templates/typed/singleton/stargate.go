@@ -249,7 +249,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisField(rand.Intn(100))
+			sampleFields += field.GenesisArgs(rand.Intn(100))
 		}
 
 		templateState := `%[1]v
@@ -290,7 +290,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisField(rand.Intn(100))
+			sampleFields += field.GenesisArgs(rand.Intn(100))
 		}
 
 		templateValid := `%[1]v
@@ -383,7 +383,7 @@ import "%s/%s.proto";`
 		// Messages
 		var fields string
 		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.GetProtoDatatype(), field.Name.LowerCamel, i+3)
+			fields += fmt.Sprintf("  %s %s = %d;\n", field.ProtoDeclaration(), field.Name.LowerCamel, i+3)
 		}
 		for _, f := range opts.Fields.Custom() {
 			importModule := fmt.Sprintf(`

@@ -35,7 +35,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	// because we can't generate reliable tests for this type
 	var generateTest bool
 	for _, index := range opts.Indexes {
-		if index.DatatypeName != field.TypeBool {
+		if index.DatatypeName != field.DataTypeBool {
 			generateTest = true
 		}
 	}
@@ -154,7 +154,7 @@ import "%s/%s.proto";`
 		for i, index := range opts.Indexes {
 			queryIndexFields += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				index.GetProtoDatatype(),
+				index.ProtoDeclaration(),
 				index.Name.LowerCamel,
 				i+1,
 			)
@@ -385,7 +385,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				sampleIndexes[i] += index.GenesisField(i)
+				sampleIndexes[i] += index.GenesisArgs(i)
 			}
 		}
 
@@ -434,7 +434,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				sampleIndexes[i] += index.GenesisField(i)
+				sampleIndexes[i] += index.GenesisArgs(i)
 			}
 		}
 
@@ -514,7 +514,7 @@ import "%s/%s.proto";`
 		for i, index := range opts.Indexes {
 			indexes += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				index.GetProtoDatatype(),
+				index.ProtoDeclaration(),
 				index.Name.LowerCamel,
 				i+2,
 			)
@@ -524,7 +524,7 @@ import "%s/%s.proto";`
 		for i, f := range opts.Fields {
 			fields += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				f.GetProtoDatatype(),
+				f.ProtoDeclaration(),
 				f.Name.LowerCamel,
 				i+2+len(opts.Indexes),
 			)

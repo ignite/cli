@@ -217,9 +217,9 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 		if len(fieldSplit) <= 1 {
 			continue
 		}
-		fieldType := fieldSplit[1]
-		if _, ok := field.StaticDataTypes[fieldType]; !ok {
-			customFields = append(customFields, fieldType)
+		fieldType := field.DataTypeName(fieldSplit[1])
+		if _, ok := field.SupportedTypes[fieldType]; !ok {
+			customFields = append(customFields, string(fieldType))
 		}
 	}
 	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
