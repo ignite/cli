@@ -1,5 +1,16 @@
 # ![Starport](./assets/starport.jpg)
 
+
+Forked this repo so as to play with CosmosSDK.
+
+[![Open in Gitpod](https://gitpod.io/button/open-in-gitpod.svg)](https://gitpod.io/#https://github.com/laurentHYZ/CosmosSDKBasics)
+
+
+
+
+
+
+
 Starport is the all-in-one platform to build, launch and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
 * [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/tendermint/starport/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/tendermint/starport/)
