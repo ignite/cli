@@ -129,11 +129,6 @@ func flagGetSigner(cmd *cobra.Command) string {
 }
 
 func checkVersion(path string) {
-	mdPath, err := markdown()
-	if err != nil {
-		return
-	}
-
 	version, err := cosmosver.Detect(path)
 	if err != nil {
 		return
@@ -145,8 +140,8 @@ func checkVersion(path string) {
 ⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
 Please make sure that your chain is updated following the migration guidelines from this folder:
 
-%[2]v
+https://docs.starport.network/migration
 
-`, version.String(), mdPath)
+`, version.String())
 	}
 }
