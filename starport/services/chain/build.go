@@ -100,14 +100,14 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 	}
 
 	releasePath = output
-	if output == "" {
+	if releasePath == "" {
 		releasePath = filepath.Join(c.app.Path, releaseDir)
+		// reset the release dir.
+		if err := os.RemoveAll(releasePath); err != nil {
+			return "", err
+		}
 	}
 
-	// reset the release dir.
-	if err := os.RemoveAll(releasePath); err != nil {
-		return "", err
-	}
 	if err := os.MkdirAll(releasePath, 0755); err != nil {
 		return "", err
 	}
