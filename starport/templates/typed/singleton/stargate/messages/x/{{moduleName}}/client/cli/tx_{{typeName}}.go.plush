@@ -4,7 +4,7 @@ import (
 	<%= if (Fields.IsComplex()) { %> "encoding/json" <% } %>
 
     "github.com/spf13/cobra"
-	<%= if (Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
+    <%= Fields.GoImports() %>
 
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

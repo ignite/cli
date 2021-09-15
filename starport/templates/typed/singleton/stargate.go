@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -249,15 +248,8 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisField(rand.Intn(100))
 		}
 
 		templateState := `%[1]v
@@ -297,15 +289,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisField(rand.Intn(100))
 		}
 
 		templateValid := `%[1]v
@@ -397,8 +382,8 @@ import "%s/%s.proto";`
 
 		// Messages
 		var fields string
-		for i, f := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		for i, field := range opts.Fields {
+			fields += fmt.Sprintf("  %s %s = %d;\n", field.GetProtoDatatype(), field.Name.LowerCamel, i+3)
 		}
 		for _, f := range opts.Fields.Custom() {
 			importModule := fmt.Sprintf(`

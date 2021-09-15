@@ -154,7 +154,7 @@ import "%s/%s.proto";`
 		for i, index := range opts.Indexes {
 			queryIndexFields += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				index.Datatype,
+				index.GetProtoDatatype(),
 				index.Name.LowerCamel,
 				i+1,
 			)
@@ -385,14 +385,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				switch index.DatatypeName {
-				case field.TypeString:
-					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
-				case field.TypeInt, field.TypeUint:
-					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
-				case field.TypeBool:
-					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i%2 == 0)
-				}
+				sampleIndexes[i] += index.GenesisField(i)
 			}
 		}
 
@@ -441,14 +434,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				switch index.DatatypeName {
-				case field.TypeString:
-					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
-				case field.TypeInt, field.TypeUint:
-					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
-				case field.TypeBool:
-					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i != 0)
-				}
+				sampleIndexes[i] += index.GenesisField(i)
 			}
 		}
 
@@ -528,18 +514,18 @@ import "%s/%s.proto";`
 		for i, index := range opts.Indexes {
 			indexes += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				index.Datatype,
+				index.GetProtoDatatype(),
 				index.Name.LowerCamel,
 				i+2,
 			)
 		}
 
 		var fields string
-		for i, field := range opts.Fields {
+		for i, f := range opts.Fields {
 			fields += fmt.Sprintf(
 				"  %s %s = %d;\n",
-				field.Datatype,
-				field.Name.LowerCamel,
+				f.GetProtoDatatype(),
+				f.Name.LowerCamel,
 				i+2+len(opts.Indexes),
 			)
 		}

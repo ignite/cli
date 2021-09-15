@@ -3,29 +3,36 @@ package field
 
 import (
 	"fmt"
-	"strings"
+	"math/rand"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 const (
-	TypeCustom = "custom"
-	TypeString = "string"
-	TypeBool   = "bool"
-	TypeInt    = "int"
-	TypeInt32  = "int32"
-	TypeUint   = "uint"
-	TypeUint64 = "uint64"
+	TypeCustom      = "custom"
+	TypeString      = "string"
+	TypeStringSlice = "[]string"
+	TypeBool        = "bool"
+	TypeInt         = "int"
+	TypeIntSlice    = "[]int"
+	TypeUint        = "uint"
+	TypeUintSlice   = "[]uint"
+
+	TypeNameInt  = "int32"
+	TypeNameUint = "uint64"
 
 	TypeSeparator = ":"
 )
 
 var (
 	StaticDataTypes = map[string]string{
-		TypeString: TypeString,
-		TypeBool:   TypeBool,
-		TypeInt:    TypeInt32,
-		TypeUint:   TypeUint64,
+		TypeString:      TypeString,
+		TypeStringSlice: TypeString,
+		TypeBool:        TypeBool,
+		TypeInt:         TypeNameInt,
+		TypeIntSlice:    TypeNameInt,
+		TypeUint:        TypeNameUint,
+		TypeUintSlice:   TypeNameUint,
 	}
 )
 
@@ -36,86 +43,19 @@ type (
 		Name         multiformatname.Name
 		Datatype     string
 		DatatypeName string
-		Nested       Fields
 	}
 
 	// Fields represents a Field slice
 	Fields []Field
 )
 
-// validateField validate the field name and type, and run the forbidden method
-func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, string, error) {
-	fieldSplit := strings.Split(field, TypeSeparator)
-	if len(fieldSplit) > 2 {
-		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
-	}
-
-	name, err := multiformatname.NewName(fieldSplit[0])
-	if err != nil {
-		return name, "", err
-
-	}
-
-	// Ensure the field name is not a Go reserved name, it would generate an incorrect code
-	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
-	}
-
-	// Check if the object has an explicit type. The default is a string
-	dataTypeName := TypeString
-	isTypeSpecified := len(fieldSplit) == 2
-	if isTypeSpecified {
-		dataTypeName = fieldSplit[1]
-	}
-	return name, dataTypeName, nil
-}
-
-// ParseFields parses the provided fields, analyses the types
-// and checks there is no duplicated field
-func ParseFields(
-	fields []string,
-	isForbiddenField func(string) error,
-) (Fields, error) {
-	// Used to check duplicated field
-	existingFields := make(map[string]bool)
-
-	var parsedFields Fields
-	for _, field := range fields {
-		name, datatypeName, err := validateField(field, isForbiddenField)
-		if err != nil {
-			return parsedFields, err
-		}
-
-		// Ensure the field is not duplicated
-		if _, exists := existingFields[name.LowerCamel]; exists {
-			return parsedFields, fmt.Errorf("the field %s is duplicated", name.Original)
-		}
-		existingFields[name.LowerCamel] = true
-
-		// Check if is a static type
-		if datatype, ok := StaticDataTypes[datatypeName]; ok {
-			parsedFields = append(parsedFields, Field{
-				Name:         name,
-				Datatype:     datatype,
-				DatatypeName: datatypeName,
-			})
-			continue
-		}
-
-		parsedFields = append(parsedFields, Field{
-			Name:         name,
-			Datatype:     datatypeName,
-			DatatypeName: TypeCustom,
-		})
-	}
-	return parsedFields, nil
-}
-
 // GetDatatype return the Datatype based in the DatatypeName
 func (f Field) GetDatatype() string {
 	switch f.DatatypeName {
 	case TypeString, TypeBool, TypeInt, TypeUint:
 		return f.Datatype
+	case TypeStringSlice, TypeIntSlice, TypeUintSlice:
+		return fmt.Sprintf("[]%s", f.Datatype)
 	case TypeCustom:
 		return fmt.Sprintf("*%s", f.Datatype)
 	default:
@@ -128,6 +68,8 @@ func (f Field) GetProtoDatatype() string {
 	switch f.DatatypeName {
 	case TypeString, TypeBool, TypeInt, TypeUint, TypeCustom:
 		return f.Datatype
+	case TypeStringSlice, TypeIntSlice, TypeUintSlice:
+		return fmt.Sprintf("repeated %s", f.Datatype)
 	default:
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -178,4 +120,24 @@ func (f Fields) Custom() []string {
 		}
 	}
 	return fields
+}
+
+// GenesisField create a genesis field
+func (f Field) GenesisField(value int) string {
+	switch f.DatatypeName {
+	case TypeString:
+		return fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
+	case TypeStringSlice:
+		return fmt.Sprintf("%s: []string{\"%s\"},\n", f.Name.UpperCamel, f.Name.LowerCamel)
+	case TypeInt, TypeUint:
+		return fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(value))
+	case TypeIntSlice:
+		return fmt.Sprintf("%s: []int32{%d},\n", f.Name.UpperCamel, rand.Intn(value))
+	case TypeUintSlice:
+		return fmt.Sprintf("%s: []uint64{%d},\n", f.Name.UpperCamel, rand.Intn(value))
+	case TypeBool:
+		return fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(value)%2 == 0)
+	default:
+		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
 }

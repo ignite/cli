@@ -2,10 +2,11 @@ package field_test
 
 import (
 	"errors"
+	"testing"
+
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"testing"
 )
 
 var (

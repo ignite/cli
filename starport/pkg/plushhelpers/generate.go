@@ -18,8 +18,12 @@ func GenerateValidArg(datatypeName string) string {
 	switch datatypeName {
 	case field.TypeString:
 		return "xyz"
+	case field.TypeStringSlice:
+		return "abc,xyz"
 	case field.TypeUint, field.TypeInt:
 		return "111"
+	case field.TypeUintSlice, field.TypeIntSlice:
+		return "1,2,3,4,5"
 	case field.TypeBool:
 		return valueFalse
 	case field.TypeCustom:
@@ -36,10 +40,16 @@ func GenerateUniqueArg(datatypeName string) string {
 	switch datatypeName {
 	case field.TypeString:
 		return "strconv.Itoa(i)"
+	case field.TypeStringSlice:
+		return "[]string{strconv.Itoa(i), strconv.Itoa(i)}"
 	case field.TypeUint:
 		return "uint64(i)"
+	case field.TypeUintSlice:
+		return "[]uint64{uint64(i), uint64(i)}"
 	case field.TypeInt:
 		return "int32(i)"
+	case field.TypeIntSlice:
+		return "[]int32{int32(i), int32(i)}"
 	case field.TypeBool:
 		return valueFalse
 	case field.TypeCustom:
@@ -54,8 +64,12 @@ func GenerateValidIndex(datatypeName string) string {
 	switch datatypeName {
 	case field.TypeString:
 		return "strconv.Itoa(0)"
+	case field.TypeStringSlice:
+		return "[]string{\"1\", \"2\"}"
 	case field.TypeUint, field.TypeInt:
 		return "0"
+	case field.TypeUintSlice, field.TypeIntSlice:
+		return "0,1,2,3"
 	case field.TypeBool:
 		return valueFalse
 	case field.TypeCustom:
@@ -72,8 +86,12 @@ func GenerateNotFoundIndex(datatypeName string) string {
 	switch datatypeName {
 	case field.TypeString:
 		return "strconv.Itoa(100000)"
+	case field.TypeStringSlice:
+		return "[]string{strconv.Itoa(100000), strconv.Itoa(100001)}"
 	case field.TypeUint, field.TypeInt:
 		return "100000"
+	case field.TypeUintSlice, field.TypeIntSlice:
+		return "100000,100001"
 	case field.TypeBool:
 		return valueFalse
 	case field.TypeCustom:
