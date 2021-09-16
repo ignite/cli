@@ -266,7 +266,7 @@ var (
 		},
 
 		DataTypeCustom: {
-			DataDeclaration:   func(datatype string) string { return datatype },
+			DataDeclaration:   func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 			ValueDefault:      "null",
 			ValueLoop:         "null",
 			ValueIndex:        "null",

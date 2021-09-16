@@ -166,8 +166,8 @@ import "%s/%s.proto";`
 			importModule := fmt.Sprintf(`
 import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
-			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.Placeholder, importModule)
+			content = replacer.Replace(content, typed.Placeholder, replacementImport)
 		}
 
 		templateMessage := `%[1]v
