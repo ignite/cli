@@ -22,8 +22,15 @@ func (f Fields) GoCLIImports() []GoImport {
 // ProtoImports return all proto imports
 func (f Fields) ProtoImports() []string {
 	allImports := make([]string, 0)
-	for _, field := range f {
-		allImports = append(allImports, field.ProtoImports()...)
+	exist := make(map[string]struct{})
+	for _, fields := range f {
+		for _, protoImport := range fields.ProtoImports() {
+			if _, ok := exist[protoImport]; ok {
+				continue
+			}
+			exist[protoImport] = struct{}{}
+			allImports = append(allImports, protoImport)
+		}
 	}
 	return allImports
 }
