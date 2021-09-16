@@ -18,7 +18,7 @@ const (
 	DataTypeUintSlice    DataTypeName = "[]uint"
 	DataTypeSDKCoin      DataTypeName = "sdk.Coin"
 	DataTypeSDKCoinSlice DataTypeName = "[]sdk.Coin"
-	DataTypeCustom                    = DataTypeName(TypeCustom)
+	DataTypeCustom       DataTypeName = DataTypeName(TypeCustom)
 
 	TypeCustom    = "customstarporttype"
 	TypeSeparator = ":"
