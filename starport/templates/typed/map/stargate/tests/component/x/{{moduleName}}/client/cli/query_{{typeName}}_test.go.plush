@@ -28,7 +28,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 
 	for i := 0; i < n; i++ {
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, types.<%= TypeName.UpperCamel %>{
-		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
+		    <%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
 		    <% } %>
 		})
 	}

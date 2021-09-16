@@ -223,7 +223,7 @@ func checkForbiddenTypeIndex(name string) error {
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 		fieldType := field.DataTypeName(fieldSplit[1])
-		if _, ok := field.SupportedTypes[fieldType]; !ok {
+		if f, ok := field.SupportedTypes[fieldType]; !ok || f.NonIndex {
 			return fmt.Errorf("invalid index type %s", fieldType)
 		}
 	}
