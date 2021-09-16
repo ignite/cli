@@ -29,9 +29,16 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a list with int",
+	env.Must(env.Exec("create a list with int and []int",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "employee", "name:string", "level:int"),
+			step.Exec("starport", "s", "list", "employee", "name:string", "level:int", "rates:[]int"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a list with sdk.Coin and []sdkCoins",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "salary", "base:sdk.Coin", "review:[]sdk.Coin"),
 			step.Workdir(path),
 		)),
 	))
