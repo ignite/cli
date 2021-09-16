@@ -151,8 +151,16 @@ func (s Scaffolder) AddMessage(
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
 func checkForbiddenMessageField(name string) error {
-	if name == "creator" {
-		return fmt.Errorf("%s is used by the message scaffolder", name)
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
+	case
+		"creator",
+		field.TypeCustom:
+		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)

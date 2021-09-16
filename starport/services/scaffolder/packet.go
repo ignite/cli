@@ -157,11 +157,17 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 
 // checkForbiddenPacketField returns true if the name is forbidden as a packet name
 func checkForbiddenPacketField(name string) error {
-	switch name {
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
 	case
 		"sender",
 		"port",
-		"channelID":
+		"channelid",
+		field.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 

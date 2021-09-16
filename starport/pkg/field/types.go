@@ -9,7 +9,6 @@ import (
 )
 
 const (
-	DataTypeCustom       DataTypeName = "custom"
 	DataTypeString       DataTypeName = "string"
 	DataTypeStringSlice  DataTypeName = "[]string"
 	DataTypeBool         DataTypeName = "bool"
@@ -19,8 +18,9 @@ const (
 	DataTypeUintSlice    DataTypeName = "[]uint"
 	DataTypeSDKCoin      DataTypeName = "sdk.Coin"
 	DataTypeSDKCoinSlice DataTypeName = "[]sdk.Coin"
+	DataTypeCustom                    = DataTypeName(TypeCustom)
 
-	TypeCustom    = "custom"
+	TypeCustom    = "customstarporttype"
 	TypeSeparator = ":"
 )
 

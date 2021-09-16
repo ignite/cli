@@ -48,7 +48,7 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
 func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
-	switch name.LowerCamel {
+	switch name.LowerCase {
 	case
 		"oracle",
 		"logger",
@@ -56,7 +56,8 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		"query",
 		"genesis",
 		"types",
-		"tx":
+		"tx",
+		field.TypeCustom:
 		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
 	}
 
