@@ -57,7 +57,8 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 ⭐️ Successfully created a new blockchain '%[1]v'.
 👉 Get started with the following commands:
 
- %% starport chain serve -p %[1]v
+ %% cd %[1]v
+ %% starport chain serve
 
 Documentation: https://docs.starport.network
 `
