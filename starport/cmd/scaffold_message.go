@@ -60,7 +60,6 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 
 	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
-		checkVersion(appPath)
 		return err
 	}
 
@@ -74,5 +73,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	fmt.Println(modificationsStr)
 
 	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
+
+	checkVersion(appPath)
 	return nil
 }

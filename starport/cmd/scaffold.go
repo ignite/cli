@@ -87,7 +87,6 @@ func scaffoldType(
 
 	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
 	if err != nil {
-		checkVersion(appPath)
 		return err
 	}
 
@@ -102,6 +101,7 @@ func scaffoldType(
 
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
+	checkVersion(appPath)
 	return nil
 }
 

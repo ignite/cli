@@ -70,7 +70,6 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 
 	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
-		checkVersion(appPath)
 		return err
 	}
 
@@ -84,5 +83,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	fmt.Println(modificationsStr)
 
 	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
+
+	checkVersion(appPath)
 	return nil
 }

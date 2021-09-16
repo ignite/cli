@@ -77,7 +77,6 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 
 	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)
 	if err != nil {
-		checkVersion(appPath)
 		return err
 	}
 
@@ -91,5 +90,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	fmt.Println(modificationsStr)
 
 	fmt.Printf("\n🎉 Created a packet `%[1]v`.\n\n", args[0])
+
+	checkVersion(appPath)
 	return nil
 }

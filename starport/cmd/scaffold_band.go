@@ -57,7 +57,6 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 
 	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
 	if err != nil {
-		checkVersion(appPath)
 		return err
 	}
 
@@ -80,5 +79,7 @@ Make sure to update the keys.go file accordingly.
 const Version = "bandchain-1"
 
 `, oracle, module)
+
+	checkVersion(appPath)
 	return nil
 }
