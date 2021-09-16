@@ -1,8 +1,9 @@
 syntax = "proto3";
 package <%= formatOwnerName(OwnerName) %>.<%= AppName %>.<%= ModuleName %>;
 
-option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";
-<%= for (i, importName) in Fields.Custom() { %>import "<%= ModuleName %>/<%= importName %>.proto"; <% } %>
+option go_package = "<%= ModulePath %>/x/<%= ModuleName %>/types";<%= for (i, importName) in Fields.Custom() { %>
+import "<%= ModuleName %>/<%= importName %>.proto"; <% } %><%= for (i, importName) in Fields.ProtoImports() { %>
+import "<%= importName %>"; <% } %>
 
 message <%= TypeName.UpperCamel %> {
   <%= for (i, field) in Fields { %>

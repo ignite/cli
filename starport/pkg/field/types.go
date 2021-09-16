@@ -293,7 +293,34 @@ var (
 			ValueIndex:        "null",
 			ValueInvalidIndex: "null",
 			ProtoDeclaration: func(_, name string, index int) string {
-				return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d",
+				return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
+					name, index)
+			},
+			GenesisArgs: func(multiformatname.Name, int) string { return "" },
+			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
+				return fmt.Sprintf(`%s%s, err := sdk.ParseCoinNormalized(args[%d])
+					if err != nil {
+						return err
+					}`, prefix, name.UpperCamel, argIndex)
+			},
+			ToBytes: func(name string) string {
+				return fmt.Sprintf("%[1]vBytes := []byte(%[1]v.String())", name)
+			},
+			ToString: func(name string) string {
+				return fmt.Sprintf("%[1]v.String()", name)
+			},
+			GoCLIImports: []GoImport{{Name: "github.com/cosmos/cosmos-sdk/types", Alias: "sdk"}},
+			ProtoImports: []string{"gogoproto/gogo.proto", "cosmos/base/v1beta1/coin.proto"},
+		},
+
+		DataTypeSDKCoinSlice: {
+			DataDeclaration:   func(string) string { return "[]sdk.Coin" },
+			ValueDefault:      "null",
+			ValueLoop:         "null",
+			ValueIndex:        "null",
+			ValueInvalidIndex: "null",
+			ProtoDeclaration: func(_, name string, index int) string {
+				return fmt.Sprintf("repeated cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
 					name, index)
 			},
 			GenesisArgs: func(multiformatname.Name, int) string { return "" },

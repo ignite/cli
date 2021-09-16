@@ -73,10 +73,16 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		}
 
 		// Ensure custom types are imported
+		protoImports := append(opts.ResFields.ProtoImports(), opts.ReqFields.ProtoImports()...)
 		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
 		for _, f := range customFields {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
