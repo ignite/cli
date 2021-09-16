@@ -179,10 +179,14 @@ var (
 				return fmt.Sprintf("%s: []int32{%d},\n", name.UpperCamel, rand.Intn(value))
 			},
 			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
-				return fmt.Sprintf(`%s%s, err := cast.ToInt32SliceE(args[%d])
+				return fmt.Sprintf(`%[1]vCast%[2]v, err := cast.ToIntSliceE(args[%[3]v])
             		if err != nil {
                 		return err
-            		}`,
+            		}
+					%[1]v%[2]v := make([]int32, len(%[1]vCast%[2]v))
+					for i, arg := range %[1]vCast%[2]v {
+						%[1]v%[2]v[i] = int32(arg)
+					}`,
 					prefix, name.UpperCamel, argIndex)
 			},
 			ToBytes: func(name string) string {
@@ -239,10 +243,14 @@ var (
 				return fmt.Sprintf("%s: []uint64{%d},\n", name.UpperCamel, rand.Intn(value))
 			},
 			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
-				return fmt.Sprintf(`%s%s, err := cast.ToUint64SliceE(args[%d])
+				return fmt.Sprintf(`%[1]vCast%[2]v, err := cast.ToIntSliceE(args[%[3]v])
             		if err != nil {
                 		return err
-            		}`,
+            		}
+					%[1]v%[2]v := make([]uint64, len(%[1]vCast%[2]v))
+					for i, arg := range %[1]vCast%[2]v {
+						%[1]v%[2]v[i] = uint64(arg)
+					}`,
 					prefix, name.UpperCamel, argIndex)
 			},
 			ToBytes: func(name string) string {
