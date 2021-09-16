@@ -7,6 +7,6 @@ import "gogoproto/gogo.proto";
 <%= for (i, importName) in Fields.Custom() { %>import "<%= ModuleName %>/<%= importName %>.proto"; <% } %>
 
 message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
-  <%= field.ProtoDeclaration() %> <%= field.Name.LowerCamel %> = <%= i+1 %>; <% } %>
+  <%= field.ProtoDeclaration(i+1) %> <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+1 %>;<% } %>
 }

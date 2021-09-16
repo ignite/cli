@@ -1,4 +1,4 @@
-// Package field provides methods to parse a field provided in a command with the format name:type
+// Package field provides methods to parse a field provided in a command with the format Name:type
 package field
 
 import (
@@ -8,11 +8,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
-// validateField validate the field name and type, and run the forbidden method
+// validateField validate the field Name and type, and run the forbidden method
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, DataTypeName, error) {
 	fieldSplit := strings.Split(field, TypeSeparator)
 	if len(fieldSplit) > 2 {
-		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'name' or 'name:type'", field)
+		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
 	}
 
 	name, err := multiformatname.NewName(fieldSplit[0])
@@ -21,9 +21,9 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 
 	}
 
-	// Ensure the field name is not a Go reserved name, it would generate an incorrect code
+	// Ensure the field Name is not a Go reserved Name, it would generate an incorrect code
 	if err := isForbiddenField(name.LowerCamel); err != nil {
-		return name, "", fmt.Errorf("%s can't be used as a field name: %s", name, err.Error())
+		return name, "", fmt.Errorf("%s can't be used as a field Name: %s", name, err.Error())
 	}
 
 	// Check if the object has an explicit type. The default is a string

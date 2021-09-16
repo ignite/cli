@@ -2,8 +2,9 @@ package cli
 
 import (
     "context"
-
-	<%= mergeGoImports(Indexes) %>
+	<%= for (goImport) in mergeGoImports(Indexes) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"
+    <% } %>
     "github.com/spf13/cobra"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"

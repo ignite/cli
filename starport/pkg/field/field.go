@@ -1,4 +1,4 @@
-// Package field provides methods to parse a field provided in a command with the format name:type
+// Package field provides methods to parse a field provided in a command with the format Name:type
 package field
 
 import (
@@ -25,18 +25,17 @@ func (f Field) DataDeclaration() string {
 }
 
 // ProtoDeclaration return the Datatype proto declaration
-func (f Field) ProtoDeclaration() string {
+func (f Field) ProtoDeclaration(index int) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return datatype.ProtoDeclaration(f.Datatype)
+	return datatype.ProtoDeclaration(f.Datatype, f.Name.LowerCamel, index)
 }
 
 // ValueDefault return the Datatype value default
 func (f Field) ValueDefault() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -46,7 +45,6 @@ func (f Field) ValueDefault() string {
 // ValueLoop return the Datatype value for loop iteration
 func (f Field) ValueLoop() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -56,7 +54,6 @@ func (f Field) ValueLoop() string {
 // ValueIndex return the Datatype value for indexes
 func (f Field) ValueIndex() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -66,7 +63,6 @@ func (f Field) ValueIndex() string {
 // ValueInvalidIndex return the Datatype value for invalid indexes
 func (f Field) ValueInvalidIndex() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -110,9 +106,8 @@ func (f Field) ToString(name string) string {
 }
 
 // GoCLIImports return the Datatype imports for CLI package
-func (f Field) GoCLIImports() []string {
+func (f Field) GoCLIImports() []GoImport {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
@@ -122,7 +117,6 @@ func (f Field) GoCLIImports() []string {
 // ProtoImports return the Datatype imports for proto files
 func (f Field) ProtoImports() []string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
-	// TODO remove panic
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}

@@ -1,97 +1,178 @@
-package field_test
+package field
 
 import (
 	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 var (
 	noCheck       = func(string) error { return nil }
-	alwaysInvalid = func(string) error { return errors.New("invalid name") }
+	alwaysInvalid = func(string) error { return errors.New("invalid Name") }
 )
 
-type testCases struct {
-	provided []string
-	expected field.Fields
-}
-
-func TestParseFields(t *testing.T) {
-	names := []string{
-		"foo",
-		"bar",
-		"fooBar",
-		"bar-foo",
-		"foo_foo",
-	}
-	cases := testCases{
-		provided: []string{
-			names[0],
-			names[1] + ":string",
-			names[2] + ":bool",
-			names[3] + ":int",
-			names[4] + ":uint",
-		},
-		expected: field.Fields{
-			{
-				Datatype:     "string",
-				DatatypeName: "string",
-			},
-			{
-				Datatype:     "string",
-				DatatypeName: "string",
-			},
-			{
-				Datatype:     "bool",
-				DatatypeName: "bool",
-			},
-			{
-				Datatype:     "int32",
-				DatatypeName: "int",
-			},
-			{
-				Datatype:     "uint64",
-				DatatypeName: "uint",
-			},
-		},
-	}
-	for i, name := range names {
-		cases.expected[i].Name, _ = multiformatname.NewName(name)
-	}
-
-	actual, err := field.ParseFields(cases.provided, noCheck)
-	require.NoError(t, err)
-	require.Equal(t, cases.expected, actual)
-
-	// No field provided
-	actual, err = field.ParseFields([]string{}, noCheck)
-	require.NoError(t, err)
-	require.Empty(t, actual)
-}
-
-func TestParseFields2(t *testing.T) {
-	// test failing cases
-
+func TestForbiddenParseFields(t *testing.T) {
 	// check doesn't pass
-	_, err := field.ParseFields([]string{"foo"}, alwaysInvalid)
+	_, err := ParseFields([]string{"foo"}, alwaysInvalid)
 	require.Error(t, err)
 
 	// duplicated field
-	_, err = field.ParseFields([]string{"foo", "foo:int"}, noCheck)
+	_, err = ParseFields([]string{"foo", "foo:int"}, noCheck)
 	require.Error(t, err)
 
 	// invalid type
-	_, err = field.ParseFields([]string{"foo:invalid"}, alwaysInvalid)
+	_, err = ParseFields([]string{"foo:invalid"}, alwaysInvalid)
 	require.Error(t, err)
 
-	// invalid field name
-	_, err = field.ParseFields([]string{"foo@bar:int"}, alwaysInvalid)
+	// invalid field Name
+	_, err = ParseFields([]string{"foo@bar:int"}, alwaysInvalid)
 	require.Error(t, err)
 
 	// invalid format
-	_, err = field.ParseFields([]string{"foo:int:int"}, alwaysInvalid)
+	_, err = ParseFields([]string{"foo:int:int"}, alwaysInvalid)
 	require.Error(t, err)
+}
+
+func TestParseFields1(t *testing.T) {
+	name1, err := multiformatname.NewName("foo")
+	require.NoError(t, err)
+	name2, err := multiformatname.NewName("fooBar")
+	require.NoError(t, err)
+	name3, err := multiformatname.NewName("bar-foo")
+	require.NoError(t, err)
+	name4, err := multiformatname.NewName("foo_foo")
+	require.NoError(t, err)
+
+	tests := []struct {
+		name   string
+		fields []string
+		want   Fields
+		err    error
+	}{
+		{
+			name: "test string types",
+			fields: []string{
+				name1.Original,
+				name2.Original + ":string",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: DataTypeString,
+				},
+				{
+					Name:         name2,
+					DatatypeName: DataTypeString,
+				},
+			},
+		},
+		{
+			name: "test number types",
+			fields: []string{
+				name1.Original + ":uint",
+				name2.Original + ":int",
+				name3.Original + ":bool",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: DataTypeUint,
+				},
+				{
+					Name:         name2,
+					DatatypeName: DataTypeInt,
+				},
+				{
+					Name:         name3,
+					DatatypeName: DataTypeBool,
+				},
+			},
+		},
+		{
+			name: "test list types",
+			fields: []string{
+				name1.Original + ":[]uint",
+				name2.Original + ":[]int",
+				name3.Original + ":[]string",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: DataTypeUintSlice,
+				},
+				{
+					Name:         name2,
+					DatatypeName: DataTypeIntSlice,
+				},
+				{
+					Name:         name3,
+					DatatypeName: DataTypeStringSlice,
+				},
+			},
+		},
+		{
+			name: "test mixed types",
+			fields: []string{
+				name1.Original + ":uint",
+				name2.Original + ":[]uint",
+				name3.Original,
+				name4.Original + ":[]string",
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: DataTypeUint,
+				},
+				{
+					Name:         name2,
+					DatatypeName: DataTypeUintSlice,
+				},
+				{
+					Name:         name3,
+					DatatypeName: DataTypeString,
+				},
+				{
+					Name:         name4,
+					DatatypeName: DataTypeStringSlice,
+				},
+			},
+		},
+		{
+			name: "test custom types",
+			fields: []string{
+				name1.Original + ":Bla",
+				name2.Original + ":Test",
+				name3.Original,
+			},
+			want: Fields{
+				{
+					Name:         name1,
+					DatatypeName: DataTypeCustom,
+					Datatype:     "Bla",
+				},
+				{
+					Name:         name2,
+					DatatypeName: DataTypeCustom,
+					Datatype:     "Test",
+				},
+				{
+					Name:         name3,
+					DatatypeName: DataTypeString,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got, err := ParseFields(tt.fields, noCheck)
+			if tt.err != nil {
+				require.ErrorIs(t, err, tt.err)
+				return
+			}
+			require.NoError(t, err)
+			require.EqualValues(t, tt.want, got)
+		})
+	}
 }

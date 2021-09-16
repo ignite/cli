@@ -1,7 +1,6 @@
 package plushhelpers
 
 import (
-	"fmt"
 	"strings"
 
 	"github.com/gobuffalo/plush"
@@ -15,31 +14,31 @@ func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("title", strings.Title)
 }
 
-func mergeGoImports(fields ...field.Fields) string {
-	allImports := ""
+func mergeGoImports(fields ...field.Fields) []field.GoImport {
+	allImports := make([]field.GoImport, 0)
 	exist := make(map[string]struct{})
 	for _, fields := range fields {
 		for _, goImport := range fields.GoCLIImports() {
-			if _, ok := exist[goImport]; ok {
+			if _, ok := exist[goImport.Name]; ok {
 				continue
 			}
-			exist[goImport] = struct{}{}
-			allImports += fmt.Sprintf("\"%s\"\n", goImport)
+			exist[goImport.Name] = struct{}{}
+			allImports = append(allImports, goImport)
 		}
 	}
 	return allImports
 }
 
-func mergeProtoImports(fields ...field.Fields) string {
-	allImports := ""
+func mergeProtoImports(fields ...field.Fields) []string {
+	allImports := make([]string, 0)
 	exist := make(map[string]struct{})
 	for _, fields := range fields {
-		for _, goImport := range fields.ProtoImports() {
-			if _, ok := exist[goImport]; ok {
+		for _, protoImport := range fields.ProtoImports() {
+			if _, ok := exist[protoImport]; ok {
 				continue
 			}
-			exist[goImport] = struct{}{}
-			allImports += fmt.Sprintf("\"%s\"\n", goImport)
+			exist[protoImport] = struct{}{}
+			allImports = append(allImports, protoImport)
 		}
 	}
 	return allImports

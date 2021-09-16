@@ -383,7 +383,7 @@ import "%s/%s.proto";`
 		// Messages
 		var fields string
 		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.ProtoDeclaration(), field.Name.LowerCamel, i+3)
+			fields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+3))
 		}
 		for _, f := range opts.Fields.Custom() {
 			importModule := fmt.Sprintf(`

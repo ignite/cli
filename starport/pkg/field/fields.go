@@ -1,4 +1,4 @@
-// Package field provides methods to parse a field provided in a command with the format name:type
+// Package field provides methods to parse a field provided in a command with the format Name:type
 package field
 
 import (
@@ -11,8 +11,8 @@ import (
 type Fields []Field
 
 // GoCLIImports return all go CLI imports
-func (f Fields) GoCLIImports() []string {
-	allImports := make([]string, 0)
+func (f Fields) GoCLIImports() []GoImport {
+	allImports := make([]GoImport, 0)
 	for _, field := range f {
 		allImports = append(allImports, field.GoCLIImports()...)
 	}

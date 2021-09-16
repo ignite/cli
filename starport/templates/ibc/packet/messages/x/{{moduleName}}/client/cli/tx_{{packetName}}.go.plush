@@ -2,8 +2,9 @@ package cli
 
 import (
     "strconv"
-
-    <%= mergeGoImports(fields) %>
+    <%= for (goImport) in mergeGoImports(Fields) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"
+	<% } %>
 	"github.com/spf13/cobra"
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
