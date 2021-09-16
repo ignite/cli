@@ -11,7 +11,23 @@ import (
 func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeGoImports", mergeGoImports)
 	ctx.Set("mergeProtoImports", mergeProtoImports)
+	ctx.Set("mergeCustomImports", mergeCustomImports)
 	ctx.Set("title", strings.Title)
+}
+
+func mergeCustomImports(fields ...field.Fields) []string {
+	allImports := make([]string, 0)
+	exist := make(map[string]struct{})
+	for _, fields := range fields {
+		for _, customImport := range fields.Custom() {
+			if _, ok := exist[customImport]; ok {
+				continue
+			}
+			exist[customImport] = struct{}{}
+			allImports = append(allImports, customImport)
+		}
+	}
+	return allImports
 }
 
 func mergeGoImports(fields ...field.Fields) []field.GoImport {

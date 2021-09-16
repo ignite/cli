@@ -13,8 +13,15 @@ type Fields []Field
 // GoCLIImports return all go CLI imports
 func (f Fields) GoCLIImports() []GoImport {
 	allImports := make([]GoImport, 0)
-	for _, field := range f {
-		allImports = append(allImports, field.GoCLIImports()...)
+	exist := make(map[string]struct{})
+	for _, fields := range f {
+		for _, goImport := range fields.GoCLIImports() {
+			if _, ok := exist[goImport.Name]; ok {
+				continue
+			}
+			exist[goImport.Name] = struct{}{}
+			allImports = append(allImports, goImport)
+		}
 	}
 	return allImports
 }
