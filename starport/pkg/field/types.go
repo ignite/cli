@@ -27,7 +27,8 @@ const (
 type (
 	// DataTypeName represents the Alias Name for the data type
 	DataTypeName string
-	GoImport     struct {
+	// GoImport represents the go import repo name with the alias
+	GoImport struct {
 		Name  string
 		Alias string
 	}
