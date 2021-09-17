@@ -8,11 +8,7 @@ parent:
 
 # Nameservice Tutorial
 
-The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. This nameservice app sends tokens between participants so that end users can buy names and set a value to the names. 
-<!-- rewrite intro for clarity 
-- what problem does this nameservice solve?
-- why should user care?
--->
+The nameservice tutorial provides step-by-step instructions to build a blockchain app for a nameservice. The goal of the nameservice app is to send tokens between participants so that end users can buy names and set a value to the names. 
 
 This tutorial builds on knowlege and skills developed in the earlier tutorials in the Starport Developer Guide. Before you start this building your nameservice app, we recommend that you complete these foundational tutorials:
 
