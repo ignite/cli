@@ -85,7 +85,11 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
-				require.Equal(t, tc.obj, resp.<%= TypeName.UpperCamel %>)
+				expect, err := json.Marshal(tc.obj)
+				require.NoError(t, err)
+				got, err := json.Marshal(resp.<%= TypeName.UpperCamel %>)
+				require.NoError(t, err)
+				require.JSONEq(t, string(expect), string(got))
 			}
 		})
 	}
