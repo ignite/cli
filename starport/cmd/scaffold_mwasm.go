@@ -24,14 +24,14 @@ func NewScaffoldWasm() *cobra.Command {
 }
 
 func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
-
 	appPath := flagGetPath(cmd)
 	sc, err := scaffolder.App(appPath)
 	if err != nil {
 		return err
 	}
+
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
 
 	sm, err := sc.ImportModule(placeholder.New(), "wasm")
 	if err != nil {
@@ -46,9 +46,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(modificationsStr)
-
 	fmt.Printf("\n🎉 Imported wasm.\n\n")
 
-	checkVersion(appPath)
 	return nil
 }

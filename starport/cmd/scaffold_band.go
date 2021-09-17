@@ -28,14 +28,19 @@ func NewScaffoldBandchain() *cobra.Command {
 }
 
 func createBandchainHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
-
 	var (
 		oracle  = args[0]
 		appPath = flagGetPath(cmd)
 		signer  = flagGetSigner(cmd)
 	)
+
+	sc, err := scaffolder.App(appPath)
+	if err != nil {
+		return err
+	}
+
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
 
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
@@ -48,11 +53,6 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	var options []scaffolder.OracleOption
 	if signer != "" {
 		options = append(options, scaffolder.OracleWithSigner(signer))
-	}
-
-	sc, err := scaffolder.App(appPath)
-	if err != nil {
-		return err
 	}
 
 	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
@@ -80,6 +80,5 @@ const Version = "bandchain-1"
 
 `, oracle, module)
 
-	checkVersion(appPath)
 	return nil
 }

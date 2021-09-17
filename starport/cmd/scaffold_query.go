@@ -32,6 +32,12 @@ func NewScaffoldQuery() *cobra.Command {
 }
 
 func queryHandler(cmd *cobra.Command, args []string) error {
+	appPath := flagGetPath(cmd)
+	sc, err := scaffolder.App(appPath)
+	if err != nil {
+		return err
+	}
+
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -62,12 +68,6 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	appPath := flagGetPath(cmd)
-	sc, err := scaffolder.App(appPath)
-	if err != nil {
-		return err
-	}
-
 	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
 	if err != nil {
 		return err
@@ -81,9 +81,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(modificationsStr)
-
 	fmt.Printf("\n🎉 Created a query `%[1]v`.\n\n", args[0])
 
-	checkVersion(appPath)
 	return nil
 }
