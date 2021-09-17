@@ -1,0 +1,24 @@
+package cli_test
+
+import (
+	"encoding/json"
+    "testing"
+
+	"github.com/stretchr/testify/require"
+)
+
+// sanitize converts to a generic map array for we can compare the slice values
+func sanitize(t *testing.T, value interface{}) (result []map[string]interface{}) {
+	got, err := json.Marshal(value)
+	require.NoError(t, err)
+	err = json.Unmarshal(got, &result)
+	require.NoError(t, err)
+	return
+}
+
+// toJSON converts to a JSON string for we can compare
+func toJSON(t *testing.T, value interface{}) string {
+	got, err := json.Marshal(value)
+    require.NoError(t, err)
+	return string(got)
+}

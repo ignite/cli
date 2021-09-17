@@ -17,6 +17,7 @@ var (
 
 const (
 	flagPacketTimeoutTimestamp = "packet-timeout-timestamp"
+	listSeparator              = ","
 )
 
 

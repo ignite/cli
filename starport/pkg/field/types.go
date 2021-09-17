@@ -89,10 +89,7 @@ var (
 				return fmt.Sprintf("%s: []string{\"%s\"},\n", name.UpperCamel, name.LowerCamel)
 			},
 			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
-				return fmt.Sprintf(`%s%s, err := cast.ToStringSliceE(args[%d])
-            		if err != nil {
-                		return err
-            		}`,
+				return fmt.Sprintf(`%[1]v%[2]v := strings.Split(args[%[3]v], listSeparator)`,
 					prefix, name.UpperCamel, argIndex)
 			},
 			ToBytes: func(name string) string {
@@ -104,7 +101,7 @@ var (
 			ToString: func(name string) string {
 				return fmt.Sprintf("strings.Join(%s, \",\")", name)
 			},
-			GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
+			GoCLIImports: []GoImport{{Name: "strings"}},
 		},
 
 		DataTypeBool: {
@@ -180,15 +177,15 @@ var (
 				return fmt.Sprintf("%s: []int32{%d},\n", name.UpperCamel, rand.Intn(value))
 			},
 			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
-				return fmt.Sprintf(`%[1]vCast%[2]v, err := cast.ToIntSliceE(args[%[3]v])
-            		if err != nil {
-                		return err
-            		}
+				return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
 					%[1]v%[2]v := make([]int32, len(%[1]vCast%[2]v))
 					for i, arg := range %[1]vCast%[2]v {
-						%[1]v%[2]v[i] = int32(arg)
-					}`,
-					prefix, name.UpperCamel, argIndex)
+						value, err := cast.ToInt32E(arg)
+						if err != nil {
+							return err
+						}
+						%[1]v%[2]v[i] = value
+					}`, prefix, name.UpperCamel, argIndex)
 			},
 			ToBytes: func(name string) string {
 				return fmt.Sprintf(`%[1]vBytes := make([]byte, 0)
@@ -199,7 +196,7 @@ var (
 			ToString: func(name string) string {
 				return fmt.Sprintf("strings.Trim(strings.Replace(fmt.Sprint(%s), \" \", \",\", -1), \"[]\")", name)
 			},
-			GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
+			GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		},
 
 		DataTypeUint: {
@@ -244,13 +241,14 @@ var (
 				return fmt.Sprintf("%s: []uint64{%d},\n", name.UpperCamel, rand.Intn(value))
 			},
 			CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
-				return fmt.Sprintf(`%[1]vCast%[2]v, err := cast.ToIntSliceE(args[%[3]v])
-            		if err != nil {
-                		return err
-            		}
+				return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
 					%[1]v%[2]v := make([]uint64, len(%[1]vCast%[2]v))
 					for i, arg := range %[1]vCast%[2]v {
-						%[1]v%[2]v[i] = uint64(arg)
+						value, err := cast.ToUint64E(arg)
+						if err != nil {
+							return err
+						}
+						%[1]v%[2]v[i] = value
 					}`,
 					prefix, name.UpperCamel, argIndex)
 			},
@@ -263,7 +261,7 @@ var (
 			ToString: func(name string) string {
 				return fmt.Sprintf("strings.Trim(strings.Replace(fmt.Sprint(%s), \" \", \",\", -1), \"[]\")", name)
 			},
-			GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
+			GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}, {Name: "strings"}},
 		},
 
 		DataTypeCustom: {
