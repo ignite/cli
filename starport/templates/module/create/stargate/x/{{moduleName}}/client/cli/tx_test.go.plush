@@ -7,6 +7,10 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+const (
+	coinDenom                  = "token"
+)
+
 // sanitize converts to a generic map array for we can compare the slice values
 func sanitize(t *testing.T, value interface{}) (result []map[string]interface{}) {
 	got, err := json.Marshal(value)

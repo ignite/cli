@@ -48,6 +48,9 @@ func (f Field) ValueLoop() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	if datatype.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
+	}
 	return datatype.ValueLoop
 }
 
@@ -57,6 +60,9 @@ func (f Field) ValueIndex() string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	if datatype.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
+	}
 	return datatype.ValueIndex
 }
 
@@ -65,6 +71,9 @@ func (f Field) ValueInvalidIndex() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	if datatype.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return datatype.ValueInvalidIndex
 }
@@ -93,6 +102,9 @@ func (f Field) ToBytes(name string) string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
+	if datatype.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
+	}
 	return datatype.ToBytes(name)
 }
 
@@ -101,6 +113,9 @@ func (f Field) ToString(name string) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
+	}
+	if datatype.NonIndex {
+		panic(fmt.Sprintf("non index type %s", f.DatatypeName))
 	}
 	return datatype.ToString(name)
 }
