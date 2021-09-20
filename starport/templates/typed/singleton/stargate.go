@@ -12,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"github.com/tendermint/starport/starport/templates/typed/list"
 )
 
 var (
@@ -194,18 +193,20 @@ import "%[2]v/%[3]v.proto";`
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[1]v
-		%[2]v %[3]v = %[4]v; %[5]v`
+		templateProtoState := `%[2]v %[3]v = %[4]v;
+  %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
+			highestNumber+1,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -222,7 +223,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := list.PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesDefault := `%[1]v
 %[2]v: nil,`
