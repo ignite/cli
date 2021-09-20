@@ -330,7 +330,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx); err != nil {
+		if err := c.build(ctx, ""); err != nil {
 			return err
 		}
 	}
