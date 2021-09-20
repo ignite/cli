@@ -3,7 +3,6 @@ package list
 import (
 	"fmt"
 	"path/filepath"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -41,20 +40,22 @@ import "%[2]v/%[3]v.proto";`
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
-		uint64 %[3]vCount = %[6]v; %[5]v`
+		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
+		uint64 %[3]vCount = %[5]v;
+		%[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
-			fieldNumber+1,
+			highestNumber+1,
+			highestNumber+2,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -71,7 +72,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
@@ -257,19 +258,4 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
-}
-
-// PatchGenesisTypeImport patches types/genesis.go content from the issue:
-// https://github.com/tendermint/starport/issues/992
-func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) string {
-	patternToCheck := "import ("
-	replacement := fmt.Sprintf(`import (
-%[1]v
-)`, typed.PlaceholderGenesisTypesImport)
-
-	if !strings.Contains(content, patternToCheck) {
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, replacement)
-	}
-
-	return content
 }
