@@ -979,7 +979,9 @@ github.com/tchap/go-patricia v2.2.6+incompatible/go.mod h1:bmLyhP68RS6kStMGxByiQ
 github.com/tecbot/gorocksdb v0.0.0-20191217155057-f0fad39f321c/go.mod h1:ahpPrc7HpcfEWDQRZEmnXMzHY03mLDYMCxeDzy46i+8=
 github.com/tendermint/btcd v0.1.1/go.mod h1:DC6/m53jtQzr/NFmMNEu0rxf18/ktVoVtMrnDD5pN+U=
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
-github.com/tendermint/flutter v1.0.1/go.mod h1:hW8URRpeA0KEaBWl9sOJUAlFLXeUrNWMvUoahMi1s3A=
+github.com/tendermint/flutter v1.0.2 h1:c3ZAJ348lf+doq17ftT3by5K2TPoHBhsUmzh36rWqSY=
+github.com/tendermint/flutter v1.0.2/go.mod h1:hW8URRpeA0KEaBWl9sOJUAlFLXeUrNWMvUoahMi1s3A=
+github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.4/go.mod h1:P8x2tgysRnGbNf0R07lNc408Hdob6zHcQr4YwryEtQY=
 github.com/tendermint/spn v0.0.0-20201215081711-b9ec9286ed83/go.mod h1:OfG8YK8yabQk08QLpneLSMf/FN0d+DmFcQfijTJalA8=
