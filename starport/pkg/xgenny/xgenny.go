@@ -12,17 +12,17 @@ import (
 
 // Walker implements packd.Walker for Go embed's fs.FS.
 type Walker struct {
-	fs         embed.FS
-	trimPrefix string
-	path       string
-	skip       bool
+	fs          embed.FS
+	trimPrefix  string
+	path        string
+	noOverwrite bool
 }
 
 // NewEmbedWalker returns a new Walker for fs.
 // trimPrefix is used to trim parent paths from the paths of found files.
-// skip flag is used to skip create the file if it already exists.
-func NewEmbedWalker(fs embed.FS, trimPrefix, path string, skip bool) Walker {
-	return Walker{fs: fs, trimPrefix: trimPrefix, path: path, skip: skip}
+// noOverwrite flag is used to prevent creating the file if it already exists.
+func NewEmbedWalker(fs embed.FS, trimPrefix, path string, noOverwrite bool) Walker {
+	return Walker{fs: fs, trimPrefix: trimPrefix, path: path, noOverwrite: noOverwrite}
 }
 
 // Walk implements packd.Walker.
@@ -51,7 +51,7 @@ func (w Walker) walkDir(wl packd.WalkFunc, path string) error {
 
 		ppath := strings.TrimPrefix(path, w.trimPrefix)
 		ppath = filepath.Join(w.path, ppath)
-		if w.skip {
+		if w.noOverwrite {
 			if _, err := os.Stat(ppath); os.IsExist(err) {
 				continue
 			}
