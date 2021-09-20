@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 func NewScaffoldWasm() *cobra.Command {
@@ -25,7 +24,7 @@ func NewScaffoldWasm() *cobra.Command {
 
 func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

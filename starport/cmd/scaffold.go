@@ -76,7 +76,7 @@ func scaffoldType(
 		options = append(options, scaffolder.TypeWithSigner(signer))
 	}
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

@@ -14,12 +14,14 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 const (
@@ -244,4 +246,25 @@ func checkNewVersion(ctx context.Context) {
 ··
 
 `, next)
+}
+
+// newApp create a new scaffold app
+func newApp(appPath string) (scaffolder.Scaffolder, error) {
+	sc, err := scaffolder.App(appPath)
+	if err != nil {
+		return sc, err
+	}
+
+	version := sc.GetVersion()
+	if !version.Is(cosmosver.StargateZeroFortyThreeAndAbove) {
+		fmt.Printf(
+			`⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
+Please make sure that your chain is updated following the migration guidelines from this folder:
+
+https://docs.starport.network/migration
+
+`, version.String(),
+		)
+	}
+	return sc, nil
 }

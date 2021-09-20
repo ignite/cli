@@ -34,7 +34,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		signer  = flagGetSigner(cmd)
 	)
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

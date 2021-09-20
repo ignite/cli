@@ -48,7 +48,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

@@ -4,7 +4,6 @@ package scaffolder
 
 import (
 	"context"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -63,17 +62,6 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
 
-	if !version.Is(cosmosver.StargateZeroFortyThreeAndAbove) {
-		fmt.Printf(
-			`⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
-Please make sure that your chain is updated following the migration guidelines from this folder:
-
-https://docs.starport.network/migration
-
-`, version.String(),
-		)
-	}
-
 	s := Scaffolder{
 		path:    path,
 		modpath: modpath,
@@ -81,6 +69,11 @@ https://docs.starport.network/migration
 	}
 
 	return s, nil
+}
+
+// GetVersion returns the app version
+func (s Scaffolder) GetVersion() cosmosver.Version {
+	return s.version
 }
 
 func owner(modulePath string) string {

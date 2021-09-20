@@ -34,7 +34,7 @@ func NewScaffoldPacket() *cobra.Command {
 }
 
 func createPacketHandler(cmd *cobra.Command, args []string) error {
-	sc, err := scaffolder.App(flagGetPath(cmd))
+	sc, err := newApp(flagGetPath(cmd))
 	if err != nil {
 		return err
 	}

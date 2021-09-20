@@ -38,7 +38,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		appPath      = flagGetPath(cmd)
 	)
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
