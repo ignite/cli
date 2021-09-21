@@ -45,6 +45,22 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	return checkComponentCreated(appPath, moduleName, compName, noMessage)
 }
 
+// moduleExists checks if the module exists in the app
+func moduleExists(appPath string, moduleName string) (bool, error) {
+	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = os.Stat(absPath)
+	if os.IsNotExist(err) {
+		// The module doesn't exist
+		return false, nil
+	}
+
+	return true, err
+}
+
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
 func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
