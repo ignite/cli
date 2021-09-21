@@ -3,7 +3,14 @@ order: 1
 parent:
   title: Migration
   order: 3
+description: Required changes when upgrading from Starport v0.17.3 to Starport v0.18.
 ---
+
+The default template in Cosmos SDK versions lower than v0.44 are not compatible with Starport v0.18.
+
+Changes are required when upgrade from Starport v0.17.3 to Starport v0.18.0 and later. 
+
+To update the default template so your Starport installation is compatible with Cosmos SDK v0.44, make these changes to the `go.mod` file after you upgrade to Starport v0.18.
 
 # v0.18
 
