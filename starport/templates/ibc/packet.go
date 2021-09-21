@@ -183,8 +183,8 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 
 		// Add the field in the module packet
 		fieldCount := strings.Count(content, PlaceholderIBCPacketProtoFieldNumber)
-		templateField := `%[2]vPacketData %[3]vPacket = %[4]v; %[5]v
-%[1]v`
+		templateField := `%[1]v
+				%[2]vPacketData %[3]vPacket = %[4]v; %[5]v`
 		replacementField := fmt.Sprintf(
 			templateField,
 			PlaceholderIBCPacketProtoField,
@@ -204,6 +204,17 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		var ackFields string
 		for i, field := range opts.AckFields {
 			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
+		}
+
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
 		}
 
 		templateMessage := `// %[2]vPacketData defines a struct for the packet payload
