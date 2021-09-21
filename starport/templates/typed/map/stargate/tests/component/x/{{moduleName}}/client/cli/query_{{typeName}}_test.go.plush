@@ -85,7 +85,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
-				require.JSONEq(t, toJSON(t, tc.obj), toJSON(t, resp.<%= TypeName.UpperCamel %>))
+				require.Equal(t, removeNulls(&tc.obj), removeNulls(&resp.<%= TypeName.UpperCamel %>))
 			}
 		})
 	}
@@ -119,7 +119,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, sanitize(t, objs), sanitize(t, resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
 		}
 	})
 	t.Run("ByKey", func(t *testing.T) {
@@ -132,7 +132,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, sanitize(t, objs), sanitize(t, resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
 			next = resp.Pagination.NextKey
 		}
 	})
@@ -144,6 +144,6 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 		require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
-		require.JSONEq(t, toJSON(t, objs), toJSON(t, resp.<%= TypeName.UpperCamel %>))
+		require.Equal(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
 	})
 }
