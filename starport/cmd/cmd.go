@@ -255,7 +255,7 @@ func newApp(appPath string, spinner *clispinner.Spinner) (scaffolder.Scaffolder,
 		return sc, err
 	}
 
-	if !sc.Version.LT(cosmosver.StargateFortyThreeVersion) {
+	if sc.Version.LT(cosmosver.StargateFortyThreeVersion) {
 		spinner.Stop()
 		fmt.Printf(
 			`⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
