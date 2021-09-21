@@ -8,7 +8,7 @@ description: Learn module basics by writing and reading blog posts to your chain
 
 In this tutorial, you create a blockchain with a module that lets you write to and read data from the blockchain. This module implements create and read functionalities for a blog-like application. The end user will be able to submit new blog posts and show a list of blog posts on the blockchain.
 
-> The purpose of this tutorial is to guide you through the imlementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
+> The purpose of this tutorial is to guide you through the implementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
 
 By completing this tutorial, you will learn about:
 
@@ -135,7 +135,13 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 
 ## Add gRPC to the Module Handler
 
-In the `x/blog/module.go` file:
+First, in the `blog` directory, run the following command to generate client query codes:
+
+```
+starport scaffold query posts --response title,body
+```
+
+Then, in the `x/blog/module.go` file:
 
 1. Add `"context"` to the imports.
 
@@ -294,10 +300,12 @@ By following these steps, you have implemented all of the code required to creat
 
 Try it out! If the chain is yet not started, run `starport chain serve`.
 
-Create a post:
+Navigate to directory `cmd/blogd/` and build the go file via `go build .`.
+
+Then create a post:
 
 ```bash
-blogd tx blog create-post foo bar --from alice
+./blogd tx blog create-post foo bar --from alice
 ```
 
 ```bash
