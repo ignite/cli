@@ -58,7 +58,7 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
-	if !version.Major().Is(cosmosver.Stargate) {
+	if !version.MajorIs(cosmosver.Stargate) {
 		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
 

@@ -255,7 +255,7 @@ func newApp(appPath string) (scaffolder.Scaffolder, error) {
 		return sc, err
 	}
 
-	if !sc.Version.Is(cosmosver.StargateZeroFortyThreeAndAbove) {
+	if !sc.Version.LT(cosmosver.StargateFortyThreeVersion) {
 		fmt.Printf(
 			`⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
 Please make sure that your chain is updated following the migration guidelines from this folder:

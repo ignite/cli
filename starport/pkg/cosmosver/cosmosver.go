@@ -3,104 +3,106 @@ package cosmosver
 import (
 	"fmt"
 	"strings"
+
+	"github.com/blang/semver"
+)
+
+type (
+	// MajorVersion represents major, named versions of Cosmos-SDK.
+	MajorVersion string
+
+	// versions represents a list of Version
+	versions []Version
+
+	// Version represents a range of Cosmos SDK versions.
+	Version struct {
+		version  string
+		Major    MajorVersion
+		semantic semver.Version
+	}
 )
 
 const (
+	prefix = "v"
+
 	// Launchpad points to Launchpad version of Cosmos-SDK.
 	Launchpad MajorVersion = "launchpad"
-
 	// Stargate points to Stargate version of Cosmos-SDK.
 	Stargate MajorVersion = "stargate"
 )
 
-const (
-	LaunchpadAny Version = iota
-
-	StargateBelowZeroForty
-
-	StargateZeroFortyToZeroFortyTwo
-
-	StargateZeroFortyThreeAndAbove
-)
-
-// MajorVersions are the list of supported Cosmos-SDK major versions.
 var (
-	MajorVersions = majorVersions{
-		Launchpad,
-		Stargate,
+	MaxLaunchpadVersion = Version{
+		version:  "v0.39.99",
+		semantic: semver.MustParse("0.39.99"),
+		Major:    Launchpad,
+	}
+	StargateFortyVersion = Version{
+		version:  "v0.40.0",
+		semantic: semver.MustParse("0.40.0"),
+		Major:    Stargate,
+	}
+	StargateFortyThreeVersion = Version{
+		version:  "v0.43.0-alpha",
+		semantic: semver.MustParse("0.43.0-alpha"),
+		Major:    Stargate,
+	}
+	StargateFortyFourVersion = Version{
+		version:  "v0.44.0",
+		semantic: semver.MustParse("0.44.0"),
+		Major:    Stargate,
 	}
 
+	// Versions are the list of supported Cosmos-SDK versions.
 	Versions = versions{
-		LaunchpadAny,
-		StargateBelowZeroForty,
-		StargateZeroFortyToZeroFortyTwo,
-		StargateZeroFortyThreeAndAbove,
+		MaxLaunchpadVersion,
+		StargateFortyVersion,
+		StargateFortyThreeVersion,
+		StargateFortyFourVersion,
 	}
 )
 
-// MajorVersion represents major, named versions of Cosmos-SDK.
-type MajorVersion string
-
-func (v MajorVersion) Is(comparedTo MajorVersion) bool {
-	return v == comparedTo
-}
-
-// Version represents a range of Cosmos SDK versions.
-type Version int
-
-func (v Version) Is(comparedTo Version) bool {
-	return v == comparedTo
-}
-
-// Major returns the MajorVersion of the version.
-func (v Version) Major() MajorVersion {
-	switch v {
-	case StargateBelowZeroForty, StargateZeroFortyToZeroFortyTwo, StargateZeroFortyThreeAndAbove:
-		return Stargate
-	default:
-		return Launchpad
+func NewVersion(version string) (v Version, err error) {
+	v.version = version
+	v.semantic, err = semver.Parse(strings.TrimPrefix(version, prefix))
+	if err != nil {
+		return v, err
 	}
+
+	v.Major = Stargate
+	if v.LTE(MaxLaunchpadVersion) {
+		v.Major = Launchpad
+	}
+	return
+}
+
+// GTE checks if v is greater than or equal to another.
+func (v Version) GTE(version Version) bool {
+	return v.semantic.GTE(version.semantic)
+}
+
+// LT checks if v is less than another.
+func (v Version) LT(version Version) bool {
+	return v.semantic.LT(version.semantic)
+}
+
+// LTE checks if v is less than or equal to another.
+func (v Version) LTE(version Version) bool {
+	return v.semantic.LTE(version.semantic)
+}
+
+// Is checks if v is equal to another.
+func (v Version) Is(version Version) bool {
+	return v.semantic.EQ(version.semantic)
 }
 
 func (v Version) String() string {
-	switch v {
-	case StargateZeroFortyToZeroFortyTwo:
-		return "Stargate v0.40.x - v0.42.x"
-
-	case StargateBelowZeroForty:
-		return "Stargate v0.39.9"
-
-	case StargateZeroFortyThreeAndAbove:
-		return "Stargate v0.43 (or later)"
-
-	default:
-		return "Launchpad"
-	}
+	return fmt.Sprintf("%s - %s", v.Major, v.version)
 }
 
-type majorVersions []MajorVersion
-
-// Parse checks if vs is a supported sdk version for scaffolding and if so,
-// it parses it to sdkVersion.
-func (v majorVersions) Parse(vs string) (MajorVersion, error) {
-	for _, version := range v {
-		if MajorVersion(vs) == version {
-			return MajorVersion(vs), nil
-		}
-	}
-	return "", fmt.Errorf("%q is an unknown sdk version", vs)
+func (v Version) MajorIs(comparedTo MajorVersion) bool {
+	return v.Major == comparedTo
 }
-
-// String returns a string representation of the version list.
-func (v majorVersions) String() string {
-	var vs string
-	for _, version := range v {
-		vs += " -" + string(version)
-	}
-	return strings.TrimSpace(vs)
-}
-
-type versions []Version
 
 func (v versions) Latest() Version {
 	return v[len(v)-1]

@@ -167,7 +167,7 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	if !c.Version.Major().Is(cosmosver.Stargate) {
+	if !c.Version.MajorIs(cosmosver.Stargate) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
@@ -414,14 +414,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccroptions := []chaincmdrunner.Option{}
+	ccrOptions := make([]chaincmdrunner.Option, 0)
 	if c.logLevel == LogVerbose {
-		ccroptions = append(ccroptions,
+		ccrOptions = append(ccrOptions,
 			chaincmdrunner.Stdout(os.Stdout),
 			chaincmdrunner.Stderr(os.Stderr),
 			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
 		)
 	}
 
-	return chaincmdrunner.New(ctx, cc, ccroptions...)
+	return chaincmdrunner.New(ctx, cc, ccrOptions...)
 }
