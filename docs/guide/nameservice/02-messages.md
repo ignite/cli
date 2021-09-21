@@ -67,7 +67,7 @@ Now, you are ready to implement these three messages to achieve the desired func
 
 Use the `starport scaffold message` command to scaffold a new Cosmos SDK message for your module. 
 
-The [starport scaffold message](https://docs.starport.network/cli/#starport-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
+The [`starport scaffold message`](https://docs.starport.network/cli/#starport-scaffold-message) command accepts the message name as the first argument and a list of fields for the message. By default, a message is scaffolded in a module with a name that matches the name of the project, in this case `nameservice`. 
 
 ### Add the MsgBuyName Message
 
