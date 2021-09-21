@@ -147,6 +147,15 @@ func (s Scaffolder) CreateModule(
 		return sm, err
 	}
 
+	// Check if the module already exist
+	ok, err := moduleExists(s.path, moduleName)
+	if err != nil {
+		return sm, err
+	}
+	if ok {
+		return sm, fmt.Errorf("the module %v already exists", moduleName)
+	}
+
 	// Apply the options
 	var creationOpts moduleCreationOptions
 	for _, apply := range options {
@@ -245,6 +254,23 @@ func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xg
 	return sm, finish(s.path, s.modpath.RawPath)
 }
 
+// moduleExists checks if the module exists in the app
+func moduleExists(appPath string, moduleName string) (bool, error) {
+	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
+	if err != nil {
+		return false, err
+	}
+
+	_, err = os.Stat(absPath)
+	if os.IsNotExist(err) {
+		// The module doesn't exist
+		return false, nil
+	}
+
+	return err == nil, err
+}
+
+// checkModuleName checks if the name can be used as a module name
 func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
