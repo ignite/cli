@@ -15,6 +15,7 @@ Cosmos SDK v0.44 introduced changes that are not compatible with chains that wer
 # v0.18
 
 ## Blockchain
+
 For each file listed, make the required changes to the source code of the blockchain template. 
 
 ### app/app.go
