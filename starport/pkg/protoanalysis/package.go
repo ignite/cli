@@ -77,6 +77,10 @@ type Message struct {
 
 	// Path of the file where message is defined at.
 	Path string
+
+	// HighestFieldNumber is the highest field number among fields of the message
+	// This allows to determine new field number when writing to proto message
+	HighestFieldNumber int
 }
 
 // Service is an RPC service.
