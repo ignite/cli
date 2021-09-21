@@ -12,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"github.com/tendermint/starport/starport/templates/typed/list"
 )
 
 var (
@@ -261,18 +260,20 @@ import "%[2]v/%[3]v.proto";`
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[1]v
-		repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v`
+		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
+  %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
+			highestNumber+1,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -289,7 +290,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		content := list.PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
