@@ -74,7 +74,13 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
 }
 ```
 
-`BuyName` uses `SendCoins` and `SubtractCoins` methods from the `bank` module. In the beginning when scaffolding a module you used `--dep bank` to specify a dependency between the `nameservice` and `bank` modules. This created an `expected_keepers.go` file with a `BankKeeper` interface. Add `SendCoins` and `SubtractCoins` to be able to use it in the keeper methods of the `nameservice` module.
+When you scaffolded the `nameservice` module you used `--dep bank` to specify a dependency between the `nameservice` and `bank` modules. 
+
+This dependency automatically created an `expected_keepers.go` file with a `BankKeeper` interface. 
+
+The `BuyName` transaction uses `SendCoins` and `SubtractCoins` methods from the `bank` module. 
+
+Edit the `expected_keepers.go` file to add `SendCoins` and `SubtractCoins` to be able to use it in the keeper methods of the `nameservice` module.
 
 ```go
 // x/nameservice/types/expected_keepers.go
