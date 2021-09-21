@@ -11,9 +11,11 @@ If you haven't already, start a blockchain node in development:
 starport chain serve -r
 ```
 
-The optional `-r` flag is useful in development mode since it resets the blockchain's state if it has been started before. After the `serve` command has finished building the blockchain, a `nameserviced` binary is installed by default in the `~/go/bin` directory.
+The optional `-r` flag is useful in development mode since it resets the blockchain's state if it has been started before. 
 
-The terminal window where the chain is started must remain open, so open a second terminal window to use `nameserviced` to issue commands.
+After the `serve` command has finished building the blockchain, a `nameserviced` binary is installed by default in the `~/go/bin` directory.
+
+The terminal window where the chain is started must remain open, so open a second terminal window to use `nameserviced` to run commands at the command line.
 
 ## Buy a New Name
 
