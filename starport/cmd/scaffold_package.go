@@ -34,11 +34,6 @@ func NewScaffoldPacket() *cobra.Command {
 }
 
 func createPacketHandler(cmd *cobra.Command, args []string) error {
-	sc, err := newApp(flagGetPath(cmd))
-	if err != nil {
-		return err
-	}
-
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -46,6 +41,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		packet       = args[0]
 		packetFields = args[1:]
 		signer       = flagGetSigner(cmd)
+		appPath      = flagGetPath(cmd)
 	)
 
 	module, err := cmd.Flags().GetString(flagModule)
@@ -72,6 +68,11 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	}
 	if signer != "" {
 		options = append(options, scaffolder.PacketWithSigner(signer))
+	}
+
+	sc, err := newApp(appPath, s)
+	if err != nil {
+		return err
 	}
 
 	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)

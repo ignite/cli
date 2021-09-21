@@ -48,11 +48,6 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
-	sc, err := newApp(appPath)
-	if err != nil {
-		return err
-	}
-
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -103,6 +98,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
+
+	sc, err := newApp(appPath, s)
+	if err != nil {
+		return err
+	}
+
 	sm, err := sc.CreateModule(placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {

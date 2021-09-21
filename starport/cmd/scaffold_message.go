@@ -38,11 +38,6 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		appPath      = flagGetPath(cmd)
 	)
 
-	sc, err := newApp(appPath)
-	if err != nil {
-		return err
-	}
-
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
@@ -56,6 +51,11 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	// Get signer
 	if signer != "" {
 		options = append(options, scaffolder.WithSigner(signer))
+	}
+
+	sc, err := newApp(appPath, s)
+	if err != nil {
+		return err
 	}
 
 	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)

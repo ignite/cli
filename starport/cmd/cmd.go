@@ -249,13 +249,14 @@ func checkNewVersion(ctx context.Context) {
 }
 
 // newApp create a new scaffold app
-func newApp(appPath string) (scaffolder.Scaffolder, error) {
+func newApp(appPath string, spinner *clispinner.Spinner) (scaffolder.Scaffolder, error) {
 	sc, err := scaffolder.App(appPath)
 	if err != nil {
 		return sc, err
 	}
 
 	if !sc.Version.LT(cosmosver.StargateFortyThreeVersion) {
+		spinner.Stop()
 		fmt.Printf(
 			`⚠️ Your app has been scaffolded with an old Cosmos SDK version: %[1]v. 
 Please make sure that your chain is updated following the migration guidelines from this folder:
@@ -264,6 +265,7 @@ https://docs.starport.network/migration
 
 `, sc.Version.String(),
 		)
+		spinner.Start()
 	}
 	return sc, nil
 }

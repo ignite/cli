@@ -32,10 +32,6 @@ func NewScaffoldQuery() *cobra.Command {
 
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
-	sc, err := newApp(appPath)
-	if err != nil {
-		return err
-	}
 
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
@@ -63,6 +59,11 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	paginated, err := cmd.Flags().GetBool(flagPaginated)
+	if err != nil {
+		return err
+	}
+
+	sc, err := newApp(appPath, s)
 	if err != nil {
 		return err
 	}

@@ -76,13 +76,13 @@ func scaffoldType(
 		options = append(options, scaffolder.TypeWithSigner(signer))
 	}
 
-	sc, err := newApp(appPath)
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
+
+	sc, err := newApp(appPath, s)
 	if err != nil {
 		return err
 	}
-
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
 
 	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
 	if err != nil {
