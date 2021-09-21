@@ -9,7 +9,9 @@ description: Define keepers for the nameservice module.
 
 ## Define Keepers for the Nameservice Module 
 
-Keepers are module-specific. In this section, you define the keepers that are required by the nameservice module:
+Keepers are module-specific. Keeper is part of the Cosmos SDK that is responsible for writing data to the store. Each module uses its own keeper. 
+
+In this section, define the keepers that are required by the nameservice module:
 
 - Buy name
 - Set name
