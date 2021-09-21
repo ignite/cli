@@ -36,7 +36,10 @@ func RunWithValidation(
 ) (sm SourceModification, err error) {
 	// run executes the provided runner with the provided generator
 	run := func(runner *genny.Runner, gen *genny.Generator) error {
-		runner.With(gen)
+		err := runner.With(gen)
+		if err != nil {
+			return err
+		}
 		return runner.Run()
 	}
 	for _, gen := range gens {
@@ -55,17 +58,18 @@ func RunWithValidation(
 		// fetch the source modification
 		sm = NewSourceModification()
 		for _, file := range dryRunner.Results().Files {
-			_, err := os.Stat(file.Name())
+			fileName := file.Name()
+			_, err := os.Stat(fileName)
 
 			// nolint:gocritic
 			if os.IsNotExist(err) {
 				// if the file doesn't exist in the source, it means it has been created by the runner
-				sm.AppendCreatedFiles(file.Name())
+				sm.AppendCreatedFiles(fileName)
 			} else if err != nil {
 				return sm, err
 			} else {
 				// the file has been modified by the runner
-				sm.AppendModifiedFiles(file.Name())
+				sm.AppendModifiedFiles(fileName)
 			}
 		}
 

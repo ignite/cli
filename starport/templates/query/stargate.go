@@ -2,24 +2,34 @@ package query
 
 import (
 	"fmt"
+	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(
+			fsStargate,
+			"stargate/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(protoQueryModify(replacer, opts))
 	g.RunFn(cliQueryModify(replacer, opts))
 
-	return g, Box(stargateTemplate, opts, g)
+	return g, Box(template, opts, g)
 }
 
 func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -61,6 +71,17 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
 		}
 
+		// Ensure custom types are imported
+		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
+			content = replacer.Replace(content, Placeholder, replacementImport)
+		}
+
 		// Messages
 		templateMessages := `message Query%[2]vRequest {
 %[3]v}
@@ -85,7 +106,7 @@ message Query%[2]vResponse {
 
 func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

@@ -2,7 +2,7 @@ package list
 
 import (
 	"fmt"
-	"strings"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -20,7 +20,7 @@ func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -37,22 +37,25 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.PlaceholderGenesisProtoImport, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.PlaceholderGenesisProtoImport)
+		content = replacer.Replace(content, typed.PlaceholderGenesisProtoImport, replacementGogoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false]; %[5]v
-  uint64 %[3]vCount = %[6]v; %[5]v
+		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
+  uint64 %[3]vCount = %[5]v;
   %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
-			fieldNumber+1,
+			highestNumber+1,
+			highestNumber+2,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -63,13 +66,13 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		content := PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
@@ -111,7 +114,7 @@ for _, elem := range gs.%[3]vList {
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -150,7 +153,7 @@ genesis.%[2]vCount = k.Get%[2]vCount(ctx)
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -191,7 +194,7 @@ require.Equal(t, genesisState.%[2]vCount, got.%[2]vCount)
 
 func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -252,19 +255,4 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
-}
-
-// PatchGenesisTypeImport patches types/genesis.go content from the issue:
-// https://github.com/tendermint/starport/issues/992
-func PatchGenesisTypeImport(replacer placeholder.Replacer, content string) string {
-	patternToCheck := "import ("
-	replacement := fmt.Sprintf(`import (
-%[1]v
-)`, typed.PlaceholderGenesisTypesImport)
-
-	if !strings.Contains(content, patternToCheck) {
-		content = replacer.Replace(content, typed.PlaceholderGenesisTypesImport, replacement)
-	}
-
-	return content
 }

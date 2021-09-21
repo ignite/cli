@@ -2,19 +2,45 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
 )
 
 // NewStargate returns the generator to scaffold a module inside a Stargate app
 func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		msgServerTemplate = xgenny.NewEmbedWalker(
+			fsMsgServer,
+			"msgserver/",
+			opts.AppPath,
+		)
+		genesisModuleTestTemplate = xgenny.NewEmbedWalker(
+			fsGenesisModuleTest,
+			"genesistest/module/",
+			opts.AppPath,
+		)
+		genesisTypesTestTemplate = xgenny.NewEmbedWalker(
+			fsGenesisTypesTest,
+			"genesistest/types/",
+			opts.AppPath,
+		)
+		stargateTemplate = xgenny.NewEmbedWalker(
+			fsStargate,
+			"stargate/",
+			opts.AppPath,
+		)
+	)
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}
@@ -32,13 +58,13 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
-	ctx.Set("title", strings.Title)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("isIBC", opts.IsIBC)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
@@ -57,7 +83,7 @@ func NewStargateAppModify(replacer placeholder.Replacer, opts *CreateOptions) *g
 // app.go modification on Stargate when creating a module
 func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := module.PathAppGo
+		path := filepath.Join(opts.AppPath, module.PathAppGo)
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

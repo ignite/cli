@@ -390,7 +390,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath, chainOption...)
+	chainHandler, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -512,7 +512,7 @@ func (b *Builder) GenerateGenesisWithHome(
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath,
+	chainHandler, err := chain.New(appPath,
 		chain.HomePath(homeDir),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

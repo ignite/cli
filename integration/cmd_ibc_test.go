@@ -3,6 +3,7 @@
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -19,6 +20,21 @@ func TestCreateModuleWithIBC(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an IBC module with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport",
+				"s",
+				"module",
+				"appPath",
+				"--ibc",
+				"--require-registration",
+				"--path",
+				"./ibcblog",
+			),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
@@ -207,6 +223,20 @@ func TestCreateIBCPacket(t *testing.T) {
 	env.Must(env.Exec("create a packet with custom type fields",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "packet", "ticket", "num:int", "victory:bool", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "type", "custom-type", "customField:uint", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a packet with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "packet", "foo-baz", "customField:CustomType", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))

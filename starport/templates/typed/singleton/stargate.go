@@ -4,6 +4,7 @@ import (
 	"embed"
 	"fmt"
 	"math/rand"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -12,7 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"github.com/tendermint/starport/starport/templates/typed/list"
 )
 
 var (
@@ -21,17 +21,24 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
-
-	// stargateIndexedComponentTemplate allows to scaffold a new indexed type component in a Stargate module
-	stargateSingletonComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateIndexedMessagesTemplate allows to scaffold indexed type CRUD messages in a Stargate module
-	stargateSingletonMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsStargateMessages,
+			"stargate/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsStargateComponent,
+			"stargate/component/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(typesKeyModify(opts))
 	g.RunFn(protoRPCModify(replacer, opts))
@@ -50,17 +57,17 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 
-		if err := typed.Box(stargateSingletonMessagesTemplate, opts, g); err != nil {
+		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
 		}
 	}
 
-	return g, typed.Box(stargateSingletonComponentTemplate, opts, g)
+	return g, typed.Box(componentTemplate, opts, g)
 }
 
 func typesKeyModify(opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/keys.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/keys.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -77,7 +84,7 @@ const (
 
 func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -94,7 +101,8 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// Add the service
 		templateService := `// Queries a %[3]v by index.
@@ -131,7 +139,7 @@ message QueryGet%[2]vResponse {
 
 func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -149,7 +157,7 @@ func moduleGRPCGatewayModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -167,7 +175,7 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/genesis.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "genesis.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -183,18 +191,20 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisProtoImport, replacementProtoImport)
 
-		// Determine the new field number
-		fieldNumber := strings.Count(content, typed.PlaceholderGenesisProtoStateField) + 1
+		// Parse proto file to determine the field numbers
+		highestNumber, err := typed.GenesisStateHighestFieldNumber(path)
+		if err != nil {
+			return err
+		}
 
-		templateProtoState := `%[2]v %[3]v = %[4]v; %[5]v
-%[1]v`
+		templateProtoState := `%[2]v %[3]v = %[4]v;
+  %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
 			typed.PlaceholderGenesisProtoState,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
-			fieldNumber,
-			typed.PlaceholderGenesisProtoStateField,
+			highestNumber+1,
 		)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacementProtoState)
 
@@ -205,13 +215,13 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		content := list.PatchGenesisTypeImport(replacer, f.String())
+		content := typed.PatchGenesisTypeImport(replacer, f.String())
 
 		templateTypesDefault := `%[2]v: nil,
 %[1]v`
@@ -229,7 +239,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -275,7 +285,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/genesis_test.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -312,7 +322,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/genesis.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -352,7 +362,7 @@ if found {
 
 func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -380,8 +390,16 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 		// Messages
 		var fields string
-		for i, field := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+		for i, f := range opts.Fields {
+			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		}
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessages := `message MsgCreate%[2]v {
@@ -413,7 +431,7 @@ message MsgDelete%[2]vResponse {}
 
 func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -445,7 +463,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -463,7 +481,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 
 func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
