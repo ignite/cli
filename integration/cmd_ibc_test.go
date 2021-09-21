@@ -79,7 +79,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "foobar", "--require-registration"),
+			step.Exec("starport", "s", "module", "bar", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
