@@ -55,7 +55,7 @@ Your nameservice app requires the following Cosmos SDK modules:
 
 - [auth](https://docs.cosmos.network/master/modules/auth/): Specifies the base transaction and account types for an application. For your nameservice app, it defines accounts and fees and gives access to these functionalities to the rest of your app.
 - [bank](https://docs.cosmos.network/master/modules/bank/): Enables the app to create and manage tokens and token balances.
-- [distribution](https://docs.cosmos.network/master/modules/distribution/): This module give a functional way to passively distribute rewards between validators and delegators.
+- [distribution](https://docs.cosmos.network/master/modules/distribution/): Passively distributes rewards between validators and delegators.
 - [slashing](https://docs.cosmos.network/master/modules/slashing/): Enables punishing misbehavior of validators when evidence of validator fraud is reported.
 - [staking](https://docs.cosmos.network/master/modules/staking/): Enables the app to have validators that users can delegate to.
 - nameservice: This module does not exist yet! You will build this module to handle the core logic for your new `nameservice` app. The `nameservice` module is the main piece of software you develop to build your app.
