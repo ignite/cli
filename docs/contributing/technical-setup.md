@@ -58,7 +58,7 @@ The Z shell, also known as zsh, is a UNIX shell that is built on top of the macO
 
 
 ## Install Go 
-/TODO update with link to the install go doc and remove this content 
+
 This installation method removes existing Go installations, installs Go in `/usr/local/go/bin/go`, and sets the environment variables.
 
 1. Go to <https://golang.org/dl>.
