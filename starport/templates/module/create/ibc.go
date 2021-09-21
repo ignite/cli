@@ -127,11 +127,10 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 		// Determine the new field number
 		content := f.String()
-		fieldNumber := strings.Count(content, module.PlaceholderGenesisProtoStateField) + 1
 
-		template := `%[1]v
-  string port_id = %[2]v; %[3]v`
-		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState, fieldNumber, module.PlaceholderGenesisProtoStateField)
+		template := `string port_id = 1;
+%s`
+		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
 
 		newFile := genny.NewFileS(path, content)

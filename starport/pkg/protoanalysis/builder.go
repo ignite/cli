@@ -44,9 +44,22 @@ func (b builder) buildFiles() (files []File) {
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+
+			// Find the highest field number
+			var highestFieldNumber int
+			for _, elem := range message.Elements {
+				field, ok := elem.(*proto.NormalField)
+				if ok {
+					if field.Sequence > highestFieldNumber {
+						highestFieldNumber = field.Sequence
+					}
+				}
+			}
+
 			messages = append(messages, Message{
-				Name: message.Name,
-				Path: f.path,
+				Name:               message.Name,
+				Path:               f.path,
+				HighestFieldNumber: highestFieldNumber,
 			})
 		}
 	}
