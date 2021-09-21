@@ -58,7 +58,7 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 		return false, nil
 	}
 
-	return true, err
+	return err == nil, err
 }
 
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
