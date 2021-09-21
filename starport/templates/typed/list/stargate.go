@@ -3,12 +3,13 @@ package list
 import (
 	"embed"
 	"fmt"
+	"os"
+	"path/filepath"
+
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/typed"
-	"os"
-	"path/filepath"
 )
 
 var (
