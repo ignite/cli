@@ -3,18 +3,19 @@ order: 1
 parent:
   title: Migration
   order: 3
-description: Required changes when upgrading from Starport v0.17.3 to Starport v0.18.
+description: For chains that were scaffolded with Starport versions lower than v0.18, changes are required to use Starport v0.18. 
 ---
 
-The default template in Cosmos SDK versions lower than v0.44 are not compatible with Starport v0.18.
+Cosmos SDK v0.44 introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. 
 
-Changes are required when upgrade from Starport v0.17.3 to Starport v0.18.0 and later. 
+**Important:** After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. 
 
-To update the default template so your Starport installation is compatible with Cosmos SDK v0.44, make these changes to the blockchain template after you upgrade to Starport v0.18.
+
 
 # v0.18
 
 ## Blockchain
+For each file listed, make the required changes to the source code of the blockchain template. 
 
 ### app/app.go
 
