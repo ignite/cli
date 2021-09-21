@@ -16,18 +16,15 @@ This tutorial builds on knowlege and skills developed in the earlier tutorials i
 - [Hello, World](../hello.md)
 - [Module Basics](../blog.md)
 
-This tutorial helps you build a blockchain for a nameservice app with these steps:
+The goal of this tutorial is to build a functional nameservice app and a mapping of strings to other strings (`map[string]string`).
+
+This tutorial guides you through these steps to build a blockchain for a nameservice app:
 
 * Create a blockchain without a default module
 * Create a Cosmos SDK nameservice module with a dependency on another module
 * Create CRUD (create, read, update, and delete) actions for a type stored as a map
 * Declare functions of the bank module to be available to the nameservice module
 * Implement keeper functions that implement the logic
-
-The goal of this tutorial is to build a functional nameservice app and a mapping of strings to other strings (`map[string]string`).
-<!-- rewrite for clarity
- This is similar to [Namecoin](https://namecoin.org/), [ENS](https://ens.domains/), or [Handshake](https://handshake.org/), which all model the traditional DNS systems (`map[domain]zonefile`). App end users can buy unused names, sell their names, or trade their names.
--->
 
 ## Prerequisites 
 
@@ -38,15 +35,13 @@ The goal of this tutorial is to build a functional nameservice app and a mapping
 
 ## Nameservice App Goals
 
-The goal of the app you are building is to let users buy names and to set a value these names resolve to. The owner of a given name is the current highest bidder. 
+The goal of the app you are building is to let users buy a name and to set a value that a name resolve to. The owner of a given name is the current highest bidder. 
 
 First, see how these simple requirements translate to app design. 
 
 ### Core Concepts 
-<!-- needs so much love 
-- A blockchain app is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). 
-- As a developer, you have to define the state machine with a starting state and messages that trigger state transitions. 
--->
+
+A blockchain app is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a blockchain app developer, you have to define the state machine with a starting state and messages that trigger state transitions. These software components make it all possible! 
 
 - [Starport](https://docs.starport.network/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
@@ -83,11 +78,11 @@ In the Cosmos SDK, [messages](https://docs.cosmos.network/master/building-module
 
 You must create [messages for the nameservice module](02-messages.md) that support this functionality:
 
-- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the [ABCI](https://docs.cosmos.network/master/intro/sdk-app-architecture.html#abci) interface between Tendermint and your app. 
+- When a transaction that is included in a block reaches a Tendermint node, the transaction is passed to the application using the Application Blockchain Interface [(ABCI)](https://docs.cosmos.network/master/intro/sdk-app-architecture.html#abci) between Tendermint and your app. 
 - The transaction is decoded to get the message. 
 - The message is then routed to the appropriate module and handled according to the logic defined in the corresponding `Handler`. 
 - If the state needs to be updated, the `Handler` calls the `Keeper` to perform the update. 
 
-You will learn more about these concepts in the next steps of this tutorial.
+You learn more about these core concepts in the next steps of this tutorial.
 
 Now that you have an idea of how your app functions from a high-level perspective, it is time to start implementing it.
