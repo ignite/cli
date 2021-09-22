@@ -167,7 +167,7 @@ func New(path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	if !c.Version.MajorIs(cosmosver.Stargate) {
+	if !c.Version.IsFamily(cosmosver.Stargate) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 

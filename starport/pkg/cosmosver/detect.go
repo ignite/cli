@@ -14,14 +14,16 @@ func Detect(appPath string) (version Version, err error) {
 	if err != nil {
 		return version, err
 	}
+
 	for _, r := range parsed.Require {
 		v := r.Mod
+
 		if v.Path == cosmosModulePath {
-			version, err = NewVersion(v.Version)
-			if err != nil {
+			if version, err = Parse(v.Version); err != nil {
 				return version, err
 			}
 		}
 	}
+
 	return
 }
