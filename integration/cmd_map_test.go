@@ -73,7 +73,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a map with sdk.Coin and []sdkCoins",
+	env.Must(env.Exec("create a map with Coin and []Coin",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "salary", "base:coin", "review:array.coin", "--module", "example"),
 			step.Workdir(path),
