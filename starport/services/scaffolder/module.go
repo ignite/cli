@@ -296,9 +296,13 @@ func checkModuleName(appPath, moduleName string) error {
 		return err
 	}
 	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
 		if strings.HasPrefix(moduleName, entry.Name()) {
 			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", entry.Name())
 		}
+	}
 	}
 
 	return nil
