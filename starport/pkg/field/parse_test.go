@@ -118,7 +118,7 @@ func TestParseFields1(t *testing.T) {
 				name1.Original + ":uint",
 				name2.Original + ":array.coin",
 				name3.Original,
-				name4.Original + ":[]string",
+				name4.Original + ":strings",
 			},
 			want: Fields{
 				{
@@ -135,7 +135,7 @@ func TestParseFields1(t *testing.T) {
 				},
 				{
 					Name:         name4,
-					DatatypeName: DataTypeStringSlice,
+					DatatypeName: DataTypeStringSliceAlias,
 				},
 			},
 		},
