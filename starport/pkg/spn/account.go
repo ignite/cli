@@ -71,7 +71,7 @@ func (c *Client) AccountCreate(accountName, mnemonic string) (Account, error) {
 }
 
 func toAccount(info keyring.Info) Account {
-	ko, _ := keyring.Bech32KeyOutput(info)
+	ko, _ := keyring.MkAccKeyOutput(info)
 	return Account{
 		Name:    ko.Name,
 		Address: ko.Address,

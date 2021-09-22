@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -13,7 +14,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog")
+		path = env.Scaffold("blogibc")
 	)
 
 	env.Must(env.Exec("create an IBC module",
@@ -32,7 +33,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 				"--ibc",
 				"--require-registration",
 				"--path",
-				"./ibcblog",
+				"./blogibc",
 			),
 			step.Workdir(filepath.Dir(path)),
 		)),
@@ -79,7 +80,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "bar", "--require-registration"),
+			step.Exec("starport", "s", "module", "non_ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -169,7 +170,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog2")
+		path = env.Scaffold("blogibc2")
 	)
 
 	env.Must(env.Exec("create an IBC module",
@@ -190,7 +191,7 @@ func TestCreateIBCPacket(t *testing.T) {
 				"--module",
 				"foo",
 				"--ack",
-				"foo:string,bar:int,foobar:bool",
+				"foo:string,bar:int,baz:bool",
 			),
 			step.Workdir(path),
 		)),

@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -14,6 +15,8 @@ import (
 )
 
 func TestServeStargateWithWasm(t *testing.T) {
+	t.Skip()
+
 	var (
 		env     = newEnv(t)
 		apath   = env.Scaffold("sgblog")

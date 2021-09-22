@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -58,6 +59,8 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 }
 
 func TestGenerateAnAppWithWasm(t *testing.T) {
+	t.Skip()
+
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog")
