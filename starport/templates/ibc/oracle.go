@@ -114,11 +114,9 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		// Recv packet dispatch
 		templateRecv := `oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
-		return nil, nil, sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error())
+		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()).Error())
 	} else if ack != oracleAck {
-		return &sdk.Result{
-			Events: ctx.EventManager().Events().ToABCIEvents(),
-		}, oracleAck.GetBytes(), nil
+		return oracleAck
 	}
 	%[1]v`
 		replacementRecv := fmt.Sprintf(templateRecv, PlaceholderOraclePacketModuleRecv)
@@ -225,7 +223,7 @@ import "%[2]v/%[3]v.proto";
 
 		templateMessage := `message Msg%[2]vData {
   string %[3]v = 1;
-  int64 oracle_script_id = 2 [
+  uint64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
     (gogoproto.moretags) = "yaml:\"oracle_script_id\""
   ];

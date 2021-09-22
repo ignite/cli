@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
 
@@ -75,7 +76,7 @@ func (a Account) Address(accPrefix string) string {
 	conf := types.GetConfig()
 	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
 
-	ko, err := keyring.Bech32KeyOutput(a.Info)
+	ko, err := keyring.MkAccKeyOutput(a.Info)
 	if err != nil {
 		panic(err)
 	}
@@ -94,11 +95,7 @@ func (a Account) PubKey(accPrefix string) string {
 	conf := types.GetConfig()
 	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
 
-	o, err := keyring.Bech32KeyOutput(a.Info)
-	if err != nil {
-		panic(err)
-	}
-	return o.PubKey
+	return a.Info.GetPubKey().Address().String()
 }
 
 // EnsureDefaultAccount ensures that default account exists.
@@ -201,7 +198,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	info, err := r.kr.Key(name)
-	if err == dkeyring.ErrKeyNotFound {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {
