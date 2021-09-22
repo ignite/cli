@@ -19,7 +19,7 @@ These instructions are written for a blockchain scaffolded with the following co
 starport scaffold chain github.com/cosmonaut/mars
 ```
 
-If you used a different module path, replace `cosmonaut` and `mars` with correct values accordingly.
+If you used a different module path, replace `cosmonaut` and `mars` with the correct values for your blockchain.
 
 ## Blockchain
 
