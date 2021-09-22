@@ -93,9 +93,9 @@ func TestParseFields1(t *testing.T) {
 		{
 			name: "test list types",
 			fields: []string{
-				name1.Original + ":[]uint",
-				name2.Original + ":[]int",
-				name3.Original + ":[]string",
+				name1.Original + ":array.uint",
+				name2.Original + ":array.int",
+				name3.Original + ":array.string",
 			},
 			want: Fields{
 				{
@@ -116,7 +116,7 @@ func TestParseFields1(t *testing.T) {
 			name: "test mixed types",
 			fields: []string{
 				name1.Original + ":uint",
-				name2.Original + ":[]sdk.Coin",
+				name2.Original + ":array.coin",
 				name3.Original,
 				name4.Original + ":[]string",
 			},
@@ -127,7 +127,7 @@ func TestParseFields1(t *testing.T) {
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeSDKCoinSlice,
+					DatatypeName: DataTypeCoinSlice,
 				},
 				{
 					Name:         name3,
@@ -166,17 +166,17 @@ func TestParseFields1(t *testing.T) {
 		{
 			name: "test sdk.Coin types",
 			fields: []string{
-				name1.Original + ":sdk.Coin",
-				name2.Original + ":[]sdk.Coin",
+				name1.Original + ":coin",
+				name2.Original + ":array.coin",
 			},
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeSDKCoin,
+					DatatypeName: DataTypeCoin,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeSDKCoinSlice,
+					DatatypeName: DataTypeCoinSlice,
 				},
 			},
 		},
