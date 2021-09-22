@@ -2,10 +2,10 @@
 
 ## Unreleased
 
+### Features:
+
 - Added `starport generate dart` to generate a Dart client from protocol buffer files
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
-
-### Features:
 
 ## `v0.18.0`
 
