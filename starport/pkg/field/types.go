@@ -233,7 +233,7 @@ var (
 
 		DataTypeCustom: {
 			DataDeclaration: func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
-			ValueDefault:    "nil",
+			ValueDefault:    "null",
 			ProtoDeclaration: func(datatype, name string, index int) string {
 				return fmt.Sprintf("%s %s = %d;", datatype, name, index)
 			},
