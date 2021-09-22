@@ -15,6 +15,7 @@ const (
 	modulePathKey = "ModulePath"
 	testUtilDir   = "testutil"
 	sampleDir     = "sample"
+	normalizeDir  = "normalize"
 )
 
 var (
@@ -22,6 +23,8 @@ var (
 	fsStargate embed.FS
 	//go:embed stargate/testutil/sample/*
 	fsSample embed.FS
+	//go:embed stargate/testutil/normalize/*
+	fsNormalize embed.FS
 )
 
 // Register testutil template using existing generator.
@@ -40,11 +43,19 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 		return err
 	}
 
-	// if yes, only box the sample folder
+	// if yes, only box the sample and normalize folder
 	path = filepath.Join(path, sampleDir)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
 		return gen.Box(xgenny.NewEmbedWalker(fsSample, "stargate/", appPath))
+	} else if err != nil {
+		return err
+	}
+
+	path = filepath.Join(path, normalizeDir)
+	_, err = os.Stat(path)
+	if os.IsNotExist(err) {
+		return gen.Box(xgenny.NewEmbedWalker(fsNormalize, "stargate/", appPath))
 	}
 	return err
 }

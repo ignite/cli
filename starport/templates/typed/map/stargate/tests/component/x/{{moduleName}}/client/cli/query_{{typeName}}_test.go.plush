@@ -13,6 +13,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/testutil/network"
+	"<%= ModulePath %>/testutil/normalize"
 	"<%= ModulePath %>/x/<%= ModuleName %>/client/cli"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
@@ -27,10 +28,12 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	for i := 0; i < n; i++ {
-		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, types.<%= TypeName.UpperCamel %>{
-		    <%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
-		    <% } %>
-		})
+		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
+			<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
+			<% } %>
+		}
+		normalize.Proto(t, &<%= TypeName.LowerCamel %>, cfg.Codec)
+		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
@@ -85,7 +88,8 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
-				require.Equal(t, removeNulls(&tc.obj), removeNulls(&resp.<%= TypeName.UpperCamel %>))
+				normalize.FillNilValues(t, &tc.obj)
+				require.Equal(t, tc.obj, resp.<%= TypeName.UpperCamel %>)
 			}
 		})
 	}
@@ -119,7 +123,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, objs, resp.<%= TypeName.UpperCamel %>)
 		}
 	})
 	t.Run("ByKey", func(t *testing.T) {
@@ -132,7 +136,7 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, objs, resp.<%= TypeName.UpperCamel %>)
 			next = resp.Pagination.NextKey
 		}
 	})
@@ -144,6 +148,6 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 		require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
-		require.Equal(t, removeNulls(&objs), removeNulls(&resp.<%= TypeName.UpperCamel %>))
+		require.Subset(t, objs, resp.<%= TypeName.UpperCamel %>)
 	})
 }

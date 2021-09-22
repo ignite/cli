@@ -1,10 +1,14 @@
-package cli_test
+package normalize
 
 import (
 	"reflect"
+	"testing"
 	"unsafe"
 
+	"github.com/cosmos/cosmos-sdk/codec"
+	codectypes "github.com/cosmos/cosmos-sdk/codec/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/gogo/protobuf/proto"
 )
 
 var (
@@ -12,14 +16,14 @@ var (
 	coinsType = reflect.TypeOf(sdk.Coins{})
 )
 
-func removeNulls(x interface{}) interface{} {
+func FillCoins(x interface{}) interface{} {
 	v := reflect.Indirect(reflect.ValueOf(x))
 	switch v.Kind() {
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
 			obj := v.Index(i)
 			objPt := reflect.NewAt(obj.Type(), unsafe.Pointer(obj.UnsafeAddr())).Interface()
-			objPt = removeNulls(objPt)
+			objPt = FillCoins(objPt)
 			obj.Set(reflect.ValueOf(objPt))
 		}
 	case reflect.Struct:
@@ -46,4 +50,18 @@ func removeNulls(x interface{}) interface{} {
 		}
 	}
 	return reflect.Indirect(v).Interface()
+}
+
+func FillNilValues(t *testing.T, x proto.Message) interface{} {
+	registry := codectypes.NewInterfaceRegistry()
+	cdc := codec.NewProtoCodec(registry)
+	m, err := cdc.MarshalJSON(x)
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = cdc.UnmarshalJSON(m, x)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return x
 }
