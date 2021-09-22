@@ -303,7 +303,6 @@ func checkModuleName(appPath, moduleName string) error {
 			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", entry.Name())
 		}
 	}
-	}
 
 	return nil
 }
