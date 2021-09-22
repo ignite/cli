@@ -22,7 +22,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T) (*network.Networ
     require.NoError(t, cfg.Codec.UnmarshalJSON(cfg.GenesisState[types.ModuleName], &state))
 
 	<%= TypeName.LowerCamel %> := &types.<%= TypeName.UpperCamel %>{}
-	state.<%= TypeName.UpperCamel %> = normalize.FillNilValues(t, &<%= TypeName.LowerCamel %>)
+	state.<%= TypeName.UpperCamel %> = normalize.FillNilValues(t, <%= TypeName.LowerCamel %>)
 	buf, err := cfg.Codec.MarshalJSON(&state)
 	require.NoError(t, err)
 	cfg.GenesisState[types.ModuleName] = buf

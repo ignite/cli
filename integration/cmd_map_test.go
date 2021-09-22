@@ -60,7 +60,14 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
+			step.Exec("starport", "s", "map", "mapUser", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "map", "mapDetail", "user:MapUser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
@@ -68,13 +75,6 @@ func TestCreateMapWithStargate(t *testing.T) {
 	env.Must(env.Exec("create a map with sdk.Coin and []sdkCoins",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "salary", "base:sdk.Coin", "review:[]sdk.Coin", "--module", "example"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a map with a custom field type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "mapdetail", "user:Mapuser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
