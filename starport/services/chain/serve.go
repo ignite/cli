@@ -170,7 +170,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
 
 				case errors.As(err, &startErr):
-
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
 
