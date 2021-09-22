@@ -253,7 +253,8 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 		P2P:  genAddr(ports[1]),
 		Prof: genAddr(ports[2]),
 		GRPC: genAddr(ports[3]),
-		API:  genAddr(ports[4]),
+		GRPCWeb: genAddr(ports[4]),
+		API:  genAddr(ports[5]),
 	}
 
 	// update config.yml with the generated servers list.

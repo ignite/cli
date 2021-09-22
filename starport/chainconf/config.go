@@ -26,6 +26,7 @@ var (
 			P2P:  "0.0.0.0:26656",
 			Prof: "0.0.0.0:6060",
 			GRPC: "0.0.0.0:9090",
+			GRPCWeb: "0.0.0.0:9091",
 			API:  "0.0.0.0:1317",
 		},
 		Build: Build{
@@ -174,6 +175,7 @@ type Host struct {
 	P2P  string `yaml:"p2p"`
 	Prof string `yaml:"prof"`
 	GRPC string `yaml:"grpc"`
+	GRPCWeb string `yaml:"grpc-web"`
 	API  string `yaml:"api"`
 }
 
