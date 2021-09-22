@@ -47,15 +47,16 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 	path = filepath.Join(path, sampleDir)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
-		return gen.Box(xgenny.NewEmbedWalker(fsSample, "stargate/", appPath))
-	} else if err != nil {
+		err = gen.Box(xgenny.NewEmbedWalker(fsSample, "stargate/", appPath))
+	}
+	if err != nil {
 		return err
 	}
 
 	path = filepath.Join(path, normalizeDir)
 	_, err = os.Stat(path)
 	if os.IsNotExist(err) {
-		return gen.Box(xgenny.NewEmbedWalker(fsNormalize, "stargate/", appPath))
+		err = gen.Box(xgenny.NewEmbedWalker(fsNormalize, "stargate/", appPath))
 	}
 	return err
 }
