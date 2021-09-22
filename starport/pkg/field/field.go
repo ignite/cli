@@ -1,4 +1,4 @@
-// Package field provides methods to parse a field provided in a command with the format Name:type
+// Package field provides methods to parse a field provided in a command with the format name:type
 package field
 
 import (
