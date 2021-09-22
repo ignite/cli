@@ -32,7 +32,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 			<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
 			<% } %>
 		}
-		normalize.Proto(t, &<%= TypeName.LowerCamel %>, cfg.Codec)
+		normalize.FillNilValues(t, &<%= TypeName.LowerCamel %>)
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)

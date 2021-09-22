@@ -27,7 +27,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
     		Id: uint64(i),
     	}
-		normalize.Proto(t, &<%= TypeName.LowerCamel %>, cfg.Codec)
+		normalize.FillNilValues(t, &<%= TypeName.LowerCamel %>)
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
