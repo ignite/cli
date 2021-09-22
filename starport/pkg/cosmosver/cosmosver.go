@@ -55,7 +55,7 @@ var (
 func newVersion(version string, family Family) Version {
 	return Version{
 		Family:   family,
-		Version:  version,
+		Version:  "v"+version,
 		Semantic: semver.MustParse(version),
 	}
 }
