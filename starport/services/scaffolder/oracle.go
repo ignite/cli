@@ -16,7 +16,7 @@ import (
 
 const (
 	bandImport  = "github.com/bandprotocol/bandchain-packet"
-	bandVersion = "v0.0.0"
+	bandVersion = "v0.0.2"
 )
 
 // OracleOption configures options for AddOracle.

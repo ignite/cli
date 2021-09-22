@@ -9,7 +9,7 @@ import (
 // Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store from its index
 func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>KeyPrefix))
-	b := k.cdc.MustMarshalBinaryBare(&<%= TypeName.LowerCamel %>)
+	b := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
 	store.Set(types.<%= TypeName.UpperCamel %>Key(
         <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
     <% } %>), b)
@@ -30,7 +30,7 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>(
         return val, false
     }
 
-	k.cdc.MustUnmarshalBinaryBare(b, &val)
+	k.cdc.MustUnmarshal(b, &val)
 	return val, true
 }
 
@@ -55,7 +55,7 @@ func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.
 
 	for ; iterator.Valid(); iterator.Next() {
 		var val types.<%= TypeName.UpperCamel %>
-		k.cdc.MustUnmarshalBinaryBare(iterator.Value(), &val)
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
         list = append(list, val)
 	}
 
