@@ -7,103 +7,99 @@ import (
 	"github.com/blang/semver"
 )
 
-type (
-	// MajorVersion represents major, named versions of Cosmos-SDK.
-	MajorVersion string
-
-	// versions represents a list of Version
-	versions []Version
-
-	// Version represents a range of Cosmos SDK versions.
-	Version struct {
-		version  string
-		Major    MajorVersion
-		semantic semver.Version
-	}
-)
+// Family represents the family(named versions) of Cosmos-SDK.
+type Family string
 
 const (
-	prefix = "v"
+	// Launchpad represents the launchpad family of Cosmos-SDK.
+	Launchpad Family = "launchpad"
 
-	// Launchpad points to Launchpad version of Cosmos-SDK.
-	Launchpad MajorVersion = "launchpad"
-	// Stargate points to Stargate version of Cosmos-SDK.
-	Stargate MajorVersion = "stargate"
+	// Stargate represents the launchpad family of Cosmos-SDK.
+	Stargate Family = "stargate"
+)
+
+const prefix = "v"
+
+// Version represents a range of Cosmos SDK versions.
+type Version struct {
+	// Family of the version
+	Family Family
+
+	// Version is the exact sdk version string.
+	Version string
+
+	// Semantic is the parsed version.
+	Semantic semver.Version
+}
+
+var (
+	MaxLaunchpadVersion       = newVersion("v0.39.99-alpha", Launchpad)
+	StargateFortyVersion      = newVersion("v0.40.0-alpha", Stargate)
+	StargateFortyThreeVersion = newVersion("v0.43.0-alpha", Stargate)
+	StargateFortyFourVersion  = newVersion("v0.44.0-alpha", Stargate)
 )
 
 var (
-	MaxLaunchpadVersion = Version{
-		version:  "v0.39.99",
-		semantic: semver.MustParse("0.39.99"),
-		Major:    Launchpad,
-	}
-	StargateFortyVersion = Version{
-		version:  "v0.40.0",
-		semantic: semver.MustParse("0.40.0"),
-		Major:    Stargate,
-	}
-	StargateFortyThreeVersion = Version{
-		version:  "v0.43.0-alpha",
-		semantic: semver.MustParse("0.43.0-alpha"),
-		Major:    Stargate,
-	}
-	StargateFortyFourVersion = Version{
-		version:  "v0.44.0",
-		semantic: semver.MustParse("0.44.0"),
-		Major:    Stargate,
-	}
-
-	// Versions are the list of supported Cosmos-SDK versions.
-	Versions = versions{
+	// Versions is a list of known, sorted Cosmos-SDK versions.
+	Versions = []Version{
 		MaxLaunchpadVersion,
 		StargateFortyVersion,
 		StargateFortyThreeVersion,
 		StargateFortyFourVersion,
 	}
+
+	// Latest is the latest known version of the Cosmos-SDK.
+	Latest = Versions[len(Versions)-1]
 )
 
-func NewVersion(version string) (v Version, err error) {
-	v.version = version
-	v.semantic, err = semver.Parse(strings.TrimPrefix(version, prefix))
-	if err != nil {
+func newVersion(version string, family Family) Version {
+	return Version{
+		Family:   family,
+		Version:  version,
+		Semantic: semver.MustParse(version),
+	}
+}
+
+// Parse parses a Cosmos-SDK version.
+func Parse(version string) (v Version, err error) {
+	v.Version = version
+
+	if v.Semantic, err = semver.Parse(strings.TrimPrefix(version, prefix)); err != nil {
 		return v, err
 	}
 
-	v.Major = Stargate
+	v.Family = Stargate
 	if v.LTE(MaxLaunchpadVersion) {
-		v.Major = Launchpad
+		v.Family = Launchpad
 	}
+
 	return
 }
 
-// GTE checks if v is greater than or equal to another.
+// GTE checks if v is greater than or equal to version.
 func (v Version) GTE(version Version) bool {
-	return v.semantic.GTE(version.semantic)
+	return v.Semantic.GTE(version.Semantic)
 }
 
-// LT checks if v is less than another.
+// LT checks if v is less than version.
 func (v Version) LT(version Version) bool {
-	return v.semantic.LT(version.semantic)
+	return v.Semantic.LT(version.Semantic)
 }
 
-// LTE checks if v is less than or equal to another.
+// LTE checks if v is less than or equal to version.
 func (v Version) LTE(version Version) bool {
-	return v.semantic.LTE(version.semantic)
+	return v.Semantic.LTE(version.Semantic)
 }
 
-// Is checks if v is equal to another.
+// Is checks if v is equal to version.
 func (v Version) Is(version Version) bool {
-	return v.semantic.EQ(version.semantic)
+	return v.Semantic.EQ(version.Semantic)
 }
 
 func (v Version) String() string {
-	return fmt.Sprintf("%s - %s", v.Major, v.version)
+	return fmt.Sprintf("%s - %s", v.Family, v.Version)
 }
 
-func (v Version) MajorIs(comparedTo MajorVersion) bool {
-	return v.Major == comparedTo
-}
-
-func (v versions) Latest() Version {
-	return v[len(v)-1]
+func (v Version) IsFamily(family Family) bool {
+	return v.Family == family
 }

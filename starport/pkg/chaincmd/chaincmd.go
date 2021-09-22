@@ -74,7 +74,7 @@ type ChainCmd struct {
 func New(appCmd string, options ...Option) ChainCmd {
 	chainCmd := ChainCmd{
 		appCmd:     appCmd,
-		sdkVersion: cosmosver.Versions.Latest(),
+		sdkVersion: cosmosver.Latest,
 	}
 
 	applyOptions(&chainCmd, options)
@@ -368,7 +368,7 @@ func (c ChainCmd) GentxCommand(
 	}
 
 	// Add necessary flags
-	if c.sdkVersion.MajorIs(cosmosver.Stargate) {
+	if c.sdkVersion.IsFamily(cosmosver.Stargate) {
 		command = c.attachChainID(command)
 	}
 
@@ -424,7 +424,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		commandTx,
 	}
 
-	if c.sdkVersion.MajorIs(cosmosver.Stargate) && !c.legacySend {
+	if c.sdkVersion.IsFamily(cosmosver.Stargate) && !c.legacySend {
 		command = append(command,
 			"bank",
 		)
@@ -442,7 +442,7 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	command = c.attachKeyringBackend(command)
 	command = c.attachNode(command)
 
-	if c.sdkVersion.MajorIs(cosmosver.Launchpad) {
+	if c.sdkVersion.IsFamily(cosmosver.Launchpad) {
 		command = append(command, optionOutput, constJSON)
 	}
 
@@ -460,7 +460,7 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 		"--limit", "1000",
 	}
 
-	if c.sdkVersion.MajorIs(cosmosver.Launchpad) {
+	if c.sdkVersion.IsFamily(cosmosver.Launchpad) {
 		command = append(command,
 			"--trust-node",
 		)
@@ -542,7 +542,7 @@ func (c ChainCmd) attachNode(command []string) []string {
 
 // isStargate checks if the version for commands is Stargate
 func (c ChainCmd) isStargate() bool {
-	return c.sdkVersion.Major == cosmosver.Stargate
+	return c.sdkVersion.Family == cosmosver.Stargate
 }
 
 // daemonCommand returns the daemon command from the provided command
