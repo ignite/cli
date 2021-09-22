@@ -133,28 +133,6 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Add gRPC to the Module Handler
-
-In the `x/blog/module.go` file:
-
-1. Add `"context"` to the imports.
-
-    ```go
-    import (
-	"context"
-	// ... other imports
-    )
-    ```
-
-2. Register the query handler:
-
-    ```go
-    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-    }
-    ```
-
 ## Write Data to the Store
 
 Define the `Post` type and the `AppendPost` keeper method.
@@ -387,6 +365,29 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
 ```
+
+## Add gRPC to the Module Handler
+
+In the `x/blog/module.go` file:
+
+1. Add `"context"` to the imports.
+
+    ```go
+    import (
+	"context"
+	// ... other imports
+    )
+    ```
+
+2. Register the query handler:
+
+    ```go
+    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
+
 
 ## Use the CLI To Create And Display Posts
 
