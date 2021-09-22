@@ -14,7 +14,7 @@ const (
 	// Launchpad represents the launchpad family of Cosmos-SDK.
 	Launchpad Family = "launchpad"
 
-	// Stargate represents the launchpad family of Cosmos-SDK.
+	// Stargate represents the stargate family of Cosmos-SDK.
 	Stargate Family = "stargate"
 )
 
