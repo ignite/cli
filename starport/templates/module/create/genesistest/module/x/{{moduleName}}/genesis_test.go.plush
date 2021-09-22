@@ -20,8 +20,8 @@ func TestGenesis(t *testing.T) {
 	got := <%= moduleName %>.ExportGenesis(ctx, *k)
 	require.NotNil(t, got)
 
-	normalize.FillNilValues(t, &genesisState)
-	normalize.FillNilValues(t, got)
+	normalize.FillNilValues(&genesisState)
+	normalize.FillNilValues(got)
 
 	// this line is used by starport scaffolding # genesis/test/assert
 }

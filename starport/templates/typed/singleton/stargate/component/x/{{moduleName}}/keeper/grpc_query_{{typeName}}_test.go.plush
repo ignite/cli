@@ -40,8 +40,8 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t,
-					normalize.FillNilValues(t, tc.response),
-					normalize.FillNilValues(t, response),
+					normalize.FillNilValues(tc.response),
+					normalize.FillNilValues(response),
 				)
 			}
 		})

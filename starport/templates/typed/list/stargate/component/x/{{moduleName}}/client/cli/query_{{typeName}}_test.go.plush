@@ -27,7 +27,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
     		Id: uint64(i),
     	}
-		normalize.FillNilValues(t, &<%= TypeName.LowerCamel %>)
+		normalize.FillNilValues(&<%= TypeName.LowerCamel %>)
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
@@ -77,7 +77,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
-				normalize.FillNilValues(t, &tc.obj)
+				normalize.FillNilValues(&tc.obj)
 				require.Equal(t, tc.obj, resp.<%= TypeName.UpperCamel %>)
 			}
 		})

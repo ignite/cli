@@ -64,8 +64,8 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t,
-					normalize.FillNilValues(t, tc.response),
-					normalize.FillNilValues(t, response),
+					normalize.FillNilValues(tc.response),
+					normalize.FillNilValues(response),
 				)
 			}
 		})
@@ -93,7 +93,7 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, msgs, normalize.FillCoins(resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, normalize.FillNilValues(msgs), normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>))
 		}
 	})
 	t.Run("ByKey", func(t *testing.T) {
@@ -103,7 +103,7 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, msgs, normalize.FillCoins(resp.<%= TypeName.UpperCamel %>))
+			require.Subset(t, normalize.FillNilValues(msgs), normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>))
 			next = resp.Pagination.NextKey
 		}
 	})
