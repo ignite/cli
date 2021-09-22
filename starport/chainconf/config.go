@@ -22,12 +22,12 @@ var (
 	DefaultConf = Config{
 		Host: Host{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
-			RPC:  "0.0.0.0:26657",
-			P2P:  "0.0.0.0:26656",
-			Prof: "0.0.0.0:6060",
-			GRPC: "0.0.0.0:9090",
+			RPC:     "0.0.0.0:26657",
+			P2P:     "0.0.0.0:26656",
+			Prof:    "0.0.0.0:6060",
+			GRPC:    "0.0.0.0:9090",
 			GRPCWeb: "0.0.0.0:9091",
-			API:  "0.0.0.0:1317",
+			API:     "0.0.0.0:1317",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -171,12 +171,12 @@ type Init struct {
 
 // Host keeps configuration related to started servers.
 type Host struct {
-	RPC  string `yaml:"rpc"`
-	P2P  string `yaml:"p2p"`
-	Prof string `yaml:"prof"`
-	GRPC string `yaml:"grpc"`
+	RPC     string `yaml:"rpc"`
+	P2P     string `yaml:"p2p"`
+	Prof    string `yaml:"prof"`
+	GRPC    string `yaml:"grpc"`
 	GRPCWeb string `yaml:"grpc-web"`
-	API  string `yaml:"api"`
+	API     string `yaml:"api"`
 }
 
 // Parse parses config.yml into UserConfig.
