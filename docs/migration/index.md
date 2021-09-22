@@ -9,7 +9,7 @@ description: For chains that were scaffolded with Starport versions lower than v
 
 # Upgrading a Blockchain to use Starport v0.18
 
-Starport v0.18 comes with Cosmos SDK v0.44. This version of the SDK introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18.
+Starport v0.18 comes with Cosmos SDK v0.44. This version of Cosmos SDK introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18.
 
 **Important:** After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions.
 
