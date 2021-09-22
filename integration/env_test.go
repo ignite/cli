@@ -241,7 +241,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	}
 
 	// generate random server ports and servers list.
-	ports, err := availableport.Find(5)
+	ports, err := availableport.Find(6)
 	require.NoError(e.t, err)
 
 	genAddr := func(port int) string {
