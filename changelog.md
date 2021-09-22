@@ -2,18 +2,29 @@
 
 ## Unreleased
 
+- Added `starport generate dart` to generate a Dart client from protocol buffer files
+- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+
 ### Features:
 
+## `v0.18.0`
+
+### Features:
+
+- Scaffold commands allow using custom types as fields
 - Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customizing the name of the signer of the message
 - Added `--index` flag to `scaffold map` to provide a custom list of indices
 - Added `scaffold type` to scaffold a protocol buffer definition of a type
 - Automatically check for new Starport versions
 - Added `starport tools completions` to generate CLI completions
-- Added `starport generate dart` to generate a Dart client from protocol buffer files
-- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
 - Added `starport account` commands to manage accounts (key pairs)
 - `starport version` now prints out detailed information about OS, Go version and more.
-- Module scaffolding now creates `x/.../types/genesis_test.go` for genesis validation tests
+- Modules are scaffolded with genesis validation tests
+- Types are scaffolded with tests for `ValidateBasic` methods
+- `cosmosclient` has been refactored and can be used as a library for interacting with Cosmos SDK chains
+- `starport relayer` uses `starport account`
+- Added `--path` flag for all `scaffold`, `generate` and `chain` commands
+- Added `--output` flag to the `build` command
 
 ### Fixes:
 
@@ -21,6 +32,7 @@
 - Generate Go code only from proto files only from directories specified in `config.yml` or default ones
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
+- Encode the count value in the store with `BigEndian`
 
 ## `v0.17.3`
 
