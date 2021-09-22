@@ -33,10 +33,10 @@ type Version struct {
 }
 
 var (
-	MaxLaunchpadVersion       = newVersion("v0.39.99-alpha", Launchpad)
-	StargateFortyVersion      = newVersion("v0.40.0-alpha", Stargate)
-	StargateFortyThreeVersion = newVersion("v0.43.0-alpha", Stargate)
-	StargateFortyFourVersion  = newVersion("v0.44.0-alpha", Stargate)
+	MaxLaunchpadVersion       = newVersion("0.39.99", Launchpad)
+	StargateFortyVersion      = newVersion("0.40.0", Stargate)
+	StargateFortyThreeVersion = newVersion("0.43.0-alpha", Stargate)
+	StargateFortyFourVersion  = newVersion("0.44.0-alpha", Stargate)
 )
 
 var (
