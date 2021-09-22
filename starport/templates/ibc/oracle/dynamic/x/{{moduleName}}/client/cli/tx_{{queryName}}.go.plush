@@ -20,11 +20,11 @@ func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 		Args:  cobra.ExactArgs(3),
 		RunE: func(cmd *cobra.Command, args []string) error {
 			// retrieve the oracle script id.
-			int64OracleScriptID, err := strconv.ParseInt(args[0], 10, 64)
+			uint64OracleScriptID, err := strconv.ParseUint(args[0], 10, 64)
 			if err != nil {
 				return err
 			}
-			oracleScriptID := types.OracleScriptID(int64OracleScriptID)
+			oracleScriptID := types.OracleScriptID(uint64OracleScriptID)
 
 			// retrieve the requested validator count.
 			askCount, err := strconv.ParseUint(args[1], 10, 64)

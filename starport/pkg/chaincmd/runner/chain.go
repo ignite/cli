@@ -210,13 +210,21 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 
 // Export exports the state of the chain into the specified file
 func (r Runner) Export(ctx context.Context, exportedFile string) error {
-	exportedState := &bytes.Buffer{}
-	if err := r.run(ctx, runOptions{stdout: exportedState}, r.chainCmd.ExportCommand()); err != nil {
+	stdout, stderr := &bytes.Buffer{}, &bytes.Buffer{}
+	if err := r.run(ctx, runOptions{stdout: stdout, stderr: stderr}, r.chainCmd.ExportCommand()); err != nil {
 		return err
 	}
 
+	// Exported genesis is written on stderr from Cosmos-SDK v0.44.0
+	var exportedState []byte
+	if stdout.Len() > 0 {
+		exportedState = stdout.Bytes()
+	} else {
+		exportedState = stderr.Bytes()
+	}
+
 	// Save the new state
-	return ioutil.WriteFile(exportedFile, exportedState.Bytes(), 0644)
+	return ioutil.WriteFile(exportedFile, exportedState, 0644)
 }
 
 // EventSelector is used to query events.
