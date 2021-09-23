@@ -18,7 +18,7 @@
 - Automatically check for new Starport versions
 - Added `starport tools completions` to generate CLI completions
 - Added `starport account` commands to manage accounts (key pairs)
-- `starport version` now prints out detailed information about OS, Go version and more.
+- `starport version` now prints detailed information about OS, Go version, and more.
 - Modules are scaffolded with genesis validation tests
 - Types are scaffolded with tests for `ValidateBasic` methods
 - `cosmosclient` has been refactored and can be used as a library for interacting with Cosmos SDK chains
