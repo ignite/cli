@@ -63,7 +63,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sc, err := newApp(appPath, s)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

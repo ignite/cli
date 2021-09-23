@@ -53,7 +53,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithSigner(signer))
 	}
 
-	sc, err := newApp(appPath, s)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

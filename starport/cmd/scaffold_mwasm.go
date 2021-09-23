@@ -28,7 +28,7 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	sc, err := newApp(appPath, s)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}

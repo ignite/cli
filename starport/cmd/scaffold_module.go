@@ -99,7 +99,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var msg bytes.Buffer
 	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 
-	sc, err := newApp(appPath, s)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
