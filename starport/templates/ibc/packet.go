@@ -107,8 +107,7 @@ func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunF
 		}
 
 		// Recv packet dispatch
-		templateRecv := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
 	packetAck, err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
@@ -126,7 +125,8 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
 		),
-	)`
+	)
+%[1]v`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
 			PlaceholderIBCPacketModuleRecv,
@@ -136,13 +136,13 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
 		return nil, err
 	}
-	eventType = types.EventType%[3]vPacket`
+	eventType = types.EventType%[3]vPacket
+%[1]v`
 		replacementAck := fmt.Sprintf(
 			templateAck,
 			PlaceholderIBCPacketModuleAck,
@@ -152,12 +152,12 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
 
 		// Timeout packet dispatch
-		templateTimeout := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		return nil, err
-	}`
+	}
+%[1]v`
 		replacementTimeout := fmt.Sprintf(
 			templateTimeout,
 			PlaceholderIBCPacketModuleTimeout,
@@ -223,15 +223,14 @@ import "%[1]v";`, f)
 			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
 		}
 
-		templateMessage := `%[1]v
-// %[2]vPacketData defines a struct for the packet payload
+		templateMessage := `// %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
 %[3]v}
 
 // %[2]vPacketAck defines a struct for the packet acknowledgment
 message %[2]vPacketAck {
-%[4]v}
-`
+	%[4]v}
+%[1]v`
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderIBCPacketProtoMessage,
@@ -254,9 +253,8 @@ func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			return err
 		}
 
-		template := `%[1]v
-EventType%[2]vPacket       = "%[3]v_packet"
-`
+		template := `EventType%[2]vPacket       = "%[3]v_packet"
+%[1]v`
 		replacement := fmt.Sprintf(
 			template,
 			PlaceholderIBCPacketEvent,
@@ -279,8 +277,8 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 		}
 
 		// RPC
-		templateRPC := `%[1]v
-  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);`
+		templateRPC := `  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);
+%[1]v`
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			PlaceholderProtoTxRPC,
@@ -313,8 +311,7 @@ import "%[1]v";`, f)
 		// TODO: Include timestamp height
 		// This addition would include using the type ibc.core.client.v1.Height
 		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
-		templateMessage := `%[1]v
-message MsgSend%[2]v {
+		templateMessage := `message MsgSend%[2]v {
   string %[3]v = 1;
   string port = 2;
   string channelID = 3;
@@ -323,7 +320,7 @@ message MsgSend%[2]v {
 
 message MsgSend%[2]vResponse {
 }
-`
+%[1]v`
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderProtoTxMessage,
@@ -350,11 +347,10 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.MsgSend%[2]v:
+		templateHandlers := `case *types.MsgSend%[2]v:
 					res, err := msgServer.Send%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
 			opts.PacketName.UpperCamel,
@@ -372,9 +368,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	cmd.AddCommand(CmdSend%[2]v())
-`
+		template := `cmd.AddCommand(CmdSend%[2]v())
+%[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -395,9 +390,8 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
 
 		// Register the module packet
-		templateRegistry := `%[1]v
-cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-`
+		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
+%[1]v`
 		replacementRegistry := fmt.Sprintf(
 			templateRegistry,
 			module.Placeholder2,
@@ -407,10 +401,10 @@ cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
 		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
-		templateInterface := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},
-)`
+)
+%[1]v`
 		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, opts.PacketName.UpperCamel)
 		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
 

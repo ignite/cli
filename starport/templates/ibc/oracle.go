@@ -112,26 +112,26 @@ func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genn
 		}
 
 		// Recv packet dispatch
-		templateRecv := `%[1]v
-	oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
+		templateRecv := `oracleAck, err := am.handleOraclePacket(ctx, modulePacket)
 	if err != nil {
 		return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrUnknownRequest, "cannot unmarshal packet data: "+err.Error()).Error())
 	} else if ack != oracleAck {
 		return oracleAck
-	}`
+	}
+	%[1]v`
 		replacementRecv := fmt.Sprintf(templateRecv, PlaceholderOraclePacketModuleRecv)
 		content := replacer.ReplaceOnce(f.String(), PlaceholderOraclePacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `%[1]v
-	sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
+		templateAck := `sdkResult, err := am.handleOracleAcknowledgment(ctx, ack, modulePacket)
 	if err != nil {
 		return nil, err
 	}
 	if sdkResult != nil {
 		sdkResult.Events = ctx.EventManager().Events().ToABCIEvents()
 		return sdkResult, nil
-	}`
+	}
+	%[1]v`
 		replacementAck := fmt.Sprintf(templateAck, PlaceholderOraclePacketModuleAck)
 		content = replacer.ReplaceOnce(content, PlaceholderOraclePacketModuleAck, replacementAck)
 
@@ -149,14 +149,13 @@ func protoQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptions) 
 		}
 
 		// Import the type
-		templateImport := `%[1]v
-import "%[2]v/%[3]v.proto";`
+		templateImport := `import "%[2]v/%[3]v.proto";
+%[1]v`
 		replacementImport := fmt.Sprintf(templateImport, Placeholder, opts.ModuleName, opts.QueryName.Snake)
 		content := replacer.Replace(f.String(), Placeholder, replacementImport)
 
 		// Add the service
-		templateService := `%[1]v
-
+		templateService := `
   	// %[2]vResult defines a rpc handler method for Msg%[2]vData.
   	rpc %[2]vResult(Query%[2]vRequest) returns (Query%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[3]v_result/{request_id}";
@@ -166,7 +165,7 @@ import "%[2]v/%[3]v.proto";`
   	rpc Last%[2]vId(QueryLast%[2]vIdRequest) returns (QueryLast%[2]vIdResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/last_%[3]v_id";
   	}
-`
+%[1]v`
 		replacementService := fmt.Sprintf(templateService, Placeholder2,
 			opts.QueryName.UpperCamel,
 			opts.QueryName.Snake,
@@ -176,8 +175,7 @@ import "%[2]v/%[3]v.proto";`
 		content = replacer.Replace(content, Placeholder2, replacementService)
 
 		// Add the service messages
-		templateMessage := `%[1]v
-message Query%[2]vRequest {int64 request_id = 1;}
+		templateMessage := `message Query%[2]vRequest {int64 request_id = 1;}
 
 message Query%[2]vResponse {
   %[2]vResult result = 1;
@@ -186,7 +184,8 @@ message Query%[2]vResponse {
 message QueryLast%[2]vIdRequest {}
 
 message QueryLast%[2]vIdResponse {int64 request_id = 1;}
-`
+
+%[1]v`
 		replacementMessage := fmt.Sprintf(templateMessage, Placeholder3, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementMessage)
 
@@ -209,21 +208,20 @@ import "gogoproto/gogo.proto";`, "")
 import "cosmos/base/v1beta1/coin.proto";`, "")
 
 		// Import
-		templateImport := `%[1]v
-import "gogoproto/gogo.proto";
+		templateImport := `import "gogoproto/gogo.proto";
 import "cosmos/base/v1beta1/coin.proto";
-import "%[2]v/%[3]v.proto";`
+import "%[2]v/%[3]v.proto";
+%[1]v`
 		replacementImport := fmt.Sprintf(templateImport, PlaceholderProtoTxImport, opts.ModuleName, opts.QueryName.Snake)
 		content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
 
 		// RPC
-		templateRPC := `%[1]v
-  rpc %[2]vData(Msg%[2]vData) returns (Msg%[2]vDataResponse);`
+		templateRPC := `  rpc %[2]vData(Msg%[2]vData) returns (Msg%[2]vDataResponse);
+%[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, PlaceholderProtoTxRPC, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, PlaceholderProtoTxRPC, replacementRPC)
 
-		templateMessage := `%[1]v
-message Msg%[2]vData {
+		templateMessage := `message Msg%[2]vData {
   string %[3]v = 1;
   uint64 oracle_script_id = 2 [
     (gogoproto.customname) = "OracleScriptID",
@@ -245,7 +243,8 @@ message Msg%[2]vData {
 
 message Msg%[2]vDataResponse {
 }
-`
+
+%[1]v`
 		replacementMessage := fmt.Sprintf(templateMessage, PlaceholderProtoTxMessage,
 			opts.QueryName.UpperCamel,
 			opts.MsgSigner.LowerCamel,
@@ -269,11 +268,10 @@ func handlerTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions) g
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.Msg%[2]vData:
+		templateHandlers := `case *types.Msg%[2]vData:
 					res, err := msgServer.%[2]vData(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers, Placeholder, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, Placeholder, replacementHandlers)
 		newFile := genny.NewFileS(path, content)
@@ -288,11 +286,10 @@ func clientCliQueryOracleModify(replacer placeholder.Replacer, opts *OracleOptio
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-
+		template := `
 	cmd.AddCommand(Cmd%[2]vResult())
 	cmd.AddCommand(CmdLast%[2]vID())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -307,9 +304,8 @@ func clientCliTxOracleModify(replacer placeholder.Replacer, opts *OracleOptions)
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	cmd.AddCommand(CmdRequest%[2]vData())
-`
+		template := `cmd.AddCommand(CmdRequest%[2]vData())
+%[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.QueryName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -330,17 +326,16 @@ func codecOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacement)
 
 		// Register the module packet
-		templateRegistry := `%[1]v
-cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
-`
+		templateRegistry := `cdc.RegisterConcrete(&Msg%[3]vData{}, "%[2]v/%[3]vData", nil)
+%[1]v`
 		replacementRegistry := fmt.Sprintf(templateRegistry, Placeholder2, opts.ModuleName, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
-		templateInterface := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]vData{},
-)`
+)
+%[1]v`
 		replacementInterface := fmt.Sprintf(templateInterface, Placeholder3, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, Placeholder3, replacementInterface)
 
@@ -358,8 +353,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		}
 
 		// Register the module packet
-		templateRecv := `%[1]v
-
+		templateRecv := `
 	case types.%[3]vClientIDKey:
 		var %[2]vResult types.%[3]vResult
 		if err := obi.Decode(modulePacketData.Result, &%[2]vResult); err != nil {
@@ -370,14 +364,13 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		am.keeper.Set%[3]vResult(ctx, types.OracleRequestID(modulePacketData.RequestID), %[2]vResult)
 	
 		// TODO: %[3]v oracle data reception logic
-`
+%[1]v`
 		replacementRegistry := fmt.Sprintf(templateRecv, PlaceholderOracleModuleRecv,
 			opts.QueryName.LowerCamel, opts.QueryName.UpperCamel)
 		content := replacer.Replace(f.String(), PlaceholderOracleModuleRecv, replacementRegistry)
 
 		// Register the module packet interface
-		templateAck := `%[1]v
-
+		templateAck := `
 	case types.%[3]vClientIDKey:
 		var %[2]vData types.%[3]vCallData
 		if err = obi.Decode(data.GetCalldata(), &%[2]vData); err != nil {
@@ -386,7 +379,7 @@ func packetHandlerOracleModify(replacer placeholder.Replacer, opts *OracleOption
 		}
 		am.keeper.SetLast%[3]vID(ctx, requestID)
 		return &sdk.Result{}, nil
-`
+%[1]v`
 		replacementInterface := fmt.Sprintf(templateAck, PlaceholderOracleModuleAck,
 			opts.QueryName.LowerCamel, opts.QueryName.UpperCamel)
 		content = replacer.Replace(content, PlaceholderOracleModuleAck, replacementInterface)

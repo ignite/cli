@@ -41,11 +41,10 @@ func handlerModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.Msg%[2]v:
+		templateHandlers := `case *types.Msg%[2]v:
 					res, err := msgServer.%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
 			opts.MsgName.UpperCamel,
@@ -63,8 +62,8 @@ func protoTxRPCModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-  rpc %[2]v(Msg%[2]v) returns (Msg%[2]vResponse);`
+		template := `  rpc %[2]v(Msg%[2]v) returns (Msg%[2]vResponse);
+%[1]v`
 		replacement := fmt.Sprintf(template, PlaceholderProtoTxRPC,
 			opts.MsgName.UpperCamel,
 		)
@@ -91,14 +90,14 @@ func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.Ru
 			resFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+1))
 		}
 
-		template := `%[1]v
-message Msg%[2]v {
+		template := `message Msg%[2]v {
   string %[5]v = 1;
 %[3]v}
 
 message Msg%[2]vResponse {
 %[4]v}
-`
+
+%[1]v`
 		replacement := fmt.Sprintf(template,
 			PlaceholderProtoTxMessage,
 			opts.MsgName.UpperCamel,
@@ -140,9 +139,8 @@ func typesCodecModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		replacementImport := `sdk "github.com/cosmos/cosmos-sdk/types"`
 		content := replacer.ReplaceOnce(f.String(), Placeholder, replacementImport)
 
-		templateRegisterConcrete := `%[1]v
-cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
-`
+		templateRegisterConcrete := `cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
+%[1]v`
 		replacementRegisterConcrete := fmt.Sprintf(
 			templateRegisterConcrete,
 			Placeholder2,
@@ -151,10 +149,10 @@ cdc.RegisterConcrete(&Msg%[2]v{}, "%[3]v/%[2]v", nil)
 		)
 		content = replacer.Replace(content, Placeholder2, replacementRegisterConcrete)
 
-		templateRegisterImplementations := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateRegisterImplementations := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&Msg%[2]v{},
-)`
+)
+%[1]v`
 		replacementRegisterImplementations := fmt.Sprintf(
 			templateRegisterImplementations,
 			Placeholder3,
@@ -174,9 +172,8 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	cmd.AddCommand(Cmd%[2]v())
-`
+		template := `cmd.AddCommand(Cmd%[2]v())
+%[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)

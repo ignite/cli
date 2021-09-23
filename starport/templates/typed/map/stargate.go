@@ -107,11 +107,12 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		}
 
 		// Import the type
-		templateImport := `%s
-import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, typed.Placeholder,
+		templateImport := `import "%s/%s.proto";
+%s`
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.Placeholder,
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
@@ -126,9 +127,7 @@ import "%s/%s.proto";`
 		indexPath := strings.Join(lowerCamelIndexes, "/")
 
 		// Add the service
-		templateService := `%[1]v
-
-	// Queries a %[3]v by index.
+		templateService := `// Queries a %[3]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v";
 	}
@@ -137,7 +136,8 @@ import "%s/%s.proto";`
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
-`
+
+%[1]v`
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
@@ -169,8 +169,7 @@ import "%[1]v";`, f)
 			content = replacer.Replace(content, typed.Placeholder, replacementImport)
 		}
 
-		templateMessage := `%[1]v
-message QueryGet%[2]vRequest {
+		templateMessage := `message QueryGet%[2]vRequest {
 	%[4]v
 }
 
@@ -185,7 +184,9 @@ message QueryAll%[2]vRequest {
 message QueryAll%[2]vResponse {
 	repeated %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}`
+}
+
+%[1]v`
 		replacementMessage := fmt.Sprintf(templateMessage,
 			typed.Placeholder3,
 			opts.TypeName.UpperCamel,
@@ -224,11 +225,9 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-
-	cmd.AddCommand(CmdList%[2]v())
+		template := `cmd.AddCommand(CmdList%[2]v())
 	cmd.AddCommand(CmdShow%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.Placeholder,
 			opts.TypeName.UpperCamel,
 		)
@@ -246,8 +245,8 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			return err
 		}
 
-		templateProtoImport := `%[1]v
-import "%[2]v/%[3]v.proto";`
+		templateProtoImport := `import "%[2]v/%[3]v.proto";
+%[1]v`
 		replacementProtoImport := fmt.Sprintf(
 			templateProtoImport,
 			typed.PlaceholderGenesisProtoImport,
@@ -295,8 +294,8 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		templateTypesImport := `"fmt"`
 		content = replacer.ReplaceOnce(content, typed.PlaceholderGenesisTypesImport, templateTypesImport)
 
-		templateTypesDefault := `%[1]v
-%[2]vList: []%[2]v{},`
+		templateTypesDefault := `%[2]vList: []%[2]v{},
+%[1]v`
 		replacementTypesDefault := fmt.Sprintf(
 			templateTypesDefault,
 			typed.PlaceholderGenesisTypesDefault,
@@ -311,8 +310,7 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 		keyCall := fmt.Sprintf("%sKey(%s)", opts.TypeName.UpperCamel, strings.Join(indexArgs, ","))
 
-		templateTypesValidate := `%[1]v
-// Check for duplicated index in %[2]v
+		templateTypesValidate := `// Check for duplicated index in %[2]v
 %[2]vIndexMap := make(map[string]struct{})
 
 for _, elem := range gs.%[3]vList {
@@ -321,7 +319,8 @@ for _, elem := range gs.%[3]vList {
 		return fmt.Errorf("duplicated index for %[2]v")
 	}
 	%[2]vIndexMap[index] = struct{}{}
-}`
+}
+%[1]v`
 		replacementTypesValidate := fmt.Sprintf(
 			templateTypesValidate,
 			typed.PlaceholderGenesisTypesValidate,
@@ -344,12 +343,11 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			return err
 		}
 
-		templateModuleInit := `%[1]v
-// Set all the %[2]v
+		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
 	k.Set%[3]v(ctx, elem)
 }
-`
+%[1]v`
 		replacementModuleInit := fmt.Sprintf(
 			templateModuleInit,
 			typed.PlaceholderGenesisModuleInit,
@@ -358,9 +356,8 @@ for _, elem := range genState.%[3]vList {
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
-		templateModuleExport := `%[1]v
-genesis.%[3]vList = k.GetAll%[3]v(ctx)
-`
+		templateModuleExport := `genesis.%[3]vList = k.GetAll%[3]v(ctx)
+%[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
 			typed.PlaceholderGenesisModuleExport,
@@ -390,14 +387,13 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			}
 		}
 
-		templateState := `%[1]v
-%[2]vList: []types.%[2]v{
+		templateState := `%[2]vList: []types.%[2]v{
 	{
 		%[3]v},
 	{
 		%[4]v},
 },
-`
+%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -407,10 +403,9 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
 
-		templateAssert := `%[1]v
-require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
+		templateAssert := `require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
 require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
-`
+%[1]v`
 		replacementTests := fmt.Sprintf(
 			templateAssert,
 			module.PlaceholderGenesisTestAssert,
@@ -439,14 +434,13 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 			}
 		}
 
-		templateValid := `%[1]v
-%[2]vList: []types.%[2]v{
+		templateValid := `%[2]vList: []types.%[2]v{
 	{
 		%[3]v},
 	{
 		%[4]v},
 },
-`
+%[1]v`
 		replacementValid := fmt.Sprintf(
 			templateValid,
 			module.PlaceholderTypesGenesisValidField,
@@ -456,8 +450,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacementValid)
 
-		templateDuplicated := `%[1]v
-{
+		templateDuplicated := `{
 	desc:     "duplicated %[2]v",
 	genState: &types.GenesisState{
 		%[3]vList: []types.%[3]v{
@@ -468,7 +461,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		},
 	},
 	valid:    false,
-},`
+},
+%[1]v`
 		replacementDuplicated := fmt.Sprintf(
 			templateDuplicated,
 			module.PlaceholderTypesGenesisTestcase,
@@ -492,19 +486,20 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		}
 
 		// Import
-		templateImport := `%s
-import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
+		templateImport := `import "%s/%s.proto";
+%s`
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.PlaceholderProtoTxImport,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 
 		// RPC service
-		templateRPC := `%[1]v
-  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+		templateRPC := `  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
-  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);
+%[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
 			opts.TypeName.UpperCamel,
 		)
@@ -538,8 +533,7 @@ import "%[1]v";`, f)
 			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
-		templateMessages := `%[1]v
-message MsgCreate%[2]v {
+		templateMessages := `message MsgCreate%[2]v {
   string %[3]v = 1;
 %[4]v
 %[5]v}
@@ -555,7 +549,8 @@ message MsgDelete%[2]v {
   string %[3]v = 1;
 %[4]v}
 message MsgDelete%[2]vResponse {}
-`
+
+%[1]v`
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
 			opts.MsgSigner.LowerCamel,
@@ -581,8 +576,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.MsgCreate%[2]v:
+		templateHandlers := `case *types.MsgCreate%[2]v:
 					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
 		case *types.MsgUpdate%[2]v:
@@ -591,7 +585,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		case *types.MsgDelete%[2]v:
 					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			typed.Placeholder,
 			opts.TypeName.UpperCamel,
@@ -609,11 +603,10 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	cmd.AddCommand(CmdCreate%[2]v())
+		template := `cmd.AddCommand(CmdCreate%[2]v())
 	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -636,11 +629,10 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		content = replacer.ReplaceOnce(content, typed.Placeholder, replacementImport)
 
 		// Concrete
-		templateConcrete := `%[1]v
-cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-`
+%[1]v`
 		replacementConcrete := fmt.Sprintf(
 			templateConcrete,
 			typed.Placeholder2,
@@ -650,12 +642,12 @@ cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
-		templateInterface := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgCreate%[2]v{},
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
-)`
+)
+%[1]v`
 		replacementInterface := fmt.Sprintf(
 			templateInterface,
 			typed.Placeholder3,
