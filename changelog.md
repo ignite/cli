@@ -30,7 +30,7 @@
 - Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. See [Migration](./docs/migration/index.md).
 ### Fixes:
 
-- Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
+- Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using the `--no-message` flag
 - Generate Go code only from proto files only from directories specified in `config.yml` or default ones
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
