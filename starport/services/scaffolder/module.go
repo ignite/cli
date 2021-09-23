@@ -334,8 +334,8 @@ func isWasmImported(appPath string) (bool, error) {
 }
 
 func (s Scaffolder) installWasm() error {
-	switch s.version {
-	case cosmosver.StargateZeroFourtyAndAbove:
+	switch {
+	case s.Version.GTE(cosmosver.StargateFortyVersion):
 		return cmdrunner.
 			New().
 			Run(context.Background(),
