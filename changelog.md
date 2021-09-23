@@ -12,7 +12,7 @@
 ### Features:
 
 - Scaffold commands allow using custom types as fields
-- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customizing the name of the signer of the message
+- Added `--signer` flag to `message`, `list`, `map`, and `single` scaffolding to allow customizing the name of the signer of the message
 - Added `--index` flag to `scaffold map` to provide a custom list of indices
 - Added `scaffold type` to scaffold a protocol buffer definition of a type
 - Automatically check for new Starport versions
