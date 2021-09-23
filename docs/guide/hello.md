@@ -200,7 +200,9 @@ Save the file to restart your chain. Visit the [posts endpoint](http://localhost
 
 ## Register Query Handlers
 
-Make the required changes to the `x/hello/module.go` file. As shown in the following example, in the import `"context"` section, search for `RegisterGRPCGatewayRoutes`, and register the query handlers:
+Make the required changes to the `x/hello/module.go` file. 
+
+As shown in the following example, add `"context"` to the list of packages in the import statement, search for `RegisterGRPCGatewayRoutes`, and register the query handlers:
 
 ```go
 import (

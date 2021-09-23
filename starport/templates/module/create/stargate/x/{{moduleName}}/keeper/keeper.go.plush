@@ -14,7 +14,7 @@ import (
 type (
 	Keeper struct {
 		<%= if (isIBC) { %>*ibckeeper.Keeper<% } %>
-		cdc      codec.Marshaler
+		cdc      codec.BinaryCodec
 		storeKey sdk.StoreKey
 		memKey   sdk.StoreKey
 		<%= for (dependency) in dependencies { %>
@@ -23,7 +23,7 @@ type (
 )
 
 func NewKeeper(
-    cdc codec.Marshaler,
+    cdc codec.BinaryCodec,
     storeKey,
     memKey sdk.StoreKey,
     <%= if (isIBC) { %>channelKeeper ibckeeper.ChannelKeeper,
