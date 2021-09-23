@@ -131,8 +131,9 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 		return NodeStatus{}, err
 	}
 
-	switch r.chainCmd.SDKVersion() {
-	case cosmosver.StargateZeroFourtyAndAbove:
+	version := r.chainCmd.SDKVersion()
+	switch {
+	case version.GTE(cosmosver.StargateFortyVersion):
 		out := struct {
 			NodeInfo struct {
 				Network string `json:"network"`
