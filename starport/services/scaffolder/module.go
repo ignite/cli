@@ -282,10 +282,17 @@ func checkModuleName(appPath, moduleName string) error {
 		return fmt.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
 	}
 
+	checkPrefix := func(name, prefix string) error {
+		if strings.HasPrefix(name, prefix) {
+			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
+		}
+		return nil
+	}
+
 	// check if the name can imply potential store key collision
 	for _, defaultStoreKey := range defaultStoreKeys {
-		if strings.HasPrefix(moduleName, defaultStoreKey) {
-			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", defaultStoreKey)
+		if err := checkPrefix(moduleName, defaultStoreKey); err != nil {
+			return err
 		}
 	}
 
@@ -299,8 +306,8 @@ func checkModuleName(appPath, moduleName string) error {
 		if !entry.IsDir() {
 			continue
 		}
-		if strings.HasPrefix(moduleName, entry.Name()) {
-			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", entry.Name())
+		if err := checkPrefix(moduleName, entry.Name()); err != nil {
+			return err
 		}
 	}
 
