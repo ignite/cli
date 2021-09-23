@@ -180,12 +180,21 @@ func (c *Client) broadcastProvision(ctx context.Context, accountName string, msg
 		return 0, nil, err
 	}
 
-	// calculate the necessary gas for the transaction
-	txf, err := tx.PrepareFactory(c.cosmos.Context, c.cosmos.Factory)
+	accountAddress, err := c.cosmos.Address(accountName)
 	if err != nil {
 		return 0, nil, err
 	}
-	_, gas, err = tx.CalculateGas(c.cosmos.Context.QueryWithData, txf, msgs...)
+
+	context := c.cosmos.Context.
+		WithFromName(accountName).
+		WithFromAddress(accountAddress)
+
+	// calculate the necessary gas for the transaction
+	txf, err := c.cosmos.Factory.Prepare(context)
+	if err != nil {
+		return 0, nil, err
+	}
+	_, gas, err = tx.CalculateGas(context, txf, msgs...)
 	if err != nil {
 		return 0, nil, err
 	}
