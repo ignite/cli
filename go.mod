@@ -44,7 +44,7 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.2
-	github.com/tendermint/spm v0.1.5
+	github.com/tendermint/spm v0.1.6-0.20210923185604-69a418915691
 	github.com/tendermint/spn v0.0.0-20210915093512-0d7e688be0fe
 	github.com/tendermint/tendermint v0.34.13
 	github.com/tendermint/vue v0.1.49
