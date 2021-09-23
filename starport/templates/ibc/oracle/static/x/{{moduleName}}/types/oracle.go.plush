@@ -4,7 +4,7 @@ import "encoding/binary"
 
 type (
 	// OracleScriptID is the type-safe unique identifier type for oracle scripts.
-	OracleScriptID int64
+	OracleScriptID uint64
 
 	// OracleRequestID is the type-safe unique identifier type for data requests.
 	OracleRequestID int64

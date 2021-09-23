@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -38,12 +39,12 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("ibcOrdering", opts.IBCOrdering)
-	ctx.Set("title", strings.Title)
 	ctx.Set("dependencies", opts.Dependencies)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
@@ -74,8 +75,8 @@ if !k.IsBound(ctx, genState.PortId) {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementInit)
 
 		// Genesis export
-		templateExport := `%s
-genesis.PortId = k.GetPort(ctx)`
+		templateExport := `genesis.PortId = k.GetPort(ctx)
+%s`
 		replacementExport := fmt.Sprintf(templateExport, typed.PlaceholderGenesisModuleExport)
 		content = replacer.Replace(content, typed.PlaceholderGenesisModuleExport, replacementExport)
 
@@ -93,23 +94,23 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		}
 
 		// Import
-		templateImport := `%s
-host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"`
+		templateImport := `host "github.com/cosmos/ibc-go/modules/core/24-host"
+%s`
 		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderGenesisTypesImport)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisTypesImport, replacementImport)
 
 		// Default genesis
-		templateDefault := `%s
-PortId: PortID,`
+		templateDefault := `PortId: PortID,
+%s`
 		replacementDefault := fmt.Sprintf(templateDefault, typed.PlaceholderGenesisTypesDefault)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesDefault, replacementDefault)
 
 		// Validate genesis
 		// PlaceholderIBCGenesisTypeValidate
-		templateValidate := `%s
-if err := host.PortIdentifierValidator(gs.PortId); err != nil {
+		templateValidate := `if err := host.PortIdentifierValidator(gs.PortId); err != nil {
 	return err
-}`
+}
+%s`
 		replacementValidate := fmt.Sprintf(templateValidate, typed.PlaceholderGenesisTypesValidate)
 		content = replacer.Replace(content, typed.PlaceholderGenesisTypesValidate, replacementValidate)
 
@@ -128,11 +129,10 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 
 		// Determine the new field number
 		content := f.String()
-		fieldNumber := strings.Count(content, module.PlaceholderGenesisProtoStateField) + 1
 
-		template := `%[1]v
-  string port_id = %[2]v; %[3]v`
-		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState, fieldNumber, module.PlaceholderGenesisProtoStateField)
+		template := `string port_id = 1;
+  %s`
+		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
 
 		newFile := genny.NewFileS(path, content)
@@ -214,8 +214,8 @@ func appIBCModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunF
 		}
 
 		// Add route to IBC router
-		templateRouter := `%[1]v
-ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)`
+		templateRouter := `ibcRouter.AddRoute(%[2]vmoduletypes.ModuleName, %[2]vModule)
+%[1]v`
 		replacementRouter := fmt.Sprintf(
 			templateRouter,
 			module.PlaceholderIBCAppRouter,

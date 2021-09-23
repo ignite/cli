@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -75,8 +76,7 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), typed.PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.MsgCreate%[2]v:
+		templateHandlers := `case *types.MsgCreate%[2]v:
 					res, err := msgServer.Create%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
 
@@ -87,7 +87,8 @@ func handlerModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		case *types.MsgDelete%[2]v:
 					res, err := msgServer.Delete%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			typed.Placeholder,
 			opts.TypeName.UpperCamel,
@@ -107,19 +108,20 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		}
 
 		// Import
-		templateImport := `%s
-import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, typed.PlaceholderProtoTxImport,
+		templateImport := `import "%s/%s.proto";
+%s`
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.PlaceholderProtoTxImport,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 
 		// RPC service
-		templateRPC := `%[1]v
-  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+		templateRPC := `rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
-  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);`
+  rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);
+%[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
 			opts.TypeName.UpperCamel,
 		)
@@ -135,8 +137,17 @@ import "%s/%s.proto";`
 			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
 		}
 
-		templateMessages := `%[1]v
-message MsgCreate%[2]v {
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+		}
+
+		templateMessages := `message MsgCreate%[2]v {
   string %[3]v = 1;
 %[4]v}
 
@@ -157,7 +168,8 @@ message MsgDelete%[2]v {
 }
 
 message MsgDelete%[2]vResponse {}
-`
+
+%[1]v`
 		replacementMessages := fmt.Sprintf(templateMessages, typed.PlaceholderProtoTxMessage,
 			opts.TypeName.UpperCamel,
 			opts.MsgSigner.LowerCamel,
@@ -180,21 +192,21 @@ func protoQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		}
 
 		// Import
-		templateImport := `%s
-import "%s/%s.proto";`
-		replacementImport := fmt.Sprintf(templateImport, typed.Placeholder,
+		templateImport := `import "%s/%s.proto";
+%s`
+		replacementImport := fmt.Sprintf(templateImport,
 			opts.ModuleName,
 			opts.TypeName.Snake,
+			typed.Placeholder,
 		)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacementImport)
 
 		// Add gogo.proto
-		content = typed.EnsureGogoProtoImported(content, path, typed.Placeholder, replacer)
+		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
+		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// RPC service
-		templateRPC := `%[1]v
-
-	// Queries a %[3]v by id.
+		templateRPC := `// Queries a %[3]v by id.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
 	}
@@ -203,7 +215,8 @@ import "%s/%s.proto";`
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
-`
+
+%[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
@@ -214,8 +227,7 @@ import "%s/%s.proto";`
 		content = replacer.Replace(content, typed.Placeholder2, replacementRPC)
 
 		// Messages
-		templateMessages := `%[1]v
-message QueryGet%[2]vRequest {
+		templateMessages := `message QueryGet%[2]vRequest {
 	uint64 id = 1;
 }
 
@@ -230,7 +242,9 @@ message QueryAll%[2]vRequest {
 message QueryAll%[2]vResponse {
 	repeated %[2]v %[2]v = 1 [(gogoproto.nullable) = false];
 	cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}`
+}
+
+%[1]v`
 		replacementMessages := fmt.Sprintf(templateMessages, typed.Placeholder3,
 			opts.TypeName.UpperCamel,
 			opts.TypeName.LowerCamel,
@@ -289,21 +303,20 @@ func typesCodecModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		content := replacer.ReplaceOnce(f.String(), typed.Placeholder, replacementImport)
 
 		// Concrete
-		templateConcrete := `%[1]v
-cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
+		templateConcrete := `cdc.RegisterConcrete(&MsgCreate%[2]v{}, "%[3]v/Create%[2]v", nil)
 cdc.RegisterConcrete(&MsgUpdate%[2]v{}, "%[3]v/Update%[2]v", nil)
 cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
-`
+%[1]v`
 		replacementConcrete := fmt.Sprintf(templateConcrete, typed.Placeholder2, opts.TypeName.UpperCamel, opts.ModuleName)
 		content = replacer.Replace(content, typed.Placeholder2, replacementConcrete)
 
 		// Interface
-		templateInterface := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgCreate%[2]v{},
 	&MsgUpdate%[2]v{},
 	&MsgDelete%[2]v{},
-)`
+)
+%[1]v`
 		replacementInterface := fmt.Sprintf(templateInterface, typed.Placeholder3, opts.TypeName.UpperCamel)
 		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
 
@@ -319,12 +332,10 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *typed.Options) genny
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-
-	cmd.AddCommand(CmdCreate%[2]v())
+		template := `cmd.AddCommand(CmdCreate%[2]v())
 	cmd.AddCommand(CmdUpdate%[2]v())
 	cmd.AddCommand(CmdDelete%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.Placeholder, opts.TypeName.UpperCamel)
 		content := replacer.Replace(f.String(), typed.Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -339,11 +350,9 @@ func clientCliQueryModify(replacer placeholder.Replacer, opts *typed.Options) ge
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-
-	cmd.AddCommand(CmdList%[2]v())
+		template := `cmd.AddCommand(CmdList%[2]v())
 	cmd.AddCommand(CmdShow%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(template, typed.Placeholder,
 			opts.TypeName.UpperCamel,
 		)

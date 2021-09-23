@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -61,6 +62,13 @@ func TestCreateMapWithStargate(t *testing.T) {
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "map", "mapdetail", "user:Mapuser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))

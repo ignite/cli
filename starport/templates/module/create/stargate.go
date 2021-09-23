@@ -9,6 +9,7 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -57,13 +58,13 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("modulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
-	ctx.Set("title", strings.Title)
 	ctx.Set("dependencies", opts.Dependencies)
 	ctx.Set("isIBC", opts.IsIBC)
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
@@ -89,16 +90,16 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		}
 
 		// Import
-		template := `%[1]v
-		%[2]vmodule "%[3]v/x/%[2]v"
+		template := `%[2]vmodule "%[3]v/x/%[2]v"
 		%[2]vmodulekeeper "%[3]v/x/%[2]v/keeper"
-		%[2]vmoduletypes "%[3]v/x/%[2]v/types"`
+		%[2]vmoduletypes "%[3]v/x/%[2]v/types"
+%[1]v`
 		replacement := fmt.Sprintf(template, module.PlaceholderSgAppModuleImport, opts.ModuleName, opts.ModulePath)
 		content := replacer.Replace(f.String(), module.PlaceholderSgAppModuleImport, replacement)
 
 		// ModuleBasic
-		template = `%[1]v
-		%[2]vmodule.AppModuleBasic{},`
+		template = `%[2]vmodule.AppModuleBasic{},
+%[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppModuleBasic, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppModuleBasic, replacement)
 
@@ -109,9 +110,9 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			// We set this placeholder so it is modified by the IBC module scaffolder
 			scopedKeeperDeclaration = module.PlaceholderIBCAppScopedKeeperDeclaration
 		}
-		template = `%[1]v
-		%[3]v
-		%[4]vKeeper %[2]vmodulekeeper.Keeper`
+		template = `%[3]v
+		%[4]vKeeper %[2]vmodulekeeper.Keeper
+%[1]v`
 		replacement = fmt.Sprintf(
 			template,
 			module.PlaceholderSgAppKeeperDeclaration,
@@ -122,8 +123,8 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDeclaration, replacement)
 
 		// Store key
-		template = `%[1]v
-		%[2]vmoduletypes.StoreKey,`
+		template = `%[2]vmoduletypes.StoreKey,
+%[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppStoreKey, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacement)
 
@@ -134,8 +135,8 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 
 			// If bank is a dependency, add account permissions to the module
 			if dep.Name == "bank" {
-				template = `%[1]v
-				%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},`
+				template = `%[2]vmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner, authtypes.Staking},
+%[1]v`
 
 				replacement = fmt.Sprintf(
 					template,
@@ -177,20 +178,20 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		content = replacer.Replace(content, module.PlaceholderSgAppKeeperDefinition, replacement)
 
 		// App Module
-		template = `%[1]v
-		%[2]vModule,`
+		template = `%[2]vModule,
+%[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppAppModule, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppAppModule, replacement)
 
 		// Init genesis
-		template = `%[1]v
-		%[2]vmoduletypes.ModuleName,`
+		template = `%[2]vmoduletypes.ModuleName,
+%[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppInitGenesis, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppInitGenesis, replacement)
 
 		// Param subspace
-		template = `%[1]v
-		paramsKeeper.Subspace(%[2]vmoduletypes.ModuleName)`
+		template = `paramsKeeper.Subspace(%[2]vmoduletypes.ModuleName)
+%[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppParamSubspace, opts.ModuleName)
 		content = replacer.Replace(content, module.PlaceholderSgAppParamSubspace, replacement)
 

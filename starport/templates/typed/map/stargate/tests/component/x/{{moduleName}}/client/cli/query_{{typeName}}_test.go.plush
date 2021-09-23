@@ -47,7 +47,7 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 	}
 	for _, tc := range []struct {
 		desc string
-		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.Datatype %>
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
         <% } %>
 		args []string
 		err  error

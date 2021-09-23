@@ -9,8 +9,8 @@ var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
 func NewMsgCreate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
-    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.Datatype %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,
     <% } %>
 ) *MsgCreate<%= TypeName.UpperCamel %> {
   return &MsgCreate<%= TypeName.UpperCamel %>{
@@ -54,8 +54,8 @@ var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
 func NewMsgUpdate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
-    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.Datatype %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,
     <% } %>
 ) *MsgUpdate<%= TypeName.UpperCamel %> {
   return &MsgUpdate<%= TypeName.UpperCamel %>{
@@ -99,7 +99,7 @@ var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
 
 func NewMsgDelete<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.Datatype %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
     <% } %>
 ) *MsgDelete<%= TypeName.UpperCamel %> {
   return &MsgDelete<%= TypeName.UpperCamel %>{

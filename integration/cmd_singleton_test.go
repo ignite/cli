@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -46,6 +47,13 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 	env.Must(env.Exec("create another type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create another type with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "user-detail", "user:User", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))

@@ -170,7 +170,6 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 					fmt.Fprintf(c.stdLog().out, "%s\n", infoColor("Waiting for a fix before retrying..."))
 
 				case errors.As(err, &startErr):
-
 					// Parse returned error logs
 					parsedErr := startErr.ParseStartError()
 
@@ -330,7 +329,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	// build phase
 	if !isInit || appModified {
 		// build the blockchain app
-		if err := c.build(ctx); err != nil {
+		if err := c.build(ctx, ""); err != nil {
 			return err
 		}
 	}

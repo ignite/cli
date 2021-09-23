@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -39,6 +40,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 	env.Must(env.Exec("create a list with bool",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "document", "signed:bool"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a list with custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "custom", "document:Document"),
 			step.Workdir(path),
 		)),
 	))

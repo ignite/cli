@@ -3,6 +3,7 @@ package query
 import (
 	"fmt"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -35,13 +36,12 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		}
 
 		// RPC service
-		templateRPC := `%[1]v
-
-	// Queries a list of %[3]v items.
+		templateRPC := `// Queries a list of %[3]v items.
 	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
 		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
 	}
-`
+
+%[1]v`
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			Placeholder2,
@@ -71,14 +71,25 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
 		}
 
+		// Ensure custom types are imported
+		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
+			content = replacer.Replace(content, Placeholder, replacementImport)
+		}
+
 		// Messages
-		templateMessages := `%[1]v
-message Query%[2]vRequest {
+		templateMessages := `message Query%[2]vRequest {
 %[3]v}
 
 message Query%[2]vResponse {
 %[4]v}
-`
+
+%[1]v`
 		replacementMessages := fmt.Sprintf(
 			templateMessages,
 			Placeholder3,
@@ -101,10 +112,9 @@ func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 			return err
 		}
 
-		template := `%[1]v
+		template := `cmd.AddCommand(Cmd%[2]v())
 
-	cmd.AddCommand(Cmd%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(
 			template,
 			Placeholder,
