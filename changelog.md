@@ -31,7 +31,7 @@
 ### Fixes:
 
 - Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using the `--no-message` flag
-- Generate Go code only from proto files only from directories specified in `config.yml` or default ones
+- Generate Go code from proto files only from default directories or directories specified in `config.yml`
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
 - Encode the count value in the store with `BigEndian`
