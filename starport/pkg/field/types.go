@@ -82,7 +82,7 @@ var (
 			return fmt.Sprintf("string %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: \"%s\",\n", name.UpperCamel, name.LowerCamel)
+			return fmt.Sprintf("%s: \"%d\",\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf("%s%s := args[%d]", prefix, name.UpperCamel, argIndex)
@@ -136,7 +136,7 @@ var (
 			return fmt.Sprintf("int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, value)
+			return fmt.Sprintf("%s: %d,\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%s%s, err := cast.ToInt32E(args[%d])
@@ -165,7 +165,7 @@ var (
 			return fmt.Sprintf("uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, value)
+			return fmt.Sprintf("%s: %d,\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%s%s, err := cast.ToUint64E(args[%d])
@@ -191,7 +191,7 @@ var (
 			return fmt.Sprintf("repeated string %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: []string{\"%s\"},\n", name.UpperCamel, name.LowerCamel)
+			return fmt.Sprintf("%s: []string{\"%d\"},\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%[1]v%[2]v := strings.Split(args[%[3]v], listSeparator)`,
@@ -208,7 +208,7 @@ var (
 			return fmt.Sprintf("repeated int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: []int32{%v},\n", name.UpperCamel, value)
+			return fmt.Sprintf("%s: []int32{%d},\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
@@ -232,7 +232,7 @@ var (
 			return fmt.Sprintf("repeated uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: []uint64{%v},\n", name.UpperCamel, value)
+			return fmt.Sprintf("%s: []uint64{%d},\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
