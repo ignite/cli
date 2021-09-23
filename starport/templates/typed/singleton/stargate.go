@@ -250,7 +250,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisArgs(rand.Intn(100))
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateState := `%[1]v
@@ -291,7 +291,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		// Create a fields
 		sampleFields := ""
 		for _, field := range opts.Fields {
-			sampleFields += field.GenesisArgs(rand.Intn(100))
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateValid := `%[1]v

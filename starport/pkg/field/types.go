@@ -2,7 +2,6 @@ package field
 
 import (
 	"fmt"
-	"math/rand"
 
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
@@ -106,7 +105,7 @@ var (
 			return fmt.Sprintf("bool %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: %t,\n", name.UpperCamel, rand.Intn(value)%2 == 0)
+			return fmt.Sprintf("%s: %t,\n", name.UpperCamel, value%2 == 0)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%s%s, err := cast.ToBoolE(args[%d])
@@ -137,7 +136,7 @@ var (
 			return fmt.Sprintf("int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, rand.Intn(value))
+			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%s%s, err := cast.ToInt32E(args[%d])
@@ -166,7 +165,7 @@ var (
 			return fmt.Sprintf("uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, rand.Intn(value))
+			return fmt.Sprintf("%s: %v,\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%s%s, err := cast.ToUint64E(args[%d])
@@ -209,7 +208,7 @@ var (
 			return fmt.Sprintf("repeated int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: []int32{%v},\n", name.UpperCamel, rand.Intn(value))
+			return fmt.Sprintf("%s: []int32{%v},\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
@@ -233,7 +232,7 @@ var (
 			return fmt.Sprintf("repeated uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
-			return fmt.Sprintf("%s: []uint64{%v},\n", name.UpperCamel, rand.Intn(value))
+			return fmt.Sprintf("%s: []uint64{%v},\n", name.UpperCamel, value)
 		},
 		CLIArgs: func(name multiformatname.Name, _, prefix string, argIndex int) string {
 			return fmt.Sprintf(`%[1]vCast%[2]v := strings.Split(args[%[3]v], listSeparator)
