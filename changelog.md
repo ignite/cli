@@ -25,7 +25,9 @@
 - `starport relayer` uses `starport account`
 - Added `--path` flag for all `scaffold`, `generate` and `chain` commands
 - Added `--output` flag to the `build` command
+### Breaking Changes:
 
+- Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. See [Migration](./docs/migration/index.md).
 ### Fixes:
 
 - Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
