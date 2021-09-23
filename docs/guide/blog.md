@@ -133,6 +133,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
+
 ## Add gRPC to the Module Handler
 
 First, in the `blog` directory, run the following command to generate client query codes:
@@ -282,7 +283,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   byteKey := make([]byte, 8)
   binary.BigEndian.PutUint64(byteKey, post.Id)
   // Marshal the post into bytes
-  appendedValue := k.cdc.MustMarshalBinaryBare(&post)
+  appendedValue := k.cdc.MustMarshal(&post)
   // Insert the post bytes using post ID as a key
   store.Set(byteKey, appendedValue)
   // Update the post count
@@ -395,6 +396,29 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
 ```
+
+## Add gRPC to the Module Handler
+
+In the `x/blog/module.go` file:
+
+1. Add `"context"` to the imports.
+
+    ```go
+    import (
+	"context"
+	// ... other imports
+    )
+    ```
+
+2. Register the query handler:
+
+    ```go
+    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
+
 
 ## Use the CLI To Create And Display Posts
 
