@@ -88,8 +88,10 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				var resp types.QueryGet<%= TypeName.UpperCamel %>Response
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
-				normalize.FillNilValues(&tc.obj)
-				require.Equal(t, tc.obj, resp.<%= TypeName.UpperCamel %>)
+				require.Equal(t,
+					normalize.FillNilValues(&tc.obj),
+					normalize.FillNilValues(&resp.<%= TypeName.UpperCamel %>),
+				)
 			}
 		})
 	}
@@ -136,7 +138,10 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			var resp types.QueryAll<%= TypeName.UpperCamel %>Response
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, objs, resp.<%= TypeName.UpperCamel %>)
+			require.Subset(t,
+            	normalize.FillNilValues(objs),
+            	normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+            )
 			next = resp.Pagination.NextKey
 		}
 	})
@@ -148,6 +153,9 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 		require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
-		require.Subset(t, objs, resp.<%= TypeName.UpperCamel %>)
+		require.Equal(t,
+			normalize.FillNilValues(objs),
+			normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+		)
 	})
 }

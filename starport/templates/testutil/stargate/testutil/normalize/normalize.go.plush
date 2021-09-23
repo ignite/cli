@@ -24,7 +24,7 @@ func FillNilValues(x interface{}) interface{} {
 		}
 	case reflect.Struct:
 		for i := 0; i < v.NumField(); i++ {
-			f := v.Field(i)
+			f := reflect.Indirect(v.Field(i))
 			if !f.CanSet() {
 				continue
 			}
@@ -41,6 +41,10 @@ func FillNilValues(x interface{}) interface{} {
 					coins := reflect.New(coinsType).Interface()
 					s := reflect.ValueOf(coins).Elem()
 					f.Set(s)
+				default:
+					objPt := reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Interface()
+					s := FillNilValues(objPt)
+					f.Set(reflect.ValueOf(s))
 				}
 			}
 		}

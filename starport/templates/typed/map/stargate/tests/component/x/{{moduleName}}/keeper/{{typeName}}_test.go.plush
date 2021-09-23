@@ -4,9 +4,10 @@ import (
 	"strconv"
 	"testing"
 
-	keepertest "<%= ModulePath %>/testutil/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
+	"<%= ModulePath %>/testutil/normalize"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 )
@@ -33,7 +34,10 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
             <% } %>
 		)
 		require.True(t, found)
-		require.Equal(t, item, rst)
+		require.Equal(t,
+			normalize.FillNilValues(&item),
+			normalize.FillNilValues(&rst),
+		)
 	}
 }
 func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
@@ -55,5 +59,8 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	require.ElementsMatch(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
+	require.ElementsMatch(t,
+		normalize.FillNilValues(items),
+		normalize.FillNilValues(keeper.GetAll<%= TypeName.UpperCamel %>(ctx)),
+	)
 }

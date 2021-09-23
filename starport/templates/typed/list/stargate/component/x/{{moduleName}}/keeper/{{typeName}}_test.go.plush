@@ -3,10 +3,11 @@ package keeper_test
 import (
 	"testing"
 
-	keepertest "<%= ModulePath %>/testutil/keeper"
     "<%= ModulePath %>/x/<%= ModuleName %>/keeper"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
+	"<%= ModulePath %>/testutil/normalize"
 	"github.com/stretchr/testify/require"
 )
 
@@ -24,7 +25,10 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	for _, item := range items {
 		got, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id)
 		require.True(t, found)
-		require.Equal(t, item, got)
+		require.Equal(t,
+			normalize.FillNilValues(&item),
+			normalize.FillNilValues(&got),
+		)
 	}
 }
 
@@ -41,7 +45,10 @@ func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
 func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
-	require.ElementsMatch(t, items, keeper.GetAll<%= TypeName.UpperCamel %>(ctx))
+	require.ElementsMatch(t,
+		normalize.FillNilValues(items),
+		normalize.FillNilValues(keeper.GetAll<%= TypeName.UpperCamel %>(ctx)),
+	)
 }
 
 func Test<%= TypeName.UpperCamel %>Count(t *testing.T) {
