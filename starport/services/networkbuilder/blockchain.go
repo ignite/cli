@@ -88,7 +88,7 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	if !chain.Version.Major().Is(cosmosver.Stargate) {
+	if !chain.Version.IsFamily(cosmosver.Stargate) {
 		return sperrors.ErrOnlyStargateSupported
 	}
 	chainHome, err := chain.Home()
