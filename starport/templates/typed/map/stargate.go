@@ -159,6 +159,16 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 			)
 		}
 
+		// Ensure custom types are imported
+		for _, f := range opts.Indexes.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+		}
+
 		templateMessage := `message QueryGet%[2]vRequest {
 	%[4]v
 }
@@ -528,6 +538,17 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 				field.Name.LowerCamel,
 				i+2+len(opts.Indexes),
 			)
+		}
+
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.Indexes.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
 		}
 
 		templateMessages := `message MsgCreate%[2]v {
