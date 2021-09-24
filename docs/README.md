@@ -51,3 +51,4 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 * [Affondra](https://github.com/EG-easy/affondra)
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
 * [Flares payment network](https://github.com/wangfeiping/flares)
+* [FirmaChain](https://github.com/firmachain/firmachain)
