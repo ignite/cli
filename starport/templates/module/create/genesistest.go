@@ -16,9 +16,6 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/", appPath)
 	)
-	if err := xgenny.Box(g, template, moduleName); err != nil {
-		return nil, err
-	}
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", moduleName)
@@ -30,6 +27,10 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
+
+	if err := xgenny.Box(g, template); err != nil {
+		return nil, err
+	}
 
 	return g, nil
 }

@@ -38,9 +38,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g := genny.New()
 
 	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
-	if err := xgenny.Box(g, template, opts.ModuleName); err != nil {
-		return g, err
-	}
 
 	g.RunFn(moduleOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))
@@ -62,15 +59,20 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
-		return g, err
-	}
-
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return g, err
+	}
+
+	if err := xgenny.Box(g, template); err != nil {
+		return g, err
+	}
+
 	return g, nil
 }
 

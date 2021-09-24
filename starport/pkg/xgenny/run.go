@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -85,16 +84,14 @@ func RunWithValidation(
 }
 
 // Box will mount each file in the Box and wrap it only if the file does not exist yet
-func Box(g *genny.Generator, box packd.Walker, module string) error {
+func Box(g *genny.Generator, box packd.Walker) error {
 	return box.Walk(func(path string, bf packd.File) error {
 		f := genny.NewFile(path, bf)
-		filePath := strings.TrimSuffix(f.Name(), ".plush")
-		filePath = strings.ReplaceAll(filePath, "{{moduleName}}", module)
-		filePath, err := filepath.Abs(filePath)
+		f, err := g.Transform(f)
 		if err != nil {
 			return err
 		}
-
+		filePath := strings.TrimSuffix(f.Name(), ".plush")
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
 			// path doesn't exist. move on.
