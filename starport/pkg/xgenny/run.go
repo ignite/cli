@@ -99,6 +99,7 @@ func Box(g *genny.Generator, box packd.Walker, module string) error {
 		if os.IsNotExist(err) {
 			// path doesn't exist. move on.
 			g.File(f)
+			return nil
 		}
 		return err
 	})
