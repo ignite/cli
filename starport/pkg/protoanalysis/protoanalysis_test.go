@@ -7,6 +7,16 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestNestedMessages(t *testing.T) {
+	packages, err := Parse(context.Background(), nil, "testdata/nested_messages")
+	require.NoError(t, err)
+
+	pkg := packages[0]
+	require.Equal(t, "A", pkg.Messages[0].Name)
+	require.Equal(t, "A_B", pkg.Messages[1].Name)
+	require.Equal(t, "A_B_C", pkg.Messages[2].Name)
+}
+
 func TestLiquidity(t *testing.T) {
 	packages, err := Parse(context.Background(), nil, "testdata/liquidity")
 	require.NoError(t, err)
