@@ -86,7 +86,7 @@ func (b builder) buildMessages() (messages []Message) {
 		}
 	}
 
-	return
+	return messages
 }
 
 func (b builder) toServices(ps []*proto.Service) (services []Service) {
