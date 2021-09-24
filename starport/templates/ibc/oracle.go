@@ -37,8 +37,8 @@ type OracleOptions struct {
 func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Generator, error) {
 	g := genny.New()
 
-	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath, true)
-	if err := g.Box(template); err != nil {
+	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
+	if err := xgenny.Box(g, template); err != nil {
 		return g, err
 	}
 

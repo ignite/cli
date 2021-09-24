@@ -22,7 +22,7 @@ const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
 func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *MsgServerOptions) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath, false)
+		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath)
 	)
 
 	g.RunFn(handlerPatch(replacer, opts.AppPath, opts.ModuleName))

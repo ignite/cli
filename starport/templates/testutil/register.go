@@ -26,5 +26,5 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 		return fmt.Errorf("ctx is missing value for the key %s", modulePathKey)
 	}
 	// Check if the testutil folder already exists
-	return gen.Box(xgenny.NewEmbedWalker(fsStargate, "stargate/", appPath, true))
+	return xgenny.Box(gen, xgenny.NewEmbedWalker(fsStargate, "stargate/", appPath))
 }

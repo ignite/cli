@@ -21,7 +21,7 @@ var (
 func New(opts *Options) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsStargate, "stargate/", opts.AppPath, false)
+		template = xgenny.NewEmbedWalker(fsStargate, "stargate/", opts.AppPath)
 	)
 	if err := g.Box(template); err != nil {
 		return g, err

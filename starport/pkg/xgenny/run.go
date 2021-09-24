@@ -3,10 +3,13 @@ package xgenny
 import (
 	"context"
 	"errors"
+	"fmt"
 	"os"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
+	"github.com/gobuffalo/packd"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
 )
@@ -24,7 +27,7 @@ func (d *dryRunError) ValidationInfo() string {
 
 // DryRunner is a genny DryRunner with a logger
 func DryRunner(ctx context.Context) *genny.Runner {
-	runner := genny.DryRunner(context.Background())
+	runner := genny.DryRunner(ctx)
 	runner.Logger = logger.New(genny.DefaultLogLvl)
 	return runner
 }
@@ -45,6 +48,11 @@ func RunWithValidation(
 	for _, gen := range gens {
 		// check with a dry runner the generators
 		dryRunner := DryRunner(context.Background())
+		dryRunner.FileFn = func(g genny.File) (genny.File, error) {
+			fmt.Printf("FileFn - %v\n", g.String())
+			fmt.Printf("FileFn - %v\n", g.Name())
+			return g, nil
+		}
 		if err := run(dryRunner, gen); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return sm, &dryRunError{err}
@@ -79,4 +87,22 @@ func RunWithValidation(
 		}
 	}
 	return sm, nil
+}
+
+// Box will mount each file in the Box and wrap it only if the file does not exist yet
+func Box(g *genny.Generator, box packd.Walker) error {
+	return box.Walk(func(path string, bf packd.File) error {
+		f := genny.NewFile(path, bf)
+		filePath := f.Name()
+		filePath, err := filepath.Abs(filePath)
+		if err != nil {
+			return err
+		}
+		_, err = os.Stat(filePath)
+		if os.IsNotExist(err) {
+			// path doesn't exist. move on.
+			return g.Box(box)
+		}
+		return err
+	})
 }

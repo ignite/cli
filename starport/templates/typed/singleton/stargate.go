@@ -32,13 +32,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 			fsStargateMessages,
 			"stargate/messages/",
 			opts.AppPath,
-			false,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
 			"stargate/component/",
 			opts.AppPath,
-			false,
 		)
 	)
 
