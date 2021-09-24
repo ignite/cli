@@ -361,7 +361,7 @@ func (AppModuleBasic) ValidateGenesis(cdc codec.JSONCodec, config client.TxEncod
   //...
 }
 
-// Replace JSONMarshaler with JSONCodec
+// Replace codec.Marshaller with codec.Codec
 func NewAppModule(cdc codec.Codec, keeper keeper.Keeper) AppModule {
   //...
 }
