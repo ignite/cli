@@ -154,7 +154,7 @@ func New(...) {
 func (app *App) InitChainer(ctx sdk.Context, req abci.RequestInitChain) abci.ResponseInitChain {
   var genesisState GenesisState
   // Replace tmjson with json
-  if err := json.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
+  if err := tmjson.Unmarshal(req.AppStateBytes, &genesisState); err != nil {
     panic(err)
   }
   // Add the following:
