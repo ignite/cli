@@ -116,11 +116,8 @@ func New(...) {
     feegrant.ModuleName,
   )
 
-  app.mm.RegisterServices(module.NewConfigurator(
-    // Add app.appCodec
-    app.appCodec,
-    //...
-  )
+  // Add app.appCodec as an argument to module.NewConfigurator:
+  app.mm.RegisterServices(module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter()))
   
   // Replace:
   // app.SetAnteHandler(
