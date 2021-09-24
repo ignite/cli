@@ -289,6 +289,10 @@ func AccAddress() string {
 }
 ```
 
+### BandChain Support
+
+If your module includes integration with BandChain, added manually or scaffolded with `starport scaffold band`, upgrade the `github.com/bandprotocol/bandchain-packet` package to `v0.0.2` in `go.mod`.
+
 ## Module
 
 ### x/mars/keeper/keeper.go
