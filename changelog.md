@@ -14,6 +14,7 @@
 - Added `starport account` commands to manage accounts (key pairs)
 - `starport version` now prints out detailed information about OS, Go version and more.
 - Module scaffolding now creates `x/.../types/genesis_test.go` for genesis validation tests
+- Added `build.main` field to config.yml for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
 
 ### Fixes:
 

@@ -86,6 +86,7 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
+	Main   string `yaml:"main"`
 	Binary string `yaml:"binary"`
 	Proto  Proto  `yaml:"proto"`
 }
