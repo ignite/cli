@@ -3,9 +3,9 @@ package xgenny
 import (
 	"context"
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
@@ -48,11 +48,6 @@ func RunWithValidation(
 	for _, gen := range gens {
 		// check with a dry runner the generators
 		dryRunner := DryRunner(context.Background())
-		dryRunner.FileFn = func(g genny.File) (genny.File, error) {
-			fmt.Printf("FileFn - %v\n", g.String())
-			fmt.Printf("FileFn - %v\n", g.Name())
-			return g, nil
-		}
 		if err := run(dryRunner, gen); err != nil {
 			if errors.Is(err, os.ErrNotExist) {
 				return sm, &dryRunError{err}
@@ -90,14 +85,16 @@ func RunWithValidation(
 }
 
 // Box will mount each file in the Box and wrap it only if the file does not exist yet
-func Box(g *genny.Generator, box packd.Walker) error {
+func Box(g *genny.Generator, box packd.Walker, module string) error {
 	return box.Walk(func(path string, bf packd.File) error {
 		f := genny.NewFile(path, bf)
-		filePath := f.Name()
+		filePath := strings.ReplaceAll(f.Name(), ".plush", "")
+		filePath = strings.ReplaceAll(filePath, "{{moduleName}}", module)
 		filePath, err := filepath.Abs(filePath)
 		if err != nil {
 			return err
 		}
+
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
 			// path doesn't exist. move on.

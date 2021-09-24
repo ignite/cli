@@ -16,7 +16,7 @@ func AddGenesisTest(appPath, appName, modulePath, moduleName string, isIBC bool)
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(fsGenesisTest, "genesistest/", appPath)
 	)
-	if err := xgenny.Box(g, template); err != nil {
+	if err := xgenny.Box(g, template, moduleName); err != nil {
 		return nil, err
 	}
 

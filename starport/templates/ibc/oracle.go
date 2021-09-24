@@ -38,7 +38,7 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g := genny.New()
 
 	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
-	if err := xgenny.Box(g, template); err != nil {
+	if err := xgenny.Box(g, template, opts.ModuleName); err != nil {
 		return g, err
 	}
 
