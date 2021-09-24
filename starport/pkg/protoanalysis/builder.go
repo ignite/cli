@@ -1,6 +1,7 @@
 package protoanalysis
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -56,8 +57,29 @@ func (b builder) buildMessages() (messages []Message) {
 				}
 			}
 
+			// some proto messages might be defined inside another proto messages.
+			// to represents these types, an underscore is used.
+			// e.g. if C message inside B, and B inside A: A_B_C.
+			var (
+				name   = message.Name
+				parent = message.Parent
+			)
+			for {
+				if parent == nil {
+					break
+				}
+
+				parentMessage, ok := parent.(*proto.Message)
+				if !ok {
+					break
+				}
+
+				name = fmt.Sprintf("%s_%s", parentMessage.Name, name)
+				parent = parentMessage.Parent
+			}
+
 			messages = append(messages, Message{
-				Name:               message.Name,
+				Name:               name,
 				Path:               f.path,
 				HighestFieldNumber: highestFieldNumber,
 			})
