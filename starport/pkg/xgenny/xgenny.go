@@ -18,7 +18,6 @@ type Walker struct {
 
 // NewEmbedWalker returns a new Walker for fs.
 // trimPrefix is used to trim parent paths from the paths of found files.
-// noOverwrite flag is used to prevent creating the file if it already exists.
 func NewEmbedWalker(fs embed.FS, trimPrefix, path string) Walker {
 	return Walker{fs: fs, trimPrefix: trimPrefix, path: path}
 }
