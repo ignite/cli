@@ -28,14 +28,14 @@ func NewScaffoldBandchain() *cobra.Command {
 }
 
 func createBandchainHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
-
 	var (
 		oracle  = args[0]
 		appPath = flagGetPath(cmd)
 		signer  = flagGetSigner(cmd)
 	)
+
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
 
 	module, err := cmd.Flags().GetString(flagModule)
 	if err != nil {
@@ -50,7 +50,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.OracleWithSigner(signer))
 	}
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
@@ -79,5 +79,6 @@ Make sure to update the keys.go file accordingly.
 const Version = "bandchain-1"
 
 `, oracle, module)
+
 	return nil
 }

@@ -34,6 +34,59 @@ const (
 	moduleDir     = "x"
 )
 
+var (
+	// reservedNames are either names from the default modules defined in a Cosmos-SDK app or names used in the default query and tx CLI namespace
+	// A new module's name can't be equal to a reserved name
+	// A map is used for direct comparing
+	reservedNames = map[string]struct{}{
+		"account":      {},
+		"auth":         {},
+		"bank":         {},
+		"block":        {},
+		"broadcast":    {},
+		"crisis":       {},
+		"capability":   {},
+		"distribution": {},
+		"encode":       {},
+		"evidence":     {},
+		"feegrant":     {},
+		"genutil":      {},
+		"gov":          {},
+		"group":        {},
+		"ibc":          {},
+		"mint":         {},
+		"multisign":    {},
+		"params":       {},
+		"sign":         {},
+		"slashing":     {},
+		"staking":      {},
+		"transfer":     {},
+		"tx":           {},
+		"txs":          {},
+		"upgrade":      {},
+		"vesting":      {},
+	}
+
+	// defaultStoreKeys are the names of the default store keys defined in a Cosmos-SDK app
+	// A new module's name can't have a defined store key in its prefix because of potential store key collision
+	defaultStoreKeys = []string{
+		"acc",
+		"bank",
+		"capability",
+		"distribution",
+		"evidence",
+		"feegrant",
+		"gov",
+		"group",
+		"mint",
+		"slashing",
+		"staking",
+		"upgrade",
+		"ibc",
+		"transfer",
+	}
+)
+
 // moduleCreationOptions holds options for creating a new module
 type moduleCreationOptions struct {
 	// chainID is the chain's id.
@@ -90,7 +143,7 @@ func (s Scaffolder) CreateModule(
 	moduleName = mfName.LowerCase
 
 	// Check if the module name is valid
-	if err := checkModuleName(moduleName); err != nil {
+	if err := checkModuleName(s.path, moduleName); err != nil {
 		return sm, err
 	}
 
@@ -201,6 +254,7 @@ func (s Scaffolder) ImportModule(tracer *placeholder.Tracer, name string) (sm xg
 	return sm, finish(s.path, s.modpath.RawPath)
 }
 
+// moduleExists checks if the module exists in the app
 func moduleExists(appPath string, moduleName string) (bool, error) {
 	absPath, err := filepath.Abs(filepath.Join(appPath, moduleDir, moduleName))
 	if err != nil {
@@ -213,36 +267,50 @@ func moduleExists(appPath string, moduleName string) (bool, error) {
 		return false, nil
 	}
 
-	return true, err
+	return err == nil, err
 }
 
-func checkModuleName(moduleName string) error {
+// checkModuleName checks if the name can be used as a module name
+func checkModuleName(appPath, moduleName string) error {
 	// go keyword
 	if token.Lookup(moduleName).IsKeyword() {
 		return fmt.Errorf("%s is a Go keyword", moduleName)
 	}
 
-	// name of default registered module
-	switch moduleName {
-	case
-		"auth",
-		"genutil",
-		"bank",
-		"capability",
-		"staking",
-		"mint",
-		"distr",
-		"gov",
-		"params",
-		"crisis",
-		"slashing",
-		"ibc",
-		"upgrade",
-		"evidence",
-		"transfer",
-		"vesting":
-		return fmt.Errorf("%s is a default module", moduleName)
+	// check if the name is a reserved name
+	if _, ok := reservedNames[moduleName]; ok {
+		return fmt.Errorf("%s is a reserved name and can't be used as a module name", moduleName)
 	}
+
+	checkPrefix := func(name, prefix string) error {
+		if strings.HasPrefix(name, prefix) {
+			return fmt.Errorf("the module name can't be prefixed with %s because of potential store key collision", prefix)
+		}
+		return nil
+	}
+
+	// check if the name can imply potential store key collision
+	for _, defaultStoreKey := range defaultStoreKeys {
+		if err := checkPrefix(moduleName, defaultStoreKey); err != nil {
+			return err
+		}
+	}
+
+	// check store key with user's defined modules
+	// we consider all user's defined modules use the module name as the store key
+	entries, err := os.ReadDir(filepath.Join(appPath, moduleDir))
+	if err != nil {
+		return err
+	}
+	for _, entry := range entries {
+		if !entry.IsDir() {
+			continue
+		}
+		if err := checkPrefix(moduleName, entry.Name()); err != nil {
+			return err
+		}
+	}
+
 	return nil
 }
 
@@ -266,8 +334,8 @@ func isWasmImported(appPath string) (bool, error) {
 }
 
 func (s Scaffolder) installWasm() error {
-	switch s.version {
-	case cosmosver.StargateZeroFourtyAndAbove:
+	switch {
+	case s.Version.GTE(cosmosver.StargateFortyVersion):
 		return cmdrunner.
 			New().
 			Run(context.Background(),
