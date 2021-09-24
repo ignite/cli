@@ -30,8 +30,8 @@ type Scaffolder struct {
 	// modpath represents the go module path of the app.
 	modpath gomodulepath.Path
 
-	// version of the chain
-	version cosmosver.Version
+	// Version of the chain
+	Version cosmosver.Version
 }
 
 // App creates a new scaffolder for an existent app.
@@ -58,14 +58,14 @@ func App(path string) (Scaffolder, error) {
 		return Scaffolder{}, err
 	}
 
-	if !version.Major().Is(cosmosver.Stargate) {
+	if !version.IsFamily(cosmosver.Stargate) {
 		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
 	}
 
 	s := Scaffolder{
 		path:    path,
 		modpath: modpath,
-		version: version,
+		Version: version,
 	}
 
 	return s, nil

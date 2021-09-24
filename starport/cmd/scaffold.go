@@ -79,7 +79,7 @@ func scaffoldType(
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
@@ -97,7 +97,6 @@ func scaffoldType(
 	}
 
 	fmt.Println(modificationsStr)
-
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil

@@ -42,15 +42,14 @@ func NewScaffoldModule() *cobra.Command {
 }
 
 func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
-
 	var (
 		options []scaffolder.ModuleCreationOption
 
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {
@@ -97,13 +96,14 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithDependencies(formattedDependencies))
 	}
 
-	sc, err := scaffolder.App(appPath)
+	var msg bytes.Buffer
+	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
+
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
 
-	var msg bytes.Buffer
-	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
 	sm, err := sc.CreateModule(placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {
