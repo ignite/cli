@@ -100,8 +100,8 @@ func New(...) {
 
   govRouter.AddRoute(govtypes.RouterKey, govtypes.ProposalHandler).
     //...
-    // Replace NewClientUpdateProposalHandler with NewClientUpdateProposalHandler
-    AddRoute(ibchost.RouterKey, ibcclient.NewClientUpdateProposalHandler(app.IBCKeeper.ClientKeeper))
+    // Replace NewClientUpdateProposalHandler with NewClientProposalHandler
+    AddRoute(ibchost.RouterKey, ibcclient.NewClientProposalHandler(app.IBCKeeper.ClientKeeper))
 
   // Replace porttypes with ibcporttypes
   ibcRouter := ibcporttypes.NewRouter()
