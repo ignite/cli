@@ -76,7 +76,6 @@ type App struct {
   FeeGrantKeeper   feegrantkeeper.Keeper // <--
 }
 
-``go
 func New(...) {
   //bApp.SetAppVersion(version.Version)
   bApp.SetVersion(version.Version) // <--
