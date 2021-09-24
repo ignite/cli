@@ -45,12 +45,21 @@ build:
   binary: "mychaind"
 ```
 
-## `build.proto`
+### `build.proto`
 
 | Key               | Required | Type            | Description                                                                                |
 | ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
 | path              | N        | String          | Path to protocol buffer files. Default: `"proto"`                                          |
 | third_party_paths | N        | List of Strings | Path to thid-party protocol buffer files. Default: `["third_party/proto", "proto_vendor"]` |
+
+### `build.main`
+
+When an app contains more than one main Go package, define the path of the chain's main package. 
+
+| Key               | Required | Type            | Description                                                                                |
+| ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
+| path              | N        | String          | Path to the main Go package. Required only when an app contains multiple main packages.    |
+
 
 ## `client`
 
