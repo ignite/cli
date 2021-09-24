@@ -88,7 +88,7 @@ func RunWithValidation(
 func Box(g *genny.Generator, box packd.Walker, module string) error {
 	return box.Walk(func(path string, bf packd.File) error {
 		f := genny.NewFile(path, bf)
-		filePath := strings.ReplaceAll(f.Name(), ".plush", "")
+		filePath := strings.TrimSuffix(f.Name(), ".plush")
 		filePath = strings.ReplaceAll(filePath, "{{moduleName}}", module)
 		filePath, err := filepath.Abs(filePath)
 		if err != nil {
@@ -98,7 +98,7 @@ func Box(g *genny.Generator, box packd.Walker, module string) error {
 		_, err = os.Stat(filePath)
 		if os.IsNotExist(err) {
 			// path doesn't exist. move on.
-			return g.Box(box)
+			g.File(f)
 		}
 		return err
 	})
