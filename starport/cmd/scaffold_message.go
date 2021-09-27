@@ -30,9 +30,6 @@ func NewScaffoldMessage() *cobra.Command {
 }
 
 func messageHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Scaffolding...")
-	defer s.Stop()
-
 	var (
 		module, _    = cmd.Flags().GetString(flagModule)
 		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
@@ -40,6 +37,9 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		signer       = flagGetSigner(cmd)
 		appPath      = flagGetPath(cmd)
 	)
+
+	s := clispinner.New().SetText("Scaffolding...")
+	defer s.Stop()
 
 	var options []scaffolder.MessageOption
 
@@ -53,7 +53,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithSigner(signer))
 	}
 
-	sc, err := scaffolder.App(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
@@ -71,7 +71,7 @@ func messageHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	fmt.Println(modificationsStr)
-
 	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
+
 	return nil
 }

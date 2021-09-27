@@ -14,7 +14,6 @@ A clear and concise description of what the bug is.
 Steps to reproduce the behavior:
 1. 
 
-**Please provide output of commands**
- - `starport version`
- - `go version`
- - `uname -a`
+**Please provide the version output**
+ - `starport version`:
+ 

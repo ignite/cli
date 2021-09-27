@@ -22,13 +22,14 @@
 - Automatically check for new Starport versions
 - Added `starport tools completions` to generate CLI completions
 - Added `starport account` commands to manage accounts (key pairs)
-- `starport version` now prints detailed information about OS, Go version, and more.
+- `starport version` now prints detailed information about OS, Go version, and more
 - Modules are scaffolded with genesis validation tests
 - Types are scaffolded with tests for `ValidateBasic` methods
 - `cosmosclient` has been refactored and can be used as a library for interacting with Cosmos SDK chains
 - `starport relayer` uses `starport account`
 - Added `--path` flag for all `scaffold`, `generate` and `chain` commands
 - Added `--output` flag to the `build` command
+- Added `build.main` field to `config.yml` for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
 
 ### Fixes:
 
