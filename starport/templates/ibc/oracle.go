@@ -46,7 +46,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g.RunFn(clientCliQueryOracleModify(replacer, opts))
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
-	g.RunFn(packetHandlerOracleModify(replacer, opts))
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
@@ -72,6 +71,8 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	if err := xgenny.Box(g, template); err != nil {
 		return g, err
 	}
+
+	g.RunFn(packetHandlerOracleModify(replacer, opts))
 
 	return g, nil
 }
