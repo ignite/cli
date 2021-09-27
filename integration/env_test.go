@@ -150,15 +150,17 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName string) (appPath string) {
+func (e env) Scaffold(appName string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
+				append([]string{
+					"scaffold",
+					"chain",
+					fmt.Sprintf("github.com/test/%s", appName),
+				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
