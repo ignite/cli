@@ -58,6 +58,22 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
+func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("blog", "--no-module")
+	)
+
+	defer env.EnsureAppIsSteady(path)
+
+	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "first_module"),
+			step.Workdir(path),
+		)),
+	))
+}
+
 func TestGenerateAnAppWithWasm(t *testing.T) {
 	t.Skip()
 

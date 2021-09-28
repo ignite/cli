@@ -14,7 +14,7 @@ tasks:
     init: |
       ##
       ## install Starport
-      go install /workspace/starport/...
+      make -C /workspace/starport install
 
     command: |
       ##

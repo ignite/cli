@@ -13,7 +13,6 @@ import (
 	"github.com/google/go-github/v37/github"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
-	"github.com/tendermint/starport/starport/pkg/docker"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/xexec"
 )
@@ -109,7 +108,6 @@ func Long(ctx context.Context) string {
 	}
 
 	write("Is on Gitpod", gitpod.IsOnGitpod())
-	write("Is in Docker", docker.IsInDocker())
 
 	w.Flush()
 
