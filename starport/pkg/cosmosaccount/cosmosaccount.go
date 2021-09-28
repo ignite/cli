@@ -31,7 +31,6 @@ var (
 
 const (
 	accountPrefixCosmos = "cosmos"
-	pubKeyPrefix        = "pub"
 )
 
 // Registry for accounts.
