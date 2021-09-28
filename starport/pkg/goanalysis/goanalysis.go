@@ -22,6 +22,8 @@ var (
 
 // DiscoverMain finds main Go packages under path.
 func DiscoverMain(path string) (pkgPaths []string, err error) {
+	uniquePaths := make(map[string]struct{})
+
 	err = filepath.Walk(path, func(filePath string, f os.FileInfo, err error) error {
 		if f.IsDir() || !strings.HasSuffix(filePath, goFileExtension) {
 			return err
@@ -33,13 +35,22 @@ func DiscoverMain(path string) (pkgPaths []string, err error) {
 		}
 
 		if mainPackage == parsed.Name.Name {
-			pkgPaths = append(pkgPaths, filepath.Dir(filePath))
+			dir := filepath.Dir(filePath)
+			uniquePaths[dir] = struct{}{}
 		}
 
 		return nil
 	})
 
-	return
+	if err != nil {
+		return nil, err
+	}
+
+	for path := range uniquePaths {
+		pkgPaths = append(pkgPaths, path)
+	}
+
+	return pkgPaths, nil
 }
 
 // DiscoverOneMain tries to find only one main Go package under path.
