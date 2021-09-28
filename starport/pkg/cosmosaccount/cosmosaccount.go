@@ -4,12 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sync"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
@@ -28,8 +28,6 @@ var KeyringHome = os.ExpandEnv("$HOME/.starport/accounts")
 var (
 	ErrAccountExists = errors.New("account already exists")
 )
-
-var mconf sync.Mutex // protects types.Config (sdk).
 
 const (
 	accountPrefixCosmos = "cosmos"
@@ -70,32 +68,20 @@ func (a Account) Address(accPrefix string) string {
 		accPrefix = accountPrefixCosmos
 	}
 
-	mconf.Lock()
-	defer mconf.Unlock()
+	return toBench32(accPrefix, a.Info.GetPubKey().Address())
+}
 
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
+// PubKey returns a public key for account.
+func (a Account) PubKey() string {
+	return a.Info.GetPubKey().String()
+}
 
-	ko, err := keyring.MkAccKeyOutput(a.Info)
+func toBench32(prefix string, addr []byte) string {
+	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
 		panic(err)
 	}
-	return ko.Address
-}
-
-// PubKey returns a public key for given account prefix.
-func (a Account) PubKey(accPrefix string) string {
-	if accPrefix == "" {
-		accPrefix = accountPrefixCosmos
-	}
-
-	mconf.Lock()
-	defer mconf.Unlock()
-
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
-
-	return a.Info.GetPubKey().Address().String()
+	return bech32Addr
 }
 
 // EnsureDefaultAccount ensures that default account exists.

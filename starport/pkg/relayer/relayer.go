@@ -8,7 +8,6 @@ import (
 	"time"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
 	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -204,13 +203,10 @@ func (r Relayer) balance(ctx context.Context, rpcAddress, account, addressPrefix
 		return nil, err
 	}
 
-	addr, err := sdk.AccAddressFromBech32(acc.Address(addressPrefix))
-	if err != nil {
-		return nil, err
-	}
+	addr := acc.Address(addressPrefix)
 
 	queryClient := banktypes.NewQueryClient(client.Context)
-	res, err := queryClient.AllBalances(ctx, banktypes.NewQueryAllBalancesRequest(addr, &query.PageRequest{}))
+	res, err := queryClient.AllBalances(ctx, &banktypes.QueryAllBalancesRequest{Address: addr})
 	if err != nil {
 		return nil, err
 	}
