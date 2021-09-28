@@ -1,31 +1,13 @@
 package typed
 
 import (
-	"embed"
-	"strings"
-
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/testutil"
-)
-
-var (
-	//go:embed stargate/component/* stargate/component/**/*
-	fsStargateComponent embed.FS
-
-	//go:embed stargate/messages/* stargate/messages/**/*
-	fsStargateMessages embed.FS
-
-	// stargateComponentTemplate is the template for a Stargate module type component
-	stargateComponentTemplate = xgenny.NewEmbedWalker(fsStargateComponent, "stargate/component/")
-
-	// stargateMessagesTemplate is the template for a Stargate module type interaction messages
-	stargateMessagesTemplate = xgenny.NewEmbedWalker(fsStargateMessages, "stargate/messages/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
@@ -38,8 +20,10 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("TypeName", opts.TypeName)
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("Fields", opts.Fields)
-	ctx.Set("title", strings.Title)
+	ctx.Set("Indexes", opts.Indexes)
+	ctx.Set("NoMessage", opts.NoMessage)
 	ctx.Set("strconv", func() bool {
 		strconv := false
 		for _, field := range opts.Fields {
@@ -52,9 +36,13 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
-	plushhelpers.ExtendPlushContext(ctx)
-	testutil.Register(ctx, g)
 
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return err
+	}
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))

@@ -14,17 +14,12 @@ func NewScaffoldSingle() *cobra.Command {
 		RunE:  scaffoldSingleHandler,
 	}
 
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c
 }
 
 func scaffoldSingleHandler(cmd *cobra.Command, args []string) error {
-	opts := scaffolder.AddTypeOption{
-		NoMessage: flagGetNoMessage(cmd),
-		Model:     scaffolder.Singleton,
-	}
-
-	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(cmd, args, scaffolder.SingletonType())
 }

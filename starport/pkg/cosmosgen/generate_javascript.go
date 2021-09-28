@@ -100,7 +100,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	if err := os.RemoveAll(out); err != nil {
 		return err
 	}
-	if err := os.MkdirAll(typesOut, 0755); err != nil {
+	if err := os.MkdirAll(typesOut, 0766); err != nil {
 		return err
 	}
 
@@ -168,7 +168,7 @@ func (g *jsGenerator) generateVuexModuleLoader() error {
 		return err
 	}
 
-	chainPath, err := gomodulepath.ParseAt(g.g.appPath)
+	chainPath, _, err := gomodulepath.Find(g.g.appPath)
 	if err != nil {
 		return err
 	}

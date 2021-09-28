@@ -26,7 +26,7 @@ If no account is picked, default "spn" account is used.
 }
 
 func networkAccountGetHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}

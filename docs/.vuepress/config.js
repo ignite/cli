@@ -34,11 +34,7 @@ module.exports = {
               path: "https://github.com/tendermint/starport",
             },
             {
-              title: "Tutorials",
-              path: "https://tutorials.cosmos.network",
-            },
-            {
-              title: "Cosmos SDK docs",
+              title: "Cosmos SDK Docs",
               path: "https://docs.cosmos.network",
             },
           ],
@@ -52,7 +48,7 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/W8trcGV' target='_blank'>Discord</a>.",
+          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/cosmosnetwork' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
@@ -119,7 +115,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/W8trcGV",
+              url: "https://discord.gg/cosmosnetwork",
             },
           ],
         },

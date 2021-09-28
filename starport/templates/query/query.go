@@ -2,20 +2,17 @@ package query
 
 import (
 	"embed"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 )
 
 var (
 	//go:embed stargate/* stargate/**/*
 	fsStargate embed.FS
-
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
@@ -32,7 +29,8 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("ReqFields", opts.ReqFields)
 	ctx.Set("ResFields", opts.ResFields)
 	ctx.Set("Paginated", opts.Paginated)
-	ctx.Set("title", strings.Title)
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))

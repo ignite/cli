@@ -150,15 +150,17 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName string) (appPath string) {
+func (e env) Scaffold(appName string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
+				append([]string{
+					"scaffold",
+					"chain",
+					fmt.Sprintf("github.com/test/%s", appName),
+				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
@@ -241,7 +243,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	}
 
 	// generate random server ports and servers list.
-	ports, err := availableport.Find(5)
+	ports, err := availableport.Find(6)
 	require.NoError(e.t, err)
 
 	genAddr := func(port int) string {
@@ -249,11 +251,12 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	}
 
 	servers := starportconf.Host{
-		RPC:  genAddr(ports[0]),
-		P2P:  genAddr(ports[1]),
-		Prof: genAddr(ports[2]),
-		GRPC: genAddr(ports[3]),
-		API:  genAddr(ports[4]),
+		RPC:     genAddr(ports[0]),
+		P2P:     genAddr(ports[1]),
+		Prof:    genAddr(ports[2]),
+		GRPC:    genAddr(ports[3]),
+		GRPCWeb: genAddr(ports[4]),
+		API:     genAddr(ports[5]),
 	}
 
 	// update config.yml with the generated servers list.

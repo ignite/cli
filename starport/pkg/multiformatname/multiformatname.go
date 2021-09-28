@@ -9,20 +9,21 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
-// MultiFormatName represents a name with multiple naming convention representations
+// Name represents a name with multiple naming convention representations
 // Supported naming convention are: camel, pascal, and kebab cases
 type Name struct {
 	Original   string
 	LowerCamel string
 	UpperCamel string
+	LowerCase  string
+	UpperCase  string
 	Kebab      string
 	Snake      string
-	Lowercase  string
 }
 
 type Checker func(name string) error
 
-// NewMultiFormatName returns a new multi-format name from a name
+// NewName returns a new multi-format name from a name
 func NewName(name string, additionalChecks ...Checker) (Name, error) {
 	checks := append([]Checker{basicCheckName}, additionalChecks...)
 
@@ -36,9 +37,10 @@ func NewName(name string, additionalChecks ...Checker) (Name, error) {
 		Original:   name,
 		LowerCamel: strcase.ToLowerCamel(name),
 		UpperCamel: strcase.ToCamel(name),
+		UpperCase:  strings.ToUpper(name),
 		Kebab:      strcase.ToKebab(name),
 		Snake:      strcase.ToSnake(name),
-		Lowercase:  lowercase(name),
+		LowerCase:  lowercase(name),
 	}, nil
 }
 

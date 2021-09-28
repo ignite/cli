@@ -14,17 +14,12 @@ func NewScaffoldList() *cobra.Command {
 		RunE:  scaffoldListHandler,
 	}
 
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c
 }
 
 func scaffoldListHandler(cmd *cobra.Command, args []string) error {
-	opts := scaffolder.AddTypeOption{
-		NoMessage: flagGetNoMessage(cmd),
-		Model:     scaffolder.List,
-	}
-
-	return scaffoldType(flagGetModule(cmd), args[0], args[1:], opts)
+	return scaffoldType(cmd, args, scaffolder.ListType())
 }

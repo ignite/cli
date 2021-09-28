@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
@@ -9,10 +10,10 @@ import (
 )
 
 const (
-	flagRebuildProtoOnce = "rebuild-proto-once"
-	flagRelease          = "release"
-	flagReleaseTargets   = "release.targets"
-	flagReleasePrefix    = "release.prefix"
+	flagOutput         = "output"
+	flagRelease        = "release"
+	flagReleaseTargets = "release.targets"
+	flagReleasePrefix  = "release.prefix"
 )
 
 // NewChainBuild returns a new build command to build a blockchain app.
@@ -34,42 +35,42 @@ Sample usages:
 		Args: cobra.ExactArgs(0),
 		RunE: chainBuildHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().StringVarP(&appPath, "path", "p", ".", "path of the app")
+	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules. Available only without the --release flag")
+	c.Flags().StringP(flagOutput, "o", "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
+
 	return c
 }
 
 func chainBuildHandler(cmd *cobra.Command, args []string) error {
-	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
-	if err != nil {
-		return err
-	}
-
-	isRelease, _ := cmd.Flags().GetBool(flagRelease)
-	releaseTargets, _ := cmd.Flags().GetStringSlice(flagReleaseTargets)
-	releasePrefix, _ := cmd.Flags().GetString(flagReleasePrefix)
+	var (
+		isRelease, _      = cmd.Flags().GetBool(flagRelease)
+		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
+		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
+		output, _         = cmd.Flags().GetString(flagOutput)
+	)
 
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),
 	}
 
-	if isRebuildProtoOnce {
+	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}
 
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -79,12 +80,17 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context())
+	binaryName, err := c.Build(cmd.Context(), output)
 	if err != nil {
 		return err
 	}
 
-	fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
+	if output == "" {
+		fmt.Printf("🗃  Installed. Use with: %s\n", infoColor(binaryName))
+	} else {
+		binaryPath := filepath.Join(output, binaryName)
+		fmt.Printf("🗃  Binary built at the path: %s\n", infoColor(binaryPath))
+	}
 
 	return nil
 }

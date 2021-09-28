@@ -21,7 +21,7 @@ func NewNetworkProposalShow() *cobra.Command {
 }
 
 func networkProposalShowHandler(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}

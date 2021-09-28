@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 
 	"github.com/tendermint/starport/starport/services"
@@ -379,7 +380,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
 	// password. This happens because Gitpod uses containers.
-	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+	if gitpod.IsOnGitpod() {
 		chainOption = append(chainOption, chain.KeyringBackend(chaincmd.KeyringBackendTest))
 	}
 
@@ -389,7 +390,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath, chainOption...)
+	chainHandler, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -511,7 +512,7 @@ func (b *Builder) GenerateGenesisWithHome(
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath,
+	chainHandler, err := chain.New(appPath,
 		chain.HomePath(homeDir),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

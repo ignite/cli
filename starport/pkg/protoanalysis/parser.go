@@ -58,6 +58,7 @@ type file struct {
 
 	// parsed data.
 	pkg      *proto.Package
+	imports  []string // imported protos.
 	options  []*proto.Option
 	messages []*proto.Message
 	services []*proto.Service
@@ -128,6 +129,7 @@ func (p *parser) parseFile(path string) error {
 	proto.Walk(
 		def,
 		proto.WithPackage(func(p *proto.Package) { pf.pkg = p }),
+		proto.WithImport(func(s *proto.Import) { pf.imports = append(pf.imports, s.Filename) }),
 		proto.WithOption(func(o *proto.Option) { pf.options = append(pf.options, o) }),
 		proto.WithMessage(func(m *proto.Message) { pf.messages = append(pf.messages, m) }),
 		proto.WithService(func(s *proto.Service) { pf.services = append(pf.services, s) }),

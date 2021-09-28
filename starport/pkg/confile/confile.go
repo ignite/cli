@@ -1,7 +1,10 @@
 // Package confile is helper to load and overwrite configuration files.
 package confile
 
-import "os"
+import (
+	"os"
+	"path/filepath"
+)
 
 // ConfigFile represents a configuration file.
 type ConfigFile struct {
@@ -35,6 +38,9 @@ func (c *ConfigFile) Load(v interface{}) error {
 // Save saves v into config file by overwriting the previous content it also creates the
 // config file if it wasn't exist.
 func (c *ConfigFile) Save(v interface{}) error {
+	if err := os.MkdirAll(filepath.Dir(c.path), 0755); err != nil {
+		return err
+	}
 	file, err := os.OpenFile(c.path, os.O_RDWR|os.O_CREATE|os.O_TRUNC, 0644)
 	if err != nil {
 		return err

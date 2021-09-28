@@ -20,5 +20,5 @@ func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGe
 	    return nil, status.Error(codes.InvalidArgument, "not found")
 	}
 
-	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: &val}, nil
+	return &types.QueryGet<%= TypeName.UpperCamel %>Response{<%= TypeName.UpperCamel %>: val}, nil
 }

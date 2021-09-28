@@ -5,11 +5,11 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-const flagForceReset = "force-reset"
-const flagResetOnce = "reset-once"
-const flagConfig = "config"
-
-var appPath string
+const (
+	flagForceReset = "force-reset"
+	flagResetOnce  = "reset-once"
+	flagConfig     = "config"
+)
 
 // NewChainServe creates a new serve command to serve a blockchain.
 func NewChainServe() *cobra.Command {
@@ -20,28 +20,23 @@ func NewChainServe() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  chainServeHandler,
 	}
+
 	c.Flags().AddFlagSet(flagSetHome())
-	c.Flags().StringVarP(&appPath, "path", "p", "", "Path of the app")
+	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 	c.Flags().BoolP(flagForceReset, "f", false, "Force reset of the app state on start and every source change")
 	c.Flags().BoolP(flagResetOnce, "r", false, "Reset of the app state on first start")
-	c.Flags().Bool(flagRebuildProtoOnce, false, "Enables proto code generation for 3rd party modules")
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
 
 	return c
 }
 
 func chainServeHandler(cmd *cobra.Command, args []string) error {
-	isRebuildProtoOnce, err := cmd.Flags().GetBool(flagRebuildProtoOnce)
-	if err != nil {
-		return err
-	}
-
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 	}
 
-	if isRebuildProtoOnce {
+	if flagGetProto3rdParty(cmd) {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
@@ -55,7 +50,7 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the chain
-	c, err := newChainWithHomeFlags(cmd, appPath, chainOption...)
+	c, err := newChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

@@ -2,11 +2,14 @@ package modulecreate
 
 import (
 	"fmt"
+	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/plushhelpers"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
@@ -17,12 +20,15 @@ const msgServiceImport = `"github.com/cosmos/cosmos-sdk/types/msgservice"`
 // AddMsgServerConventionToLegacyModule add the files and the necessary modifications to an existing module that doesn't support MsgServer convention
 // https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
 func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *MsgServerOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(fsMsgServer, "msgserver/", opts.AppPath)
+	)
 
-	g.RunFn(handlerPatch(replacer, opts.ModuleName))
-	g.RunFn(codecPath(replacer, opts.ModuleName))
+	g.RunFn(handlerPatch(replacer, opts.AppPath, opts.ModuleName))
+	g.RunFn(codecPath(replacer, opts.AppPath, opts.ModuleName))
 
-	if err := g.Box(msgServerTemplate); err != nil {
+	if err := g.Box(template); err != nil {
 		return g, err
 	}
 	ctx := plush.NewContext()
@@ -34,14 +40,15 @@ func AddMsgServerConventionToLegacyModule(replacer placeholder.Replacer, opts *M
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	return g, nil
 }
 
-func handlerPatch(replacer placeholder.Replacer, moduleName string) genny.RunFn {
+func handlerPatch(replacer placeholder.Replacer, appPath, moduleName string) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", moduleName)
+		path := filepath.Join(appPath, "x", moduleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -58,9 +65,9 @@ func handlerPatch(replacer placeholder.Replacer, moduleName string) genny.RunFn 
 	}
 }
 
-func codecPath(replacer placeholder.Replacer, moduleName string) genny.RunFn {
+func codecPath(replacer placeholder.Replacer, appPath, moduleName string) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", moduleName)
+		path := filepath.Join(appPath, "x", moduleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err

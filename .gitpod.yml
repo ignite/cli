@@ -6,12 +6,15 @@ checkoutLocation: "starport"
 workspaceLocation: "./starport/.gitpod"
 
 tasks:
+  - name: Open the Readme
+    command: gp open readme.md
+
   - name: Setup
 
     init: |
       ##
       ## install Starport
-      go install /workspace/starport/...
+      make -C /workspace/starport install
 
     command: |
       ##

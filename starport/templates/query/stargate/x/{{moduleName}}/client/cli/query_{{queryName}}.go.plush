@@ -2,6 +2,9 @@ package cli
 
 import (
     "strconv"
+	<%= if (ReqFields.IsComplex()) { %> "encoding/json" <% } %>
+
+	<%= if (ReqFields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
@@ -13,12 +16,12 @@ var _ = strconv.Itoa(0)
 
 func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= QueryName.Kebab %><%= for (i, field) in ReqFields { %> [<%= field.Name.LowerCamel %>]<% } %>",
+		Use:   "<%= QueryName.Kebab %><%= ReqFields.String() %>",
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in ReqFields { %>req<%= field.Name.UpperCamel %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			<%= for (i, field) in ReqFields { %> <%= castArg("req", field, i) %>
+			<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -27,8 +30,8 @@ func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 			queryClient := types.NewQueryClient(clientCtx)
 
 			params := &types.Query<%= QueryName.UpperCamel %>Request{
-                <%= for (i, field) in ReqFields { %>
-                <%= field.Name.UpperCamel %>: <%= field.Datatype %>(req<%= field.Name.UpperCamel %>),<% } %>
+				<%= for (i, field) in ReqFields { %>
+                <%= field.Name.UpperCamel %>: req<%= field.Name.UpperCamel %>, <% } %>
             }
 
             <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())

@@ -60,7 +60,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	ev := events.NewBus()
 	go printEvents(ev, s)
 
-	nb, err := newNetworkBuilder(networkbuilder.CollectEvents(ev))
+	nb, err := newNetworkBuilder(cmd.Context(), networkbuilder.CollectEvents(ev))
 	if err != nil {
 		return err
 	}

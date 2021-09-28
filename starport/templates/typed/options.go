@@ -8,11 +8,14 @@ import (
 // Options ...
 type Options struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
 	TypeName   multiformatname.Name
-	Fields     []field.Field
+	MsgSigner  multiformatname.Name
+	Fields     field.Fields
+	Indexes    field.Fields
 	NoMessage  bool
 }
 

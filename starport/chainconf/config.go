@@ -22,11 +22,12 @@ var (
 	DefaultConf = Config{
 		Host: Host{
 			// when in Docker on MacOS, it only works with 0.0.0.0.
-			RPC:  "0.0.0.0:26657",
-			P2P:  "0.0.0.0:26656",
-			Prof: "0.0.0.0:6060",
-			GRPC: "0.0.0.0:9090",
-			API:  "0.0.0.0:1317",
+			RPC:     "0.0.0.0:26657",
+			P2P:     "0.0.0.0:26656",
+			Prof:    "0.0.0.0:6060",
+			GRPC:    "0.0.0.0:9090",
+			GRPCWeb: "0.0.0.0:9091",
+			API:     "0.0.0.0:1317",
 		},
 		Build: Build{
 			Proto: Proto{
@@ -85,6 +86,7 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
+	Main   string `yaml:"main"`
 	Binary string `yaml:"binary"`
 	Proto  Proto  `yaml:"proto"`
 }
@@ -104,6 +106,9 @@ type Client struct {
 	// Vuex configures code generation for Vuex.
 	Vuex Vuex `yaml:"vuex"`
 
+	// Dart configures client code generation for Dart.
+	Dart Dart `yaml:"dart"`
+
 	// OpenAPI configures OpenAPI spec generation for API.
 	OpenAPI OpenAPI `yaml:"openapi"`
 }
@@ -111,6 +116,12 @@ type Client struct {
 // Vuex configures code generation for Vuex.
 type Vuex struct {
 	// Path configures out location for generated Vuex code.
+	Path string `yaml:"path"`
+}
+
+// Dart configures client code generation for Dart.
+type Dart struct {
+	// Path configures out location for generated Dart code.
 	Path string `yaml:"path"`
 }
 
@@ -161,11 +172,12 @@ type Init struct {
 
 // Host keeps configuration related to started servers.
 type Host struct {
-	RPC  string `yaml:"rpc"`
-	P2P  string `yaml:"p2p"`
-	Prof string `yaml:"prof"`
-	GRPC string `yaml:"grpc"`
-	API  string `yaml:"api"`
+	RPC     string `yaml:"rpc"`
+	P2P     string `yaml:"p2p"`
+	Prof    string `yaml:"prof"`
+	GRPC    string `yaml:"grpc"`
+	GRPCWeb string `yaml:"grpc-web"`
+	API     string `yaml:"api"`
 }
 
 // Parse parses config.yml into UserConfig.

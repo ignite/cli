@@ -35,33 +35,69 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldList())
 	c.AddCommand(NewScaffoldMap())
 	c.AddCommand(NewScaffoldSingle())
+	c.AddCommand(NewScaffoldType())
 	c.AddCommand(NewScaffoldMessage())
 	c.AddCommand(NewScaffoldQuery())
 	c.AddCommand(NewScaffoldPacket())
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
-	c.AddCommand(NewScaffoldWasm())
+	c.AddCommand(NewScaffoldFlutter())
+	// c.AddCommand(NewScaffoldWasm())
 
 	return c
 }
 
-func scaffoldType(module, typeName string, typeFields []string, opts scaffolder.AddTypeOption) error {
+func scaffoldType(
+	cmd *cobra.Command,
+	args []string,
+	kind scaffolder.AddTypeKind,
+) error {
+	var (
+		typeName       = args[0]
+		fields         = args[1:]
+		moduleName     = flagGetModule(cmd)
+		withoutMessage = flagGetNoMessage(cmd)
+		signer         = flagGetSigner(cmd)
+		appPath        = flagGetPath(cmd)
+	)
+
+	var options []scaffolder.AddTypeOption
+
+	if len(fields) > 0 {
+		options = append(options, scaffolder.TypeWithFields(fields...))
+	}
+	if moduleName != "" {
+		options = append(options, scaffolder.TypeWithModule(moduleName))
+	}
+	if withoutMessage {
+		options = append(options, scaffolder.TypeWithoutMessage())
+	}
+	if signer != "" {
+		options = append(options, scaffolder.TypeWithSigner(signer))
+	}
+
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddType(placeholder.New(), opts, module, typeName, typeFields...)
+
+	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
-	fmt.Printf("\n🎉 Created a %s `%s`.\n\n", opts.Model, typeName)
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
+	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil
 }
@@ -70,6 +106,7 @@ func flagSetScaffoldType() *flag.FlagSet {
 	f := flag.NewFlagSet("", flag.ContinueOnError)
 	f.String(flagModule, "", "Module to add into. Default is app's main module")
 	f.Bool(flagNoMessage, false, "Disable CRUD interaction messages scaffolding")
+	f.String(flagSigner, "", "Label for the message signer (default: creator)")
 	return f
 }
 
@@ -81,4 +118,9 @@ func flagGetModule(cmd *cobra.Command) string {
 func flagGetNoMessage(cmd *cobra.Command) bool {
 	noMessage, _ := cmd.Flags().GetBool(flagNoMessage)
 	return noMessage
+}
+
+func flagGetSigner(cmd *cobra.Command) string {
+	signer, _ := cmd.Flags().GetString(flagSigner)
+	return signer
 }

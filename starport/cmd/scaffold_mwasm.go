@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 func NewScaffoldWasm() *cobra.Command {
@@ -17,17 +16,23 @@ func NewScaffoldWasm() *cobra.Command {
 		Args:  cobra.NoArgs,
 		RunE:  scaffoldWasmHandler,
 	}
+
+	flagSetPath(c)
+
 	return c
 }
 
 func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
+	appPath := flagGetPath(cmd)
+
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
+
 	sm, err := sc.ImportModule(placeholder.New(), "wasm")
 	if err != nil {
 		return err
@@ -35,7 +40,13 @@ func scaffoldWasmHandler(cmd *cobra.Command, args []string) error {
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
 	fmt.Printf("\n🎉 Imported wasm.\n\n")
+
 	return nil
 }

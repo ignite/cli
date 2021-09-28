@@ -1,3 +1,4 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
@@ -57,7 +58,25 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	env.EnsureAppIsSteady(path)
 }
 
+func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
+	var (
+		env  = newEnv(t)
+		path = env.Scaffold("blog", "--no-module")
+	)
+
+	defer env.EnsureAppIsSteady(path)
+
+	env.Must(env.Exec("should scaffold a new module into a chain that never had modules before",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "first_module"),
+			step.Workdir(path),
+		)),
+	))
+}
+
 func TestGenerateAnAppWithWasm(t *testing.T) {
+	t.Skip()
+
 	var (
 		env  = newEnv(t)
 		path = env.Scaffold("blog")
@@ -110,13 +129,37 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 		ExecShouldError(),
 	))
 
+	env.Must(env.Exec("should prevent creating a module with a reserved name",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "tx", "--require-registration"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a module with a forbidden prefix",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "ibcfoo", "--require-registration"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
+	env.Must(env.Exec("should prevent creating a module prefixed with an existing module",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "module", "examplefoo", "--require-registration"),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
+	))
+
 	env.Must(env.Exec("create a module with dependencies",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
 				"s",
 				"module",
-				"example_with_dep",
+				"with_dep",
 				"--dep",
 				"account,bank,staking,slashing,example",
 				"--require-registration",
@@ -131,7 +174,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				"starport",
 				"s",
 				"module",
-				"example_with_wrong_dep",
+				"with_wrong_dep",
 				"--dep",
 				"dup,dup",
 				"--require-registration",
@@ -147,7 +190,7 @@ func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 				"starport",
 				"s",
 				"module",
-				"example_with_no_dep",
+				"with_no_dep",
 				"--dep",
 				"inexistent",
 				"--require-registration",

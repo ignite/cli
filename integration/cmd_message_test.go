@@ -1,8 +1,10 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -31,6 +33,25 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a message with custom path",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"message",
+				"app-path",
+				"text",
+				"vote:int",
+				"like:bool",
+				"-r",
+				"foo,bar:int,foobar:bool",
+				"--path",
+				"blog",
+			),
+			step.Workdir(filepath.Dir(path)),
+		)),
+	))
+
 	env.Must(env.Exec("should prevent creating an existing message",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "message", "do-foo", "bar"),
@@ -39,9 +60,23 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 		ExecShouldError(),
 	))
 
-	env.Must(env.Exec("create a second message",
+	env.Must(env.Exec("create a message with a custom signer name",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "do-bar", "bar"),
+			step.Exec("starport", "s", "message", "do-bar", "bar", "--signer", "bar-doer"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "type", "custom-type", "customField:uint"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a message with the custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "message", "foo-baz", "customField:CustomType"),
 			step.Workdir(path),
 		)),
 	))

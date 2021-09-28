@@ -4,13 +4,13 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"os"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/AlecAivazis/survey/v2/terminal"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
 )
@@ -70,13 +70,13 @@ func NewNetwork() *cobra.Command {
 
 var spnclient *spn.Client
 
-func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builder, error) {
+func newNetworkBuilder(ctx context.Context, options ...networkbuilder.Option) (*networkbuilder.Builder, error) {
 	var spnoptions []spn.Option
 	// use test keyring backend on Gitpod in order to prevent prompting for keyring
 	// password. This happens because Gitpod uses containers.
 	//
 	// when not on Gitpod, OS keyring backend is used which only asks password once.
-	if os.Getenv("GITPOD_WORKSPACE_ID") != "" {
+	if gitpod.IsOnGitpod() {
 		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
 	}
 
@@ -98,7 +98,7 @@ func newNetworkBuilder(options ...networkbuilder.Option) (*networkbuilder.Builde
 	// reuse unlocked keyring in the following steps.
 	if spnclient == nil {
 		var err error
-		if spnclient, err = spn.New(spnNodeAddress, spnAPIAddress, spnFaucetAddress, spnoptions...); err != nil {
+		if spnclient, err = spn.New(ctx, spnNodeAddress, spnAPIAddress, spnFaucetAddress, spnoptions...); err != nil {
 			return nil, err
 		}
 	}
@@ -136,14 +136,14 @@ func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Acco
 		createAccount = "Create a new account"
 		importAccount = "Import an account from mnemonic"
 	)
-	list := append(accounts, createAccount, importAccount)
+	accounts = append(accounts, createAccount, importAccount)
 	var (
 		qs = []*survey.Question{
 			{
 				Name: "account",
 				Prompt: &survey.Select{
 					Message: "Choose an account:",
-					Options: list,
+					Options: accounts,
 				},
 			},
 		}
@@ -218,7 +218,7 @@ func accountNames(b *networkbuilder.Builder) ([]string, error) {
 }
 
 func ensureSPNAccountHook(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}

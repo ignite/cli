@@ -65,6 +65,7 @@ func (p *stargatePlugin) appTOML(homePath string, conf starportconf.Config) erro
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(conf.Host.API))
 	config.Set("grpc.address", conf.Host.GRPC)
+	config.Set("grpc-web.address", conf.Host.GRPCWeb)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -135,6 +136,6 @@ func stargateHome(app App) string {
 	return filepath.Join(home, "."+app.Name)
 }
 
-func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
+func (p *stargatePlugin) Version() cosmosver.Family { return cosmosver.Stargate }
 
 func (p *stargatePlugin) SupportsIBC() bool { return true }

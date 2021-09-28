@@ -24,12 +24,12 @@ order: 1
 description: Starport CLI docs. 
 parent:
   order: 8
-  title: CLI 
+  title: CLI Reference
 ---
 
-# CLI
+# Reference
+
 Documentation for Starport CLI.
-Note: CLI docs reflect the changes in an upcoming release.
 `
 
 func main() {

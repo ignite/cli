@@ -7,8 +7,8 @@ import (
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/xrelayer"
-	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/relayer"
 )
 
 // NewRelayerConnect returns a new relayer connect command to link all or some relayer paths and start
@@ -20,82 +20,80 @@ func NewRelayerConnect() *cobra.Command {
 		Short: "Link chains associated with paths and start relaying tx packets in between",
 		RunE:  relayerConnectHandler,
 	}
+
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
+
 	return c
 }
 
-func relayerConnectHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New()
-	defer s.Stop()
+func relayerConnectHandler(cmd *cobra.Command, args []string) (err error) {
+	defer func() {
+		err = handleRelayerAccountErr(err)
+	}()
 
-	allPaths, err := xrelayer.ListPaths(cmd.Context())
+	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
 	if err != nil {
 		return err
 	}
 
-	var (
-		givenPathIDs = args
-		allPathIDs   = xstrings.List(len(allPaths), func(i int) string { return allPaths[i].ID })
-		pathsToUse   = xstrings.AllOrSomeFilter(allPathIDs, givenPathIDs)
-	)
+	if err := ca.EnsureDefaultAccount(); err != nil {
+		return err
+	}
 
-	if len(pathsToUse) == 0 {
+	ids := args
+
+	s := clispinner.New()
+	defer s.Stop()
+
+	var use []string
+
+	r := relayer.New(ca)
+
+	all, err := r.ListPaths(cmd.Context())
+	if err != nil {
+		return err
+	}
+
+	// if no path ids provided, then we connect all of them otherwise,
+	// only connect the specified ones.
+	if len(ids) == 0 {
+		for _, path := range all {
+			use = append(use, path.ID)
+
+		}
+	} else {
+		for _, id := range ids {
+			for _, path := range all {
+				if id == path.ID {
+					use = append(use, path.ID)
+					break
+				}
+
+			}
+		}
+	}
+
+	if len(use) == 0 {
 		s.Stop()
 
 		fmt.Println("No chains found to connect.")
 		return nil
 	}
 
-	s.SetText("Linking paths between chains...")
+	s.SetText("Creating links between chains...")
 
-	linkedPaths, alreadyLinkedPaths, failedToLinkPaths, err := xrelayer.Link(cmd.Context(), pathsToUse...)
-	if err != nil {
+	if err := r.Link(cmd.Context(), use...); err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Println()
-	printSection("Linking chains")
+	printSection("Paths")
 
-	if len(alreadyLinkedPaths) != 0 {
-		fmt.Printf("✓ %d paths already created to link chains.\n", len(alreadyLinkedPaths))
-		for _, id := range alreadyLinkedPaths {
-			fmt.Printf("  - %s\n", id)
-		}
-		fmt.Println()
-	}
-
-	if len(linkedPaths) != 0 {
-		fmt.Printf("✓ Linked chains with %d paths.\n", len(linkedPaths))
-		for _, id := range linkedPaths {
-			fmt.Printf("  - %s\n", id)
-		}
-		fmt.Println()
-	}
-
-	pathsToConnect := append(linkedPaths, alreadyLinkedPaths...)
-
-	if len(failedToLinkPaths) != 0 {
-		fmt.Printf("x Failed to link chains in %d paths.\n", len(failedToLinkPaths))
-		for _, failed := range failedToLinkPaths {
-			fmt.Printf("  - %s failed with error: %s\n", failed.ID, failed.ErrorMsg)
-		}
-		fmt.Println()
-	}
-
-	if len(pathsToConnect) == 0 {
-		fmt.Println("No paths to connect.")
-		return nil
-	}
-
-	fmt.Printf("Continuing with %d paths...\n\n", len(pathsToConnect))
-
-	printSection("Chains by paths")
-
-	for _, id := range pathsToConnect {
+	for _, id := range use {
 		s.SetText("Loading...").Start()
 
-		path, err := xrelayer.GetPath(cmd.Context(), id)
+		path, err := r.GetPath(cmd.Context(), id)
 		if err != nil {
 			return err
 		}
@@ -112,5 +110,5 @@ func relayerConnectHandler(cmd *cobra.Command, args []string) error {
 
 	printSection("Listening and relaying packets between chains...")
 
-	return xrelayer.Start(cmd.Context(), append(linkedPaths, alreadyLinkedPaths...)...)
+	return r.Start(cmd.Context(), use...)
 }

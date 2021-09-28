@@ -9,6 +9,8 @@ import (
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
+const flagSigner = "signer"
+
 // NewScaffoldMessage returns the command to scaffold messages
 func NewScaffoldMessage() *cobra.Command {
 	c := &cobra.Command{
@@ -17,52 +19,59 @@ func NewScaffoldMessage() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  messageHandler,
 	}
-	c.Flags().StringVarP(&appPath, "path", "p", "", "path of the app")
+
+	flagSetPath(c)
 	c.Flags().String(flagModule, "", "Module to add the message into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
+	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
 	return c
 }
 
 func messageHandler(cmd *cobra.Command, args []string) error {
+	var (
+		module, _    = cmd.Flags().GetString(flagModule)
+		resFields, _ = cmd.Flags().GetStringSlice(flagResponse)
+		desc, _      = cmd.Flags().GetString(flagDescription)
+		signer       = flagGetSigner(cmd)
+		appPath      = flagGetPath(cmd)
+	)
+
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	// Get the module to add the type into
-	module, err := cmd.Flags().GetString(flagModule)
-	if err != nil {
-		return err
-	}
-
-	// Get response fields
-	resFields, err := cmd.Flags().GetStringSlice(flagResponse)
-	if err != nil {
-		return err
-	}
+	var options []scaffolder.MessageOption
 
 	// Get description
-	desc, err := cmd.Flags().GetString(flagDescription)
-	if err != nil {
-		return err
-	}
-	if desc == "" {
-		// Use a default description
-		desc = fmt.Sprintf("Broadcast message %s", args[0])
+	if desc != "" {
+		options = append(options, scaffolder.WithDescription(desc))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	// Get signer
+	if signer != "" {
+		options = append(options, scaffolder.WithSigner(signer))
+	}
+
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddMessage(placeholder.New(), module, args[0], desc, args[1:], resFields)
+
+	sm, err := sc.AddMessage(cmd.Context(), placeholder.New(), module, args[0], args[1:], resFields, options...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
 	fmt.Printf("\n🎉 Created a message `%[1]v`.\n\n", args[0])
+
 	return nil
 }

@@ -1,17 +1,19 @@
 package scaffolder
 
 import (
+	"context"
+	"errors"
 	"fmt"
 	"go/ast"
 	"go/parser"
 	"go/token"
 	"os"
 	"path/filepath"
+	"strings"
 
-	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
-	"github.com/tendermint/starport/starport/pkg/placeholder"
-	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
+	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
 
 const (
@@ -19,44 +21,13 @@ const (
 	componentMessage = "message"
 	componentQuery   = "query"
 	componentPacket  = "packet"
+
+	protoFolder   = "proto"
+	typeSeparator = ":"
 )
 
-// supportMsgServer checks if the module supports the MsgServer convention
-// if not, the module codebase is modified to support it
-// https://github.com/cosmos/cosmos-sdk/blob/master/docs/architecture/adr-031-msg-service.md
-func supportMsgServer(
-	replacer placeholder.Replacer,
-	appPath string,
-	opts *modulecreate.MsgServerOptions,
-) (*genny.Generator, error) {
-	// Check if convention used
-	msgServerDefined, err := isMsgServerDefined(appPath, opts.ModuleName)
-	if err != nil {
-		return nil, err
-	}
-	if !msgServerDefined {
-		// Patch the module to support the convention
-		return modulecreate.AddMsgServerConventionToLegacyModule(replacer, opts)
-	}
-	return nil, nil
-}
-
-// isMsgServerDefined checks if the module uses the MsgServer convention for transactions
-// this is checked by verifying the existence of the tx.proto file
-func isMsgServerDefined(appPath, moduleName string) (bool, error) {
-	txProto, err := filepath.Abs(filepath.Join(appPath, "proto", moduleName, "tx.proto"))
-	if err != nil {
-		return false, err
-	}
-
-	if _, err := os.Stat(txProto); os.IsNotExist(err) {
-		return false, nil
-	}
-	return true, err
-}
-
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
-func checkComponentValidity(appPath, moduleName string, compName multiformatname.Name) error {
+func checkComponentValidity(appPath, moduleName string, compName multiformatname.Name, noMessage bool) error {
 	ok, err := moduleExists(appPath, moduleName)
 	if err != nil {
 		return err
@@ -66,18 +37,18 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 	}
 
 	// Ensure the name is valid, otherwise it would generate an incorrect code
-	if err := checkForbiddenComponentName(compName.LowerCamel); err != nil {
-		return fmt.Errorf("%s can't be used as a component name: %s", compName, err.Error())
+	if err := checkForbiddenComponentName(compName); err != nil {
+		return fmt.Errorf("%s can't be used as a component name: %s", compName.LowerCamel, err.Error())
 	}
 
 	// Check component name is not already used
-	return checkComponentCreated(appPath, moduleName, compName)
+	return checkComponentCreated(appPath, moduleName, compName, noMessage)
 }
 
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
-func checkForbiddenComponentName(name string) error {
+func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
-	switch name {
+	switch name.LowerCamel {
 	case
 		"oracle",
 		"logger",
@@ -86,10 +57,14 @@ func checkForbiddenComponentName(name string) error {
 		"genesis",
 		"types",
 		"tx":
-		return fmt.Errorf("%s is used by Starport scaffolder", name)
+		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
 	}
 
-	return checkGoReservedWord(name)
+	if strings.HasSuffix(name.LowerCase, "test") {
+		return errors.New(`name cannot end with "test"`)
+	}
+
+	return checkGoReservedWord(name.LowerCamel)
 }
 
 // checkGoReservedWord checks if the name can't be used because it is a go reserved keyword
@@ -144,23 +119,26 @@ func checkGoReservedWord(name string) error {
 }
 
 // checkComponentCreated checks if the component has been already created with Starport in the project
-func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name) (err error) {
+func checkComponentCreated(appPath, moduleName string, compName multiformatname.Name, noMessage bool) (err error) {
 
 	// associate the type to check with the component that scaffold this type
 	typesToCheck := map[string]string{
 		compName.UpperCamel:                           componentType,
-		"MsgCreate" + compName.UpperCamel:             componentType,
-		"MsgUpdate" + compName.UpperCamel:             componentType,
-		"MsgDelete" + compName.UpperCamel:             componentType,
 		"QueryAll" + compName.UpperCamel + "Request":  componentType,
 		"QueryAll" + compName.UpperCamel + "Response": componentType,
 		"QueryGet" + compName.UpperCamel + "Request":  componentType,
 		"QueryGet" + compName.UpperCamel + "Response": componentType,
-		"Msg" + compName.UpperCamel:                   componentMessage,
 		"Query" + compName.UpperCamel + "Request":     componentQuery,
 		"Query" + compName.UpperCamel + "Response":    componentQuery,
-		"MsgSend" + compName.UpperCamel:               componentPacket,
 		compName.UpperCamel + "PacketData":            componentPacket,
+	}
+
+	if !noMessage {
+		typesToCheck["MsgCreate"+compName.UpperCamel] = componentType
+		typesToCheck["MsgUpdate"+compName.UpperCamel] = componentType
+		typesToCheck["MsgDelete"+compName.UpperCamel] = componentType
+		typesToCheck["Msg"+compName.UpperCamel] = componentMessage
+		typesToCheck["MsgSend"+compName.UpperCamel] = componentPacket
 	}
 
 	absPath, err := filepath.Abs(filepath.Join(appPath, "x", moduleName, "types"))
@@ -203,4 +181,46 @@ func checkComponentCreated(appPath, moduleName string, compName multiformatname.
 		}
 	}
 	return err
+}
+
+// checkForbiddenOracleFieldName returns true if the name is forbidden as an oracle field name
+func checkForbiddenOracleFieldName(name string) error {
+	mfName, err := multiformatname.NewName(name, multiformatname.NoNumber)
+	if err != nil {
+		return err
+	}
+
+	// Check with names already used from the scaffolded code
+	switch mfName.UpperCase {
+	case
+		"CLIENTID",
+		"ORACLESCRIPTID",
+		"SOURCECHANNEL",
+		"CALLDATA",
+		"ASKCOUNT",
+		"MINCOUNT",
+		"FEELIMIT",
+		"REQUESTKEY",
+		"PREPAREGAS",
+		"EXECUTEGAS":
+		return fmt.Errorf("%s is used by Starport scaffolder", name)
+	}
+	return nil
+}
+
+// checkCustomTypes returns error if one of the types is invalid
+func checkCustomTypes(ctx context.Context, path, module string, fields []string) error {
+	protoPath := filepath.Join(path, protoFolder, module)
+	customFields := make([]string, 0)
+	for _, name := range fields {
+		fieldSplit := strings.Split(name, typeSeparator)
+		if len(fieldSplit) <= 1 {
+			continue
+		}
+		fieldType := fieldSplit[1]
+		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+			customFields = append(customFields, fieldType)
+		}
+	}
+	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }

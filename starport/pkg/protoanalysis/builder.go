@@ -1,6 +1,7 @@
 package protoanalysis
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
@@ -18,6 +19,7 @@ func build(p pkg) Package {
 	pk := Package{
 		Name:     p.name,
 		Path:     p.dir,
+		Files:    br.buildFiles(),
 		Messages: br.buildMessages(),
 		Services: br.toServices(p.services()),
 	}
@@ -32,17 +34,59 @@ func build(p pkg) Package {
 	return pk
 }
 
+func (b builder) buildFiles() (files []File) {
+	for _, f := range b.p.files {
+		files = append(files, File{f.path, f.imports})
+	}
+
+	return
+}
+
 func (b builder) buildMessages() (messages []Message) {
 	for _, f := range b.p.files {
 		for _, message := range f.messages {
+
+			// Find the highest field number
+			var highestFieldNumber int
+			for _, elem := range message.Elements {
+				field, ok := elem.(*proto.NormalField)
+				if ok {
+					if field.Sequence > highestFieldNumber {
+						highestFieldNumber = field.Sequence
+					}
+				}
+			}
+
+			// some proto messages might be defined inside another proto messages.
+			// to represents these types, an underscore is used.
+			// e.g. if C message inside B, and B inside A: A_B_C.
+			var (
+				name   = message.Name
+				parent = message.Parent
+			)
+			for {
+				if parent == nil {
+					break
+				}
+
+				parentMessage, ok := parent.(*proto.Message)
+				if !ok {
+					break
+				}
+
+				name = fmt.Sprintf("%s_%s", parentMessage.Name, name)
+				parent = parentMessage.Parent
+			}
+
 			messages = append(messages, Message{
-				Name: message.Name,
-				Path: f.path,
+				Name:               name,
+				Path:               f.path,
+				HighestFieldNumber: highestFieldNumber,
 			})
 		}
 	}
 
-	return
+	return messages
 }
 
 func (b builder) toServices(ps []*proto.Service) (services []Service) {
