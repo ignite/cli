@@ -29,6 +29,7 @@
 - `starport relayer` uses `starport account`
 - Added `--path` flag for all `scaffold`, `generate` and `chain` commands
 - Added `--output` flag to the `build` command
+- Port of gRPC web can be configured with in `config.yml` with the `host.grpc-web` property
 - Added `build.main` field to `config.yml` for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
 
 ### Fixes:
