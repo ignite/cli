@@ -307,7 +307,7 @@ _Temporary solution_: `export PATH=$PATH:$GOPATH$/bin`
 Then create a post:
 
 ```bash
-./blogd tx blog create-post foo bar --from alice
+blogd tx blog create-post foo bar --from alice
 ```
 
 ```bash
