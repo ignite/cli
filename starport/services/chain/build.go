@@ -41,7 +41,7 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
-		if errors.As(err, &exitErr) {
+		if errors.As(err, &exitErr) || errors.Is(err, goanalysis.ErrMultipleMainPackagesFound) {
 			err = &CannotBuildAppError{err}
 		}
 	}()
@@ -60,7 +60,7 @@ func (c *Chain) build(ctx context.Context, output string) (err error) {
 		return err
 	}
 
-	path, err := goanalysis.DiscoverMain(c.app.Path)
+	path, err := c.discoverMain(c.app.Path)
 	if err != nil {
 		return err
 	}
@@ -94,7 +94,7 @@ func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets
 		return "", err
 	}
 
-	mainPath, err := goanalysis.DiscoverMain(c.app.Path)
+	mainPath, err := c.discoverMain(c.app.Path)
 	if err != nil {
 		return "", err
 	}
@@ -192,4 +192,21 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
 
 	return buildFlags, nil
+}
+
+func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
+	conf, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+
+	if conf.Build.Main != "" {
+		return filepath.Join(c.app.Path, conf.Build.Main), nil
+	}
+
+	path, err = goanalysis.DiscoverOneMain(path)
+	if err == goanalysis.ErrMultipleMainPackagesFound {
+		return "", errors.Wrap(err, "specify the path to your chain's main package in your config.yml>build.main")
+	}
+	return path, err
 }

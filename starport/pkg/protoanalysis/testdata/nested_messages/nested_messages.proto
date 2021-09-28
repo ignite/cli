@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package nested_messages;
+
+message A {
+    message B {
+        message C {
+            hello string = 1;
+        }
+    }
+}
