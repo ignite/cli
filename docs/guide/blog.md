@@ -301,7 +301,8 @@ By following these steps, you have implemented all of the code required to creat
 
 Try it out! If the chain is yet not started, run `starport chain serve`.
 
-Navigate to directory `cmd/blogd/` and build the go file via `go build .`.
+__Note__: Please make sure you have `$GOPATH$/bin` in your PATH.
+_Temporary solution_: `export PATH=$PATH:$GOPATH$/bin`
 
 Then create a post:
 
