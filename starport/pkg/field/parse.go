@@ -7,7 +7,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
-// validateField validate the field Name and type, and run the forbidden method
+// validateField validates the field Name and type, and checks the name is not forbidden by Starport
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, DataTypeName, error) {
 	fieldSplit := strings.Split(field, TypeSeparator)
 	if len(fieldSplit) > 2 {
@@ -41,7 +41,7 @@ func ParseFields(
 	isForbiddenField func(string) error,
 ) (Fields, error) {
 	// Used to check duplicated field
-	existingFields := make(map[string]bool)
+	existingFields := make(map[string]struct{})
 
 	var parsedFields Fields
 	for _, field := range fields {
@@ -54,7 +54,7 @@ func ParseFields(
 		if _, exists := existingFields[name.LowerCamel]; exists {
 			return parsedFields, fmt.Errorf("the field %s is duplicated", name.Original)
 		}
-		existingFields[name.LowerCamel] = true
+		existingFields[name.LowerCamel] = struct{}{}
 
 		// Check if is a static type
 		if _, ok := SupportedTypes[datatypeName]; ok {

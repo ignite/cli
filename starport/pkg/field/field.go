@@ -15,7 +15,7 @@ type Field struct {
 	Datatype     string
 }
 
-// DataDeclaration return the Datatype data declaration
+// DataDeclaration returns the Datatype data declaration
 func (f Field) DataDeclaration() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -24,7 +24,7 @@ func (f Field) DataDeclaration() string {
 	return datatype.DataDeclaration(f.Datatype)
 }
 
-// ProtoDeclaration return the Datatype proto declaration
+// ProtoDeclaration returns the Datatype proto declaration
 func (f Field) ProtoDeclaration(index int) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -33,7 +33,7 @@ func (f Field) ProtoDeclaration(index int) string {
 	return datatype.ProtoDeclaration(f.Datatype, f.Name.LowerCamel, index)
 }
 
-// ValueDefault return the Datatype value default
+// ValueDefault returns the Datatype value default
 func (f Field) ValueDefault() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -42,7 +42,7 @@ func (f Field) ValueDefault() string {
 	return datatype.ValueDefault
 }
 
-// ValueLoop return the Datatype value for loop iteration
+// ValueLoop returns the Datatype value for loop iteration
 func (f Field) ValueLoop() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -54,7 +54,7 @@ func (f Field) ValueLoop() string {
 	return datatype.ValueLoop
 }
 
-// ValueIndex return the Datatype value for indexes
+// ValueIndex returns the Datatype value for indexes
 func (f Field) ValueIndex() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -66,7 +66,7 @@ func (f Field) ValueIndex() string {
 	return datatype.ValueIndex
 }
 
-// ValueInvalidIndex return the Datatype value for invalid indexes
+// ValueInvalidIndex returns the Datatype value for invalid indexes
 func (f Field) ValueInvalidIndex() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -78,7 +78,7 @@ func (f Field) ValueInvalidIndex() string {
 	return datatype.ValueInvalidIndex
 }
 
-// GenesisArgs return the Datatype genesis args
+// GenesisArgs returns the Datatype genesis args
 func (f Field) GenesisArgs(value int) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -87,7 +87,7 @@ func (f Field) GenesisArgs(value int) string {
 	return datatype.GenesisArgs(f.Name, value)
 }
 
-// CLIArgs return the Datatype CLI args
+// CLIArgs returns the Datatype CLI args
 func (f Field) CLIArgs(prefix string, argIndex int) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -96,7 +96,7 @@ func (f Field) CLIArgs(prefix string, argIndex int) string {
 	return datatype.CLIArgs(f.Name, f.Datatype, prefix, argIndex)
 }
 
-// ToBytes return the Datatype byte array cast
+// ToBytes returns the Datatype byte array cast
 func (f Field) ToBytes(name string) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -108,7 +108,7 @@ func (f Field) ToBytes(name string) string {
 	return datatype.ToBytes(name)
 }
 
-// ToString return the Datatype byte array cast
+// ToString returns the Datatype byte array cast
 func (f Field) ToString(name string) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
@@ -120,7 +120,7 @@ func (f Field) ToString(name string) string {
 	return datatype.ToString(name)
 }
 
-// GoCLIImports return the Datatype imports for CLI package
+// GoCLIImports returns the Datatype imports for CLI package
 func (f Field) GoCLIImports() []GoImport {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
