@@ -43,7 +43,7 @@ func Register(ctx *plush.Context, gen *genny.Generator, appPath string) error {
 		return err
 	}
 
-	// if yes, only box the sample and normalize folder
+	// if yes, only box the sample folder
 	path = filepath.Join(path, sampleDir)
 	_, err := os.Stat(path)
 	if os.IsNotExist(err) {
