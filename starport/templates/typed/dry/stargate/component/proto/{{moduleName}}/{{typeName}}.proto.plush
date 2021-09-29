@@ -7,5 +7,5 @@ import "<%= importName %>"; <% } %>
 
 message <%= TypeName.UpperCamel %> {
   <%= for (i, field) in Fields { %>
-  <%= field.ProtoDeclaration(i+1) %> <% } %>
+  <%= field.ProtoType(i+1) %> <% } %>
 }

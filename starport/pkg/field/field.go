@@ -15,22 +15,22 @@ type Field struct {
 	Datatype     string
 }
 
-// DataDeclaration returns the Datatype data declaration
-func (f Field) DataDeclaration() string {
+// DataType returns the field Datatype
+func (f Field) DataType() string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return datatype.DataDeclaration(f.Datatype)
+	return datatype.DataType(f.Datatype)
 }
 
-// ProtoDeclaration returns the Datatype proto declaration
-func (f Field) ProtoDeclaration(index int) string {
+// ProtoType returns the field proto Datatype
+func (f Field) ProtoType(index int) string {
 	datatype, ok := SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return datatype.ProtoDeclaration(f.Datatype, f.Name.LowerCamel, index)
+	return datatype.ProtoType(f.Datatype, f.Name.LowerCamel, index)
 }
 
 // ValueDefault returns the Datatype value default

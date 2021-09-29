@@ -83,11 +83,11 @@ func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.Ru
 
 		var msgFields string
 		for i, field := range opts.Fields {
-			msgFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+2))
+			msgFields += fmt.Sprintf("  %s\n", field.ProtoType(i+2))
 		}
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+1))
+			resFields += fmt.Sprintf("  %s\n", field.ProtoType(i+1))
 		}
 
 		template := `message Msg%[2]v {

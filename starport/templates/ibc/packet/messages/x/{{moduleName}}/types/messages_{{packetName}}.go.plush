@@ -12,7 +12,7 @@ func NewMsgSend<%= packetName.UpperCamel %>(
     port string,
     channelID string,
     timeoutTimestamp uint64,<%= for (field) in fields { %>
-    <%= field.Name.LowerCamel %> <%= field.DataDeclaration() %>,<% } %>
+    <%= field.Name.LowerCamel %> <%= field.DataType() %>,<% } %>
 ) *MsgSend<%= packetName.UpperCamel %> {
     return &MsgSend<%= packetName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,

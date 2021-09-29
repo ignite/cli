@@ -36,8 +36,8 @@ type (
 		Alias string
 	}
 	dataType struct {
-		DataDeclaration   func(datatype string) string
-		ProtoDeclaration  func(datatype, name string, index int) string
+		DataType          func(datatype string) string
+		ProtoType         func(datatype, name string, index int) string
 		GenesisArgs       func(name multiformatname.Name, value int) string
 		ProtoImports      []string
 		GoCLIImports      []GoImport
@@ -73,12 +73,12 @@ var (
 	}
 
 	typeString = dataType{
-		DataDeclaration:   func(string) string { return "string" },
+		DataType:          func(string) string { return "string" },
 		ValueDefault:      "xyz",
 		ValueLoop:         "strconv.Itoa(i)",
 		ValueIndex:        "strconv.Itoa(0)",
 		ValueInvalidIndex: "strconv.Itoa(100000)",
-		ProtoDeclaration: func(_, name string, index int) string {
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("string %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -96,12 +96,12 @@ var (
 	}
 
 	typeBool = dataType{
-		DataDeclaration:   func(string) string { return "bool" },
+		DataType:          func(string) string { return "bool" },
 		ValueDefault:      "false",
 		ValueLoop:         "false",
 		ValueIndex:        "false",
 		ValueInvalidIndex: "false",
-		ProtoDeclaration: func(_, name string, index int) string {
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("bool %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -127,12 +127,12 @@ var (
 	}
 
 	typeInt = dataType{
-		DataDeclaration:   func(string) string { return "int32" },
+		DataType:          func(string) string { return "int32" },
 		ValueDefault:      "111",
 		ValueLoop:         "int32(i)",
 		ValueIndex:        "0",
 		ValueInvalidIndex: "100000",
-		ProtoDeclaration: func(_, name string, index int) string {
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -156,12 +156,12 @@ var (
 	}
 
 	typeUint = dataType{
-		DataDeclaration:   func(string) string { return "uint64" },
+		DataType:          func(string) string { return "uint64" },
 		ValueDefault:      "111",
 		ValueLoop:         "uint64(i)",
 		ValueIndex:        "0",
 		ValueInvalidIndex: "100000",
-		ProtoDeclaration: func(_, name string, index int) string {
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -185,9 +185,9 @@ var (
 	}
 
 	typeStringSlice = dataType{
-		DataDeclaration: func(string) string { return "[]string" },
-		ValueDefault:    "abc,xyz",
-		ProtoDeclaration: func(_, name string, index int) string {
+		DataType:     func(string) string { return "[]string" },
+		ValueDefault: "abc,xyz",
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated string %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -202,9 +202,9 @@ var (
 	}
 
 	typeIntSlice = dataType{
-		DataDeclaration: func(string) string { return "[]int32" },
-		ValueDefault:    "1,2,3,4,5",
-		ProtoDeclaration: func(_, name string, index int) string {
+		DataType:     func(string) string { return "[]int32" },
+		ValueDefault: "1,2,3,4,5",
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated int32 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -226,9 +226,9 @@ var (
 	}
 
 	typeUintSlice = dataType{
-		DataDeclaration: func(string) string { return "[]uint64" },
-		ValueDefault:    "1,2,3,4,5",
-		ProtoDeclaration: func(_, name string, index int) string {
+		DataType:     func(string) string { return "[]uint64" },
+		ValueDefault: "1,2,3,4,5",
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d;", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -251,9 +251,9 @@ var (
 	}
 
 	typeCustom = dataType{
-		DataDeclaration: func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
-		ValueDefault:    "null",
-		ProtoDeclaration: func(datatype, name string, index int) string {
+		DataType:     func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
+		ValueDefault: "null",
+		ProtoType: func(datatype, name string, index int) string {
 			return fmt.Sprintf("%s %s = %d;", datatype, name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
@@ -271,9 +271,9 @@ var (
 	}
 
 	typeCoin = dataType{
-		DataDeclaration: func(string) string { return "sdk.Coin" },
-		ValueDefault:    "10token",
-		ProtoDeclaration: func(_, name string, index int) string {
+		DataType:     func(string) string { return "sdk.Coin" },
+		ValueDefault: "10token",
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
 				name, index)
 		},
@@ -290,9 +290,9 @@ var (
 	}
 
 	typeCoinSlice = dataType{
-		DataDeclaration: func(string) string { return "sdk.Coins" },
-		ValueDefault:    "10token,20stake",
-		ProtoDeclaration: func(_, name string, index int) string {
+		DataType:     func(string) string { return "sdk.Coins" },
+		ValueDefault: "10token,20stake",
+		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
 				name, index)
 		},

@@ -198,12 +198,12 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Add the message definition for packet and acknowledgment
 		var packetFields string
 		for i, field := range opts.Fields {
-			packetFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+1))
+			packetFields += fmt.Sprintf("  %s\n", field.ProtoType(i+1))
 		}
 
 		var ackFields string
 		for i, field := range opts.AckFields {
-			ackFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+1))
+			ackFields += fmt.Sprintf("  %s\n", field.ProtoType(i+1))
 		}
 
 		// Ensure custom types are imported
@@ -288,7 +288,7 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 
 		var sendFields string
 		for i, field := range opts.Fields {
-			sendFields += fmt.Sprintf("  %s\n", field.ProtoDeclaration(i+5))
+			sendFields += fmt.Sprintf("  %s\n", field.ProtoType(i+5))
 		}
 
 		// Ensure custom types are imported
