@@ -188,6 +188,7 @@ func TestCreateIBCPacket(t *testing.T) {
 				"packet",
 				"bar",
 				"text",
+				"texts:strings",
 				"--module",
 				"foo",
 				"--ack",
@@ -223,7 +224,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	env.Must(env.Exec("create a packet with custom type fields",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "packet", "ticket", "num:int", "victory:bool", "--module", "foo"),
+			step.Exec("starport", "s", "packet", "ticket", "nums:array.int", "victory:bool", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))
