@@ -83,7 +83,7 @@ func RunWithValidation(
 	return sm, nil
 }
 
-// Box will mount each file in the Box and wrap it only if the file does not exist yet
+// Box will mount each file in the Box and wrap it, already existing files are ignored
 func Box(g *genny.Generator, box packd.Walker) error {
 	return box.Walk(func(path string, bf packd.File) error {
 		f := genny.NewFile(path, bf)
