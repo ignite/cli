@@ -12,7 +12,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/testutil/network"
-	"<%= ModulePath %>/testutil/normalize"
+	"<%= ModulePath %>/testutil/nullify"
 	"<%= ModulePath %>/x/<%= ModuleName %>/client/cli"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
@@ -27,7 +27,7 @@ func networkWith<%= TypeName.UpperCamel %>Objects(t *testing.T, n int) (*network
 		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
     		Id: uint64(i),
     	}
-		normalize.FillNilValues(&<%= TypeName.LowerCamel %>)
+		nullify.Fill(&<%= TypeName.LowerCamel %>)
 		state.<%= TypeName.UpperCamel %>List = append(state.<%= TypeName.UpperCamel %>List, <%= TypeName.LowerCamel %>)
 	}
 	buf, err := cfg.Codec.MarshalJSON(&state)
@@ -78,8 +78,8 @@ func TestShow<%= TypeName.UpperCamel %>(t *testing.T) {
 				require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.NotNil(t, resp.<%= TypeName.UpperCamel %>)
 				require.Equal(t,
-                	normalize.FillNilValues(&tc.obj),
-                	normalize.FillNilValues(&resp.<%= TypeName.UpperCamel %>),
+                	nullify.Fill(&tc.obj),
+                	nullify.Fill(&resp.<%= TypeName.UpperCamel %>),
                 )
 			}
 		})
@@ -115,8 +115,8 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
-            	normalize.FillNilValues(objs),
-            	normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+            	nullify.Fill(objs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
             )
 		}
 	})
@@ -131,8 +131,8 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 			require.NoError(t, net.Config.Codec.UnmarshalJSON(out.Bytes(), &resp))
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
-				normalize.FillNilValues(objs),
-            	normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+				nullify.Fill(objs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
             )
 			next = resp.Pagination.NextKey
 		}
@@ -146,8 +146,8 @@ func TestList<%= TypeName.UpperCamel %>(t *testing.T) {
 		require.NoError(t, err)
 		require.Equal(t, len(objs), int(resp.Pagination.Total))
 		require.Equal(t,
-			normalize.FillNilValues(objs),
-			normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+			nullify.Fill(objs),
+			nullify.Fill(resp.<%= TypeName.UpperCamel %>),
 		)
 	})
 }

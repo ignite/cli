@@ -9,7 +9,7 @@ import (
 	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	keepertest "<%= ModulePath %>/testutil/keeper"
-    "<%= ModulePath %>/testutil/normalize"
+    "<%= ModulePath %>/testutil/nullify"
 )
 
 func createTest<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
@@ -24,8 +24,8 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 	rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
     require.True(t, found)
 	require.Equal(t,
-		normalize.FillNilValues(&item),
-		normalize.FillNilValues(&rst),
+		nullify.Fill(&item),
+		nullify.Fill(&rst),
 	)
 }
 

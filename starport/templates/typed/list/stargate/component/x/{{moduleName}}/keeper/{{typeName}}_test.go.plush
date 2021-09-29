@@ -7,7 +7,7 @@ import (
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	keepertest "<%= ModulePath %>/testutil/keeper"
-	"<%= ModulePath %>/testutil/normalize"
+	"<%= ModulePath %>/testutil/nullify"
 	"github.com/stretchr/testify/require"
 )
 
@@ -26,8 +26,8 @@ func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
 		got, found := keeper.Get<%= TypeName.UpperCamel %>(ctx, item.Id)
 		require.True(t, found)
 		require.Equal(t,
-			normalize.FillNilValues(&item),
-			normalize.FillNilValues(&got),
+			nullify.Fill(&item),
+			nullify.Fill(&got),
 		)
 	}
 }
@@ -46,8 +46,8 @@ func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
 	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
 	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
 	require.ElementsMatch(t,
-		normalize.FillNilValues(items),
-		normalize.FillNilValues(keeper.GetAll<%= TypeName.UpperCamel %>(ctx)),
+		nullify.Fill(items),
+		nullify.Fill(keeper.GetAll<%= TypeName.UpperCamel %>(ctx)),
 	)
 }
 

@@ -11,7 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
-	"<%= ModulePath %>/testutil/normalize"
+	"<%= ModulePath %>/testutil/nullify"
 	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
@@ -52,8 +52,8 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 			} else {
 			    require.NoError(t, err)
 				require.Equal(t,
-					normalize.FillNilValues(tc.response),
-					normalize.FillNilValues(response),
+					nullify.Fill(tc.response),
+					nullify.Fill(response),
 				)
 			}
 		})
@@ -82,8 +82,8 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
-				normalize.FillNilValues(msgs),
-            	normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+				nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
             )
 		}
 	})
@@ -95,8 +95,8 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
 			require.Subset(t,
-				normalize.FillNilValues(msgs),
-            	normalize.FillNilValues(resp.<%= TypeName.UpperCamel %>),
+				nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
             )
 			next = resp.Pagination.NextKey
 		}

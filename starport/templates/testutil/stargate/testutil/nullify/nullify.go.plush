@@ -1,4 +1,4 @@
-package normalize
+package nullify
 
 import (
 	"reflect"
@@ -12,14 +12,14 @@ var (
 	coinsType = reflect.TypeOf(sdk.Coins{})
 )
 
-func FillNilValues(x interface{}) interface{} {
+func Fill(x interface{}) interface{} {
 	v := reflect.Indirect(reflect.ValueOf(x))
 	switch v.Kind() {
 	case reflect.Slice:
 		for i := 0; i < v.Len(); i++ {
 			obj := v.Index(i)
 			objPt := reflect.NewAt(obj.Type(), unsafe.Pointer(obj.UnsafeAddr())).Interface()
-			objPt = FillNilValues(objPt)
+			objPt = Fill(objPt)
 			obj.Set(reflect.ValueOf(objPt))
 		}
 	case reflect.Struct:
@@ -43,7 +43,7 @@ func FillNilValues(x interface{}) interface{} {
 					f.Set(s)
 				default:
 					objPt := reflect.NewAt(f.Type(), unsafe.Pointer(f.UnsafeAddr())).Interface()
-					s := FillNilValues(objPt)
+					s := Fill(objPt)
 					f.Set(reflect.ValueOf(s))
 				}
 			}

@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	keepertest "<%= ModulePath %>/testutil/keeper"
-	"<%= ModulePath %>/testutil/normalize"
+	"<%= ModulePath %>/testutil/nullify"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -40,8 +40,8 @@ func Test<%= TypeName.UpperCamel %>Query(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				require.Equal(t,
-					normalize.FillNilValues(tc.response),
-					normalize.FillNilValues(response),
+					nullify.Fill(tc.response),
+					nullify.Fill(response),
 				)
 			}
 		})
