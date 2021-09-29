@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
 )
@@ -57,7 +57,7 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		"genesis",
 		"types",
 		"tx",
-		field.TypeCustom:
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
 	}
 
@@ -218,8 +218,8 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 		if len(fieldSplit) <= 1 {
 			continue
 		}
-		fieldType := field.DataTypeName(fieldSplit[1])
-		if _, ok := field.SupportedTypes[fieldType]; !ok {
+		fieldType := datatype.Name(fieldSplit[1])
+		if _, ok := datatype.SupportedTypes[fieldType]; !ok {
 			customFields = append(customFields, string(fieldType))
 		}
 	}

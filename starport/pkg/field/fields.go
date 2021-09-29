@@ -3,6 +3,7 @@ package field
 import (
 	"fmt"
 
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
@@ -10,8 +11,8 @@ import (
 type Fields []Field
 
 // GoCLIImports return all go CLI imports
-func (f Fields) GoCLIImports() []GoImport {
-	allImports := make([]GoImport, 0)
+func (f Fields) GoCLIImports() []datatype.GoImport {
+	allImports := make([]datatype.GoImport, 0)
 	exist := make(map[string]struct{})
 	for _, fields := range f {
 		for _, goImport := range fields.GoCLIImports() {
@@ -54,7 +55,7 @@ func (f Fields) String() string {
 func (f Fields) Custom() []string {
 	fields := make([]string, 0)
 	for _, field := range f {
-		if field.DatatypeName == TypeCustom {
+		if field.DatatypeName == datatype.TypeCustom {
 			dataType, err := multiformatname.NewName(field.Datatype)
 			if err != nil {
 				panic(err)

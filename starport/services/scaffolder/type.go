@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -222,8 +223,8 @@ func checkForbiddenTypeIndex(name string) error {
 	fieldSplit := strings.Split(name, typeSeparator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
-		fieldType := field.DataTypeName(fieldSplit[1])
-		if f, ok := field.SupportedTypes[fieldType]; !ok || f.NonIndex {
+		fieldType := datatype.Name(fieldSplit[1])
+		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
 			return fmt.Errorf("invalid index type %s", fieldType)
 		}
 	}
@@ -247,7 +248,7 @@ func checkForbiddenTypeField(name string) error {
 		"id",
 		"creator",
 		"appendedvalue",
-		field.TypeCustom:
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 

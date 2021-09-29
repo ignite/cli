@@ -4,6 +4,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/plush"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/field"
 )
 
@@ -30,8 +31,8 @@ func mergeCustomImports(fields ...field.Fields) []string {
 	return allImports
 }
 
-func mergeGoImports(fields ...field.Fields) []field.GoImport {
-	allImports := make([]field.GoImport, 0)
+func mergeGoImports(fields ...field.Fields) []datatype.GoImport {
+	allImports := make([]datatype.GoImport, 0)
 	exist := make(map[string]struct{})
 	for _, fields := range fields {
 		for _, goImport := range fields.GoCLIImports() {

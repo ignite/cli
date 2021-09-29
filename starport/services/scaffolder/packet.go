@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -167,7 +168,7 @@ func checkForbiddenPacketField(name string) error {
 		"sender",
 		"port",
 		"channelid",
-		field.TypeCustom:
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 

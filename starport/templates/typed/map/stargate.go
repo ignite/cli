@@ -7,7 +7,7 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -34,7 +34,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	// because we can't generate reliable tests for this type
 	var generateTest bool
 	for _, index := range opts.Indexes {
-		if index.DatatypeName != field.DataTypeBool {
+		if index.DatatypeName != datatype.Bool {
 			generateTest = true
 		}
 	}

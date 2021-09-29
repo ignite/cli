@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Starport
-func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, DataTypeName, error) {
-	fieldSplit := strings.Split(field, TypeSeparator)
+func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
+	fieldSplit := strings.Split(field, datatype.TypeSeparator)
 	if len(fieldSplit) > 2 {
 		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
 	}
@@ -26,10 +27,10 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 	}
 
 	// Check if the object has an explicit type. The default is a string
-	dataTypeName := DataTypeString
+	dataTypeName := datatype.String
 	isTypeSpecified := len(fieldSplit) == 2
 	if isTypeSpecified {
-		dataTypeName = DataTypeName(fieldSplit[1])
+		dataTypeName = datatype.Name(fieldSplit[1])
 	}
 	return name, dataTypeName, nil
 }
@@ -57,7 +58,7 @@ func ParseFields(
 		existingFields[name.LowerCamel] = struct{}{}
 
 		// Check if is a static type
-		if _, ok := SupportedTypes[datatypeName]; ok {
+		if _, ok := datatype.SupportedTypes[datatypeName]; ok {
 			parsedFields = append(parsedFields, Field{
 				Name:         name,
 				DatatypeName: datatypeName,
@@ -68,7 +69,7 @@ func ParseFields(
 		parsedFields = append(parsedFields, Field{
 			Name:         name,
 			Datatype:     string(datatypeName),
-			DatatypeName: TypeCustom,
+			DatatypeName: datatype.TypeCustom,
 		})
 	}
 	return parsedFields, nil

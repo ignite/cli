@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 )
 
@@ -60,11 +61,11 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeString,
+					DatatypeName: datatype.String,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeString,
+					DatatypeName: datatype.String,
 				},
 			},
 		},
@@ -78,15 +79,15 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeUint,
+					DatatypeName: datatype.Uint,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeInt,
+					DatatypeName: datatype.Int,
 				},
 				{
 					Name:         name3,
-					DatatypeName: DataTypeBool,
+					DatatypeName: datatype.Bool,
 				},
 			},
 		},
@@ -100,15 +101,15 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeUintSlice,
+					DatatypeName: datatype.UintSlice,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeIntSlice,
+					DatatypeName: datatype.IntSlice,
 				},
 				{
 					Name:         name3,
-					DatatypeName: DataTypeStringSlice,
+					DatatypeName: datatype.StringSlice,
 				},
 			},
 		},
@@ -123,19 +124,19 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeUint,
+					DatatypeName: datatype.Uint,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeCoinSlice,
+					DatatypeName: datatype.Coins,
 				},
 				{
 					Name:         name3,
-					DatatypeName: DataTypeString,
+					DatatypeName: datatype.String,
 				},
 				{
 					Name:         name4,
-					DatatypeName: DataTypeStringSliceAlias,
+					DatatypeName: datatype.StringSliceAlias,
 				},
 			},
 		},
@@ -149,17 +150,17 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeCustom,
+					DatatypeName: datatype.Custom,
 					Datatype:     "Bla",
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeCustom,
+					DatatypeName: datatype.Custom,
 					Datatype:     "Test",
 				},
 				{
 					Name:         name3,
-					DatatypeName: DataTypeString,
+					DatatypeName: datatype.String,
 				},
 			},
 		},
@@ -172,11 +173,11 @@ func TestParseFields1(t *testing.T) {
 			want: Fields{
 				{
 					Name:         name1,
-					DatatypeName: DataTypeCoin,
+					DatatypeName: datatype.Coin,
 				},
 				{
 					Name:         name2,
-					DatatypeName: DataTypeCoinSlice,
+					DatatypeName: datatype.Coins,
 				},
 			},
 		},

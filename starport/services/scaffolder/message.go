@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
+	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
@@ -159,7 +160,7 @@ func checkForbiddenMessageField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"creator",
-		field.TypeCustom:
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
