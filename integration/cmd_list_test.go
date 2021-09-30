@@ -1,8 +1,10 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -21,6 +23,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create a list with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "AppPath", "email", "--path", "blog"),
+			step.Workdir(filepath.Dir(path)),
+		)),
+	))
+
 	env.Must(env.Exec("create a list with int",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "employee", "name:string", "level:int"),
@@ -31,6 +40,13 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 	env.Must(env.Exec("create a list with bool",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "document", "signed:bool"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a list with custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "custom", "document:Document"),
 			step.Workdir(path),
 		)),
 	))

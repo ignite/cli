@@ -8,10 +8,10 @@ import (
 	"github.com/bandprotocol/bandchain-packet/packet"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
-	clienttypes "github.com/cosmos/cosmos-sdk/x/ibc/core/02-client/types"
-	channeltypes "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/types"
-	host "github.com/cosmos/cosmos-sdk/x/ibc/core/24-host"
-	"<%= modulePath %>/x/<%= moduleName %>/types"
+	clienttypes "github.com/cosmos/ibc-go/modules/core/02-client/types"
+	channeltypes "github.com/cosmos/ibc-go/modules/core/04-channel/types"
+	host "github.com/cosmos/ibc-go/modules/core/24-host"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
 )
 
 // <%= queryName.UpperCamel %>Data creates the <%= queryName.UpperCamel %> packet
@@ -54,7 +54,6 @@ func (k msgServer) <%= queryName.UpperCamel %>Data(goCtx context.Context, msg *t
 		msg.AskCount,
 		msg.MinCount,
 		msg.FeeLimit,
-		msg.RequestKey,
 		msg.PrepareGas,
 		msg.ExecuteGas,
 	)

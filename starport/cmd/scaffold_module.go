@@ -31,20 +31,25 @@ func NewScaffoldModule() *cobra.Command {
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldModuleHandler,
 	}
+
+	flagSetPath(c)
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
+
 	return c
 }
 
 func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
+	var (
+		options []scaffolder.ModuleCreationOption
+
+		name    = args[0]
+		appPath = flagGetPath(cmd)
+	)
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
-
-	var options []scaffolder.ModuleCreationOption
-
-	name := args[0]
 
 	ibcModule, err := cmd.Flags().GetBool(flagIBC)
 	if err != nil {
@@ -91,12 +96,14 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		options = append(options, scaffolder.WithDependencies(formattedDependencies))
 	}
 
-	sc, err := scaffolder.New(appPath)
+	var msg bytes.Buffer
+	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
+
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
-	var msg bytes.Buffer
-	fmt.Fprintf(&msg, "\n🎉 Module created %s.\n\n", name)
+
 	sm, err := sc.CreateModule(placeholder.New(), name, options...)
 	s.Stop()
 	if err != nil {
@@ -108,7 +115,12 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 			return err
 		}
 	} else {
-		fmt.Println(sourceModificationToString(sm))
+		modificationsStr, err := sourceModificationToString(sm)
+		if err != nil {
+			return err
+		}
+
+		fmt.Println(modificationsStr)
 	}
 
 	if len(dependencies) > 0 {

@@ -38,7 +38,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New()
 	defer s.Stop()
 
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}

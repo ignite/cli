@@ -6,16 +6,16 @@ import (
 	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/repoversion"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
@@ -133,7 +133,7 @@ func EnableThirdPartyModuleCodegen() Option {
 }
 
 // New initializes a new Chain with options that its source lives at path.
-func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
+func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -167,7 +167,7 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	if !c.Version.Major().Is(cosmosver.Stargate) {
+	if !c.Version.IsFamily(cosmosver.Stargate) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
@@ -178,20 +178,15 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(c.app.Path)
+
+	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
-	iter, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-	ref, err := iter.Next()
-	if err != nil {
-		return version{}, nil
-	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
+
+	v.hash = ver.Hash
+	v.tag = ver.Tag
+
 	return v, nil
 }
 
@@ -215,7 +210,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := conf.LocateDefault(c.app.Path)
+	path, err := chainconfig.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -223,12 +218,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (conf.Config, error) {
+func (c *Chain) Config() (chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return conf.DefaultConf, nil
+		return chainconfig.DefaultConf, nil
 	}
-	return conf.ParseFile(configPath)
+	return chainconfig.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -419,14 +414,14 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccroptions := []chaincmdrunner.Option{}
+	ccrOptions := make([]chaincmdrunner.Option, 0)
 	if c.logLevel == LogVerbose {
-		ccroptions = append(ccroptions,
+		ccrOptions = append(ccrOptions,
 			chaincmdrunner.Stdout(os.Stdout),
 			chaincmdrunner.Stderr(os.Stderr),
 			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
 		)
 	}
 
-	return chaincmdrunner.New(ctx, cc, ccroptions...)
+	return chaincmdrunner.New(ctx, cc, ccrOptions...)
 }

@@ -8,7 +8,7 @@ import (
 func NewAccountList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list",
-		Short: "List accounts",
+		Short: "Show a list of all accounts",
 		RunE:  accountListHandler,
 	}
 

@@ -42,7 +42,7 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldFlutter())
-	c.AddCommand(NewScaffoldWasm())
+	// c.AddCommand(NewScaffoldWasm())
 
 	return c
 }
@@ -58,6 +58,7 @@ func scaffoldType(
 		moduleName     = flagGetModule(cmd)
 		withoutMessage = flagGetNoMessage(cmd)
 		signer         = flagGetSigner(cmd)
+		appPath        = flagGetPath(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -78,18 +79,24 @@ func scaffoldType(
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
 
-	sc, err := scaffolder.New(appPath)
+	sc, err := newApp(appPath)
 	if err != nil {
 		return err
 	}
-	sm, err := sc.AddType(typeName, placeholder.New(), kind, options...)
+
+	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Println(sourceModificationToString(sm))
+	modificationsStr, err := sourceModificationToString(sm)
+	if err != nil {
+		return err
+	}
+
+	fmt.Println(modificationsStr)
 	fmt.Printf("\n🎉 %s added. \n\n", typeName)
 
 	return nil

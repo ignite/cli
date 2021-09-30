@@ -34,7 +34,7 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 	return &Msg<%= queryName.UpperCamel %>Data{
 		ClientID:       				<%= queryName.UpperCamel %>ClientIDKey,
 		<%= MsgSigner.UpperCamel %>:	<%= MsgSigner.LowerCamel %>,
-		OracleScriptID: 				int64(oracleScriptID),
+		OracleScriptID: 				uint64(oracleScriptID),
 		SourceChannel:  				sourceChannel,
 		Calldata:       				calldata,
 		AskCount:       				askCount,
@@ -76,6 +76,9 @@ func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+	}
+	if m.SourceChannel == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
 	}
 	return nil
 }

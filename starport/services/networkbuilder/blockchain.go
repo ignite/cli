@@ -12,7 +12,7 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -83,12 +83,12 @@ func (b *Blockchain) init(
 		chainOption = append(chainOption, chain.KeyringBackend(keyringBackend))
 	}
 
-	chain, err := chain.New(ctx, b.appPath, chainOption...)
+	chain, err := chain.New(b.appPath, chainOption...)
 	if err != nil {
 		return err
 	}
 
-	if !chain.Version.Major().Is(cosmosver.Stargate) {
+	if !chain.Version.IsFamily(cosmosver.Stargate) {
 		return sperrors.ErrOnlyStargateSupported
 	}
 	chainHome, err := chain.Home()
@@ -107,7 +107,7 @@ func (b *Blockchain) init(
 		return err
 	}
 
-	if _, err := chain.Build(ctx); err != nil {
+	if _, err := chain.Build(ctx, ""); err != nil {
 		return err
 	}
 	if err := chain.Init(ctx, false); err != nil {
@@ -143,7 +143,7 @@ func initialGenesisPath(appHome string) string {
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
 	Genesis          jsondoc.Doc
-	Config           conf.Config
+	Config           chainconfig.Config
 	RPCPublicAddress string
 }
 

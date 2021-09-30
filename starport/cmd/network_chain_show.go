@@ -34,7 +34,7 @@ func NewNetworkChainShow() *cobra.Command {
 func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	chainID := args[0]
 
-	nb, err := newNetworkBuilder()
+	nb, err := newNetworkBuilder(cmd.Context())
 	if err != nil {
 		return err
 	}

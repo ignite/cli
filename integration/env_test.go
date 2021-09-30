@@ -17,7 +17,7 @@ import (
 	"github.com/goccy/go-yaml"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	starportconf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -150,15 +150,17 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName string) (appPath string) {
+func (e env) Scaffold(appName string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
 			step.Exec(
 				"starport",
-				"scaffold",
-				"chain",
-				fmt.Sprintf("github.com/test/%s", appName),
+				append([]string{
+					"scaffold",
+					"chain",
+					fmt.Sprintf("github.com/test/%s", appName),
+				}, flags...)...,
 			),
 			step.Workdir(root),
 		)),
@@ -214,7 +216,7 @@ func (e env) EnsureAppIsSteady(appPath string) {
 
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
-func (e env) IsAppServed(ctx context.Context, host starportconf.Host) error {
+func (e env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 	checkAlive := func() error {
 		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
 		if err == nil && !ok {
@@ -235,25 +237,26 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string, configFile string) starportconf.Host {
+func (e env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
 	if configFile == "" {
 		configFile = "config.yml"
 	}
 
 	// generate random server ports and servers list.
-	ports, err := availableport.Find(5)
+	ports, err := availableport.Find(6)
 	require.NoError(e.t, err)
 
 	genAddr := func(port int) string {
 		return fmt.Sprintf("localhost:%d", port)
 	}
 
-	servers := starportconf.Host{
-		RPC:  genAddr(ports[0]),
-		P2P:  genAddr(ports[1]),
-		Prof: genAddr(ports[2]),
-		GRPC: genAddr(ports[3]),
-		API:  genAddr(ports[4]),
+	servers := chainconfig.Host{
+		RPC:     genAddr(ports[0]),
+		P2P:     genAddr(ports[1]),
+		Prof:    genAddr(ports[2]),
+		GRPC:    genAddr(ports[3]),
+		GRPCWeb: genAddr(ports[4]),
+		API:     genAddr(ports[5]),
 	}
 
 	// update config.yml with the generated servers list.
@@ -261,7 +264,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) starportconf.H
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf starportconf.Config
+	var conf chainconfig.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Host = servers
@@ -284,7 +287,7 @@ func (e env) SetRandomHomeConfig(path string, configFile string) {
 	require.NoError(e.t, err)
 	defer configyml.Close()
 
-	var conf starportconf.Config
+	var conf chainconfig.Config
 	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
 
 	conf.Init.Home = e.TmpDir()

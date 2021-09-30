@@ -1,8 +1,10 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -18,6 +20,13 @@ func TestCreateMapWithStargate(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "user", "email"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "map", "appPath", "email", "--path", filepath.Join(path, "app")),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
@@ -53,6 +62,13 @@ func TestCreateMapWithStargate(t *testing.T) {
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "map", "mapdetail", "user:Mapuser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))

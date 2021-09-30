@@ -12,7 +12,7 @@ Only a default set of parameters is provided. If more nuanced configuration is r
 
 ## `accounts`
 
-A list of user accounts created during genesis of the blockc
+A list of user accounts created during genesis of the blockchain.
 
 | Key      | Required | Type            | Description                                                                                                                     |
 | -------- | -------- | --------------- | ------------------------------------------------------------------------------------------------------------------------------- |
@@ -36,6 +36,7 @@ accounts:
 
 | Key    | Required | Type   | Description                                                    |
 | ------ | -------- | ------ | -------------------------------------------------------------- |
+| main   | N        | String | When an app contains more than one main Go package, it is required to define the path of the chain's main package. |
 | binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 **build example**
@@ -45,7 +46,7 @@ build:
   binary: "mychaind"
 ```
 
-## `build.proto`
+### `build.proto`
 
 | Key               | Required | Type            | Description                                                                                |
 | ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |
@@ -137,15 +138,16 @@ Overwrites properties in `config/config.toml` in the data directory.
 
 Overwrites properties in `config/app.toml` in the data directory.
 
-## `init.keyring-backend`
+## `init.client`
 
-The [keyring backend](https://docs.cosmos.network/master/run-node/keyring.html) to store the private key. Default value is `test`.
+Overwrites properties in `config/client.toml` in the data directory.
 
-**init.keyring-backend example**
+**init.client example**
 
 ```yaml
 init:
-  keyring-backend: "os"
+  client:
+    keyring-backend: "os"
 ```
 
 ## `host`
@@ -165,4 +167,4 @@ host:
 
 ## `genesis`
 
-Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/configure/genesis.html).
+Use to overwrite values in `genesis.json` in the data directory to test different values in development environments. See [Genesis Overwrites for Development](https://docs.starport.network/kb/genesis.html).

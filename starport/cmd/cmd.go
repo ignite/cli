@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 	"sort"
 	"strings"
@@ -13,24 +14,25 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
 const (
+	flagPath          = "path"
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
+
+	checkVersionTimeout = time.Millisecond * 600
 )
 
-const checkVersionTimeout = time.Millisecond * 600
-
-var (
-	infoColor = color.New(color.FgYellow).SprintFunc()
-)
+var infoColor = color.New(color.FgYellow).SprintFunc()
 
 // New creates a new root command for `starport` with its sub commands.
 func New(ctx context.Context) *cobra.Command {
@@ -89,6 +91,15 @@ func printEvents(bus events.Bus, s *clispinner.Spinner) {
 	}
 }
 
+func flagSetPath(cmd *cobra.Command) {
+	cmd.PersistentFlags().StringP(flagPath, "p", ".", "path of the app")
+}
+
+func flagGetPath(cmd *cobra.Command) (path string) {
+	path, _ = cmd.Flags().GetString(flagPath)
+	return
+}
+
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "Home directory used for blockchains")
@@ -117,18 +128,19 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 	return isEnabled
 }
 
-func newChainWithHomeFlags(cmd *cobra.Command, appPath string, chainOption ...chain.Option) (*chain.Chain, error) {
+func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
 	if home := getHomeFlag(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
 
-	appPath, err := filepath.Abs(appPath)
+	appPath := flagGetPath(cmd)
+	absPath, err := filepath.Abs(appPath)
 	if err != nil {
 		return nil, err
 	}
 
-	return chain.New(cmd.Context(), appPath, chainOption...)
+	return chain.New(absPath, chainOption...)
 }
 
 func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
@@ -148,14 +160,24 @@ var (
 	}
 )
 
-func sourceModificationToString(sm xgenny.SourceModification) string {
+func sourceModificationToString(sm xgenny.SourceModification) (string, error) {
 	// get file names and add prefix
 	var files []string
 	for _, modified := range sm.ModifiedFiles() {
-		files = append(files, modifyPrefix+modified)
+		// get the relative app path from the current directory
+		relativePath, err := relativePath(modified)
+		if err != nil {
+			return "", err
+		}
+		files = append(files, modifyPrefix+relativePath)
 	}
 	for _, created := range sm.CreatedFiles() {
-		files = append(files, createPrefix+created)
+		// get the relative app path from the current directory
+		relativePath, err := relativePath(created)
+		if err != nil {
+			return "", err
+		}
+		files = append(files, createPrefix+relativePath)
 	}
 
 	// sort filenames without prefix
@@ -166,7 +188,7 @@ func sourceModificationToString(sm xgenny.SourceModification) string {
 		return strings.Compare(s1, s2) == -1
 	})
 
-	return "\n" + strings.Join(files, "\n")
+	return "\n" + strings.Join(files, "\n"), nil
 }
 
 func deprecated() []*cobra.Command {
@@ -190,6 +212,19 @@ func deprecated() []*cobra.Command {
 	}
 }
 
+// relativePath return the relative app path from the current directory
+func relativePath(appPath string) (string, error) {
+	pwd, err := os.Getwd()
+	if err != nil {
+		return "", err
+	}
+	path, err := filepath.Rel(pwd, appPath)
+	if err != nil {
+		return "", err
+	}
+	return path, nil
+}
+
 func checkNewVersion(ctx context.Context) {
 	if gitpod.IsOnGitpod() {
 		return
@@ -206,9 +241,27 @@ func checkNewVersion(ctx context.Context) {
 	fmt.Printf(`·
 · 🛸 Starport %q is available!
 ·
-· If you're looking to upgrade check out the instructions: https://docs.starport.network/intro/install.html#upgrading-your-starport-installation
+· If you're looking to upgrade check out the instructions: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
 ·
 ··
 
 `, next)
+}
+
+// newApp create a new scaffold app
+func newApp(appPath string) (scaffolder.Scaffolder, error) {
+	sc, err := scaffolder.App(appPath)
+	if err != nil {
+		return sc, err
+	}
+
+	if sc.Version.LT(cosmosver.StargateFortyFourVersion) {
+		return sc, fmt.Errorf(
+			`⚠️ Your chain has been scaffolded with an old version of Cosmos SDK: %[1]v.
+Please, follow the migration guide to upgrade your chain to the latest version:
+
+https://docs.starport.network/migration`, sc.Version.String(),
+		)
+	}
+	return sc, nil
 }

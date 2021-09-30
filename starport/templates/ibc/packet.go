@@ -3,6 +3,7 @@ package ibc
 import (
 	"embed"
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
@@ -14,6 +15,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
@@ -22,17 +24,12 @@ var (
 
 	//go:embed packet/messages/* packet/messages/**/*
 	fsPacketMessages embed.FS
-
-	// ibcTemplateComponent is the template to scaffold a new packet in an IBC module
-	ibcTemplateComponent = xgenny.NewEmbedWalker(fsPacketComponent, "packet/component/")
-
-	// ibcTemplateMessages is the template to scaffold send message for a packet
-	ibcTemplateMessages = xgenny.NewEmbedWalker(fsPacketMessages, "packet/messages/")
 )
 
 // PacketOptions are options to scaffold a packet in a IBC module
 type PacketOptions struct {
 	AppName    string
+	AppPath    string
 	ModuleName string
 	ModulePath string
 	OwnerName  string
@@ -45,13 +42,26 @@ type PacketOptions struct {
 
 // NewPacket returns the generator to scaffold a packet in an IBC module
 func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g = genny.New()
+
+		messagesTemplate = xgenny.NewEmbedWalker(
+			fsPacketMessages,
+			"packet/messages/",
+			opts.AppPath,
+		)
+		componentTemplate = xgenny.NewEmbedWalker(
+			fsPacketComponent,
+			"packet/component/",
+			opts.AppPath,
+		)
+	)
 
 	// Add the component
 	g.RunFn(moduleModify(replacer, opts))
 	g.RunFn(protoModify(replacer, opts))
 	g.RunFn(eventModify(replacer, opts))
-	if err := g.Box(ibcTemplateComponent); err != nil {
+	if err := g.Box(componentTemplate); err != nil {
 		return g, err
 	}
 
@@ -61,21 +71,25 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 		g.RunFn(handlerTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(codecModify(replacer, opts))
-		if err := g.Box(ibcTemplateMessages); err != nil {
+		if err := g.Box(messagesTemplate); err != nil {
 			return g, err
 		}
 	}
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
-	ctx.Set("modulePath", opts.ModulePath)
+	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("packetName", opts.PacketName)
 	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
-	ctx.Set("title", strings.Title)
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
+		return g, err
+	}
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
@@ -86,15 +100,14 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 
 func moduleModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/module_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// Recv packet dispatch
-		templateRecv := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateRecv := `case *types.%[2]vPacketData_%[3]vPacket:
 	packetAck, err := am.keeper.OnRecv%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		ack = channeltypes.NewErrorAcknowledgement(err.Error())
@@ -102,7 +115,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		// Encode packet acknowledgment
 		packetAckBytes, err := types.ModuleCdc.MarshalJSON(&packetAck)
 		if err != nil {
-			return nil, []byte{}, sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error())
+			return channeltypes.NewErrorAcknowledgement(sdkerrors.Wrap(sdkerrors.ErrJSONMarshal, err.Error()).Error())
 		}
 		ack = channeltypes.NewResultAcknowledgement(sdk.MustSortJSON(packetAckBytes))
 	}
@@ -112,7 +125,8 @@ case *types.%[2]vPacketData_%[3]vPacket:
 			sdk.NewAttribute(sdk.AttributeKeyModule, types.ModuleName),
 			sdk.NewAttribute(types.AttributeKeyAckSuccess, fmt.Sprintf("%%t", err != nil)),
 		),
-	)`
+	)
+%[1]v`
 		replacementRecv := fmt.Sprintf(
 			templateRecv,
 			PlaceholderIBCPacketModuleRecv,
@@ -122,13 +136,13 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		content := replacer.Replace(f.String(), PlaceholderIBCPacketModuleRecv, replacementRecv)
 
 		// Ack packet dispatch
-		templateAck := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateAck := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnAcknowledgement%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket, ack)
 	if err != nil {
 		return nil, err
 	}
-	eventType = types.EventType%[3]vPacket`
+	eventType = types.EventType%[3]vPacket
+%[1]v`
 		replacementAck := fmt.Sprintf(
 			templateAck,
 			PlaceholderIBCPacketModuleAck,
@@ -138,12 +152,12 @@ case *types.%[2]vPacketData_%[3]vPacket:
 		content = replacer.Replace(content, PlaceholderIBCPacketModuleAck, replacementAck)
 
 		// Timeout packet dispatch
-		templateTimeout := `%[1]v
-case *types.%[2]vPacketData_%[3]vPacket:
+		templateTimeout := `case *types.%[2]vPacketData_%[3]vPacket:
 	err := am.keeper.OnTimeout%[3]vPacket(ctx, modulePacket, *packet.%[3]vPacket)
 	if err != nil {
 		return nil, err
-	}`
+	}
+%[1]v`
 		replacementTimeout := fmt.Sprintf(
 			templateTimeout,
 			PlaceholderIBCPacketModuleTimeout,
@@ -159,7 +173,7 @@ case *types.%[2]vPacketData_%[3]vPacket:
 
 func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/packet.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "packet.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -192,15 +206,25 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
 		}
 
-		templateMessage := `%[1]v
-// %[2]vPacketData defines a struct for the packet payload
+		// Ensure custom types are imported
+		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
+		for _, f := range customFields {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoPacketImport, replacementImport)
+		}
+
+		templateMessage := `// %[2]vPacketData defines a struct for the packet payload
 message %[2]vPacketData {
-	%[3]v}
+%[3]v}
 
 // %[2]vPacketAck defines a struct for the packet acknowledgment
 message %[2]vPacketAck {
 	%[4]v}
-`
+%[1]v`
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderIBCPacketProtoMessage,
@@ -217,15 +241,14 @@ message %[2]vPacketAck {
 
 func eventModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/events_ibc.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/events_ibc.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		template := `%[1]v
-EventType%[2]vPacket       = "%[3]v_packet"
-`
+		template := `EventType%[2]vPacket       = "%[3]v_packet"
+%[1]v`
 		replacement := fmt.Sprintf(
 			template,
 			PlaceholderIBCPacketEvent,
@@ -241,15 +264,15 @@ EventType%[2]vPacket       = "%[3]v_packet"
 
 func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/tx.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "tx.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
 		// RPC
-		templateRPC := `%[1]v
-  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);`
+		templateRPC := `  rpc Send%[2]v(MsgSend%[2]v) returns (MsgSend%[2]vResponse);
+%[1]v`
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			PlaceholderProtoTxRPC,
@@ -262,12 +285,21 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+5)
 		}
 
+		// Ensure custom types are imported
+		for _, f := range opts.Fields.Custom() {
+			importModule := fmt.Sprintf(`
+import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
+			content = replacer.Replace(content, PlaceholderProtoTxImport, replacementImport)
+		}
+
 		// Message
 		// TODO: Include timestamp height
 		// This addition would include using the type ibc.core.client.v1.Height
 		// Ex: https://github.com/cosmos/cosmos-sdk/blob/816306b85addae6350bd380997f2f4bf9dce9471/proto/ibc/applications/transfer/v1/tx.proto
-		templateMessage := `%[1]v
-message MsgSend%[2]v {
+		templateMessage := `message MsgSend%[2]v {
   string %[3]v = 1;
   string port = 2;
   string channelID = 3;
@@ -276,7 +308,7 @@ message MsgSend%[2]v {
 
 message MsgSend%[2]vResponse {
 }
-`
+%[1]v`
 		replacementMessage := fmt.Sprintf(
 			templateMessage,
 			PlaceholderProtoTxMessage,
@@ -293,7 +325,7 @@ message MsgSend%[2]vResponse {
 
 func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/handler.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "handler.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -303,11 +335,10 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 		replacementMsgServer := `msgServer := keeper.NewMsgServerImpl(k)`
 		content := replacer.ReplaceOnce(f.String(), PlaceholderHandlerMsgServer, replacementMsgServer)
 
-		templateHandlers := `%[1]v
-		case *types.MsgSend%[2]v:
+		templateHandlers := `case *types.MsgSend%[2]v:
 					res, err := msgServer.Send%[2]v(sdk.WrapSDKContext(ctx), msg)
 					return sdk.WrapServiceResult(ctx, res, err)
-`
+%[1]v`
 		replacementHandlers := fmt.Sprintf(templateHandlers,
 			Placeholder,
 			opts.PacketName.UpperCamel,
@@ -320,14 +351,13 @@ func handlerTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.R
 
 func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/tx.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/tx.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
-		template := `%[1]v
-	cmd.AddCommand(CmdSend%[2]v())
-`
+		template := `cmd.AddCommand(CmdSend%[2]v())
+%[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.PacketName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 		newFile := genny.NewFileS(path, content)
@@ -337,7 +367,7 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny
 
 func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/types/codec.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/codec.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
@@ -348,9 +378,8 @@ func codecModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		content := replacer.ReplaceOnce(f.String(), module.Placeholder, replacement)
 
 		// Register the module packet
-		templateRegistry := `%[1]v
-cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
-`
+		templateRegistry := `cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
+%[1]v`
 		replacementRegistry := fmt.Sprintf(
 			templateRegistry,
 			module.Placeholder2,
@@ -360,10 +389,10 @@ cdc.RegisterConcrete(&MsgSend%[2]v{}, "%[3]v/Send%[2]v", nil)
 		content = replacer.Replace(content, module.Placeholder2, replacementRegistry)
 
 		// Register the module packet interface
-		templateInterface := `%[1]v
-registry.RegisterImplementations((*sdk.Msg)(nil),
+		templateInterface := `registry.RegisterImplementations((*sdk.Msg)(nil),
 	&MsgSend%[2]v{},
-)`
+)
+%[1]v`
 		replacementInterface := fmt.Sprintf(templateInterface, module.Placeholder3, opts.PacketName.UpperCamel)
 		content = replacer.Replace(content, module.Placeholder3, replacementInterface)
 

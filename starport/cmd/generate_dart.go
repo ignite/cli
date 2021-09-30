@@ -10,9 +10,10 @@ import (
 
 func NewGenerateDart() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "dart",
-		Short: "Generate a Dart client",
-		RunE:  generateDartHandler,
+		Hidden: true,
+		Use:    "dart",
+		Short:  "Generate a Dart client",
+		RunE:   generateDartHandler,
 	}
 	return c
 }
@@ -21,7 +22,7 @@ func generateDartHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
-	c, err := newChainWithHomeFlags(cmd, appPath, chain.EnableThirdPartyModuleCodegen())
+	c, err := newChainWithHomeFlags(cmd, chain.EnableThirdPartyModuleCodegen())
 	if err != nil {
 		return err
 	}

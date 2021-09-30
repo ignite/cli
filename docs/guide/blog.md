@@ -6,22 +6,17 @@ description: Learn module basics by writing and reading blog posts to your chain
 
 # Build a Blog
 
-Learn module basics by building a blockchain app to write and read blog posts.
+In this tutorial, you create a blockchain with a module that lets you write to and read data from the blockchain. This module implements create and read functionalities for a blog-like application. The end user will be able to submit new blog posts and show a list of blog posts on the blockchain.
 
-By completing this tutorial, you will:
+> The purpose of this tutorial is to guide you through the imlementation of a complete feedback loop: submitting data and reading this data back from the blockchain.
 
-* Write and read blog posts to your chain
-* Scaffold a Cosmos SDK message
-* Define new types in protocol buffer files
-* Write keeper methods to write data to the store
-* Read data from the store and return it as a result a query
-* Use the blockchain's CLI to broadcast transactions
+By completing this tutorial, you will learn about:
 
-### Prerequisite
-
-To complete this tutorial, you will need:
-
-- A supported version of Starport. This tutorial is verified for Starport 0.17.2. See [Install Starport](./install.md).
+* Scaffolding a Cosmos SDK message
+* Defining new types in protocol buffer files
+* Implementing keeper methods to write data to the store
+* Reading data from the store and return it as a result of a query
+* Using the blockchain's CLI to broadcast transactions and query the blockchain
 
 ## Create Your Blog Chain
 
@@ -138,25 +133,6 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
 }
 ```
 
-## Add GRPC to the Module Handler
-
-In the `x/blog/module.go` file:
-
-1. Add `"context"` to the imports.
-import (
-	"context"
-	// ... other imports
-)
-
-2. Register the query handler:
-
-```bash
-// RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-	types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
-
 ## Write Data to the Store
 
 Define the `Post` type and the `AppendPost` keeper method.
@@ -234,12 +210,7 @@ func (k Keeper) GetPostCount(ctx sdk.Context) uint64 {
     return 0
   }
   // Convert the count into a uint64
-  count, err := strconv.ParseUint(string(bz), 10, 64)
-  // Panic if the count cannot be converted to uint64
-  if err != nil {
-    panic("cannot decode count")
-  }
-  return count
+  return binary.BigEndian.Uint64(bz)
 }
 ```
 
@@ -252,13 +223,14 @@ func (k Keeper) SetPostCount(ctx sdk.Context, count uint64) {
   // Convert the PostCountKey to bytes
   byteKey := []byte(types.PostCountKey)
   // Convert count from uint64 to string and get bytes
-  bz := []byte(strconv.FormatUint(count, 10))
+  bz := make([]byte, 8)
+  binary.BigEndian.PutUint64(bz, count)
   // Set the value of Post-count- to count
   store.Set(byteKey, bz)
 }
 ```
 
-Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind `AppendPost`.:
+Now that you have implemented functions for getting the number of posts and setting the post count, you can implement the logic behind the `AppendPost` function:
 
 ```go
 package keeper
@@ -282,7 +254,7 @@ func (k Keeper) AppendPost(ctx sdk.Context, post types.Post) uint64 {
   byteKey := make([]byte, 8)
   binary.BigEndian.PutUint64(byteKey, post.Id)
   // Marshal the post into bytes
-  appendedValue := k.cdc.MustMarshalBinaryBare(&post)
+  appendedValue := k.cdc.MustMarshal(&post)
   // Insert the post bytes using post ID as a key
   store.Set(byteKey, appendedValue)
   // Update the post count
@@ -379,7 +351,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   // Paginate the posts store based on PageRequest
   pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
     var post types.Post
-    if err := k.cdc.UnmarshalBinaryBare(value, &post); err != nil {
+    if err := k.cdc.Unmarshal(value, &post); err != nil {
       return err
     }
     posts = append(posts, &post)
@@ -393,6 +365,29 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   return &types.QueryPostsResponse{Post: posts, Pagination: pageRes}, nil
 }
 ```
+
+## Add gRPC to the Module Handler
+
+In the `x/blog/module.go` file:
+
+1. Add `"context"` to the imports.
+
+    ```go
+    import (
+	"context"
+	// ... other imports
+    )
+    ```
+
+2. Register the query handler:
+
+    ```go
+    // RegisterGRPCGatewayRoutes registers the gRPC Gateway routes for the module.
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+	    types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
+
 
 ## Use the CLI To Create And Display Posts
 
@@ -430,7 +425,9 @@ pagination:
 
 ## Conclusion
 
-Congratulations. You have built a blog blockchain! You can:
+Congratulations. You have built a blog blockchain! 
+
+You have successfully completed these steps:
 
 * Write blog posts to your chain
 * Read from blog posts

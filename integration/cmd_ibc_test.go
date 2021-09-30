@@ -1,8 +1,10 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -12,13 +14,28 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog")
+		path = env.Scaffold("blogibc")
 	)
 
 	env.Must(env.Exec("create an IBC module",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "module", "foo", "--ibc", "--require-registration"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an IBC module with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport",
+				"s",
+				"module",
+				"appPath",
+				"--ibc",
+				"--require-registration",
+				"--path",
+				"./blogibc",
+			),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
@@ -63,7 +80,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 
 	env.Must(env.Exec("create a non IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "foobar", "--require-registration"),
+			step.Exec("starport", "s", "module", "non_ibc", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))
@@ -153,7 +170,7 @@ func TestCreateIBCPacket(t *testing.T) {
 
 	var (
 		env  = newEnv(t)
-		path = env.Scaffold("ibcblog2")
+		path = env.Scaffold("blogibc2")
 	)
 
 	env.Must(env.Exec("create an IBC module",
@@ -174,7 +191,7 @@ func TestCreateIBCPacket(t *testing.T) {
 				"--module",
 				"foo",
 				"--ack",
-				"foo:string,bar:int,foobar:bool",
+				"foo:string,bar:int,baz:bool",
 			),
 			step.Workdir(path),
 		)),
@@ -207,6 +224,20 @@ func TestCreateIBCPacket(t *testing.T) {
 	env.Must(env.Exec("create a packet with custom type fields",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "packet", "ticket", "num:int", "victory:bool", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "type", "custom-type", "customField:uint", "--module", "foo"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a packet with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "packet", "foo-baz", "customField:CustomType", "--module", "foo"),
 			step.Workdir(path),
 		)),
 	))

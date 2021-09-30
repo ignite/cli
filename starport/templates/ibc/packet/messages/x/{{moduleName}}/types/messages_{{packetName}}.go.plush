@@ -12,7 +12,7 @@ func NewMsgSend<%= packetName.UpperCamel %>(
     port string,
     channelID string,
     timeoutTimestamp uint64,<%= for (field) in fields { %>
-    <%= field.Name.LowerCamel %> <%= field.Datatype %>,<% } %>
+    <%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,<% } %>
 ) *MsgSend<%= packetName.UpperCamel %> {
     return &MsgSend<%= packetName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
@@ -49,5 +49,14 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
     if err != nil {
         return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
     }
+	if msg.Port == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+	if msg.ChannelID == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+	if msg.TimeoutTimestamp == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
     return nil
 }

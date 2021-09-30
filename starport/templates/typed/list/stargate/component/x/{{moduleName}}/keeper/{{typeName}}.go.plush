@@ -1,0 +1,106 @@
+package keeper
+
+import (
+	"encoding/binary"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+)
+
+// Get<%= TypeName.UpperCamel %>Count get the total number of <%= TypeName.LowerCamel %>
+func (k Keeper) Get<%= TypeName.UpperCamel %>Count(ctx sdk.Context) uint64 {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
+	bz := store.Get(byteKey)
+
+	// Count doesn't exist: no element
+	if bz == nil {
+		return 0
+	}
+
+	// Parse bytes
+	return binary.BigEndian.Uint64(bz)
+}
+
+// Set<%= TypeName.UpperCamel %>Count set the total number of <%= TypeName.LowerCamel %>
+func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count uint64)  {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), []byte{})
+	byteKey := types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKey)
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
+	store.Set(byteKey, bz)
+}
+
+// Append<%= TypeName.UpperCamel %> appends a <%= TypeName.LowerCamel %> in the store with a new id and update the count
+func (k Keeper) Append<%= TypeName.UpperCamel %>(
+    ctx sdk.Context,
+    <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>,
+) uint64 {
+	// Create the <%= TypeName.LowerCamel %>
+    count := k.Get<%= TypeName.UpperCamel %>Count(ctx)
+
+    // Set the ID of the appended value
+    <%= TypeName.LowerCamel %>.Id = count
+
+    store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+    appendedValue := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
+    store.Set(Get<%= TypeName.UpperCamel %>IDBytes(<%= TypeName.LowerCamel %>.Id), appendedValue)
+
+    // Update <%= TypeName.LowerCamel %> count
+    k.Set<%= TypeName.UpperCamel %>Count(ctx, count+1)
+
+    return count
+}
+
+// Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store
+func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>) {
+	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	b := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
+	store.Set(Get<%= TypeName.UpperCamel %>IDBytes(<%= TypeName.LowerCamel %>.Id), b)
+}
+
+// Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its id
+func (k Keeper) Get<%=TypeName.UpperCamel %>(ctx sdk.Context, id uint64) (val types.<%= TypeName.UpperCamel %>, found bool) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	b := store.Get(Get<%= TypeName.UpperCamel %>IDBytes(id))
+	if b == nil {
+		return val, false
+	}
+	k.cdc.MustUnmarshal(b, &val)
+	return val, true
+}
+
+// Remove<%= TypeName.UpperCamel %> removes a <%= TypeName.LowerCamel %> from the store
+func (k Keeper) Remove<%= TypeName.UpperCamel %>(ctx sdk.Context, id uint64) {
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	store.Delete(Get<%= TypeName.UpperCamel %>IDBytes(id))
+}
+
+// GetAll<%= TypeName.UpperCamel %> returns all <%= TypeName.LowerCamel %>
+func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.<%= TypeName.UpperCamel %>) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.<%= TypeName.UpperCamel %>
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
+        list = append(list, val)
+	}
+
+    return
+}
+
+// Get<%= TypeName.UpperCamel %>IDBytes returns the byte representation of the ID
+func Get<%= TypeName.UpperCamel %>IDBytes(id uint64) []byte {
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
+}
+
+// Get<%= TypeName.UpperCamel %>IDFromBytes returns ID in uint64 format from a byte array
+func Get<%= TypeName.UpperCamel %>IDFromBytes(bz []byte) uint64 {
+	return binary.BigEndian.Uint64(bz)
+}

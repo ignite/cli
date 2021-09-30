@@ -2,29 +2,35 @@ package cosmosaccount
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
 
-// KeyringServiceName used for the name of keyring in OS backend.
-const KeyringServiceName = "starport"
+const (
+	// KeyringServiceName used for the name of keyring in OS backend.
+	KeyringServiceName = "starport"
+
+	// DefaultAccount is the name of the default account.
+	DefaultAccount = "default"
+)
 
 // KeyringHome used to store account related data.
 var KeyringHome = os.ExpandEnv("$HOME/.starport/accounts")
 
 var (
-	ErrAccountExists       = errors.New("account already exists")
-	ErrAccountDoesNotExist = errors.New("account does not exist")
+	ErrAccountExists = errors.New("account already exists")
 )
 
 const (
 	accountPrefixCosmos = "cosmos"
-	pubKeyPrefix        = "pub"
 )
 
 // Registry for accounts.
@@ -61,30 +67,33 @@ func (a Account) Address(accPrefix string) string {
 		accPrefix = accountPrefixCosmos
 	}
 
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
-
-	ko, err := keyring.Bech32KeyOutput(a.Info)
-	if err != nil {
-		panic(err)
-	}
-	return ko.Address
+	return toBench32(accPrefix, a.Info.GetPubKey().Address())
 }
 
-// PubKey returns a public key for given account prefix.
-func (a Account) PubKey(accPrefix string) string {
-	if accPrefix == "" {
-		accPrefix = accountPrefixCosmos
-	}
+// PubKey returns a public key for account.
+func (a Account) PubKey() string {
+	return a.Info.GetPubKey().String()
+}
 
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
-
-	o, err := keyring.Bech32KeyOutput(a.Info)
+func toBench32(prefix string, addr []byte) string {
+	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
 		panic(err)
 	}
-	return o.PubKey
+	return bech32Addr
+}
+
+// EnsureDefaultAccount ensures that default account exists.
+func (r Registry) EnsureDefaultAccount() error {
+	_, err := r.GetByName(DefaultAccount)
+
+	var accErr *AccountDoesNotExistError
+	if errors.As(err, &accErr) {
+		_, _, err = r.Create(DefaultAccount)
+		return err
+	}
+
+	return err
 }
 
 // Create creates a new account with name.
@@ -93,7 +102,8 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if err == nil {
 		return Account{}, "", ErrAccountExists
 	}
-	if !errors.Is(err, ErrAccountDoesNotExist) {
+	var accErr *AccountDoesNotExistError
+	if !errors.As(err, &accErr) {
 		return Account{}, "", err
 	}
 
@@ -130,7 +140,8 @@ func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 	if err == nil {
 		return Account{}, ErrAccountExists
 	}
-	if !errors.Is(err, ErrAccountDoesNotExist) {
+	var accErr *AccountDoesNotExistError
+	if !errors.As(err, &accErr) {
 		return Account{}, err
 	}
 
@@ -160,11 +171,20 @@ func (r Registry) Export(name, passphrase string) (key string, err error) {
 
 }
 
+// ExportHex exports an account as a private key in hex.
+func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
+	if _, err = r.GetByName(name); err != nil {
+		return "", err
+	}
+
+	return keyring.NewUnsafe(r.kr).UnsafeExportPrivKeyHex(name)
+}
+
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	info, err := r.kr.Key(name)
-	if err == dkeyring.ErrKeyNotFound {
-		return Account{}, ErrAccountDoesNotExist
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
+		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {
 		return Account{}, nil
@@ -201,7 +221,7 @@ func (r Registry) List() ([]Account, error) {
 func (r Registry) DeleteByName(name string) error {
 	err := r.kr.Delete(name)
 	if err == dkeyring.ErrKeyNotFound {
-		return ErrAccountDoesNotExist
+		return &AccountDoesNotExistError{name}
 	}
 	return err
 }
@@ -213,4 +233,12 @@ func (r Registry) hdPath() string {
 func (r Registry) algo() (keyring.SignatureAlgo, error) {
 	algos, _ := r.kr.SupportedAlgorithms()
 	return keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
+}
+
+type AccountDoesNotExistError struct {
+	Name string
+}
+
+func (e *AccountDoesNotExistError) Error() string {
+	return fmt.Sprintf("account %q does not exist", e.Name)
 }

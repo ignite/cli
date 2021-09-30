@@ -1,10 +1,10 @@
-# Introduction to Starport
+# Starport CLI
 
-[Starport](https://github.com/tendermint/starport) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
+[Starport CLI](https://github.com/tendermint/starport) offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community. Starport is built on top of [Cosmos SDK](https://docs.cosmos.network), the world’s most popular blockchain framework. Starport accelerates chain development by scaffolding everything you need so you can focus on business logic.
 
 ## What is Starport?
 
-Starport is an easy-to-use CLI tool for creating sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
+Starport is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
 
 With just a few commands, you can use Starport to:
 
@@ -25,12 +25,20 @@ curl https://get.starport.network/starport! | bash
 
 ## Projects using Tendermint and Cosmos SDK
 
-Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
+Many projects already showcase the Tendermint BFT consensus engine and the Cosmos SDK. Explore the [Cosmos Network Ecosystem](https://cosmos.network/ecosystem/apps) to discover a wide variety of apps, blockchains, wallets, and explorers that are built in the Cosmos ecosystem.
 
 ## Projects building with Starport
 
 * [Sifchain: omni-chain solution for DEXes](https://github.com/Sifchain/sifnode)
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
+* [Cronos](https://github.com/crypto-org-chain/cronos)
+* [Plugchain](https://github.com/oracleNetworkProtocol/plugchain)
+* [BitCanna](https://github.com/BitCannaGlobal/testnet-bcna-cosmos)
+* [Panacea Core](https://github.com/medibloc/panacea-core)
+* [Rook](https://github.com/cmwaters/rook)
+* [PI Bridge](https://github.com/pchain-org/pi-bridge)
+* [Polynetwork](https://github.com/Switcheo/polynetwork-cosmos)
+* [Lotus](https://github.com/BabyBlockchains/Lotus)
 * [OmniFlix Hub](https://github.com/OmniFlix/omniflixhub)
 * [Cudos](https://github.com/CudoVentures/cudos-node)
 * [Zenchain](https://github.com/zenchainprotocol/zenchain)
@@ -43,3 +51,4 @@ Many projects already showcase the Tendermint BFT Consensus Engine and the Cosmo
 * [Affondra](https://github.com/EG-easy/affondra)
 * [Finding Imposter](https://github.com/chantmk/Finding-imposter)
 * [Flares payment network](https://github.com/wangfeiping/flares)
+* [FirmaChain](https://github.com/firmachain/firmachain)
