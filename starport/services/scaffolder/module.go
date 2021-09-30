@@ -299,6 +299,9 @@ func checkModuleName(appPath, moduleName string) error {
 	// check store key with user's defined modules
 	// we consider all user's defined modules use the module name as the store key
 	entries, err := os.ReadDir(filepath.Join(appPath, moduleDir))
+	if os.IsNotExist(err) {
+		return nil
+	}
 	if err != nil {
 		return err
 	}

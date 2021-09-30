@@ -383,7 +383,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
   // Paginate the posts store based on PageRequest
   pageRes, err := query.Paginate(postStore, req.Pagination, func(key []byte, value []byte) error {
     var post types.Post
-    if err := k.cdc.UnmarshalBinaryBare(value, &post); err != nil {
+    if err := k.cdc.Unmarshal(value, &post); err != nil {
       return err
     }
     posts = append(posts, &post)

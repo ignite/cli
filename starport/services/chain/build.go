@@ -201,7 +201,7 @@ func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
 	}
 
 	if conf.Build.Main != "" {
-		return conf.Build.Main, nil
+		return filepath.Join(c.app.Path, conf.Build.Main), nil
 	}
 
 	path, err = goanalysis.DiscoverOneMain(path)
