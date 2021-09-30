@@ -117,6 +117,10 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 		resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, 0, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
+		require.ElementsMatch(t,
+			nullify.Fill(msgs),
+			nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+		)
 	})
 	t.Run("InvalidRequest", func(t *testing.T) {
 		_, err := keeper.<%= TypeName.UpperCamel %>All(wctx, nil)
