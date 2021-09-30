@@ -30,7 +30,7 @@ func (k msgServer) SubmitScavenge(goCtx context.Context, msg *types.MsgSubmitSca
   // create a new scavenge from the data in the MsgSubmitScavenge message
 	var scavenge = types.Scavenge{
 		Index:        msg.SolutionHash,
-		Creator:      msg.Creator,
+		Scavenger:    msg.Creator,
 		Description:  msg.Description,
 		SolutionHash: msg.SolutionHash,
 		Reward:       msg.Reward,
@@ -102,7 +102,6 @@ func (k msgServer) CommitSolution(goCtx context.Context, msg *types.MsgCommitSol
   // create a new commit from the information in the MsgCommitSolution message
 	var commit = types.Commit{
 		Index:                 msg.SolutionScavengerHash,
-		Creator:               msg.Creator,
 		SolutionHash:          msg.SolutionHash,
 		SolutionScavengerHash: msg.SolutionScavengerHash,
 	}
