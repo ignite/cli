@@ -4,24 +4,41 @@
 
 ### Features:
 
-- Added `--signer` flag to `message`, `list`, `map` and `single` scaffolding to allow customizing the name of the signer of the message
+- Added `starport generate dart` to generate a Dart client from protocol buffer files
+- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+
+## `v0.18.0`
+
+### Breaking Changes:
+
+- Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. See [Migration](./docs/migration/index.md).
+
+### Features:
+
+- Scaffold commands allow using previously scaffolded types as fields
+- Added `--signer` flag to `message`, `list`, `map`, and `single` scaffolding to allow customizing the name of the signer of the message
 - Added `--index` flag to `scaffold map` to provide a custom list of indices
 - Added `scaffold type` to scaffold a protocol buffer definition of a type
 - Automatically check for new Starport versions
 - Added `starport tools completions` to generate CLI completions
-- Added `starport generate dart` to generate a Dart client from protocol buffer files
-- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
 - Added `starport account` commands to manage accounts (key pairs)
-- `starport version` now prints out detailed information about OS, Go version and more.
-- Module scaffolding now creates `x/.../types/genesis_test.go` for genesis validation tests
-- Added `build.main` field to config.yml for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
+- `starport version` now prints detailed information about OS, Go version, and more
+- Modules are scaffolded with genesis validation tests
+- Types are scaffolded with tests for `ValidateBasic` methods
+- `cosmosclient` has been refactored and can be used as a library for interacting with Cosmos SDK chains
+- `starport relayer` uses `starport account`
+- Added `--path` flag for all `scaffold`, `generate` and `chain` commands
+- Added `--output` flag to the `build` command
+- Port of gRPC web can be configured with in `config.yml` with the `host.grpc-web` property
+- Added `build.main` field to `config.yml` for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
 
 ### Fixes:
 
-- Scaffolding a message now doesn't prevent scaffolding a map/list/single with the same type name (with `--no-message` flag)
-- Generate Go code only from proto files only from directories specified in `config.yml` or default ones
+- Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using the `--no-message` flag
+- Generate Go code from proto files only from default directories or directories specified in `config.yml`
 - Fixed faucet token transfer calculation
 - Removed `creator` field for types scaffolded with the `--no-message` flag
+- Encode the count value in the store with `BigEndian`
 
 ## `v0.17.3`
 
