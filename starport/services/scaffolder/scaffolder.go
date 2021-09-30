@@ -4,77 +4,68 @@ package scaffolder
 
 import (
 	"context"
-	"errors"
 	"os"
 	"path/filepath"
 	"strings"
 
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/cosmosanalysis"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/giturl"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/gomodule"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 )
 
 // Scaffolder is Starport app scaffolder.
 type Scaffolder struct {
-	// path is app's path on the filesystem.
+	// path of the app.
 	path string
 
-	// options to configure scaffolding.
-	options *scaffoldingOptions
+	// modpath represents the go module path of the app.
+	modpath gomodulepath.Path
 
-	// version of the chain
-	version cosmosver.Version
+	// Version of the chain
+	Version cosmosver.Version
 }
 
-// Option configures scaffolding.
-type Option func(*scaffoldingOptions)
-
-// scaffoldingOptions keeps set of options to apply scaffolding.
-type scaffoldingOptions struct {
-	addressPrefix string
-}
-
-func newOptions(options ...Option) *scaffoldingOptions {
-	opts := &scaffoldingOptions{}
-	opts.apply(options...)
-	return opts
-}
-
-func (s *scaffoldingOptions) apply(options ...Option) {
-	for _, o := range options {
-		o(s)
+// App creates a new scaffolder for an existent app.
+func App(path string) (Scaffolder, error) {
+	path, err := filepath.Abs(path)
+	if err != nil {
+		return Scaffolder{}, err
 	}
-}
 
-// AddressPrefix configures address prefix for the app.
-func AddressPrefix(prefix string) Option {
-	return func(o *scaffoldingOptions) {
-		o.addressPrefix = strings.ToLower(prefix)
+	modpath, path, err := gomodulepath.Find(path)
+	if err != nil {
+		return Scaffolder{}, err
 	}
-}
+	modfile, err := gomodule.ParseAt(path)
+	if err != nil {
+		return Scaffolder{}, err
+	}
+	if err := cosmosanalysis.ValidateGoMod(modfile); err != nil {
+		return Scaffolder{}, err
+	}
 
-// New initializes a new Scaffolder for app at path.
-func New(path string, options ...Option) (*Scaffolder, error) {
-	s := &Scaffolder{
+	version, err := cosmosver.Detect(path)
+	if err != nil {
+		return Scaffolder{}, err
+	}
+
+	if !version.IsFamily(cosmosver.Stargate) {
+		return Scaffolder{}, sperrors.ErrOnlyStargateSupported
+	}
+
+	s := Scaffolder{
 		path:    path,
-		options: newOptions(options...),
-	}
-
-	// determine the chain version.
-	var err error
-	s.version, err = cosmosver.Detect(path)
-	if err != nil && !errors.Is(err, gomodule.ErrGoModNotFound) {
-		return nil, err
-	}
-	if err == nil && !s.version.Major().Is(cosmosver.Stargate) {
-		return nil, sperrors.ErrOnlyStargateSupported
+		modpath: modpath,
+		Version: version,
 	}
 
 	return s, nil
@@ -84,7 +75,7 @@ func owner(modulePath string) string {
 	return strings.Split(modulePath, "/")[1]
 }
 
-func (s *Scaffolder) finish(path, gomodPath string) error {
+func finish(path, gomodPath string) error {
 	if err := protoc(path, gomodPath); err != nil {
 		return err
 	}
@@ -99,11 +90,11 @@ func protoc(projectPath, gomodPath string) error {
 		return err
 	}
 
-	confpath, err := conf.LocateDefault(projectPath)
+	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
 	}
-	conf, err := conf.ParseFile(confpath)
+	conf, err := chainconfig.ParseFile(confpath)
 	if err != nil {
 		return err
 	}

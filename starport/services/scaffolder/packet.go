@@ -1,13 +1,13 @@
 package scaffolder
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/field"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -49,7 +49,8 @@ func PacketWithSigner(signer string) PacketOption {
 }
 
 // AddPacket adds a new type stype to scaffolded app by using optional type fields.
-func (s *Scaffolder) AddPacket(
+func (s Scaffolder) AddPacket(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	packetName string,
@@ -57,11 +58,6 @@ func (s *Scaffolder) AddPacket(
 	ackFields []string,
 	options ...PacketOption,
 ) (sm xgenny.SourceModification, err error) {
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	// apply options.
 	o := newPacketOptions()
 	for _, apply := range options {
@@ -97,13 +93,19 @@ func (s *Scaffolder) AddPacket(
 		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
-	// Parse packet fields
+	// Check and parse packet fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
+		return sm, err
+	}
 	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
 	if err != nil {
 		return sm, err
 	}
 
-	// Parse acknowledgment fields
+	// check and parse acknowledgment fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
+		return sm, err
+	}
 	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
 	if err != nil {
 		return sm, err
@@ -113,11 +115,11 @@ func (s *Scaffolder) AddPacket(
 	var (
 		g    *genny.Generator
 		opts = &ibc.PacketOptions{
-			AppName:    path.Package,
+			AppName:    s.modpath.Package,
 			AppPath:    s.path,
-			ModulePath: path.RawPath,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			PacketName: name,
 			Fields:     parsedPacketFields,
 			AckFields:  parsedAcksFields,
@@ -133,11 +135,7 @@ func (s *Scaffolder) AddPacket(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
 // isIBCModule returns true if the provided module implements the IBC module interface

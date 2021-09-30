@@ -51,7 +51,7 @@ func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) {
 		fmt.Fprintf(w, "%s\t%s\t%s\n",
 			acc.Name,
 			acc.Address(getAddressPrefix(cmd)),
-			acc.PubKey(getAddressPrefix(cmd)),
+			acc.PubKey(),
 		)
 	}
 

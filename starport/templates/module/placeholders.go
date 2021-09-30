@@ -23,8 +23,6 @@ const (
 	PlaceholderSgWasmAppEnabledProposals = "// this line is used by starport scaffolding # stargate/wasm/app/enabledProposals"
 	PlaceholderSgRootArgument            = "// this line is used by starport scaffolding # root/arguments"
 
-	PlaceholderGenesisProtoStateField = "// this line is used by starport scaffolding # genesis/proto/stateField"
-
 	// Placeholders IBC
 	PlaceholderIBCErrors                     = "// this line is used by starport scaffolding # ibc/errors"
 	PlaceholderIBCKeysName                   = "// this line is used by starport scaffolding # ibc/keys/name"

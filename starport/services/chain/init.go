@@ -8,7 +8,7 @@ import (
 	"strings"
 
 	"github.com/imdario/mergo"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 )
@@ -124,7 +124,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 }
 
 // InitAccounts initializes the chain accounts and creates validator gentxs
-func (c *Chain) InitAccounts(ctx context.Context, conf conf.Config) error {
+func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err

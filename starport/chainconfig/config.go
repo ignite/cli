@@ -1,4 +1,4 @@
-package conf
+package chainconfig
 
 import (
 	"errors"
@@ -9,39 +9,48 @@ import (
 
 	"github.com/goccy/go-yaml"
 	"github.com/imdario/mergo"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
+)
+
+var (
+	// ConfigDirPath returns the path of configuration directory of Starport.
+	ConfigDirPath = xfilepath.JoinFromHome(xfilepath.Path(".starport"))
+
+	// ConfigFileNames is a list of recognized names as for Starport's config file.
+	ConfigFileNames = []string{"config.yml", "config.yaml"}
 )
 
 var (
 	// ErrCouldntLocateConfig returned when config.yml cannot be found in the source code.
-	ErrCouldntLocateConfig = errors.New("could not locate a config.yml in your chain. please follow the link for how-to: https://github.com/tendermint/starport/blob/develop/docs/configure/index.md")
+	ErrCouldntLocateConfig = errors.New(
+		"could not locate a config.yml in your chain. please follow the link for" +
+			"how-to: https://github.com/tendermint/starport/blob/develop/docs/configure/index.md")
+)
 
-	// FileNames holds a list of appropriate names for the config file.
-	FileNames = []string{"config.yml", "config.yaml"}
-
-	// DefaultConf holds default configuration.
-	DefaultConf = Config{
-		Host: Host{
-			// when in Docker on MacOS, it only works with 0.0.0.0.
-			RPC:  "0.0.0.0:26657",
-			P2P:  "0.0.0.0:26656",
-			Prof: "0.0.0.0:6060",
-			GRPC: "0.0.0.0:9090",
-			API:  "0.0.0.0:1317",
-		},
-		Build: Build{
-			Proto: Proto{
-				Path: "proto",
-				ThirdPartyPaths: []string{
-					"third_party/proto",
-					"proto_vendor",
-				},
+// DefaultConf holds default configuration.
+var DefaultConf = Config{
+	Host: Host{
+		// when in Docker on MacOS, it only works with 0.0.0.0.
+		RPC:     "0.0.0.0:26657",
+		P2P:     "0.0.0.0:26656",
+		Prof:    "0.0.0.0:6060",
+		GRPC:    "0.0.0.0:9090",
+		GRPCWeb: "0.0.0.0:9091",
+		API:     "0.0.0.0:1317",
+	},
+	Build: Build{
+		Proto: Proto{
+			Path: "proto",
+			ThirdPartyPaths: []string{
+				"third_party/proto",
+				"proto_vendor",
 			},
 		},
-		Faucet: Faucet{
-			Host: "0.0.0.0:4500",
-		},
-	}
-)
+	},
+	Faucet: Faucet{
+		Host: "0.0.0.0:4500",
+	},
+}
 
 // Config is the user given configuration to do additional setup
 // during serve.
@@ -85,6 +94,7 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
+	Main   string `yaml:"main"`
 	Binary string `yaml:"binary"`
 	Proto  Proto  `yaml:"proto"`
 }
@@ -170,11 +180,12 @@ type Init struct {
 
 // Host keeps configuration related to started servers.
 type Host struct {
-	RPC  string `yaml:"rpc"`
-	P2P  string `yaml:"p2p"`
-	Prof string `yaml:"prof"`
-	GRPC string `yaml:"grpc"`
-	API  string `yaml:"api"`
+	RPC     string `yaml:"rpc"`
+	P2P     string `yaml:"p2p"`
+	Prof    string `yaml:"prof"`
+	GRPC    string `yaml:"grpc"`
+	GRPCWeb string `yaml:"grpc-web"`
+	API     string `yaml:"api"`
 }
 
 // Parse parses config.yml into UserConfig.
@@ -221,7 +232,7 @@ func (e *ValidationError) Error() string {
 
 // LocateDefault locates the default path for the config file, if no file found returns ErrCouldntLocateConfig.
 func LocateDefault(root string) (path string, err error) {
-	for _, name := range FileNames {
+	for _, name := range ConfigFileNames {
 		path = filepath.Join(root, name)
 		if _, err := os.Stat(path); err == nil {
 			return path, nil
@@ -242,4 +253,14 @@ func FaucetHost(conf Config) string {
 	}
 
 	return host
+}
+
+// CreateConfigDir creates config directory if it is not created yet.
+func CreateConfigDir() error {
+	confPath, err := ConfigDirPath()
+	if err != nil {
+		return err
+	}
+
+	return os.MkdirAll(confPath, 0755)
 }

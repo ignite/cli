@@ -2,22 +2,23 @@ package cli
 
 import (
     "strconv"
+	<%= if (fields.IsComplex()) { %> "encoding/json" <% } %>
 
-    <%= if (fields.NeedCast()) { %> "github.com/spf13/cast" <% } %>
+    <%= if (fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
 	"github.com/spf13/cobra"
 
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	"<%= ModulePath %>/x/<%= moduleName %>/types"
-	channelutils "github.com/cosmos/cosmos-sdk/x/ibc/core/04-channel/client/utils"
+	channelutils "github.com/cosmos/ibc-go/modules/core/04-channel/client/utils"
 )
 
 var _ = strconv.Itoa(0)
 
 func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= for (i, field) in fields { %> [<%= field.Name.Kebab %>]<% } %>",
+		Use:   "send-<%= packetName.Kebab %> [src-port] [src-channel]<%= fields.String() %>",
 		Short: "Send a <%= packetName.Original %> over IBC",
 		Args:  cobra.ExactArgs(<%= len(fields) + 2 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
@@ -30,7 +31,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
             srcPort := args[0]
             srcChannel := args[1]
 
-            <%= for (i, field) in fields { %> arg<%= castArg(field.Name.UpperCamel, field.DatatypeName, field.Datatype, i+2) %>
+            <%= for (i, field) in fields { %> <%= castArg("arg", field, i+2) %>
       		<% } %>
 
             // Get the relative timeout timestamp

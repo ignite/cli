@@ -1,8 +1,10 @@
+//go:build !relayer
 // +build !relayer
 
 package integration_test
 
 import (
+	"path/filepath"
 	"testing"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -18,6 +20,13 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "single", "user", "email"),
 			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create an singleton type with custom path",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "single", "appPath", "email", "--path", path),
+			step.Workdir(filepath.Dir(path)),
 		)),
 	))
 
@@ -38,6 +47,13 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 	env.Must(env.Exec("create another type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create another type with a custom field type",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "list", "user-detail", "user:User", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))

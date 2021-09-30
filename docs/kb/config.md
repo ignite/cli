@@ -36,6 +36,7 @@ accounts:
 
 | Key    | Required | Type   | Description                                                    |
 | ------ | -------- | ------ | -------------------------------------------------------------- |
+| main   | N        | String | When an app contains more than one main Go package, it is required to define the path of the chain's main package. |
 | binary | N        | String | Name of the node binary that is built, typically ends with `d` |
 
 **build example**
@@ -45,7 +46,7 @@ build:
   binary: "mychaind"
 ```
 
-## `build.proto`
+### `build.proto`
 
 | Key               | Required | Type            | Description                                                                                |
 | ----------------- | -------- | --------------- | ------------------------------------------------------------------------------------------ |

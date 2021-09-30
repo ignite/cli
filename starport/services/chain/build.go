@@ -25,23 +25,23 @@ const (
 )
 
 // Build builds and installs app binaries.
-func (c *Chain) Build(ctx context.Context) (binaryName string, err error) {
+func (c *Chain) Build(ctx context.Context, output string) (binaryName string, err error) {
 	if err := c.setup(); err != nil {
 		return "", err
 	}
 
-	if err := c.build(ctx); err != nil {
+	if err := c.build(ctx, output); err != nil {
 		return "", err
 	}
 
 	return c.Binary()
 }
 
-func (c *Chain) build(ctx context.Context) (err error) {
+func (c *Chain) build(ctx context.Context, output string) (err error) {
 	defer func() {
 		var exitErr *exec.ExitError
 
-		if errors.As(err, &exitErr) {
+		if errors.As(err, &exitErr) || errors.Is(err, goanalysis.ErrMultipleMainPackagesFound) {
 			err = &CannotBuildAppError{err}
 		}
 	}()
@@ -60,18 +60,18 @@ func (c *Chain) build(ctx context.Context) (err error) {
 		return err
 	}
 
-	p, err := goanalysis.DiscoverMain(c.app.Path)
+	path, err := c.discoverMain(c.app.Path)
 	if err != nil {
 		return err
 	}
 
-	return gocmd.BuildPath(ctx, binary, p, buildFlags)
+	return gocmd.BuildPath(ctx, output, binary, path, buildFlags)
 }
 
 // BuildRelease builds binaries for a release. targets is a list
 // of GOOS:GOARCH when provided. It defaults to your system when no targets provided.
 // prefix is used as prefix to tarballs containing each target.
-func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...string) (releasePath string, err error) {
+func (c *Chain) BuildRelease(ctx context.Context, output, prefix string, targets ...string) (releasePath string, err error) {
 	if prefix == "" {
 		prefix = c.app.Name
 	}
@@ -89,13 +89,26 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 		return "", err
 	}
 
-	releasePath = filepath.Join(c.app.Path, releaseDir)
-
-	// reset the release dir.
-	if err := os.RemoveAll(releasePath); err != nil {
+	binary, err := c.Binary()
+	if err != nil {
 		return "", err
 	}
-	if err := os.Mkdir(releasePath, 0755); err != nil {
+
+	mainPath, err := c.discoverMain(c.app.Path)
+	if err != nil {
+		return "", err
+	}
+
+	releasePath = output
+	if releasePath == "" {
+		releasePath = filepath.Join(c.app.Path, releaseDir)
+		// reset the release dir.
+		if err := os.RemoveAll(releasePath); err != nil {
+			return "", err
+		}
+	}
+
+	if err := os.MkdirAll(releasePath, 0755); err != nil {
 		return "", err
 	}
 
@@ -119,7 +132,7 @@ func (c *Chain) BuildRelease(ctx context.Context, prefix string, targets ...stri
 			)),
 		}
 
-		if err := gocmd.BuildAll(ctx, out, c.app.Path, buildFlags, buildOptions...); err != nil {
+		if err := gocmd.BuildPath(ctx, out, binary, mainPath, buildFlags, buildOptions...); err != nil {
 			return "", err
 		}
 
@@ -179,4 +192,21 @@ func (c *Chain) preBuild(ctx context.Context) (buildFlags []string, err error) {
 	fmt.Fprintln(c.stdLog().out, "🛠️  Building the blockchain...")
 
 	return buildFlags, nil
+}
+
+func (c *Chain) discoverMain(path string) (pkgPath string, err error) {
+	conf, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+
+	if conf.Build.Main != "" {
+		return filepath.Join(c.app.Path, conf.Build.Main), nil
+	}
+
+	path, err = goanalysis.DiscoverOneMain(path)
+	if err == goanalysis.ErrMultipleMainPackagesFound {
+		return "", errors.Wrap(err, "specify the path to your chain's main package in your config.yml>build.main")
+	}
+	return path, err
 }

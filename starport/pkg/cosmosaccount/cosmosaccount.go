@@ -4,12 +4,13 @@ import (
 	"errors"
 	"fmt"
 	"os"
-	"sync"
 
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
 	"github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/bech32"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
 )
 
@@ -28,11 +29,8 @@ var (
 	ErrAccountExists = errors.New("account already exists")
 )
 
-var mconf sync.Mutex // protects types.Config (sdk).
-
 const (
 	accountPrefixCosmos = "cosmos"
-	pubKeyPrefix        = "pub"
 )
 
 // Registry for accounts.
@@ -69,36 +67,20 @@ func (a Account) Address(accPrefix string) string {
 		accPrefix = accountPrefixCosmos
 	}
 
-	mconf.Lock()
-	defer mconf.Unlock()
-
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, pubKeyPrefix)
-
-	ko, err := keyring.Bech32KeyOutput(a.Info)
-	if err != nil {
-		panic(err)
-	}
-	return ko.Address
+	return toBench32(accPrefix, a.Info.GetPubKey().Address())
 }
 
-// PubKey returns a public key for given account prefix.
-func (a Account) PubKey(accPrefix string) string {
-	if accPrefix == "" {
-		accPrefix = accountPrefixCosmos
-	}
+// PubKey returns a public key for account.
+func (a Account) PubKey() string {
+	return a.Info.GetPubKey().String()
+}
 
-	mconf.Lock()
-	defer mconf.Unlock()
-
-	conf := types.GetConfig()
-	conf.SetBech32PrefixForAccount(accPrefix, accPrefix+pubKeyPrefix)
-
-	o, err := keyring.Bech32KeyOutput(a.Info)
+func toBench32(prefix string, addr []byte) string {
+	bech32Addr, err := bech32.ConvertAndEncode(prefix, addr)
 	if err != nil {
 		panic(err)
 	}
-	return o.PubKey
+	return bech32Addr
 }
 
 // EnsureDefaultAccount ensures that default account exists.
@@ -201,7 +183,7 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
 	info, err := r.kr.Key(name)
-	if err == dkeyring.ErrKeyNotFound {
+	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
 	if err != nil {

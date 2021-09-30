@@ -11,29 +11,25 @@ import (
 	"strings"
 	"time"
 
-	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
-
-	"github.com/tendermint/starport/starport/services"
-
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-
 	"github.com/dariubs/percent"
 	"github.com/fatih/color"
-	"github.com/pelletier/go-toml"
-	"golang.org/x/sync/errgroup"
-
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/pelletier/go-toml"
+	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/availableport"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/ctxticker"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/spn"
 	"github.com/tendermint/starport/starport/pkg/tendermintrpc"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/services/chain"
+	"golang.org/x/sync/errgroup"
 )
 
 const (
@@ -43,7 +39,7 @@ const (
 var (
 	// spnChainSourcePath returns the path used for the chain source used to build spn chains
 	spnChainSourcePath = xfilepath.Join(
-		services.StarportConfPath,
+		chainconfig.ConfigDirPath,
 		xfilepath.Path("spn-chains"),
 	)
 
@@ -390,7 +386,7 @@ func (b *Builder) StartChain(ctx context.Context, chainID string, flags []string
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath, chainOption...)
+	chainHandler, err := chain.New(appPath, chainOption...)
 	if err != nil {
 		return err
 	}
@@ -512,7 +508,7 @@ func (b *Builder) GenerateGenesisWithHome(
 	}
 
 	appPath := filepath.Join(sourcePath, chainID)
-	chainHandler, err := chain.New(ctx, appPath,
+	chainHandler, err := chain.New(appPath,
 		chain.HomePath(homeDir),
 		chain.LogLevel(chain.LogSilent),
 		chain.KeyringBackend(chaincmd.KeyringBackendTest),

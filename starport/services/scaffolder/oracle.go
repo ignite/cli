@@ -3,13 +3,11 @@ package scaffolder
 import (
 	"context"
 	"fmt"
-	"os"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -18,7 +16,7 @@ import (
 
 const (
 	bandImport  = "github.com/bandprotocol/bandchain-packet"
-	bandVersion = "v0.0.0"
+	bandVersion = "v0.0.2"
 )
 
 // OracleOption configures options for AddOracle.
@@ -58,11 +56,6 @@ func (s *Scaffolder) AddOracle(
 		apply(&o)
 	}
 
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return sm, err
-	}
-
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
 	if err != nil {
 		return sm, err
@@ -96,11 +89,11 @@ func (s *Scaffolder) AddOracle(
 	var (
 		g    *genny.Generator
 		opts = &ibc.OracleOptions{
-			AppName:    path.Package,
+			AppName:    s.modpath.Package,
 			AppPath:    s.path,
-			ModulePath: path.RawPath,
+			ModulePath: s.modpath.RawPath,
 			ModuleName: moduleName,
-			OwnerName:  owner(path.RawPath),
+			OwnerName:  owner(s.modpath.RawPath),
 			QueryName:  name,
 			MsgSigner:  mfSigner,
 		}
@@ -113,14 +106,10 @@ func (s *Scaffolder) AddOracle(
 	if err != nil {
 		return sm, err
 	}
-	pwd, err := os.Getwd()
-	if err != nil {
-		return sm, err
-	}
-	return sm, s.finish(pwd, path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
-func (s *Scaffolder) installBandPacket() error {
+func (s Scaffolder) installBandPacket() error {
 	return cmdrunner.New().
 		Run(context.Background(),
 			step.New(step.Exec(gocmd.Name(), "get", gocmd.PackageLiteral(bandImport, bandVersion))),
