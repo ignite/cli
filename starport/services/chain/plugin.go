@@ -3,7 +3,7 @@ package chain
 import (
 	"context"
 
-	starportconf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
 
@@ -17,10 +17,10 @@ type Plugin interface {
 	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// Configure configures config defaults.
-	Configure(string, starportconf.Config) error
+	Configure(string, chainconfig.Config) error
 
 	// StartCommands returns step.Exec configuration to start servers.
-	Start(context.Context, chaincmdrunner.Runner, starportconf.Config) error
+	Start(context.Context, chaincmdrunner.Runner, chainconfig.Config) error
 
 	// Home returns the blockchain node's home dir.
 	Home() string
