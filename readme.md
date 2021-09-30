@@ -19,13 +19,24 @@ starport chain serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to customize your blockchain see `config.yml` [reference](https://docs.starport.network/kb/config.html). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/guide/install.html).
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.network). To learn more about how to build blockchain apps with Starport, see the [developer guide](https://docs.starport.network/guide/). To install Starport locally on GNU/Linux or macOS, follow [these steps](https://docs.starport.network/guide/install.html).
 
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [`tendermint/vue`](https://github.com/tendermint/vue).
 
 ## Questions
 
 For questions and support please join the `cosmos-sdk-starport` channel in the [Cosmos Community Discord](https://discord.com/invite/W8trcGV). The issue list of this repo is exclusively for bug reports and feature requests.
+
+## Cosmos SDK Compatibility
+
+Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) framework. To ensure the best possible experience, use the version of Starport that corresponds to the version of Cosmos SDK that you blockchain is built with. Unless noted otherwise, a row refers to a minor version and all associated patch versions.
+
+| Starport | Cosmos SDK | Notes                                            |
+| -------- | ---------- | ------------------------------------------------ |
+| v0.18    | v0.44      |                                                  |
+| v0.17    | v0.42      | `starport chain serve` works with v0.44.x chains |
+
+To upgrade your blockchain to the newer version of Cosmos SDK refer to the [migration guide](https://docs.starport.network/migration/).
 
 ## Contributing
 

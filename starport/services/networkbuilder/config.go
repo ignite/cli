@@ -4,16 +4,13 @@ import (
 	"encoding/json"
 	"os"
 
+	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
-	"github.com/tendermint/starport/starport/services"
 )
 
 var (
 	// confPath returns the path of Starport Network configuration
-	confPath = xfilepath.Join(
-		services.StarportConfPath,
-		xfilepath.Path("networkbuilder"),
-	)
+	confPath = xfilepath.Join(chainconfig.ConfigDirPath, xfilepath.Path("networkbuilder"))
 )
 
 // Config holds configuration about network builder's state.
@@ -58,7 +55,7 @@ func ConfigGet() (*Config, error) {
 
 // ConfigSave saves the current state of Config.
 func ConfigSave(c *Config) error {
-	if err := services.InitConfig(); err != nil {
+	if err := chainconfig.CreateConfigDir(); err != nil {
 		return err
 	}
 
