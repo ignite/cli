@@ -410,8 +410,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
 
-		templateAssert := `require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
-require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
+		templateAssert := `require.ElementsMatch(t, genesisState.%[2]vList, got.%[2]vList)
 %[1]v`
 		replacementTests := fmt.Sprintf(
 			templateAssert,
