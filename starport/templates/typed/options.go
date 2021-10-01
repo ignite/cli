@@ -17,6 +17,7 @@ type Options struct {
 	Fields     field.Fields
 	Indexes    field.Fields
 	NoMessage  bool
+	IsIBC      bool
 }
 
 // Validate that options are usuable
