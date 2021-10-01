@@ -11,6 +11,7 @@ import (
 
 func TestGenesis(t *testing.T) {
 	genesisState := types.GenesisState{
+		<%= if (isIBC) { %>PortId: types.PortID,<% } %>
 		// this line is used by starport scaffolding # genesis/test/state
 	}
 
@@ -18,6 +19,8 @@ func TestGenesis(t *testing.T) {
 	<%= moduleName %>.InitGenesis(ctx, *k, genesisState)
 	got := <%= moduleName %>.ExportGenesis(ctx, *k)
 	require.NotNil(t, got)
+
+	<%= if (isIBC) { %>require.Equal(t, genesisState.PortId, got.PortId)<% } %>
 
 	// this line is used by starport scaffolding # genesis/test/assert
 }
