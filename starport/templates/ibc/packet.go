@@ -86,15 +86,16 @@ func NewPacket(replacer placeholder.Replacer, opts *PacketOptions) (*genny.Gener
 	ctx.Set("fields", opts.Fields)
 	ctx.Set("ackFields", opts.AckFields)
 
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
-		return g, err
-	}
-
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{packetName}}", opts.PacketName.Snake))
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return g, err
+	}
+
 	return g, nil
 }
 
