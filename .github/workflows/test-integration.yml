@@ -8,19 +8,24 @@ on:
       - develop
 
 jobs:
+  pre-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Finding files and store to output
+        id: set-matrix
+        run: |
+          echo "::set-output name=matrix::$(find ./integration -name '*.go' ! -name '*env_test.go' ! -name '*integration_test.go' -print )"
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
+
   integration:
+    needs: pre-test
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        test-file: [ './integration/cmd_app_test.go',
-                     './integration/cmd_ibc_test.go',
-                     './integration/cmd_list_test.go',
-                     './integration/cmd_map_test.go',
-                     './integration/cmd_query_test.go',
-                     './integration/cmd_serve_test.go',
-                     './integration/cmd_singleton_test.go',
-                     './integration/config_test.go',
-                     './integration/tx_test.go' ]
+        test-file: ${{fromJson(needs.prep-test.outputs.matrix)}}
+
     steps:
       - uses: actions/checkout@v2
 
