@@ -3,7 +3,6 @@ package ibc
 import (
 	"embed"
 	"fmt"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -19,11 +18,8 @@ import (
 )
 
 var (
-	//go:embed oracle/static/* oracle/static/**/*
-	fsOracleStatic embed.FS
-
-	//go:embed oracle/dynamic/* oracle/dynamic/**/*
-	fsOracleDynamic embed.FS
+	//go:embed oracle/* oracle/**/*
+	fsOracle embed.FS
 )
 
 // OracleOptions are options to scaffold an oracle query in a IBC module
@@ -41,6 +37,8 @@ type OracleOptions struct {
 func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Generator, error) {
 	g := genny.New()
 
+	template := xgenny.NewEmbedWalker(fsOracle, "oracle/", opts.AppPath)
+
 	g.RunFn(moduleOracleModify(replacer, opts))
 	g.RunFn(protoQueryOracleModify(replacer, opts))
 	g.RunFn(protoTxOracleModify(replacer, opts))
@@ -48,12 +46,6 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	g.RunFn(clientCliQueryOracleModify(replacer, opts))
 	g.RunFn(clientCliTxOracleModify(replacer, opts))
 	g.RunFn(codecOracleModify(replacer, opts))
-
-	err := box(g, opts)
-	if err != nil {
-		return g, err
-	}
-	g.RunFn(packetHandlerOracleModify(replacer, opts))
 
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", opts.ModuleName)
@@ -66,41 +58,23 @@ func NewOracle(replacer placeholder.Replacer, opts *OracleOptions) (*genny.Gener
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
-		return g, err
-	}
-
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{queryName}}", opts.QueryName.Snake))
-	return g, nil
-}
 
-func box(g *genny.Generator, opts *OracleOptions) error {
-	var (
-		gs   = genny.New()
-		path = filepath.Join(opts.AppPath, "x", opts.ModuleName, "oracle.go")
-
-		staticTemplate = xgenny.NewEmbedWalker(
-			fsOracleStatic,
-			"oracle/static/",
-			opts.AppPath,
-		)
-		dynamicTemplate = xgenny.NewEmbedWalker(
-			fsOracleDynamic,
-			"oracle/dynamic/",
-			opts.AppPath,
-		)
-	)
-	if _, err := os.Stat(path); os.IsNotExist(err) {
-		if err := gs.Box(staticTemplate); err != nil {
-			return err
-		}
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return g, err
 	}
-	g.Merge(gs)
-	return g.Box(dynamicTemplate)
+
+	if err := xgenny.Box(g, template); err != nil {
+		return g, err
+	}
+
+	g.RunFn(packetHandlerOracleModify(replacer, opts))
+
+	return g, nil
 }
 
 func moduleOracleModify(replacer placeholder.Replacer, opts *OracleOptions) genny.RunFn {
