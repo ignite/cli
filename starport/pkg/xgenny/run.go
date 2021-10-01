@@ -4,9 +4,11 @@ import (
 	"context"
 	"errors"
 	"os"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/logger"
+	"github.com/gobuffalo/packd"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/validation"
 )
@@ -24,7 +26,7 @@ func (d *dryRunError) ValidationInfo() string {
 
 // DryRunner is a genny DryRunner with a logger
 func DryRunner(ctx context.Context) *genny.Runner {
-	runner := genny.DryRunner(context.Background())
+	runner := genny.DryRunner(ctx)
 	runner.Logger = logger.New(genny.DefaultLogLvl)
 	return runner
 }
@@ -79,4 +81,23 @@ func RunWithValidation(
 		}
 	}
 	return sm, nil
+}
+
+// Box will mount each file in the Box and wrap it, already existing files are ignored
+func Box(g *genny.Generator, box packd.Walker) error {
+	return box.Walk(func(path string, bf packd.File) error {
+		f := genny.NewFile(path, bf)
+		f, err := g.Transform(f)
+		if err != nil {
+			return err
+		}
+		filePath := strings.TrimSuffix(f.Name(), ".plush")
+		_, err = os.Stat(filePath)
+		if os.IsNotExist(err) {
+			// path doesn't exist. move on.
+			g.File(f)
+			return nil
+		}
+		return err
+	})
 }
