@@ -6,6 +6,8 @@
 
 - Added `starport generate dart` to generate a Dart client from protocol buffer files
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+- Bumped golang and cosmos-sdk versions in go.mod in starport/templates/app
+
 
 ## `v0.18.0`
 
