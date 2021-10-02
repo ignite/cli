@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/xexec"
 	"io"
 	"io/ioutil"
 	"os"
@@ -27,6 +26,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
@@ -36,17 +36,17 @@ const (
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
 
-// env provides an isolated testing environment and what's needed to
+// Env provides an isolated testing environment and what's needed to
 // make it possible.
-type env struct {
+type Env struct {
 	t   *testing.T
 	ctx context.Context
 }
 
 // NewEnv creates a new testing environment.
-func NewEnv(t *testing.T) env {
+func NewEnv(t *testing.T) Env {
 	ctx, cancel := context.WithCancel(context.Background())
-	e := env{
+	e := Env{
 		t:   t,
 		ctx: ctx,
 	}
@@ -61,12 +61,12 @@ func NewEnv(t *testing.T) env {
 
 // SetCleanup registers a function to be called when the test (or subtest) and all its
 // subtests complete.
-func (e env) SetCleanup(f func()) {
+func (e Env) SetCleanup(f func()) {
 	e.t.Cleanup(f)
 }
 
 // Ctx returns parent context for the test suite to use for cancelations.
-func (e env) Ctx() context.Context {
+func (e Env) Ctx() context.Context {
 	return e.ctx
 }
 
@@ -76,38 +76,38 @@ type execOptions struct {
 	stdout, stderr         io.Writer
 }
 
-type execOption func(*execOptions)
+type ExecOption func(*execOptions)
 
 // ExecShouldError sets the expectations of a command's execution to end with a failure.
-func ExecShouldError() execOption {
+func ExecShouldError() ExecOption {
 	return func(o *execOptions) {
 		o.shouldErr = true
 	}
 }
 
 // ExecCtx sets cancelation context for the execution.
-func ExecCtx(ctx context.Context) execOption {
+func ExecCtx(ctx context.Context) ExecOption {
 	return func(o *execOptions) {
 		o.ctx = ctx
 	}
 }
 
 // ExecStdout captures stdout of an execution.
-func ExecStdout(w io.Writer) execOption {
+func ExecStdout(w io.Writer) ExecOption {
 	return func(o *execOptions) {
 		o.stdout = w
 	}
 }
 
-// ExecSterr captures stderr of an execution.
-func ExecStderr(w io.Writer) execOption {
+// ExecStderr captures stderr of an execution.
+func ExecStderr(w io.Writer) ExecOption {
 	return func(o *execOptions) {
 		o.stderr = w
 	}
 }
 
 // ExecRetry retries command until it is successful before context is canceled.
-func ExecRetry() execOption {
+func ExecRetry() ExecOption {
 	return func(o *execOptions) {
 		o.shouldRetry = true
 	}
@@ -115,7 +115,7 @@ func ExecRetry() execOption {
 
 // Exec executes a command step with options where msg describes the expectation from the test.
 // unless calling with Must(), Exec() will not exit test runtime on failure.
-func (e env) Exec(msg string, steps step.Steps, options ...execOption) (ok bool) {
+func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool) {
 	opts := &execOptions{
 		ctx:    e.ctx,
 		stdout: ioutil.Discard,
@@ -165,7 +165,7 @@ const (
 )
 
 // Scaffold scaffolds an app to a unique appPath and returns it.
-func (e env) Scaffold(appName string, flags ...string) (appPath string) {
+func (e Env) Scaffold(appName string, flags ...string) (appPath string) {
 	root := e.TmpDir()
 	e.Exec("scaffold an app",
 		step.NewSteps(step.New(
@@ -190,9 +190,9 @@ func (e env) Scaffold(appName string, flags ...string) (appPath string) {
 }
 
 // Serve serves an application lives under path with options where msg describes the
-// expection from the serving action.
+// execution from the serving action.
 // unless calling with Must(), Serve() will not exit test runtime on failure.
-func (e env) Serve(msg, path, home, configPath string, options ...execOption) (ok bool) {
+func (e Env) Serve(msg, path, home, configPath string, options ...ExecOption) (ok bool) {
 	serveCommand := []string{
 		"chain",
 		"serve",
@@ -217,7 +217,7 @@ func (e env) Serve(msg, path, home, configPath string, options ...execOption) (o
 
 // EnsureAppIsSteady ensures that app living at the path can compile and its tests
 // are passing.
-func (e env) EnsureAppIsSteady(appPath string) {
+func (e Env) EnsureAppIsSteady(appPath string) {
 	_, statErr := os.Stat(filepath.Join(appPath, "config.yml"))
 	require.False(e.t, os.IsNotExist(statErr), "config.yml cannot be found")
 
@@ -231,7 +231,7 @@ func (e env) EnsureAppIsSteady(appPath string) {
 
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
-func (e env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
+func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 	checkAlive := func() error {
 		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
 		if err == nil && !ok {
@@ -243,7 +243,7 @@ func (e env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 }
 
 // TmpDir creates a new temporary directory.
-func (e env) TmpDir() (path string) {
+func (e Env) TmpDir() (path string) {
 	path, err := ioutil.TempDir("", "integration")
 	require.NoError(e.t, err, "create a tmp dir")
 	e.t.Cleanup(func() { os.RemoveAll(path) })
@@ -252,7 +252,7 @@ func (e env) TmpDir() (path string) {
 
 // RandomizeServerPorts randomizes server ports for the app at path, updates
 // its config.yml and returns new values.
-func (e env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
+func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
 	if configFile == "" {
 		configFile = "config.yml"
 	}
@@ -292,7 +292,7 @@ func (e env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
-func (e env) SetRandomHomeConfig(path string, configFile string) {
+func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	if configFile == "" {
 		configFile = "config.yml"
 	}
@@ -314,20 +314,20 @@ func (e env) SetRandomHomeConfig(path string, configFile string) {
 
 // Must fails the immediately if not ok.
 // t.Fail() needs to be called for the failing tests before running Must().
-func (e env) Must(ok bool) {
+func (e Env) Must(ok bool) {
 	if !ok {
 		e.t.FailNow()
 	}
 }
 
 // Home returns user's home dir.
-func (e env) Home() string {
+func (e Env) Home() string {
 	home, err := os.UserHomeDir()
 	require.NoError(e.t, err)
 	return home
 }
 
 // AppdHome returns appd's home dir.
-func (e env) AppdHome(name string) string {
+func (e Env) AppdHome(name string) string {
 	return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
 }
