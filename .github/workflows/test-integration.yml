@@ -3,6 +3,8 @@ name: Test
 on:
   pull_request:
   push:
+    paths-ignore:
+      - '*.md'
     branches:
       - master
       - develop
@@ -10,25 +12,24 @@ on:
 jobs:
   pre-test:
     runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.set-matrix.outputs.matrix }}
     steps:
       - uses: actions/checkout@v2
       - name: Finding files and store to output
         id: set-matrix
-        run: |
-          echo "::set-output name=matrix::$(find ./integration -name '*.go' ! -name '*env_test.go' ! -name '*integration_test.go' -print )"
-    outputs:
-      matrix: ${{ steps.set-matrix.outputs.matrix }}
+        run: echo "::set-output name=matrix::$(find ./integration -name '*.go' ! -name '*env_test.go' ! -name '*integration_test.go' -print | jq -R . | jq -cs .)"
 
   integration:
-    needs: pre-test
     runs-on: ubuntu-latest
+    needs: pre-test
+    if: fromJSON(needs.pre-test.outputs.matrix)[0] != null
     strategy:
+      fail-fast: false
       matrix:
-        test-file: ${{fromJson(needs.prep-test.outputs.matrix)}}
-
+        test-file: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2
-
       - uses: actions/cache@v2
         with:
           path: |
@@ -37,12 +38,10 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
-
       - uses: actions/setup-go@v2
         with:
           go-version: 1.16
       - name: Install Starport
         run: go install ./...
-
       - name: Run Integration Tests
         run: go test -v -timeout 120m ${{ matrix.test-file }} ./integration/env_test.go ./integration/integration_test.go
