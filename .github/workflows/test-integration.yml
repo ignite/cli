@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v2
       - name: Finding files and store to output
         id: set-matrix
-        run: echo "::set-output name=matrix::$(find ./integration -name '*.go' ! -name '*env_test.go' ! -name '*integration_test.go' -print | jq -R . | jq -cs .)"
+        run: echo "::set-output name=matrix::$(find ./integration -type d -maxdepth 1 ! -name 'integration' -print | jq -R . | jq -cs .)"
 
   integration:
     runs-on: ubuntu-latest
@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        test-file: ${{fromJson(needs.pre-test.outputs.matrix)}}
+        test-path: ${{fromJson(needs.pre-test.outputs.matrix)}}
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -44,4 +44,4 @@ jobs:
       - name: Install Starport
         run: go install ./...
       - name: Run Integration Tests
-        run: go test -v -timeout 120m ${{ matrix.test-file }} ./integration/env_test.go ./integration/integration_test.go
+        run: go test -v -timeout 120m ${{ matrix.test-path }}

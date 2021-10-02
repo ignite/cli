@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.NewEnv(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -56,7 +57,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec("starport", "s", "list", "company", "name", "name"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a list with unrecognized field type",
@@ -64,7 +65,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec("starport", "s", "list", "employee", "level:itn"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing list",
@@ -72,7 +73,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec("starport", "s", "list", "user", "email"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a list whose name is a reserved word",
@@ -80,7 +81,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec("starport", "s", "list", "map", "size:int"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a list containing a field with a reserved word",
@@ -88,7 +89,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 			step.Exec("starport", "s", "list", "document", "type:int"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a list with no interaction message",
@@ -103,7 +104,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.NewEnv(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -133,7 +134,7 @@ func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "list", "user", "email", "--module", "idontexist"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing list",
@@ -141,7 +142,7 @@ func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "list", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)

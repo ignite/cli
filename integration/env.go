@@ -1,10 +1,14 @@
-package integration_test
+//go:build !relayer
+// +build !relayer
+
+package envtest
 
 import (
 	"bytes"
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/xexec"
 	"io"
 	"io/ioutil"
 	"os"
@@ -27,7 +31,7 @@ import (
 )
 
 const (
-	serveTimeout = time.Minute * 15
+	ServeTimeout = time.Minute * 15
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
@@ -39,15 +43,26 @@ type env struct {
 	ctx context.Context
 }
 
-// env creates a new testing environment.
-func newEnv(t *testing.T) env {
+// NewEnv creates a new testing environment.
+func NewEnv(t *testing.T) env {
 	ctx, cancel := context.WithCancel(context.Background())
 	e := env{
 		t:   t,
 		ctx: ctx,
 	}
 	t.Cleanup(cancel)
+
+	if !xexec.IsCommandAvailable("starport") {
+		t.Fatal("starport needs to be installed")
+	}
+
 	return e
+}
+
+// SetCleanup registers a function to be called when the test (or subtest) and all its
+// subtests complete.
+func (e env) SetCleanup(f func()) {
+	e.t.Cleanup(f)
 }
 
 // Ctx returns parent context for the test suite to use for cancelations.
@@ -312,7 +327,7 @@ func (e env) Home() string {
 	return home
 }
 
-// AppHome returns appd's home dir.
+// AppdHome returns appd's home dir.
 func (e env) AppdHome(name string) string {
 	return filepath.Join(e.Home(), fmt.Sprintf(".%s", name))
 }

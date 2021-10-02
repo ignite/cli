@@ -7,13 +7,14 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestCreateModuleWithIBC(t *testing.T) {
 
 	var (
-		env  = newEnv(t)
+		env  = envtest.NewEnv(t)
 		path = env.Scaffold("blogibc")
 	)
 
@@ -107,7 +108,7 @@ func TestCreateModuleWithIBC(t *testing.T) {
 func TestCreateIBCOracle(t *testing.T) {
 
 	var (
-		env  = newEnv(t)
+		env  = envtest.NewEnv(t)
 		path = env.Scaffold("ibcoracle")
 	)
 
@@ -137,7 +138,7 @@ func TestCreateIBCOracle(t *testing.T) {
 			step.Exec("starport", "s", "band", "invalidOracle"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a BandChain oracle in a non existent module",
@@ -145,7 +146,7 @@ func TestCreateIBCOracle(t *testing.T) {
 			step.Exec("starport", "s", "band", "invalidOracle", "--module", "nomodule"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a non-IBC module",
@@ -160,7 +161,7 @@ func TestCreateIBCOracle(t *testing.T) {
 			step.Exec("starport", "s", "band", "invalidOracle", "--module", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)
@@ -169,7 +170,7 @@ func TestCreateIBCOracle(t *testing.T) {
 func TestCreateIBCPacket(t *testing.T) {
 
 	var (
-		env  = newEnv(t)
+		env  = envtest.NewEnv(t)
 		path = env.Scaffold("blogibc2")
 	)
 
@@ -202,7 +203,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "s", "packet", "bar", "text"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a packet in a non existent module",
@@ -210,7 +211,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "s", "packet", "bar", "text", "--module", "nomodule"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating an existing packet",
@@ -218,7 +219,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "s", "packet", "bar", "post", "--module", "foo"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a packet with custom type fields",
@@ -268,7 +269,7 @@ func TestCreateIBCPacket(t *testing.T) {
 			step.Exec("starport", "s", "packet", "foo", "text", "--module", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)

@@ -8,6 +8,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/tendermint/starport/integration"
 	"net/http"
 	"testing"
 
@@ -21,7 +22,7 @@ import (
 
 func TestGetTxViaGRPCGateway(t *testing.T) {
 	var (
-		env         = newEnv(t)
+		env         = envtest.NewEnv(t)
 		appname     = randstr.Runes(10)
 		path        = env.Scaffold(appname)
 		host        = env.RandomizeServerPorts(path, "")
@@ -74,10 +75,10 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 				addresses := []string{}
 
 				// collect addresses of alice and bob.
-				accounts := []struct {
+				var accounts []struct {
 					Name    string `json:"name"`
 					Address string `json:"address"`
-				}{}
+				}
 				if err := json.NewDecoder(output).Decode(&accounts); err != nil {
 					return err
 				}
@@ -152,10 +153,10 @@ func TestGetTxViaGRPCGateway(t *testing.T) {
 	go func() {
 		defer cancel()
 
-		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, ExecRetry())
+		isTxBodyRetrieved = env.Exec("retrieve account addresses", steps, envtest.ExecRetry())
 	}()
 
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
 
 	if !isTxBodyRetrieved {
 		t.FailNow()
