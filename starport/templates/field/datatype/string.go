@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	typeString = dataType{
+	// DataString string data type definition
+	DataString = DataType{
 		DataType:          func(string) string { return "string" },
 		ValueDefault:      "xyz",
 		ValueLoop:         "strconv.Itoa(i)",
@@ -30,7 +31,8 @@ var (
 		},
 	}
 
-	typeStringSlice = dataType{
+	// DataStringSlice string array data type definition
+	DataStringSlice = DataType{
 		DataType:     func(string) string { return "[]string" },
 		ValueDefault: "abc,xyz",
 		ProtoType: func(_, name string, index int) string {

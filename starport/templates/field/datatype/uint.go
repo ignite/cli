@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	typeUint = dataType{
+	// DataUint uint data type definition
+	DataUint = DataType{
 		DataType:          func(string) string { return "uint64" },
 		ValueDefault:      "111",
 		ValueLoop:         "uint64(i)",
@@ -36,7 +37,8 @@ var (
 		GoCLIImports: []GoImport{{Name: "github.com/spf13/cast"}},
 	}
 
-	typeUintSlice = dataType{
+	// DataUintSlice uint array data type definition
+	DataUintSlice = DataType{
 		DataType:     func(string) string { return "[]uint64" },
 		ValueDefault: "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {

@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
 
 const (
@@ -22,8 +22,7 @@ const (
 	componentQuery   = "query"
 	componentPacket  = "packet"
 
-	protoFolder   = "proto"
-	typeSeparator = ":"
+	protoFolder = "proto"
 )
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
@@ -214,7 +213,7 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 	protoPath := filepath.Join(path, protoFolder, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
-		fieldSplit := strings.Split(name, typeSeparator)
+		fieldSplit := strings.Split(name, datatype.Separator)
 		if len(fieldSplit) <= 1 {
 			continue
 		}

@@ -4,13 +4,13 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/datatype"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
 
 // validateField validates the field Name and type, and checks the name is not forbidden by Starport
 func validateField(field string, isForbiddenField func(string) error) (multiformatname.Name, datatype.Name, error) {
-	fieldSplit := strings.Split(field, datatype.TypeSeparator)
+	fieldSplit := strings.Split(field, datatype.Separator)
 	if len(fieldSplit) > 2 {
 		return multiformatname.Name{}, "", fmt.Errorf("invalid field format: %s, should be 'Name' or 'Name:type'", field)
 	}

@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	typeCoin = dataType{
+	// DataCoin coin data type definition
+	DataCoin = DataType{
 		DataType:     func(string) string { return "sdk.Coin" },
 		ValueDefault: "10token",
 		ProtoType: func(_, name string, index int) string {
@@ -26,7 +27,8 @@ var (
 		NonIndex:     true,
 	}
 
-	typeCoinSlice = dataType{
+	// DataCoinSlice coin array data type definition
+	DataCoinSlice = DataType{
 		DataType:     func(string) string { return "sdk.Coins" },
 		ValueDefault: "10token,20stake",
 		ProtoType: func(_, name string, index int) string {

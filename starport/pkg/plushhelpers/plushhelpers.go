@@ -4,8 +4,8 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/plush"
-	"github.com/tendermint/starport/starport/pkg/datatype"
-	"github.com/tendermint/starport/starport/pkg/field"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
 
 // ExtendPlushContext sets available helpers on the provided context.

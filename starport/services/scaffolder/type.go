@@ -6,11 +6,11 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/datatype"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
@@ -226,7 +226,7 @@ func (s Scaffolder) AddType(
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name
 func checkForbiddenTypeIndex(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
+	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 		fieldType := datatype.Name(fieldSplit[1])
@@ -239,7 +239,7 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
+	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 	}

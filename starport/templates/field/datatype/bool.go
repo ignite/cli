@@ -7,7 +7,8 @@ import (
 )
 
 var (
-	typeBool = dataType{
+	// DataBool bool data type definition
+	DataBool = DataType{
 		DataType:          func(string) string { return "bool" },
 		ValueDefault:      "false",
 		ValueLoop:         "false",
