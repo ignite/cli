@@ -30,16 +30,25 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a list with int and []int",
+	env.Must(env.Exec("create a custom type fields",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "employee", "name:string", "level:int", "rates:array.int"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a list with Coin and []Coin",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "list", "salary", "base:coin", "review:coins"),
+			step.Exec("starport",
+				"s",
+				"list",
+				"employee",
+				"numInt:int",
+				"numsInt:array.int",
+				"numsIntAlias:ints",
+				"numUint:uint",
+				"numsUint:array.uint",
+				"numsUintAlias:uints",
+				"textString:string",
+				"textStrings:array.string",
+				"textStringsAlias:strings",
+				"textCoin:coin",
+				"textCoins:array.coin",
+				"textCoinsAlias:coins",
+			),
 			step.Workdir(path),
 		)),
 	))

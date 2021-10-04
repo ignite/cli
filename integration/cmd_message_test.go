@@ -69,7 +69,23 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 
 	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "type", "custom-type", "customField:uint", "listField:array.string"),
+			step.Exec("starport",
+				"s",
+				"type",
+				"custom-type",
+				"numInt:int",
+				"numsInt:array.int",
+				"numsIntAlias:ints",
+				"numUint:uint",
+				"numsUint:array.uint",
+				"numsUintAlias:uints",
+				"textString:string",
+				"textStrings:array.string",
+				"textStringsAlias:strings",
+				"textCoin:coin",
+				"textCoins:array.coin",
+				"textCoinsAlias:coins",
+			),
 			step.Workdir(path),
 		)),
 	))
@@ -77,13 +93,6 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 	env.Must(env.Exec("create a message with the custom field type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "message", "foo-baz", "customField:CustomType"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a message with sdk.Coin type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "message", "foo-coin", "coinField:coin", "coinFields:coins"),
 			step.Workdir(path),
 		)),
 	))

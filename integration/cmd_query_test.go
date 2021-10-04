@@ -69,7 +69,23 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 
 	env.Must(env.Exec("create a custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "type", "custom-type", "customField:uint", "listField:uints"),
+			step.Exec("starport",
+				"s",
+				"type",
+				"custom-type",
+				"numInt:int",
+				"numsInt:array.int",
+				"numsIntAlias:ints",
+				"numUint:uint",
+				"numsUint:array.uint",
+				"numsUintAlias:uints",
+				"textString:string",
+				"textStrings:array.string",
+				"textStringsAlias:strings",
+				"textCoin:coin",
+				"textCoins:array.coin",
+				"textCoinsAlias:coins",
+			),
 			step.Workdir(path),
 		)),
 	))
@@ -77,13 +93,6 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 	env.Must(env.Exec("create a query with the custom field type",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "query", "foobaz", "bar:CustomType"),
-			step.Workdir(path),
-		)),
-	))
-
-	env.Must(env.Exec("create a query with sdk.Coin type",
-		step.NewSteps(step.New(
-			step.Exec("starport", "s", "query", "fooCoin", "bar:coin", "foo:array.coin"),
 			step.Workdir(path),
 		)),
 	))
