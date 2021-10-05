@@ -8,7 +8,7 @@ import (
 	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
 
-// ExtendPlushContext sets available helpers on the provided context.
+// ExtendPlushContext sets available field helpers on the provided context.
 func ExtendPlushContext(ctx *plush.Context) {
 	ctx.Set("mergeGoImports", mergeGoImports)
 	ctx.Set("mergeProtoImports", mergeProtoImports)
