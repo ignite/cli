@@ -7,7 +7,18 @@ description: Steps to install Starport on your local computer.
 
 You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer running GNU/Linux, macOS or Windows (with WSL).
 
-## Prerequisite
+## Prerequisites
+
+
+### OS 
+
+Starport is supported for the following operating systems:
+
+- GNU/Linux
+- macOS
+- Windows Subsystem for Linux (WSL)
+
+### Go 
 
 Starport is written in the Go programming language. To use Starport on a local system:
 
