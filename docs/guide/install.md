@@ -3,14 +3,29 @@ order: 1
 description: Steps to install Starport on your local computer.
 ---
 
+[Install Starport](#install-starport)
+  - [Prerequisites](#prerequisites)
+    - [Operating Systems](#operating-systems)
+    - [Go](#go)
+  - [Verify Your Starport Version](#verify-your-starport-version)
+  - [Installing Starport](#installing-starport)
+    - [Write permission](#write-permission)
+  - [Upgrading Your Starport Installation](#upgrading-your-starport-installation)
+  - [Installing Starport on macOS with Homebrew](#installing-starport-on-macos-with-homebrew)
+  - [Build from source](#build-from-source)
+  - [Summary](#summary)
+
+
 # Install Starport
 
-You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer running GNU/Linux, macOS or Windows (with WSL).
+You can run [Starport](https://github.com/tendermint/starport) in a web-based Gitpod IDE or you can install Starport on your local computer. 
+
 
 ## Prerequisites
 
+Be sure you have met the prerequisites before you install and use Starport. 
 
-### OS 
+### Operating System
 
 Starport is supported for the following operating systems:
 
@@ -45,7 +60,7 @@ This command invokes `curl` to download the install script and pipes the output 
 
 To learn more or customize the installation process, see [Starport installer docs](https://github.com/allinbits/starport-installer) on GitHub.
 
-### Write permission
+### Write Permission
 
 Starport installation requires write permission to the `/usr/local/bin/` directory. If the installation fails because you do not have write permission to `/usr/local/bin/`, run the following command:
 
@@ -87,6 +102,7 @@ cd starport && make install
 
 ## Summary
 
+- Verify the prerequisites.
 - To setup a local development environment, install Starport locally on your computer.
 - Install Starport by fetching the binary using cURL, Homebrew, or by building from source.
 - The latest version is installed by default. You can install previous versions of the precompiled `starport` binary.
