@@ -24,7 +24,7 @@ Use the `starport scaffold map` command to scaffold the `whois` type and create 
 In this example, the `whois` type is stored in a map-like data structure:
 
 ```bash
-starport scaffold map whois name value price --no-message
+starport scaffold map whois name value price owner --no-message
 ```
 
 where:
