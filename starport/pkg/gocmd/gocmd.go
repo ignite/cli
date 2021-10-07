@@ -31,7 +31,7 @@ const (
 )
 
 const (
-	FlagMod              = "-gcflags=\"all=-N -l\" -mod"
+	FlagMod              = "-mod"
 	FlagModValueReadOnly = "readonly"
 	FlagLdflags          = "-ldflags"
 	FlagOut              = "-o"
