@@ -9,8 +9,8 @@ import (
 var (
 	// DataCoin coin data type definition
 	DataCoin = DataType{
-		DataType:     func(string) string { return "sdk.Coin" },
-		ValueDefault: "10token",
+		DataType:         func(string) string { return "sdk.Coin" },
+		DefaultTestValue: "10token",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
 				name, index)
@@ -29,8 +29,8 @@ var (
 
 	// DataCoinSlice coin array data type definition
 	DataCoinSlice = DataType{
-		DataType:     func(string) string { return "sdk.Coins" },
-		ValueDefault: "10token,20stake",
+		DataType:         func(string) string { return "sdk.Coins" },
+		DefaultTestValue: "10token,20stake",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated cosmos.base.v1beta1.Coin %s = %d [(gogoproto.nullable) = false];",
 				name, index)

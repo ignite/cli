@@ -72,7 +72,7 @@ type DataType struct {
 	GenesisArgs       func(name multiformatname.Name, value int) string
 	ProtoImports      []string
 	GoCLIImports      []GoImport
-	ValueDefault      string
+	DefaultTestValue  string
 	ValueLoop         string
 	ValueIndex        string
 	ValueInvalidIndex string

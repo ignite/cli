@@ -10,7 +10,7 @@ var (
 	// DataInt int data type definition
 	DataInt = DataType{
 		DataType:          func(string) string { return "int32" },
-		ValueDefault:      "111",
+		DefaultTestValue:  "111",
 		ValueLoop:         "int32(i)",
 		ValueIndex:        "0",
 		ValueInvalidIndex: "100000",
@@ -39,8 +39,8 @@ var (
 
 	// DataIntSlice int array data type definition
 	DataIntSlice = DataType{
-		DataType:     func(string) string { return "[]int32" },
-		ValueDefault: "1,2,3,4,5",
+		DataType:         func(string) string { return "[]int32" },
+		DefaultTestValue: "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated int32 %s = %d;", name, index)
 		},

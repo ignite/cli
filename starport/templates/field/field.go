@@ -34,13 +34,13 @@ func (f Field) ProtoType(index int) string {
 	return dt.ProtoType(f.Datatype, f.Name.LowerCamel, index)
 }
 
-// ValueDefault returns the Datatype value default
-func (f Field) ValueDefault() string {
+// DefaultTestValue returns the Datatype value default
+func (f Field) DefaultTestValue() string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return dt.ValueDefault
+	return dt.DefaultTestValue
 }
 
 // ValueLoop returns the Datatype value for loop iteration

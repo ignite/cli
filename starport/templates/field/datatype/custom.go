@@ -9,8 +9,8 @@ import (
 var (
 	// DataCustom custom data type definition
 	DataCustom = DataType{
-		DataType:     func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
-		ValueDefault: "null",
+		DataType:         func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
+		DefaultTestValue: "null",
 		ProtoType: func(datatype, name string, index int) string {
 			return fmt.Sprintf("%s %s = %d;", datatype, name, index)
 		},

@@ -18,7 +18,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= field.ValueDefault() %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	for _, tc := range []struct {
 		desc string
 		args []string
@@ -58,7 +58,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= field.ValueDefault() %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -106,7 +106,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-	fields := []string{<%= for (field) in Fields { %> "<%= field.ValueDefault() %>", <% } %>}
+	fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),

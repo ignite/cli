@@ -10,7 +10,7 @@ var (
 	// DataUint uint data type definition
 	DataUint = DataType{
 		DataType:          func(string) string { return "uint64" },
-		ValueDefault:      "111",
+		DefaultTestValue:  "111",
 		ValueLoop:         "uint64(i)",
 		ValueIndex:        "0",
 		ValueInvalidIndex: "100000",
@@ -39,8 +39,8 @@ var (
 
 	// DataUintSlice uint array data type definition
 	DataUintSlice = DataType{
-		DataType:     func(string) string { return "[]uint64" },
-		ValueDefault: "1,2,3,4,5",
+		DataType:         func(string) string { return "[]uint64" },
+		DefaultTestValue: "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated uint64 %s = %d;", name, index)
 		},

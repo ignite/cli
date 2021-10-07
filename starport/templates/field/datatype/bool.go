@@ -10,7 +10,7 @@ var (
 	// DataBool bool data type definition
 	DataBool = DataType{
 		DataType:          func(string) string { return "bool" },
-		ValueDefault:      "false",
+		DefaultTestValue:  "false",
 		ValueLoop:         "false",
 		ValueIndex:        "false",
 		ValueInvalidIndex: "false",

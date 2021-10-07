@@ -10,7 +10,7 @@ var (
 	// DataString string data type definition
 	DataString = DataType{
 		DataType:          func(string) string { return "string" },
-		ValueDefault:      "xyz",
+		DefaultTestValue:  "xyz",
 		ValueLoop:         "strconv.Itoa(i)",
 		ValueIndex:        "strconv.Itoa(0)",
 		ValueInvalidIndex: "strconv.Itoa(100000)",
@@ -33,8 +33,8 @@ var (
 
 	// DataStringSlice string array data type definition
 	DataStringSlice = DataType{
-		DataType:     func(string) string { return "[]string" },
-		ValueDefault: "abc,xyz",
+		DataType:         func(string) string { return "[]string" },
+		DefaultTestValue: "abc,xyz",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("repeated string %s = %d;", name, index)
 		},
