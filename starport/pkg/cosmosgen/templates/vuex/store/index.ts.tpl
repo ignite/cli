@@ -141,10 +141,10 @@ export default {
 					 )).data
 				
 					{{ if $rule.HasQuery }}
-				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
 					let next_values=(await queryClient.{{ camelCase $FullName -}}
 					{{- $n -}}(
-						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.nextKey}
+						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.next_key}
 						{{- if $rule.HasBody -}}, {...key}
 						{{- end -}}
 						)).data
