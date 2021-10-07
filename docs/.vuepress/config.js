@@ -48,7 +48,7 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/cosmosnetwork' target='_blank'>Discord</a>.",
+          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/7fwqwc3afK' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
@@ -115,7 +115,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/cosmosnetwork",
+              url: "https://discord.gg/7fwqwc3afK",
             },
           ],
         },
