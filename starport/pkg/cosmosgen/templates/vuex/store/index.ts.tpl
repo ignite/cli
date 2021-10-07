@@ -121,8 +121,9 @@ export default {
 		{{ if (gt $i 0) }}
 		{{ $n = inc $i }}
 		{{ end}}
-		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
+		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params, query=null }) {
 			try {
+				const key = params ?? {};
 				const queryClient=await initQueryClient(rootGetters)
 				let value= (await queryClient.{{ camelCase $FullName -}}
 				{{- $n -}}(
