@@ -11,9 +11,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 )
 
 const (
@@ -22,8 +22,7 @@ const (
 	componentQuery   = "query"
 	componentPacket  = "packet"
 
-	protoFolder   = "proto"
-	typeSeparator = ":"
+	protoFolder = "proto"
 )
 
 // checkComponentValidity performs various checks common to all components to verify if it can be scaffolded
@@ -48,7 +47,7 @@ func checkComponentValidity(appPath, moduleName string, compName multiformatname
 // checkForbiddenComponentName returns true if the name is forbidden as a component name
 func checkForbiddenComponentName(name multiformatname.Name) error {
 	// Check with names already used from the scaffolded code
-	switch name.LowerCamel {
+	switch name.LowerCase {
 	case
 		"oracle",
 		"logger",
@@ -56,7 +55,8 @@ func checkForbiddenComponentName(name multiformatname.Name) error {
 		"query",
 		"genesis",
 		"types",
-		"tx":
+		"tx",
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by Starport scaffolder", name.LowerCamel)
 	}
 
@@ -213,13 +213,13 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 	protoPath := filepath.Join(path, protoFolder, module)
 	customFields := make([]string, 0)
 	for _, name := range fields {
-		fieldSplit := strings.Split(name, typeSeparator)
+		fieldSplit := strings.Split(name, datatype.Separator)
 		if len(fieldSplit) <= 1 {
 			continue
 		}
-		fieldType := fieldSplit[1]
-		if _, ok := field.StaticDataTypes[fieldType]; !ok {
-			customFields = append(customFields, fieldType)
+		fieldType := datatype.Name(fieldSplit[1])
+		if _, ok := datatype.SupportedTypes[fieldType]; !ok {
+			customFields = append(customFields, string(fieldType))
 		}
 	}
 	return protoanalysis.HasMessages(ctx, protoPath, customFields...)

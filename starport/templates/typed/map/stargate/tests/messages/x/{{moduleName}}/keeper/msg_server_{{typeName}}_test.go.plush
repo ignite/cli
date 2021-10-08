@@ -23,7 +23,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerCreate(t *testing.T) {
 	<%= MsgSigner.LowerCamel %> := "A"
 	for i := 0; i < 5; i++ {
 		expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genUniqueArg(index.DatatypeName) %>,
+		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,
             <% } %>
 		}
 		_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
@@ -48,14 +48,14 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		{
 			desc:    "Completed",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			},
 		},
 		{
 			desc:    "Unauthorized",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B",
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			},
 			err:     sdkerrors.ErrUnauthorized,
@@ -63,7 +63,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 		{
 			desc:    "KeyNotFound",
 			request: &types.MsgUpdate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
                 <% } %>
 			},
 			err:     sdkerrors.ErrKeyNotFound,
@@ -74,7 +74,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerUpdate(t *testing.T) {
 			srv := keeper.NewMsgServerImpl(*k)
 			wctx := sdk.WrapSDKContext(ctx)
 			expected := &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			}
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, expected)
@@ -107,14 +107,14 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		{
 			desc:    "Completed",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			},
 		},
 		{
 			desc:    "Unauthorized",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: "B",
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			},
 			err:     sdkerrors.ErrUnauthorized,
@@ -122,7 +122,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 		{
 			desc:    "KeyNotFound",
 			request: &types.MsgDelete<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
                 <% } %>
 			},
 			err:     sdkerrors.ErrKeyNotFound,
@@ -134,7 +134,7 @@ func Test<%= TypeName.UpperCamel %>MsgServerDelete(t *testing.T) {
 			wctx := sdk.WrapSDKContext(ctx)
 
 			_, err := srv.Create<%= TypeName.UpperCamel %>(wctx, &types.MsgCreate<%= TypeName.UpperCamel %>{<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
-			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
                 <% } %>
 			})
 			require.NoError(t, err)

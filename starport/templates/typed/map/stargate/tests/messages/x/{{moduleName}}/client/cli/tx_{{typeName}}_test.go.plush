@@ -23,17 +23,17 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	for _, tc := range []struct {
 		desc string
-        <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
+        <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.DataType() %>
         <% } %>
 		args []string
 		err  error
 		code uint32
 	}{
 		{
-            <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+            <%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
             <% } %>
 			desc: "valid",
 			args: []string{
@@ -47,7 +47,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
             args := []string{
-                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <%= for (i, index) in Indexes { %><%= index.ToString("tc.id" + index.Name.UpperCamel) %>,
                 <% } %>
             }
             args = append(args, fields...)
@@ -70,7 +70,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -88,7 +88,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.DataType() %>
         <% } %>
 		args []string
 		code uint32
@@ -96,13 +96,13 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	}{
 		{
 			desc: "valid",
-			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
             <% } %>
 			args: common,
 		},
 		{
 			desc: "key not found",
-			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
             <% } %>
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
@@ -111,7 +111,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
             args := []string{
-                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <%= for (i, index) in Indexes { %><%= index.ToString("tc.id" + index.Name.UpperCamel) %>,
                 <% } %>
             }
             args = append(args, fields...)
@@ -135,7 +135,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-	fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+	fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -153,7 +153,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 
 	for _, tc := range []struct {
 		desc string
-		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.GetDatatype() %>
+		<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %> <%= index.DataType() %>
         <% } %>
 		args []string
 		code uint32
@@ -161,13 +161,13 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	}{
 		{
 			desc: "valid",
-			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genValidIndex(index.DatatypeName) %>,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,
             <% } %>
 			args: common,
 		},
 		{
 			desc: "key not found",
-			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= genNotFoundIndex(index.DatatypeName) %>,
+			<%= for (i, index) in Indexes { %>id<%= index.Name.UpperCamel %>: <%= index.ValueInvalidIndex() %>,
             <% } %>
 			args: common,
 			code: sdkerrors.ErrKeyNotFound.ABCICode(),
@@ -176,7 +176,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 		tc := tc
 		t.Run(tc.desc, func(t *testing.T) {
 		    args := []string{
-                <%= for (i, index) in Indexes { %><%= castToString("tc.id" + index.Name.UpperCamel, index.DatatypeName) %>,
+                <%= for (i, index) in Indexes { %><%= index.ToString("tc.id" + index.Name.UpperCamel) %>,
                 <% } %>
             }
             args = append(args, tc.args...)
