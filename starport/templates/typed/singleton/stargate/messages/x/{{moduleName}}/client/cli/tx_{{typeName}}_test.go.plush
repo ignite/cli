@@ -18,7 +18,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	for _, tc := range []struct {
 		desc string
 		args []string
@@ -46,7 +46,7 @@ func TestCreate<%= TypeName.UpperCamel %>(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tc.code, resp.Code)
 			}
 		})
@@ -58,7 +58,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-    fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+    fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -93,7 +93,7 @@ func TestUpdate<%= TypeName.UpperCamel %>(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tc.code, resp.Code)
 			}
 		})
@@ -106,7 +106,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 	val := net.Validators[0]
 	ctx := val.ClientCtx
 
-	fields := []string{<%= for (field) in Fields { %> "<%= genValidArg(field.DatatypeName) %>", <% } %>}
+	fields := []string{<%= for (field) in Fields { %> "<%= field.DefaultTestValue() %>", <% } %>}
 	common := []string{
 		fmt.Sprintf("--%s=%s", flags.FlagFrom, val.Address.String()),
 		fmt.Sprintf("--%s=true", flags.FlagSkipConfirmation),
@@ -138,7 +138,7 @@ func TestDelete<%= TypeName.UpperCamel %>(t *testing.T) {
 			} else {
 				require.NoError(t, err)
 				var resp sdk.TxResponse
-				require.NoError(t, ctx.JSONCodec.UnmarshalJSON(out.Bytes(), &resp))
+				require.NoError(t, ctx.Codec.UnmarshalJSON(out.Bytes(), &resp))
 				require.Equal(t, tc.code, resp.Code)
 			}
 		})
