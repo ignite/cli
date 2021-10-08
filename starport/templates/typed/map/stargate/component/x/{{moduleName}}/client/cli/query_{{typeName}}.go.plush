@@ -2,11 +2,9 @@ package cli
 
 import (
     "context"
-	<%= if (Indexes.IsComplex()) { %> "encoding/json" <% } %>
-
-	<%= if (Indexes.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
+	<%= for (goImport) in mergeGoImports(Indexes) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
     "github.com/spf13/cobra"
-    
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -55,7 +53,7 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 
             queryClient := types.NewQueryClient(clientCtx)
 
-            <%= for (i, index) in Indexes { %> <%= castArg("arg", index, i) %>
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("arg", i) %>
             <% } %>
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
                 <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: arg<%= index.Name.UpperCamel %>,

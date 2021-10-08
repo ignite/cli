@@ -11,6 +11,7 @@ import (
 	"google.golang.org/grpc/status"
 
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	"<%= ModulePath %>/testutil/nullify"
 	keepertest "<%= ModulePath %>/testutil/keeper"
 )
 
@@ -50,7 +51,10 @@ func Test<%= TypeName.UpperCamel %>QuerySingle(t *testing.T) {
 				require.ErrorIs(t, err, tc.err)
 			} else {
 			    require.NoError(t, err)
-			    require.Equal(t, tc.response, response)
+				require.Equal(t,
+					nullify.Fill(tc.response),
+					nullify.Fill(response),
+				)
 			}
 		})
 	}
@@ -77,7 +81,10 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, uint64(i), uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-           	require.Subset(t, msgs, resp.<%= TypeName.UpperCamel %>)
+			require.Subset(t,
+				nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+            )
 		}
 	})
 	t.Run("ByKey", func(t *testing.T) {
@@ -87,7 +94,10 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 			resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(next, 0, uint64(step), false))
 			require.NoError(t, err)
 			require.LessOrEqual(t, len(resp.<%= TypeName.UpperCamel %>), step)
-			require.Subset(t, msgs, resp.<%= TypeName.UpperCamel %>)
+			require.Subset(t,
+				nullify.Fill(msgs),
+            	nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+            )
 			next = resp.Pagination.NextKey
 		}
 	})
@@ -95,7 +105,10 @@ func Test<%= TypeName.UpperCamel %>QueryPaginated(t *testing.T) {
 		resp, err := keeper.<%= TypeName.UpperCamel %>All(wctx, request(nil, 0, 0, true))
 		require.NoError(t, err)
 		require.Equal(t, len(msgs), int(resp.Pagination.Total))
-		require.ElementsMatch(t, msgs, resp.<%= TypeName.UpperCamel %>)
+		require.ElementsMatch(t,
+			nullify.Fill(msgs),
+			nullify.Fill(resp.<%= TypeName.UpperCamel %>),
+		)
 	})
 	t.Run("InvalidRequest", func(t *testing.T) {
 		_, err := keeper.<%= TypeName.UpperCamel %>All(wctx, nil)
