@@ -18,6 +18,10 @@ starport scaffold chain github.com/cosmonaut/blog
 Scaffold create, read, update, delete functionality for a type `post` with two fields: `title` and `body`. Use `starport scaffold list` to scaffold code for storing posts in a list-like data structure.
 
 ```
+cd blog
+```
+
+```
 starport scaffold list post title body
 ```
 
@@ -107,8 +111,6 @@ require (
 
 replace github.com/cosmonaut/blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
-// DON'T FORGET TO REMOVE BEFORE THE STARPORT RELEASE!
-replace github.com/tendermint/starport => github.com/ilgooz/starport v0.0.500
 ```
 
 Use the `replace` directive to use the package from the local `blog` directory (specified as a relative path). Skip this if you've pushed the source code for your blockchain to a location accessible online (like GitHub).
