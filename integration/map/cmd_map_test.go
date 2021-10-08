@@ -132,7 +132,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",
