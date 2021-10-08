@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -151,8 +152,16 @@ func (s Scaffolder) AddMessage(
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
 func checkForbiddenMessageField(name string) error {
-	if name == "creator" {
-		return fmt.Errorf("%s is used by the message scaffolder", name)
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
+	case
+		"creator",
+		datatype.TypeCustom:
+		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)

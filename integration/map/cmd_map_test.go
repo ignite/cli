@@ -62,23 +62,77 @@ func TestCreateMapWithStargate(t *testing.T) {
 
 	env.Must(env.Exec("create a map in a custom module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "mapuser", "email", "--module", "example"),
+			step.Exec("starport", "s", "map", "mapUser", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
 	env.Must(env.Exec("create a map with a custom field type",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "mapdetail", "user:Mapuser", "--module", "example"),
+			step.Exec("starport", "s", "map", "mapDetail", "user:MapUser", "--module", "example"),
 			step.Workdir(path),
 		)),
 	))
 
-	env.Must(env.Exec("create a map with custom indexes",
+	env.Must(env.Exec("create a map with Coin and []Coin",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "map", "map_with_index", "email", "--index", "foo:string,bar:int,foobar:uint,barFoo:bool"),
+			step.Exec("starport",
+				"s",
+				"map",
+				"salary",
+				"numInt:int",
+				"numsInt:array.int",
+				"numsIntAlias:ints",
+				"numUint:uint",
+				"numsUint:array.uint",
+				"numsUintAlias:uints",
+				"textString:string",
+				"textStrings:array.string",
+				"textStringsAlias:strings",
+				"textCoin:coin",
+				"textCoins:array.coin",
+				"textCoinsAlias:coins",
+				"--module",
+				"example",
+			),
 			step.Workdir(path),
 		)),
+	))
+
+	env.Must(env.Exec("create a map with index",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"map",
+				"map_with_index",
+				"email",
+				"emailIds:ints",
+				"--index",
+				"foo:string,bar:int,foobar:uint,barFoo:bool",
+				"--module",
+				"example",
+			),
+			step.Workdir(path),
+		)),
+	))
+
+	env.Must(env.Exec("create a map with invalid index",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"map",
+				"map_with_invalid_index",
+				"email",
+				"--index",
+				"foo:strings,bar:ints",
+				"--module",
+				"example",
+			),
+			step.Workdir(path),
+		)),
+		ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",

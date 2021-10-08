@@ -7,7 +7,7 @@ import (
 
 var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
-func NewMsgCreate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.GetDatatype() %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
+func NewMsgCreate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgCreate<%= TypeName.UpperCamel %> {
   return &MsgCreate<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
@@ -45,7 +45,7 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
 
 var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
-func NewMsgUpdate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.GetDatatype() %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
+func NewMsgUpdate<%= TypeName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *MsgUpdate<%= TypeName.UpperCamel %> {
   return &MsgUpdate<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>

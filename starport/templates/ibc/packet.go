@@ -9,11 +9,11 @@ import (
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/testutil"
 )
@@ -199,19 +199,25 @@ func protoModify(replacer placeholder.Replacer, opts *PacketOptions) genny.RunFn
 		// Add the message definition for packet and acknowledgment
 		var packetFields string
 		for i, field := range opts.Fields {
-			packetFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
+			packetFields += fmt.Sprintf("  %s\n", field.ProtoType(i+1))
 		}
 
 		var ackFields string
 		for i, field := range opts.AckFields {
-			ackFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
+			ackFields += fmt.Sprintf("  %s\n", field.ProtoType(i+1))
 		}
 
 		// Ensure custom types are imported
+		protoImports := append(opts.Fields.ProtoImports(), opts.AckFields.ProtoImports()...)
 		customFields := append(opts.Fields.Custom(), opts.AckFields.Custom()...)
 		for _, f := range customFields {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoPacketImport, importModule)
@@ -283,13 +289,19 @@ func protoTxModify(replacer placeholder.Replacer, opts *PacketOptions) genny.Run
 
 		var sendFields string
 		for i, field := range opts.Fields {
-			sendFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+5)
+			sendFields += fmt.Sprintf("  %s\n", field.ProtoType(i+5))
 		}
 
 		// Ensure custom types are imported
+		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", PlaceholderProtoTxImport, importModule)
