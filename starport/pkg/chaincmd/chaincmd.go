@@ -215,18 +215,14 @@ func (c ChainCmd) AddKeyCommand(accountName string, coinType string) step.Option
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
 func (c ChainCmd) ImportKeyCommand(accountName string, coinType string) step.Option {
-
-	if coinType == "" {
-		coinType = "118"
-	}
-
 	command := []string{
 		commandKeys,
 		"add",
 		accountName,
 		optionRecover,
-		optionCoinType,
-		coinType,
+	}
+	if coinType != "" {
+		command = append(command, optionCoinType, coinType)
 	}
 	command = c.attachKeyringBackend(command)
 
