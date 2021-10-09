@@ -38,7 +38,7 @@ validator:
 	}, conf.Validator)
 }
 
-func TestParseWithMoreInfo(t *testing.T) {
+func TestCoinTypeParse(t *testing.T) {
 	confyml := `
 accounts:
   - name: me
