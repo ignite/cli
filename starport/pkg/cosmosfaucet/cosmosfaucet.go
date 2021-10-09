@@ -43,7 +43,7 @@ type Faucet struct {
 	// accountMnemonic is the mnemonic of the account.
 	accountMnemonic string
 
-	// coin type number for HD derivation (default 118)
+	// coinType registered coin type number for HD derivation (BIP-0044).
 	coinType string
 
 	// coins keeps a list of coins that can be distributed by the faucet.
