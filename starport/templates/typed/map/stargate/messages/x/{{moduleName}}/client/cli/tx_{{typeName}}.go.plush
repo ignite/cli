@@ -1,11 +1,9 @@
 package cli
 
 import (
-    <%= if (Indexes.IsComplex() || Fields.IsComplex()) { %> "encoding/json" <% } %>
-
+	<%= for (goImport) in mergeGoImports(Indexes, Fields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
     "github.com/spf13/cobra"
-    <%= if (Indexes.NeedCastImport() || Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -19,10 +17,10 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
-        <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
+        <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -53,10 +51,10 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
             // Get indexes
-        <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
+        <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
         <% } %>
             // Get value arguments
-		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i+len(Indexes)) %>
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i+len(Indexes)) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -86,7 +84,7 @@ func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Delete a <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-            <%= for (i, index) in Indexes { %> <%= castArg("index", index, i) %>
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("index", i) %>
             <% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
