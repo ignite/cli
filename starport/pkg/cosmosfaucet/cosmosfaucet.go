@@ -43,6 +43,9 @@ type Faucet struct {
 	// accountMnemonic is the mnemonic of the account.
 	accountMnemonic string
 
+	// coin type number for HD derivation (default 118)
+	coinType string
+
 	// coins keeps a list of coins that can be distributed by the faucet.
 	coins []coin
 
@@ -73,10 +76,11 @@ type Option func(*Faucet)
 
 // Account provides the account information to transfer tokens from.
 // when mnemonic isn't provided, account assumed to be exists in the keyring.
-func Account(name, mnemonic string) Option {
+func Account(name, mnemonic string, coinType string) Option {
 	return func(f *Faucet) {
 		f.accountName = name
 		f.accountMnemonic = mnemonic
+		f.coinType = coinType
 	}
 }
 
@@ -137,7 +141,7 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 
 	// import the account if mnemonic is provided.
 	if f.accountMnemonic != "" {
-		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic)
+		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic, f.coinType)
 		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
 			return Faucet{}, err
 		}

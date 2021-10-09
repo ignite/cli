@@ -38,6 +38,7 @@ const (
 	optionValidatorGasPrices               = "--gas-prices"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
+	optionCoinType                         = "--coin-type"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
@@ -192,13 +193,20 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
-func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
+func (c ChainCmd) AddKeyCommand(accountName string, coinType string) step.Option {
+
+	if coinType == "" {
+		coinType = "118"
+	}
+
 	command := []string{
 		commandKeys,
 		"add",
 		accountName,
 		optionOutput,
 		constJSON,
+		optionCoinType,
+		coinType,
 	}
 	command = c.attachKeyringBackend(command)
 
@@ -206,12 +214,19 @@ func (c ChainCmd) AddKeyCommand(accountName string) step.Option {
 }
 
 // ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
-func (c ChainCmd) ImportKeyCommand(accountName string) step.Option {
+func (c ChainCmd) ImportKeyCommand(accountName string, coinType string) step.Option {
+
+	if coinType == "" {
+		coinType = "118"
+	}
+
 	command := []string{
 		commandKeys,
 		"add",
 		accountName,
 		optionRecover,
+		optionCoinType,
+		coinType,
 	}
 	command = c.attachKeyringBackend(command)
 

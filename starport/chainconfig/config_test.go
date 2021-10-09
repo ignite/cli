@@ -20,6 +20,7 @@ validator:
 `
 
 	conf, err := Parse(strings.NewReader(confyml))
+
 	require.NoError(t, err)
 	require.Equal(t, []Account{
 		{
@@ -29,6 +30,43 @@ validator:
 		{
 			Name:  "you",
 			Coins: []string{"5000token"},
+		},
+	}, conf.Accounts)
+	require.Equal(t, Validator{
+		Name:   "user1",
+		Staked: "100000000stake",
+	}, conf.Validator)
+}
+
+func TestParseWithMoreInfo(t *testing.T) {
+	confyml := `
+accounts:
+  - name: me
+    coins: ["1000token", "100000000stake"]
+    mnemonic: ozone unfold device pave lemon potato omit insect column wise cover hint narrow large provide kidney episode clay notable milk mention dizzy muffin crazy
+    cointype: 7777777
+  - name: you
+    coins: ["5000token"]
+    cointype: 123456
+validator:
+  name: user1
+  staked: "100000000stake"
+`
+
+	conf, err := Parse(strings.NewReader(confyml))
+
+	require.NoError(t, err)
+	require.Equal(t, []Account{
+		{
+			Name:     "me",
+			Coins:    []string{"1000token", "100000000stake"},
+			Mnemonic: "ozone unfold device pave lemon potato omit insect column wise cover hint narrow large provide kidney episode clay notable milk mention dizzy muffin crazy",
+			CoinType: "7777777",
+		},
+		{
+			Name:     "you",
+			Coins:    []string{"5000token"},
+			CoinType: "123456",
 		},
 	}, conf.Accounts)
 	require.Equal(t, Validator{
