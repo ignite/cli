@@ -1,8 +1,8 @@
 package typed
 
 import (
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
+	"github.com/tendermint/starport/starport/templates/field"
 )
 
 // Options ...
@@ -17,6 +17,7 @@ type Options struct {
 	Fields     field.Fields
 	Indexes    field.Fields
 	NoMessage  bool
+	IsIBC      bool
 }
 
 // Validate that options are usuable

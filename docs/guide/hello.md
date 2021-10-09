@@ -11,7 +11,7 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.17.3 use the following command:
+This series of tutorials is based on a specific version of Starport, so to install Starport v0.18.0 use the following command:
 
 ```bash
 curl https://get.starport.network/starport@v0.18.0! | bash
