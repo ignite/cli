@@ -194,19 +194,15 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
 func (c ChainCmd) AddKeyCommand(accountName string, coinType string) step.Option {
-
-	if coinType == "" {
-		coinType = "118"
-	}
-
 	command := []string{
 		commandKeys,
 		"add",
 		accountName,
 		optionOutput,
 		constJSON,
-		optionCoinType,
-		coinType,
+	}
+	if coinType != "" {
+		command = append(command, optionCoinType, coinType)
 	}
 	command = c.attachKeyringBackend(command)
 
