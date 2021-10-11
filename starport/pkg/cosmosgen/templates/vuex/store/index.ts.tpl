@@ -68,10 +68,10 @@ export default {
 			state[query][JSON.stringify(key)] = value
 		},
 		SUBSCRIBE(state, subscription) {
-			state._Subscriptions.add(subscription)
+			state._Subscriptions.add(JSON.stringify(subscription))
 		},
 		UNSUBSCRIBE(state, subscription) {
-			state._Subscriptions.delete(subscription)
+			state._Subscriptions.delete(JSON.stringify(subscription))
 		}
 	},
 	getters: {
@@ -107,7 +107,8 @@ export default {
 		async StoreUpdate({ state, dispatch }) {
 			state._Subscriptions.forEach(async (subscription) => {
 				try {
-					await dispatch(subscription.action, subscription.payload)
+					const sub=JSON.parse(subscription)
+					await dispatch(sub.action, sub.payload)
 				}catch(e) {
 					throw new SpVuexError('Subscriptions: ' + e.message)
 				}
@@ -121,8 +122,9 @@ export default {
 		{{ if (gt $i 0) }}
 		{{ $n = inc $i }}
 		{{ end}}
-		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params: {...key}, query=null }) {
+		async {{ $FullName }}{{ $n }}({ commit, rootGetters, getters }, { options: { subscribe, all} = { subscribe:false, all:false}, params, query=null }) {
 			try {
+				const key = params ?? {};
 				const queryClient=await initQueryClient(rootGetters)
 				let value= (await queryClient.{{ camelCase $FullName -}}
 				{{- $n -}}(
@@ -140,10 +142,10 @@ export default {
 					 )).data
 				
 					{{ if $rule.HasQuery }}
-				while (all && (<any> value).pagination && (<any> value).pagination.nextKey!=null) {
+				while (all && (<any> value).pagination && (<any> value).pagination.next_key!=null) {
 					let next_values=(await queryClient.{{ camelCase $FullName -}}
 					{{- $n -}}(
-						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.nextKey}
+						{{- range $j,$a :=$rule.Params }} key.{{$a}}, {{ end -}}{...query, 'pagination.key':(<any> value).pagination.next_key}
 						{{- if $rule.HasBody -}}, {...key}
 						{{- end -}}
 						)).data

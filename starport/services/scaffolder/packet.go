@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
@@ -157,11 +158,17 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 
 // checkForbiddenPacketField returns true if the name is forbidden as a packet name
 func checkForbiddenPacketField(name string) error {
-	switch name {
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
 	case
 		"sender",
 		"port",
-		"channelID":
+		"channelid",
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 

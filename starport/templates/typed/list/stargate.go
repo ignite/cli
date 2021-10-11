@@ -130,17 +130,23 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
+			createFields += fmt.Sprintf("  %s\n", field.ProtoType(i+2))
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+			updateFields += fmt.Sprintf("  %s\n", field.ProtoType(i+3))
 		}
 
 		// Ensure custom types are imported
+		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
