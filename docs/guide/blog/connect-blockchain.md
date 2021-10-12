@@ -17,13 +17,13 @@ Navigate to a separate directory right next to the Blog Blockchain you just buil
 
 Create a new directory called `blogclient` on the level next to `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that will act as a client to your `blog` blockchain.
 
-The command 
+The command
 
 ```bash
 ls
 ```
 
-should show you just `blog` now.
+should show you just `blog` now, or least be listed when you have more directories here.
 
 Create your blogclient directory first, change your current working directory into it and initialize a new go module.
 
@@ -35,11 +35,7 @@ go mod init github.com/cosmonaut/blogclient
 
 You will end up with the go.mod file inside your `blogclient` directory.
 
-Let's create the main.go file and add our content.
-
-`blogclient` will eventually have only two files: `main.go` for the main logic of the client and `go.mod` for specifying dependencies.
-
-Modify the `go.mod` file with the following dependencies:
+Create the main.go file and add the content as follows.
 
 ```mod
 Your blockchain client has only two dependencies: the `blog` blockchain (`types` for message types and a query client) and `starport` (for the `cosmosclient` blockchain client).
@@ -60,7 +56,9 @@ replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alp
 
 The `replace` directive uses the package from the local `blog` directory (specified as a relative path).
 
-Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency
+Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency.
+
+`blogclient` will eventually have only two files: `main.go` for the main logic of the client and `go.mod` for specifying dependencies.
 
 ### Main Logic of the Client in main.go
 
@@ -130,6 +128,8 @@ func main() {
 	fmt.Println(queryResp)
 }
 ```
+
+Read the comments in the code carefully to learn details about each line of code.
 
 ## Running the Blockchain and the Client
 
