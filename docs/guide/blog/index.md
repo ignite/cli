@@ -1,6 +1,8 @@
 ---
-title: "Module Basics: Blog"
-order: 3
+order: 1
+parent:
+  title: "Module Basics: Blog"
+  order: 3
 description: Learn module basics by writing and reading blog posts to your chain.
 ---
 
