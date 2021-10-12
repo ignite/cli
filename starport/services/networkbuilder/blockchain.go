@@ -268,7 +268,7 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 		return chain.Account{}, err
 	}
 
-	acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
+	acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic, account.CoinType)
 	if err != nil {
 		return chain.Account{}, err
 	}

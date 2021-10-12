@@ -81,6 +81,7 @@ type Account struct {
 	Coins    []string `yaml:"coins,omitempty"`
 	Mnemonic string   `yaml:"mnemonic,omitempty"`
 	Address  string   `yaml:"address,omitempty"`
+	CoinType string   `yaml:"cointype,omitempty"`
 
 	// The RPCAddress off the chain that account is issued at.
 	RPCAddress string `yaml:"rpc_address,omitempty"`
