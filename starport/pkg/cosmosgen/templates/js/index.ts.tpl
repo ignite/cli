@@ -41,7 +41,7 @@ const txClient = async (wallet: OfflineSigner, { addr: addr }: TxClientOptions =
 
   return {
     signAndBroadcast: (msgs: EncodeObject[], { fee, memo }: SignAndBroadcastOptions = {fee: defaultFee, memo: ""}) => client.signAndBroadcast(address, msgs, fee,memo),
-    {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: data }),
+    {{ range .Module.Msgs }}{{ camelCase .Name }}: (data: {{ .Name }}): EncodeObject => ({ typeUrl: "/{{ .URI }}", value: {{ .Name }}.fromPartial( data ) }),
     {{ end }}
   };
 };
