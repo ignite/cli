@@ -36,12 +36,18 @@ A reviewer likes to see a linear commit history while reviewing. If you tend to 
 
 Don't worry about adding too many commits. The commits are squashed into a single commit while merging. Your PR title is used as the commit message.
 
+## Contributing to documentation
+
+When you open a PR for the Starport codebase, you must also update the relevant documentation. For changes to:
+
+- [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
+- [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
+- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), update the relevant parts of the source code that describe CLI commands. The CLI docs are automatically generated automatically with a [GitHub action](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/.github/workflows/gen-docs-cli.yml) and overwrite any changes to  `docs/cli/index.md`.
+
 ### Ask for help
 
 If you started a PR but couldn't finish it for whatever reason, don't give up. Instead, just ask for help. Someone else can take over and assume the ownership.
 
 We appreciate every bit of your work!
 
-## Contributing to documentation
 
-[CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md) is generated automatically with a [GitHub action](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/.github/workflows/gen-docs-cli.yml). Instead of editing `docs/cli/index.md` directly (which will be overwritten by the GH action), please, make changes to the relevant parts of the source code that describe CLI commands.
