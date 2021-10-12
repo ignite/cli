@@ -137,7 +137,7 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 
 		// If the account doesn't provide an address, we create one
 		if accountAddress == "" {
-			generatedAccount, err = commands.AddAccount(ctx, account.Name, account.Mnemonic)
+			generatedAccount, err = commands.AddAccount(ctx, account.Name, account.Mnemonic, account.CoinType)
 			if err != nil {
 				return err
 			}
@@ -219,5 +219,6 @@ type Account struct {
 	Name     string
 	Address  string
 	Mnemonic string `json:"mnemonic"`
+	CoinType string
 	Coins    string
 }
