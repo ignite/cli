@@ -19,7 +19,7 @@ package keeper
 import (
   "fmt"
   sdk "github.com/cosmos/cosmos-sdk/types"
-  ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
   "github.com/username/interchange/x/dex/types"
   "strings"
 )
@@ -72,7 +72,7 @@ Implement the `LockTokens` keeper method.
 ```go
 // x/dex/keeper/mint.go
 import (
-  ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
 )
 
 func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, sender sdk.AccAddress, tokens sdk.Coin) error {
@@ -136,7 +136,7 @@ Finally, last function we need to implement is `VoucherDenom`. `VoucherDenom` re
 // x/dex/keeper/denom.go
 import (
   sdk "github.com/cosmos/cosmos-sdk/types"
-  ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
+  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
   "github.com/cosmonaut/interchange/x/dex/types"
 )
 

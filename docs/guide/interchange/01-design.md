@@ -25,7 +25,7 @@ A specific chain cannot mint new of its native token.
 
 <!-- The module is trustless, there is no condition to check when opening a channel between two chains. Any pair of tokens can be exchanged between any pair of chains. -->
 
-This module is inspired by the [`ibc-transfer`](https://github.com/cosmos/cosmos-sdk/tree/v0.42.1/x/ibc/applications/transfer) module and will have some similarities, like the `voucher` creation. It will be more complex but it will display how to create:
+This module is inspired by the [`ibc transfer`](https://github.com/cosmos/ibc-go/tree/main/modules/apps/transfer) module and will have some similarities, like the `voucher` creation. It will be more complex but it will display how to create:
 
 - Several types of packets to send
 - Several types of acknowledgments to treat
