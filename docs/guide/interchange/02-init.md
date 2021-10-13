@@ -23,6 +23,8 @@ cd interchange
 ```
 
 This directory contains a working blockchain app.
+A local GitHub repository has been created for you with the initial scaffold.
+
 Next, create a new IBC module.
 
 ## Create the dex Module
@@ -151,6 +153,13 @@ genesis:
   chain_id: "venus"
 init:
   home: "$HOME/.venus"
+```
+
+After scaffolding so many pieces, now is a good time to make a commit to the local GitHub repository created for you.
+
+```bash
+git add .
+git commit -m "Scaffold module, maps, packages and messages for the dex"
 ```
 
 Implement the code for the order book in the next chapter.

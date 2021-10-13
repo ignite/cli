@@ -114,6 +114,7 @@ message Order {
 ```
 
 Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
+Don't forget to add the import as well.
 
 ```proto
 // proto/dex/buy_order_book.proto
@@ -220,7 +221,7 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 }
 ```
 
-Modify the Acknowledgement function in the `create_pair.go` file.
+Modify the Acknowledgement function in the `keeper/create_pair.go` file.
 
 ```go
 // x/dex/keeper/create_pair.go
@@ -260,6 +261,12 @@ import (
   "errors"
   "sort"
 )
+
+func NewOrderBook() OrderBook {
+	return OrderBook{
+		IdCount: 0,
+	}
+}
 
 const (
 	MaxAmount = int32(100000)
@@ -376,4 +383,14 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 }
 ```
 
-This completes the order book setup. In the next chapter, you will learn how to deal with vouchers, minting and burning vouchers as well as locking and unlocking native blockchain token in your app.
+This completes the order book setup.
+
+It is a good time to save the state of your implementation.
+This will allow you to also jump back and forth in case you are making errors or need a break.
+
+```bash
+git add .
+git commit -m "Create Order Books"
+```
+
+In the next chapter, you will learn how to deal with vouchers, minting and burning vouchers as well as locking and unlocking native blockchain token in your app.

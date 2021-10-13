@@ -79,9 +79,9 @@ func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOr
 
 When a "sell order" packet is received on the target chain, the module should:
 
-- Update the sell order book
-- Distribute sold token to the buyer
-- Send to chain A the sell order after the fill attempt
+* Update the sell order book
+* Distribute sold token to the buyer
+* Send to chain A the sell order after the fill attempt
 
 ```go
 // x/dex/keeper/sell_order.go
@@ -286,4 +286,13 @@ func (k Keeper) OnTimeoutSellOrderPacket(ctx sdk.Context, packet channeltypes.Pa
 	}
 	return nil
 }
+```
+
+Great, you have completed the sell order logic.
+
+It is a good time to make another git commit again to save the state of your work.
+
+```bash
+git add .
+git commit -m "Add Sell Orders"
 ```

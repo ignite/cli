@@ -6,7 +6,7 @@ order: 3
 
 ## Order Book
 
-In this chapter you will build learn how to build the order book.
+In this chapter you will build learn details about the order book and the containing commands.
 The next chapter contains the code for the implementation. First, learn what you are going to implement.
 To use the exchange start from creating a order book for a pair of tokens:
 
