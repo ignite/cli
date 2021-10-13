@@ -12,7 +12,7 @@ import (
 
 	"github.com/otiai10/copy"
 	"github.com/pkg/errors"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/dirchange"
@@ -21,7 +21,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 	"github.com/tendermint/starport/starport/pkg/xurl"
-	"github.com/tendermint/starport/starport/services"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -45,7 +44,7 @@ var (
 
 	// starportSavePath is the place where chain exported genesis are saved
 	starportSavePath = xfilepath.Join(
-		services.StarportConfPath,
+		chainconfig.ConfigDirPath,
 		xfilepath.Path("local-chains"),
 	)
 )
@@ -98,7 +97,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 		if _, err := os.Stat(c.options.ConfigFile); err != nil {
 			return err
 		}
-	} else if _, err := conf.LocateDefault(c.app.Path); err != nil {
+	} else if _, err := chainconfig.LocateDefault(c.app.Path); err != nil {
 		return err
 	}
 
@@ -162,7 +161,7 @@ func (c *Chain) Serve(ctx context.Context, options ...ServeOption) error {
 				case errors.As(err, &buildErr):
 					fmt.Fprintf(c.stdLog().err, "%s\n", errorColor(err.Error()))
 
-					var validationErr *conf.ValidationError
+					var validationErr *chainconfig.ValidationError
 					if errors.As(err, &validationErr) {
 						fmt.Fprintln(c.stdLog().out, "see: https://github.com/tendermint/starport#configure")
 					}
@@ -379,7 +378,7 @@ func (c *Chain) serve(ctx context.Context, forceReset bool) error {
 	return c.start(ctx, conf)
 }
 
-func (c *Chain) start(ctx context.Context, config conf.Config) error {
+func (c *Chain) start(ctx context.Context, config chainconfig.Config) error {
 	commands, err := c.Commands(ctx)
 	if err != nil {
 		return err
@@ -418,7 +417,7 @@ func (c *Chain) start(ctx context.Context, config conf.Config) error {
 	fmt.Fprintf(c.stdLog().out, "🌍 Blockchain API: %s\n", xurl.HTTP(config.Host.API))
 
 	if isFaucetEnabled {
-		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", xurl.HTTP(conf.FaucetHost(config)))
+		fmt.Fprintf(c.stdLog().out, "🌍 Token faucet: %s\n", xurl.HTTP(chainconfig.FaucetHost(config)))
 	}
 
 	return g.Wait()
@@ -431,7 +430,7 @@ func (c *Chain) runFaucetServer(ctx context.Context, faucet cosmosfaucet.Faucet)
 	}
 
 	return xhttp.Serve(ctx, &http.Server{
-		Addr:    conf.FaucetHost(config),
+		Addr:    chainconfig.FaucetHost(config),
 		Handler: faucet,
 	})
 }

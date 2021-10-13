@@ -2,11 +2,9 @@ package cli
 
 import (
     "strconv"
-	<%= if (fields.IsComplex()) { %> "encoding/json" <% } %>
-
-    <%= if (fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
+    <%= for (goImport) in mergeGoImports(fields) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
 	"github.com/spf13/cobra"
-
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -31,7 +29,7 @@ func CmdSend<%= packetName.UpperCamel %>() *cobra.Command {
             srcPort := args[0]
             srcChannel := args[1]
 
-            <%= for (i, field) in fields { %> <%= castArg("arg", field, i+2) %>
+            <%= for (i, field) in fields { %> <%= field.CLIArgs("arg", i+2) %>
       		<% } %>
 
             // Get the relative timeout timestamp

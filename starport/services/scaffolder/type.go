@@ -6,10 +6,11 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
@@ -148,6 +149,11 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	isIBC, err := isIBCModule(s.path, moduleName)
+	if err != nil {
+		return sm, err
+	}
+
 	var (
 		g    *genny.Generator
 		opts = &typed.Options{
@@ -160,6 +166,7 @@ func (s Scaffolder) AddType(
 			Fields:     tFields,
 			NoMessage:  o.withoutMessage,
 			MsgSigner:  mfSigner,
+			IsIBC:      isIBC,
 		}
 		gens []*genny.Generator
 	)
@@ -219,11 +226,11 @@ func (s Scaffolder) AddType(
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name
 func checkForbiddenTypeIndex(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
+	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
-		fieldType := fieldSplit[1]
-		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+		fieldType := datatype.Name(fieldSplit[1])
+		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
 			return fmt.Errorf("invalid index type %s", fieldType)
 		}
 	}
@@ -232,7 +239,7 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
+	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
 	}
@@ -245,8 +252,9 @@ func checkForbiddenTypeField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"id",
+		"creator",
 		"appendedvalue",
-		"creator":
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 

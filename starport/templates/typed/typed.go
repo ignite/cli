@@ -5,8 +5,8 @@ import (
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
@@ -37,14 +37,15 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	// Used for proto package name
 	ctx.Set("formatOwnerName", xstrings.FormatUsername)
 
-	// Create the 'testutil' package with the test helpers
-	if err := testutil.Register(ctx, g, opts.AppPath); err != nil {
-		return err
-	}
-
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 	g.Transformer(genny.Replace("{{typeName}}", opts.TypeName.Snake))
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return err
+	}
+
 	return nil
 }

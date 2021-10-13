@@ -12,7 +12,7 @@ import (
 	"os"
 
 	"github.com/cosmos/cosmos-sdk/types"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -143,7 +143,7 @@ func initialGenesisPath(appHome string) string {
 // BlockchainInfo hold information about a Blokchain.
 type BlockchainInfo struct {
 	Genesis          jsondoc.Doc
-	Config           conf.Config
+	Config           chainconfig.Config
 	RPCPublicAddress string
 }
 
@@ -268,7 +268,7 @@ func (b *Blockchain) CreateAccount(ctx context.Context, account chain.Account) (
 		return chain.Account{}, err
 	}
 
-	acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic)
+	acc, err := commands.AddAccount(ctx, account.Name, account.Mnemonic, account.CoinType)
 	if err != nil {
 		return chain.Account{}, err
 	}

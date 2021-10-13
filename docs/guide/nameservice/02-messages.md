@@ -171,7 +171,7 @@ where:
 
 This `starport scaffold message` command modifies and creates the same set of files as the `MsgBuyName` message. 
 
-### Add The MsgDelete Message
+### Add The MsgDeleteName Message
 
 You need a message so that an end user can delete a name that belongs to them. 
 

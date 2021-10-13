@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -247,15 +246,8 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateState := `%[2]v: &types.%[2]v{
@@ -293,15 +285,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateValid := `%[2]v: &types.%[2]v{
@@ -390,12 +375,20 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 		// Messages
 		var fields string
-		for i, f := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		for i, field := range opts.Fields {
+			fields += fmt.Sprintf("  %s\n", field.ProtoType(i+3))
 		}
+
+		// Ensure custom types are imported
+		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
