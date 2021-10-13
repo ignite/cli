@@ -24,7 +24,7 @@ import (
   "fmt"
   sdk "github.com/cosmos/cosmos-sdk/types"
   ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-  "github.com/username/interchange/x/dex/types"
+  "github.com/cosmonaut/interchange/x/dex/types"
   "strings"
 )
 

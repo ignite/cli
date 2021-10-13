@@ -707,5 +707,5 @@ func TestFillBuyOrder(t *testing.T) {
 When the tests are successful, your output should be 
 
 ```go
-ok      github.com/username/interchange/x/dex/types       0.550s
+ok      github.com/cosmonaut/interchange/x/dex/types       0.550s
 ```

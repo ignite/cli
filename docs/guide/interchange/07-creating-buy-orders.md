@@ -67,9 +67,9 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 
 ## On Receiving a Buy Order
 
-- Update the buy order book
-- Distribute sold token to the buyer
-- Send to chain A the sell order after the fill attempt
+* Update the buy order book
+* Distribute sold token to the buyer
+* Send to chain A the sell order after the fill attempt
 
 ```go
 // x/dex/keeper/buy_order.go
@@ -128,8 +128,8 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 `FillBuyOrder` try to fill the buy order with the order book and returns all the side effects.
 
 ```go
-// x/dex/types/sell_order_book.go
-func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liquidated []Order, purchase int32, filled bool) {
+// x/dex/types/buy_order_book.go
+func (b *BuyOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liquidated []Order, purchase int32, filled bool) {
 	var liquidatedList []Order
 	totalPurchase := int32(0)
 	remainingBuyOrder = order
@@ -137,7 +137,7 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liqu
 	for {
 		var match bool
 		var liquidation Order
-		remainingBuyOrder, liquidation, purchase, match, filled = s.LiquidateFromBuyOrder(
+		remainingBuyOrder, liquidation, purchase, match, filled = b.LiquidateFromBuyOrder(
 			remainingBuyOrder,
 		)
 		if !match {
@@ -160,16 +160,16 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liqu
 `LiquidateFromBuyOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
 
 ```go
-// x/dex/types/sell_order_book.go
-func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Order, liquidatedSellOrder Order, purchase int32, match bool, filled bool) {
+// x/dex/types/buy_order_book.go
+func (b *BuyOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Order, liquidatedSellOrder Order, purchase int32, match bool, filled bool) {
 	remainingBuyOrder = order
 	// No match if no order
-	orderCount := len(s.Book.Orders)
+	orderCount := len(b.Book.Orders)
 	if orderCount == 0 {
 		return order, liquidatedSellOrder, purchase, false, false
 	}
 	// Check if match
-	lowestAsk := s.Book.Orders[orderCount-1]
+	lowestAsk := b.Book.Orders[orderCount-1]
 	if order.Price < lowestAsk.Price {
 		return order, liquidatedSellOrder, purchase, false, false
 	}
@@ -190,7 +190,7 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Or
 	}
 	// Not entirely filled
 	purchase = lowestAsk.Amount
-	s.Book.Orders = s.Book.Orders[:orderCount-1]
+	b.Book.Orders = b.Book.Orders[:orderCount-1]
 	remainingBuyOrder.Amount -= lowestAsk.Amount
 	return remainingBuyOrder, liquidatedSellOrder, purchase, true, false
 }
@@ -198,8 +198,8 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Or
 
 ## Receiving a Buy Order Acknowledgment
 
-- Chain `Mars` will store the remaining sell order in the sell order book and will distribute sold `MCX` to the buyers and will distribute to the seller the price of the amount sold
-- On error we mint back the burned tokens
+* Chain `Mars` will store the remaining sell order in the sell order book and will distribute sold `MCX` to the buyers and will distribute to the seller the price of the amount sold
+* On error we mint back the burned tokens
 
 ```go
 // x/dex/keeper/buy_order.go
@@ -280,6 +280,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 ```
 
 `AppendOrder` appends an order in the buy order book.
+Add the following function to the `buy_order_book.go` file in the `types` directory.
 
 ```go
 // x/dex/types/buy_order_book.go
@@ -305,4 +306,13 @@ func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Pac
 	}
 	return nil
 }
+```
+
+This concludes the buy order logic.
+
+Save your current state to your local GitHub repository.
+
+```bash
+git add .
+git commit -m "Add Buy Orders"
 ```

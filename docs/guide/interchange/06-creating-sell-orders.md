@@ -132,7 +132,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 
 ```go
 // x/dex/types/sell_order_book.go
-func (b *BuyOrderBook) FillSellOrder(order Order) (remainingSellOrder Order, liquidated []Order, gain int32, filled bool) {
+func (s *SellOrderBook) FillSellOrder(order Order) (remainingSellOrder Order, liquidated []Order, gain int32, filled bool) {
 	var liquidatedList []Order
 	totalGain := int32(0)
 	remainingSellOrder = order
@@ -164,15 +164,15 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (remainingSellOrder Order, liq
 
 ```go
 // x/dex/types/sell_order_book.go
-func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) ( remainingSellOrder Order, liquidatedBuyOrder Order, gain int32, match bool, filled bool) {
+func (s *SellOrderBook) LiquidateFromSellOrder(order Order) ( remainingSellOrder Order, liquidatedBuyOrder Order, gain int32, match bool, filled bool) {
   remainingSellOrder = order
   // No match if no order
-  orderCount := len(b.Book.Orders)
+  orderCount := len(s.Book.Orders)
   if orderCount == 0 {
     return order, liquidatedBuyOrder, gain, false, false
   }
   // Check if match
-  highestBid := b.Book.Orders[orderCount-1]
+  highestBid := s.Book.Orders[orderCount-1]
   if order.Price > highestBid.Price {
     return order, liquidatedBuyOrder, gain, false, false
   }
@@ -185,15 +185,15 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) ( remainingSellOrder 
     // Remove highest bid if it has been entirely liquidated
     highestBid.Amount -= order.Amount
     if highestBid.Amount == 0 {
-      b.Book.Orders = b.Book.Orders[:orderCount-1]
+      s.Book.Orders = s.Book.Orders[:orderCount-1]
     } else {
-      b.Book.Orders[orderCount-1] = highestBid
+      s.Book.Orders[orderCount-1] = highestBid
     }
     return remainingSellOrder, liquidatedBuyOrder, gain, true, true
   }
   // Not entirely filled
   gain = highestBid.Amount * highestBid.Price
-  b.Book.Orders = b.Book.Orders[:orderCount-1]
+  b.Book.Orders = s.Book.Orders[:orderCount-1]
   remainingSellOrder.Amount -= highestBid.Amount
   return remainingSellOrder, liquidatedBuyOrder, gain, true, false
 }
