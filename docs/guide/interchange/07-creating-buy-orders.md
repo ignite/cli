@@ -11,7 +11,7 @@ In this chapter you will be implementing creation of buy orders. The logic is ve
 Add the buyer to the proto file definition
 
 ```proto
-// proto/ibcdex/packet.proto
+// proto/dex/packet.proto
 message BuyOrderPacketData {
   // ...
   string buyer = 5;
@@ -32,7 +32,7 @@ starport generate proto-go
 * Save the voucher received on the target chain to later resolve a denom
 
 ```go
-// x/ibcdex/keeper/msg_server_buy_order.go
+// x/dex/keeper/msg_server_buy_order.go
 import (
   //...
   "errors"
@@ -72,7 +72,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 - Send to chain A the sell order after the fill attempt
 
 ```go
-// x/ibcdex/keeper/buy_order.go
+// x/dex/keeper/buy_order.go
 func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) (packetAck types.BuyOrderPacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
@@ -128,7 +128,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 `FillBuyOrder` try to fill the buy order with the order book and returns all the side effects.
 
 ```go
-// x/ibcdex/types/sell_order_book.go
+// x/dex/types/sell_order_book.go
 func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liquidated []Order, purchase int32, filled bool) {
 	var liquidatedList []Order
 	totalPurchase := int32(0)
@@ -160,7 +160,7 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liqu
 `LiquidateFromBuyOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
 
 ```go
-// x/ibcdex/types/sell_order_book.go
+// x/dex/types/sell_order_book.go
 func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Order, liquidatedSellOrder Order, purchase int32, match bool, filled bool) {
 	remainingBuyOrder = order
 	// No match if no order
@@ -202,7 +202,7 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Or
 - On error we mint back the burned tokens
 
 ```go
-// x/ibcdex/keeper/buy_order.go
+// x/dex/keeper/buy_order.go
 func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -282,7 +282,7 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 `AppendOrder` appends an order in the buy order book.
 
 ```go
-// x/ibcdex/types/buy_order_book.go
+// x/dex/types/buy_order_book.go
 func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
   return b.Book.appendOrder(creator, amount, price, Increasing)
 }
@@ -293,7 +293,7 @@ func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (i
 If a timeout occurs, we mint back the native token.
 
 ```go
-// x/ibcdex/keeper/buy_order.go
+// x/dex/keeper/buy_order.go
 func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) error {
 	// In case of error we mint back the native token
 	receiver, err := sdk.AccAddressFromBech32(data.Seller)

@@ -9,7 +9,7 @@ To test your application, add the test files to your code.
 After you add the test files below, change into the `interchange` directory with your terminal, then run
 
 ```bash
-go test -timeout 30s ./x/ibcdex/types
+go test -timeout 30s ./x/dex/types
 ```
 
 ## Order Book Tests
@@ -25,7 +25,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/tendermint/interchange/x/dex/types"
 )
 
 func GenString(n int) string {
@@ -139,7 +139,7 @@ import (
 	"sort"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/tendermint/interchange/x/dex/types"
 )
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
@@ -425,7 +425,7 @@ func TestFillSellOrder(t *testing.T) {
 package types_test
 
 import (
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/tendermint/interchange/x/dex/types"
 	"testing"
 	"github.com/stretchr/testify/require"
 	"sort"
@@ -707,5 +707,5 @@ func TestFillBuyOrder(t *testing.T) {
 When the tests are successful, your output should be 
 
 ```go
-ok      github.com/username/interchange/x/ibcdex/types       0.550s
+ok      github.com/username/interchange/x/dex/types       0.550s
 ```

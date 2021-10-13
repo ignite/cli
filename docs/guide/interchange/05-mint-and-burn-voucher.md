@@ -10,17 +10,17 @@ In this chapter you will learn more about vouchers and how the implementation mi
 
 `SafeBurn` burns tokens if they are IBC vouchers (have an `ibc/` prefix) and locks tokens if they are native to the chain.
 
-Create a new file in the `ibcdex/keeper` called `mint.go`
+Create a new file in the `dex/keeper` called `mint.go`
 
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 package keeper
 
 import (
   "fmt"
   sdk "github.com/cosmos/cosmos-sdk/types"
   ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-  "github.com/username/interchange/x/ibcdex/types"
+  "github.com/username/interchange/x/dex/types"
   "strings"
 )
 
@@ -48,7 +48,7 @@ func (k Keeper) SafeBurn(ctx sdk.Context, port string, channel string, sender sd
 Implement the `BurnTokens` keeper method.
 
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Coin) error {
   // transfer the coins to the module account and burn them
 	if err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, sender, types.ModuleName, sdk.NewCoins(tokens)); err != nil {
@@ -70,7 +70,7 @@ func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Co
 Implement the `LockTokens` keeper method.
 
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 import (
   ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
 )
@@ -88,10 +88,10 @@ func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel str
 }
 ```
 
-`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the `bank` module. To start using these function from the `ibcdex` module, first add them to the `BankKeeper` interface.
+`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the `bank` module. To start using these function from the `dex` module, first add them to the `BankKeeper` interface.
 
 ```go
-// x/ibcdex/types/expected_keeper.go
+// x/dex/types/expected_keeper.go
 package types
 
 import sdk "github.com/cosmos/cosmos-sdk/types"
@@ -104,48 +104,6 @@ type BankKeeper interface {
 }
 ```
 
-<!-- Next, in the `keeper` directory, specify the bank so that you can access it in your module. 
-
-```go
-// x/ibcdex/keeper/keeper.go
-type (
-  Keeper struct {
-    // ...
-    bankKeeper types.BankKeeper
-  }
-)
-
-func NewKeeper(
-  // ...
-  bankKeeper types.BankKeeper,
-) *Keeper {
-  return &Keeper{
-    // ...
-    bankKeeper: bankKeeper,
-  }
-}
-``` -->
-
-<!-- Lastly, the `app.go` file that describes which modules are used in the blockchain application, add the bank keeper to the `ibcdexKeeper`
-
-```go
-// app/app.go
-app.ibcdexKeeper = *ibcdexmodulekeeper.NewKeeper(
-  // ...
-  app.BankKeeper,
-)
-```
-
-The `ibcdex` module will need to mint and burn voucher token using the `bank` account. The use this feature, the module must have a _module account_. To enable the _module account_ declare this permission in the _module account permissions_ structure of the auth module.
-
-```go
-// app/app.go
-maccPerms = map[string][]string{
-    // ...
-    ibcdexmoduletypes.ModuleName: {authtypes.Minter, authtypes.Burner},
-}
-``` -->
-
 ## SaveVoucherDenom
 
 `SaveVoucherDenom` saves the voucher denom to be able to convert it back later.
@@ -153,7 +111,7 @@ maccPerms = map[string][]string{
 Create a new `denom.go` file in the `keeper` directory.
 
 ```go
-// x/ibcdex/keeper/denom.go
+// x/dex/keeper/denom.go
 package keeper
 
 func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, denom string) {
@@ -175,11 +133,11 @@ func (k Keeper) SaveVoucherDenom(ctx sdk.Context, port string, channel string, d
 Finally, last function we need to implement is `VoucherDenom`. `VoucherDenom` returns the voucher of the denom from the port ID and channel ID.
 
 ```go
-// x/ibcdex/keeper/denom.go
+// x/dex/keeper/denom.go
 import (
   sdk "github.com/cosmos/cosmos-sdk/types"
   ibctransfertypes "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/types"
-  "github.com/cosmonaut/interchange/x/ibcdex/types"
+  "github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func VoucherDenom(port string, channel string, denom string) string {
@@ -199,7 +157,7 @@ func VoucherDenom(port string, channel string, denom string) string {
 `OriginalDenom` returns back the original denom of the voucher. False is returned if the port ID and channel ID provided are not the origins of the voucher
 
 ```go
-// x/ibcdex/keeper/denom.go
+// x/dex/keeper/denom.go
 func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, voucher string) (string, bool) {
 	trace, exist := k.GetDenomTrace(ctx, voucher)
 	if exist {
@@ -217,7 +175,7 @@ func (k Keeper) OriginalDenom(ctx sdk.Context, port string, channel string, vouc
 ### Implement a SafeMint Function
 If a token is an IBC token (has an `ibc/` prefix) `SafeMint` mints IBC tokens with `MintTokens`, otherwise, it unlocks native tokens with `UnlockTokens`.
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver sdk.AccAddress, denom string, amount int32) error {
 	if isIBCToken(denom) {
 		// Mint IBC tokens
@@ -243,7 +201,7 @@ func (k Keeper) SafeMint(ctx sdk.Context, port string, channel string, receiver 
 #### Implement a `MintTokens` Function
 
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 func (k Keeper) MintTokens(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.Coin) error {
 	// mint new tokens if the source of the transfer is the same chain
 	if err := k.bankKeeper.MintCoins(
@@ -264,7 +222,7 @@ func (k Keeper) MintTokens(ctx sdk.Context, receiver sdk.AccAddress, tokens sdk.
 Finally, add the function to unlock tokens when they are sent back to the native blockchain.
 
 ```go
-// x/ibcdex/keeper/mint.go
+// x/dex/keeper/mint.go
 func (k Keeper) UnlockTokens(ctx sdk.Context, sourcePort string, sourceChannel string, receiver sdk.AccAddress, tokens sdk.Coin) error {
 	// create the escrow address for the tokens
 	escrowAddress := ibctransfertypes.GetEscrowAddress(sourcePort, sourceChannel)
@@ -281,7 +239,7 @@ func (k Keeper) UnlockTokens(ctx sdk.Context, sourcePort string, sourceChannel s
 `MintTokens` uses two keeper methods from the `bank` module: `MintCoins` and `SendCoinsFromModuleToAccount`. Import them by adding their signatures to the `BankKeeper` interface.
 
 ```go
-// x/ibcdex/types/expected_keeper.go
+// x/dex/types/expected_keeper.go
 type BankKeeper interface {
   // ...
 	MintCoins(ctx sdk.Context, moduleName string, amt sdk.Coins) error

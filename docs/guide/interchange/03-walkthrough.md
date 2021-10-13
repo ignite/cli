@@ -11,10 +11,10 @@ The next chapter contains the code for the implementation. First, learn what you
 To use the exchange start from creating a order book for a pair of tokens:
 
 ```bash
-interchanged tx ibcdex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
+interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
 
 # Create pair broadcasted to the source blockchain
-interchanged tx ibcdex send-create-pair ibcdex channel-0 mcx vcx
+interchanged tx dex send-create-pair dex channel-0 mcx vcx
 ```
 
 A pair of token is defined by two denominations: source denom (in this example, `mcx`) and target denom (`vcx`). Creating an orderbook affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain `send-createPair` creates an empty sell order book and on the target blockchain a buy order book is created.
@@ -24,7 +24,7 @@ A pair of token is defined by two denominations: source denom (in this example, 
 SellOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 0
   orders: []
   priceDenom: vcx
@@ -35,7 +35,7 @@ SellOrderBook:
 BuyOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 1
   orders: []
   priceDenom: vcx
@@ -48,10 +48,10 @@ To make it possible `createPair` first sends an IBC packet to the target chain. 
 Once an order book is created, the next step is to create a sell order:
 
 ```bash
-interchanged tx ibcdex send-sell-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]
+interchanged tx dex send-sell-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]
 
 # Sell order broadcasted to the source blockchain
-interchanged tx ibcdex send-sell-order ibcdex channel-0 mcx 10 vcx 15
+interchanged tx dex send-sell-order dex channel-0 mcx 10 vcx 15
 ```
 
 The `send-sellOrder` command broadcasts a message that locks tokens on the source blockchain and creates a new sell order on the source blockchain.
@@ -64,7 +64,7 @@ balances:
 SellOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 2
   orders: # a new sell order is created
   - amount: 10
@@ -79,10 +79,10 @@ SellOrderBook:
 A buy order has the same set of arguments: amount of tokens to be purchased and a price.
 
 ```bash
-`interchanged tx ibcdex send-buy-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]`
+`interchanged tx dex send-buy-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]`
 
 # Buy order broadcasted to the target blockchain
-interchanged tx ibcdex send-buy-order ibcdex channel-0 mcx 10 vcx 5
+interchanged tx dex send-buy-order dex channel-0 mcx 10 vcx 5
 ```
 
 The `send-buyOrder` command locks tokens on the target blockchain and creates a buy order book on the target blockchain.
@@ -95,7 +95,7 @@ balances:
 BuyOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 3
   orders: # a new buy order is created
   - amount: 10
@@ -111,7 +111,7 @@ We now have two orders open for MCX: a sell order on the source chain (for 10mcx
 
 ```bash
 # Sell order broadcasted to the source chain
-interchanged tx ibcdex send-sell-order ibcdex channel-0 mcx 5 vcx 3
+interchanged tx dex send-sell-order dex channel-0 mcx 5 vcx 3
 ```
 
 The sell order (for 5mcx at 3vcx) was filled on the target chain by the buy order. The amount of the buy order on the target chain has decreased by 5mcx.
@@ -121,7 +121,7 @@ The sell order (for 5mcx at 3vcx) was filled on the target chain by the buy orde
 BuyOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 5
   orders:
   - amount: 5 # decreased from 10
@@ -157,7 +157,7 @@ An order is sent to buy 5mcx for 15vcx.
 
 ```bash
 # Buy order broadcasted to the target chain
-interchanged tx ibcdex send-buy-order ibcdex channel-0 mcx 5 vcx 15
+interchanged tx dex send-buy-order dex channel-0 mcx 5 vcx 15
 ```
 
 A buy order is immediately filled on the source chain and sell order creator recived 75 vcx vouchers. The sell order amount is decreased by the amount of the filled buy order (by 5mcx).
@@ -170,7 +170,7 @@ balances:
 SellOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 4
   orders:
   - amount: 5 # decreased from 10
@@ -197,7 +197,7 @@ An order is sent to sell 10mcx for 3vcx.
 
 ```bash
 # Source blockchain
-interchanged tx ibcdex send-sell-order ibcdex channel-0 mcx 10 vcx 3
+interchanged tx dex send-sell-order dex channel-0 mcx 10 vcx 3
 ```
 
 The sell amount is 10mcx, but the opened buy order amount is only 5mcx. The buy order gets filled completely and removed from the order book. The author of the previously created buy order recived 10 mcx vouchers from the exchange.
@@ -210,7 +210,7 @@ balances:
 BuyOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 5
   orders: [] # buy order with amount 5mcx has been closed
   priceDenom: vcx
@@ -228,7 +228,7 @@ balances:
 - amountDenom: mcx
 SellOrderBook:
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 6
   orders:
   - amount: 5 # hasn't changed
@@ -247,7 +247,7 @@ An order is created to buy 10 mcx for 5 vcx.
 
 ```bash
 # Target blockchain
-interchanged tx ibcdex send-buy-order ibcdex channel-0 mcx 10 vcx 5
+interchanged tx dex send-buy-order dex channel-0 mcx 10 vcx 5
 ```
 
 The buy order is partially filled for 5mcx. An existing sell order for 5 mcx (with a price of 3 vcx) on the source chain has been completely filled and removed from the order book. The author of the closed sell order recived 15 vcx vouchers (product of 5mcx and 3vcx).
@@ -260,7 +260,7 @@ balances:
 SellOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 6
   orders:
   - amount: 5 # order hasn't changed
@@ -283,7 +283,7 @@ balances:
 BuyOrderBook:
 - amountDenom: mcx
   creator: ""
-  index: ibcdex-channel-0-mcx-vcx
+  index: dex-channel-0-mcx-vcx
   orderIDTrack: 7
   orders:
   - amount: 5 # new buy order is created
@@ -301,7 +301,7 @@ Cancelling a sell order:
 
 ```bash
 # Source blockchain
-interchanged tx ibcdex cancel-sell-order ibcdex channel-0 mcx vcx 2
+interchanged tx dex cancel-sell-order dex channel-0 mcx vcx 2
 ```
 
 ```yml
@@ -317,7 +317,7 @@ Cancelling a buy order:
 
 ```bash
 # Target blockchain
-interchanged tx ibcdex cancel-buy-order ibcdex channel-0 mcx vcx 5
+interchanged tx dex cancel-buy-order dex channel-0 mcx vcx 5
 ```
 
 ```yml

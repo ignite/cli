@@ -8,16 +8,16 @@ In this chapter you learn how the interchain exchange module is designed. The mo
 
 The module will make use of the Inter-Blockchain Communication Standard [IBC](https://github.com/cosmos/ics/blob/master/ibc/2_IBC_ARCHITECTURE.md). With use of the IBC, the module can create order books for tokens to have multiple blockchains interact and exchange their tokens.
 
-You create an order book pair with a token from one blockchain and another token from another blockchain. We call the module you create in this tutorial `ibcdex`.
-Both blockchains need to have the `ibcdex` module installed and running.
+You create an order book pair with a token from one blockchain and another token from another blockchain. We call the module you create in this tutorial `dex`.
+Both blockchains need to have the `dex` module installed and running.
 
-When a user exchanges a token with the `ibcdex`, you receive a `voucher` of that token on the other blockchain. This is similar to how a `ibc-transfer` is constructed. Since a blockchain module does not have the rights to mint new token of a blockchain into existence, the token on the target chain is locked up and the buyer receives a `voucher` of that token.
+When a user exchanges a token with the `dex`, you receive a `voucher` of that token on the other blockchain. This is similar to how a `ibc-transfer` is constructed. Since a blockchain module does not have the rights to mint new token of a blockchain into existence, the token on the target chain is locked up and the buyer receives a `voucher` of that token.
 
 This process can be reversed when the `voucher` get burned again to unlock the original token. This is explained throghout the tutorial in more detail.
 
 ## Assumption of the Design
 
-An order book can be created for the exchange of any tokens between any pair of chains. The requirement is to have the `ibcdex` module available. There can only be one order book for a pair of token at the same time.
+An order book can be created for the exchange of any tokens between any pair of chains. The requirement is to have the `dex` module available. There can only be one order book for a pair of token at the same time.
 
 <!-- There is no condition to check for open channels between two chains. -->
 
