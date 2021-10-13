@@ -102,7 +102,7 @@ starport scaffold map denom-trace port channel origin --no-message --module dex
 
 Add two config files `mars.yml` and `venus.yml` to test two blockchain networks with specific token for each.
 Add the config files in the `interchange` folder.
-The native denoms for Mars are `mcx`, also known as `marscoin`, and for Venus `vcx`, also known as `venuscoin`.
+The native denoms for Mars are `marscoin`, also known as `marscoin`, and for Venus `venuscoin`, also known as `venuscoin`.
 
 Create the `mars.yml` file with your content:
 
@@ -110,9 +110,9 @@ Create the `mars.yml` file with your content:
 # mars.yml
 accounts:
   - name: alice
-    coins: ["1000token", "100000000stake", "1000mcx"]
+    coins: ["1000token", "100000000stake", "1000marscoin"]
   - name: bob
-    coins: ["500token", "1000mcx", "100000000stake"]
+    coins: ["500token", "1000marscoin", "100000000stake"]
 validator:
   name: alice
   staked: "100000000stake"
@@ -131,9 +131,9 @@ Create the `venus.yml` file with your content:
 # venus.yml
 accounts:
   - name: alice
-    coins: ["1000token", "1000000000stake", "1000vcx"]
+    coins: ["1000token", "1000000000stake", "1000venuscoin"]
   - name: bob
-    coins: ["500token", "1000vcx", "100000000stake"]
+    coins: ["500token", "1000venuscoin", "100000000stake"]
 validator:
   name: alice
   staked: "100000000stake"

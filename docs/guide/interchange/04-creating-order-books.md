@@ -5,7 +5,7 @@ order: 4
 
 In this chapter you will implement the logic to create order books.
 
-In Cosmos SDK the state is stored in a key-value store. Each order book will be stored under a unique key composed of four values: port ID, channel ID, source denom and target denom. For example, an order book for `mcx` and `vcx` could be stored under `dex-channel-4-mcx-vcx`. Define a function that returns an order book store key.
+In Cosmos SDK the state is stored in a key-value store. Each order book will be stored under a unique key composed of four values: port ID, channel ID, source denom and target denom. For example, an order book for `marscoin` and `venuscoin` could be stored under `dex-channel-4-marscoin-venuscoin`. Define a function that returns an order book store key.
 
 ```go
 // x/dex/types/keys.go

@@ -33,17 +33,17 @@ This module is inspired by the [`ibc transfer`](https://github.com/cosmos/ibc-go
 
 ## Overview
 
-Assume you have two blockchains: `Venus` and `Mars`. The native token on Venus is called `vcx`, the token on Mars is `mcx`.
+Assume you have two blockchains: `Venus` and `Mars`. The native token on Venus is called `venuscoin`, the token on Mars is `marscoin`.
 
-When exchanging a token from Mars to Venus, on the Venus blockchain you have an IBC `voucher` token with a denom that looks like `ibc/B5CB286...A7B21307F`. The long string of characters after `ibc/` is a denom trace hash of a token transferred through IBC. Using the blockchain's API you can get a denom trace from that hash. The denom trace consists of a `base_denom` and a `path`. In our example, `base_denom` is `mcx` and the `path` contains pairs of ports and channels through which the token has been transferred. For a single-hop transfer `path` is identified by `transfer/channel-0`. Learn more about token paths in [ICS 20](https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer).
+When exchanging a token from Mars to Venus, on the Venus blockchain you have an IBC `voucher` token with a denom that looks like `ibc/B5CB286...A7B21307F`. The long string of characters after `ibc/` is a denom trace hash of a token transferred through IBC. Using the blockchain's API you can get a denom trace from that hash. The denom trace consists of a `base_denom` and a `path`. In our example, `base_denom` is `marscoin` and the `path` contains pairs of ports and channels through which the token has been transferred. For a single-hop transfer `path` is identified by `transfer/channel-0`. Learn more about token paths in [ICS 20](https://github.com/cosmos/ibc/tree/master/spec/app/ics-020-fungible-token-transfer).
 
-This token `ibc/Venus/mcx` cannot be sold back using the same order book. If you want to "reverse" the exchange and receive back the Mars token, a new order book `ibc/Venux/mcx` to `mcx` needs to be created.
+This token `ibc/Venus/marscoin` cannot be sold back using the same order book. If you want to "reverse" the exchange and receive back the Mars token, a new order book `ibc/Venux/marscoin` to `marscoin` needs to be created.
 
 ## The Design of the Order books
 
-As a typical exchange, a new pair implies the creation of an order book with orders to sell `MCX` or orders to buy `VCX`. Here, you have two chains and this data-structure must be split between `Mars` and `Venus`.
+As a typical exchange, a new pair implies the creation of an order book with orders to sell `marscoin` or orders to buy `venuscoin`. Here, you have two chains and this data-structure must be split between `Mars` and `Venus`.
 
-Users from chain `Mars` sell `MCX` and users from chain `Venus` buy `MCX`. Therefore, we represent all orders to sell `MCX` on chain `Mars` and all the orders to buy `MCX` on chain `Venus`.
+Users from chain `Mars` sell `marscoin` and users from chain `Venus` buy `marscoin`. Therefore, we represent all orders to sell `marscoin` on chain `Mars` and all the orders to buy `marscoin` on chain `Venus`.
 
 In this example blockchain `Mars` holds the sell oders and blockchain `Venus` holds the buy orders.
 
@@ -51,7 +51,7 @@ In this example blockchain `Mars` holds the sell oders and blockchain `Venus` ho
 
 Like `ibc-transfer` each blockchain keeps a trace of the token voucher created on the other blockchain.
 
-If a blockchain `Mars` sells `MCX` to `Venus` and `ibc/Venus/mcx` is minted on `Venus` then, if `ibc/Venus/mcx` is sold back on `Mars` the token unlocked and received will be `MCX`.
+If a blockchain `Mars` sells `marscoin` to `Venus` and `ibc/Venus/marscoin` is minted on `Venus` then, if `ibc/Venus/marscoin` is sold back on `Mars` the token unlocked and received will be `marscoin`.
 
 ## Features
 
