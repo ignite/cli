@@ -37,7 +37,6 @@ You will end up with the go.mod file inside your `blogclient` directory.
 
 Create the main.go file and add the content as follows.
 
-```mod
 Your blockchain client has only two dependencies: the `blog` blockchain (`types` for message types and a query client) and `starport` (for the `cosmosclient` blockchain client).
 
 ```go
