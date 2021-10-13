@@ -130,6 +130,9 @@ func main() {
 
 Read the comments in the code carefully to learn details about each line of code.
 
+There is more to learn about the `cosmosclient` package used here.
+[Jump to the `cosmosclient` reference](https://pkg.go.dev/github.com/tendermint/starport/starport/pkg/cosmosclient) to learn how to use the Client with Options and KeyringBackend.
+
 ## Running the Blockchain and the Client
 
 Make sure your blog blockchain is still running with `starport chain serve`.
