@@ -155,7 +155,10 @@ init:
   home: "$HOME/.venus"
 ```
 
-After scaffolding so many pieces, now is a good time to make a commit to the local GitHub repository created for you.
+On the `venus.yml` file you can see the specific `host` parameter, which you can use to change the ports for various running services. The rpc, p2p, prof, grpc, api, frontend and dev-ui. This will later be used so we can run two blockchains in parallel and they will not conflict over using the same ports.
+You can also use this in case you want to use specific ports for any of the services.
+
+After scaffolding, now is a good time to make a commit to the local GitHub repository created for you.
 
 ```bash
 git add .

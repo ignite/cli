@@ -47,7 +47,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 		return &types.MsgSendBuyOrderResponse{}, errors.New("the pair doesn't exist")
 	}
 	// Lock the token to send
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
@@ -59,7 +59,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 	k.SaveVoucherDenom(ctx, msg.Port, msg.ChannelID, msg.PriceDenom)
 	// Construct the packet
 	var packet types.BuyOrderPacketData
-	packet.Buyer = msg.Sender
+	packet.Buyer = msg.Creator
   // Transmit an IBC packet...
 	return &types.MsgSendBuyOrderResponse{}, nil
 }
@@ -123,76 +123,99 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 }
 ```
 
-### Implement the FillBuyOrder Function
+### Implement the FillSellOrder Function
 
-`FillBuyOrder` try to fill the buy order with the order book and returns all the side effects.
+`FillSellOrder` try to fill the buy order with the order book and returns all the side effects.
 
 ```go
 // x/dex/types/buy_order_book.go
-func (b *BuyOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liquidated []Order, purchase int32, filled bool) {
+func (b *BuyOrderBook) FillSellOrder(order Order) (
+	remainingSellOrder Order,
+	liquidated []Order,
+	gain int32,
+	filled bool,
+) {
 	var liquidatedList []Order
-	totalPurchase := int32(0)
-	remainingBuyOrder = order
+	totalGain := int32(0)
+	remainingSellOrder = order
+
 	// Liquidate as long as there is match
 	for {
 		var match bool
 		var liquidation Order
-		remainingBuyOrder, liquidation, purchase, match, filled = b.LiquidateFromBuyOrder(
-			remainingBuyOrder,
+		remainingSellOrder, liquidation, gain, match, filled = b.LiquidateFromSellOrder(
+			remainingSellOrder,
 		)
 		if !match {
 			break
 		}
+
 		// Update gains
-		totalPurchase += purchase
+		totalGain += gain
+
 		// Update liquidated
 		liquidatedList = append(liquidatedList, liquidation)
+
 		if filled {
 			break
 		}
 	}
-	return remainingBuyOrder, liquidatedList, totalPurchase, filled
+
+	return remainingSellOrder, liquidatedList, totalGain, filled
 }
 ```
 
-#### Implement The LiquidateFromBuyOrder Function
+#### Implement The LiquidateFromSellOrder Function
 
-`LiquidateFromBuyOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
+`LiquidateFromSellOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
 
 ```go
 // x/dex/types/buy_order_book.go
-func (b *BuyOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Order, liquidatedSellOrder Order, purchase int32, match bool, filled bool) {
-	remainingBuyOrder = order
-	// No match if no order
-	orderCount := len(b.Book.Orders)
-	if orderCount == 0 {
-		return order, liquidatedSellOrder, purchase, false, false
-	}
-	// Check if match
-	lowestAsk := b.Book.Orders[orderCount-1]
-	if order.Price < lowestAsk.Price {
-		return order, liquidatedSellOrder, purchase, false, false
-	}
-	liquidatedSellOrder = *lowestAsk
-	// Check if buy order can be entirely filled
-	if lowestAsk.Amount >= order.Amount {
-		remainingBuyOrder.Amount = 0
-		liquidatedSellOrder.Amount = order.Amount
-		purchase = order.Amount
-		// Remove lowest ask if it has been entirely liquidated
-		lowestAsk.Amount -= order.Amount
-		if lowestAsk.Amount == 0 {
-			s.Book.Orders = s.Book.Orders[:orderCount-1]
-		} else {
-			s.Book.Orders[orderCount-1] = lowestAsk
-		}
-		return remainingBuyOrder, liquidatedSellOrder, purchase, true, true
-	}
-	// Not entirely filled
-	purchase = lowestAsk.Amount
-	b.Book.Orders = b.Book.Orders[:orderCount-1]
-	remainingBuyOrder.Amount -= lowestAsk.Amount
-	return remainingBuyOrder, liquidatedSellOrder, purchase, true, false
+func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
+	 remainingSellOrder Order,
+	 liquidatedBuyOrder Order,
+	 gain int32,
+	 match bool,
+	 filled bool,
+ ) {
+	 remainingSellOrder = order
+
+	 // No match if no order
+	 orderCount := len(b.Book.Orders)
+	 if orderCount == 0 {
+		 return order, liquidatedBuyOrder, gain, false, false
+	 }
+
+	 // Check if match
+	 highestBid := b.Book.Orders[orderCount-1]
+	 if order.Price > highestBid.Price {
+		 return order, liquidatedBuyOrder, gain, false, false
+	 }
+
+	 liquidatedBuyOrder = *highestBid
+
+	 // Check if sell order can be entirely filled
+	 if highestBid.Amount >= order.Amount {
+		 remainingSellOrder.Amount = 0
+		 liquidatedBuyOrder.Amount = order.Amount
+		 gain = order.Amount * highestBid.Price
+
+		 // Remove highest bid if it has been entirely liquidated
+		 highestBid.Amount -= order.Amount
+		 if highestBid.Amount == 0 {
+			 b.Book.Orders = b.Book.Orders[:orderCount-1]
+		 } else {
+			 b.Book.Orders[orderCount-1] = highestBid
+		 }
+		 return remainingSellOrder, liquidatedBuyOrder, gain, true, true
+	 }
+
+	 // Not entirely filled
+	 gain = highestBid.Amount * highestBid.Price
+	 b.Book.Orders = b.Book.Orders[:orderCount-1]
+	 remainingSellOrder.Amount -= highestBid.Amount
+
+	 return remainingSellOrder, liquidatedBuyOrder, gain, true, false
 }
 ```
 
@@ -295,15 +318,24 @@ If a timeout occurs, we mint back the native token.
 
 ```go
 // x/dex/keeper/buy_order.go
-func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) error {
+func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) error {
 	// In case of error we mint back the native token
-	receiver, err := sdk.AccAddressFromBech32(data.Seller)
+	receiver, err := sdk.AccAddressFromBech32(data.Buyer)
 	if err != nil {
 		return err
 	}
-	if err := k.SafeMint(ctx, packet.SourcePort, packet.SourceChannel, receiver, data.AmountDenom, data.Amount); err != nil {
+
+	if err := k.SafeMint(
+		ctx,
+		packet.SourcePort,
+		packet.SourceChannel,
+		receiver,
+		data.PriceDenom,
+		data.Amount*data.Price,
+	); err != nil {
 		return err
 	}
+
 	return nil
 }
 ```

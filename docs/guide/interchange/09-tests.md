@@ -14,6 +14,10 @@ go test -timeout 30s ./x/dex/types
 
 ## Order Book Tests
 
+Create a new `order_book_test.go` file in the `types` directory.
+
+Add the following testsuite.
+
 ```go
 // types/order_book_test.go
 package types_test
@@ -25,7 +29,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/dex/types"
+	"github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func GenString(n int) string {
@@ -130,6 +134,8 @@ func TestRemoveOrderFromID(t *testing.T) {
 
 ## Buy Order Tests
 
+Create a new `buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book.
+
 ```go
 // types/buy_order_book_test.go
 package types_test
@@ -139,7 +145,7 @@ import (
 	"sort"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/dex/types"
+	"github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
@@ -419,6 +425,8 @@ func TestFillSellOrder(t *testing.T) {
 ```
 
 ## Sell Order Tests
+
+Create a new testsuite for Sell Orders in a new file `types/sell_order_book_test.go`.
 
 ```go
 // types/sell_order_book_test.go

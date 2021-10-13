@@ -144,9 +144,8 @@ Finally, last function we need to implement is `VoucherDenom`.
 ```go
 // x/dex/keeper/denom.go
 import (
-  sdk "github.com/cosmos/cosmos-sdk/types"
+  // ...
   ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-  "github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func VoucherDenom(port string, channel string, denom string) string {
