@@ -13,7 +13,7 @@ import (
 
 func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -120,7 +120,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 func TestCreateListInCustomModuleWithStargate(t *testing.T) {
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 

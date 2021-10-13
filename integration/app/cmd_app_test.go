@@ -16,7 +16,7 @@ import (
 
 func TestGenerateAnApp(t *testing.T) {
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -28,7 +28,7 @@ func TestGenerateAnApp(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 	var (
-		env     = envtest.NewEnv(t)
+		env     = envtest.New(t)
 		appName = "blog"
 	)
 
@@ -61,7 +61,7 @@ func TestGenerateAnAppWithNoDefaultModule(t *testing.T) {
 
 func TestGenerateAnAppWithNoDefaultModuleAndCreateAModule(t *testing.T) {
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog", "--no-module")
 	)
 
@@ -79,7 +79,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 	t.Skip()
 
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -103,7 +103,7 @@ func TestGenerateAnAppWithWasm(t *testing.T) {
 
 func TestGenerateAStargateAppWithEmptyModule(t *testing.T) {
 	var (
-		env  = envtest.NewEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 

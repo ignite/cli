@@ -1,6 +1,3 @@
-//go:build !relayer
-// +build !relayer
-
 package envtest
 
 import (
@@ -43,8 +40,8 @@ type Env struct {
 	ctx context.Context
 }
 
-// NewEnv creates a new testing environment.
-func NewEnv(t *testing.T) Env {
+// New creates a new testing environment.
+func New(t *testing.T) Env {
 	ctx, cancel := context.WithCancel(context.Background())
 	e := Env{
 		t:   t,

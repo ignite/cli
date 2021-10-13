@@ -17,7 +17,7 @@ import (
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	var (
-		env               = envtest.NewEnv(t)
+		env               = envtest.New(t)
 		appname           = randstr.Runes(10)
 		path              = env.Scaffold(appname)
 		servers           = env.RandomizeServerPorts(path, "")

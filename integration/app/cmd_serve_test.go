@@ -19,7 +19,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 	t.Skip()
 
 	var (
-		env     = envtest.NewEnv(t)
+		env     = envtest.New(t)
 		apath   = env.Scaffold("sgblog")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
@@ -46,7 +46,7 @@ func TestServeStargateWithWasm(t *testing.T) {
 
 func TestServeStargateWithCustomHome(t *testing.T) {
 	var (
-		env     = envtest.NewEnv(t)
+		env     = envtest.New(t)
 		apath   = env.Scaffold("sgblog2")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
@@ -66,7 +66,7 @@ func TestServeStargateWithCustomHome(t *testing.T) {
 
 func TestServeStargateWithConfigHome(t *testing.T) {
 	var (
-		env     = envtest.NewEnv(t)
+		env     = envtest.New(t)
 		apath   = env.Scaffold("sgblog3")
 		servers = env.RandomizeServerPorts(apath, "")
 	)
@@ -93,7 +93,7 @@ func TestServeStargateWithCustomConfigFile(t *testing.T) {
 	defer os.RemoveAll(tmpDir)
 
 	var (
-		env   = envtest.NewEnv(t)
+		env   = envtest.New(t)
 		apath = env.Scaffold("sgblog4")
 	)
 	// Move config
