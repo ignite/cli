@@ -78,3 +78,58 @@ starport s message cancel-loan id:uint
 ```
 
 `Cancel-loan` is a message used by borrower to cancel loan request after making request and submitting collateral
+
+
+### Now start adding the following code to `keeper` to handle each function.
+
+
+Add following code to `keeper/msg_server_request_loan.go`
+
+```go
+// Add import:
+import (
+    sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+// TODO: Handling the message
+	var loan = types.Loan{
+		Amount:     msg.Amount,
+		Fee:        msg.Fee,
+		Collateral: msg.Collateral,
+		Deadline:   msg.Deadline,
+		State:      "requested",
+		Borrower:   msg.Creator,
+	}
+
+	
+	borrower, _ := sdk.AccAddressFromBech32(msg.Creator)
+
+	collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
+	if err != nil {
+		panic(err)
+	}
+
+	sdkError := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, collateral)
+	if sdkError != nil {
+		return nil, sdkError
+	}
+
+	k.AppendLoan(
+		ctx,
+		loan,
+	)
+```
+
+The functionality of this module is to allow people to make loan request.
+
+The first step is to deconstruct the loan message into loan types. We start filling in the value in types like Amount, Fee, Collateral, etc from  messages.
+
+The second step is to make state transitions. You need to transfer collateral from the borrower to the module account for which we get borrower's address.
+
+
+The third step is to convert collateral. ParseCoinsNormalized will parse out coins and normalize it. 
+
+The fourth step is to use functionality from the module bankkeeper to send coins. 
+
+The last step is to append loan. Starport has generated a functionality to append loan which can be found under `keeper/loan.go`
+
