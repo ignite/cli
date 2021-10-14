@@ -4,10 +4,10 @@ import (
 	"context"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
 	"github.com/tendermint/starport/starport/templates/query"
 )
 

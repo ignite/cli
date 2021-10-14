@@ -239,7 +239,7 @@ func checkNewVersion(ctx context.Context) {
 	}
 
 	fmt.Printf(`·
-· 🛸 Starport %q is available!
+· 🛸 Starport %s is available!
 ·
 · If you're looking to upgrade check out the instructions: https://docs.starport.network/guide/install.html#upgrading-your-starport-installation
 ·

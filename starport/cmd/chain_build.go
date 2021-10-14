@@ -30,8 +30,8 @@ source. Specify the release targets with GOOS:GOARCH build tags.
 If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
-	- starport build
-	- starport build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
+	- starport chain build
+	- starport chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
 		Args: cobra.ExactArgs(0),
 		RunE: chainBuildHandler,
 	}
