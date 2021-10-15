@@ -271,3 +271,38 @@ The last step is to change the state to `liquidated` and set loan. Starport has 
 
 
 ### Add following code to `keeper/msg_server_cancel_loan.go`
+
+```go
+loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+
+	if loan.Borrower != msg.Creator {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot cancel: not the borrower")
+	}
+
+	if loan.State != "requested" {
+		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+
+	loan.State = "cancelled"
+
+	k.SetLoan(ctx, loan)
+```
+
+The functionality of this module is to allow the borrower to cancel the loan request.
+
+The first step is to check if the loan exist.
+
+The second step is to make sure the borrower can cancel only its loan.
+
+The third step is to check state of loan which should be requested and not approved or liquidated.
+
+The fourth step is to fetch values of borrower and collateral. Then send collateral back to borrower.
+
+The last step is to change the state to `cancelled` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
