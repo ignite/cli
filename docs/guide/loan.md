@@ -1,5 +1,5 @@
 ---
-description: Loan module using Starport
+description: Loan blockchain using Starport
 order: x
 ---
 
@@ -220,4 +220,54 @@ The fifth step is to send the collateral amount to the borrower after the loan a
 The last step is to change the state to `repayed` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
 
 
-### Add following code to `keeper/msg_server_repay_loan.go`
+### Add following code to `keeper/msg_server_liquidate_loan.go`
+
+```go
+loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+
+	if loan.Lender != msg.Creator {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot liquidate: not the lender")
+	}
+
+	if loan.State != "approved" {
+		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+
+	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+
+	deadline, err := strconv.ParseInt(loan.Deadline, 10, 64)
+	if err != nil {
+		panic(err)
+	}
+
+	if ctx.BlockHeight() < deadline {
+		return nil, sdkerrors.Wrap(types.ErrDeadline, "Cannot liquidate before deadline")
+	}
+
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, lender, collateral)
+
+	loan.State = "liquidated"
+
+	k.SetLoan(ctx, loan)
+```
+
+The functionality of this module is to allow the lender to liquidate loan if unpaid past deadline.
+
+The first step is to get loan using the keeper function `GetLoan` before it can be repayed.
+
+The second step is to make sure only loans that are approved are liquidated and not the pending loans.
+
+The third step is to populate values of lender and collateral.
+
+The fourth step is to get loan deadline and compare it with block height. If its past the block height the collateral can be liquidated.
+
+The fifth step is to send the collateral amount to the lender after the collateral is liquidated.
+
+The last step is to change the state to `liquidated` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
+
+
+### Add following code to `keeper/msg_server_cancel_loan.go`
