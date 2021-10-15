@@ -25,7 +25,7 @@ To learn more about building a JavaScript frontend for your Cosmos SDK blockchai
 
 ## Questions
 
-For questions and support please join the official [Starport Discord server](https://discord.gg/7fwqwc3afK). The issue list of this repo is exclusively for bug reports and feature requests.
+For questions and support, join the official [Starport Discord server](https://discord.gg/7fwqwc3afK). The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK Compatibility
 
