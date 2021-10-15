@@ -11,7 +11,7 @@ In this tutorial you will learn how to create, approve and repay loan request. A
 
 ### Borrower:
 A borrower will post a loan request with information such as - loan amount, fees, collateral and deadline.
-Borrower will repay the loan transfer amount and fee to lender or risk the loosing of collateral.
+Borrower will repay the loan transfer amount and fee to lender or risk loosing the collateral.
 
 ### Lender:
 A lender can approve loan request from borrower. Approving the loan transfers the loan amount to the the borrower. If the borrower is unable to pay the loan, the lender can liquidate the loan which transfers the collateral to the lender.
@@ -34,15 +34,14 @@ cd loan
 starport scaffold module loan --dep bank
 ```
 
-<Some information to be added.>
-
+Add bank module dependencies to the Blockchain.
 
 
 ```bash
 starport s list loan amount fee collateral deadline state borrower lender --no-message
 ```
 
-This commands creates CRUD opertaion for loan along with 
+This command creates CRUD opertaion for loan stored as an array. `--no-message` disables CRUD interaction messages in scaffolding.
 
 
 ```bash
@@ -63,14 +62,14 @@ starport s message approve-loan id:uint
 starport s message repay-loan id:uint
 ```
 
-Repay-loan is a message used by borrower to return the money which needs only 1 parameter: id. We also pass type - that is unsigned integer (uint) to save conversion time from string to uint
+`Repay-loan` is a message used by borrower to return the money. 
 
 
 ```bash
 starport s message liquidate-loan id:uint
 ```
 
-`Liquidate-loan` is a message used by lender to liquidate the loan in case of loan not payed by borrower
+`Liquidate-loan` is a message used by lender to liquidate the loan in case of loan not payed by borrower.
 
 
 ```bash
@@ -80,7 +79,7 @@ starport s message cancel-loan id:uint
 `Cancel-loan` is a message used by borrower to cancel loan request after making request and submitting collateral
 
 
-## Now start adding the following code to `keeper` to handle each function.
+## Start adding the following code to `keeper` to handle each function.
 
 
 ### Add following code to `keeper/msg_server_request_loan.go`
@@ -122,12 +121,11 @@ import (
 
 The functionality of this module is to allow people to make loan request.
 
-The first step is to deconstruct the loan message into loan types. We start filling in the value in types like Amount, Fee, Collateral, etc from  messages.
+The first step is to deconstruct the loan message into loan types. Start filling in the value in types like Amount, Fee, Collateral, etc from  messages.
 
 The second step is to make state transitions. You need to transfer collateral from the borrower to the module account for which we get borrower's address.
 
-
-The third step is to convert collateral. ParseCoinsNormalized will parse out coins and normalize it. 
+The third step is to convert collateral. `ParseCoinsNormalized` will parse out coins and normalize it. 
 
 The fourth step is to use functionality from the module bankkeeper to send coins. 
 
@@ -307,9 +305,12 @@ The fourth step is to fetch values of borrower and collateral. Then send collate
 
 The last step is to change the state to `cancelled` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
 
+
+
 ## Running the Blockchain
 
 Run your loan blockchain `starport chain serve`
+
 
 ### Request loan
 
@@ -371,7 +372,7 @@ tx: null
 txhash: E2F12B96991FD15ECA93E373C66056D41DCE1B1C0DD33A09177F36D5F5566D94
 ```
 
-This can also be checked using query loan function.
+This can also be checked using `query` loan function.
 
 ```bash
 loand query loan list-loan
@@ -389,6 +390,14 @@ Loan:
   deadline: "500"
   fee: 2token
   id: "0"
+  lender: ""
+  state: requested
+- amount: 100token
+  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "1"
   lender: ""
   state: requested
 ```
@@ -449,13 +458,15 @@ timestamp: ""
 tx: null
 txhash: F1B52A2BB721529C244A2AAAFA77554D773B3D75D274EEEBA4680EB94840408E
 ```
+
+
 Check the state of the loan using the following command:
 
 ```bash
-loand query loan show-loan
+loand query loan show-loan 0
 ```
 
-This returns a list of all loans. 
+This returns the loan requested by id.
 
 You should see an output similar to:
 
@@ -582,8 +593,10 @@ Loan:
   state: repayed
 ```
 
+Note: The state has changed from `approved` to `repayed`
 
-### Liquidate loan
+
+### Cancel loan
 
 ```bash
 loand tx loan cancel-loan [id] [flags]
@@ -658,5 +671,8 @@ Loan:
   lender: ""
   state: cancelled
 ```
+
+Note: The state has changed from `approved` to `cancelled`
+
 
 Congratulations, you have just created a `loan blockchain` using starport.
