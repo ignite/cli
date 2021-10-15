@@ -180,3 +180,44 @@ The last step is to set loan. Starport has generated a functionality to set loan
 
 ### Add following code to `keeper/msg_server_repay_loan.go`
 
+```go
+loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+
+	if loan.State != "approved" {
+		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+
+	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
+	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
+	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
+
+	k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
+	k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
+	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+
+	loan.State = "repayed"
+
+	k.SetLoan(ctx, loan)
+```
+
+The functionality of this module is to allow the borrower to repay loan.
+
+The first step is to get loan using the keeper function `GetLoan` before it can be repayed.
+
+The second step is to make sure only loans that are approved are repayed and not the pending loans.
+
+The third step is to populate values of lender, borrower, amount, fee and collateral.
+
+The fourth step is to send coins (loan amount and fees) to borrower.
+
+The fifth step is to send the collateral amount to the borrower after the loan amount is repayed.
+
+The last step is to change the state to `repayed` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
+
+
+### Add following code to `keeper/msg_server_repay_loan.go`
