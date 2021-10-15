@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/randstr"
@@ -16,7 +17,7 @@ import (
 
 func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 	var (
-		env               = newEnv(t)
+		env               = envtest.New(t)
 		appname           = randstr.Runes(10)
 		path              = env.Scaffold(appname)
 		servers           = env.RandomizeServerPorts(path, "")
@@ -39,7 +40,7 @@ func TestOverwriteSDKConfigsAndChainID(t *testing.T) {
 		defer cancel()
 		isBackendAliveErr = env.IsAppServed(ctx, servers)
 	}()
-	env.Must(env.Serve("should serve", path, "", "", ExecCtx(ctx)))
+	env.Must(env.Serve("should serve", path, "", "", envtest.ExecCtx(ctx)))
 	require.NoError(t, isBackendAliveErr, "app cannot get online in time")
 
 	configs := []struct {
