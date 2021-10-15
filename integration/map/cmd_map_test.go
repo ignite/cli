@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestCreateMapWithStargate(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -56,7 +57,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "map", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a map in a custom module",
@@ -131,7 +132,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a message and a map with no-message flag to check conflicts",
@@ -147,7 +148,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "map", "map_with_duplicated_index", "email", "--index", "foo,foo"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("should prevent creating a map with an index present in fields",
@@ -155,7 +156,7 @@ func TestCreateMapWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "map", "map_with_invalid_index", "email", "--index", "email"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.EnsureAppIsSteady(path)

@@ -40,7 +40,7 @@ func OracleWithSigner(signer string) OracleOption {
 	}
 }
 
-// AddOracle adds a new BandChain oracle integration.
+// AddOracle adds a new BandChain oracle envtest.
 func (s *Scaffolder) AddOracle(
 	tracer *placeholder.Tracer,
 	moduleName,
