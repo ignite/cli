@@ -306,3 +306,357 @@ The third step is to check state of loan which should be requested and not appro
 The fourth step is to fetch values of borrower and collateral. Then send collateral back to borrower.
 
 The last step is to change the state to `cancelled` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
+
+## Running the Blockchain
+
+Run your loan blockchain `starport chain serve`
+
+### Request loan
+
+```bash
+loand tx loan request-loan [amount] [fee] [collateral] [deadline] [flags]
+```
+
+```markdown
+loand tx loan request-loan 100token 2token 200token 500 --from alice -y
+```
+
+Where:  
+--from is the name or address of private key with which to sign
+-y is to skip tx broadcasting prompt confirmation
+
+You should see an output similar to:
+
+```bash
+code: 0
+codespace: ""
+data: 0A250A232F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D7367526571756573744C6F616E
+gas_used: "57234"
+gas_wanted: "200000"
+height: "442"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: receiver
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: amount
+      value: 200token
+    type: coin_received
+  - attributes:
+    - key: spender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 200token
+    type: coin_spent
+  - attributes:
+    - key: action
+      value: RequestLoan
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    type: message
+  - attributes:
+    - key: recipient
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 200token
+    type: transfer
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"RequestLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]}]}]'
+timestamp: ""
+tx: null
+txhash: E2F12B96991FD15ECA93E373C66056D41DCE1B1C0DD33A09177F36D5F5566D94
+```
+
+This can also be checked using query loan function.
+
+```bash
+loand query loan list-loan
+```
+
+This returns a list of all loans. 
+
+You should see an output similar to:
+
+```bash
+Loan:
+- amount: 100token
+  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: ""
+  state: requested
+```
+
+
+### Approve loan
+
+```bash
+loand tx loan approve-loan [id] [flags]
+```
+
+```markdown
+loand tx loan approve-loan 0 --from alice -y
+```
+
+You should see an output similar to:
+
+```bash
+code: 0
+codespace: ""
+data: 0A250A232F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D7367417070726F76654C6F616E
+gas_used: "55050"
+gas_wanted: "200000"
+height: "828"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: receiver
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    type: coin_received
+  - attributes:
+    - key: spender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    type: coin_spent
+  - attributes:
+    - key: action
+      value: ApproveLoan
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    type: message
+  - attributes:
+    - key: recipient
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    type: transfer
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]},{"type":"message","attributes":[{"key":"action","value":"ApproveLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]}]}]'
+timestamp: ""
+tx: null
+txhash: F1B52A2BB721529C244A2AAAFA77554D773B3D75D274EEEBA4680EB94840408E
+```
+Check the state of the loan using the following command:
+
+```bash
+loand query loan show-loan
+```
+
+This returns a list of all loans. 
+
+You should see an output similar to:
+
+```bash
+Loan:
+  amount: 100token
+  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  state: approved
+```
+
+Note: The state has changed from `requested` to `approved`
+
+
+### Repay loan
+
+```bash
+loand tx loan repay-loan [id] [flags]
+```
+
+```markdown
+loand tx loan repay-loan 0 --from alice -y
+```
+
+You should see an output similar to:
+
+```bash
+code: 0
+codespace: ""
+data: 0A230A212F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D736752657061794C6F616E
+gas_used: "74693"
+gas_wanted: "200000"
+height: "1167"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: receiver
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    - key: receiver
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 2token
+    - key: receiver
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 200token
+    type: coin_received
+  - attributes:
+    - key: spender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    - key: spender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 2token
+    - key: spender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: amount
+      value: 200token
+    type: coin_spent
+  - attributes:
+    - key: action
+      value: RepayLoan
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    type: message
+  - attributes:
+    - key: recipient
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 100token
+    - key: recipient
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 2token
+    - key: recipient
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: amount
+      value: 200token
+    type: transfer
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"spender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"RepayLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]}]}]'
+timestamp: ""
+tx: null
+txhash: F84F0E7DE78BD9BBD34B0BCC538F83AC74574EA7FFD158F7AB720529FC1F989B
+```
+
+Check the state of the loan using the following command:
+
+```bash
+loand query loan show-loan 0
+```
+
+You should see an output similar to:
+
+```bash
+Loan:
+  amount: 100token
+  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  state: repayed
+```
+
+
+### Liquidate loan
+
+```bash
+loand tx loan cancel-loan [id] [flags]
+```
+
+```markdown
+loand tx loan cancel-loan 1 --from alice -y
+```
+
+You should see an output similar to:
+
+```bash
+code: 0
+codespace: ""
+data: 0A240A222F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D736743616E63656C4C6F616E
+gas_used: "53569"
+gas_wanted: "200000"
+height: "1707"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: receiver
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: amount
+      value: 200token
+    type: coin_received
+  - attributes:
+    - key: spender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: amount
+      value: 200token
+    type: coin_spent
+  - attributes:
+    - key: action
+      value: CancelLoan
+    - key: sender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    type: message
+  - attributes:
+    - key: recipient
+      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+    - key: sender
+      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
+    - key: amount
+      value: 200token
+    type: transfer
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"CancelLoan"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]}]}]'
+timestamp: ""
+tx: null
+txhash: 8AE8A3A9F502ECB6A3747B445FA8BB63FFBFFC4A1EF15DA9E678D08B8EC03913
+```
+
+Check the state of the loan using the following command:
+
+```bash
+loand query loan show-loan 1
+```
+
+You should see an output similar to:
+
+```bash
+Loan:
+  amount: 100token
+  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "1"
+  lender: ""
+  state: cancelled
+```
+
+Congratulations, you have just created a `loan blockchain` using starport.
