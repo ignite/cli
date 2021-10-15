@@ -1,15 +1,19 @@
+//go:build !relayer
+// +build !relayer
+
 package integration_test
 
 import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppWithQuery(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -109,7 +113,7 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 			step.Exec("starport", "s", "query", "foo", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a module",

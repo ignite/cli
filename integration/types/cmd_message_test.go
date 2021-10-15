@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestGenerateAnAppWithMessage(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -57,7 +58,7 @@ func TestGenerateAnAppWithMessage(t *testing.T) {
 			step.Exec("starport", "s", "message", "do-foo", "bar"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create a message with a custom signer name",
