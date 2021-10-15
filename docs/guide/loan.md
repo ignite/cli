@@ -80,10 +80,10 @@ starport s message cancel-loan id:uint
 `Cancel-loan` is a message used by borrower to cancel loan request after making request and submitting collateral
 
 
-### Now start adding the following code to `keeper` to handle each function.
+## Now start adding the following code to `keeper` to handle each function.
 
 
-Add following code to `keeper/msg_server_request_loan.go`
+### Add following code to `keeper/msg_server_request_loan.go`
 
 ```go
 // Add import:
@@ -132,4 +132,51 @@ The third step is to convert collateral. ParseCoinsNormalized will parse out coi
 The fourth step is to use functionality from the module bankkeeper to send coins. 
 
 The last step is to append loan. Starport has generated a functionality to append loan which can be found under `keeper/loan.go`
+
+
+### Add following code to `keeper/msg_server_approve_loan.go`
+
+```go
+// Add import:
+import (
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+// TODO
+
+loan, found := k.GetLoan(ctx, msg.Id)
+	if !found {
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+	}
+
+	if loan.State != "requested" {
+		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
+	}
+
+	lender, _ := sdk.AccAddressFromBech32(msg.Creator)
+	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
+
+	k.bankKeeper.SendCoins(ctx, lender, borrower, amount)
+
+	loan.Lender = msg.Creator
+	loan.State = "approved"
+
+	k.SetLoan(ctx, loan)
+```
+
+The functionality of this module is to allow lender to approve loan request.
+
+The first step is to get loan using the keeper function `GetLoan` before it can be approved.
+
+The second step is to make sure only loans that are requested are approved and not already approved loans.
+
+The third step is to populate values of lender, borrower and amount.
+
+The fourth step is to send coins and change the state to `approved`
+
+The last step is to set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
+
+
+### Add following code to `keeper/msg_server_repay_loan.go`
 
