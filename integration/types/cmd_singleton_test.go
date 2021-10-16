@@ -7,12 +7,13 @@ import (
 	"path/filepath"
 	"testing"
 
+	"github.com/tendermint/starport/integration"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 )
 
 func TestCreateSingletonWithStargate(t *testing.T) {
 	var (
-		env  = newEnv(t)
+		env  = envtest.New(t)
 		path = env.Scaffold("blog")
 	)
 
@@ -63,7 +64,7 @@ func TestCreateSingletonWithStargate(t *testing.T) {
 			step.Exec("starport", "s", "single", "user", "email", "--module", "example"),
 			step.Workdir(path),
 		)),
-		ExecShouldError(),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create an singleton type in a custom module",
