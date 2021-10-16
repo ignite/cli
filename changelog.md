@@ -7,6 +7,8 @@
 - Added `starport generate dart` to generate a Dart client from protocol buffer files
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
 - `starport scaffold` commands support `ints`, `uints`, `strings`, `coin`, `coins` as field types [#1579](https://github.com/tendermint/starport/pull/1579)
+- Updated the integration tests to go 1.17.2
+- Updated go.mod to use Cosmos SDK 0.44.2 and IBC-Go 1.2.1
 
 ## `v0.18.0`
 
