@@ -98,7 +98,7 @@ For a `voucher` you store: the source port ID, source channel ID, and the origin
 starport scaffold map denom-trace port channel origin --no-message --module dex
 ```
 
-## Create the Configuration for two Blockchains
+## Create the Configuration for Two Blockchains
 
 Add two config files `mars.yml` and `venus.yml` to test two blockchain networks with specific token for each.
 Add the config files in the `interchange` folder.
@@ -155,10 +155,10 @@ init:
   home: "$HOME/.venus"
 ```
 
-On the `venus.yml` file you can see the specific `host` parameter, which you can use to change the ports for various running services. The rpc, p2p, prof, grpc, api, frontend and dev-ui. This will later be used so we can run two blockchains in parallel and they will not conflict over using the same ports.
-You can also use this in case you want to use specific ports for any of the services.
+On the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various running services (rpc, p2p, prof, grpc, grpc-web, api, frontend, and dev-ui). You can use the `host` parameter so you can run two blockchains in parallel and prevent conflict over using the same ports. 
+You can also use the `host` parameter to use specific ports for any of the services.
 
-After scaffolding, now is a good time to make a commit to the local GitHub repository created for you.
+After scaffolding, now is a good time to make a commit to the local GitHub repository that was created for you.
 
 ```bash
 git add .

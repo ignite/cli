@@ -3,9 +3,9 @@ order: 4
 ---
 # Implement the Order Books
 
-In this chapter you will implement the logic to create order books.
+In this chapter you implement the logic to create order books.
 
-In Cosmos SDK the state is stored in a key-value store. Each order book will be stored under a unique key composed of four values: port ID, channel ID, source denom and target denom. For example, an order book for `mcx` and `vcx` could be stored under `dex-channel-4-mcx-vcx`. Define a function that returns an order book store key.
+In the Cosmos SDK, the state is stored in a key-value store. Each order book is stored under a unique key composed of four values: port ID, channel ID, source denom, and target denom. For example, an order book for `mcx` and `vcx` could be stored under `dex-channel-4-mcx-vcx`. Define a function that returns an order book store key.
 
 ```go
 // x/dex/types/keys.go
@@ -17,7 +17,7 @@ func OrderBookIndex( portID string, channelID string, sourceDenom string, target
 }
 ```
 
-`send-create-pair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `dex` module, processed by the message handler in `x/dex/handler.go` and finally a `SendCreatePair` keeper method is called.
+`send-create-pair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `dex` module, processed by the message handler in `x/dex/handler.go`, and finally calls the `SendCreatePair` keeper method.
 
 You need `send-create-pair` to do the following:
 
@@ -89,7 +89,7 @@ In the following section you'll be implementing packet reception logic in the `O
 ## Receiving an IBC packet
 
 The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
-First you will need to add the proto buffer files. This builds the according go code files that you can then modify for the purpose of your app.
+First, you must add the proto buffer files to build the according Go code files. You can then modify these Go files for the purpose of your app.
 
 Create a new `order.proto` file in the `proto/dex` directory and add the content.
 
@@ -126,7 +126,7 @@ message BuyOrderBook {
 }
 ```
 
-Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
+Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` looks like:
 
 ```proto
 // proto/dex/sell_order_book.proto
@@ -161,7 +161,7 @@ func NewOrderBook() OrderBook {
 }
 ```
 
-Define `NewBuyOrderBook` in a new file `x/dex/types/buy_order_book.go` creates a new buy order book.
+Define `NewBuyOrderBook` in a new file `x/dex/types/buy_order_book.go` to create a new buy order book.
 
 ```go
 // x/dex/types/buy_order_book.go
@@ -177,7 +177,7 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 }
 ```
 
-On the target chain when an IBC packet is recieved, the module should check whether a book already exists, if not, create a new buy order book for specified denoms.
+When an IBC packet is received on the target chain, the module must check whether a book already exists. If not, then create a buy order book for the specified denoms.
 
 ```go
 // x/dex/keeper/create_pair.go
@@ -385,8 +385,8 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 
 This completes the order book setup.
 
-It is a good time to save the state of your implementation.
-This will allow you to also jump back and forth in case you are making errors or need a break.
+Now is a good time to save the state of your implementation.
+Because your project is in a local repository, you can use git. Saving your current state lets you jump back and forth in case you introduce errors or need a break.
 
 ```bash
 git add .

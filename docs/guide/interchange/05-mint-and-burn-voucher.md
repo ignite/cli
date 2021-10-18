@@ -6,9 +6,12 @@ order: 5
 
 In this chapter you will learn more about vouchers and how the implementation mints voucher or locks native token from a blockchain.
 
-There is a lot to learn from this implementation. You will be working with the `bank` keeper and use several methods it offers.
-You will learn how to interact with another module and use the module account to lock tokens.
-This implementation can teach you how to use various interactions with module accounts or minting, locking or burning tokens.
+There is a lot to learn from this implementation. 
+
+- You work with the `bank` keeper and use several methods it offers.
+- You interact with another module and use the module account to lock tokens.
+
+This implementation teaches you how to use various interactions with module accounts or minting, locking, or burning tokens.
 
 ## Create the SafeBurn Function to Burn Vouchers or Lock Tokens
 
@@ -50,8 +53,8 @@ func (k Keeper) SafeBurn(ctx sdk.Context, port string, channel string, sender sd
 }
 ```
 
-If the token is coming from another blockchain as IBC token, the burning method will actually burn those IBC tokens on one chain and unlock them on the other chain.
-While the native tokens will be locked away.
+If the token is coming from another blockchain as an IBC token, the burning method actually burns those IBC tokens on one chain and unlocks them on the other chain.
+The native tokens are locked away.
 
 Implement the `BurnTokens` keeper method as used in the previous function.
 The `bankKeeper` has a useful function for this.

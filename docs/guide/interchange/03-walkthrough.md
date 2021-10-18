@@ -6,9 +6,9 @@ order: 3
 
 ## Order Book
 
-In this chapter you will build learn details about the order book and the containing commands.
+In this chapter, you learn details about the order book and the relevant commands.
 The next chapter contains the code for the implementation. First, learn what you are going to implement.
-To use the exchange start from creating a order book for a pair of tokens:
+To use the exchange, begin by creating a order book for a pair of tokens:
 
 ```bash
 interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
@@ -17,7 +17,12 @@ interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [tar
 interchanged tx dex send-create-pair dex channel-0 mcx vcx
 ```
 
-A pair of token is defined by two denominations: source denom (in this example, `mcx`) and target denom (`vcx`). Creating an orderbook affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain `send-createPair` creates an empty sell order book and on the target blockchain a buy order book is created.
+A pair of tokens is defined by two denominations: 
+
+- Source denom (in this example, `mcx`)
+- Target denom (`vcx`)
+
+Creating an order book affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain, the `send-createPair` command creates an empty sell order book. On the target blockchain, a buy order book is created.
 
 ```yml
 # Created a sell order book on the source blockchain
@@ -45,7 +50,7 @@ To make it possible `createPair` first sends an IBC packet to the target chain. 
 
 ## Sell Order
 
-Once an order book is created, the next step is to create a sell order:
+After an order book is created, the next step is to create a sell order:
 
 ```bash
 interchanged tx dex send-sell-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]
@@ -108,7 +113,7 @@ BuyOrderBook:
 ## Performing an Exchange with a Sell Order
 
 We now have two orders open for MCX: a sell order on the source chain (for 10mcx at 15vcx) and a buy order on the target chain (for 5mcx at 5vcx). Let's perform an exchange by sending a sell order to the source chain.
-
+You now have two orders open for MCX: a sell order on the source chain (for 10mcx at 15vcx) and a buy order on the target chain (for 5mcx at 5vcx). Now, perform an exchange by sending a sell order to the source chain.
 ```bash
 # Sell order broadcasted to the source chain
 interchanged tx dex send-sell-order dex channel-0 mcx 5 vcx 3
@@ -250,7 +255,7 @@ An order is created to buy 10 mcx for 5 vcx.
 interchanged tx dex send-buy-order dex channel-0 mcx 10 vcx 5
 ```
 
-The buy order is partially filled for 5mcx. An existing sell order for 5 mcx (with a price of 3 vcx) on the source chain has been completely filled and removed from the order book. The author of the closed sell order recived 15 vcx vouchers (product of 5mcx and 3vcx).
+The buy order is partially filled for 5mcx. An existing sell order for 5 mcx (with a price of 3 vcx) on the source chain has been completely filled and removed from the order book. The author of the closed sell order recieved 15 vcx vouchers (product of 5mcx and 3vcx).
 
 ```yml
 # Source blockchain
