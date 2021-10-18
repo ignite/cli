@@ -202,7 +202,7 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 
 ## Receiving an IBC Acknowledgement
 
-On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
+When an IBC acknowledgement is recieved on the source chain, the module must check whether a book already exists. If not, create a sell order book for the specified denoms.
 
 Create a new file `x/dex/types/sell_order_book.go`.
 Insert the `NewSellOrderBook` function which creates a new sell order book.
