@@ -1,7 +1,7 @@
 //go:build !relayer
 // +build !relayer
 
-package integration_test
+package types_test
 
 import (
 	"path/filepath"
