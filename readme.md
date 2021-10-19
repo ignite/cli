@@ -1,4 +1,6 @@
-# ![Starport](./assets/starport.png)
+# Starport
+
+![Starport](./assets/starport.png)
 
 Starport is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
