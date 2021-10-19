@@ -6,7 +6,7 @@ parent:
   title: CLI Reference
 ---
 
-# CLI Reference
+# Reference
 
 Documentation for Starport CLI.
 
