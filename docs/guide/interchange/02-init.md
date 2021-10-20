@@ -1,16 +1,17 @@
 ---
 order: 2
+description: Create the blockchain for the interchain exchange app.
 ---
 
 # App Init
 
 ## Initialize the Blockchain
 
-In this chapter you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets and messages. In the later chapters you integrate more code into each of the transaction handlers.
+In this chapter, you create the basic blockchain module for the interchain exchange app. You scaffold the blockchain, the module, the transaction, the IBC packets, and messages. In later chapters, you integrate more code into each of the transaction handlers.
 
 ## Create the Blockchain
 
-Scaffold a new blockchain called `interchange`
+Scaffold a new blockchain called `interchange`:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/interchange --no-module
