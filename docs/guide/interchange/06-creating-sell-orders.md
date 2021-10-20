@@ -167,7 +167,7 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (
 }
 ```
 
-#### Implement a LiquidateFromBuyOrder Function
+### Implement a LiquidateFromBuyOrder Function
 
 The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is found, return false for match:
 
@@ -222,7 +222,7 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 }
 ```
 
-## Implement the OnAcknowledgement Function for Sell Order Packets
+### Implement the OnAcknowledgement Function for Sell Order Packets
 
 After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed by the `OnAcknowledgementSellOrderPacket` function. 
 
@@ -299,7 +299,7 @@ func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (
 }
 ```
 
-## Add the OnTimeout of a Sell Order Packet Function
+### Add the OnTimeout of a Sell Order Packet Function
 
 If a timeout occurs, mint back the native token:
 

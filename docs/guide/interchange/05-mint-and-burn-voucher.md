@@ -3,7 +3,7 @@ order: 5
 description: Mint vouchers and lock and unlock native token from a blockchain.
 ---
 
-# Mint and Burn Voucher
+# Mint and Burn Vouchers
 
 In this chapter, you learn about vouchers. The `dex` module implementation mints vouchers and locks and unlocks native token from a blockchain.
 
