@@ -23,7 +23,7 @@ A lender can approve loan request from borrower. Approving the loan transfers th
 starport scaffold chain github.com/cosmonaut/loan --no-module
 ```
 
-This command creates a Cosmos SDK blockchain called loan in a `loan` directory. The source code inside the `loan` directory contains a fully functional ready-to-use blockchain.
+This command creates a Cosmos SDK blockchain called loan in a `loan` directory. The source code inside the `loan` directory contains a fully functional ready-to-use blockchain. Use `--no-module` to disable scaffolding an empty module: you'll scaffold a module in the next step.
 
 
 ```bash
@@ -34,49 +34,49 @@ cd loan
 starport scaffold module loan --dep bank
 ```
 
-Add bank module dependencies to the Blockchain.
+Scaffold a new module called `loan`. Use the `--dep` flag to specify that this module depends on the standard `bank` module.
 
 
 ```bash
 starport s list loan amount fee collateral deadline state borrower lender --no-message
 ```
 
-This command creates CRUD opertaion for loan stored as an array. `--no-message` disables CRUD interaction messages in scaffolding.
+This command creates CRUD operation for `loan` stored as a list. `--no-message` disables CRUD interaction messages in scaffolding.
 
 
 ```bash
 starport s message request-loan amount fee collateral deadline
 ```
 
-`Request-loan` is a message which request for loan after passing in parameters like amount, fee, collateral and deadline. You also need borrower, which is passed as signer while creating the tx on Blockchain.
+`request-loan` is a message which lets a borrower to request a loan. This message accepts 4 parameters: amount, fee, collateral and deadline.
 
 
 ```bash
 starport s message approve-loan id:uint
 ```
 
-`Approve-loan` is a message used by lender which needs only 1 parameter: id. We also pass type - that is unsigned integer (uint) to save conversion time from string to uint
+`approve-loan` is a message used by a lender to approve an already requested loan. The message contains 1 field: `id`. Specify the type of `id` as `uint`, because by default IDs are stored as `uint`s, 
 
 
 ```bash
 starport s message repay-loan id:uint
 ```
 
-`Repay-loan` is a message used by borrower to return the money. 
+`repay-loan` is a message used by a borrower to return tokens borrowed from the lender. 
 
 
 ```bash
 starport s message liquidate-loan id:uint
 ```
 
-`Liquidate-loan` is a message used by lender to liquidate the loan in case of loan not payed by borrower.
+`liquidate-loan` is a message used by lender to liquidate the loan in case of loan not payed by borrower.
 
 
 ```bash
 starport s message cancel-loan id:uint
 ```
 
-`Cancel-loan` is a message used by borrower to cancel loan request after making request and submitting collateral
+`cancel-loan` is a message used by a borrower to cancel a loan request after making request and submitting collateral.
 
 
 ## Start adding the following code to `keeper` to handle each function.
