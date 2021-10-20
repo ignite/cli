@@ -1,23 +1,28 @@
 ---
 order: 1
+description: Learn about the interchain exchange module design.
 ---
 
 # App Design
 
-In this chapter you learn how the interchain exchange module is designed. The module has order books, buy- and sell orders. First, an order book for a pair of token has to be created. After an order book exists, you can create buy and sell orders for this pair of token.
+In this chapter, you learn how the interchain exchange module is designed. The module has order books, buy orders, and sell orders. First, create an order book for a pair of token. After an order book exists, you can create buy and sell orders for this pair of token.
 
 The module uses the Inter-Blockchain Communication protocol [IBC](https://github.com/cosmos/ics/blob/master/ibc/2_IBC_ARCHITECTURE.md). By using IBC, the module can create order books so that multiple blockchains can interact and exchange their tokens.
 
-You create an order book pair with a token from one blockchain and another token from another blockchain. The module you create in this tutorial is called the `dex` module.
+You create an order book pair with a token from one blockchain and another token from another blockchain. Call the module you create the `dex` module.
+
 Both blockchains require the `dex` module to be installed and running.
 
-When a user exchanges a token with the `dex`, you receive a `voucher` of that token on the other blockchain. This voucher is similar to how an `ibc-transfer` is constructed. Since a blockchain module does not have the rights to mint new token of a blockchain into existence, the token on the target chain is locked up and the buyer receives a `voucher` of that token.
+When a user exchanges a token with the `dex` module, a `voucher` of that token is received on the other blockchain. This voucher is similar to how an `ibc-transfer` is constructed. Since a blockchain module does not have the rights to mint new token of a blockchain into existence, the token on the target chain is locked up, and the buyer receives a `voucher` of that token.
 
 This process can be reversed when the `voucher` gets burned to unlock the original token. This exchange process is explained in more detail throughout the tutorial.
 
 ## Assumption of the Design
 
-An order book can be created for the exchange of any tokens between any pair of chains. The requirement is to have the `dex` module available. There can only be one order book for a pair of token at the same time.
+An order book can be created for the exchange of any tokens between any pair of chains. 
+
+- The requirement is to have the `dex` module available. 
+- There can only be one order book for a pair of token at the same time.
 
 <!-- There is no condition to check for open channels between two chains. -->
 
@@ -25,15 +30,18 @@ A specific chain cannot mint new coins of its native token.
 
 <!-- The module is trustless, there is no condition to check when opening a channel between two chains. Any pair of tokens can be exchanged between any pair of chains. -->
 
-This module is inspired by the [`ibc transfer`](https://github.com/cosmos/ibc-go/tree/main/modules/apps/transfer) module on the Cosmos SDK. The `dex` module you create in this tutorial has similarities, like the `voucher` creation. The `dex` module is more complex because it will support creation of:
+This module is inspired by the [`ibc transfer`](https://github.com/cosmos/ibc-go/tree/main/modules/apps/transfer) module on the Cosmos SDK. The `dex` module you create in this tutorial has similarities, like the `voucher` creation. However, the `dex` module is more complex because it supports creation of:
 
 - Several types of packets to send
 - Several types of acknowledgments to treat
-- Some more complex logic on how to treat a packet on receipt, on timeout and more
+- More complex logic on how to treat a packet on receipt, on timeout, and more
 
-## Overview
+## Interchain Exchange Overview
 
-Assume you have two blockchains: Venus and Mars. The native token on Venus is called `venuscoin`, the token on Mars is `marscoin`.
+Assume you have two blockchains: Venus and Mars. 
+
+- The native token on Venus is `venuscoin`.
+- The native token on Mars is `marscoin`.
 
 When a token is exchanged from Mars to Venus:
 
@@ -73,9 +81,9 @@ If a blockchain Mars sells `marscoin` to Venus and `ibc/Venus/marscoin` is minte
 
 ## Features
 
-The features supported by the module are:
+The features supported by the interchain exchange module are:
 
-- Creating an exchange order book for a token pair between two chains
+- Create an exchange order book for a token pair between two chains
 - Send sell orders on source chain
 - Send buy orders on target chain
 - Cancel sell or buy orders
