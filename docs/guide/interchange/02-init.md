@@ -22,7 +22,7 @@ A new directory named interchange is created. Make sure to now change into this 
 cd interchange
 ```
 
-This directory contains a working blockchain app.
+The `interchange` directory contains a working blockchain app.
 A local GitHub repository has been created for you with the initial scaffold.
 
 Next, create a new IBC module.
@@ -69,7 +69,7 @@ starport scaffold packet sell-order amountDenom amount:int priceDenom price:int 
 starport scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
 ```
 
-The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. Value of `--ack` is a comma-separated (no spaces) list of names with optional types appended after a colon.
+The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. The value of the `--ack` flag is a comma-separated (no spaces) list of names with optional types appended after a colon.
 
 ## Cancel messages
 
@@ -98,11 +98,11 @@ For a `voucher` you store: the source port ID, source channel ID, and the origin
 starport scaffold map denom-trace port channel origin --no-message --module dex
 ```
 
-## Create the Configuration for two Blockchains
+## Create the Configuration for Two Blockchains
 
 Add two config files `mars.yml` and `venus.yml` to test two blockchain networks with specific token for each.
 Add the config files in the `interchange` folder.
-The native denoms for Mars are `marscoin`, also known as `marscoin`, and for Venus `venuscoin`, also known as `venuscoin`.
+The native denoms for Mars are `marscoin`, and for Venus `venuscoin`.
 
 Create the `mars.yml` file with your content:
 
@@ -155,10 +155,11 @@ init:
   home: "$HOME/.venus"
 ```
 
-On the `venus.yml` file you can see the specific `host` parameter, which you can use to change the ports for various running services. The rpc, p2p, prof, grpc, api, frontend and dev-ui. This will later be used so we can run two blockchains in parallel and they will not conflict over using the same ports.
-You can also use this in case you want to use specific ports for any of the services.
+In the `venus.yml` file you can see the specific `host` parameter that you can use to change the ports for various running services (rpc, p2p, prof, grpc, api, frontend, and dev-ui). This `host` parameter can be used later so you can run two blockchains in parallel that do not conflict when using the same ports.
 
-After scaffolding, now is a good time to make a commit to the local GitHub repository created for you.
+You can also use the `host` parameter to use specific ports for any of the services.
+
+After scaffolding, now is a good time to make a commit to the local GitHub repository that was created for you.
 
 ```bash
 git add .

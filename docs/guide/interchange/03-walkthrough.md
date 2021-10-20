@@ -6,9 +6,10 @@ order: 3
 
 ## Order Book
 
-In this chapter you will build learn details about the order book and the containing commands.
+In this chapter, you will learn details about the order book and the containing commands.
 The next chapter contains the code for the implementation. First, learn what you are going to implement.
-To use the exchange start from creating a order book for a pair of tokens:
+
+To use the exchange, start by creating an order book for a pair of tokens:
 
 ```bash
 interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
@@ -17,7 +18,7 @@ interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [tar
 interchanged tx dex send-create-pair dex channel-0 marscoin venuscoin
 ```
 
-A pair of token is defined by two denominations: source denom (in this example, `marscoin`) and target denom (`venuscoin`). Creating an orderbook affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain `send-createPair` creates an empty sell order book and on the target blockchain a buy order book is created.
+A pair of token is defined by two denominations: source denom (in this example, `marscoin`) and target denom (`venuscoin`). Creating an order book affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain, the `send-createPair` command creates an empty sell order book and on the target blockchain, a buy order book is created.
 
 ```yml
 # Created a sell order book on the source blockchain
@@ -45,7 +46,7 @@ To make it possible `createPair` first sends an IBC packet to the target chain. 
 
 ## Sell Order
 
-Once an order book is created, the next step is to create a sell order:
+After an order book is created, the next step is to create a sell order:
 
 ```bash
 interchanged tx dex send-sell-order [src-port] [src-channel] [amountDenom] [amount] [priceDenom] [price]
@@ -107,7 +108,7 @@ BuyOrderBook:
 
 ## Performing an Exchange with a Sell Order
 
-We now have two orders open for marscoin: a sell order on the source chain (for 10marscoin at 15venuscoin) and a buy order on the target chain (for 5marscoin at 5venuscoin). Let's perform an exchange by sending a sell order to the source chain.
+You now have two orders open for marscoin: a sell order on the source chain (for 10marscoin at 15venuscoin) and a buy order on the target chain (for 5marscoin at 5venuscoin). Now, perform an exchange by sending a sell order to the source chain.
 
 ```bash
 # Sell order broadcasted to the source chain
@@ -142,7 +143,7 @@ balances:
   denom: marscoin
 ```
 
-The counterparty (sender of the buy marscoin order) received 5 marscoin vouchers. venuscoin balance hasn't changed, because the correct amount of venuscoin (50) were locked at the creation of the buy order during the previous step.
+The counterparty (sender of the buy marscoin order) received 5 marscoin vouchers. The venuscoin balance hasn't changed because the correct amount of venuscoin (50) was locked at the creation of the buy order during the previous step.
 
 ```yml
 # Target blockchain
@@ -200,7 +201,7 @@ An order is sent to sell 10marscoin for 3venuscoin.
 interchanged tx dex send-sell-order dex channel-0 marscoin 10 venuscoin 3
 ```
 
-The sell amount is 10marscoin, but the opened buy order amount is only 5marscoin. The buy order gets filled completely and removed from the order book. The author of the previously created buy order recived 10 marscoin vouchers from the exchange.
+The sell amount is 10marscoin, but the opened buy order amount is only 5marscoin. The buy order gets filled completely and removed from the order book. The author of the previously created buy order received 10 marscoin vouchers from the exchange.
 
 ```yml
 # Target blockchain
@@ -216,7 +217,7 @@ BuyOrderBook:
   priceDenom: venuscoin
 ```
 
-The author of the sell order successfuly exchanged 5 marscoin and recived 25 venuscoin vouchers. The other 5marscoin created a sell order.
+The author of the sell order successfuly exchanged 5 marscoin and received 25 venuscoin vouchers. The other 5marscoin created a sell order.
 
 ```yml
 # Source blockchain
@@ -271,7 +272,7 @@ SellOrderBook:
   priceDenom: venuscoin
 ```
 
-Author of buy order recieves 5 marscoin vouchers and 50 venuscoin of their tokens get locked. The 5marscoin amount not filled by the sell order creates a buy order on the target chain.
+The author of buy order receives 5 marscoin vouchers which locks 50 venuscoin of their tokens. The 5marscoin amount not filled by the sell order creates a buy order on the target chain.
 
 ```yml
 # Target blockchain
@@ -295,7 +296,7 @@ BuyOrderBook:
 
 ## Cancelling Orders
 
-After the exchanges we have two orders open: sell order on the source chain (5marscoin for 15venuscoin) and a buy order on the target chain (5marscoin for 5venuscoin).
+After the exchanges you have two orders open: a sell order on the source chain (5marscoin for 15venuscoin) and a buy order on the target chain (5marscoin for 5venuscoin).
 
 Cancelling a sell order:
 
