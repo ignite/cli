@@ -50,6 +50,7 @@ jobs:
   status:
     runs-on: ubuntu-latest
     needs: integration
+    if: always()
     steps:
       - name: Update result status
         run: |
