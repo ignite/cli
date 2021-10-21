@@ -51,10 +51,10 @@ cd blog
 To create a message type and its handler, use the `message` command:
 
 ```bash
-starport scaffold message createPost title body
+starport scaffold message createPost title body comment
 ```
 
-The `message` command accepts message name (`createPost`) and a list of fields (`title` and `body`) as arguments.
+The `message` command accepts message name (`createPost`) and a list of fields (`title`, `body` and `comment`) as arguments.
 
 The `message` command has created and modified several files:
 
@@ -73,6 +73,7 @@ message MsgCreatePost {
   string creator = 1;
   string title = 2;
   string body = 3;
+  string comment = 4;
 }
 
 message MsgCreatePostResponse {
@@ -80,7 +81,7 @@ message MsgCreatePostResponse {
 }
 ```
 
-First, define a Cosmos SDK message type with proto `message`. The `MsgCreatePost` has three fields: creator, title and body. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
+First, define a Cosmos SDK message type with proto `message`. The `MsgCreatePost` has four fields: creator, title, body and comment. Since the purpose of the `MsgCreatePost` message is to create new posts in the store, the only thing the message needs to return is an ID of a created post. The `CreatePost` rpc was already added to the `Msg` service:
 
 ```go
 service Msg {
@@ -127,6 +128,7 @@ func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (
     Creator: msg.Creator,
     Title:   msg.Title,
     Body:    msg.Body,
+    Comment: msg.Comment,
   }
   // Add a post to the store and get back the ID
   id := k.AppendPost(ctx, post)
@@ -153,6 +155,7 @@ message Post {
   uint64 id = 2;
   string title = 3; 
   string body = 4; 
+  string comment = 5;
 }
 ```
 
@@ -277,11 +280,11 @@ Try it out! If the chain is yet not started, run `starport chain serve`.
 Create a post:
 
 ```bash
-blogd tx blog create-post foo bar --from alice
+blogd tx blog create-post foo bar comm --from alice
 ```
 
 ```bash
-"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1tkzzp0rns9nzyc74fll9azdyj8vps6eayc0dpy","title":"foo","body":"bar","comment":"comm"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 {"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
@@ -398,11 +401,11 @@ Now that you have implemented logic for creating and querying posts, you can use
 To create a post using the command line:
 
 ```bash
-blogd tx blog create-post foo bar --from alice
+blogd tx blog create-post foo bar comm --from alice
 ```
 
 ```bash
-{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3","title":"foo","body":"bar","comment":"comm"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
 
 confirm transaction before signing and broadcasting [y/N]: y
 {"height":"2828","txhash":"E04A712E65B0F6F30F5DC291A6552B69F6CB3F77761F28AFFF8EAA535EC4C589","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
@@ -417,6 +420,7 @@ blogd q blog posts
 ```bash
 Post:
 - body: bar
+  comment: comm
   creator: cosmos1c9zy9aajk9fs2f8ygtz4pm22r3rxmg597vw2n3
   id: "0"
   title: foo
