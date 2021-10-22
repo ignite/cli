@@ -55,9 +55,9 @@ In this tutorial you will learn how to bring these tokens into existence, you wi
 
 Get started with scaffolding the blockchain and the module of the `Token Factory`.
 
-## Scaffold a new module
+## Scaffold a new blockchain
 
-Scaffold a new `tokenfactory` module, use the `--no-module` flag because in the next step you want to add a module with certain dependencies.
+Scaffold a new `tokenfactory` blockchain, use the `--no-module` flag because in the next step you want to add a module with certain dependencies.
 
 ```bash
 starport scaffold chain github.com/cosmonaut/tokenfactory --no-module
@@ -68,6 +68,8 @@ Change directory to the new scaffolded blockchain
 ```bash
 cd tokenfactory
 ```
+
+## Scaffold a new module
 
 Next, scaffold a new module with bank and account access
 
@@ -484,6 +486,26 @@ Before scaffolding new messages and move on with minting and sending tokens, thi
 git add .
 git commit -m "Add Token Factory Create and Update logic"
 ```
+
+You can see the work you have done with using 
+
+```bash
+git log
+```
+
+It shows you you have already accomplished:
+
+```bash
+Add Token Factory Create and Update logic
+...
+Remove the delete denom functionality
+...
+Add token factory module and denom map
+...
+Initialized with Starport
+```
+
+The last part is to scaffold and add logic for minting-and-sending and updating token.
 
 ### Scaffold new messages
 
