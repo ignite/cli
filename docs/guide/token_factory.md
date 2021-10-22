@@ -46,7 +46,11 @@ message Denom {
 }
 ```
 
-In this tutorial you will learn how to bring these tokens into existence, you will need functions to issue new token, change the ownership of token and track all tokens in existence.
+In this tutorial you will learn how to bring these tokens into existence, you will need functions to:
+
+* issue new token,
+* change the ownership of token,
+* track all tokens in existence.
 
 Get started with scaffolding the blockchain and the module of the `Token Factory`.
 
@@ -70,7 +74,7 @@ Next, scaffold a new module with bank and account access
 starport scaffold module tokenfactory --dep account,bank
 ```
 
-The `--dep` flag is for `dependencies` and Starport wires the dependencies into the right places.
+The `--dep` flag is for `dependencies` and Starport wires the dependencies for `auth` and `bank` module into the right places.
 
 To scaffold the above mentioned data format for a denom in the Token Factory, use a Starport `map`.
 
@@ -80,11 +84,11 @@ starport scaffold map Denom description:string ticker:string precision:int url:s
 
 Check the `proto/tokenfactory/denom.proto` file to see the result.
 
-Starport has scaffolded a whole CRUD application.
+Starport has now scaffolded a whole CRUD application.
 
-While the Token Factory is there to create denoms, a once initialized denom should not be deletable. The delete function for denoms is something you should remove in the following steps.
+While the Token Factory is there to create denoms, a once initialized denom should not be deleted. The delete function for denoms is something you should remove in the following steps.
 
-After scaffolding the Denom map, it is a good time to make a first git commit, so you can come back to this step in case something goes wrong with the following steps.
+After scaffolding the denom map, it is a good time to make a first git commit, so you can come back to this step in case something goes wrong with the following steps.
 
 ```bash
 git add .
@@ -93,7 +97,7 @@ git commit -m "Add token factory module and denom map"
 
 ## Remove Delete Messages
 
-Since a created denom is subsequently handled by the Bank module like any other native denom, it should not be deletable. Hence, remove all references to the Delete action of the scaffolded CRUD type.
+Since a created denom is subsequently handled by the `bank` module like any other native denom, it should not be deletable. Hence, remove all references to the Delete action of the scaffolded CRUD type.
 
 In order to remove the functionality to delete token, you will need to remove these functions from the `proto`, the `client`, the `keeper` and the `handler`.
 
@@ -101,12 +105,11 @@ In order to remove the functionality to delete token, you will need to remove th
 
 In the proto file `proto/tokenfactory/tx.proto` remove the part
 
-```
+```proto
 rpc DeleteDenom(MsgDeleteDenom) returns (MsgDeleteDenomResponse);
 ```
 
-from the tx.proto service. 
-Then, the `MsgDeleteDenom` and `MsgDeleteDenomResponse` messages.
+Then, the `MsgDeleteDenom` and `MsgDeleteDenomResponse` messages after this.
 
 ### Client
 
@@ -116,7 +119,7 @@ First, in the `x/tokenfactory/client/cli/tx_denom_test.go` file, remove the enti
 
 In the `x/tokenfactory/client/cli/tx_denom.go` file, remove the entire `CmdDeleteDenom()` function.
 
-In the `x/tokenfactory/client/cli/tx.go` file, remove the line that adds the delete command.
+In the `x/tokenfactory/client/cli/tx.go` file, remove the line that has the delete command.
 
 ```go
 cmd.AddCommand(CmdDeleteDenom())
@@ -128,17 +131,17 @@ In the keeper there are a few references that you need to take care of in order 
 
 Navigate to the file at `x/tokenfactory/keeper/denom_test.go`.
 
-Remove the `TestDenomRemove` function.
+Remove the `TestDenomRemove()` function.
 
-In the `x/tokenfactory/keeper/denom.go` file, remove the entire `RemoveDenom` function.
+In the `x/tokenfactory/keeper/denom.go` file, remove the entire `RemoveDenom()` function.
 
-In the `x/tokenfactory/keeper/msg_server_denom_test.go` file, remove the `TestDenomMsgServerDelete` function.
+In the `x/tokenfactory/keeper/msg_server_denom_test.go` file, remove the `TestDenomMsgServerDelete()` function.
 
-And finally `x/tokenfactory/keeper/msg_server_denom.go` file, remove the `DeleteDenom` function.
+And finally `x/tokenfactory/keeper/msg_server_denom.go` file, remove the `DeleteDenom()` function.
 
 ### Types
 
-The types directory defines useful functions and validations that describe the format of the blockchain data. We will have to remove the delete denom functionality from the codec, the message denom test and message denom file.
+The types directory defines functions and validations that describe the format of the blockchain data. We will have to remove the delete denom functionality from the codec, the message denom test and message denom file.
 
 Start with the codec in `x/tokenfactory/types/codec.go`.
 
@@ -146,11 +149,11 @@ Remove the codec and interface registrations for `MsgDeleteDenom`.
 
 There is a test written in `x/tokenfactory/types/messages_denom_test.go`.
 
-Remove the `TestMsgDeleteDenom_ValidateBasic` function
+Remove the `TestMsgDeleteDenom_ValidateBasic()` function
 
 Lastly in the message denom file at `x/tokenfactory/types/messages_denom.go`.
 
-Remove the entire part referring to `MsgDeleteDenom`.
+Remove the entire part referring to `MsgDeleteDenom()`.
 
 ### Handler
 
@@ -177,7 +180,8 @@ After removing deletion of denoms now is the time to dedicate to the logic of th
 
 Define the format of a new token denom in `proto/tokenfactory/tx.proto`.
 
-Remove `int32 supply = 8;` from MsgCreateDenom and change the field order acccordingly so `canChangeMaxSupply` becomes 8 from 9
+Remove `int32 supply = 8;` from MsgCreateDenom and change the field order acccordingly so `canChangeMaxSupply` becomes 8 from 9.
+This results in the following `MsgCreateDenom` message.
 
 ```proto
 message MsgCreateDenom {
@@ -192,7 +196,7 @@ message MsgCreateDenom {
 }
 ```
 
-Remove `string ticker = 4;` , `int32 precision = 5;`, `int32 supply = 8;` from MsgUpdateDenom and change field order for the rest of the fields appropriately
+Remove `string ticker = 4;` , `int32 precision = 5;`, `int32 supply = 8;` from the `MsgUpdateDenom` message and change field order for the rest of the fields appropriately
 
 ```proto
 message MsgUpdateDenom {
@@ -315,8 +319,7 @@ func CmdUpdateDenom() *cobra.Command {
 }
 ```
 
-`x/tokenfactory/client/cli/tx_denom_test.go`
-Adjust tests to match changes just made
+In the `x/tokenfactory/client/cli/tx_denom_test.go`, adjust tests to match changes just made.
 
 ### Types
 
@@ -351,7 +354,7 @@ func (msg *MsgCreateDenom) ValidateBasic() error {
 }
 ```
 
-Modify MsgUpdateDenom's `ValidateBasic()` function like so:
+Modify MsgUpdateDenom's `ValidateBasic()` function with error messages of invalid owner address and minimum max supply.
 
 ```go
 func (msg *MsgUpdateDenom) ValidateBasic() error {
@@ -370,7 +373,7 @@ func (msg *MsgUpdateDenom) ValidateBasic() error {
 
 Define the business logic in the keeper. This is the place where you make changes to the database and actually write to the Key/Value Store.
 
-In `x/tokenfactory/keeper/msg_server_denom.go` modify the `CreateDenom()` function like so:
+In `x/tokenfactory/keeper/msg_server_denom.go` modify the `CreateDenom()` function in that it should have the logic for creating unique new denoms:
 
 ```go
 func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
@@ -404,7 +407,7 @@ func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom)
 }
 ```
 
-Modify the `UpdateDenom()` function.
+Modify the `UpdateDenom()` function. It should check whether the owner is correct, if the owner is allowed to change the max supply.
 
 ```go
 func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom) (*types.MsgUpdateDenomResponse, error) {
@@ -483,17 +486,21 @@ git commit -m "Add Token Factory Create and Update logic"
 
 ### Scaffold new messages
 
-Everything is in place, scaffold two additional messages to complete the Token Factory's functionality: a `MintAndSendTokens` message and an `UpdateOwner` message
+Everything is in place for creating a new denom. You need to scaffold two additional messages to complete the Token Factory's functionality: a `MintAndSendTokens` message and an `UpdateOwner` message.
+
+MintAndSendTokens should have as input the `denom`, an amount to mint `amount` and where the tokens will be minted as `recipient`.
 
 ```bash
 starport scaffold message MintAndSendTokens denom:string amount:int recipient:string --module tokenfactory --signer owner
 ```
 
+UpdateOwner should have as input the `denom` and a new owner `newOwner`.
+
 ```bash
 starport scaffold message UpdateOwner denom:string newOwner:string --module tokenfactory --signer owner
 ```
 
-Modify `x/tokenfactory/keeper/msg_server_mint_and_send_tokens.go` like so:
+The two new messages are now available. Add the details of the logic in the newly created file `x/tokenfactory/keeper/msg_server_mint_and_send_tokens.go` to mint new tokens.
 
 ```go
 package keeper
@@ -563,7 +570,9 @@ func (k msgServer) MintAndSendTokens(goCtx context.Context, msg *types.MsgMintAn
 }
 ```
 
-Modify `x/tokenfactory/keeper/msg_server_update_owner.go` like so:
+For changing an owner of the denom, modify the `x/tokenfactory/keeper/msg_server_update_owner.go` to update the approapriate fields of the denom.
+For this a check for the existence of the denom and the right owner needs to be added.
+Then you can save the updated demon in the keeper.
 
 ```go
 package keeper
