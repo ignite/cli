@@ -683,7 +683,7 @@ tokenfactoryd query tokenfactory list-denom
 
 ### Update Denom
 
-To test the update denom functionality, change the max supply to 2000000000 and the description and URL fields as well as locking down the max supply by running:
+To test the update denom functionality, change the max supply to 2,000,000,000 and the description and URL fields as well as locking down the max supply by running:
 
 ```bash
 tokenfactoryd tx tokenfactory update-denom ustarport "Starport" "newurl" 2000000000 false --from alice
