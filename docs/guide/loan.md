@@ -1,7 +1,7 @@
 ---
 description: Loan blockchain using Starport
 order: 6
-title: "Advanced module: Loan"
+title: "Advanced module: DeFi Loan"
 ---
 
 # Loan Module
@@ -22,12 +22,14 @@ You will learn how to:
 * Create messages in your module to interact with the loan object
 * Interact with other modules in your module
 * Use an escrow module account
-* Add application logic for a Loan system
-  * Request
-  * Approve
-  * Repay
-  * Liquidate
+* Add application messages for a Loan system
+  * Request Loan
+  * Approve Loan
+  * Repay Loan
+  * Liquidate Loan
   * Cancel Loan
+
+Warning: This module is purely for learning purposes. It is not tested in production.
 
 ## Module Design
 
@@ -82,7 +84,7 @@ Scaffolding the module will create a new `loan` module inside the `x` directory.
 starport scaffold module loan --dep bank
 ```
 
-Use the `--dep` flag to specify that this module depends on the `bank` module.
+Use the `--dep` flag to specify that this module depends on and is going to interact with the `bank` module.
 
 ## Scaffold a List
 
@@ -110,36 +112,6 @@ message Loan {
   string borrower = 7; 
   string lender = 8;  
 }
-```
-
-While scaffolded as strings, for easier convertion later, you would want `amount`, `fee` and `collateral` as a Coins object.
-
-Modify the `loan.proto` to import cosmos coin proto and modify the types to be Coins. While the deadline should be a uint64.
-
-```proto
-syntax = "proto3";
-package cosmonaut.loan.loan;
-
-option go_package = "github.com/cosmonaut/loan/x/loan/types";
-import "gogoproto/gogo.proto";
-import "cosmos/base/v1beta1/coin.proto";
-
-message Loan {
-  uint64 id = 1;
-  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
-  repeated cosmos.base.v1beta1.Coin fee = 3 [(gogoproto.nullable) = false];
-  repeated cosmos.base.v1beta1.Coin collateral = 4 [(gogoproto.nullable) = false];
-  uint64 deadline = 5;
-  string state = 6;
-  string borrower = 7;
-  string lender = 8;
-}
-```
-
-After this change, you should run a proto build with Starport.
-
-```bash
-starport generate proto-go
 ```
 
 You will define the messages to interact with the loan list in the coming chapters.
@@ -178,31 +150,7 @@ The first message is the `request-loan` message. It needs the input parameters `
 starport scaffold message request-loan amount fee collateral deadline
 ```
 
-On requesting the loan, the `amount`, `fee` and `collateral` parameters should be described as `Coins`.
-First, add the imports to the `proto/loan/tx.proto` file 
-
-```proto
-import "cosmos/base/v1beta1/coin.proto";
-import "gogoproto/gogo.proto";
-```
-
-and use the following `MsgRequestLoan` message, using Coin as input for the three parameters.
-
-```proto
-message MsgRequestLoan {
-  string creator = 1;
-  repeated cosmos.base.v1beta1.Coin amount = 2 [(gogoproto.nullable) = false];
-  repeated cosmos.base.v1beta1.Coin fee = 3 [(gogoproto.nullable) = false];
-  repeated cosmos.base.v1beta1.Coin collateral = 4 [(gogoproto.nullable) = false];
-  uint64 deadline = 5;
-}
-```
-
-After changing a proto file, it is recommended to run a proto build with Starport.
-
-```bash
-starport generate proto-go
-```
+For sake of simplicity every parameter will remain a string.
 
 The `request-loan` message should create a new loan object and lock the tokens to be spent as fee and collateral into an escrow account.
 This has to be described in the modules keeper directory `x/loan/keeper/msg_server_request_loan.go`
@@ -220,8 +168,9 @@ import (
 func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan) (*types.MsgRequestLoanResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-  // Add the input into a loan type
-	loan := types.Loan{
+	// TODO: Handling the message
+    // Create a new Loan with the according user input
+	var loan = types.Loan{
 		Amount:     msg.Amount,
 		Fee:        msg.Fee,
 		Collateral: msg.Collateral,
@@ -231,15 +180,28 @@ func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan)
 	}
 
 	// TODO: collateral has to be more than the amount (+fee?)
-  // Get borrowers Account
+
+	// moduleAcc := sdk.AccAddress(crypto.AddressHash([]byte(types.ModuleName)))
+	// Get the borrower address
 	borrower, _ := sdk.AccAddressFromBech32(msg.Creator)
-  // Send the Collateral into a module escrow account
-	err := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, msg.Collateral)
+
+	// Get the collateral as sdk.Coins
+	collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-  // add the created loan to the keeper
-	loan.Id = k.AppendLoan(ctx, loan)
+
+	// Use the module account as escrow account
+	sdkError := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, collateral)
+	if sdkError != nil {
+		return nil, sdkError
+	}
+
+	// Add the loan to the keeper
+	k.AppendLoan(
+		ctx,
+		loan,
+	)
 
 	return &types.MsgRequestLoanResponse{}, nil
 }
@@ -260,30 +222,36 @@ type BankKeeper interface {
 When creating a loan you will want to require a certain input validation and throw error messages in case the user tries impossible inputs.
 
 You can describe message validation errors in the modules `types` directory.
-Add the following code to the `/x/loan/types/message_request_loan.go` function `func (msg *MsgRequestLoan) ValidateBasic()`
+
+Add the following code to the `/x/loan/types/message_request_loan.go` function `ValidateBasic()`
 
 ```go
 func (msg *MsgRequestLoan) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
+
+	amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
+	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
+	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
+
 	if err != nil {
 		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid creator address (%s)", err)
 	}
-	if !sdk.Coins(msg.Amount).IsValid() {
+	if !amount.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is not a valid Coins object")
 	}
-	if sdk.Coins(msg.Amount).Empty() {
+	if amount.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "amount is empty")
 	}
-	if !sdk.Coins(msg.Fee).IsValid() {
+	if !fee.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
 	}
-	if sdk.Coins(msg.Fee).Empty() {
+	if fee.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is empty")
 	}
-	if !sdk.Coins(msg.Collateral).IsValid() {
+	if !collateral.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
 	}
-	if sdk.Coins(msg.Collateral).Empty() {
+	if collateral.Empty() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is empty")
 	}
 	return nil
@@ -291,6 +259,42 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 ```
 
 This concludes the `request-loan` message.
+
+You can run the chain and test your first message.
+
+Start the blockchain
+
+```bash
+starport chain serve
+```
+
+Add your first loan
+
+```bash
+loand tx loan request-loan 100token 2token 200token 500 --from alice -y
+```
+
+Query your loan
+
+```bash
+loand query loan list-loan
+```
+
+You should see the first Loan in the list
+
+```bash
+Loan:
+- amount: 100token
+  borrower: cosmos17mnrhwchwc8trg4w09s0gvvfsvt58ejtsykkm6
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: ""
+  state: requested
+```
+
+You can stop the blockchain again with ctrl + c.
 
 A good time to add your advancements to git.
 
@@ -301,108 +305,41 @@ git commit -m "Add request-loan message"
 
 ### Approve Loan
 
-After a loan request has been published, another account an approve the loan and agree to the terms of the borrower.
-`approve-loan` contains 1 field, the `id`.
+After a loan request has been published, another account can approve the loan and agree to the terms of the borrower.
+The message `approve-loan` has one parameter, the `id`.
 Specify the type of `id` as `uint`, by default IDs are stored as `uint`.
 
 ```bash
 starport scaffold message approve-loan id:uint
 ```
 
-### Repay Loan
+This message should be available for all loan types that are in the status "requested".
 
-After the loan has been approved, the cosmonaut must be able to repay an approved loan.
-Scaffold the message `repay-loan` that is used by a borrower to return tokens borrowed from the lender. 
+It would send the requested coins for the loan to the borrower and set the loan state to "approved".
 
-```bash
-starport s message repay-loan id:uint
-```
-
-### Liquidate Loan
-
-```bash
-starport s message liquidate-loan id:uint
-```
-
-`liquidate-loan` is a message used by lender to liquidate the loan in case of loan not payed by borrower.
-
-### Cancel Loan
-
-```bash
-starport s message cancel-loan id:uint
-```
-
-`cancel-loan` is a message used by a borrower to cancel a loan request after making request and submitting collateral.
-
-
-## Start adding the following code to `keeper` to handle each function.
-
-
-### Add following code to `keeper/msg_server_request_loan.go`
+Modify the `x/loan/keeper/msg_server_approve_loan.go` to implement this logic.
 
 ```go
-// Add import:
+package keeper
+
 import (
-    sdk "github.com/cosmos/cosmos-sdk/types"
-)
+	"context"
+	"fmt"
 
-// TODO: Handling the message
-	var loan = types.Loan{
-		Amount:     msg.Amount,
-		Fee:        msg.Fee,
-		Collateral: msg.Collateral,
-		Deadline:   msg.Deadline,
-		State:      "requested",
-		Borrower:   msg.Creator,
-	}
-
-	
-	borrower, _ := sdk.AccAddressFromBech32(msg.Creator)
-
-	collateral, err := sdk.ParseCoinsNormalized(loan.Collateral)
-	if err != nil {
-		panic(err)
-	}
-
-	sdkError := k.bankKeeper.SendCoinsFromAccountToModule(ctx, borrower, types.ModuleName, collateral)
-	if sdkError != nil {
-		return nil, sdkError
-	}
-
-	k.AppendLoan(
-		ctx,
-		loan,
-	)
-```
-
-The functionality of this module is to allow people to make loan request.
-
-The first step is to deconstruct the loan message into loan types. Start filling in the value in types like Amount, Fee, Collateral, etc from  messages.
-
-The second step is to make state transitions. You need to transfer collateral from the borrower to the module account for which we get borrower's address.
-
-The third step is to convert collateral. `ParseCoinsNormalized` will parse out coins and normalize it. 
-
-The fourth step is to use functionality from the module bankkeeper to send coins. 
-
-The last step is to append loan. Starport has generated a functionality to append loan which can be found under `keeper/loan.go`
-
-
-### Add following code to `keeper/msg_server_approve_loan.go`
-
-```go
-// Add import:
-import (
+	"github.com/cosmonaut/loan/x/loan/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-// TODO
+func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan) (*types.MsgApproveLoanResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
 
-loan, found := k.GetLoan(ctx, msg.Id)
+	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
 		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
 
+	// TODO: for some reason the error doesn't get printed to the terminal
 	if loan.State != "requested" {
 		return nil, sdkerrors.Wrapf(types.ErrWrongLoanState, "%v", loan.State)
 	}
@@ -417,25 +354,133 @@ loan, found := k.GetLoan(ctx, msg.Id)
 	loan.State = "approved"
 
 	k.SetLoan(ctx, loan)
+
+	return &types.MsgApproveLoanResponse{}, nil
+}
 ```
 
-The functionality of this module is to allow lender to approve loan request.
-
-The first step is to get loan using the keeper function `GetLoan` before it can be approved.
-
-The second step is to make sure only loans that are requested are approved and not already approved loans.
-
-The third step is to populate values of lender, borrower and amount.
-
-The fourth step is to send coins and change the state to `approved`
-
-The last step is to set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
-
-
-### Add following code to `keeper/msg_server_repay_loan.go`
+This module uses the bankKeepers SendCoins function. Add this to the `x/loan/types/expected_keepers.go` accordingly
 
 ```go
-loan, found := k.GetLoan(ctx, msg.Id)
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+type BankKeeper interface {
+	// Methods imported from bank should be defined here
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+}
+```
+
+There is also introduced a new error type `ErrWrongLoanState`.
+Add this to the errors definitions in `x/loan/types/errors.go`
+
+```go
+package types
+
+// DONTCOVER
+
+import (
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+// x/loan module sentinel errors
+var (
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
+)
+```
+
+Start the blockchain and use the two commands you already have available.
+
+```bash
+starport chain serve -r
+```
+
+Use the `-r` flag to reset the blockchain state and start with a new database.
+
+```bash
+loand tx loan request-loan 100token 2token 200token 500 --from bob -y
+```
+
+Query your loan request
+
+```bash
+loand query loan list-loan
+```
+
+Approve the loan
+
+```bash
+loand tx loan approve-loan 0 --from alice -y
+```
+
+This should send the balances according to the loan request.
+CHeck for the loan list again. You should see the state now approved.
+
+```bash
+Loan:
+- amount: 100token
+  borrower: cosmos1sx8k358xw5pulv7acjhm6klvn3tukk2r2a74gg
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: cosmos1qxm2dtupmr8pp20m0t7tmjq6gq2z8j3d6ltr9d
+  state: approved
+pagination:
+  next_key: null
+  total: "0"
+```
+
+You can query for alices balances to see the loan in effect.
+Take the lender address from above, this is alice address.
+
+```bash
+loand query bank balances <alice_address>
+```
+
+In case everything works as expected, this is a good time to save the state with a git commit.
+
+```bash
+git add .
+git commit -m "Add approve loan message"
+```
+
+### Repay Loan
+
+After the loan has been approved, the cosmonaut must be able to repay an approved loan.
+Scaffold the message `repay-loan` that is used by a borrower to return tokens borrowed from the lender.
+
+```bash
+starport scaffold message repay-loan id:uint
+```
+
+Repaying a loan requires the loan to be in the "approved" status.
+
+The coins as described in the loan are collected and sent from the borrower to the lender, as well as the agreed fees.
+The collateral will be released from the escrow module account.
+
+This logic is defined in the `x/loan/keeper/msg_server_repay_loan.go`.
+
+```go
+package keeper
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/cosmonaut/loan/x/loan/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*types.MsgRepayLoanResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
@@ -457,27 +502,127 @@ loan, found := k.GetLoan(ctx, msg.Id)
 	loan.State = "repayed"
 
 	k.SetLoan(ctx, loan)
+
+	return &types.MsgRepayLoanResponse{}, nil
+}
 ```
 
-The functionality of this module is to allow the borrower to repay loan.
+After the coins have been successfully exchanged, the state of the loan will be set to `repayed`.
 
-The first step is to get loan using the keeper function `GetLoan` before it can be repayed.
-
-The second step is to make sure only loans that are approved are repayed and not the pending loans.
-
-The third step is to populate values of lender, borrower, amount, fee and collateral.
-
-The fourth step is to send coins (loan amount and fees) to borrower.
-
-The fifth step is to send the collateral amount to the borrower after the loan amount is repayed.
-
-The last step is to change the state to `repayed` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
-
-
-### Add following code to `keeper/msg_server_liquidate_loan.go`
+Releasing tokens with the `bankKeepers` `SendCoinsFromModuleToAccount` function, you will need to add this to the `x/loan/types/expected_keepers.go`
 
 ```go
-loan, found := k.GetLoan(ctx, msg.Id)
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+type BankKeeper interface {
+	// Methods imported from bank should be defined here
+	SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
+	SendCoinsFromModuleToAccount(ctx sdk.Context, senderModule string, recipientAddr sdk.AccAddress, amt sdk.Coins) error
+}
+```
+
+Start the blockchain and use the two commands you already have available.
+
+```bash
+starport chain serve -r
+```
+
+Use the `-r` flag to reset the blockchain state and start with a new database.
+
+```bash
+loand tx loan request-loan 100token 2token 200token 500 --from bob -y
+```
+
+Query your loan request
+
+```bash
+loand query loan list-loan
+```
+
+Approve the loan
+
+```bash
+loand tx loan approve-loan 0 --from alice -y
+```
+
+You can query for alices balances to see the loan in effect.
+Take the lender address from above, this is alice address.
+
+```bash
+loand query bank balances <alice_address>
+```
+
+Now repay the loan
+
+```bash
+loand tx loan repay-loan 0 --from bob -y
+```
+
+The loan should now be status `repayed`
+
+```bash
+Loan:
+- amount: 100token
+  borrower: cosmos1200nsqsxcyxtllfgal5x8qhqwj8km64ft0eu2d
+  collateral: 200token
+  deadline: "500"
+  fee: 2token
+  id: "0"
+  lender: cosmos194pn6vly2nlald3zjqcxfnvasa0xt7ect6h6qk
+  state: repayed
+```
+
+And alice balance reflect the repayed amount plus fees
+
+```bash
+loand query bank balances <alice_address>
+```
+
+Good job!
+Update your git with the changes you made.
+
+```bash
+git add .
+git commit -m "Add repay-loan message"
+```
+
+### Liquidate Loan
+
+A lender can liquidate a loan when the borrower does not pay the tokens back after the passed deadline. The message to `liquidate-loan` refers to the loan `id`.
+
+```bash
+starport scaffold message liquidate-loan id:uint
+```
+
+The `liquidate-loan` message should be able to be executed by the `lender`.
+The status of the loan has to be `approved`. The `deadline` has to be met.
+
+When these properties are valid, the collateral shall be liquidated from the `borrower`.
+
+Add this to the `keeper` in `x/loan/keeper/msg_server_liquidate_loan.go`
+
+```go
+package keeper
+
+import (
+	"context"
+	"fmt"
+	"strconv"
+
+	"github.com/cosmonaut/loan/x/loan/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateLoan) (*types.MsgLiquidateLoanResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
@@ -507,27 +652,129 @@ loan, found := k.GetLoan(ctx, msg.Id)
 	loan.State = "liquidated"
 
 	k.SetLoan(ctx, loan)
+
+	return &types.MsgLiquidateLoanResponse{}, nil
+}
 ```
 
-The functionality of this module is to allow the lender to liquidate loan if unpaid past deadline.
-
-The first step is to get loan using the keeper function `GetLoan` before it can be repayed.
-
-The second step is to make sure only loans that are approved are liquidated and not the pending loans.
-
-The third step is to populate values of lender and collateral.
-
-The fourth step is to get loan deadline and compare it with block height. If its past the block height the collateral can be liquidated.
-
-The fifth step is to send the collateral amount to the lender after the collateral is liquidated.
-
-The last step is to change the state to `liquidated` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
-
-
-### Add following code to `keeper/msg_server_cancel_loan.go`
+Add the new error `ErrDeadline` to the error messages in `x/loan/types/errors.go`
 
 ```go
-loan, found := k.GetLoan(ctx, msg.Id)
+package types
+
+// DONTCOVER
+
+import (
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+// x/loan module sentinel errors
+var (
+	ErrWrongLoanState = sdkerrors.Register(ModuleName, 1, "wrong loan state")
+	ErrDeadline       = sdkerrors.Register(ModuleName, 2, "deadline")
+)
+```
+
+These are all changes necessary to the `liquidate-loan` message.
+
+You can test the liquidation message now.
+
+```bash
+starport chain serve -r
+```
+
+Set the deadline for the loan request to 1 block.
+
+```bash
+loand tx loan request-loan 100token 2token 200token 1 --from bob -y
+```
+
+Query your loan request
+
+```bash
+loand query loan list-loan
+```
+
+Approve the loan
+
+```bash
+loand tx loan approve-loan 0 --from alice -y
+```
+
+You can query for alices balances to see the loan in effect.
+Take the lender address from above, this is alice address.
+
+```bash
+loand query bank balances <alice_address>
+```
+
+Now repay the loan
+
+```bash
+loand tx loan liquidate-loan 0 --from alice -y
+```
+
+The loan should now be status `liquidated`
+
+```bash
+loand query loan list-loan
+```
+
+```bash
+Loan:
+- amount: 100token
+  borrower: cosmos1lp4ghp4mmsdgpf2fm22f0qtqmnjeh3gr9h3cau
+  collateral: 200token
+  deadline: "1"
+  fee: 2token
+  id: "0"
+  lender: cosmos1w6pfj52jp809pyp2a2h573cta23rc0zsulpafm
+  state: liquidated
+```
+
+And alice balance reflect the repayed amount plus fees
+
+```bash
+loand query bank balances <alice_address>
+```
+
+Add the changes to your git.
+
+```bash
+git add .
+git commit -m "Add liquidate-loan message"
+```
+
+### Cancel Loan
+
+After a loan request has been made and not been approved, the `borrower` should be able to cancel a loan request. Scaffold the message for `cancel-loan`.
+
+```bash
+starport s message cancel-loan id:uint
+```
+
+Only the `borrower` should be able to cancel a loan request.
+The state of the request must be `requested`.
+Then the collateral coins can be released from escrow and the status set to `cancelled`.
+
+Add this to the `keeper` in `x/loan/keeper/msg_server_cancel_loan.go`.
+
+```go
+package keeper
+
+import (
+	"context"
+	"fmt"
+
+	"github.com/cosmonaut/loan/x/loan/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (*types.MsgCancelLoanResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
 		return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
 	}
@@ -547,388 +794,68 @@ loan, found := k.GetLoan(ctx, msg.Id)
 	loan.State = "cancelled"
 
 	k.SetLoan(ctx, loan)
+
+	return &types.MsgCancelLoanResponse{}, nil
+}
 ```
-
-The functionality of this module is to allow the borrower to cancel the loan request.
-
-The first step is to check if the loan exist.
-
-The second step is to make sure the borrower can cancel only its loan.
-
-The third step is to check state of loan which should be requested and not approved or liquidated.
-
-The fourth step is to fetch values of borrower and collateral. Then send collateral back to borrower.
-
-The last step is to change the state to `cancelled` and set loan. Starport has generated a functionality to set loan which can be found under `keeper/loan.go`
-
-
-
-## Running the Blockchain
-
-Run your loan blockchain `starport chain serve`
-
-
-### Request loan
 
 ```bash
-loand tx loan request-loan [amount] [fee] [collateral] [deadline] [flags]
+starport chain serve -r
 ```
-
-```markdown
-loand tx loan request-loan 100token 2token 200token 500 --from alice -y
-```
-
-Where:  
---from is the name or address of private key with which to sign
--y is to skip tx broadcasting prompt confirmation
-
-You should see an output similar to:
 
 ```bash
-code: 0
-codespace: ""
-data: 0A250A232F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D7367526571756573744C6F616E
-gas_used: "57234"
-gas_wanted: "200000"
-height: "442"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: receiver
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: amount
-      value: 200token
-    type: coin_received
-  - attributes:
-    - key: spender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 200token
-    type: coin_spent
-  - attributes:
-    - key: action
-      value: RequestLoan
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    type: message
-  - attributes:
-    - key: recipient
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 200token
-    type: transfer
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"RequestLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]}]}]'
-timestamp: ""
-tx: null
-txhash: E2F12B96991FD15ECA93E373C66056D41DCE1B1C0DD33A09177F36D5F5566D94
+loand tx loan request-loan 100token 2token 200token 100 --from bob -y
 ```
 
-This can also be checked using `query` loan function.
+Query your loan request
 
 ```bash
 loand query loan list-loan
 ```
 
-This returns a list of all loans. 
+```bash
+loand tx loan cancel-loan 0 --from bob -y
+```
 
-You should see an output similar to:
+Query your loan request
 
 ```bash
-Loan:
+loand query loan list-loan
+```
+
+Then the collateral coins can be released from escrow and the status set to `cancelled`.
+
+```bash
 - amount: 100token
-  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
+  borrower: cosmos1lp4ghp4mmsdgpf2fm22f0qtqmnjeh3gr9h3cau
   collateral: 200token
-  deadline: "500"
+  deadline: "100"
   fee: 2token
-  id: "0"
-  lender: ""
-  state: requested
-- amount: 100token
-  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  collateral: 200token
-  deadline: "500"
-  fee: 2token
-  id: "1"
-  lender: ""
-  state: requested
-```
-
-
-### Approve loan
-
-```bash
-loand tx loan approve-loan [id] [flags]
-```
-
-```markdown
-loand tx loan approve-loan 0 --from alice -y
-```
-
-You should see an output similar to:
-
-```bash
-code: 0
-codespace: ""
-data: 0A250A232F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D7367417070726F76654C6F616E
-gas_used: "55050"
-gas_wanted: "200000"
-height: "828"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: receiver
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    type: coin_received
-  - attributes:
-    - key: spender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    type: coin_spent
-  - attributes:
-    - key: action
-      value: ApproveLoan
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    type: message
-  - attributes:
-    - key: recipient
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    type: transfer
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]},{"type":"message","attributes":[{"key":"action","value":"ApproveLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"}]}]}]'
-timestamp: ""
-tx: null
-txhash: F1B52A2BB721529C244A2AAAFA77554D773B3D75D274EEEBA4680EB94840408E
-```
-
-
-Check the state of the loan using the following command:
-
-```bash
-loand query loan show-loan 0
-```
-
-This returns the loan requested by id.
-
-You should see an output similar to:
-
-```bash
-Loan:
-  amount: 100token
-  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  collateral: 200token
-  deadline: "500"
-  fee: 2token
-  id: "0"
-  lender: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  state: approved
-```
-
-Note: The state has changed from `requested` to `approved`
-
-
-### Repay loan
-
-```bash
-loand tx loan repay-loan [id] [flags]
-```
-
-```markdown
-loand tx loan repay-loan 0 --from alice -y
-```
-
-You should see an output similar to:
-
-```bash
-code: 0
-codespace: ""
-data: 0A230A212F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D736752657061794C6F616E
-gas_used: "74693"
-gas_wanted: "200000"
-height: "1167"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: receiver
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    - key: receiver
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 2token
-    - key: receiver
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 200token
-    type: coin_received
-  - attributes:
-    - key: spender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    - key: spender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 2token
-    - key: spender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: amount
-      value: 200token
-    type: coin_spent
-  - attributes:
-    - key: action
-      value: RepayLoan
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    type: message
-  - attributes:
-    - key: recipient
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 100token
-    - key: recipient
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 2token
-    - key: recipient
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: amount
-      value: 200token
-    type: transfer
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"spender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"spender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"RepayLoan"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"100token"},{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"2token"},{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]}]}]'
-timestamp: ""
-tx: null
-txhash: F84F0E7DE78BD9BBD34B0BCC538F83AC74574EA7FFD158F7AB720529FC1F989B
-```
-
-Check the state of the loan using the following command:
-
-```bash
-loand query loan show-loan 0
-```
-
-You should see an output similar to:
-
-```bash
-Loan:
-  amount: 100token
-  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  collateral: 200token
-  deadline: "500"
-  fee: 2token
-  id: "0"
-  lender: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  state: repayed
-```
-
-Note: The state has changed from `approved` to `repayed`
-
-
-### Cancel loan
-
-```bash
-loand tx loan cancel-loan [id] [flags]
-```
-
-```markdown
-loand tx loan cancel-loan 1 --from alice -y
-```
-
-You should see an output similar to:
-
-```bash
-code: 0
-codespace: ""
-data: 0A240A222F636F736D6F6E6175742E6C6F616E2E6C6F616E2E4D736743616E63656C4C6F616E
-gas_used: "53569"
-gas_wanted: "200000"
-height: "1707"
-info: ""
-logs:
-- events:
-  - attributes:
-    - key: receiver
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: amount
-      value: 200token
-    type: coin_received
-  - attributes:
-    - key: spender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: amount
-      value: 200token
-    type: coin_spent
-  - attributes:
-    - key: action
-      value: CancelLoan
-    - key: sender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    type: message
-  - attributes:
-    - key: recipient
-      value: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-    - key: sender
-      value: cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l
-    - key: amount
-      value: 200token
-    type: transfer
-  log: ""
-  msg_index: 0
-raw_log: '[{"events":[{"type":"coin_received","attributes":[{"key":"receiver","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"amount","value":"200token"}]},{"type":"coin_spent","attributes":[{"key":"spender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]},{"type":"message","attributes":[{"key":"action","value":"CancelLoan"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"}]},{"type":"transfer","attributes":[{"key":"recipient","value":"cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0"},{"key":"sender","value":"cosmos1gu4m79yj8ch8em7c22vzt3qparg69ymm75qf6l"},{"key":"amount","value":"200token"}]}]}]'
-timestamp: ""
-tx: null
-txhash: 8AE8A3A9F502ECB6A3747B445FA8BB63FFBFFC4A1EF15DA9E678D08B8EC03913
-```
-
-Check the state of the loan using the following command:
-
-```bash
-loand query loan show-loan 1
-```
-
-You should see an output similar to:
-
-```bash
-Loan:
-  amount: 100token
-  borrower: cosmos1ulk2f49lhljvldqw09queq82pphsuv759t32t0
-  collateral: 200token
-  deadline: "500"
-  fee: 2token
-  id: "1"
+  id: "2"
   lender: ""
   state: cancelled
 ```
 
-Note: The state has changed from `approved` to `cancelled`
+Congratulations. This concludes the loan module.
 
+Consider adding this to your git commit and maybe publish it on a public repository for others to see your accomplisments.
 
-Congratulations, you have just created a `loan blockchain` using starport.
+```bash
+git add .
+git commit -m "Add cancel-loan message"
+```
+
+You have learned how to
+
+* Scaffold a blockchain
+* Scaffold a module
+* Scaffold a list for loan objects
+* Create messages in your module to interact with the loan object
+* Interact with other modules in your module
+* Use an escrow module account
+* Add application messages for a Loan system
+  * Request Loan
+  * Approve Loan
+  * Repay Loan
+  * Liquidate Loan
+  * Cancel Loan
