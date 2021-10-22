@@ -1,27 +1,33 @@
 ---
 order: 6
+title: "Module Advanced: Token Factory"
 description: Step-by-step guidance to build a token factory module. Mint new native tokens to your blockchain.
 ---
 
 # Token Factory
 
-In this tutorial you will learn how to build a token factory.
+In this tutorial you will learn how to build a Token Factory module.
 
-Unique and scarce digital assets are one of the key promises that blockchains deliver. On Ethereum the standard of a ERC20 token has seen a big popularity in the crypto scene.
+Unique and scarce digital assets are key promises that blockchains deliver. On Ethereum the standard of a ERC20 token has seen a big popularity in the crypto scene.
 
-In this tutorial you will learn how to create a module with a logic of creating and maintaing tokens on the Cosmos SDK.
+In this tutorial you will learn:
 
-Be aware, this tutorial is for learning purposes only.
+* How to create a module
+* How to remove the Delete part of the CRUD operations
+* How to embed the logic for denom creation
+* How to work with the client, types, keeper, expected keeper, and handlers
+
+Be aware, this tutorial is for learning purposes only, the module is not tested in production.
 
 ## Module Design
 
-With this module you will be able to create new denoms on your blockchain at will. Learn what [denoms](../kb/denom.md) are and how they are used in the Cosmos Ecosystem.
+With this module you will be able to create new native denoms on your blockchain at will. Learn what [denoms](../kb/denom.md) are and how they are used in the Cosmos Ecosystem.
 
 A denom in this module will always have an owner, who is allowed to issue new tokens, change the denoms name or transfer the ownership to a different account.
 
-The denom has a name `base_denom` and a `ticker` property.
+The denom has a name `denom` and a `ticker` property.
 The exponential of the denom is hold in the `precision` property, which defines how many decimal places the denom has.
-In order to describe the circulating supply of the token, it has the parameters `maxSupply` and `supply` as current supply. The `canChangeMaxSupply` boolean parameter defines if a token can have an increasing `maxSupply` or not.
+In order to describe the circulating supply of the token, it has the parameters `maxSupply` and `supply` as current supply. The `canChangeMaxSupply` boolean parameter defines if a token can have an increasing `maxSupply` after issuance or not.
 Furthermore, the denom has a `description` and a `url` for further information about the token.
 
 The resulting proto definition should look as follows:
@@ -155,6 +161,13 @@ Open the `x/tokenfactory/handler.go` file and remove `MsgDeleteDenom` case from 
 This finishes up removing the delete denom functionality.
 
 In the next Chapter, you will implement the custom logic for the Token Factory.
+
+This is a good time to make another git commit, before moving to the application logic.
+
+```bash
+git add .
+git commit -m "Remove the delete denom functionality"
+```
 
 ## Add Application Logic
 
@@ -461,6 +474,13 @@ type BankKeeper interface {
 }
 ```
 
+Before scaffolding new messages and move on with minting and sending tokens, this might be a good time to make another git commit.
+
+```bash
+git add .
+git commit -m "Add Token Factory Create and Update logic"
+```
+
 ### Scaffold new messages
 
 Everything is in place, scaffold two additional messages to complete the Token Factory's functionality: a `MintAndSendTokens` message and an `UpdateOwner` message
@@ -594,17 +614,24 @@ func (k msgServer) UpdateOwner(goCtx context.Context, msg *types.MsgUpdateOwner)
 }
 ```
 
+After adding minting and sending functionality, this might be a good time to add another git commit.
+
+```bash
+git add .
+git commit -m "Add minting and sending"
+```
+
 ## Walkthrough
 
 You can now test the Token Factory.
 
-First build and start the chain with 
+First build and start the chain with
 
 ```bash
 starport chain serve
 ```
 
-Once the chain starts, in a different terminal, run 
+Once the chain starts, in a different terminal, run
 
 ```bash
 tokenfactoryd tx tokenfactory create-denom ustarport "My denom" STARPORT 6 "someurl" 1000000000 true --from alice
