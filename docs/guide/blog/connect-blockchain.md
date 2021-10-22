@@ -3,29 +3,29 @@ description: Blockchain Client in Go
 order: 2
 ---
 
-# Creating a Blockchain Client in Go
+# Create a Blockchain Client in Go
 
-Learn how to connect your Blockchain to an independent application with RPC.
+Learn how to connect your blockchain to an independent application with RPC.
 
-After creating the blog blockchain in this tutorial you will learn how to connect to your blockchain from a seperate client.
+After creating the blog blockchain in this tutorial you will learn how to connect to your blockchain from a separate client.
 
 ## Use the Blog Blockchain
 
-Navigate to a separate directory right next to the Blog Blockchain you just built in the last chapter.
+Navigate to a separate directory right next to the `blog` blockchain you built in the [Build a Blog](index.md) tutorial.
 
 ## Creating a Blockchain Client
 
-Create a new directory called `blogclient` on the level next to `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that will act as a client to your `blog` blockchain.
+Create a new directory called `blogclient` on the same level as `blog` directory. As the name suggests, `blogclient` will contain a standalone Go program that acts as a client to your `blog` blockchain.
 
-The command
+The command:
 
 ```bash
 ls
 ```
 
-should show you just `blog` now, or least be listed when you have more directories here.
+Shows just `blog` now. More results are listed when you have more directories here.
 
-Create your blogclient directory first, change your current working directory into it and initialize a new go module.
+Create your `blogclient` directory first, change your current working directory, and initialize the new Go module.
 
 ```bash
 mkdir blogclient
@@ -33,11 +33,14 @@ cd blogclient
 go mod init github.com/cosmonaut/blogclient
 ```
 
-You will end up with the go.mod file inside your `blogclient` directory.
+The `go.mod` file is created inside your `blogclient` directory.
 
-Create the main.go file and add the content as follows.
+Create the `main.go` file and add the content as follows.
 
-Your blockchain client has only two dependencies: the `blog` blockchain (`types` for message types and a query client) and `starport` (for the `cosmosclient` blockchain client).
+Your blockchain client has only two dependencies: 
+
+- The `blog` blockchain `types` for message types and a query client
+- `starport` for the `cosmosclient` blockchain client
 
 ```go
 module github.com/cosmonaut/blogclient
@@ -53,15 +56,18 @@ replace github.com/cosmonaut/blog => ../blog
 replace github.com/gogo/protobuf => github.com/regen-network/protobuf v1.3.3-alpha.regen.1
 ```
 
-The `replace` directive uses the package from the local `blog` directory (specified as a relative path).
+The `replace` directive uses the package from the local `blog` directory and is specified as a relative path.
 
 Cosmos SDK uses a custom version of the `protobuf` package, so use the `replace` directive to specify the correct dependency.
 
-`blogclient` will eventually have only two files: `main.go` for the main logic of the client and `go.mod` for specifying dependencies.
+The `blogclient` will eventually have only two files: 
+
+- `main.go` for the main logic of the client
+- `go.mod` for specifying dependencies.
 
 ### Main Logic of the Client in main.go
 
-Add the following code to your main.go file to make a connection to your blockchain from a separate app.
+Add the following code to your `main.go` file to make a connection to your blockchain from a separate app.
 
 ```go
 package main
@@ -130,8 +136,8 @@ func main() {
 
 Read the comments in the code carefully to learn details about each line of code.
 
-There is more to learn about the `cosmosclient` package used here.
-[Jump to the `cosmosclient` reference](https://pkg.go.dev/github.com/tendermint/starport/starport/pkg/cosmosclient) to learn how to use the Client with Options and KeyringBackend.
+To learn more about the `cosmosclient` package, see the Go 
+[cosmosclient](https://pkg.go.dev/github.com/tendermint/starport/starport/pkg/cosmosclient) package documentation. Details are provided to learn how to use the `Client` type with `Options` and `KeyringBackend`.
 
 ## Running the Blockchain and the Client
 
@@ -174,8 +180,8 @@ All posts:
 Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" title:"foo" body:"bar" > Post:<creator:"cosmos1j8d8pyjr5vynjvcq7xgzme0ny6ha30rpakxk3n" id:1 title:"Hello!" body:"This is the first post" > pagination:<total:2 > 
 ```
 
-You can confirm the new post with using the `blogd query blog posts` command learned in the previous chapter.
-The result should look similar to
+You can confirm the new post with using the `blogd query blog posts` command that you learned about in the previous chapter.
+The result looks similar to:
 
 ```bash
 Post:
@@ -192,6 +198,6 @@ pagination:
   total: "2"
 ```
 
-Congratulations, you have just created a post using a seperate app.
+Congratulations, you have just created a post using a separate app.
 
 When you publish your blockchain project to GitHub, you won't need to use the replace function in your `go.mod` file anymore and can directly use your GitHub repository to fetch the types and interact with your program.
