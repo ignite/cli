@@ -15,7 +15,7 @@ In this tutorial you will learn:
 * How to create a module
 * How to remove the Delete part of the CRUD operations
 * How to embed the logic for denom creation
-* How to work with the client, types, keeper, expected keeper, and handlers
+* How to work with the client, types, keeper, expected keeper, and handlers to apply the Token Factory application logic
 
 Be aware, this tutorial is for learning purposes only, the module is not tested in production.
 
