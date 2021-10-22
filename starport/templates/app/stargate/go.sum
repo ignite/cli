@@ -800,8 +800,8 @@ github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15 h1:hqAk8riJvK4RM
 github.com/tendermint/crypto v0.0.0-20191022145703-50d29ede1e15/go.mod h1:z4YtwM70uOnk8h0pjJYlj3zdYwi9l03By6iAIF5j/Pk=
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
-github.com/tendermint/spm v0.1.5 h1:/MkM8SOsHBkX1kbo74a2WNmrViLaEem/OzBHI5v6l1c=
-github.com/tendermint/spm v0.1.5/go.mod h1:+rHrI1axfSX1R0DY6KA4IbrHPgJ0WVNJKhey71ulXO8=
+github.com/tendermint/spm v0.1.7 h1:9PYX843H90im82WUr7EdZCQtyTKHthTIVrXsYCa8RBY=
+github.com/tendermint/spm v0.1.7/go.mod h1:d3w1LTzoBLb5A9WcgI+u/754tsIefCrnIOv7B+ynK9s=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=
