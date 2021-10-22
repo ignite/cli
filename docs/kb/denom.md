@@ -11,9 +11,9 @@ Denom stands for `denomination`.
 
 A denom is the name of a token that can be used for all purposes with Starport and in the Cosmos SDK.
 
-You can set an arbitrary number of denoms before starting your blockchain in the config.yml file at the root of the repository.
+In Starport, you can set an arbitrary number of denoms before starting your blockchain in the `config.yml` file at the root of the repository.
 
-Most example denoms take the format of `token` or `stake`.
+Mostly, example denoms take the format of `token` or `stake`.
 
 ## How is the denom used
 
