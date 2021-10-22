@@ -23,6 +23,7 @@ Be aware, this tutorial is for learning purposes only, the module is not tested 
 
 With this module you will be able to create new native denoms on your blockchain at will. Learn what [denoms](../kb/denom.md) are and how they are used in the Cosmos Ecosystem.
 
+Basically denoms describe token on a blockchain, also to referred as [Coins](https://docs.cosmos.network/master/architecture/adr-024-coin-metadata.html).
 A denom in this module will always have an owner, who is allowed to issue new tokens, change the denoms name or transfer the ownership to a different account.
 
 The denom has a name `denom` and a `ticker` property.
