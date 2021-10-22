@@ -55,7 +55,7 @@ In this tutorial you will learn how to bring these tokens into existence, you wi
 
 Get started with scaffolding the blockchain and the module of the `Token Factory`.
 
-## Scaffold a new blockchain
+## Scaffold a Blockchain
 
 Scaffold a new `tokenfactory` blockchain, use the `--no-module` flag because in the next step you want to add a module with certain dependencies.
 
@@ -69,7 +69,7 @@ Change directory to the new scaffolded blockchain
 cd tokenfactory
 ```
 
-## Scaffold a new module
+## Scaffold a Module
 
 Next, scaffold a new module with bank and account access
 
@@ -98,7 +98,7 @@ git add .
 git commit -m "Add token factory module and denom map"
 ```
 
-## Remove Delete Messages
+## Remove Delete Messages Functionality
 
 Since a created denom is subsequently handled by the `bank` module like any other native denom, it should not be deletable. Hence, remove all references to the Delete action of the scaffolded CRUD type.
 
@@ -507,7 +507,7 @@ Initialized with Starport
 
 The last part is to scaffold and add logic for minting-and-sending and updating token.
 
-### Scaffold new messages
+### Scaffold Messages
 
 Everything is in place for creating a new denom. You need to scaffold two additional messages to complete the Token Factory's functionality: a `MintAndSendTokens` message and an `UpdateOwner` message.
 
@@ -663,6 +663,8 @@ First build and start the chain with
 starport chain serve
 ```
 
+### Create Denom
+
 Once the chain starts, in a different terminal, run
 
 ```bash
@@ -671,11 +673,15 @@ tokenfactoryd tx tokenfactory create-denom ustarport "My denom" STARPORT 6 "some
 
 and confirm the transaction.
 
+### Query Denom
+
 From here you can query the denoms to see your newly created denom.
 
 ```bash
 tokenfactoryd query tokenfactory list-denom
 ```
+
+### Update Denom
 
 To test the update denom functionality, change the max supply to 2000000000 and the description and URL fields as well as locking down the max supply by running:
 
@@ -689,11 +695,15 @@ Run the query for denoms again to see the changes taking effect
 tokenfactoryd query tokenfactory list-denom
 ```
 
+### Mint-And-Send-Tokens
+
 Mint some ustarport tokens and send them to a different address.
 
 ```bash
 tokenfactoryd tx tokenfactory mint-and-send-tokens ustarport 1200 cosmos16x46rxvtkmgph6jnkqs80tzlzk6wpy6ftrgh6t --from alice
 ```
+
+### Query Balance
 
 Query the user balance from your `alice` user to see your newly created native denom.
 
@@ -707,6 +717,8 @@ Query for the denom list again, to see the updated supply
 tokenfactoryd query tokenfactory list-denom
 ```
 
+### Transfer Ownership
+
 The next function to test is transfer ownership of a denom to a different account.
 The command for this that you created is:
 
@@ -719,6 +731,8 @@ Query for the denom list again, to see the updated ownership
 ```bash
 tokenfactoryd query tokenfactory list-denom
 ```
+
+### Confirm Minting Restrictions
 
 To confirm that alice may no longer mint and send tokens and is no longer the owner, test with the command:
 
