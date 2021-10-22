@@ -1,6 +1,7 @@
 ---
 order: 1
 parent:
+  order: 8
   title: "Advanced Module: Interchange"
 ---
 
