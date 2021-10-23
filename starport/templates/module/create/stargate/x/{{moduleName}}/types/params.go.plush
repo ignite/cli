@@ -1,6 +1,8 @@
 package types
 
 import (
+	"fmt"
+
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
@@ -60,12 +62,14 @@ func (p Params) String() string {
 <%= for (param) in params { %>
 // validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
 func validate<%= param.Name.UpperCamel %>(v interface{}) error {
-	<%= param.Name.LowerCamel %>, ok := v.(<%= param.Name.DataType() %>)
+	<%= param.Name.LowerCamel %>, ok := v.(<%= param.DataType() %>)
 	if !ok {
 		return fmt.Errorf("invalid parameter type: %T", v)
 	}
 
 	// TODO implement validation
+	_ = <%= param.Name.LowerCamel %>
+
 	return nil
 }
 <% } %>
