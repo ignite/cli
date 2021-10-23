@@ -52,7 +52,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 
 	cdc := codec.NewProtoCodec(registry)
 	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
-    launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
+	launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
 	k := keeper.NewKeeper(
         cdc,
         storeKey,
