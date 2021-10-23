@@ -30,6 +30,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	cdc := codec.NewProtoCodec(registry)
 
 	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
+	paramKeeper.Subspace(types.ModuleName)
 	launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
 	k := keeper.NewKeeper(
 	    cdc,
@@ -40,5 +41,9 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	)
 
 	ctx := sdk.NewContext(stateStore, tmproto.Header{}, false, log.NewNopLogger())
+
+	// Initialize params
+	k.SetParams(ctx, types.DefaultParams())
+
 	return k, ctx
 }

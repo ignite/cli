@@ -59,7 +59,12 @@ func (p Params) String() string {
 }
 <%= for (param) in params { %>
 // validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
-func validate<%= param.Name.UpperCamel %>(<%= param.Name.LowerCamel %> interface{}) error {
+func validate<%= param.Name.UpperCamel %>(v interface{}) error {
+	<%= param.Name.LowerCamel %>, ok := v.(<%= param.Name.DataType() %>)
+	if !ok {
+		return fmt.Errorf("invalid parameter type: %T", v)
+	}
+
 	// TODO implement validation
 	return nil
 }
