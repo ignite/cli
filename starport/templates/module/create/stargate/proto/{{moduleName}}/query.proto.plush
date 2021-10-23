@@ -1,6 +1,7 @@
 syntax = "proto3";
 package <%= formatOwnerName(ownerName) %>.<%= appName %>.<%= moduleName %>;
 
+import "gogoproto/gogo.proto";
 import "google/api/annotations.proto";
 import "cosmos/base/query/v1beta1/pagination.proto";
 import "<%= moduleName %>/params.proto";

@@ -2,8 +2,9 @@ package modulecreate
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/templates/field"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/field"
 )
 
 // CreateOptions represents the options to scaffold a Cosmos SDK module

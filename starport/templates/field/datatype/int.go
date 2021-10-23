@@ -42,7 +42,7 @@ var (
 		DataType:         func(string) string { return "[]int32" },
 		DefaultTestValue: "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("repeated int32 %s = %d;", name, index)
+			return fmt.Sprintf("repeated int32 %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: []int32{%d},\n", name.UpperCamel, value)

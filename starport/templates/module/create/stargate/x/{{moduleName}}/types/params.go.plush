@@ -1,10 +1,6 @@
 package types
 
 import (
-	"errors"
-	"fmt"
-	"time"
-
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
@@ -12,9 +8,8 @@ import (
 var (
 	// TODO: Determine default values
 	<%= for (i, param) in params { %>
-	Key<%= param.Name.UpperCamel %> = MinLaunchTime = []byte("<%= param.Name.UpperCamel %>")
+	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
 	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %>
-
 	<% } %>
 )
 
@@ -26,7 +21,9 @@ func ParamKeyTable() paramtypes.KeyTable {
 }
 
 // NewParams creates a new Params instance
-func NewParams(minLaunchTime, maxLaunchTime uint64) Params {
+func NewParams(<%= for (param) in params { %>
+	<%= param.Name.LowerCamel %> <%= param.DataType() %>,<% } %>
+) Params {
 	return Params{<%= for (param) in params { %>
         <%= param.Name.UpperCamel %>: <%= param.Name.LowerCamel %>,<% } %>
 	}
@@ -42,18 +39,16 @@ func DefaultParams() Params {
 // ParamSetPairs get the params.ParamSet
 func (p *Params) ParamSetPairs() paramtypes.ParamSetPairs {
 	return paramtypes.ParamSetPairs{<%= for (param) in params { %>
-		paramtypes.NewParamSetPair(Key<%= param.Name.UpperCamel %>, &p.<%= param.Name.UpperCamel %>, validate<%= param.Name.UpperCamel %>),
-		<% } %>
+		paramtypes.NewParamSetPair(Key<%= param.Name.UpperCamel %>, &p.<%= param.Name.UpperCamel %>, validate<%= param.Name.UpperCamel %>),<% } %>
 	}
 }
 
 // Validate validates the set of params
-func (p Params) Validate() error {
-	<%= for (param) in params { %>
+func (p Params) Validate() error {<%= for (param) in params { %>
    	if err := validate<%= param.Name.UpperCamel %>(p.<%= param.Name.UpperCamel %>); err != nil {
    		return err
    	}
-	<% } %>
+   	<% } %>
 	return nil
 }
 
@@ -62,7 +57,6 @@ func (p Params) String() string {
 	out, _ := yaml.Marshal(p)
 	return string(out)
 }
-
 <%= for (param) in params { %>
 // validate<%= param.Name.UpperCamel %> validates the <%= param.Name.UpperCamel %> param
 func validate<%= param.Name.UpperCamel %>(<%= param.Name.LowerCamel %> interface{}) error {

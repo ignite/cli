@@ -1,15 +1,14 @@
 package keeper
 
 import (
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
 // GetParams get all parameters as types.Params
 func (k Keeper) GetParams(ctx sdk.Context) types.Params {
 	return types.NewParams(<%= for (i, param) in params { %>
-		k.<%= param.Name.UpperCamel %>(ctx),
-		<% } %>
+		k.<%= param.Name.UpperCamel %>(ctx),<% } %>
 	)
 }
 
