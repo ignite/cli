@@ -35,7 +35,7 @@ Warning: This module is purely for learning purposes. It is not tested in produc
 
 A loan consists of an `id`, the `amount` that is being lend out, a `fee` as cost for the loan.
 The borrowing party will provide a `collateral` to request a loan. A loan has a `deadline` for when it is supposed to be due and can be liquidated.
-Furthermore the `state` of the loan describes if it is in suggestion, approved, payed back, or liquidated.
+Furthermore the `state` of the loan describes if it is in requested, approved, payed back, cancelled or liquidated status.
 This is the resulting data schema for the Loan module.
 
 ```proto
@@ -836,14 +836,16 @@ Then the collateral coins can be released from escrow and the status set to `can
   state: cancelled
 ```
 
-Congratulations. This concludes the loan module.
-
 Consider adding this to your git commit and maybe publish it on a public repository for others to see your accomplisments.
 
 ```bash
 git add .
 git commit -m "Add cancel-loan message"
 ```
+
+## Complete
+
+Congratulations. This concludes the loan module.
 
 You have learned how to
 
