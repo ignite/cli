@@ -6,9 +6,9 @@ title: "Advanced module: DeFi Loan"
 
 # Loan Module
 
-As a repid growing industry in the blockchain ecosystem, DeFi (Decentralized Finance) is the term for innovation and revolution in spending, sending, locking and loaning cryptocurrency tokens.
+As a rapid growing industry in the blockchain ecosystem, DeFi (Decentralized Finance) is the term for innovation and revolution in spending, sending, locking and loaning cryptocurrency tokens.
 
-One of the many traits of blockchain is to make financial instruments avilable to anyone, via an open protocol. A loan is used in combination with lending, borrowing, spot trading, margin trading and flash loans.
+One of the many traits of blockchain is to make financial instruments avilable to anyone. A loan is used in combination with lending, borrowing, spot trading, margin trading and flash loans.
 
 With DeFi, anyone can quick and easy take loans without having to submit their passports or background checks like in the traditional banking system.
 
