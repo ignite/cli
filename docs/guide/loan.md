@@ -462,6 +462,7 @@ Repaying a loan requires the loan to be in the "approved" status.
 
 The coins as described in the loan are collected and sent from the borrower to the lender, as well as the agreed fees.
 The collateral will be released from the escrow module account.
+Only the `borrower` can repay the loan.
 
 This logic is defined in the `x/loan/keeper/msg_server_repay_loan.go`.
 
@@ -491,6 +492,11 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 
 	lender, _ := sdk.AccAddressFromBech32(loan.Lender)
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
+
+	if msg.Creator != loan.Borrower {
+			return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
+	}
+
 	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
 	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
@@ -560,7 +566,7 @@ loand query bank balances <alice_address>
 Now repay the loan
 
 ```bash
-loand tx loan repay-loan 0 --from bob -y
+loand tx loan repay-loan 3 --from bob -y
 ```
 
 The loan should now be status `repayed`
