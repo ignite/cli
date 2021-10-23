@@ -807,6 +807,8 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 }
 ```
 
+Test the changes for cancelling a loan request.
+
 ```bash
 starport chain serve -r
 ```
