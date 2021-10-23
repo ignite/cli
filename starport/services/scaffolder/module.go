@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/field"
 	"go/parser"
 	"go/token"
 	"os"
@@ -89,13 +90,16 @@ var (
 
 // moduleCreationOptions holds options for creating a new module
 type moduleCreationOptions struct {
-	// chainID is the chain's id.
+	// ibc true if the module is an ibc module
 	ibc bool
 
-	// homePath of the chain's config dir.
+	// params list of parameters
+	params []string
+
+	// ibcChannelOrdering ibc channel ordering
 	ibcChannelOrdering string
 
-	// list of module depencies
+	// dependencies list of module depencies
 	dependencies []modulecreate.Dependency
 }
 
@@ -106,6 +110,13 @@ type ModuleCreationOption func(*moduleCreationOptions)
 func WithIBC() ModuleCreationOption {
 	return func(m *moduleCreationOptions) {
 		m.ibc = true
+	}
+}
+
+// WithParams scaffolds a module with params
+func WithParams(params []string) ModuleCreationOption {
+	return func(m *moduleCreationOptions) {
+		m.params = params
 	}
 }
 
@@ -162,6 +173,12 @@ func (s Scaffolder) CreateModule(
 		apply(&creationOpts)
 	}
 
+	// Parse params with the associated type
+	params, err := field.ParseFields(creationOpts.params, checkForbiddenTypeIndex)
+	if err != nil {
+		return sm, err
+	}
+
 	// Check dependencies
 	if err := checkDependencies(creationOpts.dependencies, s.path); err != nil {
 		return sm, err
@@ -170,6 +187,7 @@ func (s Scaffolder) CreateModule(
 	opts := &modulecreate.CreateOptions{
 		ModuleName:   moduleName,
 		ModulePath:   s.modpath.RawPath,
+		Params:       params,
 		AppName:      s.modpath.Package,
 		AppPath:      s.path,
 		OwnerName:    owner(s.modpath.RawPath),

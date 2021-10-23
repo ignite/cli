@@ -2,6 +2,7 @@ package modulecreate
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/templates/field"
 	"strings"
 )
 
@@ -12,6 +13,7 @@ type CreateOptions struct {
 	AppName    string
 	AppPath    string
 	OwnerName  string
+	Params     field.Fields
 
 	// True if the module should implement the IBC module interface
 	IsIBC bool
