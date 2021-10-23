@@ -401,6 +401,8 @@ starport chain serve -r
 
 Use the `-r` flag to reset the blockchain state and start with a new database.
 
+Now request a loan from `bob`
+
 ```bash
 loand tx loan request-loan 100token 2token 200token 500 --from bob -y
 ```
