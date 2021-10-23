@@ -27,10 +27,15 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	require.NoError(t, stateStore.LoadLatestVersion())
 
 	registry := codectypes.NewInterfaceRegistry()
+	cdc := codec.NewProtoCodec(registry)
+
+	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
+    launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
 	k := keeper.NewKeeper(
 	    codec.NewProtoCodec(registry),
 	    storeKey,
-	    memStoreKey,<%= for (dependency) in dependencies { %>
+	    memStoreKey,
+	    launchSubspace, <%= for (dependency) in dependencies { %>
         nil,<% } %>
 	)
 
