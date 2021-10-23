@@ -1,42 +1,54 @@
 ---
 description: Loan blockchain using Starport
 order: 6
-title: "Advanced module: DeFi Loan"
+title: "Advanced Module: DeFi Loan"
 ---
 
 # Loan Module
 
-As a rapid growing industry in the blockchain ecosystem, DeFi (Decentralized Finance) is the term for innovation and revolution in spending, sending, locking and loaning cryptocurrency tokens.
+As a rapidly growing industry in the blockchain ecosystem, (decentralized finance) DeFi is spurring innovation and revolution in spending, sending, locking, and loaning cryptocurrency tokens.
 
-One of the many traits of blockchain is to make financial instruments avilable to anyone. A loan is used in combination with lending, borrowing, spot trading, margin trading and flash loans.
+One of the many goals of blockchain is to make financial instruments available to everyone. A loan in blockchain DeFi can be used in combination with lending, borrowing, spot trading, margin trading, and flash loans.
 
-With DeFi, anyone can quick and easy take loans without having to submit their passports or background checks like in the traditional banking system.
+With DeFi, end users can quickly and easily access loans without having to submit their passports or background checks like in the traditional banking system.
 
-In this tutorial you will learn about a basic loan system, built as a module on Starport.
+In this tutorial, you learn about a basic loan system as you use Starport to build a loan module.
 
-You will learn how to:
+**You will learn how to**
 
 * Scaffold a blockchain
-* Scaffold a module
+* Scaffold a Cosmos SDK loan module
 * Scaffold a list for loan objects
-* Create messages in your module to interact with the loan object
-* Interact with other modules in your module
+* Create messages in the loan module to interact with the loan object
+* Interact with other Cosmos SDK modules
 * Use an escrow module account
-* Add application messages for a Loan system
-  * Request Loan
-  * Approve Loan
-  * Repay Loan
-  * Liquidate Loan
-  * Cancel Loan
+* Add application messages for a loan system
+  * Request loan
+  * Approve loan
+  * Repay loan
+  * Liquidate loan
+  * Cancel loan
 
-Warning: This module is purely for learning purposes. It is not tested in production.
+**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
 
 ## Module Design
 
-A loan consists of an `id`, the `amount` that is being lend out, a `fee` as cost for the loan.
-The borrowing party will provide a `collateral` to request a loan. A loan has a `deadline` for when it is supposed to be due and can be liquidated.
-Furthermore the `state` of the loan describes if it is in requested, approved, payed back, cancelled or liquidated status.
-This is the resulting data schema for the Loan module.
+A loan consists of:
+
+- An `id`
+- The `amount` that is being lentt, a
+- A `fee` as cost for the loan
+- The borrowing party provides a `collateral` to request a loan 
+- A loan has a `deadline` for due date, after which the loan can be liquidated
+- A loan has a `state` that describes the status as: 
+
+	- requested
+	- approved 
+	- paid 
+	- cancelled
+	- liquidated
+
+The resulting data schema for the loan module is:
 
 ```proto
 message Loan {
@@ -51,26 +63,41 @@ message Loan {
 }
 ```
 
-The two accounts that get involved in the loan will be the `borrower` and the `lender`.
+The two accounts involved in the loan are:
+
+- `borrower`
+- `lender`
 
 ### The Borrower
 
-A borrower will post a loan request with information such as - loan `amount`, `fee`, `collateral` and `deadline`.
-The borrower will have to repay the loan transfer amount and fee to the lender or the account risks loosing the collateral.
+A borrower posts a loan request with loan information such as:
+
+- `amount` 
+- `fee`
+- `collateral` 
+- `deadline`
+
+The borrower must repay the loan amount and the loan fee to the lender by the deadline risk losing the collateral.
 
 ### The Lender
 
-A lender can approve a loan request from a borrower. Approving the loan transfers the loan amount to the the borrower. If the borrower is unable to pay the loan, the lender can liquidate the loan which transfers the collateral and the fees to the lender.
+A lender can approve a loan request from a borrower. 
+
+- After the lender approves the loan, the loan amount is transferred to the borrower. 
+- If the borrower is unable to pay the loan, the lender can liquidate the loan.
+- Loan liquidation transfers the collateral and the fees to the lender.
 
 ## Scaffold the Blockchain
+
+Use Starport to scaffold a fully functional Cosmos SDK blockchain:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/loan --no-module
 ```
 
-This scaffolds your basic loan blockchain. You will add the Loan module in the next chapter.
+The `--no-module` flag prevents scaffolding a default module. Don't worry, you will add the loan module later.
 
-Change into the newly created loan directory.
+Change into the newly created `loan` directory:
 
 ```bash
 cd loan
@@ -78,18 +105,17 @@ cd loan
 
 ## Scaffold the Module
 
-Scaffolding the module will create a new `loan` module inside the `x` directory.
+Scaffold the module to create a new `loan` module inside the `x` directory:
 
 ```bash
 starport scaffold module loan --dep bank
 ```
 
-Use the `--dep` flag to specify that this module depends on and is going to interact with the `bank` module.
+Use the `--dep` flag to specify that this module depends on and is going to interact with the Cosmos SDK `bank` module.
 
 ## Scaffold a List
 
-The [scaffold list](https://docs.starport.com/cli/#starport-scaffold-list) command creates data stored as an array. 
-In such a list, you want to store previous mentioned `Loan` proto message.
+Use the [scaffold list](https://docs.starport.com/cli/#starport-scaffold-list) command to create data stored as an array:
 
 ```bash
 starport scaffold list loan amount fee collateral deadline state borrower lender --no-message
@@ -97,9 +123,7 @@ starport scaffold list loan amount fee collateral deadline state borrower lender
 
 Use the `--no-message` flag to disable CRUD messages in the scaffold.
 
-The data you store in an array are the loans, with these parameters.
-
-See the `Loan` message in proto/loan/loan.proto
+The data you store in an array are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
 
 ```proto
 message Loan {
@@ -114,10 +138,9 @@ message Loan {
 }
 ```
 
-You will define the messages to interact with the loan list in the coming chapters.
+Later, you define the messages to interact with the loan list.
 
-Now it is time to interact with the Loan with messages.
-But before, make sure to store your current state in a git commit.
+Now it is time to use messages to interact with the loan module. But first, make sure to store your current state in a git commit:
 
 ```bash
 git add .
@@ -126,34 +149,40 @@ git commit -m "Scaffold loan module and loan list"
 
 ## Scaffold the Messages
 
-In order to create a loan app, you will need the following messages:
+In order to create a loan app, you need the following messages:
 
-* Request Loan
-* Approve Loan
-* Repay Loan
-* Liquidate Loan
-* Cancel Loan
+* Request loan `request-loan`
+* Approve loan
+* Repay loan
+* Liquidate loan
+* Cancel loan
 
-You can use the `starport scaffold message` command to create each of the messages.
-You will learn the details of each of the messages and how to scaffold them in this chapter.
+You can use the `starport scaffold message` command to create each of the messages. 
 
-Create the messages one after the other with the according application logic.
+You define the details of each message when you scaffold them.
 
-### Request Loan
+Create the messages one at a time with the according application logic.
 
-For a loan the initial message to start is with a cosmonaut requesting a loan.
-The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as give a `collateral`. The `deadline` marks the time when the loan has to be repayed.
+### Request Loan Message
 
-The first message is the `request-loan` message. It needs the input parameters `amount`, `fee`, `collateral` and `deadline`.
+For a loan, the initial message handles the transaction when a cosmonaut requests a loan.
+
+The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repayed.
+
+The first message is the `request-loan` message that  requires these input parameters:
+
+- `amount`
+- `fee`
+- `collateral` 
+- `deadline`
 
 ```bash
 starport scaffold message request-loan amount fee collateral deadline
 ```
 
-For sake of simplicity every parameter will remain a string.
+For the sake of simplicity sake, define every parameter as a string.
 
-The `request-loan` message should create a new loan object and lock the tokens to be spent as fee and collateral into an escrow account.
-This has to be described in the modules keeper directory `x/loan/keeper/msg_server_request_loan.go`
+The `request-loan` message creates a new loan object and locks the tokens to be spent as fee and collateral into an escrow account. Describe these conditions in the modules keeper `x/loan/keeper/msg_server_request_loan.go`:
 
 ```go
 package keeper
@@ -207,7 +236,7 @@ func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan)
 }
 ```
 
-Since this function is using the `bankKeeper` with a function `SendCoinsFromAccountToModule`, this function needs to be added to the `x/loan/types/expected_keepers.go`. This is how it should be added.
+Since this function is using the `bankKeeper` with the function `SendCoinsFromAccountToModule`, you must add the `SendCoinsFromAccountToModule` function to `x/loan/types/expected_keepers.go` like this:
 
 ```go
 package types
@@ -219,11 +248,11 @@ type BankKeeper interface {
 }
 ```
 
-When creating a loan you will want to require a certain input validation and throw error messages in case the user tries impossible inputs.
+When a loan is created, a certain input validation is required. You want to throw error messages in case the end user tries impossible inputs.
 
 You can describe message validation errors in the modules `types` directory.
 
-Add the following code to the `/x/loan/types/message_request_loan.go` function `ValidateBasic()`
+Add the following code to the `ValidateBasic()` function in the `/x/loan/types/message_request_loan.go` file:
 
 ```go
 func (msg *MsgRequestLoan) ValidateBasic() error {
@@ -258,29 +287,29 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 }
 ```
 
-This concludes the `request-loan` message.
+Congratulations, you have created the `request-loan` message.
 
 You can run the chain and test your first message.
 
-Start the blockchain
+Start the blockchain:
 
 ```bash
 starport chain serve
 ```
 
-Add your first loan
+Add your first loan:
 
 ```bash
 loand tx loan request-loan 100token 2token 200token 500 --from alice -y
 ```
 
-Query your loan
+Query your loan:
 
 ```bash
 loand query loan list-loan
 ```
 
-You should see the first Loan in the list
+The loan shows in the list:
 
 ```bash
 Loan:
@@ -294,30 +323,31 @@ Loan:
   state: requested
 ```
 
-You can stop the blockchain again with ctrl + c.
+You can stop the blockchain again with CTRL+C.
 
-A good time to add your advancements to git.
+This is a good time to add your advancements to git:
 
 ```bash
 git add .
 git commit -m "Add request-loan message"
 ```
 
-### Approve Loan
+### Approve Loan Message
 
 After a loan request has been published, another account can approve the loan and agree to the terms of the borrower.
+
 The message `approve-loan` has one parameter, the `id`.
-Specify the type of `id` as `uint`, by default IDs are stored as `uint`.
+Specify the type of `id` as `uint`. By default, ids are stored as `uint`.
 
 ```bash
 starport scaffold message approve-loan id:uint
 ```
 
-This message should be available for all loan types that are in the status "requested".
+This message must be available for all loan types that are in `"requested"` status.
 
-It would send the requested coins for the loan to the borrower and set the loan state to "approved".
+The loan approval sends the requested coins for the loan to the borrower and sets the loan state to `"approved"`.
 
-Modify the `x/loan/keeper/msg_server_approve_loan.go` to implement this logic.
+Modify the `x/loan/keeper/msg_server_approve_loan.go` to implement this logic:
 
 ```go
 package keeper
@@ -359,7 +389,7 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 }
 ```
 
-This module uses the bankKeepers SendCoins function. Add this to the `x/loan/types/expected_keepers.go` accordingly
+This module uses the `SendCoins` function of `bankKeepers`. Add this `SendCoins` function to the `x/loan/types/expected_keepers.go` file:
 
 ```go
 package types
@@ -375,8 +405,7 @@ type BankKeeper interface {
 }
 ```
 
-There is also introduced a new error type `ErrWrongLoanState`.
-Add this to the errors definitions in `x/loan/types/errors.go`
+Now, define the `ErrWrongLoanState` new error type by adding it to the errors definitions in `x/loan/types/errors.go`:
 
 ```go
 package types
@@ -393,7 +422,7 @@ var (
 )
 ```
 
-Start the blockchain and use the two commands you already have available.
+Start the blockchain and use the two commands you already have available:
 
 ```bash
 starport chain serve -r
@@ -401,26 +430,27 @@ starport chain serve -r
 
 Use the `-r` flag to reset the blockchain state and start with a new database.
 
-Now request a loan from `bob`
+Now, request a loan from `bob`:
 
 ```bash
 loand tx loan request-loan 100token 2token 200token 500 --from bob -y
 ```
 
-Query your loan request
+Query your loan request:
 
 ```bash
 loand query loan list-loan
 ```
 
-Approve the loan
+Approve the loan:
 
 ```bash
 loand tx loan approve-loan 0 --from alice -y
 ```
 
-This should send the balances according to the loan request.
-CHeck for the loan list again. You should see the state now approved.
+This approve loan transaction sends the balances according to the loan request.
+
+Check for the loan list again to verify that the loan state is now `approved`.
 
 ```bash
 Loan:
@@ -437,36 +467,38 @@ pagination:
   total: "0"
 ```
 
-You can query for alices balances to see the loan in effect.
-Take the lender address from above, this is alice address.
+You can query for alice's balance to see the loan in effect. Take the lender address from above, this is alice address:
 
 ```bash
 loand query bank balances <alice_address>
 ```
 
-In case everything works as expected, this is a good time to save the state with a git commit.
+In case everything works as expected, this is a good time to save the state with a git commit:
 
 ```bash
 git add .
 git commit -m "Add approve loan message"
 ```
 
-### Repay Loan
+### Repay Loan Message
 
-After the loan has been approved, the cosmonaut must be able to repay an approved loan.
-Scaffold the message `repay-loan` that is used by a borrower to return tokens borrowed from the lender.
+After the loan has been approved, the cosmonaut must be able to repay an approved loan. 
+
+Scaffold the message `repay-loan` that a borrower uses to return tokens that were borrowed from the lender:
 
 ```bash
 starport scaffold message repay-loan id:uint
 ```
 
-Repaying a loan requires the loan to be in the "approved" status.
+Repaying a loan requires that the loan is in `"approved"` status.
 
-The coins as described in the loan are collected and sent from the borrower to the lender, as well as the agreed fees.
-The collateral will be released from the escrow module account.
+The coins as described in the loan are collected and sent from the borrower to the lender, along with the agreed fees.
+
+The `collateral` is released from the escrow module account.
+
 Only the `borrower` can repay the loan.
 
-This logic is defined in the `x/loan/keeper/msg_server_repay_loan.go`.
+This loan repayment logic is defined in `x/loan/keeper/msg_server_repay_loan.go`:
 
 ```go
 package keeper
@@ -515,9 +547,9 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 }
 ```
 
-After the coins have been successfully exchanged, the state of the loan will be set to `repayed`.
+After the coins have been successfully exchanged, the state of the loan is set to `repayed`.
 
-Releasing tokens with the `bankKeepers` `SendCoinsFromModuleToAccount` function, you will need to add this to the `x/loan/types/expected_keepers.go`
+To release tokens with the `SendCoinsFromModuleToAccount` function of `bankKeepers`, you need to add the `SendCoinsFromModuleToAccount` function to the `x/loan/types/expected_keepers.go`:
 
 ```go
 package types
@@ -534,44 +566,45 @@ type BankKeeper interface {
 }
 ```
 
-Start the blockchain and use the two commands you already have available.
+Start the blockchain and use the two commands you already have available:
 
 ```bash
 starport chain serve -r
 ```
 
-Use the `-r` flag to reset the blockchain state and start with a new database.
+Use the `-r` flag to reset the blockchain state and start with a new database:
 
 ```bash
 loand tx loan request-loan 100token 2token 200token 500 --from bob -y
 ```
 
-Query your loan request
+Query your loan request:
 
 ```bash
 loand query loan list-loan
 ```
 
-Approve the loan
+Approve the loan:
 
 ```bash
 loand tx loan approve-loan 0 --from alice -y
 ```
 
-You can query for alices balances to see the loan in effect.
-Take the lender address from above, this is alice address.
+You can query for alice's balance to see the loan in effect.
+
+Take the lender address from above, this is alice address:
 
 ```bash
 loand query bank balances <alice_address>
 ```
 
-Now repay the loan
+Now repay the loan:
 
 ```bash
 loand tx loan repay-loan 3 --from bob -y
 ```
 
-The loan should now be status `repayed`
+The loan status is now `repayed`:
 
 ```bash
 Loan:
@@ -585,34 +618,36 @@ Loan:
   state: repayed
 ```
 
-And alice balance reflect the repayed amount plus fees
+The alice balance reflects the repayed amount plus fees:
 
 ```bash
 loand query bank balances <alice_address>
 ```
 
 Good job!
-Update your git with the changes you made.
+
+Update your git with the changes you made:
 
 ```bash
 git add .
 git commit -m "Add repay-loan message"
 ```
 
-### Liquidate Loan
+### Liquidate Loan Message
 
-A lender can liquidate a loan when the borrower does not pay the tokens back after the passed deadline. The message to `liquidate-loan` refers to the loan `id`.
+After the deadline is passed, a lender can liquidate a loan when the borrower does not repay the tokens. The message to `liquidate-loan` refers to the loan `id`:
 
 ```bash
 starport scaffold message liquidate-loan id:uint
 ```
 
-The `liquidate-loan` message should be able to be executed by the `lender`.
-The status of the loan has to be `approved`. The `deadline` has to be met.
+- The `liquidate-loan` message must be able to be executed by the `lender`.
+- The status of the loan must be `approved`. 
+- The `deadline` block height must have passed.
 
 When these properties are valid, the collateral shall be liquidated from the `borrower`.
 
-Add this to the `keeper` in `x/loan/keeper/msg_server_liquidate_loan.go`
+Add this liquidate loan logic to the `keeper` in `x/loan/keeper/msg_server_liquidate_loan.go`:
 
 ```go
 package keeper
@@ -665,7 +700,7 @@ func (k msgServer) LiquidateLoan(goCtx context.Context, msg *types.MsgLiquidateL
 }
 ```
 
-Add the new error `ErrDeadline` to the error messages in `x/loan/types/errors.go`
+Add the new error `ErrDeadline` to the error messages in `x/loan/types/errors.go`:
 
 ```go
 package types
@@ -683,50 +718,52 @@ var (
 )
 ```
 
-These are all changes necessary to the `liquidate-loan` message.
+These changes are required for the `liquidate-loan` message.
 
-You can test the liquidation message now.
+You can test the liquidation message now. Start your chain and reset the state of the app:
 
 ```bash
 starport chain serve -r
 ```
 
-Set the deadline for the loan request to 1 block.
+Set the deadline for the loan request to 1 block:
 
 ```bash
 loand tx loan request-loan 100token 2token 200token 1 --from bob -y
 ```
 
-Query your loan request
+Query your loan request:
 
 ```bash
 loand query loan list-loan
 ```
 
-Approve the loan
+Approve the loan:
 
 ```bash
 loand tx loan approve-loan 0 --from alice -y
 ```
 
-You can query for alices balances to see the loan in effect.
+You can query for alice's balances to see the loan in effect.
+
 Take the lender address from above, this is alice address.
 
 ```bash
 loand query bank balances <alice_address>
 ```
 
-Now repay the loan
+Now, repay the loan:
 
 ```bash
 loand tx loan liquidate-loan 0 --from alice -y
 ```
 
-The loan should now be status `liquidated`
+Query the loan:
 
 ```bash
 loand query loan list-loan
 ```
+The loan status is now `liquidated`:
 
 ```bash
 Loan:
@@ -740,32 +777,34 @@ Loan:
   state: liquidated
 ```
 
-And alice balance reflect the repayed amount plus fees
+And alice balance reflects the repayed amount plus fees:
 
 ```bash
 loand query bank balances <alice_address>
 ```
 
-Add the changes to your git.
+Add the changes to your local repository:
 
 ```bash
 git add .
 git commit -m "Add liquidate-loan message"
 ```
 
-### Cancel Loan
+### Cancel Loan Message
 
-After a loan request has been made and not been approved, the `borrower` should be able to cancel a loan request. Scaffold the message for `cancel-loan`.
+After a loan request has been made and not been approved, the `borrower` must be able to cancel a loan request. 
+
+Scaffold the message for `cancel-loan`:
 
 ```bash
 starport s message cancel-loan id:uint
 ```
 
-Only the `borrower` should be able to cancel a loan request.
-The state of the request must be `requested`.
-Then the collateral coins can be released from escrow and the status set to `cancelled`.
+- Only the `borrower` can cancel a loan request.
+- The state of the request must be `requested`.
+- Then the collateral coins can be released from escrow and the status set to `cancelled`.
 
-Add this to the `keeper` in `x/loan/keeper/msg_server_cancel_loan.go`.
+Add this functionality to the `keeper` in `x/loan/keeper/msg_server_cancel_loan.go`:
 
 ```go
 package keeper
@@ -807,7 +846,7 @@ func (k msgServer) CancelLoan(goCtx context.Context, msg *types.MsgCancelLoan) (
 }
 ```
 
-Test the changes for cancelling a loan request.
+Test the changes for cancelling a loan request:
 
 ```bash
 starport chain serve -r
@@ -817,7 +856,7 @@ starport chain serve -r
 loand tx loan request-loan 100token 2token 200token 100 --from bob -y
 ```
 
-Query your loan request
+Query your loan request:
 
 ```bash
 loand query loan list-loan
@@ -827,13 +866,13 @@ loand query loan list-loan
 loand tx loan cancel-loan 0 --from bob -y
 ```
 
-Query your loan request
+Query your loan request:
 
 ```bash
 loand query loan list-loan
 ```
 
-Then the collateral coins can be released from escrow and the status set to `cancelled`.
+Now the collateral coins can be released from escrow and the status set to `cancelled`.
 
 ```bash
 - amount: 100token
@@ -846,7 +885,7 @@ Then the collateral coins can be released from escrow and the status set to `can
   state: cancelled
 ```
 
-Consider adding this to your git commit and maybe publish it on a public repository for others to see your accomplisments.
+Consider again updating your local repository with a git commit. After you test and use your loan module, consider publishing your code to a public repository for others to see your accomplishments.
 
 ```bash
 git add .
@@ -855,9 +894,9 @@ git commit -m "Add cancel-loan message"
 
 ## Complete
 
-Congratulations. This concludes the loan module.
+Congratulations. You have completed the loan module tutorial.
 
-You have learned how to
+You executed commands and updated files to:
 
 * Scaffold a blockchain
 * Scaffold a module
@@ -865,7 +904,7 @@ You have learned how to
 * Create messages in your module to interact with the loan object
 * Interact with other modules in your module
 * Use an escrow module account
-* Add application messages for a Loan system
+* Add application messages for a loan system
   * Request Loan
   * Approve Loan
   * Repay Loan
