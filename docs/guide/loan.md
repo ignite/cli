@@ -36,10 +36,10 @@ In this tutorial, you learn about a basic loan system as you use Starport to bui
 A loan consists of:
 
 - An `id`
-- The `amount` that is being lentt, a
+- The `amount` that is being lent
 - A `fee` as cost for the loan
 - The borrowing party provides a `collateral` to request a loan 
-- A loan has a `deadline` for due date, after which the loan can be liquidated
+- A loan has a `deadline` for repayment, after which the loan can be liquidated
 - A loan has a `state` that describes the status as: 
 
 	- requested
@@ -89,7 +89,7 @@ A lender can approve a loan request from a borrower.
 
 ## Scaffold the Blockchain
 
-Use Starport to scaffold a fully functional Cosmos SDK blockchain:
+Use Starport to scaffold a fully functional Cosmos SDK blockchain app named `loan`:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/loan --no-module
@@ -105,7 +105,7 @@ cd loan
 
 ## Scaffold the Module
 
-Scaffold the module to create a new `loan` module inside the `x` directory:
+Scaffold the module to create a new `loan` module. Following the Cosmos SDK convention, all modules are scaffolded inside the `x` directory:
 
 ```bash
 starport scaffold module loan --dep bank
