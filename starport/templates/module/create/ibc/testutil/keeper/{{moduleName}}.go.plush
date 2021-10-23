@@ -35,9 +35,8 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	appCodec := codec.NewProtoCodec(registry)
 	capabilityKeeper := capabilitykeeper.NewKeeper(appCodec, storeKey, memStoreKey)
 
-	amino := codec.NewLegacyAmino()
 	ss := typesparams.NewSubspace(appCodec,
-		amino,
+		types.Amino,
 		storeKey,
 		memStoreKey,
 		"<%= title(moduleName) %>SubSpace",
@@ -51,10 +50,14 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 		capabilityKeeper.ScopeToModule("<%= title(moduleName) %>IBCKeeper"),
 	)
 
+	cdc := codec.NewProtoCodec(registry)
+	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
+    launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
 	k := keeper.NewKeeper(
-        codec.NewProtoCodec(registry),
+        cdc,
         storeKey,
         memStoreKey,
+        launchSubspace,
 		IBCKeeper.ChannelKeeper,
 		&IBCKeeper.PortKeeper,
         capabilityKeeper.ScopeToModule("<%= title(moduleName) %>ScopedKeeper"),<%= for (dependency) in dependencies { %>

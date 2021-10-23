@@ -32,7 +32,7 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
     launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
 	k := keeper.NewKeeper(
-	    codec.NewProtoCodec(registry),
+	    cdc,
 	    storeKey,
 	    memStoreKey,
 	    launchSubspace, <%= for (dependency) in dependencies { %>
