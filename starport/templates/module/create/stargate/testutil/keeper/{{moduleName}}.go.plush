@@ -10,6 +10,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/store"
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"
 	tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
@@ -29,14 +30,17 @@ func <%= title(moduleName) %>Keeper(t testing.TB) (*keeper.Keeper, sdk.Context) 
 	registry := codectypes.NewInterfaceRegistry()
 	cdc := codec.NewProtoCodec(registry)
 
-	paramKeeper := initParam(cdc, types.Amino, db, stateStore)
-	paramKeeper.Subspace(types.ModuleName)
-	launchSubspace, _ := paramKeeper.GetSubspace(types.ModuleName)
+	paramsSubspace := typesparams.NewSubspace(cdc,
+		types.Amino,
+		storeKey,
+		memStoreKey,
+		"<%= title(moduleName) %>Params",
+	)
 	k := keeper.NewKeeper(
 	    cdc,
 	    storeKey,
 	    memStoreKey,
-	    launchSubspace, <%= for (dependency) in dependencies { %>
+	    paramsSubspace, <%= for (dependency) in dependencies { %>
         nil,<% } %>
 	)
 

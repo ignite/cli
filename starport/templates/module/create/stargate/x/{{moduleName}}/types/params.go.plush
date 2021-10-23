@@ -7,11 +7,10 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-var (
+var (<%= for (param) in params { %>
 	// TODO: Determine default values
-	<%= for (param) in params { %>
-	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
 	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %>
+	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
 	<% } %>
 )
 
