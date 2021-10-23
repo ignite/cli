@@ -137,7 +137,7 @@ In order to create a loan app, you will need the following messages:
 You can use the `starport scaffold message` command to create each of the messages.
 You will learn the details of each of the messages and how to scaffold them in this chapter.
 
-Create the messages one after the other with the according business logic.
+Create the messages one after the other with the according application logic.
 
 ### Request Loan
 
