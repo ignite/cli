@@ -12,9 +12,7 @@ import (
 func TestParamsQuery(t *testing.T) {
 	keeper, ctx := testkeeper.<%= title(moduleName) %>Keeper(t)
 	wctx := sdk.WrapSDKContext(ctx)
-	params := types.Params{<%= for (i, param) in params { %>
-    	<%= param.Name.UpperCamel %>: <%= param.ValueIndex() %>,<% } %>
-	}
+	params := types.DefaultParams()
 	keeper.SetParams(ctx, params)
 
 	response, err := keeper.Params(wctx, &types.QueryParamsRequest{})
