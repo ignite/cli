@@ -13,7 +13,7 @@ var (
 		DefaultTestValue:  "xyz",
 		ValueLoop:         "strconv.Itoa(i)",
 		ValueIndex:        "0",
-		ValueInvalidIndex: "strconv.Itoa(100000)",
+		ValueInvalidIndex: "100000",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("string %s = %d", name, index)
 		},
