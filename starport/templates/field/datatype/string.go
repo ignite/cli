@@ -12,8 +12,8 @@ var (
 		DataType:          func(string) string { return "string" },
 		DefaultTestValue:  "xyz",
 		ValueLoop:         "strconv.Itoa(i)",
-		ValueIndex:        "fmt.Sprint(0)",
-		ValueInvalidIndex: "fmt.Sprint(100000)",
+		ValueIndex:        "strconv.Itoa(0)",
+		ValueInvalidIndex: "strconv.Itoa(100000)",
 		ProtoType: func(_, name string, index int) string {
 			return fmt.Sprintf("string %s = %d", name, index)
 		},
