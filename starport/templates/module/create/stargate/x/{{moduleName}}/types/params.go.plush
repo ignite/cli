@@ -2,24 +2,20 @@ package types
 
 import (
 	<%= if (len(params) > 0) { %>"fmt"<% } %>
-	"strconv"
 
 	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"gopkg.in/yaml.v2"
 )
 
-var (
-	// Prevent strconv unused error
-	_ = strconv.IntSize
-
-	_ paramtypes.ParamSet = (*Params)(nil)
-)
+var _ paramtypes.ParamSet = (*Params)(nil)
 
 <%= for (param) in params { %>
 var (
+	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")<%= if (param.DataType() == "string") { %>
 	// TODO: Determine default values
-	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %>
-	Key<%= param.Name.UpperCamel %> = []byte("<%= param.Name.UpperCamel %>")
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = "<%= param.Name.Snake %>"<% } else { %>
+	// TODO: Determine default values
+	Default<%= param.Name.UpperCamel %> <%= param.DataType() %> = <%= param.ValueIndex() %><% } %>
 )
 <% } %>
 
