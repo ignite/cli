@@ -5,6 +5,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const TypeMsg<%= queryName.UpperCamel %>Data = "<%= queryName.Snake %>_data"
+
 var (
 	_ sdk.Msg = &Msg<%= queryName.UpperCamel %>Data{}
 
@@ -53,7 +55,7 @@ func (m *Msg<%= queryName.UpperCamel %>Data) Route() string {
 
 // Type returns the message type
 func (m *Msg<%= queryName.UpperCamel %>Data) Type() string {
-	return "<%= queryName.UpperCamel %>Data"
+	return TypeMsg<%= queryName.UpperCamel %>Data
 }
 
 // GetSigners returns the message signers
