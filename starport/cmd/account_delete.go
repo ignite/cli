@@ -23,7 +23,9 @@ func NewAccountDelete() *cobra.Command {
 func accountDeleteHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}
