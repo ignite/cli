@@ -16,9 +16,8 @@ jobs:
       - uses: technote-space/get-diff-action@v4
         with:
           PATTERNS: |
-            **/**.go
-            go.mod
-            go.sum
+            **/*
+            !**/*.md
       - uses: actions/setup-go@v2
         if: env.GIT_DIFF
         with:

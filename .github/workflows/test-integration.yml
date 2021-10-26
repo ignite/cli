@@ -18,9 +18,8 @@ jobs:
       - uses: technote-space/get-diff-action@v4
         with:
           PATTERNS: |
-            **/**.go
-            go.mod
-            go.sum
+            **/*
+            !**/*.md
       - name: Finding files and store to output
         id: set-matrix
         run: echo "::set-output name=matrix::$({ cd integration && find . -type d -maxdepth 1 -print; } | tail -n +2 | cut -c 3- | jq -R . | jq -cs .)"
