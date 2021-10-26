@@ -1,6 +1,6 @@
 # Technical Setup 
 
-To ensure you have a successful experience working with our Developer Guide content, Tendermint recommends this technical setup. 
+To ensure you have a successful experience working with our Developer Tutorials content, Tendermint recommends this technical setup. 
 
 ## Setting Up Visual Studio Code 
 
