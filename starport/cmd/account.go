@@ -17,6 +17,7 @@ const (
 	flagNonInteractive = "non-interactive"
 )
 
+
 func NewAccount() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "account [command]",
