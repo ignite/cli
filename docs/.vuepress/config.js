@@ -52,7 +52,7 @@ module.exports = {
       },
       logo: "/logo.svg",
       textLink: {
-        text: "cosmos.network/starport",
+        text: "starport.com",
         url: "https://starport.com/",
       },
       services: [
