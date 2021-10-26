@@ -28,7 +28,7 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 
 ## Prerequisites 
 
-- A supported version of [Starport](https://docs.starport.network/). To install Starport, see [Install Starport](../starport/install.md). 
+- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../starport/install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 
@@ -43,7 +43,7 @@ First, see how these simple requirements translate to app design.
 
 A blockchain app is a [replicated deterministic state machine](https://en.wikipedia.org/wiki/State_machine_replication). As a blockchain app developer, you have to define the state machine with a starting state and messages that trigger state transitions. These software components make it all possible! 
 
-- [Starport](https://docs.starport.network/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
+- [Starport](https://docs.starport.com/) is built on top of Cosmos SDK and accelerates chain development by scaffolding everything you need. 
 - The [Cosmos SDK](https://github.com/cosmos/cosmos-sdk/) modular framework allows developers like you to create custom blockchains that can natively interact with other blockchains. 
 - [Tendermint](https://docs.tendermint.com/master/introduction/what-is-tendermint.html) software securely and consistently replicates an app on many machines. The Tendermint app-agnostic engine handles the networking and consensus layers of your blockchain. 
 
