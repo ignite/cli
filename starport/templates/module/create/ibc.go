@@ -128,7 +128,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		// Determine the new field number
 		content := f.String()
 
-		template := `string port_id = 1;
+		template := `string port_id = 2;
   %s`
 		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)

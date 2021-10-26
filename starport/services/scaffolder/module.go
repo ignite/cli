@@ -99,7 +99,7 @@ type moduleCreationOptions struct {
 	// ibcChannelOrdering ibc channel ordering
 	ibcChannelOrdering string
 
-	// dependencies list of module depencies
+	// dependencies list of module dependencies
 	dependencies []modulecreate.Dependency
 }
 
