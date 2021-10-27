@@ -21,7 +21,8 @@ func (k Keeper) <%= TypeName.UpperCamel %>All(c context.Context, req *types.Quer
 	ctx := sdk.UnwrapSDKContext(c)
 
 	store := ctx.KVStore(k.storeKey)
-	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.KeyPrefix(types.<%= TypeName.UpperCamel %>Key))
+	<%= TypeName.LowerCamel %>Store := prefix.NewStore(store, types.All<%= TypeName.UpperCamel %>Prefix(<%= for (i, index) in Indexes { %>req.<%= index.Name.UpperCamel %>,
+    <% } %>))
 
 	pageRes, err := query.Paginate(<%= TypeName.LowerCamel %>Store, req.Pagination, func(key []byte, value []byte) error {
 		var <%= TypeName.LowerCamel %> types.<%= TypeName.UpperCamel %>
@@ -46,7 +47,10 @@ func (k Keeper) <%= TypeName.UpperCamel %>(c context.Context, req *types.QueryGe
 	}
 
 	ctx := sdk.UnwrapSDKContext(c)
-	<%= TypeName.LowerCamel %>, found := k.Get<%= TypeName.UpperCamel %>(ctx, req.Id)
+	<%= TypeName.LowerCamel %>, found := k.Get<%= TypeName.UpperCamel %>(
+	ctx, <%= for (i, index) in Indexes { %>req.<%= index.Name.UpperCamel %>,
+    <% } %>req.Id,
+	)
 	if !found {
 		return nil, sdkerrors.ErrKeyNotFound
 	}
