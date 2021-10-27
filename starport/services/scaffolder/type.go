@@ -139,7 +139,13 @@ func (s Scaffolder) AddType(
 	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+
+	var tFields field.Fields
+	if o.withoutMessage {
+		tFields, err = field.ParseFields(o.fields, checkForbiddenTypeField)
+	} else {
+		tFields, err = field.ParseFields(o.fields, checkForbiddenMessageField)
+	}
 	if err != nil {
 		return sm, err
 	}
@@ -239,11 +245,6 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, datatype.Separator)
-	if len(fieldSplit) > 1 {
-		name = fieldSplit[0]
-	}
-
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {
 		return err
@@ -252,7 +253,6 @@ func checkForbiddenTypeField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"id",
-		"creator",
 		"appendedvalue",
 		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)

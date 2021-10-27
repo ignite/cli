@@ -159,7 +159,9 @@ func checkForbiddenMessageField(name string) error {
 
 	switch mfName.LowerCase {
 	case
+		"id",
 		"creator",
+		"appendedvalue",
 		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
