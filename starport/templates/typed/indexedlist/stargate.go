@@ -12,8 +12,8 @@ var (
 	//go:embed stargate/component/* stargate/component/**/*
 	fsStargateComponent embed.FS
 
-	//go:embed stargate/messages/* stargate/messages/**/*
-	fsStargateMessages embed.FS
+	////go:embed stargate/messages/* stargate/messages/**/*
+	//fsStargateMessages embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new indexed list in a Stargate module
@@ -21,11 +21,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	var (
 		g = genny.New()
 
-		messagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateMessages,
-			"stargate/messages/",
-			opts.AppPath,
-		)
+		//messagesTemplate = xgenny.NewEmbedWalker(
+		//	fsStargateMessages,
+		//	"stargate/messages/",
+		//	opts.AppPath,
+		//)
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
 			"stargate/component/",
@@ -33,12 +33,12 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		)
 	)
 
-	if !opts.NoMessage {
-		// Messages template
-		if err := typed.Box(messagesTemplate, opts, g); err != nil {
-			return nil, err
-		}
-	}
+	//if !opts.NoMessage {
+	//	// Messages template
+	//	if err := typed.Box(messagesTemplate, opts, g); err != nil {
+	//		return nil, err
+	//	}
+	//}
 
 	return g, typed.Box(componentTemplate, opts, g)
 }

@@ -14,6 +14,7 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
+	"github.com/tendermint/starport/starport/templates/typed/indexedlist"
 	"github.com/tendermint/starport/starport/templates/typed/list"
 	maptype "github.com/tendermint/starport/starport/templates/typed/map"
 	"github.com/tendermint/starport/starport/templates/typed/singleton"
@@ -29,9 +30,10 @@ type addTypeOptions struct {
 	moduleName string
 	fields     []string
 
-	isList      bool
-	isMap       bool
-	isSingleton bool
+	isList      	bool
+	isMap       	bool
+	isSingleton 	bool
+	isIndexedList 	bool
 
 	indexes []string
 
@@ -47,14 +49,14 @@ func newAddTypeOptions(moduleName string) addTypeOptions {
 	}
 }
 
-// ListType makes the type stored in a list convention in the storage.
+// ListType makes the type stored using list convention in the storage.
 func ListType() AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isList = true
 	}
 }
 
-// MapType makes the type stored in a key-value convention in the storage with a custom
+// MapType makes the type stored using key-value convention in the storage with a custom
 // index option.
 func MapType(indexes ...string) AddTypeKind {
 	return func(o *addTypeOptions) {
@@ -67,6 +69,14 @@ func MapType(indexes ...string) AddTypeKind {
 func SingletonType() AddTypeKind {
 	return func(o *addTypeOptions) {
 		o.isSingleton = true
+	}
+}
+
+// IndexedListType makes the type stored using list indexed by a key in the storage.
+func IndexedListType(indexes ...string) AddTypeKind {
+	return func(o *addTypeOptions) {
+		o.isIndexedList = true
+		o.indexes = indexes
 	}
 }
 
@@ -207,6 +217,8 @@ func (s Scaffolder) AddType(
 		g, err = mapGenerator(tracer, opts, o.indexes)
 	case o.isSingleton:
 		g, err = singleton.NewStargate(tracer, opts)
+	case o.isIndexedList:
+		g, err = indexedListGenerator(tracer, opts, o.indexes)
 	default:
 		g, err = dry.NewStargate(opts)
 	}
@@ -282,4 +294,31 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 
 	opts.Indexes = parsedIndexes
 	return maptype.NewStargate(replacer, opts)
+}
+
+// indexedListGenerator returns the template generator for an indexed list
+func indexedListGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
+	// Parse indexes with the associated type
+	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)
+	if err != nil {
+		return nil, err
+	}
+
+	// Indexes and type fields must be disjoint
+	exists := make(map[string]struct{})
+	for _, name := range opts.Fields {
+		exists[name.Name.LowerCamel] = struct{}{}
+	}
+	for _, index := range parsedIndexes {
+		if _, ok := exists[index.Name.LowerCamel]; ok {
+			return nil, fmt.Errorf("%s cannot simultaneously be an index and a field", index.Name.Original)
+		}
+	}
+
+	if _, ok := exists["id"]; ok {
+		return nil, fmt.Errorf("id can't be used as a field name nor as a index name")
+	}
+
+	opts.Indexes = parsedIndexes
+	return indexedlist.NewStargate(replacer, opts)
 }
