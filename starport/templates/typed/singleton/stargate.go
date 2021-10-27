@@ -55,6 +55,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -252,7 +253,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		templateState := `%[2]v: &types.%[2]v{
 		%[3]v},
-%[1]v`
+		%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -512,6 +513,87 @@ cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 			opts.TypeName.UpperCamel,
 		)
 		content = replacer.Replace(content, typed.Placeholder3, replacementInterface)
+
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_simulation.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// Create a fields
+		sampleFields := ""
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
+		}
+
+		templateGs := `%[2]v: &types.%[2]v{
+		%[3]v},
+		%[1]v`
+		replacementGs := fmt.Sprintf(
+			templateGs,
+			typed.PlaceholderSimapGenesisState,
+			opts.TypeName.UpperCamel,
+			sampleFields,
+		)
+		content := replacer.Replace(f.String(), typed.PlaceholderSimapGenesisState, replacementGs)
+
+		for _, msg := range []string{"Create", "Update", "Delete"} {
+			// simulation constants
+			templateConst := `opWeightMsg%[2]v%[3]v = "op_weight_msg_create_chain"
+	// TODO: Determine simulation weight value
+	defaultWeightMsg%[2]v%[3]v int = 100
+
+	%[1]v`
+			replacementConst := fmt.Sprintf(templateConst, typed.PlaceholderSimapConst, msg, opts.TypeName.UpperCamel)
+			content = replacer.Replace(content, typed.PlaceholderSimapConst, replacementConst)
+
+			// simulation operations
+			templateOp := `var weightMsg%[2]v%[3]v int
+	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsg%[2]v%[3]v, &weightMsg%[2]v%[3]v, nil,
+		func(_ *rand.Rand) {
+			weightMsg%[2]v%[3]v = defaultWeightMsg%[2]v%[3]v
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsg%[2]v%[3]v,
+		func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accounts []simtypes.Account, chainID string) (OperationMsg simtypes.OperationMsg, futureOps []simtypes.FutureOperation, err error) {
+			// TODO: Handling the simulation
+
+			simAccount, _ := simtypes.RandomAcc(r, accounts)
+			
+			skipSimulation := true
+			if skipSimulation {
+				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsg%[2]v%[3]v, "%[2]v not found"), nil, nil
+			}
+
+			msg := &types.Msg%[2]v%[3]v{}
+			txCtx := simulation.OperationInput{
+				R:               r,
+				App:             app,
+				TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+				Cdc:             nil,
+				Msg:             msg,
+				MsgType:         msg.Type(),
+				Context:         ctx,
+				SimAccount:      simAccount,
+				ModuleName:      types.ModuleName,
+				CoinsSpentInMsg: sdk.NewCoins(),
+			}
+			return simulation.GenAndDeliverTxWithRandFees(txCtx)
+		},
+	))
+
+	%[1]v`
+			replacementOp := fmt.Sprintf(templateOp, typed.PlaceholderSimapOperation, msg, opts.TypeName.UpperCamel)
+			content = replacer.Replace(content, typed.PlaceholderSimapOperation, replacementOp)
+		}
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

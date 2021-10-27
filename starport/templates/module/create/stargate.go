@@ -51,6 +51,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	ctx.Set("appName", opts.AppName)
 	ctx.Set("ownerName", opts.OwnerName)
 	ctx.Set("dependencies", opts.Dependencies)
+	ctx.Set("params", opts.Params)
 	ctx.Set("isIBC", opts.IsIBC)
 
 	// Used for proto package name

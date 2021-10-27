@@ -20,4 +20,8 @@ const (
 	PlaceholderGenesisTypesValidate = "// this line is used by starport scaffolding # genesis/types/validate"
 	PlaceholderGenesisModuleInit    = "// this line is used by starport scaffolding # genesis/module/init"
 	PlaceholderGenesisModuleExport  = "// this line is used by starport scaffolding # genesis/module/export"
+
+	PlaceholderSimapConst        = "// this line is used by starport scaffolding # simap/module/const"
+	PlaceholderSimapGenesisState = "// this line is used by starport scaffolding # simap/module/genesisState"
+	PlaceholderSimapOperation    = "// this line is used by starport scaffolding # simap/module/operation"
 )

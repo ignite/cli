@@ -9,4 +9,7 @@ const (
 	PlaceholderProtoTxMessage = "// this line is used by starport scaffolding # proto/tx/message"
 
 	PlaceholderHandlerMsgServer = "// this line is used by starport scaffolding # handler/msgServer"
+
+	PlaceholderSimapConst     = "// this line is used by starport scaffolding # simap/module/const"
+	PlaceholderSimapOperation = "// this line is used by starport scaffolding # simap/module/operation"
 )

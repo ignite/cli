@@ -20,6 +20,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(protoTxMessageModify(replacer, opts))
 	g.RunFn(typesCodecModify(replacer, opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
+	g.RunFn(moduleSimulationModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
 		fsStargate,
@@ -176,6 +177,68 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_simulation.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		// simulation constants
+		templateConst := `opWeightMsg%[2]v = "op_weight_msg_create_chain"
+	// TODO: Determine simulation weight value
+	defaultWeightMsg%[2]v int = 100
+
+	%[1]v`
+		replacementConst := fmt.Sprintf(templateConst, PlaceholderSimapConst, opts.MsgName.UpperCamel)
+		content := replacer.Replace(f.String(), PlaceholderSimapConst, replacementConst)
+
+		// simulation operations
+		templateOp := `var weightMsg%[2]v int
+	simState.AppParams.GetOrGenerate(simState.Cdc, opWeightMsg%[2]v, &weightMsg%[2]v, nil,
+		func(_ *rand.Rand) {
+			weightMsg%[2]v = defaultWeightMsg%[2]v
+		},
+	)
+	operations = append(operations, simulation.NewWeightedOperation(
+		weightMsg%[2]v,
+		func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accounts []simtypes.Account, chainID string) (OperationMsg simtypes.OperationMsg, futureOps []simtypes.FutureOperation, err error) {
+			// TODO: Handling the simulation
+
+			simAccount, _ := simtypes.RandomAcc(r, accounts)
+			
+			skipSimulation := true
+			if skipSimulation {
+				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsg%[2]v, "%[2]v not found"), nil, nil
+			}
+
+			msg := &types.Msg%[2]v{}
+			txCtx := simulation.OperationInput{
+				R:               r,
+				App:             app,
+				TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
+				Cdc:             nil,
+				Msg:             msg,
+				MsgType:         msg.Type(),
+				Context:         ctx,
+				SimAccount:      simAccount,
+				ModuleName:      types.ModuleName,
+				CoinsSpentInMsg: sdk.NewCoins(),
+			}
+			return simulation.GenAndDeliverTxWithRandFees(txCtx)
+		},
+	))
+
+	%[1]v`
+		replacementOp := fmt.Sprintf(templateOp, PlaceholderSimapOperation, opts.MsgName.UpperCamel)
+		content = replacer.Replace(content, PlaceholderSimapOperation, replacementOp)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
