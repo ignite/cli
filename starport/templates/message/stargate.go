@@ -209,6 +209,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 	operations = append(operations, simulation.NewWeightedOperation(
 		weightMsg%[2]v,
 		func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accounts []simtypes.Account, chainID string) (OperationMsg simtypes.OperationMsg, futureOps []simtypes.FutureOperation, err error) {
+
 			// TODO: Handling the simulation
 
 			simAccount, _ := simtypes.RandomAcc(r, accounts)
