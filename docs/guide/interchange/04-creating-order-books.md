@@ -3,12 +3,12 @@ order: 4
 ---
 # Implement the Order Books
 
-In this chapter you will implement the logic to create order books.
+In this chapter you implement the logic to create order books.
 
-In Cosmos SDK the state is stored in a key-value store. Each order book will be stored under a unique key composed of four values: port ID, channel ID, source denom and target denom. For example, an order book for `mcx` and `vcx` could be stored under `ibcdex-channel-4-mcx-vcx`. Define a function that returns an order book store key.
+In the Cosmos SDK, the state is stored in a key-value store. Each order book is stored under a unique key composed of four values: port ID, channel ID, source denom, and target denom. For example, an order book for `mcx` and `vcx` could be stored under `dex-channel-4-mcx-vcx`. Define a function that returns an order book store key.
 
 ```go
-// x/ibcdex/types/keys.go
+// x/dex/types/keys.go
 import "fmt"
 
 //...
@@ -17,7 +17,7 @@ func OrderBookIndex( portID string, channelID string, sourceDenom string, target
 }
 ```
 
-`send-create-pair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `ibcdex` module, processed by the message handler in `x/ibcdex/handler.go` and finally a `SendCreatePair` keeper method is called.
+`send-create-pair` is used to create order books. This command creates and broadcasts a transaction with a message of type `SendCreatePair`. The message gets routed to the `dex` module, processed by the message handler in `x/dex/handler.go`, and finally calls the `SendCreatePair` keeper method.
 
 You need `send-create-pair` to do the following:
 
@@ -36,7 +36,7 @@ You need `send-create-pair` to do the following:
 `SendCreatePair` function was created during the IBC packet scaffolding. Currently, it creates an IBC packet, populates it with source and target denoms and transmits this packet over IBC. Add the logic to check for an existing order book for a particular pair of denoms.
 
 ```go
-// x/ibcdex/keeper/msg_server_create_pair.go
+// x/dex/keeper/msg_server_create_pair.go
 import (
   "errors"
   //...
@@ -79,7 +79,7 @@ func (k msgServer) SendCreatePair(goCtx context.Context, msg *types.MsgSendCreat
 
 During a successful transmission, an IBC packet goes through 4 stages:
 
-1. Message processing before packet transmission (on the source cahin)
+1. Message processing before packet transmission (on the source chain)
 2. Reception of a packet (on the target chain)
 3. Acknowledgment of a packet (on the source chain)
 4. Timeout of a packet (on the source chain)
@@ -89,16 +89,16 @@ In the following section you'll be implementing packet reception logic in the `O
 ## Receiving an IBC packet
 
 The protocol buffer definition defines the data that an order book has. Add the `OrderBook` and `Order` messages to the `order.proto` file.
-First you will need to add the proto buffer files. This builds the according go code files that you can then modify for the purpose of your app.
+First, you must add the proto buffer files to build the according Go code files. You can then modify these Go files for the purpose of your app.
 
-Create a new `order.proto` file in the `proto/ibcdex` directory and add the content.
+Create a new `order.proto` file in the `proto/dex` directory and add the content.
 
 ```proto
-// proto/ibcdex/order.proto
+// proto/dex/order.proto
 syntax = "proto3";
-package cosmonaut.interchange.ibcdex;
+package cosmonaut.interchange.dex;
 
-option go_package = "github.com/cosmonaut/interchange/x/ibcdex/types";
+option go_package = "github.com/cosmonaut/interchange/x/dex/types";
 
 message OrderBook {
   int32 idCount = 1;
@@ -114,27 +114,28 @@ message Order {
 ```
 
 Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
+Don't forget to add the import as well.
 
 ```proto
-// proto/ibcdex/buy_order_book.proto
-import "ibcdex/order.proto";
+// proto/dex/buy_order_book.proto
+import "dex/order.proto";
 
 message BuyOrderBook {
   // ...
-  OrderBook book = 5;
+  OrderBook book = 4;
 }
 ```
 
-Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` should look like follows:
+Modify the `sell_order_book.proto` file to add the order book into the buy order book. The proto definition for the `SellOrderBook` looks like:
 
 ```proto
-// proto/ibcdex/sell_order_book.proto
+// proto/dex/sell_order_book.proto
 // ...
-import "ibcdex/order.proto";
+import "dex/order.proto";
 
 message SellOrderBook {
   // ...
-  OrderBook book = 6;
+  OrderBook book = 4;
 }
 ```
 
@@ -146,11 +147,11 @@ starport generate proto-go
 
 Start enhancing the functions for the IBC packets.
 
-Create a new file `x/ibcdex/types/order_book.go`.
+Create a new file `x/dex/types/order_book.go`.
 Add the new order book function to the corresponing Go file.
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 package types
 
 func NewOrderBook() OrderBook {
@@ -160,10 +161,10 @@ func NewOrderBook() OrderBook {
 }
 ```
 
-Define `NewBuyOrderBook` in a new file `x/ibcdex/types/buy_order_book.go` creates a new buy order book.
+Define `NewBuyOrderBook` in a new file `x/dex/types/buy_order_book.go` to create a new buy order book.
 
 ```go
-// x/ibcdex/types/buy_order_book.go
+// x/dex/types/buy_order_book.go
 package types
 
 func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
@@ -176,10 +177,10 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 }
 ```
 
-On the target chain when an IBC packet is recieved, the module should check whether a book already exists, if not, create a new buy order book for specified denoms.
+When an IBC packet is received on the target chain, the module must check whether a book already exists. If not, then create a buy order book for the specified denoms.
 
 ```go
-// x/ibcdex/keeper/create_pair.go
+// x/dex/keeper/create_pair.go
 func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData) (packetAck types.CreatePairPacketAck, err error) {
   // ...
   // Get an order book index
@@ -201,13 +202,13 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 
 ## Receiving an IBC Acknowledgement
 
-On the source chain when an IBC acknowledgement is recieved, the module should check whether a book already exists, if not, create a new sell order book for specified denoms.
+When an IBC acknowledgement is recieved on the source chain, the module must check whether a book already exists. If not, create a sell order book for the specified denoms.
 
-Create a new file `x/ibcdex/types/sell_order_book.go`.
+Create a new file `x/dex/types/sell_order_book.go`.
 Insert the `NewSellOrderBook` function which creates a new sell order book.
 
 ```go
-// x/ibcdex/types/sell_order_book.go
+// x/dex/types/sell_order_book.go
 package types
 
 func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
@@ -220,10 +221,10 @@ func NewSellOrderBook(AmountDenom string, PriceDenom string) SellOrderBook {
 }
 ```
 
-Modify the Acknowledgement function in the `create_pair.go` file.
+Modify the Acknowledgement function in the `keeper/create_pair.go` file.
 
 ```go
-// x/ibcdex/keeper/create_pair.go
+// x/dex/keeper/create_pair.go
 func (k Keeper) OnAcknowledgementCreatePairPacket(ctx sdk.Context, packet channeltypes.Packet, data types.CreatePairPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -253,13 +254,19 @@ In this chapter we implemented the logic behind `send-create-pair` command that 
 ### Implement the `appendOrder` Function to Add Orders to the Order Book
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 package types
 
 import (
-	"errors"
+  "errors"
   "sort"
 )
+
+func NewOrderBook() OrderBook {
+	return OrderBook{
+		IdCount: 0,
+	}
+}
 
 const (
 	MaxAmount = int32(100000)
@@ -285,7 +292,7 @@ var (
 `AppendOrder` initializes and appends a new order to an order book from the order information.
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 func (book *OrderBook) appendOrder(creator string, amount int32, price int32, ordering Ordering) (int32, error) {
 	if err := checkAmountAndPrice(amount, price); err != nil {
 		return 0, err
@@ -309,7 +316,7 @@ func (book *OrderBook) appendOrder(creator string, amount int32, price int32, or
 `checkAmountAndPrice` checks correct amount or price.
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 func checkAmountAndPrice(amount int32, price int32) error {
 	if amount == int32(0) {
 		return ErrZeroAmount
@@ -332,7 +339,7 @@ func checkAmountAndPrice(amount int32, price int32) error {
 `GetNextOrderID` gets the ID of the next order to append
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 func (book OrderBook) GetNextOrderID() int32 {
 	return book.IdCount
 }
@@ -343,7 +350,7 @@ func (book OrderBook) GetNextOrderID() int32 {
 `IncrementNextOrderID` updates the ID count for orders
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 func (book *OrderBook) IncrementNextOrderID() {
 	// Even numbers to have different ID than buy orders
 	book.IdCount++
@@ -355,7 +362,7 @@ func (book *OrderBook) IncrementNextOrderID() {
 `insertOrder` inserts the order in the book with the provided order
 
 ```go
-// x/ibcdex/types/order_book.go
+// x/dex/types/order_book.go
 func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 	if len(book.Orders) > 0 {
 		var i int
@@ -376,4 +383,14 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 }
 ```
 
-This completes the order book setup. In the next chapter, you will learn how to deal with vouchers, minting and burning vouchers as well as locking and unlocking native blockchain token in your app.
+This completes the order book setup.
+
+Now is a good time to save the state of your implementation.
+Because your project is in a local repository, you can use git. Saving your current state lets you jump back and forth in case you introduce errors or need a break.
+
+```bash
+git add .
+git commit -m "Create Order Books"
+```
+
+In the next chapter, you will learn how to deal with vouchers, minting and burning vouchers as well as locking and unlocking native blockchain token in your app.
