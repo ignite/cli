@@ -9,7 +9,7 @@ import (
 func NewScaffoldIndexedList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "indexed-list NAME [field]...",
-		Short: "CRUD for data stored as an array",
+		Short: "CRUD for data stored as an indexed array",
 		Args:  cobra.MinimumNArgs(1),
 		RunE:  scaffoldIndexedListHandler,
 	}

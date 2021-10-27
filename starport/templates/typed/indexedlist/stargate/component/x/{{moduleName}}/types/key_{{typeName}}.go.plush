@@ -11,7 +11,7 @@ const (
 )
 
 // All<%= TypeName.UpperCamel %>KeyPath returns the key path for all <%= TypeName.UpperCamel %> from an index
-func All<%= TypeName.UpperCamel %>Key(
+func All<%= TypeName.UpperCamel %>KeyPath(
 <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
 <% } %>) []byte {
 	var key []byte
@@ -27,7 +27,7 @@ func All<%= TypeName.UpperCamel %>Key(
 func All<%= TypeName.UpperCamel %>Prefix(
 <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
 <% } %>) []byte {
-	return append([]byte(<%= TypeName.UpperCamel %>KeyPrefix), All<%= TypeName.UpperCamel %>Key(
+	return append([]byte(<%= TypeName.UpperCamel %>KeyPrefix), All<%= TypeName.UpperCamel %>KeyPath(
 	    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
 	    <% } %>
 	)...)

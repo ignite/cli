@@ -9,5 +9,5 @@ message <%= TypeName.UpperCamel %> {<%= for (i, index) in Indexes { %>
   <%= index.ProtoType(i+1) %> <% } %>
   uint64 id = <%= 1+len(Indexes) %>;<%= for (i, field) in Fields { %>
   <%= field.ProtoType(i+2+len(Indexes)) %> <% } %>
-  <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+len(Indexes)+1 %>;<% } %>
+  <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+len(Indexes)+2 %>;<% } %>
 }
