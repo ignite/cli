@@ -14,8 +14,10 @@ func (k msgServer) Create<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
-        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,<%= for (field) in Fields { %>
-        <%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
+        <%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
+        <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msg.<%= index.Name.UpperCamel %>,
+        <% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,
+        <% } %>
     }
 
     id := k.Append<%= TypeName.UpperCamel %>(
@@ -33,12 +35,17 @@ func (k msgServer) Update<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 
     var <%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: msg.<%= MsgSigner.UpperCamel %>,
-		Id:      msg.Id,<%= for (field) in Fields { %>
+		<%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: msg.<%= index.Name.UpperCamel %>,
+        <% } %>Id:      msg.Id,<%= for (field) in Fields { %>
     	<%= field.Name.UpperCamel %>: msg.<%= field.Name.UpperCamel %>,<% } %>
 	}
 
     // Checks that the element exists
-    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
+    val, found := k.Get<%= TypeName.UpperCamel %>(
+        ctx,
+        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
+        <% } %>msg.Id,
+    )
     if !found {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
@@ -57,7 +64,11 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
     // Checks that the element exists
-    val, found := k.Get<%= TypeName.UpperCamel %>(ctx, msg.Id)
+    val, found := k.Get<%= TypeName.UpperCamel %>(
+        ctx,
+        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
+        <% } %>msg.Id,
+    )
     if !found {
         return nil, sdkerrors.Wrap(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
     }
@@ -67,7 +78,11 @@ func (k msgServer) Delete<%= TypeName.UpperCamel %>(goCtx context.Context,  msg 
         return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "incorrect owner")
     }
 
-	k.Remove<%= TypeName.UpperCamel %>(ctx, msg.Id)
+	k.Remove<%= TypeName.UpperCamel %>(
+        ctx,
+        <%= for (i, index) in Indexes { %>msg.<%= index.Name.UpperCamel %>,
+        <% } %>msg.Id,
+    )
 
 	return &types.MsgDelete<%= TypeName.UpperCamel %>Response{}, nil
 }
