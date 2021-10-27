@@ -34,6 +34,7 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldModule())
 	c.AddCommand(NewScaffoldList())
 	c.AddCommand(NewScaffoldMap())
+	c.AddCommand(NewScaffoldIndexedList())
 	c.AddCommand(NewScaffoldSingle())
 	c.AddCommand(NewScaffoldType())
 	c.AddCommand(NewScaffoldMessage())
