@@ -128,7 +128,7 @@ func TestCreateIBCOracle(t *testing.T) {
 				"paramsFoo",
 				"--ibc",
 				"--params",
-				"defaultName,minLaunch:uint,maxLaunch:int",
+				"defaultName,isLaunched:bool,minLaunch:uint,maxLaunch:int",
 				"--require-registration",
 			),
 			step.Workdir(path),
