@@ -104,13 +104,13 @@ func (k Keeper) Get<%=TypeName.UpperCamel %>(
 func (k Keeper) Remove<%= TypeName.UpperCamel %>(
     ctx sdk.Context,
     <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
-    <% } %>id uint64
+    <% } %>id uint64,
 ) {
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>Prefix(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>))
 
-	store.Delete(types.<%= TypeName.UpperCamel %>Key(<%= TypeName.LowerCamel %>.Id))
+	store.Delete(types.<%= TypeName.UpperCamel %>Key(id))
 }
 
 // GetAll<%= TypeName.UpperCamel %> returns all <%= TypeName.LowerCamel %> from an index
