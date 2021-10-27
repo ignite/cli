@@ -264,7 +264,15 @@ func checkForbiddenTypeField(name string) error {
 // mapGenerator returns the template generator for a map
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)
+	var (
+		err           error
+		parsedIndexes field.Fields
+	)
+	if opts.NoMessage {
+		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenTypeField)
+	} else {
+		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenMessageField)
+	}
 	if err != nil {
 		return nil, err
 	}
