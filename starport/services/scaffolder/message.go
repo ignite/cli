@@ -3,6 +3,7 @@ package scaffolder
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
@@ -167,4 +168,17 @@ func checkForbiddenMessageField(name string) error {
 	}
 
 	return checkGoReservedWord(name)
+}
+
+// checkForbiddenMessageIndex returns true if the name is forbidden as a message index
+func checkForbiddenMessageIndex(name string) error {
+	fieldSplit := strings.Split(name, datatype.Separator)
+	if len(fieldSplit) > 1 {
+		name = fieldSplit[0]
+		fieldType := datatype.Name(fieldSplit[1])
+		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
+			return fmt.Errorf("invalid index type %s", fieldType)
+		}
+	}
+	return checkForbiddenMessageField(name)
 }

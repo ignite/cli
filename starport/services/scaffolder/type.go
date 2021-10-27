@@ -269,9 +269,9 @@ func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []
 		parsedIndexes field.Fields
 	)
 	if opts.NoMessage {
-		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenTypeField)
+		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenTypeIndex)
 	} else {
-		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenMessageField)
+		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenMessageIndex)
 	}
 	if err != nil {
 		return nil, err
