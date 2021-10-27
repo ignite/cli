@@ -12,8 +12,9 @@ import (
 
 func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "list-<%= TypeName.Kebab %>",
-		Short: "list all <%= TypeName.Original %>",
+		Use:   "list-<%= TypeName.Kebab %><%= Indexes.String() %>",
+		Short: "list all <%= TypeName.Original %> from an index",
+		Args:  cobra.ExactArgs(<%= len(Indexes) %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -24,7 +25,12 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
             queryClient := types.NewQueryClient(clientCtx)
 
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("arg", i) %>
+            <% } %>
+
             params := &types.QueryAll<%= TypeName.UpperCamel %>Request{
+                <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: arg<%= index.Name.UpperCamel %>,
+                <% } %>
                 Pagination: pageReq,
             }
 
@@ -45,9 +51,9 @@ func CmdList<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "show-<%= TypeName.Kebab %> [id]",
+		Use:   "show-<%= TypeName.Kebab %><%= Indexes.String() %> [id]",
 		Short: "shows a <%= TypeName.Original %>",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(<%= len(Indexes) + 1%>),
 		RunE: func(cmd *cobra.Command, args []string) error {
             clientCtx := client.GetClientContextFromCmd(cmd)
 
@@ -58,7 +64,12 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
                 return err
             }
 
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("arg", i) %>
+            <% } %>
+
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
+                <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: arg<%= index.Name.UpperCamel %>,
+                <% } %>
                 Id: id,
             }
 

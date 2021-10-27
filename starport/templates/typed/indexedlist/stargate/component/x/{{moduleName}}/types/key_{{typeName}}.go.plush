@@ -1,0 +1,41 @@
+package types
+
+import "encoding/binary"
+
+const (
+    // <%= TypeName.UpperCamel %>KeyPrefix is the prefix to retrieve all <%= TypeName.UpperCamel %>
+	<%= TypeName.UpperCamel %>KeyPrefix = "<%= TypeName.UpperCamel %>/value/"
+
+	// <%= TypeName.UpperCamel %>CountKeyPrefix is the prefix to retrieve <%= TypeName.UpperCamel %> count from an index
+    <%= TypeName.UpperCamel %>CountKeyPrefix = "<%= TypeName.UpperCamel %>/count/"
+)
+
+// All<%= TypeName.UpperCamel %>KeyPath returns the key path for all <%= TypeName.UpperCamel %> from an index
+func All<%= TypeName.UpperCamel %>Key(
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>) []byte {
+	var key []byte
+    <%= for (i, index) in Indexes { %>
+    <%= index.ToBytes(index.Name.LowerCamel) %>
+    key = append(key, <%= index.Name.LowerCamel %>Bytes...)
+    key = append(key, []byte("/")...)
+    <% } %>
+	return key
+}
+
+// All<%= TypeName.UpperCamel %>Prefix returns the store key prefix to retrieve all <%= TypeName.UpperCamel %> from an index
+func All<%= TypeName.UpperCamel %>Prefix(
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>) []byte {
+	return append([]byte(<%= TypeName.UpperCamel %>KeyPrefix), All<%= TypeName.UpperCamel %>Key(
+	    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+	    <% } %>
+	)...)
+}
+
+// <%= TypeName.UpperCamel %>Key returns the store key to retrieve a <%= TypeName.UpperCamel %> from an id
+func <%= TypeName.UpperCamel %>Key(id uint64) []byte {
+    bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, id)
+	return bz
+}
