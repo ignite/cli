@@ -60,7 +60,7 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Starport](https://docs.starport.network/). To install Starport, see [Install Starport](../starport/install.md). 
+- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../starport/install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
