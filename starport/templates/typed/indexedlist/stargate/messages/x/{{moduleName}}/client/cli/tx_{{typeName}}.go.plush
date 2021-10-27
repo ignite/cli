@@ -1,0 +1,99 @@
+package cli
+
+import (
+    "strconv"
+	<%= for (goImport) in mergeGoImports(Fields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
+	"github.com/spf13/cobra"
+    "github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/cosmos/cosmos-sdk/client/tx"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+)
+
+func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "create-<%= TypeName.Kebab %><%= Fields.String() %>",
+		Short: "Create a new <%= TypeName.Original %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+	  	<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i) %>
+		<% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgCreate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String()<%= for (i, field) in Fields { %>, arg<%= field.Name.UpperCamel %><% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
+
+func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "update-<%= TypeName.Kebab %> [id]<%= Fields.String() %>",
+		Short: "Update a <%= TypeName.Original %>",
+		Args:  cobra.ExactArgs(<%= len(Fields) + 1 %>),
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+            id, err := strconv.ParseUint(args[0], 10, 64)
+            if err != nil {
+                return err
+            }
+
+	    <%= for (i, field) in Fields { %>
+	  		<%= field.CLIArgs("arg", i+1) %>
+        <% } %>
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgUpdate<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), id<%= for (i, field) in Fields { %>, arg<%= field.Name.UpperCamel %><% } %>)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
+
+func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "delete-<%= TypeName.Kebab %> [id]",
+		Short: "Delete a <%= TypeName.Original %> by id",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+            id, err := strconv.ParseUint(args[0], 10, 64)
+            if err != nil {
+                return err
+            }
+
+			clientCtx, err := client.GetClientTxContext(cmd)
+			if err != nil {
+				return err
+			}
+
+			msg := types.NewMsgDelete<%= TypeName.UpperCamel %>(clientCtx.GetFromAddress().String(), id)
+			if err := msg.ValidateBasic(); err != nil {
+				return err
+			}
+			return tx.GenerateOrBroadcastTxCLI(clientCtx, cmd.Flags(), msg)
+		},
+	}
+
+	flags.AddTxFlagsToCmd(cmd)
+
+    return cmd
+}
