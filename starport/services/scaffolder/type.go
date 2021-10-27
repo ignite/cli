@@ -30,10 +30,10 @@ type addTypeOptions struct {
 	moduleName string
 	fields     []string
 
-	isList      	bool
-	isMap       	bool
-	isSingleton 	bool
-	isIndexedList 	bool
+	isList        bool
+	isMap         bool
+	isSingleton   bool
+	isIndexedList bool
 
 	indexes []string
 
