@@ -137,6 +137,7 @@ message Order {
 ```
 
 Modify the `buy_order_book.proto` file to have the fields for creating a buy order on the order book.
+Don't forget to add the import as well.
 
 **Tip:** Don't forget to add the import as well.
 
@@ -204,7 +205,8 @@ func NewBuyOrderBook(AmountDenom string, PriceDenom string) BuyOrderBook {
 }
 ```
 
-When an IBC packet is received on the target chain, have the module check whether a book already exists. If not, create a new buy order book for specified denoms:
+When an IBC packet is received on the target chain, the module must check whether a book already exists. If not, then create a buy order book for the specified denoms.
+
 
 ```go
 // x/dex/keeper/create_pair.go
@@ -229,10 +231,11 @@ func (k Keeper) OnRecvCreatePairPacket(ctx sdk.Context, packet channeltypes.Pack
 
 ## Receive an IBC Acknowledgement
 
- When an IBC acknowledgement is received on the source chain, have the module check whether a book already exists. If not, create a new sell order book for specified denoms.
+
+When an IBC acknowledgement is recieved on the source chain, the module must check whether a book already exists. If not, create a sell order book for the specified denoms.
 
 Create a new file `x/dex/types/sell_order_book.go`.
-Insert the `NewSellOrderBook` function that creates a new sell order book:
+Insert the `NewSellOrderBook` function which creates a new sell order book.
 
 ```go
 // x/dex/types/sell_order_book.go
@@ -413,17 +416,17 @@ func (book *OrderBook) insertOrder(order Order, ordering Ordering) {
 }
 ```
 
-## Save the State of Your Implementation 
 
-Congratulations, you have completed the order book setup.
+This completes the order book setup.
 
-It is a good time to save the state of your implementation.
+Now is a good time to save the state of your implementation.
+Because your project is in a local repository, you can use git. Saving your current state lets you jump back and forth in case you introduce errors or need a break.
 
-Saving your work in the local repo allows you to jump back and forth in case you are introduce errors or need a break.
 
 ```bash
 git add .
 git commit -m "Create Order Books"
 ```
+
 
 In the next chapter, you learn how to deal with vouchers by minting and burning vouchers and locking and unlocking native blockchain token in your app.

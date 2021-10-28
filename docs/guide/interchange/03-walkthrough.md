@@ -20,14 +20,18 @@ To use the exchange, start by creating an order book for a pair of tokens:
 
 ```bash
 interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
-
 # Create pair broadcasted to the source blockchain
-interchanged tx dex send-create-pair dex channel-0 marscoin venuscoin
+
+interchanged tx dex send-create-pair dex channel-0 mcx vcx
 ```
 
-A pair of token is defined by two denominations: source denom (in this example, marscoin) and target denom (venuscoin). Creating an order book affects state on the source blockchain to which the transaction was broadcast and the target blockchain. 
+A pair of tokens is defined by two denominations: 
 
-On the source blockchain, the `send-createPair` command creates an empty sell order book:
+- Source denom (in this example, `mcx`)
+- Target denom (`vcx`)
+
+Creating an order book affects state on the source blockchain (to which the transaction was broadcasted) and the target blockchain. On the source blockchain, the `send-createPair` command creates an empty sell order book. On the target blockchain, a buy order book is created.
+
 
 ```yml
 # Created a sell order book on the source blockchain

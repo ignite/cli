@@ -222,11 +222,12 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 
 ## Receiving a Buy Order Acknowledgment
 
+
 After a buy order acknowledgement is received, chain `Mars`:
 
-- Stores the remaining sell order in the sell order book.
-- Distributes sold `marscoin` to the buyers.
-- Distributes to the seller the price of the amount sold.
+* Stores the remaining sell order in the sell order book.
+* Distributes sold `marscoin` to the buyers.
+* Distributes to the seller the price of the amount sold.
 * On error, mints back the burned tokens.
 
 ```go

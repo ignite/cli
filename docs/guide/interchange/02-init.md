@@ -23,7 +23,9 @@ A new directory named interchange is created. Make sure to now change into this 
 cd interchange
 ```
 
+
 The `interchange` directory contains a working blockchain app.
+
 A local GitHub repository has been created for you with the initial scaffold.
 
 Next, create a new IBC module.
