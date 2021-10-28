@@ -4,9 +4,11 @@ import (
     "context"
     "strconv"
 
-	"github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/spf13/cobra"
+    <%= for (goImport) in mergeGoImports(Indexes) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
+    "github.com/spf13/cobra"
+    "github.com/cosmos/cosmos-sdk/client"
+    "github.com/cosmos/cosmos-sdk/client/flags"
     "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
@@ -59,13 +61,15 @@ func CmdShow<%= TypeName.UpperCamel %>() *cobra.Command {
 
             queryClient := types.NewQueryClient(clientCtx)
 
-            id, err := strconv.ParseUint(args[0], 10, 64)
+            // Fetch the index
+            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("arg", i) %>
+            <% } %>
+
+            // Fetch the ID
+            id, err := strconv.ParseUint(args[<%= len(Indexes) %>], 10, 64)
             if err != nil {
                 return err
             }
-
-            <%= for (i, field) in Indexes { %> <%= field.CLIArgs("arg", i) %>
-            <% } %>
 
             params := &types.QueryGet<%= TypeName.UpperCamel %>Request{
                 <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: arg<%= index.Name.UpperCamel %>,

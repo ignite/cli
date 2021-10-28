@@ -2,13 +2,14 @@ package cli
 
 import (
     "strconv"
-	<%= for (goImport) in mergeGoImports(Fields) { %>
-	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
-	"github.com/spf13/cobra"
+
+    <%= for (goImport) in mergeGoImports(Indexes, Fields) { %>
+    <%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
+    "github.com/spf13/cobra"
     "github.com/cosmos/cosmos-sdk/client"
-	"github.com/cosmos/cosmos-sdk/client/flags"
-	"github.com/cosmos/cosmos-sdk/client/tx"
-	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+    "github.com/cosmos/cosmos-sdk/client/flags"
+    "github.com/cosmos/cosmos-sdk/client/tx"
+    "<%= ModulePath %>/x/<%= ModuleName %>/types"
 )
 
 func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
