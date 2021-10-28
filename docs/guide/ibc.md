@@ -84,19 +84,19 @@ These `starport type` commands create CRUD code for the following transactions:
 - Creating blog posts
 
   ```go
-  starport scaffold list post title content creator --module blog --no-message
+  starport scaffold list post title content --module blog
   ```
 
 - Processing acknowledgments for sent posts
 
   ```go
-  starport scaffold list sentPost postID title chain creator --module blog --no-message
+  starport scaffold list sentPost postID title chain --module blog
   ```
 
 - Managing post timeouts
 
   ```go
-  starport scaffold list timedoutPost title chain creator --module blog --no-message
+  starport scaffold list timedoutPost title chain --module blog
   ```
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
