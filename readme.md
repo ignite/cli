@@ -21,7 +21,7 @@ starport chain serve
 
 ## Documentation
 
-To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.com). To learn more about how to build blockchain apps with Starport, see the [Starport Developer Guide](https://docs.starport.com/guide/). 
+To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.com). To learn more about how to build blockchain apps with Starport, see the [Starport Developer Tutorials](https://docs.starport.com/guide/). 
 
 To install Starport locally on GNU, Linux, or macOS, see [Install Starport](https://docs.starport.com/guide/install.html).
 

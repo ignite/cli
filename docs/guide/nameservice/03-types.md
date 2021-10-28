@@ -11,7 +11,7 @@ Now that you've defined messages that trigger state transitions, it's time to im
 
 For the nameservice blockchain, define a `whois` type and the create and delete methods.
 
-Because Starport does the heavy lifting for you, choose from several [starport scaffold](https://docs.starport.network/cli/#starport-scaffold) commands to create CRUD functionality code for data stored in different ways:
+Because Starport does the heavy lifting for you, choose from several [starport scaffold](https://docs.starport.com/cli/#starport-scaffold) commands to create CRUD functionality code for data stored in different ways:
 
 - Array, a list-like data structure
 - Map (key-value pairs)
