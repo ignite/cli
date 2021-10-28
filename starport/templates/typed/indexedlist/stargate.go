@@ -392,5 +392,3 @@ cdc.RegisterConcrete(&MsgDelete%[2]v{}, "%[3]v/Delete%[2]v", nil)
 		return r.File(newFile)
 	}
 }
-
-
