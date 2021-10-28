@@ -42,7 +42,7 @@ When you open a PR for the Starport codebase, you must also update the relevant 
 
 - [Developer Guide](https://docs.starport.network/guide/) tutorials, update content in the `/docs/guide` folder.
 - [Knowledge Base](https://docs.starport.network/kb/), update content in the `/docs/kb` folder.
-- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), update the relevant parts of the source code that describe CLI commands. The CLI docs are automatically generated automatically with a [GitHub action](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/.github/workflows/gen-docs-cli.yml) and overwrite any changes to  `docs/cli/index.md`.
+- [Starport CLI reference](https://github.com/tendermint/starport/blob/f668bba58c04318f98db8cac0c9e154fa7e7ea34/docs/cli/index.md), navigate to the `./starport/cmd` package and update the documentation of the related command from its `cobra.Command` struct. The CLI docs are automatically generated, so do not make changes to  `docs/cli/index.md`.
 
 ### Ask for help
 
