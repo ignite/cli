@@ -217,7 +217,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 			
 			skipSimulation := true
 			if skipSimulation {
-				return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "%[2]v not found"), nil, nil
+				return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "skip %[2]v simulation message"), nil, nil
 			}
 
 			txCtx := simulation.OperationInput{
