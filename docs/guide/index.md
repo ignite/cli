@@ -3,12 +3,12 @@ title: Introduction
 order: 0
 parent:
   order: 0
-  title: Developer Guide
+  title: Developer Tutorials
 ---
 
 # Introduction
 
-By following this guide you will learn how to:
+By following these developer tutorials you will learn how to:
 
 * Install Starport CLI on your local machine
 * Create a new blockchain and start a node locally for development
