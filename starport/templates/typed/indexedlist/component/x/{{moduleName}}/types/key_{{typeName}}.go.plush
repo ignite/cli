@@ -39,3 +39,13 @@ func <%= TypeName.UpperCamel %>Key(id uint64) []byte {
 	binary.BigEndian.PutUint64(bz, id)
 	return bz
 }
+
+// <%= TypeName.UpperCamel %>KeyPath returns the store key to retrieve a <%= TypeName.UpperCamel %> from an index and an id
+func <%= TypeName.UpperCamel %>KeyPath(
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>  id uint64,
+) []byte {
+    return append(
+        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+        <% } %>), <%= TypeName.UpperCamel %>Key(id)...)
+}

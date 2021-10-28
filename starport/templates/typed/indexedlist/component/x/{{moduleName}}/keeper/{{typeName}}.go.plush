@@ -12,35 +12,34 @@ import (
 func (k Keeper) Get<%= TypeName.UpperCamel %>Count(
     ctx sdk.Context,
     <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
-<% } %>) uint64 {
+<% } %>) (val types.<%= TypeName.UpperCamel %>Count) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKeyPrefix))
 	byteKey := types.All<%= TypeName.UpperCamel %>KeyPath(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>)
-	bz := store.Get(byteKey)
+	b := store.Get(byteKey)
 
-	// Count doesn't exist: no element
-	if bz == nil {
-		return 0
+	// Count doesn't exist: initialize one
+	if b == nil {
+		return types.<%= TypeName.UpperCamel %>Count{
+		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+            <% } %>  Count: 0,
+		}
 	}
 
 	// Parse bytes
-	return binary.BigEndian.Uint64(bz)
+	k.cdc.MustUnmarshal(b, &val)
+    return val
 }
 
 // Set<%= TypeName.UpperCamel %>Count set the total number of <%= TypeName.LowerCamel %>
-func (k Keeper) Set<%= TypeName.UpperCamel %>Count(
-    ctx sdk.Context,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
-    <% } %>count uint64,
-) {
+func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count types.<%= TypeName.UpperCamel %>Count) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKeyPrefix))
 	byteKey := types.All<%= TypeName.UpperCamel %>KeyPath(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>)
-	bz := make([]byte, 8)
-	binary.BigEndian.PutUint64(bz, count)
-	store.Set(byteKey, bz)
+	b := k.cdc.MustMarshal(&count)
+	store.Set(byteKey, b)
 }
 
 // Append<%= TypeName.UpperCamel %> appends a <%= TypeName.LowerCamel %> in the store with a new id from an index and update the count
@@ -55,7 +54,7 @@ func (k Keeper) Append<%= TypeName.UpperCamel %>(
     <% } %>)
 
     // Set the ID of the appended value
-    <%= TypeName.LowerCamel %>.Id = count
+    <%= TypeName.LowerCamel %>.Id = count.Count
 
     store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>Prefix(
        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
@@ -64,13 +63,10 @@ func (k Keeper) Append<%= TypeName.UpperCamel %>(
     store.Set(types.<%= TypeName.UpperCamel %>Key(<%= TypeName.LowerCamel %>.Id), appendedValue)
 
     // Update <%= TypeName.LowerCamel %> count
-    k.Set<%= TypeName.UpperCamel %>Count(
-        ctx,
-        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
-        <% } %>count+1,
-    )
+    count.Count += 1
+    k.Set<%= TypeName.UpperCamel %>Count(ctx, count)
 
-    return count
+    return <%= TypeName.LowerCamel %>.Id
 }
 
 // Set<%= TypeName.UpperCamel %> set a specific <%= TypeName.LowerCamel %> in the store
