@@ -192,7 +192,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 
 		// simulation constants
 		templateConst := `opWeightMsg%[2]v = "op_weight_msg_create_chain"
-	// TODO: Determine simulation weight value
+	// TODO: Determine the simulation weight value
 	defaultWeightMsg%[2]v int = 100
 
 	%[1]v`
