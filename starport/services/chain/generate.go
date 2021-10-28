@@ -3,12 +3,12 @@ package chain
 import (
 	"context"
 	"fmt"
+	"os"
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
 	"github.com/tendermint/starport/starport/pkg/cosmosgen"
 	"github.com/tendermint/starport/starport/pkg/giturl"
-	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
 const (
@@ -119,7 +119,7 @@ func (c *Chain) Generate(
 		}
 
 		storeRootPath := filepath.Join(c.app.Path, vuexPath, "generated")
-		if err := localfs.MkdirAllReset(storeRootPath, 0766); err != nil {
+		if err := os.MkdirAll(storeRootPath, 0766); err != nil {
 			return err
 		}
 
@@ -143,7 +143,7 @@ func (c *Chain) Generate(
 		}
 
 		rootPath := filepath.Join(c.app.Path, dartPath, "generated")
-		if err := localfs.MkdirAllReset(rootPath, 0766); err != nil {
+		if err := os.MkdirAll(rootPath, 0766); err != nil {
 			return err
 		}
 
