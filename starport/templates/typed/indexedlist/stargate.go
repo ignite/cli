@@ -128,22 +128,20 @@ import "%[1]v";`, f)
 		}
 
 		templateMessage := `message QueryGet%[2]vRequest {
-	%[4]v
-	uint64 id = %[5]v;
+  %[4]v  uint64 id = %[5]v;
 }
 
 message QueryGet%[2]vResponse {
-	%[2]v %[3]v = 1 [(gogoproto.nullable) = false];
+  %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
 }
 
 message QueryAll%[2]vRequest {
-	%[4]v
-	cosmos.base.query.v1beta1.PageRequest pagination = %[5]v;
+  %[4]v  cosmos.base.query.v1beta1.PageRequest pagination = %[5]v;
 }
 
 message QueryAll%[2]vResponse {
-	repeated %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
-	cosmos.base.query.v1beta1.PageResponse pagination = 2;
+  repeated %[2]v %[3]v = 1 [(gogoproto.nullable) = false];
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 
 %[1]v`
@@ -235,10 +233,10 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		content := replacer.Replace(f.String(), typed.PlaceholderProtoTxImport, replacementImport)
 
 		// RPC service
-		templateRPC := `  rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
+		templateRPC := `rpc Create%[2]v(MsgCreate%[2]v) returns (MsgCreate%[2]vResponse);
   rpc Update%[2]v(MsgUpdate%[2]v) returns (MsgUpdate%[2]vResponse);
   rpc Delete%[2]v(MsgDelete%[2]v) returns (MsgDelete%[2]vResponse);
-%[1]v`
+  %[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.PlaceholderProtoTxRPC,
 			opts.TypeName.UpperCamel,
 		)
@@ -305,7 +303,7 @@ message MsgDelete%[2]vResponse {}
 			opts.MsgSigner.LowerCamel,
 			indexes,
 			fieldsCreateMsg,
-			len(indexes)+2,
+			len(opts.Indexes)+2,
 			fieldsUpdateMsg,
 		)
 		content = replacer.Replace(content, typed.PlaceholderProtoTxMessage, replacementMessages)

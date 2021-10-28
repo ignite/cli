@@ -48,7 +48,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "update-<%= TypeName.Kebab %><%= Indexes.String() %>[id]<%= Fields.String() %>",
+		Use:   "update-<%= TypeName.Kebab %><%= Indexes.String() %> [id]<%= Fields.String() %>",
 		Short: "Update an existing <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) + len(Indexes) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
@@ -91,7 +91,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 
 func CmdDelete<%= TypeName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "delete-<%= TypeName.Kebab %><%= Indexes.String() %>[id]",
+		Use:   "delete-<%= TypeName.Kebab %><%= Indexes.String() %> [id]",
 		Short: "Delete a <%= TypeName.Original %> by index and id",
 		Args:  cobra.ExactArgs(<%= len(Indexes) + 1 %>),
 		RunE: func(cmd *cobra.Command, args []string) error {
