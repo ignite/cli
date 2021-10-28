@@ -43,6 +43,9 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	g.RunFn(handlerModify(replacer, opts))
 	g.RunFn(typesCodecModify(replacer, opts))
 
+	// Genesis modifications
+	genesisModify(replacer, opts, g)
+
 	if !opts.NoMessage {
 		g.RunFn(protoTxModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
