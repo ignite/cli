@@ -198,8 +198,17 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	gens, err = supportSimulation(
+		gens,
+		opts.AppPath,
+		opts.ModulePath,
+		opts.ModuleName,
+	)
+	if err != nil {
+		return sm, err
+	}
+
 	// create the type generator depending on the model
-	// TODO: rename the template packages to make it consistent with the type new naming
 	switch {
 	case o.isList:
 		g, err = list.NewStargate(tracer, opts)

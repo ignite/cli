@@ -718,13 +718,13 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			// TODO: Handling the simulation
 
 			simAccount, _ := simtypes.RandomAcc(r, accounts)
+			msg := &types.Msg%[2]v%[3]v{}
 			
 			skipSimulation := true
 			if skipSimulation {
-				return simtypes.NoOpMsg(types.ModuleName, types.TypeMsg%[2]v%[3]v, "%[2]v not found"), nil, nil
+				return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "%[2]v not found"), nil, nil
 			}
 
-			msg := &types.Msg%[2]v%[3]v{}
 			txCtx := simulation.OperationInput{
 				R:               r,
 				App:             app,
