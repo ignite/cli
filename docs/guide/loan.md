@@ -180,9 +180,9 @@ The first message is the `request-loan` message that  requires these input param
 starport scaffold message request-loan amount fee collateral deadline
 ```
 
-For the sake of simplicity sake, define every parameter as a string.
+For the sake of simplicity, define every parameter as a string.
 
-The `request-loan` message creates a new loan object and locks the tokens to be spent as fee and collateral into an escrow account. Describe these conditions in the modules keeper `x/loan/keeper/msg_server_request_loan.go`:
+The `request-loan` message creates a new loan object and locks the tokens to be spent as fee and collateral into an escrow account. Describe these conditions in the module keeper `x/loan/keeper/msg_server_request_loan.go`:
 
 ```go
 package keeper
