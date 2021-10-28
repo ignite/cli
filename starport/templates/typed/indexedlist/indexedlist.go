@@ -13,11 +13,11 @@ import (
 )
 
 var (
-	//go:embed stargate/component/* stargate/component/**/*
-	fsStargateComponent embed.FS
+	//go:embed component/* component/**/*
+	fsComponent embed.FS
 
-	//go:embed stargate/messages/* stargate/messages/**/*
-	fsStargateMessages embed.FS
+	//go:embed messages/* messages/**/*
+	fsMessages embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new indexed list in a Stargate module
@@ -26,13 +26,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g = genny.New()
 
 		messagesTemplate = xgenny.NewEmbedWalker(
-			fsStargateMessages,
-			"stargate/messages/",
+			fsMessages,
+			"messages/",
 			opts.AppPath,
 		)
 		componentTemplate = xgenny.NewEmbedWalker(
-			fsStargateComponent,
-			"stargate/component/",
+			fsComponent,
+			"component/",
 			opts.AppPath,
 		)
 	)
