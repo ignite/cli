@@ -10,7 +10,7 @@ The Interchain Exchange is a module to create buy and sell orders between blockc
 
 In this tutorial, you learn how to create a Cosmos SDK module that can create order pairs, buy orders, and sell orders. You create order books and buy and sell orders across blockchains, which in turn enables you to swap tokens from one blockchain to another.
 
-The code in this tutorial is written specifically for this tutorial and is intended only for educational purpose. This tutorial code is not intended to be used in production.
+**Note:** The code in this tutorial is written specifically for this tutorial and is intended only for educational purposes. This tutorial code is not intended to be used in production.
 
 If you want to see the end result, see the example implementation in the [interchange repo](https://github.com/tendermint/interchange).
 
