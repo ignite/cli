@@ -60,7 +60,6 @@ starport scaffold chain github.com/cosmonaut/mars`,
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
-	c.AddCommand(NewNetwork())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
