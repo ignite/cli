@@ -140,12 +140,7 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
-	var tFields field.Fields
-	if o.withoutMessage {
-		tFields, err = field.ParseFields(o.fields, checkForbiddenTypeField)
-	} else {
-		tFields, err = field.ParseFields(o.fields, checkForbiddenMessageField)
-	}
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
 	}
@@ -205,7 +200,6 @@ func (s Scaffolder) AddType(
 	}
 
 	// create the type generator depending on the model
-	// TODO: rename the template packages to make it consistent with the type new naming
 	switch {
 	case o.isList:
 		g, err = list.NewStargate(tracer, opts)
@@ -264,15 +258,7 @@ func checkForbiddenTypeField(name string) error {
 // mapGenerator returns the template generator for a map
 func mapGenerator(replacer placeholder.Replacer, opts *typed.Options, indexes []string) (*genny.Generator, error) {
 	// Parse indexes with the associated type
-	var (
-		err           error
-		parsedIndexes field.Fields
-	)
-	if opts.NoMessage {
-		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenTypeIndex)
-	} else {
-		parsedIndexes, err = field.ParseFields(indexes, checkForbiddenMessageIndex)
-	}
+	parsedIndexes, err := field.ParseFields(indexes, checkForbiddenTypeIndex)
 	if err != nil {
 		return nil, err
 	}

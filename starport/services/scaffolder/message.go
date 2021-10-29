@@ -3,14 +3,12 @@ package scaffolder
 import (
 	"context"
 	"fmt"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/field"
-	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -85,7 +83,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
 		return sm, err
 	}
-	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenTypeField)
 	if err != nil {
 		return sm, err
 	}
@@ -149,36 +147,4 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
-}
-
-// checkForbiddenMessageField returns true if the name is forbidden as a message name
-func checkForbiddenMessageField(name string) error {
-	mfName, err := multiformatname.NewName(name)
-	if err != nil {
-		return err
-	}
-
-	switch mfName.LowerCase {
-	case
-		"id",
-		"creator",
-		"appendedvalue",
-		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by the packet scaffolder", name)
-	}
-
-	return checkGoReservedWord(name)
-}
-
-// checkForbiddenMessageIndex returns true if the name is forbidden as a message index
-func checkForbiddenMessageIndex(name string) error {
-	fieldSplit := strings.Split(name, datatype.Separator)
-	if len(fieldSplit) > 1 {
-		name = fieldSplit[0]
-		fieldType := datatype.Name(fieldSplit[1])
-		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
-			return fmt.Errorf("invalid index type %s", fieldType)
-		}
-	}
-	return checkForbiddenMessageField(name)
 }
