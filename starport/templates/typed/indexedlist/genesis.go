@@ -187,4 +187,3 @@ genesis.%[2]vCountList = k.GetAll%[2]vCount(ctx)
 		return r.File(newFile)
 	}
 }
-
