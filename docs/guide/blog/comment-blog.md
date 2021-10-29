@@ -54,3 +54,118 @@ First, define a Cosmos SDK message type with proto `message`. The `MsgCreateComm
 ```go
   rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
+
+Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message. `case *types.MsgCreateComment` has been added along with `case *types.MsgCreatePost`
+
+```go
+func NewHandler(k keeper.Keeper) sdk.Handler {
+	//...
+		switch msg := msg.(type) {
+		//...
+		case *types.MsgCreateComment:
+			res, err := msgServer.CreateComment(sdk.WrapSDKContext(ctx), msg)
+			return sdk.WrapServiceResult(ctx, res, err)
+			//...
+		}
+	}
+}
+```
+
+The `case *types.MsgCreateComment` statement handles messages of type `MsgCreateComment`, calls the `CreateComment` method, and returns back the response.
+
+Every module has a handler function like this to process messages and call keeper methods.
+
+## Process Messages
+
+In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
+
+You need to do two things:
+
+- Create a variable of type `Comment` with title and body from the message
+- Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks.
+- Append this `Comment` to the store
+
+```go
+func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
+	ctx := sdk.UnwrapSDKContext(goCtx)
+
+	BlockHeight := CreatedAt() // Invoke method to get the block height of Post
+	PostID := CreatedId() // Invoke method to get the Post ID
+
+	// Create variable of type comment
+	var comment = types.Comment{
+		Creator: msg.Creator,
+		Id:      msg.Id,
+		Body:    msg.Body,
+		Title:   msg.Title,
+		BlogID:  msg.BlogID,
+		CreatedAt: ctx.BlockHeight(),
+	}
+
+	// Check if the Post Exists for which a comment is being created
+	if comment.BlogID > PostID {
+		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id %d does not exist for which comment with Blog Id %d was made", PostID, comment.BlogID)
+	}
+
+	BlockHeight = BlockHeight + 10 // Hardcoded value to 100. This can be changed as per requirement.
+	
+	// Check if the comment is older than the Post. If more than 100 blocks, then return error.
+	if comment.CreatedAt > BlockHeight {
+		return nil, sdkerrors.Wrapf(types.ErrCommentOld, "Comment created at %d is older than post created at %d", comment.CreatedAt, BlockHeight)
+	} else {
+		id := k.AppendComment(ctx, comment)
+		return &types.MsgCreateCommentResponse{Id: id}, nil
+	}
+}
+```
+
+When Comment's validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messaged by adding it to errors definition in x/blog/types/errors.go
+
+```go
+//...
+var (
+	ErrCommentOld = sdkerrors.Register(ModuleName, 1300, "")
+)
+
+var (
+	ErrID = sdkerrors.Register(ModuleName, 1400, "")
+)
+```
+
+Notice, 2 methods `CreatedAt` and `CreatedId` are being invoked inside `msg_server_create_comment.go`. They are responsible for returning the Block height and latest ID of Post respectively.
+
+Define `CreatedAt` and `CreatedId` method inside `x/blog/keeper/msg_server_create_post.go`
+
+```go
+//...
+
+var BlockHeight int64
+var BlockId uint64 
+
+func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
+  //...
+  var post = types.Post{
+    //...
+    CreatedAt: ctx.BlockHeight(),
+  }
+
+    // Define the globally declared `BlockHeight` variable
+    BlockHeight = post.CreatedAt
+
+    id := k.AppendPost(ctx, post)
+    //...
+
+    // After the post has been appended, fetch the latest id in globally declared `BlockId` variable
+    BlockId = id
+}
+
+// Define two functions to return BlockId and Height respectively.
+
+func CreatedAt() int64 {
+	return BlockHeight
+}
+
+func CreatedId() uint64 {
+	return BlockId
+}
+```
