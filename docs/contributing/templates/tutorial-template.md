@@ -47,6 +47,8 @@ In this guide, you will [accomplish/build/] [some thing]...
 
 When you're finished, you'll be able to...
 
+**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
+
 ## Prerequisites
 
 <!-- Prerequisites let you leverage existing tutorials so you don't have to repeat installation or setup steps in your tutorial. -->
