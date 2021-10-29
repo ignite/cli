@@ -108,4 +108,3 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 
 	env.EnsureAppIsSteady(path)
 }
-
