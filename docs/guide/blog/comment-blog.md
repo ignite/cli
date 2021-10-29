@@ -297,3 +297,228 @@ By following these steps, you have implemented all of the code required to creat
 
 - `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
+
+
+## Display Posts
+
+```bash
+starport scaffold query comments --response title,body,blogID
+```
+
+Very similar to previous blog tutorial, we will make changes to `proto/blog/query.proto`
+
+In the `proto/blog/query.proto` file:
+
+```go
+// Import the Comment message
+import "blog/comment.proto";
+
+message QueryCommentsRequest {
+    // Adding pagination to request
+  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+}
+
+message QueryPostsResponse {
+  // Returning a list of posts
+  repeated Post Post = 1;
+  // Adding pagination to response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+
+message QueryCommentsResponse {
+    // Returning a list of comments
+  repeated Comment Comment = 1;
+    // Adding pagination to response
+  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+}
+```
+
+
+>>>>> DO from here 
+
+After the types are defined in proto files, you can implement post querying logic. In `grpc_query_comments.go`:
+
+```go
+package keeper
+
+import (
+	"context"
+
+	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/cosmos/cosmos-sdk/types/query"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+)
+
+func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
+	// Throw an error if request is nil
+	if req == nil {
+		return nil, status.Error(codes.InvalidArgument, "invalid request")
+	}
+	// Define a variable that will store a list of posts
+	var comments []*types.Comment
+	// Get context with the information about the environment
+	ctx := sdk.UnwrapSDKContext(c)
+	// Get the key-value module store using the store key (in our case store key is "chain")
+	store := ctx.KVStore(k.storeKey)
+	// Get the part of the store that keeps posts (using post key, which is "Post-value-")
+	commentStore := prefix.NewStore(store, []byte(types.CommentKey))
+	// Paginate the posts store based on PageRequest
+	pageRes, err := query.Paginate(commentStore, req.Pagination, func(key []byte, value []byte) error {
+		var comment types.Comment
+		if err := k.cdc.Unmarshal(value, &comment); err != nil {
+			return err
+		}
+		comments = append(comments, &comment)
+		return nil
+	})
+	// Throw an error if pagination failed
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	// Return a struct containing a list of posts and pagination info
+	return &types.QueryCommentsResponse{Comment: comments, Pagination: pageRes}, nil
+}
+```
+
+Note: Since we have already gRPC to module handler in previous tutorial, we will not add it again.
+
+## Create Post and Comment
+
+Try it out! If the chain is yet not started, run `starport chain serve`.
+
+Create a post:
+
+```bash
+blogd tx blog create-post Uno "This is the first post" --from alice
+```
+
+```bash
+"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+
+confirm transaction before signing and broadcasting [y/N]: y
+{"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
+```
+
+Create a comment:
+
+```bash
+blogd tx blog create-comment 0  Uno "This is the first comment" --from alice
+```
+
+```bash
+{"body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreateComment","creator":"cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd","id":"0","title":"Uno","body":"This is the first comment","blogID":"2","createdAt":"0"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
+```
+confirm transaction before signing and broadcasting [y/N]: y
+
+```bash
+code: 0
+codespace: ""
+data: 0A270A252F636F736D6F6E6175742E626C6F672E626C6F672E4D7367437265617465436F6D6D656E74
+gas_used: "45891"
+gas_wanted: "200000"
+height: "118"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: action
+      value: CreateComment
+    type: message
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"message","attributes":[{"key":"action","value":"CreateComment"}]}]}]'
+timestamp: ""
+tx: null
+txhash: 0CAFC113D1C73BC0210EFEA5964EBD2EB530311169FB442C5CBF0B5E92521C41
+```
+
+
+## Display Post and Comment
+
+Display post:
+
+```bash
+blogd q blog posts
+```
+
+```bash
+Post:
+- body: This is the first post
+  createdAt: "38"
+  creator: cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd
+  id: "0"
+  title: Uno
+```
+
+Display comment:
+
+```bash
+blogd q blog comments
+```
+
+```bash
+Comment:
+- blogID: "0"
+  body: This is the first comment
+  createdAt: "98"
+  creator: cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd
+  id: "0"
+  title: Uno
+```
+
+## Edge Cases
+
+1. Add comment to non existent Blog Id 
+
+```bash
+blogd tx blog create-comment 53 "Edge1"  "This is the 53 comment" --from alice -y
+```
+
+```bash
+code: 1400
+codespace: blog
+data: ""
+gas_used: "38151"
+gas_wanted: "200000"
+height: "1019"
+info: ""
+logs: []
+raw_log: 'failed to execute message; message index: 0: Post Blog Id 53 does not exist for which comment was made: '
+timestamp: ""
+tx: null
+txhash: B99BD295A0B08DF58B9FEC8EB41D467C2F28BD4EC8CDB56FBF30DB728B877ABA
+```
+
+2. Add comment to an old Blog post
+
+```bash
+blogd tx blog create-comment 0 "Comment" "This is a comment" --from alice -y
+```
+
+```bash
+code: 1300
+codespace: blog
+data: ""
+gas_used: "38101"
+gas_wanted: "200000"
+height: "1191"
+info: ""
+logs: []
+raw_log: 'failed to execute message; message index: 0: Comment created at 1191 is older than post created at 1047:'
+timestamp: ""
+tx: null
+txhash: A87AAD5E2E6A26F9B80796D013139E9A18DB286D9CF769BC6AA6601DD64C6A35
+```
+
+## Conclusion
+
+Congratulations. You have added comments to blog blockchain! 
+
+You have successfully completed these steps:
+
+* Add comment to existing blog
+* Check if the comment is valid
+* Use CLI to write and display comment
