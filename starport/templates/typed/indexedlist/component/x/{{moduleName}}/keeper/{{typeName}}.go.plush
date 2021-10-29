@@ -15,10 +15,10 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>Count(
 	byteKey := types.All<%= TypeName.UpperCamel %>KeyPath(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>)
-	b := store.Get(byteKey)
+	bytesArray := store.Get(byteKey)
 
 	// Count doesn't exist: initialize one
-	if b == nil {
+	if bytesArray == nil {
 		return types.<%= TypeName.UpperCamel %>Count{
 		    <%= for (i, index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
             <% } %>  Count: 0,
@@ -26,7 +26,7 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>Count(
 	}
 
 	// Parse bytes
-	k.cdc.MustUnmarshal(b, &val)
+	k.cdc.MustUnmarshal(bytesArray, &val)
     return val
 }
 
@@ -36,8 +36,8 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count types.
 	byteKey := types.All<%= TypeName.UpperCamel %>KeyPath(
         <%= for (i, index) in Indexes { %>count.<%= index.Name.UpperCamel %>,
     <% } %>)
-	b := k.cdc.MustMarshal(&count)
-	store.Set(byteKey, b)
+	bytesArray := k.cdc.MustMarshal(&count)
+	store.Set(byteKey, bytesArray)
 }
 
 // GetAll<%= TypeName.UpperCamel %>Count returns all <%= TypeName.LowerCamel %> count from an index
@@ -88,8 +88,8 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>(ctx sdk.Context, <%= TypeName.Lowe
 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>Prefix(
        <%= for (i, index) in Indexes { %><%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,
     <% } %>))
-	b := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
-	store.Set(types.<%= TypeName.UpperCamel %>Key(<%= TypeName.LowerCamel %>.Id), b)
+	bytesArray := k.cdc.MustMarshal(&<%= TypeName.LowerCamel %>)
+	store.Set(types.<%= TypeName.UpperCamel %>Key(<%= TypeName.LowerCamel %>.Id), bytesArray)
 }
 
 // Get<%= TypeName.UpperCamel %> returns a <%= TypeName.LowerCamel %> from its id
@@ -102,11 +102,11 @@ func (k Keeper) Get<%=TypeName.UpperCamel %>(
         <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
     <% } %>))
 
-	b := store.Get(types.<%= TypeName.UpperCamel %>Key(id))
-	if b == nil {
+	bytesArray := store.Get(types.<%= TypeName.UpperCamel %>Key(id))
+	if bytesArray == nil {
 		return val, false
 	}
-	k.cdc.MustUnmarshal(b, &val)
+	k.cdc.MustUnmarshal(bytesArray, &val)
 	return val, true
 }
 
