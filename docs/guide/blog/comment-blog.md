@@ -3,7 +3,7 @@ description: Add comment on Blog
 order: 2
 ---
 
-# Add comment to Blog
+# Add comments to Blog
 
 In this tutorial, you will create a new message module called comment. The module will let you read and write comments to the existing blog blockchain.
 
@@ -22,13 +22,22 @@ You can only add comments to a post which is no older than 100 Blocks.
 To create a new message module for comment, use the `message` command:
 
 ```bash
-starport scaffold message create-comment blogID:uint64 title body
+starport scaffold message create-comment blogID:uint title body
 ```
 
 The `message` commands accepts `blogID` and a list of fields (`title` and `body` as arguments )
 Here, `blogID` is the reference to previously created blog post.
 
 The `message` command has created and modified several files:
+
+modify proto/blog/tx.proto
+modify x/blog/client/cli/tx.go
+create x/blog/client/cli/tx_create_comment.go
+modify x/blog/handler.go
+create x/blog/keeper/msg_server_create_comment.go
+modify x/blog/types/codec.go
+create x/blog/types/message_create_comment.go
+create x/blog/types/message_create_comment_test.go
 
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to add `createdAt` and define the id for `message MsgCreateCommentResponse`:
@@ -51,6 +60,17 @@ message MsgCreateCommentResponse {
 
 ```go
   rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
+```
+
+Also, make a small modification in `MsgCreatePost` to add `createAt`
+
+```go
+message MsgCreatePost {
+  string creator = 1;
+  string title = 2;
+  string body = 3;
+  int64 createdAt = 4;
+}
 ```
 
 Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message. `case *types.MsgCreateComment` has been added along with previously added `case *types.MsgCreatePost`
@@ -200,10 +220,19 @@ The contents of the `comment.proto` file are fairly standard and similar to `pos
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Comment` type is available.
 
+Also, make a small modification in `post.proto` to add `createdAt`
+
+```go
+//...
+
+message Post {
+ //...
+  int64 createdAt = 5;
+}
+```
+
 
 ### Define Keeper Methods
-
-Very similar to implementation done in `x/blog/keeper/post.go` we will implement `x/blog/keeper/comment.go`
 
 To keep a list of comments in what is essentially a key-value store, you need to keep track of the index of the comments you insert. Since both comment values and comment count (index) values are kept in the store, you can use different prefixes: `Comment-value-` and `Comment-count-`. 
 
@@ -225,7 +254,9 @@ When a `Comment` message is sent to the `AppendComment` function, four actions o
 
 ## Write Data to the Store
 
-Now, create `comment.go` inside `x/blog/keeper/comment.go` file. Implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
+Very similar to implementation done in `x/blog/keeper/post.go` we will implement `x/blog/keeper/comment.go`
+
+Now, inside `x/blog/keeper/comment.go` file, implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
 
 First, implement `GetCommentCount`:
 
