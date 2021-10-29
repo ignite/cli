@@ -32,4 +32,25 @@ The `message` command has created and modified several files:
 
 ----------->>> TODO
 
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to define the id for `message MsgCreateCommentResponse`:
 
+```go
+message MsgCreateComment {
+  string creator = 1;
+  uint64 id = 2;
+  string title = 3;
+  string body = 4;
+  uint64 blogID = 5;
+  int64 createdAt = 6;
+}
+
+message MsgCreateCommentResponse {
+  uint64 id = 1;
+}
+```
+
+First, define a Cosmos SDK message type with proto `message`. The `MsgCreateComment` has three fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+
+```go
+  rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
+```
