@@ -146,12 +146,12 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			return err
 		}
 
-		// Array of the indexes of the element
-		var indexArgs []string
+		// Array of the indexes as field
+		var indexField []string
 		for _, index := range opts.Indexes {
-			indexArgs = append(indexArgs, "elem."+index.Name.UpperCamel)
+			indexField = append(indexField, fmt.Sprintf("%[1]v: elem.%[1]v", index.Name.UpperCamel))
 		}
-		indexCall := strings.Join(indexArgs, ",\n")
+		indexFieldStr := strings.Join(indexField, ",\n")
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
@@ -160,10 +160,10 @@ for _, elem := range genState.%[3]vList {
 
 // Set %[2]v count
 for _, elem := range genState.%[3]vCountList {
-	k.Set%[3]vCount(
-		ctx,
-		%[4]v  elem.Count,
-	)
+	count := types.%[3]v{
+		%[4]v  Count: elem.Count,
+	}
+	k.Set%[3]vCount(ctx, count)
 }
 %[1]v`
 		replacementModuleInit := fmt.Sprintf(
@@ -171,7 +171,7 @@ for _, elem := range genState.%[3]vCountList {
 			typed.PlaceholderGenesisModuleInit,
 			opts.TypeName.LowerCamel,
 			opts.TypeName.UpperCamel,
-			indexCall,
+			indexFieldStr,
 		)
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 

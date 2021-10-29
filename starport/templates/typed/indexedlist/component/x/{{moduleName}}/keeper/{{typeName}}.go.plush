@@ -42,6 +42,28 @@ func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count types.
 	store.Set(byteKey, b)
 }
 
+// GetAll<%= TypeName.UpperCamel %>Count returns all <%= TypeName.LowerCamel %> count from an index
+func (k Keeper) GetAll<%= TypeName.UpperCamel %>Count(
+    ctx sdk.Context,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>) (list []types.<%= TypeName.UpperCamel %>Count) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>CountPrefix(
+        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+    <% } %>))
+
+	iterator := sdk.KVStorePrefixIterator(store, []byte{})
+
+	defer iterator.Close()
+
+	for ; iterator.Valid(); iterator.Next() {
+		var val types.<%= TypeName.UpperCamel %>Count
+		k.cdc.MustUnmarshal(iterator.Value(), &val)
+        list = append(list, val)
+	}
+
+    return
+}
+
 // Append<%= TypeName.UpperCamel %> appends a <%= TypeName.LowerCamel %> in the store with a new id from an index and update the count
 func (k Keeper) Append<%= TypeName.UpperCamel %>(
     ctx sdk.Context,

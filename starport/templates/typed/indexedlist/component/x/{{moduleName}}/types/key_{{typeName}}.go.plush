@@ -33,6 +33,16 @@ func All<%= TypeName.UpperCamel %>Prefix(
 	)...)
 }
 
+// All<%= TypeName.UpperCamel %>CountPrefix returns the store key prefix to retrieve all <%= TypeName.UpperCamel %> count from an index
+func All<%= TypeName.UpperCamel %>CountPrefix(
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>) []byte {
+	return append([]byte(<%= TypeName.UpperCamel %>CountKeyPrefix), All<%= TypeName.UpperCamel %>KeyPath(
+	    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+	    <% } %>
+	)...)
+}
+
 // <%= TypeName.UpperCamel %>Key returns the store key to retrieve a <%= TypeName.UpperCamel %> from an id
 func <%= TypeName.UpperCamel %>Key(id uint64) []byte {
     bz := make([]byte, 8)
