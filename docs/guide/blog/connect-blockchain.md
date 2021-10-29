@@ -1,6 +1,6 @@
 ---
 description: Blockchain Client in Go
-order: 2
+order: 3
 ---
 
 # Create a Blockchain Client in Go
