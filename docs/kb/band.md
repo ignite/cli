@@ -57,7 +57,7 @@ $ starport chain server
 
 In another tab, configure and run the starport relayer.
 ```shell
-$ starport relayer configure -a \                                              
+$ starport relayer configure -a \
 --source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
