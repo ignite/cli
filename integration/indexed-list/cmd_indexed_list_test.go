@@ -33,7 +33,7 @@ func TestGenerateAnAppWithStargateWithListAndVerify(t *testing.T) {
 				"numsInt:array.int",
 				"numUint:uint",
 				"numsUint:array.uint",
-				"textString:string ",
+				"textString:string",
 				"textStrings:array.string",
 				"textCoin:coin",
 				"textCoins:array.coin",
