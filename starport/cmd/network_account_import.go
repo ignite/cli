@@ -2,7 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 
 	"github.com/spf13/cobra"
 )
@@ -25,7 +25,7 @@ func networkAccountImportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	var name, password, privateKeyPath = args[0], args[1], args[2]
-	privateKey, err := ioutil.ReadFile(privateKeyPath)
+	privateKey, err := os.ReadFile(privateKeyPath)
 	if err != nil {
 		return err
 	}
