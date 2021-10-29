@@ -209,10 +209,9 @@ import "%[2]v/%[3]v.proto";
     (gogoproto.nullable) = false,
     (gogoproto.castrepeated) = "github.com/cosmos/cosmos-sdk/types.Coins"
   ];
-  string request_key = 8;
-  uint64 prepare_gas = 9;
-  uint64 execute_gas = 10;
-  string client_id = 11 [(gogoproto.customname) = "ClientID"];
+  uint64 prepare_gas = 8;
+  uint64 execute_gas = 9;
+  string client_id = 10 [(gogoproto.customname) = "ClientID"];
 }
 
 message Msg%[2]vDataResponse {
