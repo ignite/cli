@@ -5,7 +5,7 @@ order: 2
 
 # Add comment to Blog post Blockchain 
 
-In this tutorial, you will create a new message module called comment. The module will let you read and write comments to an existing blog post.
+In this tutorial, you will create a new message module called comment. The module will let you read and write comments to an existing blog blockchain.
 
 You can only add comments to post which are no older than 100 Blocks. 
 
@@ -197,3 +197,103 @@ message Comment {
 The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Comment` type is available.
+
+
+### Define Keeper Methods
+
+Very similar to implementation done in `x/blog/keeper/post.go` we will implement `x/blog/keeper/comment.go`
+
+To keep a list of comments in what is essentially a key-value store, you need to keep track of the index of the comments you insert. Since both comment values and comment count (index) values are kept in the store, you can use different prefixes: `Comment-value-` and `Comment-count-`. 
+
+Add these prefixes to the `x/blog/types/keys.go` file:
+
+```go
+const (
+  CommentKey      = "Comment-value-"
+  CommentCountKey = "Comment-count-"
+)
+```
+
+When a `Comment` message is sent to the `AppendComment` function, four actions occur: 
+
+- Get the number of comments in the store (count)
+- Add a comment by using the count as an ID
+- Increment the count
+- Return the count
+
+## Write Data to the Store
+
+Now, inside `x/blog/keeper/comment.go` file, implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
+
+First, implement `GetCommentCount`:
+
+```go
+func (k Keeper) GetCommentCount(ctx sdk.Context) uint64 {
+    // Get the store using storeKey (which is "blog") and CommentCountKey (which is "Comment-count-")
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.CommentCountKey))
+    // Convert the CommentCountKey to bytes
+	byteKey := []byte(types.CommentCountKey)
+    // Get the value of the count
+	bz := store.Get(byteKey)
+    // Return zero if the count value is not found (for example, it's the first comment)
+	if bz == nil {
+		return 0
+	}
+    // Convert the count into a uint64
+	return binary.BigEndian.Uint64(bz)
+}
+```
+
+Now that `GetCommentCount` returns the correct number of comments in the store, implement `SetCommentCount`:
+
+```go
+func (k Keeper) SetCommentCount(ctx sdk.Context, count uint64) {
+    // Get the store using storeKey (which is "blog") and CommentCountKey (which is "Comment-count-")
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.CommentCountKey))
+    // Convert the CommentCountKey to bytes
+	byteKey := []byte(types.CommentCountKey)
+    // Convert count from uint64 to string and get bytes
+	bz := make([]byte, 8)
+	binary.BigEndian.PutUint64(bz, count)
+    // Set the value of Comment-count- to count
+	store.Set(byteKey, bz)
+}
+```
+
+Now that you have implemented functions for getting the number of comments and setting the comment count, you can implement the logic behind the `AppendComment` function:
+
+```go
+package keeper
+
+import (
+	"encoding/binary"
+
+	"github.com/cosmonaut/blog/x/blog/types"
+	"github.com/cosmos/cosmos-sdk/store/prefix"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+)
+
+func (k Keeper) AppendComment(ctx sdk.Context, comment types.Comment) uint64 {
+    // Get the current number of comments in the store
+	count := k.GetCommentCount(ctx)
+    // Assign an ID to the comment based on the number of comments in the store
+	comment.Id = count
+    // Get the store
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.CommentKey))
+    // Convert the comment ID into bytes
+	byteKey := make([]byte, 8)
+	binary.BigEndian.PutUint64(byteKey, comment.Id)
+    // Marshal the comment into bytes
+	appendedValue := k.cdc.MustMarshal(&comment)
+    // Insert the comment bytes using comment ID as a key
+	store.Set(byteKey, appendedValue)
+    // Update the comment count
+	k.SetCommentCount(ctx, count+1)
+	return count
+}
+```
+
+By following these steps, you have implemented all of the code required to create new comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
+
+- `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
+- `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
