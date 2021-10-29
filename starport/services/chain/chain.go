@@ -3,7 +3,6 @@ package chain
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -143,8 +142,8 @@ func New(path string, options ...Option) (*Chain, error) {
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         ioutil.Discard,
-		stderr:         ioutil.Discard,
+		stdout:         io.Discard,
+		stderr:         io.Discard,
 	}
 
 	// Apply the options

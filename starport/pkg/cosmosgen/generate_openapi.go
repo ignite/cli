@@ -1,7 +1,6 @@
 package cosmosgen
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
@@ -43,7 +42,7 @@ func generateOpenAPISpec(g *generator) error {
 			return err
 		}
 
-		dir, err := ioutil.TempDir("", "gen-openapi-module-spec")
+		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
