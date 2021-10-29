@@ -7,7 +7,6 @@ import (
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
 
@@ -15,8 +14,6 @@ func genesisModify(replacer placeholder.Replacer, opts *typed.Options, g *genny.
 	g.RunFn(genesisProtoModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisModuleModify(replacer, opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
-	g.RunFn(genesisTypesTestsModify(replacer, opts))
 }
 
 func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genny.RunFn {
@@ -176,9 +173,7 @@ for _, elem := range genState.%[3]vCountList {
 		content := replacer.Replace(f.String(), typed.PlaceholderGenesisModuleInit, replacementModuleInit)
 
 		templateModuleExport := `genesis.%[2]vList = k.GetAll%[2]v(ctx)
-
-// Get %[3]v counts
-
+genesis.%[2]vCountList = k.GetAll%[2]vCount(ctx)
 %[1]v`
 		replacementModuleExport := fmt.Sprintf(
 			templateModuleExport,
