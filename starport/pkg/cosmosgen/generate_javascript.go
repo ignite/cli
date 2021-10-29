@@ -96,10 +96,6 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	// reset destination dir.
-	if err := os.RemoveAll(out); err != nil {
-		return err
-	}
 	if err := os.MkdirAll(typesOut, 0766); err != nil {
 		return err
 	}
