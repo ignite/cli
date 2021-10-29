@@ -45,7 +45,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		templateProtoState := `repeated %[2]v %[3]vList = %[4]v [(gogoproto.nullable) = false];
-  repeated %[2]vCount %[3]vCountList = %[5]v;
+  repeated %[2]vCount %[3]vCountList = %[5]v [(gogoproto.nullable) = false];
   %[1]v`
 		replacementProtoState := fmt.Sprintf(
 			templateProtoState,
@@ -91,15 +91,16 @@ func genesisTypesModify(replacer placeholder.Replacer, opts *typed.Options) genn
 			indexArgs = append(indexArgs, "elem."+index.Name.UpperCamel)
 		}
 		indexCall := strings.Join(indexArgs, ",\n")
+		indexCall += ",\n"
 
 		templateTypesValidate := `
 // Checkout %[2]vCounts to perform verification
 %[2]vCountMap := make(map[string]uint64)
-for _, elem := range gs.%[2]vCountList {
+for _, elem := range gs.%[3]vCountList {
 	countKey := string(All%[3]vKeyPath(
 		%[4]v))
 	if _, ok := %[2]vCountMap[countKey]; ok {
-		return errors.New("duplicated %[2]v count")
+		return fmt.Errorf("duplicated %[2]v count")
 	}
 	%[2]vCountMap[countKey] = elem.Count
 }
@@ -111,12 +112,12 @@ for _, elem := range gs.%[3]vList {
 		%[4]v elem.Id,
 	))
 	if _, ok := %[2]vIdMap[elemKey]; ok {
-		return errors.New("duplicated id for %[2]v")
+		return fmt.Errorf("duplicated id for %[2]v")
 	}
 	countKey := string(All%[3]vKeyPath(
 		%[4]v))
 	if elem.Id >= %[2]vCountMap[countKey] {
-		return errors.New("%[2]v id should be lower or equal than the biggest reported id")
+		return fmt.Errorf("%[2]v id should be lower or equal than the biggest reported id")
 	}
 	%[2]vIdMap[elemKey] = struct{}{}
 }
@@ -149,6 +150,7 @@ func genesisModuleModify(replacer placeholder.Replacer, opts *typed.Options) gen
 			indexField = append(indexField, fmt.Sprintf("%[1]v: elem.%[1]v", index.Name.UpperCamel))
 		}
 		indexFieldStr := strings.Join(indexField, ",\n")
+		indexFieldStr += ",\n"
 
 		templateModuleInit := `// Set all the %[2]v
 for _, elem := range genState.%[3]vList {
@@ -157,7 +159,7 @@ for _, elem := range genState.%[3]vList {
 
 // Set %[2]v count
 for _, elem := range genState.%[3]vCountList {
-	count := types.%[3]v{
+	count := types.%[3]vCount{
 		%[4]v  Count: elem.Count,
 	}
 	k.Set%[3]vCount(ctx, count)

@@ -1,8 +1,6 @@
 package keeper
 
 import (
-	"encoding/binary"
-
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
 	"github.com/cosmos/cosmos-sdk/store/prefix"
@@ -36,23 +34,17 @@ func (k Keeper) Get<%= TypeName.UpperCamel %>Count(
 func (k Keeper) Set<%= TypeName.UpperCamel %>Count(ctx sdk.Context, count types.<%= TypeName.UpperCamel %>Count) {
 	store :=  prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.<%= TypeName.UpperCamel %>CountKeyPrefix))
 	byteKey := types.All<%= TypeName.UpperCamel %>KeyPath(
-        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
+        <%= for (i, index) in Indexes { %>count.<%= index.Name.UpperCamel %>,
     <% } %>)
 	b := k.cdc.MustMarshal(&count)
 	store.Set(byteKey, b)
 }
 
 // GetAll<%= TypeName.UpperCamel %>Count returns all <%= TypeName.LowerCamel %> count from an index
-func (k Keeper) GetAll<%= TypeName.UpperCamel %>Count(
-    ctx sdk.Context,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
-<% } %>) (list []types.<%= TypeName.UpperCamel %>Count) {
-    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>CountPrefix(
-        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
-    <% } %>))
+func (k Keeper) GetAll<%= TypeName.UpperCamel %>Count(ctx sdk.Context) (list []types.<%= TypeName.UpperCamel %>Count) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.<%= TypeName.UpperCamel %>CountKeyPrefix))
 
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
-
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
@@ -132,16 +124,10 @@ func (k Keeper) Remove<%= TypeName.UpperCamel %>(
 }
 
 // GetAll<%= TypeName.UpperCamel %> returns all <%= TypeName.LowerCamel %> from an index
-func (k Keeper) GetAll<%= TypeName.UpperCamel %>(
-    ctx sdk.Context,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
-<% } %>) (list []types.<%= TypeName.UpperCamel %>) {
-    store := prefix.NewStore(ctx.KVStore(k.storeKey), types.All<%= TypeName.UpperCamel %>Prefix(
-        <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %>,
-    <% } %>))
+func (k Keeper) GetAll<%= TypeName.UpperCamel %>(ctx sdk.Context) (list []types.<%= TypeName.UpperCamel %>) {
+    store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.<%= TypeName.UpperCamel %>KeyPrefix))
 
 	iterator := sdk.KVStorePrefixIterator(store, []byte{})
-
 	defer iterator.Close()
 
 	for ; iterator.Valid(); iterator.Next() {
