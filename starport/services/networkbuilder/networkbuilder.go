@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io/ioutil"
 	"math"
 	"os"
 	"path/filepath"
@@ -547,12 +546,12 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 		if hash != chainInfo.GenesisHash {
 			return errors.New("hash mismatch for the downloaded genesis")
 		}
-	} else if initialGenesis, err = ioutil.ReadFile(initialGenesisPath(home)); err != nil {
+	} else if initialGenesis, err = os.ReadFile(initialGenesisPath(home)); err != nil {
 		return err
 	}
 
 	// overwrite genesis with initial genesis.
-	if err := ioutil.WriteFile(genesisPath(home), initialGenesis, 0755); err != nil {
+	if err := os.WriteFile(genesisPath(home), initialGenesis, 0755); err != nil {
 		return err
 	}
 
@@ -581,7 +580,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 
 	// reset gentx directory
 	os.Mkdir(filepath.Join(home, "config/gentx"), os.ModePerm)
-	dir, err := ioutil.ReadDir(filepath.Join(home, "config/gentx"))
+	dir, err := os.ReadDir(filepath.Join(home, "config/gentx"))
 	if err != nil {
 		return err
 	}
@@ -597,7 +596,7 @@ func generateGenesis(ctx context.Context, chainInfo spn.Chain, launchInfo spn.La
 	for i, gentx := range launchInfo.GenTxs {
 		// Save the gentx in the gentx directory
 		gentxPath := filepath.Join(home, fmt.Sprintf("config/gentx/gentx%v.json", i))
-		if err = ioutil.WriteFile(gentxPath, gentx, 0666); err != nil {
+		if err = os.WriteFile(gentxPath, gentx, 0666); err != nil {
 			return err
 		}
 	}
