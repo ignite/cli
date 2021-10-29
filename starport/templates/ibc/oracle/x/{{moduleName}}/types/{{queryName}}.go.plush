@@ -29,7 +29,6 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 	askCount uint64,
 	minCount uint64,
 	feeLimit sdk.Coins,
-	requestKey string,
 	prepareGas uint64,
 	executeGas uint64,
 ) *Msg<%= queryName.UpperCamel %>Data {
@@ -42,7 +41,6 @@ func NewMsg<%= queryName.UpperCamel %>Data(
 		AskCount:       				askCount,
 		MinCount:       				minCount,
 		FeeLimit:       				feeLimit,
-		RequestKey:     				requestKey,
 		PrepareGas:     				prepareGas,
 		ExecuteGas:     				executeGas,
 	}

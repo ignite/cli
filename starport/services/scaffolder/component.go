@@ -200,7 +200,6 @@ func checkForbiddenOracleFieldName(name string) error {
 		"ASKCOUNT",
 		"MINCOUNT",
 		"FEELIMIT",
-		"REQUESTKEY",
 		"PREPAREGAS",
 		"EXECUTEGAS":
 		return fmt.Errorf("%s is used by Starport scaffolder", name)
