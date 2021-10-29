@@ -169,3 +169,31 @@ func CreatedId() uint64 {
 	return BlockId
 }
 ```
+
+
+## Write Data to the Store
+
+Define the `Comment` type and the `AppendComment` keeper method.
+
+When you define the `Comment` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
+
+Create the `proto/blog/comment.proto` file and define the `Comment` message:
+
+```go
+syntax = "proto3";
+package cosmonaut.blog.blog;
+option go_package = "github.com/cosmonaut/blog/x/blog/types";
+
+message Comment {
+  string creator = 1;
+  uint64 id = 2;
+  string title = 3;
+  string body = 4; 
+  uint64 blogID = 5;
+  int64 createdAt = 6;
+}
+```
+
+The contents of the `comment.proto` file are fairly standard and similar to `post.proto`. The file defines a package name that is used to identify messages, among other things, specifies the Go package where new files are generated, and finally defines `message Comment`. 
+
+Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Comment` type is available.
