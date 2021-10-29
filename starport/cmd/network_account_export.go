@@ -3,7 +3,7 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -66,7 +66,7 @@ func networkAccountExportHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(path, []byte(privateKey), 0755); err != nil {
+	if err := os.WriteFile(path, []byte(privateKey), 0755); err != nil {
 		return err
 	}
 	privateKeyPathAbs, err := filepath.Abs(path)
