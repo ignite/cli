@@ -18,6 +18,9 @@ module.exports = {
     ],
   ],
   themeConfig: {
+    logo: {
+      src: "/logo.png",
+    },
     algolia: {
       id: "BH4D9OD16A",
       key: "d6908a9436133e03e9b0131bad808775",
