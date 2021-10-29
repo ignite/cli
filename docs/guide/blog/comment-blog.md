@@ -3,13 +3,13 @@ description: Add comment on Blog
 order: 2
 ---
 
-# Add comment to Blog post Blockchain 
+# Add comment to Blog
 
-In this tutorial, you will create a new message module called comment. The module will let you read and write comments to an existing blog blockchain.
+In this tutorial, you will create a new message module called comment. The module will let you read and write comments to the existing blog blockchain.
 
-You can only add comments to post which are no older than 100 Blocks. 
+You can only add comments to a post which is no older than 100 Blocks. 
 
-**Note:** This value has been hard coded to a low number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is not allowed.
+**Note:** This value has been hard coded to a low number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is stopped.
 
 ### Prerequisites:
 
@@ -22,26 +22,24 @@ You can only add comments to post which are no older than 100 Blocks.
 To create a new message module for comment, use the `message` command:
 
 ```bash
-starport scaffold message create-comment blogID:int title body
+starport scaffold message create-comment blogID:uint64 title body
 ```
 
 The `message` commands accepts `blogID` and a list of fields (`title` and `body` as arguments )
-Here, `blogID` is the reference to previously created blog posts.
+Here, `blogID` is the reference to previously created blog post.
 
 The `message` command has created and modified several files:
 
------------>>> TODO
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to define the id for `message MsgCreateCommentResponse`:
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to add `createdAt` and define the id for `message MsgCreateCommentResponse`:
 
 ```go
 message MsgCreateComment {
   string creator = 1;
-  uint64 id = 2;
+  int32 blogID = 2;
   string title = 3;
   string body = 4;
-  uint64 blogID = 5;
-  int64 createdAt = 6;
+  int64 createdAt = 5;
 }
 
 message MsgCreateCommentResponse {
@@ -49,13 +47,13 @@ message MsgCreateCommentResponse {
 }
 ```
 
-First, define a Cosmos SDK message type with proto `message`. The `MsgCreateComment` has three fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ The `MsgCreateComment` has five fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```go
   rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
-Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message. `case *types.MsgCreateComment` has been added along with `case *types.MsgCreatePost`
+Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message. `case *types.MsgCreateComment` has been added along with previously added `case *types.MsgCreatePost`
 
 ```go
 func NewHandler(k keeper.Keeper) sdk.Handler {
@@ -73,7 +71,6 @@ func NewHandler(k keeper.Keeper) sdk.Handler {
 
 The `case *types.MsgCreateComment` statement handles messages of type `MsgCreateComment`, calls the `CreateComment` method, and returns back the response.
 
-Every module has a handler function like this to process messages and call keeper methods.
 
 ## Process Messages
 
@@ -86,6 +83,11 @@ You need to do two things:
 - Append this `Comment` to the store
 
 ```go
+import (
+    //...
+    sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
 func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
@@ -107,7 +109,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id %d does not exist for which comment with Blog Id %d was made", PostID, comment.BlogID)
 	}
 
-	BlockHeight = BlockHeight + 10 // Hardcoded value to 100. This can be changed as per requirement.
+	BlockHeight = BlockHeight + 100 // Hardcoded value to 100. This can be changed as per requirement.
 	
 	// Check if the comment is older than the Post. If more than 100 blocks, then return error.
 	if comment.CreatedAt > BlockHeight {
@@ -223,7 +225,7 @@ When a `Comment` message is sent to the `AppendComment` function, four actions o
 
 ## Write Data to the Store
 
-Now, inside `x/blog/keeper/comment.go` file, implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
+Now, create `comment.go` inside `x/blog/keeper/comment.go` file. Implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
 
 First, implement `GetCommentCount`:
 
@@ -317,14 +319,7 @@ message QueryCommentsRequest {
     // Adding pagination to request
   cosmos.base.query.v1beta1.PageRequest pagination = 1;
 }
-
-message QueryPostsResponse {
-  // Returning a list of posts
-  repeated Post Post = 1;
-  // Adding pagination to response
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
-}
-
+//...
 message QueryCommentsResponse {
     // Returning a list of comments
   repeated Comment Comment = 1;
@@ -332,9 +327,6 @@ message QueryCommentsResponse {
   cosmos.base.query.v1beta1.PageResponse pagination = 2;
 }
 ```
-
-
->>>>> DO from here 
 
 After the types are defined in proto files, you can implement post querying logic. In `grpc_query_comments.go`:
 
@@ -397,8 +389,9 @@ blogd tx blog create-post Uno "This is the first post" --from alice
 
 ```bash
 "body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
-
+```
 confirm transaction before signing and broadcasting [y/N]: y
+```bash
 {"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
 ```
 
