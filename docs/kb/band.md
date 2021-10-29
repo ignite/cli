@@ -52,13 +52,13 @@ const Version = "bandchain-1"
 
 After scaffold and change the data, run the chain:
 ```shell
-staport chain server
+$ starport chain server
 ```
 
 In another tab, configure and run the starport relayer.
 ```shell
-$ starport relayer configure -a \
---source-rpc "http://rpc-laozi-testnet4.bandchain.org:26657" \
+$ starport relayer configure -a \                                              
+--source-rpc "http://rpc-laozi-testnet4.bandchain.org:80" \
 --source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
 --source-gasprice "0uband" \
