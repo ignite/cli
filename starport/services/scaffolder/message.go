@@ -9,6 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -83,7 +84,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
 		return sm, err
 	}
-	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenTypeField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
 	if err != nil {
 		return sm, err
 	}
@@ -147,4 +148,21 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
+}
+
+// checkForbiddenMessageField returns true if the name is forbidden as a message name
+func checkForbiddenMessageField(name string) error {
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
+	case
+		"creator",
+		datatype.TypeCustom:
+		return fmt.Errorf("%s is used by the packet scaffolder", name)
+	}
+
+	return checkGoReservedWord(name)
 }
