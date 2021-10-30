@@ -3,7 +3,7 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -56,7 +56,7 @@ func networkProposalVerifyHandler(cmd *cobra.Command, args []string) error {
 	s.Start()
 
 	// Check verbose flag
-	out := ioutil.Discard
+	out := io.Discard
 	debugSet, err := cmd.Flags().GetBool(flagDebug)
 	if err != nil {
 		return err
