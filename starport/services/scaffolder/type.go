@@ -262,6 +262,7 @@ func checkForbiddenTypeField(name string) error {
 	case
 		"id",
 		"creator",
+		"params",
 		"appendedvalue",
 		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)

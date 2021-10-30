@@ -131,11 +131,11 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s\n", field.ProtoType(i+2))
+			createFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+2))
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s\n", field.ProtoType(i+3))
+			updateFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+3))
 		}
 
 		// Ensure custom types are imported

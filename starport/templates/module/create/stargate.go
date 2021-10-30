@@ -162,6 +162,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			appCodec,
 			keys[%[2]vmoduletypes.StoreKey],
 			keys[%[2]vmoduletypes.MemStoreKey],
+			app.GetSubspace(%[2]vmoduletypes.ModuleName),
 			%[4]v
 			%[6]v)
 		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)
