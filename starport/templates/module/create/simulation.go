@@ -10,7 +10,7 @@ import (
 )
 
 // AddSimulation returns the generator to generate module_simulation.go file
-func AddSimulation(appPath, modulePath, moduleName string) (*genny.Generator, error) {
+func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
 		template = xgenny.NewEmbedWalker(fsSimulation, "simulation/", appPath)
@@ -19,7 +19,7 @@ func AddSimulation(appPath, modulePath, moduleName string) (*genny.Generator, er
 	ctx := plush.NewContext()
 	ctx.Set("moduleName", moduleName)
 	ctx.Set("modulePath", modulePath)
-	ctx.Set("params", field.Fields{})
+	ctx.Set("params", params)
 
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(genny.Replace("{{moduleName}}", moduleName))
