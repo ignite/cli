@@ -15,7 +15,7 @@ var (
 		ValueIndex:        "strconv.Itoa(0)",
 		ValueInvalidIndex: "strconv.Itoa(100000)",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("string %s = %d;", name, index)
+			return fmt.Sprintf("string %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: \"%d\",\n", name.UpperCamel, value)
@@ -36,7 +36,7 @@ var (
 		DataType:         func(string) string { return "[]string" },
 		DefaultTestValue: "abc,xyz",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("repeated string %s = %d;", name, index)
+			return fmt.Sprintf("repeated string %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: []string{\"%d\"},\n", name.UpperCamel, value)

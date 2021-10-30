@@ -251,6 +251,7 @@ func checkForbiddenTypeField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"id",
+		"params",
 		"appendedvalue",
 		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)
