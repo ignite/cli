@@ -52,7 +52,7 @@ const Version = "bandchain-1"
 
 After scaffold and change the data, run the chain:
 ```shell
-$ starport chain server
+$ starport chain serve
 ```
 
 In another tab, configure and run the starport relayer.
