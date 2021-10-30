@@ -135,11 +135,16 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	signer := ""
+	if !o.withoutMessage {
+		signer = o.signer
+	}
+
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, o.signer)
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
 	if err != nil {
 		return sm, err
 	}

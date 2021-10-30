@@ -65,8 +65,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 	var options []scaffolder.PacketOption
 	if noMessage {
 		options = append(options, scaffolder.PacketWithoutMessage())
-	}
-	if signer != "" {
+	} else if signer != "" {
 		options = append(options, scaffolder.PacketWithSigner(signer))
 	}
 

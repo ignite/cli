@@ -45,7 +45,9 @@ func ParseFields(
 	// Used to check duplicated field
 	existingFields := make(map[string]struct{})
 	for _, name := range forbiddenFieldNames {
-		existingFields[name] = struct{}{}
+		if name != "" {
+			existingFields[name] = struct{}{}
+		}
 	}
 
 	var parsedFields Fields
