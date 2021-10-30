@@ -139,7 +139,7 @@ func (s Scaffolder) AddType(
 	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, o.signer)
 	if err != nil {
 		return sm, err
 	}

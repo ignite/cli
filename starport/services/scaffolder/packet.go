@@ -98,7 +98,7 @@ func (s Scaffolder) AddPacket(
 	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
 		return sm, err
 	}
-	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
+	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, o.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -107,7 +107,7 @@ func (s Scaffolder) AddPacket(
 	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
 		return sm, err
 	}
-	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
+	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, o.signer)
 	if err != nil {
 		return sm, err
 	}
