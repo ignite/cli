@@ -7,7 +7,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"regexp"
 	"strings"
@@ -225,7 +224,7 @@ func (r Runner) Export(ctx context.Context, exportedFile string) error {
 	}
 
 	// Save the new state
-	return ioutil.WriteFile(exportedFile, exportedState, 0644)
+	return os.WriteFile(exportedFile, exportedState, 0644)
 }
 
 // EventSelector is used to query events.

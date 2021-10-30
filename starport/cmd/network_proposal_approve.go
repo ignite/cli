@@ -3,7 +3,7 @@ package starportcmd
 import (
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/networkbuilder"
@@ -71,7 +71,7 @@ func networkProposalApproveHandler(cmd *cobra.Command, args []string) error {
 		s.SetText("Verifying proposals...")
 		s.Start()
 
-		err := nb.VerifyProposals(cmd.Context(), chainID, ids, ioutil.Discard)
+		err := nb.VerifyProposals(cmd.Context(), chainID, ids, io.Discard)
 		if err != nil {
 			return err
 		}

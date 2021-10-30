@@ -18,6 +18,9 @@ module.exports = {
     ],
   ],
   themeConfig: {
+    logo: {
+      src: "/logo.png",
+    },
     algolia: {
       id: "BH4D9OD16A",
       key: "d6908a9436133e03e9b0131bad808775",
@@ -52,8 +55,8 @@ module.exports = {
       },
       logo: "/logo.svg",
       textLink: {
-        text: "cosmos.network/starport",
-        url: "https://cosmos.network/starport",
+        text: "starport.com",
+        url: "https://starport.com/",
       },
       services: [
         {
