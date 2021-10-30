@@ -7,7 +7,6 @@ import (
 	"encoding/hex"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 
@@ -120,11 +119,11 @@ func (b *Blockchain) init(
 	if err != nil {
 		return err
 	}
-	genesis, err := ioutil.ReadFile(genesisPath)
+	genesis, err := os.ReadFile(genesisPath)
 	if err != nil {
 		return err
 	}
-	if err := ioutil.WriteFile(initialGenesisPath(chainHome), genesis, 0644); err != nil {
+	if err := os.WriteFile(initialGenesisPath(chainHome), genesis, 0644); err != nil {
 		return err
 	}
 
@@ -153,7 +152,7 @@ func (b *Blockchain) Info() (BlockchainInfo, error) {
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
-	genesis, err := ioutil.ReadFile(genesisPath)
+	genesis, err := os.ReadFile(genesisPath)
 	if err != nil {
 		return BlockchainInfo{}, err
 	}
@@ -306,7 +305,7 @@ func (b *Blockchain) IssueGentx(ctx context.Context, account chain.Account, prop
 		return nil, err
 	}
 
-	return ioutil.ReadFile(gentxPath)
+	return os.ReadFile(gentxPath)
 }
 
 // Join proposes a validator to a network.

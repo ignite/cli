@@ -2,7 +2,6 @@ package confile
 
 import (
 	"io"
-	"io/ioutil"
 	"os"
 	"strings"
 	"testing"
@@ -28,7 +27,7 @@ func TestAll(t *testing.T) {
 	for _, tt := range cases {
 		t.Run(tt.name, func(t *testing.T) {
 
-			file, err := ioutil.TempFile("", "")
+			file, err := os.CreateTemp("", "")
 			require.NoError(t, err)
 			defer func() {
 				file.Close()
