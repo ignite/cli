@@ -34,28 +34,32 @@ When you scaffold a BandChain oracle, the following files and directories are cr
 
 ## BandChain Oracle Scaffold Example
 
-The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet2.cosmoscan.io/oracle-script/37#bridge) request and result.
+The following command scaffolds the IBC-enabled oracle. by default, the starport scaffold oracle for [coin rates](https://laozi-testnet4.cosmoscan.io/oracle-script/37#bridge) request and result.
 
 ```shell
-$ starport scaffold chain github.com/test/ibcoracle && cd ibcoracle 
+$ starport scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
 $ starport scaffold module consuming --ibc
 $ starport s band coinRates --module consuming
 ```
 
 Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
 
-`x/ibcoracle/types/keys.go`
+`x/oracle/types/keys.go`
 
 ```go
 const Version = "bandchain-1"
 ```
 
-After scaffold and change the data, configure and run the starport relayer.
+After scaffold and change the data, run the chain:
+```shell
+staport chain server
+```
 
+In another tab, configure and run the starport relayer.
 ```shell
 $ starport relayer configure -a \
---source-rpc "http://rpc-laozi-testnet2.bandchain.org:26657" \
---source-faucet "https://laozi-testnet2.bandchain.org/faucet/request" \
+--source-rpc "http://rpc-laozi-testnet4.bandchain.org:26657" \
+--source-faucet "https://laozi-testnet4.bandchain.org/faucet" \
 --source-port "oracle" \
 --source-gasprice "0uband" \
 --source-gaslimit 5000000 \
@@ -72,26 +76,26 @@ $ starport relayer configure -a \
 $ starport relayer connect
 ```
 
-Make a request transaction, passing the script id.
+Open one more terminal tab to make a request transaction, passing the script id.
 ```shell
 # Coin Rates (script 37 into the testnet)
-$ ibcoracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --request-key "random_string" --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id ibcoracle
+$ oracled tx consuming coin-rates-data 37 4 3 --channel channel-0 --symbols "BTC,ETH,XRP,BCH" --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
 
 You can check the last request id returned by ack.
 ```shell
-$ ibcoracled query consuming last-coin-rates-id
+$ oracled query consuming last-coin-rates-id
 request_id: "101276"
 ```
 
 Furthermore, check the data by request id receive the data packet.
 ```shell
-$ ibcoracled query consuming coin-rates-result 101276
+$ oracled query consuming coin-rates-result 101276
 ```
 
 ### Multiple oracles
 
-You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet2.cosmoscan.io/oracle-script/33#bridge):
+You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge):
 
 ```shell
 $ starport s band goldPrice --module consuming
@@ -100,9 +104,9 @@ $ starport s band goldPrice --module consuming
 `proto/gold_price.proto`:
 ```protobuf
 syntax = "proto3";
-package test.ibcoracle.consuming;
+package test.oracle.consuming;
 
-option go_package = "github.com/test/ibcoracle/x/consuming/types";
+option go_package = "github.com/test/oracle/x/consuming/types";
 
 message GoldPriceCallData {
   uint64 multiplier = 2;
@@ -180,12 +184,6 @@ func CmdRequestGoldPriceData() *cobra.Command {
 				return err
 			}
 
-			// retrieve the request key corresponding to the pool account (used to pay fee) on BandChain.
-			requestKey, err := cmd.Flags().GetString(flagRequestkey)
-			if err != nil {
-				return err
-			}
-
 			// retrieve the amount of gas allowed for the prepare step of the oracle script.
 			prepareGas, err := cmd.Flags().GetUint64(flagPrepareGas)
 			if err != nil {
@@ -211,7 +209,6 @@ func CmdRequestGoldPriceData() *cobra.Command {
 				askCount,
 				minCount,
 				feeLimit,
-				requestKey,
 				prepareGas,
 				executeGas,
 			)
@@ -226,7 +223,6 @@ func CmdRequestGoldPriceData() *cobra.Command {
 	cmd.MarkFlagRequired(flagChannel)
 	cmd.Flags().Uint64(flagMultiplier, 1000000, "Multiplier used in calling the oracle script")
 	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
-	cmd.Flags().String(flagRequestkey, "", "Key for generating escrow address")
 	cmd.Flags().Uint64(flagPrepareGas, 200000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 200000, "Execute gas used in fee counting for execute request")
 	flags.AddTxFlagsToCmd(cmd)
@@ -239,14 +235,14 @@ Make the request transaction.
 
 ```shell
 # Gold Price (script 33 into the testnet)
-$ ibcoracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --request-key "random_string" --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id ibcoracle
+$ oracled tx consuming gold-price-data 33 4 3 --channel channel-0 --multiplier 1000000 --fee-limit 30uband --prepare-gas 600000 --execute-gas 600000 --from alice --chain-id oracle
 ```
 
 Check the last request id returned by ack and the package data.
 
 ```shell
-$ ibcoracled query consuming last-gold-price-id
+$ oracled query consuming last-gold-price-id
 request_id: "101290"
 
-$ ibcoracled query consuming gold-price-result 101290
+$ oracled query consuming gold-price-result 101290
 ```
