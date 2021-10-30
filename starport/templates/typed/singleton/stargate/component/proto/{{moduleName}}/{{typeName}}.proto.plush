@@ -6,6 +6,6 @@ import "<%= ModuleName %>/<%= importName %>.proto"; <% } %><%= for (importName) 
 import "<%= importName %>"; <% } %>
 
 message <%= TypeName.UpperCamel %> {<%= for (i, field) in Fields { %>
-  <%= field.ProtoType(i+1) %> <% } %>
+  <%= field.ProtoType(i+1) %>; <% } %>
   <%= if (!NoMessage) { %>string <%= MsgSigner.LowerCamel %> = <%= len(Fields)+1 %>;<% } %>
 }

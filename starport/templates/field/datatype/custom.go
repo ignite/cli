@@ -12,7 +12,7 @@ var (
 		DataType:         func(datatype string) string { return fmt.Sprintf("*%s", datatype) },
 		DefaultTestValue: "null",
 		ProtoType: func(datatype, name string, index int) string {
-			return fmt.Sprintf("%s %s = %d;", datatype, name, index)
+			return fmt.Sprintf("%s %s = %d", datatype, name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: new(types.%s),\n", name.UpperCamel, name.UpperCamel)
