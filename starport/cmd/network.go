@@ -49,6 +49,7 @@ func NewNetwork() *cobra.Command {
 		Aliases: []string{"n"},
 		Short:   "Launch a blockchain network in production",
 		Args:    cobra.ExactArgs(1),
+		Hidden:  true,
 	}
 
 	// configure flags.
