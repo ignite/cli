@@ -2,11 +2,11 @@ package dirchange
 
 import (
 	"crypto/rand"
-	"github.com/stretchr/testify/require"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
 )
 
 const (
@@ -37,25 +37,25 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NoError(t, err)
 	defer os.RemoveAll(dir3)
 
-	dir11, err := ioutil.TempDir(dir1, TmpPattern)
+	dir11, err := os.MkdirTemp(dir1, TmpPattern)
 	require.NoError(t, err)
-	dir12, err := ioutil.TempDir(dir1, TmpPattern)
+	dir12, err := os.MkdirTemp(dir1, TmpPattern)
 	require.NoError(t, err)
-	dir21, err := ioutil.TempDir(dir2, TmpPattern)
+	dir21, err := os.MkdirTemp(dir2, TmpPattern)
 	require.NoError(t, err)
 
 	// Create files
-	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
+	err = os.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir11, "foo"), randomBytes(15), 0644)
+	err = os.WriteFile(filepath.Join(dir11, "foo"), randomBytes(15), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir12, "foo"), randomBytes(20), 0644)
+	err = os.WriteFile(filepath.Join(dir12, "foo"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir21, "foo"), randomBytes(20), 0644)
+	err = os.WriteFile(filepath.Join(dir21, "foo"), randomBytes(20), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
+	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(10), 0644)
+	err = os.WriteFile(filepath.Join(dir3, "foo2"), randomBytes(10), 0644)
 	require.NoError(t, err)
 
 	// Check checksum
@@ -68,7 +68,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	// Checksum remains the same if a file is deleted and recreated with the same content
 	err = os.Remove(filepath.Join(dir1, "foo"))
 	require.NoError(t, err)
-	err = ioutil.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
+	err = os.WriteFile(filepath.Join(dir1, "foo"), []byte("some bytes"), 0644)
 	require.NoError(t, err)
 	tmpChecksum, err := checksumFromPaths("", paths)
 	require.NoError(t, err)
@@ -92,7 +92,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.NotEqual(t, checksum, tmpChecksum)
 
 	// Checksum changes if a file is modified
-	err = ioutil.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
+	err = os.WriteFile(filepath.Join(dir3, "foo1"), randomBytes(10), 0644)
 	require.NoError(t, err)
 	newChecksum, err := checksumFromPaths("", paths)
 	require.NoError(t, err)
@@ -111,13 +111,13 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.Error(t, err)
 
 	// SaveDirChecksum saves the checksum in the specified dir
-	saveDir, err := ioutil.TempDir(tempDir, TmpPattern)
+	saveDir, err := os.MkdirTemp(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(saveDir)
 	err = SaveDirChecksum("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)
 	require.FileExists(t, filepath.Join(saveDir, ChecksumFile))
-	fileContent, err := ioutil.ReadFile(filepath.Join(saveDir, ChecksumFile))
+	fileContent, err := os.ReadFile(filepath.Join(saveDir, ChecksumFile))
 	require.NoError(t, err)
 	require.Equal(t, newChecksum, fileContent)
 
@@ -131,7 +131,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.False(t, changed)
 
 	// Return true if checksum file doesn't exist
-	newSaveDir, err := ioutil.TempDir(tempDir, TmpPattern)
+	newSaveDir, err := os.MkdirTemp(tempDir, TmpPattern)
 	require.NoError(t, err)
 	defer os.RemoveAll(newSaveDir)
 	changed, err = HasDirChecksumChanged("", paths, newSaveDir, ChecksumFile)
@@ -144,7 +144,7 @@ func TestHasDirChecksumChanged(t *testing.T) {
 	require.True(t, changed)
 
 	// Return true if it has been changed
-	err = ioutil.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
+	err = os.WriteFile(filepath.Join(dir21, "bar"), randomBytes(20), 0644)
 	require.NoError(t, err)
 	changed, err = HasDirChecksumChanged("", paths, saveDir, ChecksumFile)
 	require.NoError(t, err)

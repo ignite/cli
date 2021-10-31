@@ -70,12 +70,6 @@ func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 				return err
 			}
 
-			// retrieve the request key corresponding to the pool account (used to pay fee) on BandChain.
-			requestKey, err := cmd.Flags().GetString(flagRequestkey)
-			if err != nil {
-				return err
-			}
-
 			// retrieve the amount of gas allowed for the prepare step of the oracle script.
 			prepareGas, err := cmd.Flags().GetUint64(flagPrepareGas)
 			if err != nil {
@@ -101,7 +95,6 @@ func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 				askCount,
 				minCount,
 				feeLimit,
-				requestKey,
 				prepareGas,
 				executeGas,
 			)
@@ -117,7 +110,6 @@ func CmdRequest<%= queryName.UpperCamel %>Data() *cobra.Command {
 	cmd.Flags().StringSlice(flagSymbols, nil, "Symbols used in calling the oracle script")
 	cmd.Flags().Uint64(flagMultiplier, 1000000, "Multiplier used in calling the oracle script")
 	cmd.Flags().String(flagFeeLimit, "", "the maximum tokens that will be paid to all data source providers")
-	cmd.Flags().String(flagRequestkey, "", "Key for generating escrow address")
 	cmd.Flags().Uint64(flagPrepareGas, 200000, "Prepare gas used in fee counting for prepare request")
 	cmd.Flags().Uint64(flagExecuteGas, 200000, "Execute gas used in fee counting for execute request")
 	flags.AddTxFlagsToCmd(cmd)
