@@ -62,11 +62,11 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
 
-	gSimap, err := AddSimulation(opts.AppPath, opts.ModulePath, opts.ModuleName, opts.Params...)
+	gSimapp, err := AddSimulation(opts.AppPath, opts.ModulePath, opts.ModuleName, opts.Params...)
 	if err != nil {
 		return g, err
 	}
-	g.Merge(gSimap)
+	g.Merge(gSimapp)
 
 	return g, nil
 }

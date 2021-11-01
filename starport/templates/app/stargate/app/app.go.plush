@@ -211,10 +211,10 @@ type App struct {
 
 	// this line is used by starport scaffolding # stargate/app/keeperDeclaration
 
-	// mm the module manager
+	// mm is the module manager
 	mm *module.Manager
 
-	// sm simulation manager
+	// sm is the simulation manager
 	sm *module.SimulationManager
 }
 

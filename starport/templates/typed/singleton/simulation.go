@@ -29,11 +29,11 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 		%[1]v`
 		replacementGs := fmt.Sprintf(
 			templateGs,
-			typed.PlaceholderSimapGenesisState,
+			typed.PlaceholderSimappGenesisState,
 			opts.TypeName.UpperCamel,
 			sampleFields,
 		)
-		content := replacer.Replace(f.String(), typed.PlaceholderSimapGenesisState, replacementGs)
+		content := replacer.Replace(f.String(), typed.PlaceholderSimappGenesisState, replacementGs)
 
 		content = typed.ModuleSimulationMsgModify(
 			replacer,

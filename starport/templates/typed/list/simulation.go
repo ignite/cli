@@ -28,8 +28,8 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 	},
 	%[2]vCount: 2,
 	%[1]v`
-		replacementGs := fmt.Sprintf(templateGs, typed.PlaceholderSimapGenesisState, opts.TypeName.UpperCamel)
-		content := replacer.Replace(f.String(), typed.PlaceholderSimapGenesisState, replacementGs)
+		replacementGs := fmt.Sprintf(templateGs, typed.PlaceholderSimappGenesisState, opts.TypeName.UpperCamel)
+		content := replacer.Replace(f.String(), typed.PlaceholderSimappGenesisState, replacementGs)
 
 		content = typed.ModuleSimulationMsgModify(
 			replacer,

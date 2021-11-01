@@ -21,7 +21,7 @@ const (
 	PlaceholderGenesisModuleInit    = "// this line is used by starport scaffolding # genesis/module/init"
 	PlaceholderGenesisModuleExport  = "// this line is used by starport scaffolding # genesis/module/export"
 
-	PlaceholderSimapConst        = "// this line is used by starport scaffolding # simap/module/const"
-	PlaceholderSimapGenesisState = "// this line is used by starport scaffolding # simap/module/genesisState"
-	PlaceholderSimapOperation    = "// this line is used by starport scaffolding # simap/module/operation"
+	PlaceholderSimappConst        = "// this line is used by starport scaffolding # simapp/module/const"
+	PlaceholderSimappGenesisState = "// this line is used by starport scaffolding # simapp/module/genesisState"
+	PlaceholderSimappOperation    = "// this line is used by starport scaffolding # simapp/module/operation"
 )

@@ -23,8 +23,8 @@ func ModuleSimulationMsgModify(
 	defaultWeightMsg%[2]v%[3]v int = 100
 
 	%[1]v`
-		replacementConst := fmt.Sprintf(templateConst, PlaceholderSimapConst, msg, typeName.UpperCamel)
-		content = replacer.Replace(content, PlaceholderSimapConst, replacementConst)
+		replacementConst := fmt.Sprintf(templateConst, PlaceholderSimappConst, msg, typeName.UpperCamel)
+		content = replacer.Replace(content, PlaceholderSimappConst, replacementConst)
 
 		// simulation operations
 		templateOp := `var weightMsg%[2]v%[3]v int
@@ -64,8 +64,8 @@ func ModuleSimulationMsgModify(
 	))
 
 	%[1]v`
-		replacementOp := fmt.Sprintf(templateOp, PlaceholderSimapOperation, msg, typeName.UpperCamel)
-		content = replacer.Replace(content, PlaceholderSimapOperation, replacementOp)
+		replacementOp := fmt.Sprintf(templateOp, PlaceholderSimappOperation, msg, typeName.UpperCamel)
+		content = replacer.Replace(content, PlaceholderSimappOperation, replacementOp)
 	}
 	return content
 }
