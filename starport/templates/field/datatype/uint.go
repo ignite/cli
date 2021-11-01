@@ -15,7 +15,7 @@ var (
 		ValueIndex:        "0",
 		ValueInvalidIndex: "100000",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("uint64 %s = %d;", name, index)
+			return fmt.Sprintf("uint64 %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: %d,\n", name.UpperCamel, value)
@@ -42,7 +42,7 @@ var (
 		DataType:         func(string) string { return "[]uint64" },
 		DefaultTestValue: "1,2,3,4,5",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("repeated uint64 %s = %d;", name, index)
+			return fmt.Sprintf("repeated uint64 %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: []uint64{%d},\n", name.UpperCamel, value)

@@ -2,7 +2,6 @@ package cosmosgen
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -96,10 +95,6 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 		return err
 	}
 
-	// reset destination dir.
-	if err := os.RemoveAll(out); err != nil {
-		return err
-	}
 	if err := os.MkdirAll(typesOut, 0766); err != nil {
 		return err
 	}
@@ -118,7 +113,7 @@ func (g *jsGenerator) generateModule(ctx context.Context, tsprotoPluginPath, app
 	}
 
 	// generate OpenAPI spec.
-	oaitemp, err := ioutil.TempDir("", "gen-js-openapi-module-spec")
+	oaitemp, err := os.MkdirTemp("", "gen-js-openapi-module-spec")
 	if err != nil {
 		return err
 	}

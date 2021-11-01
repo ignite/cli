@@ -1,7 +1,7 @@
 //go:build !relayer
 // +build !relayer
 
-package integration_test
+package app_test
 
 import (
 	"path/filepath"
@@ -119,6 +119,22 @@ func TestCreateIBCOracle(t *testing.T) {
 		)),
 	))
 
+	env.Must(env.Exec("create an IBC module with params",
+		step.NewSteps(step.New(
+			step.Exec(
+				"starport",
+				"s",
+				"module",
+				"paramsFoo",
+				"--ibc",
+				"--params",
+				"defaultName,isLaunched:bool,minLaunch:uint,maxLaunch:int",
+				"--require-registration",
+			),
+			step.Workdir(path),
+		)),
+	))
+
 	env.Must(env.Exec("create the first BandChain oracle integration",
 		step.NewSteps(step.New(
 			step.Exec("starport", "s", "band", "oracleone", "--module", "foo"),
@@ -151,7 +167,7 @@ func TestCreateIBCOracle(t *testing.T) {
 
 	env.Must(env.Exec("create a non-IBC module",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "module", "bar", "--require-registration"),
+			step.Exec("starport", "s", "module", "bar", "--params", "name,minLaunch:uint,maxLaunch:int", "--require-registration"),
 			step.Workdir(path),
 		)),
 	))

@@ -47,6 +47,8 @@ In this guide, you will [accomplish/build/] [some thing]...
 
 When you're finished, you'll be able to...
 
+**Note:** The code in this tutorial is written specifically for this learning experience and is intended only for educational purposes. This tutorial code is not intended to be used in production.
+
 ## Prerequisites
 
 <!-- Prerequisites let you leverage existing tutorials so you don't have to repeat installation or setup steps in your tutorial. -->
@@ -60,7 +62,7 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Starport](https://docs.starport.network/). To install Starport, see [Install Starport](../starport/install.md). 
+- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../starport/install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 

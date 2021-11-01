@@ -1,11 +1,10 @@
 //go:build !relayer
 // +build !relayer
 
-package integration_test
+package app_test
 
 import (
 	"context"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"testing"
@@ -88,7 +87,7 @@ func TestServeStargateWithConfigHome(t *testing.T) {
 }
 
 func TestServeStargateWithCustomConfigFile(t *testing.T) {
-	tmpDir, err := ioutil.TempDir("", "starporttest")
+	tmpDir, err := os.MkdirTemp("", "starporttest")
 	require.NoError(t, err)
 	defer os.RemoveAll(tmpDir)
 
