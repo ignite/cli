@@ -40,9 +40,15 @@ func validateField(field string, isForbiddenField func(string) error) (multiform
 func ParseFields(
 	fields []string,
 	isForbiddenField func(string) error,
+	forbiddenFieldNames ...string,
 ) (Fields, error) {
 	// Used to check duplicated field
 	existingFields := make(map[string]struct{})
+	for _, name := range forbiddenFieldNames {
+		if name != "" {
+			existingFields[name] = struct{}{}
+		}
+	}
 
 	var parsedFields Fields
 	for _, field := range fields {
