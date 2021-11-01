@@ -5,9 +5,9 @@ order: 2
 
 # Add comments to Blog
 
-In this tutorial, you will create a new message module called comment. The module will let you read and write comments to the existing blog blockchain.
+In this tutorial, you will create a new message to add a comment to a blog post. You will be implementing logic for writing comments to the blockchain as well as querying for blog posts with associated comments.
 
-You can only add comments to a post which is no older than 100 Blocks. 
+You can only add comments to a post that is no older than 100 blocks. 
 
 **Note:** This value has been hard coded to a low number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is stopped.
 
