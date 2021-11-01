@@ -135,11 +135,16 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	signer := ""
+	if !o.withoutMessage {
+		signer = o.signer
+	}
+
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
 	if err != nil {
 		return sm, err
 	}
@@ -248,11 +253,6 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, datatype.Separator)
-	if len(fieldSplit) > 1 {
-		name = fieldSplit[0]
-	}
-
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {
 		return err
@@ -261,7 +261,6 @@ func checkForbiddenTypeField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"id",
-		"creator",
 		"params",
 		"appendedvalue",
 		datatype.TypeCustom:
