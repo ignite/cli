@@ -72,8 +72,7 @@ func scaffoldType(
 	}
 	if withoutMessage {
 		options = append(options, scaffolder.TypeWithoutMessage())
-	}
-	if signer != "" {
+	} else if signer != "" {
 		options = append(options, scaffolder.TypeWithSigner(signer))
 	}
 
