@@ -25,7 +25,7 @@ const (
 func NewNetworkChainPublish() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "publish [source-url]",
-		Short: "Publush a new chain to start a new network",
+		Short: "Publish a new chain to start a new network",
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainPublishHandler,
 	}
