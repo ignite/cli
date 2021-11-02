@@ -19,14 +19,14 @@ You can only add comments to a post that is no older than 100 blocks.
 
 ## Create a new message called comment
 
-To create a new message module for comment, use the `message` command:
+To create a new message, use the `message` command:
 
 ```bash
-starport scaffold message create-comment blogID:uint title body
+starport scaffold message create-comment postID:uint title body
 ```
 
-The `message` commands accepts `blogID` and a list of fields (`title` and `body` as arguments )
-Here, `blogID` is the reference to previously created blog post.
+The `message` commands accepts `postID` and a list of fields (`title` and `body` as arguments )
+Here, `postID` is the reference to previously created blog post.
 
 The `message` command has created and modified several files:
 
@@ -49,6 +49,7 @@ message MsgCreateComment {
   string title = 3;
   string body = 4;
   int64 createdAt = 5;
+  uint64 id = 6;
 }
 
 message MsgCreateCommentResponse {
@@ -96,7 +97,7 @@ The `case *types.MsgCreateComment` statement handles messages of type `MsgCreate
 
 In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
 
-You need to do two things:
+You need to do three things:
 
 - Create a variable of type `Comment` with title and body from the message
 - Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks.
@@ -111,8 +112,8 @@ import (
 func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComment) (*types.MsgCreateCommentResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	BlockHeight := CreatedAt() // Invoke method to get the block height of Post
-	PostID := CreatedId() // Invoke method to get the Post ID
+	blogID := msg.Id
+	BlockHeight := msg.CreatedAt
 
 	// Create variable of type comment
 	var comment = types.Comment{
@@ -120,12 +121,12 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 		Id:      msg.Id,
 		Body:    msg.Body,
 		Title:   msg.Title,
-		BlogID:  msg.BlogID,
+		PostID:  msg.PostID,
 		CreatedAt: ctx.BlockHeight(),
 	}
 
 	// Check if the Post Exists for which a comment is being created
-	if comment.BlogID > PostID {
+	if comment.PostID > blogID {
 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id %d does not exist for which comment with Blog Id %d was made", PostID, comment.BlogID)
 	}
 
@@ -134,10 +135,9 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 	// Check if the comment is older than the Post. If more than 100 blocks, then return error.
 	if comment.CreatedAt > BlockHeight {
 		return nil, sdkerrors.Wrapf(types.ErrCommentOld, "Comment created at %d is older than post created at %d", comment.CreatedAt, BlockHeight)
-	} else {
+	} 
 		id := k.AppendComment(ctx, comment)
-		return &types.MsgCreateCommentResponse{Id: id}, nil
-	}
+		return &types.MsgCreateCommentResponse{Id: id}, nil	}
 }
 ```
 
@@ -152,44 +152,6 @@ var (
 var (
 	ErrID = sdkerrors.Register(ModuleName, 1400, "")
 )
-```
-
-Notice, 2 methods `CreatedAt` and `CreatedId` are being invoked inside `msg_server_create_comment.go`. They are responsible for returning the Block height and latest ID of Post respectively.
-
-Define `CreatedAt` and `CreatedId` method inside `x/blog/keeper/msg_server_create_post.go`
-
-```go
-//...
-
-var BlockHeight int64
-var BlockId uint64 
-
-func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
-  //...
-  var post = types.Post{
-    //...
-    CreatedAt: ctx.BlockHeight(),
-  }
-
-    // Define the globally declared `BlockHeight` variable
-    BlockHeight = post.CreatedAt
-
-    id := k.AppendPost(ctx, post)
-    //...
-
-    // After the post has been appended, fetch the latest id in globally declared `BlockId` variable
-    BlockId = id
-}
-
-// Define two functions to return BlockId and Height respectively.
-
-func CreatedAt() int64 {
-	return BlockHeight
-}
-
-func CreatedId() uint64 {
-	return BlockId
-}
 ```
 
 
@@ -211,7 +173,7 @@ message Comment {
   uint64 id = 2;
   string title = 3;
   string body = 4; 
-  uint64 blogID = 5;
+  uint64 postID = 5;
   int64 createdAt = 6;
 }
 ```
@@ -335,7 +297,7 @@ By following these steps, you have implemented all of the code required to creat
 ## Display Posts
 
 ```bash
-starport scaffold query comments --response title,body,blogID
+starport scaffold query comments --response title,body,postID
 ```
 
 Very similar to previous blog tutorial, we will make changes to `proto/blog/query.proto`
