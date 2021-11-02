@@ -30,6 +30,12 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
 		}
 
+		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
+		if found {
+			// Skip message if already exist
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+		}
+
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,

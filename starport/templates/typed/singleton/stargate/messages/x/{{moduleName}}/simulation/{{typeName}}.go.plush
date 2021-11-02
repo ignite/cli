@@ -25,6 +25,12 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
+		_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
+		if found {
+			// Skip message if already exist
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
+		}
+
 		txCtx := simulation.OperationInput{
 			R:               r,
 			App:             app,
