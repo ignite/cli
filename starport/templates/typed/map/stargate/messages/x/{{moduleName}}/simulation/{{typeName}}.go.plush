@@ -17,8 +17,8 @@ import (
 var _ = strconv.IntSize
 
 func SimulateMsgCreate<%= TypeName.UpperCamel %>(
-	ak simulation.AccountKeeper,
-	bk simulation.BankKeeper,
+	ak types.AccountKeeper,
+	bk types.BankKeeper,
 	k keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
@@ -49,8 +49,8 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 }
 
 func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
-	ak simulation.AccountKeeper,
-	bk simulation.BankKeeper,
+	ak types.AccountKeeper,
+	bk types.BankKeeper,
 	k keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
@@ -86,8 +86,8 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 }
 
 func SimulateMsgDelete<%= TypeName.UpperCamel %>(
-	ak simulation.AccountKeeper,
-	bk simulation.BankKeeper,
+	ak types.AccountKeeper,
+	bk types.BankKeeper,
 	k keeper.Keeper,
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,

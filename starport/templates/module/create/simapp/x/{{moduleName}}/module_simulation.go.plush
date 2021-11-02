@@ -14,7 +14,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
 
-// avoid unused import sort issue
+// avoid unused import issue
 var (
 	_ = <%= moduleName %>simulation.Import
 	_ = simappparams.StakePerAccount
