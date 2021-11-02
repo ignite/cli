@@ -193,6 +193,7 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.
 		content := typed.ModuleSimulationMsgModify(
 			replacer,
 			f.String(),
+			opts.ModuleName,
 			opts.MsgName,
 		)
 

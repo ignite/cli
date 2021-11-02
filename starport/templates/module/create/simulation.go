@@ -13,7 +13,7 @@ import (
 func AddSimulation(appPath, modulePath, moduleName string, params ...field.Field) (*genny.Generator, error) {
 	var (
 		g        = genny.New()
-		template = xgenny.NewEmbedWalker(fsSimulation, "simulation/", appPath)
+		template = xgenny.NewEmbedWalker(fsSimapp, "simapp/", appPath)
 	)
 
 	ctx := plush.NewContext()

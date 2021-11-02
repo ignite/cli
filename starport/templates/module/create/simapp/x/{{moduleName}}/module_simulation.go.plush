@@ -4,6 +4,7 @@ import (
 	<%= if (len(params) > 0) { %>"fmt"<% } %>
 	"math/rand"
 
+	<%= moduleName %>simulation "<%= modulePath %>/x/<%= moduleName %>/simulation"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"github.com/cosmos/cosmos-sdk/baseapp"
 	simappparams "github.com/cosmos/cosmos-sdk/simapp/params"
@@ -15,6 +16,7 @@ import (
 
 // avoid unused import sort issue
 var (
+	_ = <%= moduleName %>simulation.Import
 	_ = simappparams.StakePerAccount
 	_ = simulation.MsgEntryKind
 	_ = baseapp.Paramspace

@@ -17,6 +17,6 @@ var (
 	//go:embed genesistest/* genesistest/**/*
 	fsGenesisTest embed.FS
 
-	//go:embed simulation/* simulation/**/*
-	fsSimulation embed.FS
+	//go:embed simapp/* simapp/**/*
+	fsSimapp embed.FS
 )
