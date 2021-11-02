@@ -20,6 +20,7 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
+// Blockchain represents a blockchain.
 type Blockchain struct {
 	appPath       string
 	url           string
