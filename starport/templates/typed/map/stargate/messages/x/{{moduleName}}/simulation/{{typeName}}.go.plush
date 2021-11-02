@@ -22,7 +22,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
 			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
 		}
 
@@ -53,7 +53,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
 
 		msg := &types.MsgUpdate<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
 			<%= index.Name.UpperCamel %>: <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,<% } %>
 		}
 
@@ -84,7 +84,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
 
 		msg := &types.MsgDelete<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
 			<%= index.Name.UpperCamel %>: <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,<% } %>
 		}
 

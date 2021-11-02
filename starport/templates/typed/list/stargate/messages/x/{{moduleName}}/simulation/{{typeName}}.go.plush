@@ -18,7 +18,7 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
 		txCtx := simulation.OperationInput{
@@ -45,7 +45,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{})
 
 		msg := &types.MsgUpdate<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 			Id: <%= TypeName.LowerCamel %>ID,
 		}
 
@@ -73,7 +73,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{})
 
 		msg := &types.MsgDelete<%= TypeName.UpperCamel %>{
-			Creator: simAccount.Address.String(),
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 			Id: <%= TypeName.LowerCamel %>ID,
 		}
 

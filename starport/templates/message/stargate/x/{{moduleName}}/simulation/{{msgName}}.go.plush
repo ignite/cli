@@ -17,7 +17,7 @@ func SimulateMsg<%= MsgName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 		msg := &types.Msg<%= MsgName.UpperCamel %>{
-			Creator: simAccount.Address.String(),
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
 		}
 
 		// TODO: Handling the <%= MsgName.UpperCamel %> simulation
