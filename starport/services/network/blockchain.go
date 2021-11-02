@@ -218,12 +218,6 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error
 	return err
 }
 
-// Cleanup closes the event bus and cleanups everything related to installed blockchain.
-func (b *Blockchain) Cleanup() error {
-	b.builder.ev.Shutdown()
-	return nil
-}
-
 func genesisAndHashFromURL(ctx context.Context, u string) (genesis []byte, hash string, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
 	if err != nil {

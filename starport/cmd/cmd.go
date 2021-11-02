@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -80,7 +81,9 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 	return chain.LogRegular
 }
 
-func printEvents(bus events.Bus, s *clispinner.Spinner) {
+func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
+	defer wg.Done()
+
 	for event := range bus {
 		if event.IsOngoing() {
 			s.SetText(event.Text())

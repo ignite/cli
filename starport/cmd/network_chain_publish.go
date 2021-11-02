@@ -1,8 +1,8 @@
 package starportcmd
 
 import (
-	"context"
 	"fmt"
+	"sync"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
@@ -56,8 +56,16 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New()
 	defer s.Stop()
 
-	ev := events.NewBus()
-	go printEvents(ev, s)
+	var (
+		wg sync.WaitGroup
+		ev = events.NewBus()
+	)
+	wg.Add(1)
+
+	defer wg.Wait()
+	defer ev.Shutdown()
+
+	go printEvents(&wg, ev, s)
 
 	nb, err := newNetwork(cmd, network.CollectEvents(ev))
 	if err != nil {
@@ -87,18 +95,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	s.Stop()
-
-	if err == context.Canceled {
-		fmt.Println("aborted")
-		return nil
-	}
-	if err != nil {
-		return err
-	}
-	defer blockchain.Cleanup()
-
-	s.Start()
 
 	// create blockchain.
 	var createOptions []network.CreateOption
