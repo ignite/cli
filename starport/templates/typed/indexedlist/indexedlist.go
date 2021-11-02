@@ -112,7 +112,7 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		// Add the service messages
 		var queryIndexFields string
 		for i, index := range opts.Indexes {
-			queryIndexFields += fmt.Sprintf("  %s\n", index.ProtoType(i+1))
+			queryIndexFields += fmt.Sprintf("  %s;\n", index.ProtoType(i+1))
 		}
 
 		// Ensure custom types are imported
@@ -193,17 +193,17 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var indexes string
 		for i, index := range opts.Indexes {
-			indexes += fmt.Sprintf("  %s\n", index.ProtoType(i+2))
+			indexes += fmt.Sprintf("  %s;\n", index.ProtoType(i+2))
 		}
 
 		var fieldsCreateMsg string
 		for i, f := range opts.Fields {
-			fieldsCreateMsg += fmt.Sprintf("  %s\n", f.ProtoType(i+2+len(opts.Indexes)))
+			fieldsCreateMsg += fmt.Sprintf("  %s;\n", f.ProtoType(i+2+len(opts.Indexes)))
 		}
 
 		var fieldsUpdateMsg string
 		for i, f := range opts.Fields {
-			fieldsUpdateMsg += fmt.Sprintf("  %s\n", f.ProtoType(i+3+len(opts.Indexes)))
+			fieldsUpdateMsg += fmt.Sprintf("  %s;\n", f.ProtoType(i+3+len(opts.Indexes)))
 		}
 
 		// Ensure custom types are imported
