@@ -57,7 +57,8 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{<%= for (i, index) in Indexes { %>
+		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
 			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
 		}
 		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
@@ -94,7 +95,8 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{<%= for (i, index) in Indexes { %>
+		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
 			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
 		}
 		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)

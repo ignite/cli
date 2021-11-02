@@ -52,7 +52,9 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{})
+		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
+		})
 
 		msg := &types.MsgUpdate<%= TypeName.UpperCamel %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
@@ -86,7 +88,9 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
-		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{})
+		<%= TypeName.LowerCamel %>ID := k.Append<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{
+			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
+		})
 
 		msg := &types.MsgDelete<%= TypeName.UpperCamel %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
