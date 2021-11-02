@@ -36,7 +36,7 @@ func ModuleSimulationMsgModify(
 	)
 	operations = append(operations, simulation.NewWeightedOperation(
 		weightMsg%[2]v%[3]v,
-		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.keeper),
+		%[4]vsimulation.SimulateMsg%[2]v%[3]v(am.accountKeeper, am.bankKeeper, am.keeper),
 	))
 
 	%[1]v`

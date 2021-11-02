@@ -12,7 +12,11 @@ import (
 	"github.com/cosmos/cosmos-sdk/x/simulation"
 )
 
-func SimulateMsg<%= MsgName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
+func SimulateMsg<%= MsgName.UpperCamel %>(
+	ak simulation.AccountKeeper,
+	bk simulation.BankKeeper,
+	k keeper.Keeper,
+) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
@@ -33,6 +37,8 @@ func SimulateMsg<%= MsgName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
 			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
 		}
 		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}

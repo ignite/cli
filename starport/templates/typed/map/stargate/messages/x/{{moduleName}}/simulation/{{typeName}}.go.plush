@@ -16,7 +16,11 @@ import (
 // Prevent strconv unused error
 var _ = strconv.IntSize
 
-func SimulateMsgCreate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
+func SimulateMsgCreate<%= TypeName.UpperCamel %>(
+	ak simulation.AccountKeeper,
+	bk simulation.BankKeeper,
+	k keeper.Keeper,
+) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
@@ -37,12 +41,18 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
 			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
 		}
 		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
 }
 
-func SimulateMsgUpdate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
+func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
+	ak simulation.AccountKeeper,
+	bk simulation.BankKeeper,
+	k keeper.Keeper,
+) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
@@ -68,12 +78,18 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
 			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
 		}
 		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
 }
 
-func SimulateMsgDelete<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Operation {
+func SimulateMsgDelete<%= TypeName.UpperCamel %>(
+	ak simulation.AccountKeeper,
+	bk simulation.BankKeeper,
+	k keeper.Keeper,
+) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
@@ -99,6 +115,8 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(k keeper.Keeper) simtypes.Opera
 			SimAccount:      simAccount,
 			ModuleName:      types.ModuleName,
 			CoinsSpentInMsg: sdk.NewCoins(),
+			AccountKeeper:   ak,
+			Bankkeeper:      bk,
 		}
 		return simulation.GenAndDeliverTxWithRandFees(txCtx)
 	}
