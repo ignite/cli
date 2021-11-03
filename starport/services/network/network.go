@@ -46,7 +46,7 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 
 // initOptions holds blockchain initialization options.
 type initOptions struct {
-	chainID                  string
+	launchID                  string
 	url                      string
 	ref                      plumbing.ReferenceName
 	hash                     string
@@ -61,10 +61,10 @@ type SourceOption func(*initOptions)
 // InitOption sets other initialization options.
 type InitOption func(*initOptions)
 
-// SourceChainID makes source determined by the chain's id.
-func SourceChainID(chainID string) SourceOption {
+// SourceLaunchID makes source determined by the launch id.
+func SourceLaunchID(launchID string) SourceOption {
 	return func(o *initOptions) {
-		o.chainID = chainID
+		o.launchID = launchID
 	}
 }
 
