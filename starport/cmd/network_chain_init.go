@@ -1,19 +1,21 @@
 package starportcmd
 
 import (
+	"fmt"
+	"strconv"
+	"sync"
+
 	"github.com/spf13/cobra"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network"
-	"sync"
 )
 
 const (
-	flagRecover     = "recover"
+	flagRecover  = "recover"
 	flagMnemonic = "mnemomic"
-	flagKeyName = "key-name"
-	flagOut = "out"
+	flagKeyName  = "key-name"
+	flagOut      = "out"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -34,12 +36,11 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	var (
-		launchID        = args[0]
-		recover, _     = cmd.Flags().GetBool(flagRecover)
-		mnemonic, _       = cmd.Flags().GetString(flagMnemonic)
-		keyName, _ = cmd.Flags().GetString(flagKeyName)
-	)
+	//var (
+	//	recover, _     = cmd.Flags().GetBool(flagRecover)
+	//	mnemonic, _       = cmd.Flags().GetString(flagMnemonic)
+	//	keyName, _ = cmd.Flags().GetString(flagKeyName)
+	//)
 
 	s := clispinner.New()
 	defer s.Stop()
@@ -55,11 +56,24 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 
 	go printEvents(&wg, ev, s)
 
+	// parse launch ID
+	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	if err != nil {
+		return fmt.Errorf("error parsing launchID: %s", err.Error())
+	}
+
 	nb, err := newNetwork(cmd, network.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
-	launchtypes.NewQueryClient(nb.)
+
+	// initialize the blockchain from the launch ID
+	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
+	sourceOption := network.SourceLaunchID(launchID)
+	_, err = nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

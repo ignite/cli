@@ -47,7 +47,7 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 
 // initOptions holds blockchain initialization options.
 type initOptions struct {
-	launchID                  *uint64
+	launchID                 *uint64
 	url                      string
 	ref                      plumbing.ReferenceName
 	hash                     string
@@ -132,10 +132,10 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 
 	var (
 		chainID = ""
-		home = o.homePath
-		url = o.url
-		ref = o.ref
-		hash = o.hash
+		home    = o.homePath
+		url     = o.url
+		ref     = o.ref
+		hash    = o.hash
 	)
 
 	// if a launch id is provided, chain information are fetched from Starport Network
@@ -152,7 +152,10 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 
 		// If no custom home is provided, a default home determined from the launch ID is used
 		if home == "" {
-
+			home, err = ChainHome(*o.launchID)
+			if err != nil {
+				return nil, err
+			}
 		}
 	}
 
