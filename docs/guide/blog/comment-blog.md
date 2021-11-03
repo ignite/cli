@@ -17,6 +17,18 @@ You can only add comments to a post that is no older than 100 blocks.
 - This tutorial also assumes basic knowledge of blog tutorial implementation.
 - Make sure you are inside the `blog` directory created in the previous blog tutorial.
 
+## Create a new type called comment
+
+To create a new type, use the `type` command:
+
+```bash
+starport scaffold type comment
+```
+
+The `type` command scaffolds a type definition and creates `comment.proto` file. 
+
+create proto/blog/comment.proto
+
 ## Create a new message called comment
 
 To create a new message, use the `message` command:
@@ -161,7 +173,7 @@ Define the `Comment` type and the `AppendComment` keeper method.
 
 When you define the `Comment` type in a proto file, Starport (with the help of `protoc`) takes care of generating the required Go files.
 
-Create the `proto/blog/comment.proto` file and define the `Comment` message:
+Inside the `proto/blog/comment.proto` file, define the `Comment` message:
 
 ```go
 syntax = "proto3";
