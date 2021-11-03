@@ -192,7 +192,7 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error
 			Address: b.builder.account.Address(SPNAddressPrefix),
 		})
 
-		// TODO check for not found and only then create a new coordinator, otherwise return the err.
+	// TODO check for not found and only then create a new coordinator, otherwise return the err.
 	if err != nil {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			b.builder.account.Address(SPNAddressPrefix),
