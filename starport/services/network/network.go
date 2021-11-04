@@ -131,7 +131,9 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	source(&o)
 
 	var (
-		chainID = ""
+		chainID string
+		genesisURL string
+		genesisHash string
 		home    = o.homePath
 		url     = o.url
 		ref     = o.ref
@@ -149,6 +151,12 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 		url = chainLaunch.SourceURL
 		hash = chainLaunch.SourceHash
 		chainID = chainLaunch.GenesisChainID
+
+		// Check if custom genesis URL is provided
+		if customGenesisURL := chainLaunch.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
+			genesisURL = customGenesisURL.Url
+			genesisHash = customGenesisURL.Hash
+		}
 
 		// If no custom home is provided, a default home determined from the launch ID is used
 		if home == "" {
@@ -171,6 +179,8 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 		url:     url,
 		hash:    hash,
 		builder: b,
+		genesisURL: genesisURL,
+		genesisHash: genesisHash,
 	}
 	return bc, bc.setup(chainID, home, o.keyringBackend)
 }

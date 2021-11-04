@@ -2,7 +2,9 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/services/chain"
 	"strconv"
 	"sync"
 
@@ -75,10 +77,70 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	// initialize the blockchain from the launch ID
 	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
 	sourceOption := network.SourceLaunchID(launchID)
-	_, err = nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
 	if err != nil {
 		return err
 	}
 
+	if err := blockchain.Init(cmd.Context()); err != nil {
+		return err
+	}
+
+	// ask validator information
+	v , err := askValidatorInfo()
+	if err != nil {
+		return err
+	}
+
+	gentxPath, err := blockchain.InitAccount(cmd.Context(), v)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("gentx generated: %s\n", gentxPath)
+
 	return nil
+}
+
+func askValidatorInfo() (v chain.Validator, err error) {
+	questions := append([]cliquiz.Question{},
+		cliquiz.NewQuestion("Staking amount",
+			&v.StakingAmount,
+			cliquiz.DefaultAnswer("95000000stake"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Moniker",
+			&v.Moniker,
+			cliquiz.DefaultAnswer("mynode"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission rate",
+			&v.CommissionRate,
+			cliquiz.DefaultAnswer("0.10"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission max rate",
+			&v.CommissionMaxRate,
+			cliquiz.DefaultAnswer("0.20"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Commission max change rate",
+			&v.CommissionMaxChangeRate,
+			cliquiz.DefaultAnswer("0.01"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Min self delegation",
+			&v.MinSelfDelegation,
+			cliquiz.DefaultAnswer("1"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Gas prices",
+			&v.GasPrices,
+			cliquiz.DefaultAnswer("0.025stake"),
+			cliquiz.Required(),
+		),
+		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
+		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
+		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
+	)
+	return v, cliquiz.Ask(questions...)
 }

@@ -5,9 +5,12 @@ import (
 	"context"
 	"crypto/sha256"
 	"encoding/hex"
+	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
@@ -16,8 +19,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/xos"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+const (
+	gentxFilename = "gentx.json"
 )
 
 // Blockchain represents a blockchain.
@@ -28,6 +34,8 @@ type Blockchain struct {
 	chain         *chain.Chain
 	isInitialized bool
 	builder       *Builder
+	genesisURL	  string
+	genesisHash	  string
 }
 
 // setup setups blockchain.
@@ -94,22 +102,56 @@ func (b *Blockchain) Init(ctx context.Context) error {
 	}
 
 	// cleanup home dir of app if exists.
-	if err := xos.RemoveAllUnderHome(chainHome); err != nil {
+	if err := os.RemoveAll(chainHome); err != nil {
 		return err
 	}
 
+	// build the chain and initialize it with a new validator key
 	if _, err := b.chain.Build(ctx, ""); err != nil {
 		return err
 	}
-
 	if err := b.chain.Init(ctx, false); err != nil {
 		return err
+	}
+
+	// write the custom genesis if a genesis URL is provided
+	if b.genesisURL != "" {
+		genesis, hash, err := genesisAndHashFromURL(ctx, b.genesisURL)
+		if err != nil {
+			return err
+		}
+		if hash != b.genesisHash {
+			return fmt.Errorf("genesis from URL %s is invalid. Expected hash %s, actual hash %s", b.genesisURL, b.genesisHash, hash)
+		}
+		genesisPath, err := b.chain.GenesisPath()
+		if err != nil {
+			return err
+		}
+		if err := os.WriteFile(genesisPath, genesis, 0644); err != nil {
+			return err
+		}
 	}
 
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 	b.isInitialized = true
 
 	return nil
+}
+
+// InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
+func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator) (string, error) {
+	if !b.isInitialized {
+		return "", errors.New("the blockchain must be initialized to initialize an account")
+	}
+
+	issuedGentxPath, err := b.chain.IssueGentx(ctx, v)
+	if err != nil {
+		return "", err
+	}
+
+	// rename the issued gentx into gentx.json
+	gentxPath := filepath.Join(filepath.Dir(issuedGentxPath), gentxFilename)
+	return gentxPath, os.Rename(issuedGentxPath, gentxPath)
 }
 
 // createOptions holds info about how to create a chain.
@@ -219,8 +261,8 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error
 	return err
 }
 
-func genesisAndHashFromURL(ctx context.Context, u string) (genesis []byte, hash string, err error) {
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, u, nil)
+func genesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, hash string, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
 	if err != nil {
 		return nil, "", err
 	}

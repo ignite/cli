@@ -52,7 +52,7 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.2
 	github.com/tendermint/spm v0.1.7
-	github.com/tendermint/spn v0.1.1-0.20211103092237-61b41bbb304a
+	github.com/tendermint/spn v0.1.1-0.20211104082149-b65147ba4d75
 	github.com/tendermint/tendermint v0.34.13
 	github.com/tendermint/vue v0.1.53
 	golang.org/x/mod v0.4.2

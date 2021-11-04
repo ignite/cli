@@ -1323,6 +1323,8 @@ github.com/tendermint/spn v0.1.1-0.20211019114618-71b787f1c6ba h1:D+0eA/49vPFQ3Q
 github.com/tendermint/spn v0.1.1-0.20211019114618-71b787f1c6ba/go.mod h1:b9drKTa6ceWJ+6tT8Ujleta7GM7lnxAHyInGXyjP7CM=
 github.com/tendermint/spn v0.1.1-0.20211103092237-61b41bbb304a h1:Dd1XVHfKCxW/+7J0TiCxWF5MV7az/6wr3gqg47sZEgg=
 github.com/tendermint/spn v0.1.1-0.20211103092237-61b41bbb304a/go.mod h1:b9drKTa6ceWJ+6tT8Ujleta7GM7lnxAHyInGXyjP7CM=
+github.com/tendermint/spn v0.1.1-0.20211104082149-b65147ba4d75 h1:tRty0k6/WG4HmHMMpPfdAILhco2zfPVnisbgWTSVdLk=
+github.com/tendermint/spn v0.1.1-0.20211104082149-b65147ba4d75/go.mod h1:b9drKTa6ceWJ+6tT8Ujleta7GM7lnxAHyInGXyjP7CM=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=
