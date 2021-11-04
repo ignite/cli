@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"strconv"
 	"sync"
 
@@ -15,7 +16,6 @@ const (
 	flagRecover  = "recover"
 	flagMnemonic = "mnemomic"
 	flagKeyName  = "key-name"
-	flagOut      = "out"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -27,10 +27,15 @@ func NewNetworkChainInit() *cobra.Command {
 		RunE:  networkChainInitHandler,
 	}
 
-	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().Bool(flagRecover, false, "Recover chain account from a mnemonic")
 	c.Flags().String(flagMnemonic, "", "Mnemonic for recovered account")
 	c.Flags().String(flagKeyName, "", "key name for the chain account")
+
+	// TODO create flagset
+	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
+	c.Flags().AddFlagSet(flagSetYes())
 
 	return c
 }

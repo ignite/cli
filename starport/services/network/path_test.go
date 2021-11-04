@@ -1,11 +1,12 @@
 package network_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/services/network"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 func TestChainHome(t *testing.T) {

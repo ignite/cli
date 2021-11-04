@@ -1,8 +1,9 @@
 package network
 
 import (
-	"github.com/tendermint/starport/starport/pkg/xfilepath"
 	"strconv"
+
+	"github.com/tendermint/starport/starport/pkg/xfilepath"
 )
 
 var (
