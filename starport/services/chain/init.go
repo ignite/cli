@@ -182,8 +182,8 @@ func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
 	}
 
 	// create the gentx from the validator from the config
-	 gentxPath, err := c.plugin.Gentx(ctx, commands, v)
-	 if err != nil {
+	gentxPath, err := c.plugin.Gentx(ctx, commands, v)
+	if err != nil {
 		return "", err
 	}
 
@@ -220,6 +220,9 @@ type Validator struct {
 	CommissionMaxChangeRate string
 	MinSelfDelegation       string
 	GasPrices               string
+	Details                 string
+	Identity                string
+	Website                 string
 }
 
 // Account represents an account in the chain.

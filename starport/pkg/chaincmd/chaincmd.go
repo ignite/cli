@@ -36,6 +36,9 @@ const (
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
+	optionValidatorDetails                 = "--details"
+	optionValidatorIdentity                = "--identity"
+	optionValidatorWebsite                 = "--website"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
 	optionCoinType                         = "--coin-type"
@@ -320,6 +323,36 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	return func(command []string) []string {
 		if len(gasPrices) > 0 {
 			return append(command, optionValidatorGasPrices, gasPrices)
+		}
+		return command
+	}
+}
+
+// GentxWithDetails provides validator details option for the gentx command
+func GentxWithDetails(details string) GentxOption {
+	return func(command []string) []string {
+		if len(details) > 0 {
+			return append(command, optionValidatorDetails, details)
+		}
+		return command
+	}
+}
+
+// GentxWithIdentity provides validator identity option for the gentx command
+func GentxWithIdentity(identity string) GentxOption {
+	return func(command []string) []string {
+		if len(identity) > 0 {
+			return append(command, optionValidatorIdentity, identity)
+		}
+		return command
+	}
+}
+
+// GentxWithWebsite provides validator website option for the gentx command
+func GentxWithWebsite(website string) GentxOption {
+	return func(command []string) []string {
+		if len(website) > 0 {
+			return append(command, optionValidatorWebsite, website)
 		}
 		return command
 	}

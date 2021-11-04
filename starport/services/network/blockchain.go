@@ -34,8 +34,8 @@ type Blockchain struct {
 	chain         *chain.Chain
 	isInitialized bool
 	builder       *Builder
-	genesisURL	  string
-	genesisHash	  string
+	genesisURL    string
+	genesisHash   string
 }
 
 // setup setups blockchain.

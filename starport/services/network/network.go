@@ -131,13 +131,13 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	source(&o)
 
 	var (
-		chainID string
-		genesisURL string
+		chainID     string
+		genesisURL  string
 		genesisHash string
-		home    = o.homePath
-		url     = o.url
-		ref     = o.ref
-		hash    = o.hash
+		home        = o.homePath
+		url         = o.url
+		ref         = o.ref
+		hash        = o.hash
 	)
 
 	// if a launch id is provided, chain information are fetched from Starport Network
@@ -175,11 +175,11 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	b.ev.Send(events.New(events.StatusDone, "Source code fetched"))
 
 	bc := &Blockchain{
-		appPath: path,
-		url:     url,
-		hash:    hash,
-		builder: b,
-		genesisURL: genesisURL,
+		appPath:     path,
+		url:         url,
+		hash:        hash,
+		builder:     b,
+		genesisURL:  genesisURL,
 		genesisHash: genesisHash,
 	}
 	return bc, bc.setup(chainID, home, o.keyringBackend)

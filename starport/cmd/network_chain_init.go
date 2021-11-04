@@ -87,7 +87,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information
-	v , err := askValidatorInfo()
+	v, err := askValidatorInfo()
 	if err != nil {
 		return err
 	}
@@ -138,9 +138,9 @@ func askValidatorInfo() (v chain.Validator, err error) {
 			cliquiz.DefaultAnswer("0.025stake"),
 			cliquiz.Required(),
 		),
-		cliquiz.NewQuestion("Website", &proposal.Meta.Website),
-		cliquiz.NewQuestion("Identity", &proposal.Meta.Identity),
-		cliquiz.NewQuestion("Details", &proposal.Meta.Details),
+		cliquiz.NewQuestion("Details", &v.Details),
+		cliquiz.NewQuestion("Identity", &v.Identity),
+		cliquiz.NewQuestion("Website", &v.Website),
 	)
 	return v, cliquiz.Ask(questions...)
 }
