@@ -15,9 +15,9 @@ func TestChainHome(t *testing.T) {
 
 	chainHome, err := network.ChainHome(0)
 	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, "spn", "0"), chainHome)
+	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, "0"), chainHome)
 
 	chainHome, err = network.ChainHome(10)
 	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, "spn", "10"), chainHome)
+	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, "10"), chainHome)
 }
