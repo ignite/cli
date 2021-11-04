@@ -39,7 +39,7 @@ The following command scaffolds the IBC-enabled oracle. by default, the starport
 ```shell
 $ starport scaffold chain github.com/cosmonaut/oracle --no-module && cd oracle 
 $ starport scaffold module consuming --ibc
-$ starport s band coinRates --module consuming
+$ starport scaffold band coinRates --module consuming
 ```
 
 Note: BandChain module uses version "bandchain-1". Make sure to update the `keys.go` file accordingly.
@@ -98,15 +98,15 @@ $ oracled query consuming coin-rates-result 101276
 You can scaffold multiples oracles by module. After scaffold, you must change the `Calldata` and `Result` parameters into the proto file `moduleName.proto` and adapt the request into the  `cli/client/tx_module_name.go` file. Let's create an example to return the [gold price](https://laozi-testnet4.cosmoscan.io/oracle-script/33#bridge):
 
 ```shell
-$ starport s band goldPrice --module consuming
+$ starport scaffold band goldPrice --module consuming
 ```
 
-`proto/gold_price.proto`:
+`proto/consuming/gold_price.proto`:
 ```protobuf
 syntax = "proto3";
-package test.oracle.consuming;
+package cosmonaut.oracle.consuming;
 
-option go_package = "github.com/test/oracle/x/consuming/types";
+option go_package = "github.com/cosmonaut/oracle/x/consuming/types";
 
 message GoldPriceCallData {
   uint64 multiplier = 2;
@@ -117,7 +117,7 @@ message GoldPriceResult {
 }
 ```
 
-`x/cli/client/tx_gold_price.go`:
+`x/consuming/cli/client/tx_gold_price.go`:
 ```go
 package cli
 
@@ -126,11 +126,11 @@ import (
 
 	"github.com/spf13/cobra"
 
+	"github.com/cosmonaut/oracle/x/consuming/types"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
 	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/tendermint/test/x/consuming/types"
 )
 
 // CmdRequestGoldPriceData creates and broadcast a GoldPrice request transaction
