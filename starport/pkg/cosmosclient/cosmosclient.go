@@ -206,7 +206,7 @@ type Response struct {
 // Decode decodes the proto func response defined in your Msg service into your message type.
 // message needs be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
 //
-// e.g., for the following CreateChain func the type would be: `pkgname.MsgCreateChainResponse`.
+// e.g., for the following CreateChain func the type would be: `types.MsgCreateChainResponse`.
 //
 // ```proto
 // service Msg {
