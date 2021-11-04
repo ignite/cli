@@ -3,6 +3,7 @@ package cosmosclient
 
 import (
 	"context"
+	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"io"
@@ -24,6 +25,8 @@ import (
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
+	proto "github.com/gogo/protobuf/proto"
+	prototypes "github.com/gogo/protobuf/types"
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
@@ -192,11 +195,50 @@ func (c Client) Address(accountName string) (sdktypes.AccAddress, error) {
 	return account.Info.GetAddress(), nil
 }
 
+// Response of your broadcasted transaction.
+type Response struct {
+	codec codec.Codec
+
+	// TxResponse is the underlying tx response.
+	*sdktypes.TxResponse
+}
+
+// Decode decodes the proto func response defined in your Msg service into your message type.
+// message needs be a pointer. and you need to provide the correct proto message(struct) type to the Decode func.
+//
+// e.g., for the following CreateChain func the type would be: `pkgname.MsgCreateChainResponse`.
+//
+// ```proto
+// service Msg {
+//   rpc CreateChain(MsgCreateChain) returns (MsgCreateChainResponse);
+// }
+// ```
+func (r Response) Decode(message proto.Message) error {
+	data, err := hex.DecodeString(r.Data)
+	if err != nil {
+		return err
+	}
+
+	var txMsgData sdktypes.TxMsgData
+	if err := r.codec.Unmarshal(data, &txMsgData); err != nil {
+		return err
+	}
+
+	resData := txMsgData.Data[0]
+
+	return prototypes.UnmarshalAny(&prototypes.Any{
+		// TODO get type url dynamically(basically remove `+ "Response"`) after the following issue has solved.
+		// https://github.com/cosmos/cosmos-sdk/issues/10496
+		TypeUrl: resData.MsgType + "Response",
+		Value:   resData.Data,
+	}, message)
+}
+
 // BroadcastTx creates and broadcasts a tx with given messages for account.
-func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (*sdktypes.TxResponse, error) {
+func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (Response, error) {
 	_, broadcast, err := c.BroadcastTxWithProvision(accountName, msgs...)
 	if err != nil {
-		return nil, err
+		return Response{}, err
 	}
 	return broadcast()
 }
@@ -205,7 +247,7 @@ func (c Client) BroadcastTx(accountName string, msgs ...sdktypes.Msg) (*sdktypes
 var mconf sync.Mutex
 
 func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Msg) (
-	gas uint64, broadcast func() (*sdktypes.TxResponse, error), err error) {
+	gas uint64, broadcast func() (Response, error), err error) {
 	if err := c.prepareBroadcast(context.Background(), accountName, msgs); err != nil {
 		return 0, nil, err
 	}
@@ -240,22 +282,25 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 	txf = txf.WithGas(gas)
 
 	// Return the provision function
-	return gas, func() (*sdktypes.TxResponse, error) {
+	return gas, func() (Response, error) {
 		txUnsigned, err := txf.BuildUnsignedTx(msgs...)
 		if err != nil {
-			return nil, err
+			return Response{}, err
 		}
 		if err = tx.Sign(txf, accountName, txUnsigned, true); err != nil {
-			return nil, err
+			return Response{}, err
 		}
 
 		txBytes, err := context.TxConfig.TxEncoder()(txUnsigned.GetTx())
 		if err != nil {
-			return nil, err
+			return Response{}, err
 		}
 
 		resp, err := context.BroadcastTx(txBytes)
-		return resp, handleBroadcastResult(resp, err)
+		return Response{
+			codec:      context.Codec,
+			TxResponse: resp,
+		}, handleBroadcastResult(resp, err)
 	}, nil
 }
 
