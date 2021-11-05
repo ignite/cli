@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"errors"
 	"fmt"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"io"
 	"net/http"
 	"os"
@@ -44,7 +45,7 @@ func (b *Blockchain) setup(
 	home string,
 	keyringBackend chaincmd.KeyringBackend,
 ) error {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Setting up the blockchain"))
 
 	chainOption := []chain.Option{
 		chain.LogLevel(chain.LogSilent),
@@ -73,6 +74,7 @@ func (b *Blockchain) setup(
 	}
 
 	b.chain = chain
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain set up"))
 
 	return nil
 }
@@ -107,12 +109,16 @@ func (b *Blockchain) Init(ctx context.Context) error {
 	}
 
 	// build the chain and initialize it with a new validator key
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Compile the blockchain"))
 	if _, err := b.chain.Build(ctx, ""); err != nil {
 		return err
 	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain compiled"))
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 	if err := b.chain.Init(ctx, false); err != nil {
 		return err
 	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// write the custom genesis if a genesis URL is provided
 	if b.genesisURL != "" {
@@ -132,26 +138,48 @@ func (b *Blockchain) Init(ctx context.Context) error {
 		}
 	}
 
-	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 	b.isInitialized = true
 
 	return nil
 }
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator) (string, error) {
+func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName string) (chaincmdrunner.Account, string, error) {
 	if !b.isInitialized {
-		return "", errors.New("the blockchain must be initialized to initialize an account")
+		return chaincmdrunner.Account{}, "", errors.New("the blockchain must be initialized to initialize an account")
 	}
 
+	// If no name is specified for the key, moniker is used
+	if keyName == "" {
+		keyName = v.Moniker
+	}
+	v.Name = keyName
+
+	// create the chain account
+	chainCmd, err := b.chain.Commands(ctx)
+	if err != nil {
+		return chaincmdrunner.Account{}, "", err
+	}
+	acc, err := chainCmd.AddAccount(ctx, keyName, "", "")
+	if err != nil {
+		return acc, "", err
+	}
+
+	// add account into the genesis
+	err = chainCmd.AddGenesisAccount(ctx, acc.Address, v.StakingAmount)
+	if err != nil {
+		return acc, "", err
+	}
+
+	// create the gentx
 	issuedGentxPath, err := b.chain.IssueGentx(ctx, v)
 	if err != nil {
-		return "", err
+		return acc, "", err
 	}
 
 	// rename the issued gentx into gentx.json
 	gentxPath := filepath.Join(filepath.Dir(issuedGentxPath), gentxFilename)
-	return gentxPath, os.Rename(issuedGentxPath, gentxPath)
+	return acc, gentxPath, os.Rename(issuedGentxPath, gentxPath)
 }
 
 // createOptions holds info about how to create a chain.
