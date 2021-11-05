@@ -45,7 +45,7 @@ func NewNetworkChainInit() *cobra.Command {
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	var (
 		//	recover, _     = cmd.Flags().GetBool(flagRecover)
-		//	mnemonic, _       = cmd.Flags().GetString(flagMnemonic)
+			mnemonic, _       = cmd.Flags().GetString(flagMnemonic)
 		keyName, _ = cmd.Flags().GetString(flagKeyName)
 	)
 
@@ -92,7 +92,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	acc, gentxPath, err := blockchain.InitAccount(cmd.Context(), v, keyName)
+	acc, gentxPath, err := blockchain.InitAccount(cmd.Context(), v, keyName, mnemonic)
 	if err != nil {
 		return err
 	}

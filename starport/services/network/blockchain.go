@@ -144,7 +144,7 @@ func (b *Blockchain) Init(ctx context.Context) error {
 }
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName string) (chaincmdrunner.Account, string, error) {
+func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName, mnemonic string) (chaincmdrunner.Account, string, error) {
 	if !b.isInitialized {
 		return chaincmdrunner.Account{}, "", errors.New("the blockchain must be initialized to initialize an account")
 	}
@@ -160,7 +160,7 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName
 	if err != nil {
 		return chaincmdrunner.Account{}, "", err
 	}
-	acc, err := chainCmd.AddAccount(ctx, keyName, "", "")
+	acc, err := chainCmd.AddAccount(ctx, keyName, mnemonic, "")
 	if err != nil {
 		return acc, "", err
 	}
