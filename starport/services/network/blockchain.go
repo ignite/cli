@@ -109,11 +109,11 @@ func (b *Blockchain) Init(ctx context.Context) error {
 	}
 
 	// build the chain and initialize it with a new validator key
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Compile the blockchain"))
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
 	if _, err := b.chain.Build(ctx, ""); err != nil {
 		return err
 	}
-	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain compiled"))
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the blockchain"))
 	if err := b.chain.Init(ctx, false); err != nil {
 		return err

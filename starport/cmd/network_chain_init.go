@@ -2,9 +2,10 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/manifoldco/promptui"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/services/chain"
+	"os"
 	"strconv"
 	"sync"
 
@@ -33,8 +34,7 @@ func NewNetworkChainInit() *cobra.Command {
 	c.Flags().String(flagMnemonic, "", "Mnemonic for recovered account")
 	c.Flags().String(flagKeyName, "", "key name for the chain account")
 
-	// TODO create flagset
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetYes())
@@ -45,8 +45,8 @@ func NewNetworkChainInit() *cobra.Command {
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	var (
 		//	recover, _     = cmd.Flags().GetBool(flagRecover)
-			mnemonic, _       = cmd.Flags().GetString(flagMnemonic)
-		keyName, _ = cmd.Flags().GetString(flagKeyName)
+		mnemonic, _ = cmd.Flags().GetString(flagMnemonic)
+		keyName, _  = cmd.Flags().GetString(flagKeyName)
 	)
 
 	s := clispinner.New()
@@ -67,6 +67,26 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
 		return fmt.Errorf("error parsing launchID: %s", err.Error())
+	}
+
+	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
+	chainHome, exist, err := checkChainHomeExist(launchID)
+	if err != nil {
+		return err
+	}
+	if !getYes(cmd) && exist {
+		prompt := promptui.Prompt{
+			Label: fmt.Sprintf("The chain has already been initialized under: %s. Would you like to overwrite the home directory",
+				chainHome,
+			),
+			IsConfirm: true,
+		}
+		s.Stop()
+		if _, err := prompt.Run(); err != nil {
+			fmt.Println("said no")
+			return nil
+		}
+		s.Start()
 	}
 
 	nb, err := newNetwork(cmd, network.CollectEvents(ev))
@@ -96,13 +116,15 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("account created: %s\n%s\n", acc.Address, acc.Mnemonic)
-	fmt.Printf("gentx generated: %s\n", gentxPath)
+	fmt.Printf("Account created: %s\n%s\n", acc.Address, acc.Mnemonic)
+	fmt.Printf("Gentx generated: %s\n", gentxPath)
 
 	return nil
 }
 
+// askValidatorInfo prompts to the user questions to query validator information
 func askValidatorInfo() (v chain.Validator, err error) {
+	fmt.Println("Please, enter your validator information")
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
@@ -144,4 +166,17 @@ func askValidatorInfo() (v chain.Validator, err error) {
 		cliquiz.NewQuestion("Website", &v.Website),
 	)
 	return v, cliquiz.Ask(questions...)
+}
+
+// checkChainHomeExist checks if a home with the provided launchID already exist
+func checkChainHomeExist(launchID uint64) (string, bool, error) {
+	home, err := network.ChainHome(launchID)
+	if err != nil {
+		return home, false, err
+	}
+
+	if _, err := os.Stat(home); os.IsNotExist(err) {
+		return home, false, nil
+	}
+	return home, true, err
 }

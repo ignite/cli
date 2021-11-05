@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"os"
 	"path/filepath"
 	"sort"
@@ -107,6 +108,12 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "Home directory used for blockchains")
+	return fs
+}
+
+func flagNetworkFrom() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 	return fs
 }
 
