@@ -2,22 +2,22 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/manifoldco/promptui"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/services/chain"
 	"os"
 	"strconv"
 	"sync"
 
+	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
 )
 
 const (
 	flagRecover  = "recover"
-	flagMnemonic = "mnemomic"
+	flagMnemonic = "mnemonic"
 	flagKeyName  = "key-name"
 )
 
@@ -161,9 +161,9 @@ func askValidatorInfo() (v chain.Validator, err error) {
 			cliquiz.DefaultAnswer("0.025stake"),
 			cliquiz.Required(),
 		),
-		cliquiz.NewQuestion("Details", &v.Details),
-		cliquiz.NewQuestion("Identity", &v.Identity),
-		cliquiz.NewQuestion("Website", &v.Website),
+		cliquiz.NewQuestion("Details (optional)", &v.Details),
+		cliquiz.NewQuestion("Identity (optional)", &v.Identity),
+		cliquiz.NewQuestion("Website (optional)", &v.Website),
 	)
 	return v, cliquiz.Ask(questions...)
 }
