@@ -149,7 +149,6 @@ func (b *Blockchain) InitAccount(
 	v chain.Validator,
 	keyName,
 	mnemonic string,
-	recover bool,
 ) (chaincmdrunner.Account, string, error) {
 	if !b.isInitialized {
 		return chaincmdrunner.Account{}, "", errors.New("the blockchain must be initialized to initialize an account")

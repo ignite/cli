@@ -112,11 +112,23 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	acc, gentxPath, err := blockchain.InitAccount(cmd.Context(), v, keyName, mnemonic, recover)
+	// ask user for mnemonic if not provided and recover option defined
+	if mnemonic == "" && recover {
+		cliquiz.Ask(cliquiz.NewQuestion("Enter your account mnemonic",
+			&mnemonic,
+			cliquiz.DefaultAnswer(""),
+			cliquiz.Required(),
+		))
+	}
+
+	acc, gentxPath, err := blockchain.InitAccount(cmd.Context(), v, keyName, mnemonic)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Account created: %s\n%s\n", acc.Address, acc.Mnemonic)
+	fmt.Printf(`Account created
+Address: %s
+Mnemonic: %s
+`, acc.Address, acc.Mnemonic)
 	fmt.Printf("Gentx generated: %s\n", gentxPath)
 
 	return nil
@@ -124,7 +136,6 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 
 // askValidatorInfo prompts to the user questions to query validator information
 func askValidatorInfo() (v chain.Validator, err error) {
-	fmt.Println("Please, enter your validator information")
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
@@ -161,9 +172,9 @@ func askValidatorInfo() (v chain.Validator, err error) {
 			cliquiz.DefaultAnswer("0.025stake"),
 			cliquiz.Required(),
 		),
-		cliquiz.NewQuestion("Details (optional)", &v.Details),
-		cliquiz.NewQuestion("Identity (optional)", &v.Identity),
-		cliquiz.NewQuestion("Website (optional)", &v.Website),
+		cliquiz.NewQuestion("Details", &v.Details),
+		cliquiz.NewQuestion("Identity", &v.Identity),
+		cliquiz.NewQuestion("Website", &v.Website),
 	)
 	return v, cliquiz.Ask(questions...)
 }
