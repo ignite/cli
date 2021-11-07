@@ -97,7 +97,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create blockchain.
-	var createOptions []network.CreateOption
+	var createOptions []network.PublishOption
 	if genesisURL != "" {
 		createOptions = append(createOptions, network.WithCustomGenesisFromURL(genesisURL))
 	}
