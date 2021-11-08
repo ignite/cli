@@ -2,12 +2,9 @@ package starportcmd
 
 import (
 	"fmt"
-	"sync"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -51,26 +48,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
-
-	s := clispinner.New()
-	defer s.Stop()
-
-	var (
-		wg sync.WaitGroup
-		ev = events.NewBus()
-	)
-	wg.Add(1)
-
-	defer wg.Wait()
-	defer ev.Shutdown()
-
-	go printEvents(&wg, ev, s)
-
-	nb, err := newNetwork(cmd, network.CollectEvents(ev))
+	nb, s, endRoutine, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
 	}
-
+	defer endRoutine()
+	
 	// initialize the blockchain
 	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
 

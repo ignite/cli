@@ -2,17 +2,13 @@ package starportcmd
 
 import (
 	"fmt"
-	"os"
-	"strconv"
-	"sync"
-
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
+	"os"
+	"strconv"
 )
 
 const (
@@ -48,20 +44,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		mnemonic, _ = cmd.Flags().GetString(flagMnemonic)
 		keyName, _  = cmd.Flags().GetString(flagKeyName)
 	)
-
-	s := clispinner.New()
-	defer s.Stop()
-
-	var (
-		wg sync.WaitGroup
-		ev = events.NewBus()
-	)
-	wg.Add(1)
-
-	defer wg.Wait()
-	defer ev.Shutdown()
-
-	go printEvents(&wg, ev, s)
+	nb, s, endRoutine, err := initializeNetwork(cmd)
+	if err != nil {
+		return err
+	}
+	defer endRoutine()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -87,11 +74,6 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			return nil
 		}
 		s.Start()
-	}
-
-	nb, err := newNetwork(cmd, network.CollectEvents(ev))
-	if err != nil {
-		return err
 	}
 
 	// initialize the blockchain from the launch ID
