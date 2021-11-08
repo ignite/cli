@@ -17,11 +17,15 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			return err
 		}
 
-		// Create a list of two different indexes to use as sample
+		// Create a list of two different indexes and fields to use as sample
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
+			sampleIndexes[i] = fmt.Sprintf("%[1]v: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
 			for _, index := range opts.Indexes {
 				sampleIndexes[i] += index.GenesisArgs(i)
+			}
+			for _, field := range opts.Fields {
+				sampleIndexes[i] += field.GenesisArgs(i)
 			}
 		}
 

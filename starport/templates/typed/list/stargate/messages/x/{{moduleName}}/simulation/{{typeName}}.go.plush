@@ -58,11 +58,7 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 			found = false
 		)
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(obj.<%= MsgSigner.UpperCamel %>)
-			if err != nil {
-				panic(err)
-			}
-			simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break
@@ -107,11 +103,7 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 			found = false
 		)
 		for _, obj := range all<%= TypeName.UpperCamel %> {
-			<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(obj.<%= MsgSigner.UpperCamel %>)
-			if err != nil {
-				panic(err)
-			}
-			simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+			simAccount, found = FindAccount(accs, obj.<%= MsgSigner.UpperCamel %>)
 			if found {
 				<%= TypeName.LowerCamel %> = obj
 				break

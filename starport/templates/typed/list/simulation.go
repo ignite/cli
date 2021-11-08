@@ -17,18 +17,35 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			return err
 		}
 
+		// Create a list of two different indexes and fields to use as sample
+		sampleFields := make([]string, 2)
+		for i := 0; i < 2; i++ {
+			sampleFields[i] = fmt.Sprintf("%s: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
+			for _, field := range opts.Fields {
+				sampleFields[i] += field.GenesisArgs(i)
+			}
+		}
+
 		// simulation genesis state
 		templateGs := `	%[2]vList: []types.%[2]v{
 		{
 			Id: 0,
+			%[3]v
 		},
 		{
 			Id: 1,
+			%[4]v
 		},
 	},
 	%[2]vCount: 2,
 	%[1]v`
-		replacementGs := fmt.Sprintf(templateGs, typed.PlaceholderSimappGenesisState, opts.TypeName.UpperCamel)
+		replacementGs := fmt.Sprintf(
+			templateGs,
+			typed.PlaceholderSimappGenesisState,
+			opts.TypeName.UpperCamel,
+			sampleFields[0],
+			sampleFields[1],
+		)
 		content := replacer.Replace(f.String(), typed.PlaceholderSimappGenesisState, replacementGs)
 
 		content = typed.ModuleSimulationMsgModify(

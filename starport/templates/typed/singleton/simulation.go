@@ -18,8 +18,8 @@ func moduleSimulationModify(replacer placeholder.Replacer, opts *typed.Options) 
 			return err
 		}
 
-		// Create a fields
-		sampleFields := ""
+		// Create fields
+		sampleFields := fmt.Sprintf("%[1]v: sample.AccAddress(),\n", opts.MsgSigner.UpperCamel)
 		for _, field := range opts.Fields {
 			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
