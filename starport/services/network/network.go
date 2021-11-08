@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	"github.com/cosmos/cosmos-sdk/types/query"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"os"
 
@@ -207,12 +208,12 @@ func (b *Builder) fetch(ctx context.Context, o initOptions) (path, url, hash str
 	return path, url, hash, nil
 }
 
-func (b *Builder) fetchChainLaunches(ctx context.Context) ([]launchtypes.Chain, error) {
+func (b *Builder) fetchChainLaunches(ctx context.Context, pagination *query.PageRequest) ([]launchtypes.Chain, error) {
 	res, err := launchtypes.NewQueryClient(b.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{
-		
+		Pagination: pagination,
 	})
 	if err != nil {
-		return launchtypes.Chain{}, err
+		return []launchtypes.Chain{}, err
 	}
 	return res.Chain, err
 }
