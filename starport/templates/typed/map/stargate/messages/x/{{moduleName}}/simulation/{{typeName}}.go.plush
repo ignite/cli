@@ -25,9 +25,10 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
 		simAccount, _ := simtypes.RandomAcc(r, accs)
 
+		i := r.Int()
 		msg := &types.MsgCreate<%= TypeName.UpperCamel %>{
 			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
+			<%= index.Name.UpperCamel %>: <%= index.ValueLoop() %>,<% } %>
 		}
 
 		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
