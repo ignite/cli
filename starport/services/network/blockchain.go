@@ -197,6 +197,25 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 	coordinatorAddress := b.builder.account.Address(SPNAddressPrefix)
 	campaignID = o.campaignID
 
+	_, err = profiletypes.
+		NewQueryClient(b.builder.cosmos.Context).
+		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
+			Address: coordinatorAddress,
+		})
+
+		// TODO check for not found and only then create a new coordinator, otherwise return the err.
+	if err != nil {
+		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
+			coordinatorAddress,
+			"",
+			"",
+			"",
+		)
+		if _, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateCoordinator); err != nil {
+			return 0, 0, err
+		}
+	}
+
 	if campaignID != 0 {
 		_, err = campaigntypes.
 			NewQueryClient(b.builder.cosmos.Context).
@@ -223,25 +242,6 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 			return 0, 0, err
 		}
 		campaignID = createCampaignRes.CampaignID
-	}
-
-	_, err = profiletypes.
-		NewQueryClient(b.builder.cosmos.Context).
-		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: coordinatorAddress,
-		})
-
-		// TODO check for not found and only then create a new coordinator, otherwise return the err.
-	if err != nil {
-		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
-			coordinatorAddress,
-			"",
-			"",
-			"",
-		)
-		if _, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateCoordinator); err != nil {
-			return 0, 0, err
-		}
 	}
 
 	msgCreateChain := launchtypes.NewMsgCreateChain(
