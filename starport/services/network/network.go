@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"os"
 
 	"github.com/go-git/go-git/v5"
@@ -204,4 +205,14 @@ func (b *Builder) fetch(ctx context.Context, o initOptions) (path, url, hash str
 	}
 
 	return path, url, hash, nil
+}
+
+func (b *Builder) fetchChainLaunches(ctx context.Context) ([]launchtypes.Chain, error) {
+	res, err := launchtypes.NewQueryClient(b.cosmos.Context).ChainAll(ctx, &launchtypes.QueryAllChainRequest{
+		
+	})
+	if err != nil {
+		return launchtypes.Chain{}, err
+	}
+	return res.Chain, err
 }

@@ -10,7 +10,10 @@ func NewNetworkChain() *cobra.Command {
 		Short: "Build networks",
 	}
 
-	c.AddCommand(NewNetworkChainPublish())
+	c.AddCommand(
+		NewNetworkChainList(),
+		NewNetworkChainPublish(),
+	)
 
 	return c
 }
