@@ -26,20 +26,6 @@ func SimulateMsg<%= MsgName.UpperCamel %>(
 
 		// TODO: Handling the <%= MsgName.UpperCamel %> simulation
 
-		txCtx := simulation.OperationInput{
-			R:               r,
-			App:             app,
-			TxGen:           simappparams.MakeTestEncodingConfig().TxConfig,
-			Cdc:             nil,
-			Msg:             msg,
-			MsgType:         msg.Type(),
-			Context:         ctx,
-			SimAccount:      simAccount,
-			ModuleName:      types.ModuleName,
-			CoinsSpentInMsg: sdk.NewCoins(),
-			AccountKeeper:   ak,
-			Bankkeeper:      bk,
-		}
-		return simulation.GenAndDeliverTxWithRandFees(txCtx)
+		return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= MsgName.UpperCamel %> simulation not implemented"), nil, nil
 	}
 }

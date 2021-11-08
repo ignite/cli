@@ -27,7 +27,6 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 
 		_, found := k.Get<%= TypeName.UpperCamel %>(ctx)
 		if found {
-			// Skip message if already exist
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -56,14 +55,23 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-
-		k.Set<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
-		})
-		msg := &types.MsgUpdate<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
+		var (
+			simAccount = simtypes.Account{}
+			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
+		)
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
+		<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		if err != nil {
+			panic(err)
+		}
+		simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -90,14 +98,23 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-
-		k.Set<%= TypeName.UpperCamel %>(ctx, types.<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
-		})
-		msg := &types.MsgDelete<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),
+		var (
+			simAccount = simtypes.Account{}
+			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			<%= TypeName.LowerCamel %>, found = k.Get<%= TypeName.UpperCamel %>(ctx)
+		)
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> store is empty"), nil, nil
 		}
+		<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(<%= TypeName.LowerCamel %>.<%= MsgSigner.UpperCamel %>)
+		if err != nil {
+			panic(err)
+		}
+		simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
+		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
 
 		txCtx := simulation.OperationInput{
 			R:               r,

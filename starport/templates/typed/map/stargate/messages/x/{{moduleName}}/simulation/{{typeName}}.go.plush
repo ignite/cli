@@ -32,7 +32,6 @@ func SimulateMsgCreate<%= TypeName.UpperCamel %>(
 
 		_, found := k.Get<%= TypeName.UpperCamel %>(ctx <%= for (index) in Indexes { %>, msg.<%= index.Name.UpperCamel %><% } %>)
 		if found {
-			// Skip message if already exist
 			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.UpperCamel %> already exist"), nil, nil
 		}
 
@@ -61,18 +60,30 @@ func SimulateMsgUpdate<%= TypeName.UpperCamel %>(
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-
-		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
+		var (
+			simAccount = simtypes.Account{}
+			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
+			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
+			found = false
+		)
+		for _, obj := range all<%= TypeName.UpperCamel %> {
+			<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(obj.<%= MsgSigner.UpperCamel %>)
+			if err != nil {
+				panic(err)
+			}
+			simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+			if found {
+				<%= TypeName.LowerCamel %> = obj
+				break
+			}
 		}
-		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
-
-		msg := &types.MsgUpdate<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,<% } %>
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+		<%= for (i, index) in Indexes { %>
+		msg.<%= index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %><% } %>
 
 		txCtx := simulation.OperationInput{
 			R:               r,
@@ -99,18 +110,30 @@ func SimulateMsgDelete<%= TypeName.UpperCamel %>(
 ) simtypes.Operation {
 	return func(r *rand.Rand, app *baseapp.BaseApp, ctx sdk.Context, accs []simtypes.Account, chainID string,
 	) (simtypes.OperationMsg, []simtypes.FutureOperation, error) {
-		simAccount, _ := simtypes.RandomAcc(r, accs)
-
-		<%= TypeName.LowerCamel %> := types.<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= index.ValueIndex() %>,<% } %>
+		var (
+			simAccount = simtypes.Account{}
+			<%= TypeName.LowerCamel %> = types.<%= TypeName.UpperCamel %>{}
+			msg = &types.MsgUpdate<%= TypeName.UpperCamel %>{}
+			all<%= TypeName.UpperCamel %> = k.GetAll<%= TypeName.UpperCamel %>(ctx)
+			found = false
+		)
+		for _, obj := range all<%= TypeName.UpperCamel %> {
+			<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(obj.<%= MsgSigner.UpperCamel %>)
+			if err != nil {
+				panic(err)
+			}
+			simAccount, found = simtypes.FindAccount(accs, <%= MsgSigner.LowerCamel %>)
+			if found {
+				<%= TypeName.LowerCamel %> = obj
+				break
+			}
 		}
-		k.Set<%= TypeName.UpperCamel %>(ctx, <%= TypeName.LowerCamel %>)
-
-		msg := &types.MsgDelete<%= TypeName.UpperCamel %>{
-			<%= MsgSigner.UpperCamel %>: simAccount.Address.String(),<%= for (i, index) in Indexes { %>
-			<%= index.Name.UpperCamel %>: <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %>,<% } %>
+		if !found {
+			return simtypes.NoOpMsg(types.ModuleName, msg.Type(), "<%= TypeName.LowerCamel %> <%= MsgSigner.LowerCamel %> not found"), nil, nil
 		}
+		msg.<%= MsgSigner.UpperCamel %> = simAccount.Address.String()
+		<%= for (i, index) in Indexes { %>
+		msg.<%= index.Name.UpperCamel %> = <%= TypeName.LowerCamel %>.<%= index.Name.UpperCamel %><% } %>
 
 		txCtx := simulation.OperationInput{
 			R:               r,
