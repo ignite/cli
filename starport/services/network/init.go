@@ -8,9 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -57,19 +59,18 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, account
 	}
 
 	// create the chain account
-	// TODO: use account from Starport Account
 	chainCmd, err := b.chain.Commands(ctx)
 	if err != nil {
 		return "", err
 	}
-	acc, err := chainCmd.AddAccount(ctx, accountName, "", "")
+	address, err := b.ImportAccount(ctx, accountName)
 	if err != nil {
 		return "", err
 	}
 
 	// add account into the genesis
 	// TODO: determine a bigger account balance to allow starting the chain
-	err = chainCmd.AddGenesisAccount(ctx, acc.Address, v.StakingAmount)
+	err = chainCmd.AddGenesisAccount(ctx, address, v.StakingAmount)
 	if err != nil {
 		return "", err
 	}
@@ -131,6 +132,39 @@ func (b *Blockchain) checkGenesis(ctx context.Context) error {
 	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
 }
 
+// ImportAccount imports an account from Starport into the chain
+// we first export the account into a temporary key file and import it with the chain CLI
+func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, error) {
+	// keys import command of chain CLI requires that the key file is encrypted with a passphrase of at least 8 characters
+	// we generate a random passphrase to import the account
+	passphrase := randomPassphrase()
+
+	// export the key in a temporary file
+	armored, err := b.builder.cosmos.AccountRegistry.Export(name, passphrase)
+	if err != nil {
+		return "", err
+	}
+
+	tmpDir, err := os.MkdirTemp("", "")
+	if err != nil {
+		return "", err
+	}
+	defer os.RemoveAll(tmpDir)
+
+	keyFile := filepath.Join(tmpDir, "")
+	if err := os.WriteFile(keyFile, []byte(armored), 0644); err != nil {
+		return "", err
+	}
+
+	// import the key file into the chain
+	chainCmd, err := b.chain.Commands(ctx)
+	if err != nil {
+		return "", err
+	}
+	acc, err := chainCmd.ImportAccount(ctx, name, keyFile, passphrase)
+	return acc.Address, err
+}
+
 // genesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash
 func genesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, hash string, err error) {
 	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
@@ -157,4 +191,15 @@ func genesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	hexHash := hex.EncodeToString(h.Sum(nil))
 
 	return genesis, hexHash, nil
+}
+
+// randomPassphrase generates a random passphrase of 32 characters from account export and import
+func randomPassphrase() string {
+	var passphraseRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+	rand.Seed(time.Now().UnixNano())
+	passBytes := make([]rune, 32)
+	for i := range passBytes {
+		passBytes[i] = passphraseRunes[rand.Intn(len(passphraseRunes))]
+	}
+	return string(passBytes)
 }

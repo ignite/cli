@@ -9,6 +9,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -16,9 +17,9 @@ import (
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
 func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "init [launch-id]",
+		Use:   "init [launch-id] [validator-account]",
 		Short: "Initialize a chain from a published chain ID",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainInitHandler,
 	}
 
@@ -41,6 +42,19 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
 		return errors.Wrap(err, "error parsing launchID")
+	}
+
+	// check if the provided account for the validator exists
+	validatorName := args[1]
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
+	if err != nil {
+		return err
+	}
+	_, err = ca.GetByName(validatorName)
+	if err != nil {
+		return err
 	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
@@ -76,12 +90,12 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information
-	v, err := askValidatorInfo(getFrom(cmd))
+	v, err := askValidatorInfo(validatorName)
 	if err != nil {
 		return err
 	}
 
-	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, getFrom(cmd))
+	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, validatorName)
 	if err != nil {
 		return err
 	}
