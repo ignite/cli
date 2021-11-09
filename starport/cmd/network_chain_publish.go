@@ -53,7 +53,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	defer endRoutine()
-	
+
 	// initialize the blockchain
 	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
 

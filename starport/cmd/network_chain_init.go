@@ -2,13 +2,15 @@ package starportcmd
 
 import (
 	"fmt"
+	"os"
+	"strconv"
+
 	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
-	"os"
-	"strconv"
 )
 
 const (
@@ -53,7 +55,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
-		return fmt.Errorf("error parsing launchID: %s", err.Error())
+		return errors.Wrap(err, "error parsing launchID")
 	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
