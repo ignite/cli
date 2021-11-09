@@ -14,10 +14,6 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-const (
-	gentxFilename = "gentx.json"
-)
-
 // Blockchain represents a blockchain.
 type Blockchain struct {
 	appPath       string
@@ -126,7 +122,7 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error
 		}
 		genesisHash = b.genesisHash
 	} else if b.genesisURL != "" {
-		// if the initial genesis is a genesis URL and no check are performed, we simply fetched and get its hash
+		// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
 		_, genesisHash, err = genesisAndHashFromURL(ctx, b.genesisURL)
 		if err != nil {
 			return err

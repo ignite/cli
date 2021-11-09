@@ -13,12 +13,6 @@ import (
 	"github.com/tendermint/starport/starport/services/network"
 )
 
-const (
-	flagRecover  = "recover"
-	flagMnemonic = "mnemonic"
-	flagKeyName  = "key-name"
-)
-
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
 func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
@@ -27,10 +21,6 @@ func NewNetworkChainInit() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
-
-	c.Flags().Bool(flagRecover, false, "Recover chain account from a mnemonic")
-	c.Flags().String(flagMnemonic, "", "Mnemonic for recovered account")
-	c.Flags().String(flagKeyName, "", "key name for the chain account")
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -41,11 +31,6 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	var (
-		recover, _  = cmd.Flags().GetBool(flagRecover)
-		mnemonic, _ = cmd.Flags().GetString(flagMnemonic)
-		keyName, _  = cmd.Flags().GetString(flagKeyName)
-	)
 	nb, s, endRoutine, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
@@ -96,23 +81,10 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// ask user for mnemonic if not provided and recover option defined
-	if mnemonic == "" && recover {
-		cliquiz.Ask(cliquiz.NewQuestion("Enter your account mnemonic",
-			&mnemonic,
-			cliquiz.DefaultAnswer(""),
-			cliquiz.Required(),
-		))
-	}
-
-	acc, gentxPath, err := blockchain.InitAccount(cmd.Context(), v, keyName, mnemonic)
+	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, getFrom(cmd))
 	if err != nil {
 		return err
 	}
-	fmt.Printf(`Account created
-Address: %s
-Mnemonic: %s
-`, acc.Address, acc.Mnemonic)
 	fmt.Printf("Gentx generated: %s\n", gentxPath)
 
 	return nil

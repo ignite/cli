@@ -15,6 +15,7 @@ import (
 
 const (
 	SPNAddressPrefix = "spn"
+	gentxFilename    = "gentx.json"
 )
 
 // Builder is network builder.

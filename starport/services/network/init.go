@@ -12,7 +12,6 @@ import (
 	"os"
 	"path/filepath"
 
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
 )
@@ -51,47 +50,33 @@ func (b *Blockchain) Init(ctx context.Context) error {
 }
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-func (b *Blockchain) InitAccount(
-	ctx context.Context,
-	v chain.Validator,
-	keyName,
-	mnemonic string,
-) (chaincmdrunner.Account, string, error) {
+// TODO: use account from Starport Account
+func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName string) (string, error) {
 	if !b.isInitialized {
-		return chaincmdrunner.Account{}, "", errors.New("the blockchain must be initialized to initialize an account")
+		return "", errors.New("the blockchain must be initialized to initialize an account")
 	}
-
-	// If no name is specified for the key, moniker is used
-	if keyName == "" {
-		keyName = v.Moniker
-	}
-	v.Name = keyName
 
 	// create the chain account
+	// TODO: use account from Starport Account
 	chainCmd, err := b.chain.Commands(ctx)
 	if err != nil {
-		return chaincmdrunner.Account{}, "", err
+		return "", err
 	}
-	acc, err := chainCmd.AddAccount(ctx, keyName, mnemonic, "")
-	if err != nil {
-		return acc, "", err
+	if _, err := chainCmd.AddAccount(ctx, keyName, "", ""); err != nil {
+		return "", err
 	}
 
-	// add account into the genesis
-	err = chainCmd.AddGenesisAccount(ctx, acc.Address, v.StakingAmount)
-	if err != nil {
-		return acc, "", err
-	}
+	// TODO: add a genesis account in the genesis with enough fund so that the chain can be started locally
 
 	// create the gentx
 	issuedGentxPath, err := b.chain.IssueGentx(ctx, v)
 	if err != nil {
-		return acc, "", err
+		return "", err
 	}
 
 	// rename the issued gentx into gentx.json
 	gentxPath := filepath.Join(filepath.Dir(issuedGentxPath), gentxFilename)
-	return acc, gentxPath, os.Rename(issuedGentxPath, gentxPath)
+	return gentxPath, os.Rename(issuedGentxPath, gentxPath)
 }
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
