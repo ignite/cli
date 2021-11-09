@@ -228,7 +228,7 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 	} else {
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 			coordinatorAddress,
-			chainID,
+			b.chain.Name(),
 			nil,
 			false,
 		)
