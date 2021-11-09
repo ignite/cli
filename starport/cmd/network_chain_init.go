@@ -76,7 +76,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information
-	v, err := askValidatorInfo()
+	v, err := askValidatorInfo(getFrom(cmd))
 	if err != nil {
 		return err
 	}
@@ -91,9 +91,11 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo() (chain.Validator, error) {
+func askValidatorInfo(validatorName string) (chain.Validator, error) {
 	// TODO: allowing more customization for the validator
 	v := chain.Validator{
+		Name:              validatorName,
+		Moniker:           validatorName,
 		GasPrices:         "0.025stake",
 		MinSelfDelegation: "1",
 	}
@@ -102,11 +104,6 @@ func askValidatorInfo() (chain.Validator, error) {
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
 			cliquiz.DefaultAnswer("95000000stake"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Moniker",
-			&v.Moniker,
-			cliquiz.DefaultAnswer("mynode"),
 			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Commission rate",

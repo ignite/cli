@@ -75,7 +75,6 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, account
 	}
 
 	// create the gentx
-	v.Name = accountName
 	issuedGentxPath, err := b.chain.IssueGentx(ctx, v)
 	if err != nil {
 		return "", err
