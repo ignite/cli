@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"

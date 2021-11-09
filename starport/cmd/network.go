@@ -2,14 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -74,7 +74,7 @@ var cosmos *cosmosclient.Client
 func initializeNetwork(cmd *cobra.Command) (
 	*network.Builder,
 	*clispinner.Spinner,
-	func (),
+	func(),
 	error,
 ) {
 	var (
