@@ -251,8 +251,8 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 		b.hash,
 		o.genesisURL,
 		genesisHash,
-		false,
-		0,
+		true,
+		campaignID,
 	)
 	res, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
 	if err != nil {
