@@ -91,7 +91,13 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo() (v chain.Validator, err error) {
+func askValidatorInfo() (chain.Validator, error) {
+	// TODO: allowing more customization for the validator
+	v := chain.Validator{
+		GasPrices:         "0.025stake",
+		MinSelfDelegation: "1",
+	}
+
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
@@ -118,19 +124,6 @@ func askValidatorInfo() (v chain.Validator, err error) {
 			cliquiz.DefaultAnswer("0.01"),
 			cliquiz.Required(),
 		),
-		cliquiz.NewQuestion("Min self delegation",
-			&v.MinSelfDelegation,
-			cliquiz.DefaultAnswer("1"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Gas prices",
-			&v.GasPrices,
-			cliquiz.DefaultAnswer("0.025stake"),
-			cliquiz.Required(),
-		),
-		cliquiz.NewQuestion("Details", &v.Details),
-		cliquiz.NewQuestion("Identity", &v.Identity),
-		cliquiz.NewQuestion("Website", &v.Website),
 	)
 	return v, cliquiz.Ask(questions...)
 }

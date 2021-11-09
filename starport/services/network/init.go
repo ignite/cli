@@ -51,7 +51,7 @@ func (b *Blockchain) Init(ctx context.Context) error {
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
 // TODO: use account from Starport Account
-func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName string) (string, error) {
+func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, accountName string) (string, error) {
 	if !b.isInitialized {
 		return "", errors.New("the blockchain must be initialized to initialize an account")
 	}
@@ -62,13 +62,20 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, keyName
 	if err != nil {
 		return "", err
 	}
-	if _, err := chainCmd.AddAccount(ctx, keyName, "", ""); err != nil {
+	acc, err := chainCmd.AddAccount(ctx, accountName, "", "")
+	if err != nil {
 		return "", err
 	}
 
-	// TODO: add a genesis account in the genesis with enough fund so that the chain can be started locally
+	// add account into the genesis
+	// TODO: determine a bigger account balance to allow starting the chain
+	err = chainCmd.AddGenesisAccount(ctx, acc.Address, v.StakingAmount)
+	if err != nil {
+		return "", err
+	}
 
 	// create the gentx
+	v.Name = accountName
 	issuedGentxPath, err := b.chain.IssueGentx(ctx, v)
 	if err != nil {
 		return "", err
