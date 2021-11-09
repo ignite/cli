@@ -151,7 +151,7 @@ func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, er
 	}
 	defer os.RemoveAll(tmpDir)
 
-	keyFile := filepath.Join(tmpDir, "")
+	keyFile := filepath.Join(tmpDir, name)
 	if err := os.WriteFile(keyFile, []byte(armored), 0644); err != nil {
 		return "", err
 	}
