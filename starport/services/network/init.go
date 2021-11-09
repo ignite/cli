@@ -52,7 +52,6 @@ func (b *Blockchain) Init(ctx context.Context) error {
 }
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-// TODO: use account from Starport Account
 func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, accountName string) (string, error) {
 	if !b.isInitialized {
 		return "", errors.New("the blockchain must be initialized to initialize an account")
@@ -69,7 +68,6 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, account
 	}
 
 	// add account into the genesis
-	// TODO: determine a bigger account balance to allow starting the chain
 	err = chainCmd.AddGenesisAccount(ctx, address, v.StakingAmount)
 	if err != nil {
 		return "", err
@@ -118,20 +116,6 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 	return b.checkGenesis(ctx)
 }
 
-// checkGenesis checks the stored genesis is valid
-func (b *Blockchain) checkGenesis(ctx context.Context) error {
-	// Perform static analysis of the chain with the validate-genesis command
-	commands, err := b.chain.Commands(ctx)
-	if err != nil {
-		return err
-	}
-	return commands.ValidateGenesis(ctx)
-
-	// TODO: static analysis of the genesis with validate-genesis doesn't check the full validity of the genesis
-	// example: gentxs formats are not checked
-	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
-}
-
 // ImportAccount imports an account from Starport into the chain
 // we first export the account into a temporary key file and import it with the chain CLI
 func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, error) {
@@ -163,6 +147,20 @@ func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, er
 	}
 	acc, err := chainCmd.ImportAccount(ctx, name, keyFile, passphrase)
 	return acc.Address, err
+}
+
+// checkGenesis checks the stored genesis is valid
+func (b *Blockchain) checkGenesis(ctx context.Context) error {
+	// Perform static analysis of the chain with the validate-genesis command
+	commands, err := b.chain.Commands(ctx)
+	if err != nil {
+		return err
+	}
+	return commands.ValidateGenesis(ctx)
+
+	// TODO: static analysis of the genesis with validate-genesis doesn't check the full validity of the genesis
+	// example: gentxs formats are not checked
+	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
 }
 
 // genesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash

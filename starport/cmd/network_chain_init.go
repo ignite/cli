@@ -44,8 +44,10 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if the provided account for the validator exists
-	// TODO: check the validator name exists
 	validatorName := args[1]
+	if err := checkAccountExist(cmd, validatorName); err != nil {
+		return err
+	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
 	chainHome, exist, err := checkChainHomeExist(launchID)
@@ -100,7 +102,7 @@ func askValidatorInfo(validatorName string) (chain.Validator, error) {
 	v := chain.Validator{
 		Name:              validatorName,
 		Moniker:           validatorName,
-		GasPrices:         "0.025stake",
+		GasPrices:         "0stake",
 		MinSelfDelegation: "1",
 	}
 

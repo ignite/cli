@@ -94,7 +94,7 @@ func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase str
 	}
 
 	// write the passphrase as input
-	// TODO: manage keyring
+	// TODO: manage keyring backend other than test
 	input := &bytes.Buffer{}
 	fmt.Fprintln(input, passphrase)
 

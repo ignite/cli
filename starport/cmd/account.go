@@ -116,3 +116,15 @@ func getPassphrase(cmd *cobra.Command) (string, error) {
 
 	return pass, nil
 }
+
+func checkAccountExist(cmd *cobra.Command, name string) error {
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
+	if err != nil {
+		return err
+	}
+
+	_, err = ca.GetByName(name)
+	return err
+}
