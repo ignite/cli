@@ -167,7 +167,7 @@ Create the messages one at a time with the according application logic.
 
 For a loan, the initial message handles the transaction when a cosmonaut requests a loan.
 
-The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repayed.
+The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as give `collateral`. The `deadline` marks the time when the loan has to be repaid.
 
 The first message is the `request-loan` message that  requires these input parameters:
 
@@ -198,7 +198,7 @@ func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan)
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
 	// TODO: Handling the message
-    // Create a new Loan with the according user input
+	// Create a new Loan with the following user input
 	var loan = types.Loan{
 		Amount:     msg.Amount,
 		Fee:        msg.Fee,
@@ -389,7 +389,7 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 }
 ```
 
-This module uses the `SendCoins` function of `bankKeepers`. Add this `SendCoins` function to the `x/loan/types/expected_keepers.go` file:
+This module uses the `SendCoins` function of `bankKeeper`. Add this `SendCoins` function to the `x/loan/types/expected_keepers.go` file:
 
 ```go
 package types
