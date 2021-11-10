@@ -246,6 +246,10 @@ func (c *Chain) ID() (string, error) {
 	return c.app.N(), nil
 }
 
+func (c *Chain) Name() string {
+	return c.app.N()
+}
+
 // Binary returns the name of app's default (appd) binary.
 func (c *Chain) Binary() (string, error) {
 	conf, err := c.Config()
