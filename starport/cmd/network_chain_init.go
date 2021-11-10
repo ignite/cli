@@ -91,7 +91,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Gentx generated: %s\n", gentxPath)
+	fmt.Printf("%s Gentx generated: %s\n", clicpinner.Bullet, gentxPath)
 
 	return nil
 }
