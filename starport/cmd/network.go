@@ -1,18 +1,14 @@
 package starportcmd
 
 import (
-	"context"
-	"errors"
 	"fmt"
 
-	"github.com/AlecAivazis/survey/v2"
-	"github.com/AlecAivazis/survey/v2/terminal"
-	"github.com/cosmos/cosmos-sdk/crypto/keyring"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cliquiz"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
-	"github.com/tendermint/starport/starport/pkg/spn"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 var (
@@ -49,9 +45,11 @@ const (
 // related to creating a new network collaboratively.
 func NewNetwork() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "network",
-		Short: "Launch a blockchain network in production",
-		Args:  cobra.ExactArgs(1),
+		Use:     "network [command]",
+		Aliases: []string{"n"},
+		Short:   "Launch a blockchain network in production",
+		Args:    cobra.ExactArgs(1),
+		Hidden:  true,
 	}
 
 	// configure flags.
@@ -62,24 +60,14 @@ func NewNetwork() *cobra.Command {
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
-	c.AddCommand(NewNetworkAccount())
 	c.AddCommand(NewNetworkChain())
-	c.AddCommand(NewNetworkProposal())
+
 	return c
 }
 
-var spnclient *spn.Client
+var cosmos *cosmosclient.Client
 
-func newNetworkBuilder(ctx context.Context, options ...networkbuilder.Option) (*networkbuilder.Builder, error) {
-	var spnoptions []spn.Option
-	// use test keyring backend on Gitpod in order to prevent prompting for keyring
-	// password. This happens because Gitpod uses containers.
-	//
-	// when not on Gitpod, OS keyring backend is used which only asks password once.
-	if gitpod.IsOnGitpod() {
-		spnoptions = append(spnoptions, spn.Keyring(keyring.BackendTest))
-	}
-
+func newNetwork(cmd *cobra.Command, options ...network.Option) (*network.Builder, error) {
 	// check preconfigured networks
 	if nightly && local {
 		return nil, errors.New("local and nightly networks can't be specified in the same command")
@@ -94,137 +82,47 @@ func newNetworkBuilder(ctx context.Context, options ...networkbuilder.Option) (*
 		spnFaucetAddress = spnFaucetAddressNightly
 	}
 
-	// init spnclient only once on start in order to spnclient to
+	cosmosOptions := []cosmosclient.Option{
+		cosmosclient.WithHome(getHome(cmd)),
+		cosmosclient.WithNodeAddress(spnNodeAddress),
+		cosmosclient.WithAPIAddress(spnAPIAddress),
+		cosmosclient.WithAddressPrefix(network.SPNAddressPrefix),
+		cosmosclient.WithUseFaucet(spnFaucetAddress, "", 0),
+		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
+	}
+
+	keyringBackend := getKeyringBackend(cmd)
+	// use test keyring backend on Gitpod in order to prevent prompting for keyring
+	// password. This happens because Gitpod uses containers.
+	//
+	// when not on Gitpod, OS keyring backend is used which only asks password once.
+	if gitpod.IsOnGitpod() {
+		keyringBackend = cosmosaccount.KeyringTest
+	}
+	cosmosOptions = append(cosmosOptions, cosmosclient.WithKeyringBackend(keyringBackend))
+
+	// init cosmos client only once on start in order to spnclient to
 	// reuse unlocked keyring in the following steps.
-	if spnclient == nil {
-		var err error
-		if spnclient, err = spn.New(ctx, spnNodeAddress, spnAPIAddress, spnFaucetAddress, spnoptions...); err != nil {
+	if cosmos == nil {
+		client, err := cosmosclient.New(cmd.Context(), cosmosOptions...)
+		if err != nil {
 			return nil, err
 		}
-	}
-	return networkbuilder.New(spnclient, options...)
-}
-
-// ensureSPNAccount ensures that an SPN account has ben set by interactively asking
-// users to create, import or pick an account.
-func ensureSPNAccount(b *networkbuilder.Builder) error {
-	if _, err := b.AccountInUse(); err == nil {
-		return nil
+		cosmos = &client
 	}
 
-	title := "Starport Network"
+	if err := cosmos.AccountRegistry.EnsureDefaultAccount(); err != nil {
+		return nil, err
+	}
 
-	printSection(fmt.Sprintf("Account on %s", title))
-	fmt.Printf("To use %s you need an account.\nPlease, select an account or create a new one:\n\n", title)
-
-	account, err := createSPNAccount(b, title)
+	account, err := cosmos.AccountRegistry.GetByName(getFrom(cmd))
 	if err != nil {
-		return err
+		return nil, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
 	}
 
-	return b.AccountUse(account.Name)
-}
-
-// createAccount interactively creates a Cosmos account in OS keyring or fs keyring depending
-// on the system.
-func createSPNAccount(b *networkbuilder.Builder, title string) (account spn.Account, err error) {
-	accounts, err := accountNames(b)
-	if err != nil {
-		return account, err
-	}
-	var (
-		createAccount = "Create a new account"
-		importAccount = "Import an account from mnemonic"
-	)
-	accounts = append(accounts, createAccount, importAccount)
-	var (
-		qs = []*survey.Question{
-			{
-				Name: "account",
-				Prompt: &survey.Select{
-					Message: "Choose an account:",
-					Options: accounts,
-				},
-			},
-		}
-		answers = struct {
-			Account string `survey:"account"`
-		}{}
-	)
-	if err = survey.Ask(qs, &answers); err != nil {
-		if err == terminal.InterruptErr {
-			return account, context.Canceled
-		}
-		return account, err
-	}
-
-	switch answers.Account {
-	case createAccount:
-		var name string
-		if err := cliquiz.Ask(cliquiz.NewQuestion("Account name", &name, cliquiz.Required())); err != nil {
-			return account, err
-		}
-
-		if account, err = b.AccountCreate(name, ""); err != nil {
-			return account, err
-		}
-
-		fmt.Printf("\n%s account has been created successfully!\nAccount address: %s \nMnemonic: %s\n\n",
-			title,
-			account.Address,
-			account.Mnemonic,
-		)
-
-	case importAccount:
-		var name string
-		var mnemonic string
-		if err := cliquiz.Ask(
-			cliquiz.NewQuestion("Account name", &name, cliquiz.Required()),
-			cliquiz.NewQuestion("Mnemonic", &mnemonic, cliquiz.Required()),
-		); err != nil {
-			return account, err
-		}
-
-		if account, err = b.AccountCreate(name, mnemonic); err != nil {
-			return account, err
-		}
-		fmt.Printf("\n%s account has been imported successfully!\nAccount address: %s\n\n", title, account.Address)
-
-	default:
-		if account, err = b.AccountGet(answers.Account); err != nil {
-			return account, err
-		}
-		fmt.Printf("\n%s account has been selected.\nAccount address: %s\n\n", title, account.Address)
-	}
-
-	return account, nil
+	return network.New(*cosmos, account, options...)
 }
 
 func printSection(title string) {
 	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
-}
-
-// accountNames retrieves a name list of accounts in the OS keyring.
-func accountNames(b *networkbuilder.Builder) ([]string, error) {
-	var names []string
-	accounts, err := b.AccountList()
-	if err != nil {
-		return nil, err
-	}
-	for _, account := range accounts {
-		names = append(names, account.Name)
-	}
-	return names, nil
-}
-
-func ensureSPNAccountHook(cmd *cobra.Command, args []string) error {
-	nb, err := newNetworkBuilder(cmd.Context())
-	if err != nil {
-		return err
-	}
-	err = ensureSPNAccount(nb)
-	if err == context.Canceled {
-		return errors.New("aborted")
-	}
-	return err
 }

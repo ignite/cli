@@ -85,7 +85,7 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)))
 	if err != nil {
 		return err
 	}

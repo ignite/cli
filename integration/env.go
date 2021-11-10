@@ -6,7 +6,6 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -115,8 +114,8 @@ func ExecRetry() ExecOption {
 func (e Env) Exec(msg string, steps step.Steps, options ...ExecOption) (ok bool) {
 	opts := &execOptions{
 		ctx:    e.ctx,
-		stdout: ioutil.Discard,
-		stderr: ioutil.Discard,
+		stdout: io.Discard,
+		stderr: io.Discard,
 	}
 	for _, o := range options {
 		o(opts)
@@ -241,7 +240,7 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 
 // TmpDir creates a new temporary directory.
 func (e Env) TmpDir() (path string) {
-	path, err := ioutil.TempDir("", "integration")
+	path, err := os.MkdirTemp("", "integration")
 	require.NoError(e.t, err, "create a tmp dir")
 	e.t.Cleanup(func() { os.RemoveAll(path) })
 	return path

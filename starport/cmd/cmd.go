@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"sort"
 	"strings"
+	"sync"
 	"time"
 
 	"github.com/fatih/color"
@@ -20,7 +21,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
+	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -28,6 +29,7 @@ const (
 	flagPath          = "path"
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
+	flagYes           = "yes"
 
 	checkVersionTimeout = time.Millisecond * 600
 )
@@ -60,6 +62,7 @@ starport scaffold chain github.com/cosmonaut/mars`,
 	c.AddCommand(NewScaffold())
 	c.AddCommand(NewChain())
 	c.AddCommand(NewGenerate())
+	c.AddCommand(NewNetwork())
 	c.AddCommand(NewAccount())
 	c.AddCommand(NewRelayer())
 	c.AddCommand(NewTools())
@@ -78,14 +81,16 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 	return chain.LogRegular
 }
 
-func printEvents(bus events.Bus, s *clispinner.Spinner) {
+func printEvents(wg *sync.WaitGroup, bus events.Bus, s *clispinner.Spinner) {
+	defer wg.Done()
+
 	for event := range bus {
 		if event.IsOngoing() {
 			s.SetText(event.Text())
 			s.Start()
 		} else {
 			s.Stop()
-			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
+			fmt.Printf("%s %s\n", clispinner.OK, event.Description)
 		}
 	}
 }
@@ -105,8 +110,19 @@ func flagSetHome() *flag.FlagSet {
 	return fs
 }
 
-func getHomeFlag(cmd *cobra.Command) (home string) {
+func getHome(cmd *cobra.Command) (home string) {
 	home, _ = cmd.Flags().GetString(flagHome)
+	return
+}
+
+func flagSetYes() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.Bool(flagYes, false, "Answers interactive yes/no questions with yes")
+	return fs
+}
+
+func getYes(cmd *cobra.Command) (ok bool) {
+	ok, _ = cmd.Flags().GetBool(flagYes)
 	return
 }
 
@@ -129,7 +145,7 @@ func flagGetProto3rdParty(cmd *cobra.Command) bool {
 
 func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*chain.Chain, error) {
 	// Check if custom home is provided
-	if home := getHomeFlag(cmd); home != "" {
+	if home := getHome(cmd); home != "" {
 		chainOption = append(chainOption, chain.HomePath(home))
 	}
 
@@ -142,10 +158,10 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 	return chain.New(absPath, chainOption...)
 }
 
-func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
+func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []network.InitOption) []network.InitOption {
 	// Check if custom home is provided
-	if home := getHomeFlag(cmd); home != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
+	if home := getHome(cmd); home != "" {
+		initOptions = append(initOptions, network.InitializationHomePath(home))
 	}
 
 	return initOptions

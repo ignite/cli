@@ -18,6 +18,7 @@ import (
 const (
 	flagDep                 = "dep"
 	flagIBC                 = "ibc"
+	flagParams              = "params"
 	flagIBCOrdering         = "ordering"
 	flagRequireRegistration = "require-registration"
 )
@@ -37,14 +38,13 @@ func NewScaffoldModule() *cobra.Command {
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
+	c.Flags().StringSlice(flagParams, []string{}, "scaffold module params")
 
 	return c
 }
 
 func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var (
-		options []scaffolder.ModuleCreationOption
-
 		name    = args[0]
 		appPath = flagGetPath(cmd)
 	)
@@ -63,6 +63,15 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
 	if err != nil {
 		return err
+	}
+
+	params, err := cmd.Flags().GetStringSlice(flagParams)
+	if err != nil {
+		return err
+	}
+
+	options := []scaffolder.ModuleCreationOption{
+		scaffolder.WithParams(params),
 	}
 
 	// Check if the module must be an IBC module
