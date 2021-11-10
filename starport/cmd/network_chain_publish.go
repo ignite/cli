@@ -94,7 +94,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	if noCheck {
 		createOptions = append(createOptions, network.WithNoCheck())
 	} else {
-		// perform checks for the chain requires to initialize it and therefore erase the current home
+		// perform checks for the chain requires to initialize it and therefore erase the current home if it exists
 		// we ask the user for confirmation
 		ok, err := blockchain.IsHomeDirExist()
 		if err != nil {
