@@ -14,11 +14,12 @@ import (
 )
 
 const (
-	flagTag     = "tag"
-	flagBranch  = "branch"
-	flagHash    = "hash"
-	flagGenesis = "genesis"
-	flagNoCheck = "no-check"
+	flagTag      = "tag"
+	flagBranch   = "branch"
+	flagHash     = "hash"
+	flagGenesis  = "genesis"
+	flagCampaign = "campaign"
+	flagNoCheck  = "no-check"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -34,6 +35,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
+	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -50,6 +52,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		branch, _     = cmd.Flags().GetString(flagBranch)
 		hash, _       = cmd.Flags().GetString(flagHash)
 		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
+		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
 
@@ -96,11 +99,15 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// create blockchain.
 	var createOptions []network.CreateOption
+
 	if genesisURL != "" {
 		createOptions = append(createOptions, network.WithCustomGenesisFromURL(genesisURL))
 	}
+	if campaign != 0 {
+		createOptions = append(createOptions, network.WithCampaign(campaign))
+	}
+
 	if noCheck {
 		createOptions = append(createOptions, network.WithNoCheck())
 	} else if genesisURL != "" {
@@ -136,12 +143,16 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	s.SetText("Publishing...")
 
-	if err := blockchain.Publish(cmd.Context(), createOptions...); err != nil {
+	launchID, campaignID, err := blockchain.Publish(cmd.Context(), createOptions...)
+	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	fmt.Printf("%s Network published\n", clispinner.OK)
+	fmt.Printf("%s Network published \n", clispinner.OK)
+	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
+	fmt.Printf("%s Campaign ID: %d \n", clispinner.Bullet, campaignID)
+
 	return nil
 }
