@@ -35,47 +35,32 @@ In this tutorial, you learn about a basic loan system as you use Starport to bui
 
 A loan consists of:
 
-- An `id`
-- The `amount` that is being lent
-- A `fee` as cost for the loan
-- The borrowing party provides a `collateral` to request a loan 
-- A loan has a `deadline` for repayment, after which the loan can be liquidated
-- A loan has a `state` that describes the status as: 
+* An `id`
+* The `amount` that is being lent
+* A `fee` as cost for the loan
+* The borrowing party provides a `collateral` to request a loan 
+* A loan has a `deadline` for repayment, after which the loan can be liquidated
+* A loan has a `state` that describes the status as: 
 
-	- requested
-	- approved 
-	- paid 
-	- cancelled
-	- liquidated
-
-The resulting data schema for the loan module is:
-
-```proto
-message Loan {
-  uint64 id = 1;
-  string amount = 2; 
-  string fee = 3; 
-  string collateral = 4; 
-  string deadline = 5; 
-  string state = 6; 
-  string borrower = 7; 
-  string lender = 8; 
-}
-```
+	* requested
+	* approved
+	* paid
+	* cancelled
+	* liquidated
 
 The two accounts involved in the loan are:
 
-- `borrower`
-- `lender`
+* `borrower`
+* `lender`
 
 ### The Borrower
 
 A borrower posts a loan request with loan information such as:
 
-- `amount` 
-- `fee`
-- `collateral` 
-- `deadline`
+* `amount`
+* `fee`
+* `collateral`
+* `deadline`
 
 The borrower must repay the loan amount and the loan fee to the lender by the deadline risk losing the collateral.
 
