@@ -156,10 +156,10 @@ The cosmonaut wants a certain `amount` and is willing to pay `fees` as well as g
 
 The first message is the `request-loan` message that  requires these input parameters:
 
-- `amount`
-- `fee`
-- `collateral` 
-- `deadline`
+* `amount`
+* `fee`
+* `collateral`
+* `deadline`
 
 ```bash
 starport scaffold message request-loan amount fee collateral deadline
@@ -243,7 +243,7 @@ Add the following code to the `ValidateBasic()` function in the `/x/loan/types/m
 func (msg *MsgRequestLoan) ValidateBasic() error {
 	_, err := sdk.AccAddressFromBech32(msg.Creator)
 
-	amount, _ := sdk.ParseCoinsNormalized(msg.Amount)
+	amount, err := sdk.ParseCoinsNormalized(msg.Amount)
 	fee, _ := sdk.ParseCoinsNormalized(msg.Fee)
 	collateral, _ := sdk.ParseCoinsNormalized(msg.Collateral)
 
@@ -258,9 +258,6 @@ func (msg *MsgRequestLoan) ValidateBasic() error {
 	}
 	if !fee.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is not a valid Coins object")
-	}
-	if fee.Empty() {
-		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "fee is empty")
 	}
 	if !collateral.IsValid() {
 		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "collateral is not a valid Coins object")
@@ -520,9 +517,18 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 	fee, _ := sdk.ParseCoinsNormalized(loan.Fee)
 	collateral, _ := sdk.ParseCoinsNormalized(loan.Collateral)
 
-	k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
-	k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
-	k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+	err = k.bankKeeper.SendCoins(ctx, borrower, lender, amount)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrWrongLoanState, "Cannot send coins")
+	}
+	err = k.bankKeeper.SendCoins(ctx, borrower, lender, fee)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrWrongLoanState, "Cannot send coins")
+	}
+	err = k.bankKeeper.SendCoinsFromModuleToAccount(ctx, types.ModuleName, borrower, collateral)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrWrongLoanState, "Cannot send coins")
+	}
 
 	loan.State = "repayed"
 
