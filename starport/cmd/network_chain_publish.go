@@ -122,8 +122,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
-	s.SetText("Publishing...")
-
 	launchID, campaignID, err := blockchain.Publish(cmd.Context(), createOptions...)
 	if err != nil {
 		return err

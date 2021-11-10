@@ -145,6 +145,8 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 	coordinatorAddress := b.builder.account.Address(SPNAddressPrefix)
 	campaignID = o.campaignID
 
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Publishing the network"))
+
 	_, err = profiletypes.
 		NewQueryClient(b.builder.cosmos.Context).
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
