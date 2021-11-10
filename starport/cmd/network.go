@@ -85,7 +85,7 @@ func initializeNetwork(cmd *cobra.Command) (
 	wg.Add(1)
 	go printEvents(&wg, ev, s)
 
-	endRoutine := func() {
+	shutdown := func() {
 		s.Stop()
 		ev.Shutdown()
 		wg.Wait()
@@ -93,9 +93,9 @@ func initializeNetwork(cmd *cobra.Command) (
 
 	nb, err := newNetwork(cmd, network.CollectEvents(ev))
 	if err != nil {
-		endRoutine()
+		shutdown()
 	}
-	return nb, s, endRoutine, err
+	return nb, s, shutdown, err
 }
 
 // newNetwork returns a new network builder initialized with command flag

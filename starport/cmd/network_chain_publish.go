@@ -49,11 +49,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
-	nb, s, endRoutine, err := initializeNetwork(cmd)
+	nb, s, shutdown, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
 	}
-	defer endRoutine()
+	defer shutdown()
 
 	// initialize the blockchain
 	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
