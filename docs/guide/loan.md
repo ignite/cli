@@ -115,7 +115,7 @@ Use the `--dep` flag to specify that this module depends on and is going to inte
 
 ## Scaffold a List
 
-Use the [scaffold list](https://docs.starport.com/cli/#starport-scaffold-list) command to create data stored as an array:
+Use the [scaffold list](https://docs.starport.com/cli/#starport-scaffold-list) command to scaffold code necessary to store loans in an array-like data structure:
 
 ```bash
 starport scaffold list loan amount fee collateral deadline state borrower lender --no-message
