@@ -15,13 +15,14 @@ import (
 	"github.com/tendermint/starport/starport/services/network"
 )
 
-var LaunchSummaryHeader = []string{"Launch ID", "Chain ID", "Source"}
+var LaunchSummaryHeader = []string{"Launch ID", "Chain ID", "Source", "Campaign ID"}
 
 // LaunchSummary holds summarized information about a chain launch
 type LaunchSummary struct {
-	LaunchID string
-	ChainID  string
-	Source   string
+	LaunchID   string
+	ChainID    string
+	Source     string
+	CampaignID string
 }
 
 // NewNetworkChainList returns a new command to list all published chains on Starport Network
@@ -72,10 +73,18 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 // launchSummaries returns the list of launch summaries from the list of chain launches
 func launchSummaries(chains []launchtypes.Chain) (sums []LaunchSummary) {
 	for _, chain := range chains {
+		var campaignID string
+		if chain.HasCampaign {
+			campaignID = fmt.Sprintf("%d", chain.CampaignID)
+		} else {
+			campaignID = "no campaign"
+		}
+
 		sums = append(sums, LaunchSummary{
-			LaunchID: fmt.Sprintf("%d", chain.LaunchID),
-			ChainID:  chain.GenesisChainID,
-			Source:   chain.SourceURL,
+			LaunchID:   fmt.Sprintf("%d", chain.LaunchID),
+			ChainID:    chain.GenesisChainID,
+			Source:     chain.SourceURL,
+			CampaignID: campaignID,
 		})
 	}
 	return sums
@@ -87,7 +96,7 @@ func renderLaunchSummaries(launchSummaries []LaunchSummary, out io.Writer) {
 	launchTable.SetHeader(LaunchSummaryHeader)
 
 	for _, sum := range launchSummaries {
-		launchTable.Append([]string{sum.LaunchID, sum.ChainID, sum.Source})
+		launchTable.Append([]string{sum.LaunchID, sum.ChainID, sum.Source, sum.CampaignID})
 	}
 
 	launchTable.Render()
