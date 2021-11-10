@@ -2,11 +2,11 @@ package network
 
 import (
 	"context"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -15,6 +15,7 @@ import (
 
 const (
 	SPNAddressPrefix = "spn"
+	gentxFilename    = "gentx.json"
 )
 
 // Builder is network builder.
@@ -188,7 +189,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 // fetchChainLaunch fetches the chain launch from Starport Network from a launch id
 func (b *Builder) fetchChainLaunch(ctx context.Context, launchID uint64) (launchtypes.Chain, error) {
 	res, err := launchtypes.NewQueryClient(b.cosmos.Context).Chain(ctx, &launchtypes.QueryGetChainRequest{
-		Id: launchID,
+		LaunchID: launchID,
 	})
 	if err != nil {
 		return launchtypes.Chain{}, err

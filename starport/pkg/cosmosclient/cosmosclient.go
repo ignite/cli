@@ -355,6 +355,7 @@ func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	}
 	return nil
 }
+
 func newContext(
 	c *rpchttp.HTTP,
 	out io.Writer,

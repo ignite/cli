@@ -1,10 +1,7 @@
 package starportcmd
 
 import (
-	"os"
-
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/services/network"
 )
 
 // NewNetworkChain creates a new chain command that holds some other
@@ -15,20 +12,11 @@ func NewNetworkChain() *cobra.Command {
 		Short: "Build networks",
 	}
 
-	c.AddCommand(NewNetworkChainPublish())
+	c.AddCommand(
+		NewNetworkChainPublish(),
+		NewNetworkChainInit(),
+		NewNetworkChainJoin(),
+	)
 
 	return c
-}
-
-// checkChainHomeExist checks if a home with the provided launchID already exist
-func checkChainHomeExist(launchID uint64) (string, bool, error) {
-	home, err := network.ChainHome(launchID)
-	if err != nil {
-		return home, false, err
-	}
-
-	if _, err := os.Stat(home); os.IsNotExist(err) {
-		return home, false, nil
-	}
-	return home, true, err
 }

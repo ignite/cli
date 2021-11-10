@@ -1,15 +1,14 @@
 package starportcmd
 
 import (
-	"errors"
 	"fmt"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"os"
+	"path/filepath"
 	"strconv"
-	"sync"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network"
 )
 
@@ -27,9 +26,9 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainJoinHandler,
 	}
+
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().String(flagAmount, "", "If is provided sends the \"create account\" message")
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -41,56 +40,107 @@ func NewNetworkChainJoin() *cobra.Command {
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	var (
 		gentxPath, _ = cmd.Flags().GetString(flagGentx)
-		amount, _    = cmd.Flags().GetString(flagAmount)
+		amountArg, _ = cmd.Flags().GetString(flagAmount)
 	)
+
+	amount, err := sdk.ParseCoinsNormalized(amountArg)
+	if err != nil {
+		return fmt.Errorf("error parsing amount: %s", err.Error())
+	}
 
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
 		return fmt.Errorf("error parsing launchID: %s", err.Error())
 	}
 
-	var (
-		wg sync.WaitGroup
-		ev = events.NewBus()
-		s  = clispinner.New()
-	)
-	defer s.Stop()
-	wg.Add(1)
-	defer wg.Wait()
-	defer ev.Shutdown()
+	nb, _, endRoutine, err := initializeNetwork(cmd)
+	if err != nil {
+		return err
+	}
+	defer endRoutine()
 
-	go printEvents(&wg, ev, s)
-
-	if gentxPath == "" {
-		chainHome, exist, err := checkChainHomeExist(launchID)
+	home := getHome(cmd)
+	if home == "" {
+		var err error
+		home, err = network.ChainHome(launchID)
 		if err != nil {
 			return err
 		}
-		if !exist {
-			return errors.New("the chain home not exist")
-		}
-		gentxPath = chainHome
 	}
 
-	nb, err := newNetwork(cmd, network.CollectEvents(ev))
+	homeGentxPath, err := checkChainHomeInitialized(home)
 	if err != nil {
 		return err
+	}
+	if gentxPath == "" {
+		gentxPath = homeGentxPath
 	}
 
 	// initialize the blockchain from the launch ID
-	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{})
 	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, network.InitializationHomePath(home))
 	if err != nil {
 		return err
 	}
 
-	if err := blockchain.Init(cmd.Context()); err != nil {
+	addr, err := blockchain.GetAccountAddress(cmd.Context(), getFrom(cmd))
+	if err != nil {
 		return err
 	}
 
-	gentx, err := network.ParseGentx(gentxPath)
+	genesis, exist, err := getChainGenesis(gentxPath)
+	if err != nil {
+		return err
+	}
+	if exist {
+		hasAcc := genesis.HasAccount(addr)
+		if !hasAcc {
+			exist, err := blockchain.CheckRequestAccount(cmd.Context(), launchID, addr)
+			if err != nil {
+				return err
+			}
+			if !exist {
+				// TODO handle if the account not exist
+			}
+		}
+	}
 
-	fmt.Printf("%s Network joined\n", clispinner.OK)
+	// TODO: If [--amount], then send "create account" message (address has a default)
+	_ = amount
+
+	result, err := blockchain.Join(cmd.Context(), launchID, amount)
+	if err != nil {
+		return err
+	}
+
+	// delegatorAddress, validatorAddress, selfDelegation, err := network.ParseGentx(gentxPath)
+
+	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
 	return nil
+}
+
+// checkChainHomeInitialized checks if a home with the provided launchID already initialized
+func checkChainHomeInitialized(home string) (string, error) {
+	gentxPath := filepath.Join(home, "config/gentx/gentx.json")
+	_, err := os.Stat(gentxPath)
+	if err != nil {
+		return home, err
+	}
+	return gentxPath, err
+}
+
+// getChainGenesis return the chain genesis path
+func getChainGenesis(home string) (network.ChainGenesis, bool, error) {
+	genesisPath := filepath.Join(home, "config/genesis.json")
+	_, err := os.Stat(genesisPath)
+	if os.IsNotExist(err) {
+		return network.ChainGenesis{}, false, nil
+	} else if err != nil {
+		return network.ChainGenesis{}, false, err
+	}
+	net, err := network.ParseGenesis(genesisPath)
+	if err != nil {
+		return network.ChainGenesis{}, false, err
+	}
+	return net, true, nil
 }

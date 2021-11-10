@@ -10,10 +10,11 @@ import (
 
 type (
 	GentxInfo struct {
-		DelegatorAddress, ValidatorAddress string
-		SelfDelegation                     sdk.Coin
+		DelegatorAddress string
+		ValidatorAddress string
+		SelfDelegation   sdk.Coin
 	}
-	stargateGentx struct {
+	StargateGentx struct {
 		Body struct {
 			Messages []struct {
 				DelegatorAddress string `json:"delegator_address"`
@@ -25,37 +26,69 @@ type (
 			} `json:"messages"`
 		} `json:"body"`
 	}
+	ChainGenesis struct {
+		AppState struct {
+			Auth struct {
+				Accounts []struct {
+					Address       string `json:"address"`
+					AccountNumber uint64 `json:"account_number"`
+					Sequence      uint64 `json:"sequence"`
+				} `json:"accounts"`
+			} `json:"auth"`
+		} `json:"app_state"`
+	}
 )
 
-func ParseGentx(gentxPath string) (info GentxInfo, err error) {
+func (g ChainGenesis) HasAccount(address string) bool {
+	for _, account := range g.AppState.Auth.Accounts {
+		if account.Address == address {
+			return true
+		}
+	}
+	return false
+}
+
+func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
+	genesisFile, err := os.ReadFile(genesisPath)
+	if err != nil {
+		return genesis, errors.New("cannot open genesis file: " + err.Error())
+	}
+
+	if err := json.Unmarshal(genesisFile, &genesis); err != nil {
+		return genesis, err
+	}
+	return
+}
+
+func ParseGentx(gentxPath string) (string, string, sdk.Coin, error) {
 	gentx, err := os.ReadFile(gentxPath)
 	if err != nil {
-		return info, errors.New("cannot open gentx file: " + err.Error())
+		return "", "", sdk.Coin{}, errors.New("cannot open gentx file: " + err.Error())
 	}
 
 	// Try parsing Stargate gentx
-	var stargateGentx stargateGentx
+	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
-		return info, err
+		return "", "", sdk.Coin{}, err
 	}
 	if stargateGentx.Body.Messages == nil {
-		return info, errors.New("the gentx cannot be parsed")
+		return "", "", sdk.Coin{}, errors.New("the gentx cannot be parsed")
 	}
 
 	// This is a stargate gentx
 	if len(stargateGentx.Body.Messages) != 1 {
-		return info, errors.New("add validator gentx must contain 1 message")
+		return "", "", sdk.Coin{}, errors.New("add validator gentx must contain 1 message")
 	}
-	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
-	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
+	delegatorAddress := stargateGentx.Body.Messages[0].DelegatorAddress
+	validatorAddress := stargateGentx.Body.Messages[0].ValidatorAddress
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
-		return info, errors.New("the self-delegation inside the gentx is invalid")
+		return "", "", sdk.Coin{}, errors.New("the self-delegation inside the gentx is invalid")
 	}
-	info.SelfDelegation = sdk.NewCoin(
+	selfDelegation := sdk.NewCoin(
 		stargateGentx.Body.Messages[0].Value.Denom,
 		amount,
 	)
 
-	return info, nil
+	return delegatorAddress, validatorAddress, selfDelegation, nil
 }
