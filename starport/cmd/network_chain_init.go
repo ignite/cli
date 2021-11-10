@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"os"
 	"strconv"
 
@@ -13,15 +14,20 @@ import (
 	"github.com/tendermint/starport/starport/services/network"
 )
 
+const (
+	flagValidatorAccount = "validator-account"
+)
+
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
 func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "init [launch-id] [validator-account]",
+		Use:   "init [launch-id]",
 		Short: "Initialize a chain from a published chain ID",
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainInitHandler,
 	}
 
+	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -44,8 +50,8 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// check if the provided account for the validator exists
-	validatorName := args[1]
-	if err := checkAccountExist(cmd, validatorName); err != nil {
+	validatorAccount, _ := cmd.Flags().GetString(flagValidatorAccount)
+	if err := checkAccountExist(cmd, validatorAccount); err != nil {
 		return err
 	}
 
@@ -82,12 +88,12 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information
-	v, err := askValidatorInfo(validatorName)
+	v, err := askValidatorInfo(validatorAccount)
 	if err != nil {
 		return err
 	}
 
-	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, validatorName)
+	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, validatorAccount)
 	if err != nil {
 		return err
 	}
