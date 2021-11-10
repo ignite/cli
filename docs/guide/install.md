@@ -95,9 +95,13 @@ brew install tendermint/tap/starport
 
 ## Build from source
 
+Starport uses [Taskfile](https://taskfile.dev) for building from source. The
+instructions below include installing the latest release `task`.
+
 ```bash
 git clone https://github.com/tendermint/starport --depth=1
-cd starport && make install
+go install github.com/go-task/task/v3/cmd/task@latest
+cd starport && task install
 ```
 
 ## Summary
