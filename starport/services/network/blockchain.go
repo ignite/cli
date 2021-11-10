@@ -124,11 +124,12 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 
 	// if check must be performed, we initialize the chain to check the initial genesis
 	if !o.noCheck {
+		b.genesisURL = o.genesisURL
 		if err := b.Init(ctx); err != nil {
 			return 0, 0, err
 		}
 		genesisHash = b.genesisHash
-	} else if o.genesisURL != "" {
+	} else if b.genesisURL != "" {
 		// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
 		_, genesisHash, err = genesisAndHashFromURL(ctx, o.genesisURL)
 		if err != nil {

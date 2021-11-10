@@ -44,7 +44,9 @@ func (b *Blockchain) Init(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// initialize and verify the genesis
-	b.initGenesis(ctx)
+	if err := b.initGenesis(ctx); err != nil {
+		return err
+	}
 
 	b.isInitialized = true
 
@@ -96,7 +98,7 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 
 		// if the blockchain has been initialized with no genesis hash, we assign the fetched hash to it
 		// otherwise we check the genesis integrity with the existing hash
-		if b.genesisHash != "" {
+		if b.genesisHash == "" {
 			b.genesisHash = hash
 		} else if hash != b.genesisHash {
 			return fmt.Errorf("genesis from URL %s is invalid. Expected hash %s, actual hash %s", b.genesisURL, b.genesisHash, hash)

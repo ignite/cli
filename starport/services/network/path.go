@@ -22,7 +22,6 @@ func IsChainHomeExist(launchID uint64) (string, bool, error) {
 	return home, true, err
 }
 
-
 // ChainHome returns the default home dir used for a chain from SPN
 func ChainHome(launchID uint64) (string, error) {
 	home, err := os.UserHomeDir()
