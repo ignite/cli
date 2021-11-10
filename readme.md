@@ -44,7 +44,11 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 ## Contributing
 
-We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
+We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. 
+
+**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github.
+
+If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
 
 ## Stay in touch
 
