@@ -60,35 +60,35 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 	return
 }
 
-func ParseGentx(gentxPath string) (string, string, sdk.Coin, error) {
-	gentx, err := os.ReadFile(gentxPath)
+func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
+	gentx, err = os.ReadFile(gentxPath)
 	if err != nil {
-		return "", "", sdk.Coin{}, errors.New("cannot open gentx file: " + err.Error())
+		return info, gentx, errors.New("cannot open gentx file: " + err.Error())
 	}
 
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
-		return "", "", sdk.Coin{}, err
+		return info, gentx, err
 	}
 	if stargateGentx.Body.Messages == nil {
-		return "", "", sdk.Coin{}, errors.New("the gentx cannot be parsed")
+		return info, gentx, errors.New("the gentx cannot be parsed")
 	}
 
 	// This is a stargate gentx
 	if len(stargateGentx.Body.Messages) != 1 {
-		return "", "", sdk.Coin{}, errors.New("add validator gentx must contain 1 message")
+		return info, gentx, errors.New("add validator gentx must contain 1 message")
 	}
-	delegatorAddress := stargateGentx.Body.Messages[0].DelegatorAddress
-	validatorAddress := stargateGentx.Body.Messages[0].ValidatorAddress
+	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
+	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
-		return "", "", sdk.Coin{}, errors.New("the self-delegation inside the gentx is invalid")
+		return info, gentx, errors.New("the self-delegation inside the gentx is invalid")
 	}
-	selfDelegation := sdk.NewCoin(
+	info.SelfDelegation = sdk.NewCoin(
 		stargateGentx.Body.Messages[0].Value.Denom,
 		amount,
 	)
 
-	return delegatorAddress, validatorAddress, selfDelegation, nil
+	return info, gentx, nil
 }

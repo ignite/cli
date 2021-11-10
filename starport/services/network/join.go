@@ -47,7 +47,30 @@ func (b *Blockchain) CheckRequestAccount(ctx context.Context, launchID uint64, a
 	return false, nil
 }
 
-func (b *Blockchain) Join(launchID uint64, coins sdk.Coins) (string, error) {
+func (b *Blockchain) Join(launchID uint64, valAddress, peer string, gentx, consPubKey []byte, selfDelegation sdk.Coin) (string, error) {
+	msgCreateChain := launchtypes.NewMsgRequestAddValidator(
+		valAddress,
+		launchID,
+		gentx,
+		consPubKey,
+		selfDelegation,
+		peer,
+	)
+
+	response, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
+	if err != nil {
+		return "", err
+	}
+
+	out, err := b.builder.cosmos.Context.Codec.MarshalJSON(response)
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), err
+}
+
+func (b *Blockchain) CreateAccount(launchID uint64, coins sdk.Coins) (string, error) {
 	msgCreateChain := launchtypes.NewMsgRequestAddAccount(
 		b.builder.account.Address(SPNAddressPrefix),
 		launchID,

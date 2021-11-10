@@ -7,8 +7,11 @@ import (
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 )
 
@@ -43,7 +46,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		amountArg, _ = cmd.Flags().GetString(flagAmount)
 	)
 
-	amount, err := sdk.ParseCoinsNormalized(amountArg)
+	amount, err := sdk.ParseCoinNormalized(amountArg)
 	if err != nil {
 		return fmt.Errorf("error parsing amount: %s", err.Error())
 	}
@@ -104,13 +107,35 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
+	info, gentx, err := network.ParseGentx(gentxPath)
 
-	result, err := blockchain.Join(launchID, amount)
+	var publicAddress string
+	// prepare questions to interactively ask for a publicAddress when peer isn't provided
+	// and not running through chisel proxy.
+	if publicAddress == "" && !xchisel.IsEnabled() {
+		options := []cliquiz.Option{
+			cliquiz.Required(),
+		}
+		ip, _ := ipify.GetIp()
+		if err == nil {
+			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+		}
+
+		questions := []cliquiz.Question{cliquiz.NewQuestion(
+			"Peer's address",
+			&publicAddress,
+			options...,
+		)}
+		err := cliquiz.Ask(questions...)
+		if err != nil {
+			return err
+		}
+	}
+
+	result, err := blockchain.Join(launchID, info.ValidatorAddress, publicAddress, gentx, nil, amount)
 	if err != nil {
 		return err
 	}
-
-	// delegatorAddress, validatorAddress, selfDelegation, err := network.ParseGentx(gentxPath)
 
 	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
 	return nil
