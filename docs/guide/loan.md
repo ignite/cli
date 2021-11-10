@@ -123,7 +123,7 @@ starport scaffold list loan amount fee collateral deadline state borrower lender
 
 Use the `--no-message` flag to disable CRUD messages in the scaffold.
 
-The data you store in an array are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
+The data you store in an array-like data structure are the loans, with these parameters that are defined in the `Loan` message in `proto/loan/loan.proto`:
 
 ```proto
 message Loan {
