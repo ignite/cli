@@ -4,6 +4,7 @@ import (
 	"context"
 	"os"
 
+	campaigntypes "github.com/tendermint/spn/x/campaign/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	sperrors "github.com/tendermint/starport/starport/errors"
@@ -85,6 +86,7 @@ func (b *Blockchain) IsHomeDirExist() (ok bool, err error) {
 // createOptions holds info about how to create a chain.
 type createOptions struct {
 	genesisURL string
+	campaignID uint64
 	noCheck    bool
 }
 
@@ -98,6 +100,12 @@ func WithCustomGenesisFromURL(u string) CreateOption {
 	}
 }
 
+func WithCampaign(id uint64) CreateOption {
+	return func(o *createOptions) {
+		o.campaignID = id
+	}
+}
+
 // WithNoCheck disables checking integrity of the chain.
 func WithNoCheck() CreateOption {
 	return func(o *createOptions) {
@@ -106,51 +114,81 @@ func WithNoCheck() CreateOption {
 }
 
 // Publish submits Genesis to SPN to announce a new network.
-func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error {
+func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (launchID, campaignID uint64, err error) {
 	o := createOptions{}
 	for _, apply := range options {
 		apply(&o)
 	}
 
-	var err error
 	var genesisHash string
 
 	// if check must be performed, we initialize the chain to check the initial genesis
 	if !o.noCheck {
 		if err := b.Init(ctx); err != nil {
-			return err
+			return 0, 0, err
 		}
 		genesisHash = b.genesisHash
-	} else if b.genesisURL != "" {
+	} else if o.genesisURL != "" {
 		// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
-		_, genesisHash, err = genesisAndHashFromURL(ctx, b.genesisURL)
+		_, genesisHash, err = genesisAndHashFromURL(ctx, o.genesisURL)
 		if err != nil {
-			return err
+			return 0, 0, err
 		}
 	}
 
 	chainID, err := b.chain.ID()
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
+
+	coordinatorAddress := b.builder.account.Address(SPNAddressPrefix)
+	campaignID = o.campaignID
 
 	_, err = profiletypes.
 		NewQueryClient(b.builder.cosmos.Context).
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
-			Address: b.builder.account.Address(SPNAddressPrefix),
+			Address: coordinatorAddress,
 		})
 
 	// TODO check for not found and only then create a new coordinator, otherwise return the err.
 	if err != nil {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
-			b.builder.account.Address(SPNAddressPrefix),
+			coordinatorAddress,
 			"",
 			"",
 			"",
 		)
 		if _, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateCoordinator); err != nil {
-			return err
+			return 0, 0, err
 		}
+	}
+
+	if campaignID != 0 {
+		_, err = campaigntypes.
+			NewQueryClient(b.builder.cosmos.Context).
+			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
+				Id: o.campaignID,
+			})
+		if err != nil {
+			return 0, 0, err
+		}
+	} else {
+		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
+			coordinatorAddress,
+			b.chain.Name(),
+			nil,
+			false,
+		)
+		res, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateCampaign)
+		if err != nil {
+			return 0, 0, err
+		}
+
+		var createCampaignRes campaigntypes.MsgCreateCampaignResponse
+		if err := res.Decode(&createCampaignRes); err != nil {
+			return 0, 0, err
+		}
+		campaignID = createCampaignRes.CampaignID
 	}
 
 	msgCreateChain := launchtypes.NewMsgCreateChain(
@@ -160,9 +198,18 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) error
 		b.hash,
 		o.genesisURL,
 		genesisHash,
-		false,
-		0,
+		true,
+		campaignID,
 	)
-	_, err = b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
-	return err
+	res, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
+	if err != nil {
+		return 0, 0, err
+	}
+
+	var createChainRes launchtypes.MsgCreateChainResponse
+	if err := res.Decode(&createChainRes); err != nil {
+		return 0, 0, err
+	}
+
+	return createChainRes.LaunchID, campaignID, nil
 }

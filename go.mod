@@ -26,6 +26,7 @@ require (
 	github.com/gobuffalo/plush v3.8.3+incompatible
 	github.com/gobuffalo/plushgen v0.1.2
 	github.com/goccy/go-yaml v1.9.2
+	github.com/gogo/protobuf v1.3.3
 	github.com/google/go-github/v37 v37.0.0
 	github.com/gookit/color v1.2.7
 	github.com/gorilla/mux v1.8.0
@@ -35,7 +36,7 @@ require (
 	github.com/jpillora/chisel v1.7.3
 	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
-	github.com/manifoldco/promptui v0.8.0 // indirect
+	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.2.0 // indirect
 	github.com/onsi/ginkgo v1.14.2 // indirect
@@ -52,13 +53,12 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.2
 	github.com/tendermint/spm v0.1.7
-	github.com/tendermint/spn v0.1.1-0.20211104082149-b65147ba4d75
+	github.com/tendermint/spn v0.1.1-0.20211109105629-7de2146b06d9
 	github.com/tendermint/tendermint v0.34.13
 	github.com/tendermint/vue v0.1.53
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
-	google.golang.org/grpc v1.40.0
 )
 
 replace (
