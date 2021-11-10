@@ -358,7 +358,10 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 
 	lender, _ := sdk.AccAddressFromBech32(msg.Creator)
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
-	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
+	amount, err := sdk.ParseCoinsNormalized(loan.Amount)
+	if err != nil {
+		return nil, sdkerrors.Wrap(sdkerrors.ErrWrongLoanState, "Cannot parse coins in loan amount")
+	}
 
 	k.bankKeeper.SendCoins(ctx, lender, borrower, amount)
 
@@ -510,7 +513,7 @@ func (k msgServer) RepayLoan(goCtx context.Context, msg *types.MsgRepayLoan) (*t
 	borrower, _ := sdk.AccAddressFromBech32(loan.Borrower)
 
 	if msg.Creator != loan.Borrower {
-			return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
+		return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Cannot repay: not the borrower")
 	}
 
 	amount, _ := sdk.ParseCoinsNormalized(loan.Amount)
@@ -632,9 +635,9 @@ After the deadline is passed, a lender can liquidate a loan when the borrower do
 starport scaffold message liquidate-loan id:uint
 ```
 
-- The `liquidate-loan` message must be able to be executed by the `lender`.
-- The status of the loan must be `approved`. 
-- The `deadline` block height must have passed.
+* The `liquidate-loan` message must be able to be executed by the `lender`.
+* The status of the loan must be `approved`. 
+* The `deadline` block height must have passed.
 
 When these properties are valid, the collateral shall be liquidated from the `borrower`.
 
@@ -754,6 +757,7 @@ Query the loan:
 ```bash
 loand query loan list-loan
 ```
+
 The loan status is now `liquidated`:
 
 ```bash
@@ -791,9 +795,9 @@ Scaffold the message for `cancel-loan`:
 starport s message cancel-loan id:uint
 ```
 
-- Only the `borrower` can cancel a loan request.
-- The state of the request must be `requested`.
-- Then the collateral coins can be released from escrow and the status set to `cancelled`.
+* Only the `borrower` can cancel a loan request.
+* The state of the request must be `requested`.
+* Then the collateral coins can be released from escrow and the status set to `cancelled`.
 
 Add this functionality to the `keeper` in `x/loan/keeper/msg_server_cancel_loan.go`:
 
