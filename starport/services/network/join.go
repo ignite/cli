@@ -47,7 +47,7 @@ func (b *Blockchain) CheckRequestAccount(ctx context.Context, launchID uint64, a
 	return false, nil
 }
 
-func (b *Blockchain) Join(ctx context.Context, launchID uint64, coins sdk.Coins) (string, error) {
+func (b *Blockchain) Join(launchID uint64, coins sdk.Coins) (string, error) {
 	msgCreateChain := launchtypes.NewMsgRequestAddAccount(
 		b.builder.account.Address(SPNAddressPrefix),
 		launchID,

@@ -100,15 +100,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 				return err
 			}
 			if !exist {
-				// TODO handle if the account not exist
+				return fmt.Errorf("account already exist %s", addr)
 			}
 		}
 	}
 
-	// TODO: If [--amount], then send "create account" message (address has a default)
-	_ = amount
-
-	result, err := blockchain.Join(cmd.Context(), launchID, amount)
+	result, err := blockchain.Join(launchID, amount)
 	if err != nil {
 		return err
 	}
