@@ -56,32 +56,49 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("error parsing launchID: %s", err.Error())
 	}
 
+	// initialize network common methods
 	nb, _, endRoutine, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
 	}
 	defer endRoutine()
 
-	home := getHome(cmd)
-	if home == "" {
-		var err error
-		home, err = network.ChainHome(launchID)
-		if err != nil {
-			return err
-		}
-	}
-
-	homeGentxPath, err := checkChainHomeInitialized(home)
+	// define the home path and the parse the gentx
+	initOptions, homeGentxPath, err := initOptionWithLaunchIDHome(cmd, launchID)
 	if err != nil {
 		return err
 	}
 	if gentxPath == "" {
 		gentxPath = homeGentxPath
 	}
+	info, gentx, err := network.ParseGentx(gentxPath)
+	if err != nil {
+		return err
+	}
+
+	// get the pear public address for the validator
+	publicAddress, err := askPublicAddress()
+	if err != nil {
+		return err
+	}
 
 	// initialize the blockchain from the launch ID
 	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, network.InitializationHomePath(home))
+	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	if err != nil {
+		return err
+	}
+
+	// send message to add the validator into the SPN
+	result, err := blockchain.Join(
+		cmd.Context(),
+		launchID,
+		info.ValidatorAddress,
+		publicAddress,
+		gentx,
+		info.PubKey,
+		amount,
+	)
 	if err != nil {
 		return err
 	}
@@ -107,48 +124,29 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 			}
 		}
 	}
-	info, gentx, err := network.ParseGentx(gentxPath)
-
-	var publicAddress string
-	// prepare questions to interactively ask for a publicAddress when peer isn't provided
-	// and not running through chisel proxy.
-	if publicAddress == "" && !xchisel.IsEnabled() {
-		options := []cliquiz.Option{
-			cliquiz.Required(),
-		}
-		ip, _ := ipify.GetIp()
-		if err == nil {
-			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
-		}
-
-		questions := []cliquiz.Question{cliquiz.NewQuestion(
-			"Peer's address",
-			&publicAddress,
-			options...,
-		)}
-		err := cliquiz.Ask(questions...)
-		if err != nil {
-			return err
-		}
-	}
-
-	result, err := blockchain.Join(launchID, info.ValidatorAddress, publicAddress, gentx, nil, amount)
-	if err != nil {
-		return err
-	}
 
 	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
 	return nil
 }
 
-// checkChainHomeInitialized checks if a home with the provided launchID already initialized
-func checkChainHomeInitialized(home string) (string, error) {
-	gentxPath := filepath.Join(home, "config/gentx/gentx.json")
-	_, err := os.Stat(gentxPath)
-	if err != nil {
-		return home, err
+// askPublicAddress prepare questions to interactively ask for a publicAddress when peer isn't provided
+// and not running through chisel proxy.
+func askPublicAddress() (publicAddress string, err error) {
+	options := []cliquiz.Option{
+		cliquiz.Required(),
 	}
-	return gentxPath, err
+	if !xchisel.IsEnabled() {
+		ip, _ := ipify.GetIp()
+		if err == nil {
+			options = append(options, cliquiz.DefaultAnswer(fmt.Sprintf("%s:26656", ip)))
+		}
+	}
+	questions := []cliquiz.Question{cliquiz.NewQuestion(
+		"Peer's address",
+		&publicAddress,
+		options...,
+	)}
+	return publicAddress, cliquiz.Ask(questions...)
 }
 
 // getChainGenesis return the chain genesis path

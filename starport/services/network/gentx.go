@@ -12,6 +12,7 @@ type (
 	GentxInfo struct {
 		DelegatorAddress string
 		ValidatorAddress string
+		PubKey           []byte
 		SelfDelegation   sdk.Coin
 	}
 	StargateGentx struct {
@@ -19,7 +20,10 @@ type (
 			Messages []struct {
 				DelegatorAddress string `json:"delegator_address"`
 				ValidatorAddress string `json:"validator_address"`
-				Value            struct {
+				PubKey           struct {
+					Key string `json:"key"`
+				} `json:"pubkey"`
+				Value struct {
 					Denom  string `json:"denom"`
 					Amount string `json:"amount"`
 				} `json:"value"`
@@ -63,7 +67,7 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 	gentx, err = os.ReadFile(gentxPath)
 	if err != nil {
-		return info, gentx, errors.New("cannot open gentx file: " + err.Error())
+		return info, gentx, errors.New("chain home folder is not initialized yet: " + err.Error())
 	}
 
 	// Try parsing Stargate gentx
@@ -81,6 +85,7 @@ func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 	}
 	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
 	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
+	info.PubKey = []byte(stargateGentx.Body.Messages[0].PubKey.Key)
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
 		return info, gentx, errors.New("the self-delegation inside the gentx is invalid")
