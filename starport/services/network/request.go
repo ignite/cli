@@ -2,6 +2,7 @@ package network
 
 import (
 	"context"
+
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
@@ -13,6 +14,5 @@ func (b *Builder) ChainLaunches(ctx context.Context) ([]launchtypes.Chain, error
 	if err != nil {
 		return []launchtypes.Chain{}, err
 	}
-	b.ev.Send(events.New(events.StatusDone, "Chain launches fetched"))
 	return res.Chain, err
 }
