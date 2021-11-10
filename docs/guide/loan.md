@@ -151,7 +151,7 @@ git commit -m "Scaffold loan module and loan list"
 
 In order to create a loan app, you need the following messages:
 
-* Request loan `request-loan`
+* Request loan
 * Approve loan
 * Repay loan
 * Liquidate loan
