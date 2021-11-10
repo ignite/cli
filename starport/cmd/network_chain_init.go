@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"os"
 	"strconv"
 
 	"github.com/manifoldco/promptui"
@@ -24,7 +23,7 @@ func NewNetworkChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init [launch-id]",
 		Short: "Initialize a chain from a published chain ID",
-		Args:  cobra.ExactArgs(2),
+		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainInitHandler,
 	}
 
@@ -49,6 +48,9 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "error parsing launchID")
 	}
+	if launchID == 0 {
+		return errors.New("launch ID must be greater than 0")
+	}
 
 	// check if the provided account for the validator exists
 	validatorAccount, _ := cmd.Flags().GetString(flagValidatorAccount)
@@ -57,7 +59,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
-	chainHome, exist, err := checkChainHomeExist(launchID)
+	chainHome, exist, err := network.IsChainHomeExist(launchID)
 	if err != nil {
 		return err
 	}
@@ -136,17 +138,4 @@ func askValidatorInfo(validatorName string) (chain.Validator, error) {
 		),
 	)
 	return v, cliquiz.Ask(questions...)
-}
-
-// checkChainHomeExist checks if a home with the provided launchID already exist
-func checkChainHomeExist(launchID uint64) (string, bool, error) {
-	home, err := network.ChainHome(launchID)
-	if err != nil {
-		return home, false, err
-	}
-
-	if _, err := os.Stat(home); os.IsNotExist(err) {
-		return home, false, nil
-	}
-	return home, true, err
 }

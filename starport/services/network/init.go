@@ -129,14 +129,13 @@ func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, er
 		return "", err
 	}
 
-	tmpDir, err := os.MkdirTemp("", "")
+	keyFile, err := os.CreateTemp("", "")
 	if err != nil {
 		return "", err
 	}
-	defer os.RemoveAll(tmpDir)
+	defer os.Remove(keyFile.Name())
 
-	keyFile := filepath.Join(tmpDir, name)
-	if err := os.WriteFile(keyFile, []byte(armored), 0644); err != nil {
+	if _, err := keyFile.Write([]byte(armored)); err != nil {
 		return "", err
 	}
 
@@ -145,7 +144,7 @@ func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, er
 	if err != nil {
 		return "", err
 	}
-	acc, err := chainCmd.ImportAccount(ctx, name, keyFile, passphrase)
+	acc, err := chainCmd.ImportAccount(ctx, name, keyFile.Name(), passphrase)
 	return acc.Address, err
 }
 
