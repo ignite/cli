@@ -1,0 +1,67 @@
+version: '3'
+includes:
+  bootstrap: ./tasks/bootstrap.yml
+  build: ./tasks/build.yml
+  test: ./tasks/tests.yml
+  go: ./tasks/go.yml
+dotenv: [.env]
+vars:
+  PROJECT_NAME: starport
+tasks:
+  default:
+    deps: [install]
+  install:
+    desc: Install the starport binary
+    cmds:
+      - task: go:install
+        vars: { tool: ./..., project: true }
+    silent: true
+  format:
+    desc: Format golang code
+    deps: [go:format]
+  test:
+    desc: Run unit, integration, and vue tests
+    summary: |
+      Running the entire test suite is extremely expensive as it needs to run
+      unit, integration, and vue tests.
+    deps: [vet, test:integration, test:unit, test:vue]
+  run:
+    desc: Build and Execute {{.PROJECT_NAME}} to test the local executable
+    summary: |
+      This target will build {{.PROJECT_NAME}} and then run it with any user
+      provided CLI arguments. These are to be passed after the classic `--` is
+      used to separate them from {{.PROJECT_NAME}}.
+
+      This greatly increases the speed by which developers can test newer
+      features quickly and not have to worry about order of operations, or
+      forgetting to run the most recent build, etc.
+    deps: [build:starport]
+    cmds:
+      - dist/{{.PROJECT_NAME}} {{.CLI_ARGS}}
+  build:
+    desc: Build {{.PROJECT_NAME}} and tooling binaries
+    summary: |
+      Building {{.PROJECT_NAME}} requires several tools to be built
+      simultaneously and in such a way as to ensure that the set of
+      dependencies needed for installation is minimal.
+
+      This target will build not only `{{.PROJECT_NAME}}`, but all the internal
+      tools used by {{.PROJECT_NAME}}.
+    deps: [build:starport, build:gen-cli-docs]
+  bootstrap:
+    desc: Install all golang tools necessary for basic development
+    summary: |
+      Building {{.PROJECT_NAME}} currently requires a minimum set of tools to
+      get started, beyond *just* golang and task. These steps will install the
+      correct set of dependencies and tools for users to get started.
+
+      This target *does not* install additional tools needed to generate every
+      possible operation within {{.PROJECT_NAME}} itself.
+    deps: [bootstrap:go]
+  lint:
+    desc: Run golangci-lint on the current codebase
+    cmds:
+      - golangci-lint run --out-format=tab --issues-exit-code=0
+  vet: [go vet ./...]
+
+# TODO: `vet` should just be removed in favor of golangci-lint

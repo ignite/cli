@@ -1,0 +1,15 @@
+version: '3'
+tasks:
+  default:
+    deps: [starport, gen-cli-docs, shell]
+  starport:
+    desc: Build the starport binary
+    cmds:
+      - task: :go:build
+        vars: { target: cmd/starport }
+    sources:
+      - starport/**/*.go
+  gen-cli-docs:
+    cmds:
+      - task: :go:build
+        vars: { target: internal/tools/gen-cli-docs }

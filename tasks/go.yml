@@ -1,0 +1,29 @@
+version: '3'
+vars:
+  outdir: dist/
+  DATE: >-
+    {{ now | date "2006-01-02T15:04:05" }}
+  HEAD: { sh: git rev-parse HEAD }
+  modpath: github.com/tendermint/starport/starport/internal/version
+  goflags: >-
+    -mod=readonly
+    -ldflags '-X {{.modpath}}.Head={{.HEAD}} -X {{.modpath}}.Date={{.DATE}}'
+tasks:
+  build:
+    cmds:
+      - >-
+        go build
+        {{if (default true .verbose)}}-v{{end}}
+        {{.goflags}}
+        -o {{.outdir}}
+        ./starport/{{.target}}
+  install:
+    - >-
+      go install
+      {{if .project}}{{.goflags}}{{end}}
+      {{.tool}}
+      {{- if not .project}}@{{default "latest" .version}}{{end -}}
+  format:
+    silent: true
+    cmds:
+      - find . -name '*.go' -type f -exec gofmt -d -s '{}' +

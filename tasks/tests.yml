@@ -1,0 +1,15 @@
+version: '3'
+tasks:
+  integration:
+    desc: Run integration tests
+    cmds:
+      - go test -race -failfast -v -timeout {{default "60m" .TEST_TIMEOUT}} ./integration/...
+  unit:
+    desc: Run unit tests
+    cmds:
+      - go test -race -failfast -v ./starport/...
+  vue:
+    desc: Run vue tests
+    cmds:
+      - echo "executing vue tests..." > /dev/null
+    silent: true
