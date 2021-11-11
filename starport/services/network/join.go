@@ -3,11 +3,98 @@ package network
 import (
 	"context"
 	"errors"
-	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
+
+// Join creates the RequestAddValidator message into the SPN
+func (b *Builder) Join(
+	validatorMsg,
+	accountMsg sdk.Msg,
+) (string, error) {
+	msgs := make([]sdk.Msg, 0)
+	if accountMsg != nil {
+		msgs = append(msgs, accountMsg)
+	}
+	if validatorMsg != nil {
+		msgs = append(msgs, validatorMsg)
+	}
+
+	response, err := b.cosmos.BroadcastTx(b.account.Name, msgs...)
+	if err != nil {
+		return "", err
+	}
+
+	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
+	if err != nil {
+		return "", err
+	}
+
+	return string(out), err
+}
+
+// CreateValidatorRequestMsg creates an add AddValidator request message
+func (b *Builder) CreateValidatorRequestMsg(
+	ctx context.Context,
+	launchID uint64,
+	peer,
+	valAddress string,
+	gentx,
+	consPubKey []byte,
+	selfDelegation sdk.Coin,
+) (sdk.Msg, error) {
+	// Check if the validator request already exist
+	exist, launchID, err := b.checkRequestValidator(ctx, launchID, valAddress)
+	if err != nil {
+		return nil, err
+	}
+	if exist {
+		return nil, errors.New("validator already exist: " + valAddress)
+	}
+
+	return launchtypes.NewMsgRequestAddValidator(
+		valAddress,
+		launchID,
+		gentx,
+		consPubKey,
+		selfDelegation,
+		peer,
+	), nil
+}
+
+// CreateAccountRequestMsg creates an add AddAccount request message
+func (b *Builder) CreateAccountRequestMsg(
+	ctx context.Context,
+	chainHome string,
+	launchID uint64,
+	amount sdk.Coin,
+) (msg sdk.Msg, err error) {
+	addr := b.account.Address(SPNAddressPrefix)
+	shouldCreateAcc := false
+	if !amount.IsZero() {
+		exist, err := CheckGenesisAddress(chainHome, addr)
+		if err != nil {
+			return msg, err
+		}
+		if !exist {
+			exist, err = b.CheckRequestAccount(ctx, launchID, addr)
+			if err != nil {
+				return msg, err
+			}
+		}
+		shouldCreateAcc = !exist
+	}
+	if shouldCreateAcc {
+		msg = launchtypes.NewMsgRequestAddAccount(
+			b.account.Address(SPNAddressPrefix),
+			launchID,
+			sdk.NewCoins(amount),
+		)
+	}
+	return msg, err
+
+}
 
 // GetAccountAddress return an account address for the blockchain by name
 func (b *Blockchain) GetAccountAddress(ctx context.Context, accountName string) (string, error) {
@@ -60,66 +147,6 @@ func (b *Builder) checkRequestValidator(ctx context.Context, launchID uint64, ad
 		}
 	}
 	return false, 0, nil
-}
-
-// Join creates the RequestAddValidator message into the SPN
-func (b *Builder) Join(
-	ctx context.Context,
-	launchID uint64,
-	valAddress, peer string,
-	gentx, consPubKey []byte,
-	selfDelegation sdk.Coin,
-) (string, error) {
-	// Check if the validator request already exist
-	exist, launchID, err := b.checkRequestValidator(ctx, launchID, valAddress)
-	if err != nil {
-		return "", err
-	}
-	if exist {
-		return strconv.Itoa(int(launchID)), nil
-	}
-
-	msgCreateChain := launchtypes.NewMsgRequestAddValidator(
-		valAddress,
-		launchID,
-		gentx,
-		consPubKey,
-		selfDelegation,
-		peer,
-	)
-
-	response, err := b.cosmos.BroadcastTx(b.account.Name, msgCreateChain)
-	if err != nil {
-		return "", err
-	}
-
-	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
-	if err != nil {
-		return "", err
-	}
-
-	return string(out), err
-}
-
-// CreateAccount creates an add AddAccount request
-func (b *Builder) CreateAccount(launchID uint64, coins sdk.Coins) (string, error) {
-	msgCreateChain := launchtypes.NewMsgRequestAddAccount(
-		b.account.Address(SPNAddressPrefix),
-		launchID,
-		coins,
-	)
-
-	response, err := b.cosmos.BroadcastTx(b.account.Name, msgCreateChain)
-	if err != nil {
-		return "", err
-	}
-
-	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
-	if err != nil {
-		return "", err
-	}
-
-	return string(out), err
 }
 
 // fetchRequests fetches the chain requests from SPN by launch id

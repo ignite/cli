@@ -65,9 +65,13 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 }
 
 func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
+	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
+		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
+	}
+
 	gentx, err = os.ReadFile(gentxPath)
 	if err != nil {
-		return info, gentx, errors.New("chain home folder is not initialized yet: " + err.Error())
+		return info, gentx, err
 	}
 
 	// Try parsing Stargate gentx

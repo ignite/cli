@@ -2,8 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
-	"os"
-	"path/filepath"
+	"github.com/pkg/errors"
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -41,93 +40,100 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
+	// initialize network common methods
+	nb, s, shutdown, err := initializeNetwork(cmd)
+	if err != nil {
+		return err
+	}
+	defer shutdown()
+
 	var (
-		gentxPath, _ = cmd.Flags().GetString(flagGentx)
 		amountArg, _ = cmd.Flags().GetString(flagAmount)
+		from         = getFrom(cmd)
 	)
 
+	// parse the amount
 	amount, err := sdk.ParseCoinNormalized(amountArg)
 	if err != nil {
-		return fmt.Errorf("error parsing amount: %s", err.Error())
+		return errors.Wrap(err, "error parsing amount")
 	}
 
+	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
-		return fmt.Errorf("error parsing launchID: %s", err.Error())
+		return errors.Wrap(err, "error parsing launchID")
+	}
+	if launchID == 0 {
+		return errors.New("launch ID must be greater than 0")
 	}
 
-	// initialize network common methods
-	nb, _, endRoutine, err := initializeNetwork(cmd)
-	if err != nil {
-		return err
-	}
-	defer endRoutine()
-
-	// get the pear public address for the validator
-	publicAddress, err := askPublicAddress()
+	// parse the home path
+	home, err := getLaunchIDHome(cmd, launchID)
 	if err != nil {
 		return err
 	}
 
-	home := getHome(cmd)
-	if home == "" {
-		var err error
-		home, err = network.ChainHome(launchID)
-		if err != nil {
-			return err
-		}
+	// parse the gentx and check if it exist
+	gentxPath := getGentxPath(cmd, home)
+	if err != nil {
+		return errors.Wrap(err, "error parsing gentx path")
 	}
-
-	// add the custom gentx if provided
-	if gentxPath != "" {
-		gentxPath = filepath.Join(home, "config/gentx/gentx.json")
-	}
-
 	info, gentx, err := network.ParseGentx(gentxPath)
 	if err != nil {
 		return err
 	}
 
-	// send message to add the validator into the SPN
-	result, err := nb.Join(
+	// get the peer public address for the validator
+	peer, err := askPublicAddress(s)
+	if err != nil {
+		return err
+	}
+
+	if err := checkAccountExist(cmd, from); err != nil {
+		return err
+	}
+
+	// create the message to add the validator into the SPN
+	valMsg, err := nb.CreateValidatorRequestMsg(
 		cmd.Context(),
 		launchID,
+		peer,
 		info.ValidatorAddress,
-		publicAddress,
 		gentx,
 		info.PubKey,
+		info.SelfDelegation,
+	)
+	if err != nil {
+		return err
+	}
+
+	// create the message to add the account into the SPN
+	accMsg, err := nb.CreateAccountRequestMsg(
+		cmd.Context(),
+		home,
+		launchID,
 		amount,
 	)
 	if err != nil {
 		return err
 	}
 
-	addr := ""
-
-	genesis, exist, err := getChainGenesis(gentxPath)
+	result, err := nb.Join(valMsg, accMsg)
 	if err != nil {
 		return err
 	}
-	if exist {
-		hasAcc := genesis.HasAccount(addr)
-		if !hasAcc {
-			exist, err := nb.CheckRequestAccount(cmd.Context(), launchID, addr)
-			if err != nil {
-				return err
-			}
-			if !exist {
-				return fmt.Errorf("account already exist %s", addr)
-			}
-		}
-	}
 
 	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
+
 	return nil
 }
 
-// askPublicAddress prepare questions to interactively ask for a publicAddress when peer isn't provided
-// and not running through chisel proxy.
-func askPublicAddress() (publicAddress string, err error) {
+// askPublicAddress prepare questions to interactively ask for a publicAddress
+// when peer isn't provided and not running through chisel proxy.
+func askPublicAddress(s *clispinner.Spinner) (publicAddress string, err error) {
+	s.Stop()
+	defer s.Start()
+
 	options := []cliquiz.Option{
 		cliquiz.Required(),
 	}
@@ -143,20 +149,4 @@ func askPublicAddress() (publicAddress string, err error) {
 		options...,
 	)}
 	return publicAddress, cliquiz.Ask(questions...)
-}
-
-// getChainGenesis return the chain genesis path
-func getChainGenesis(home string) (network.ChainGenesis, bool, error) {
-	genesisPath := filepath.Join(home, "config/genesis.json")
-	_, err := os.Stat(genesisPath)
-	if os.IsNotExist(err) {
-		return network.ChainGenesis{}, false, nil
-	} else if err != nil {
-		return network.ChainGenesis{}, false, err
-	}
-	net, err := network.ParseGenesis(genesisPath)
-	if err != nil {
-		return network.ChainGenesis{}, false, err
-	}
-	return net, true, nil
 }
