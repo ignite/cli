@@ -2,10 +2,10 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/pkg/errors"
 	"strconv"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/pkg/errors"
 	"github.com/rdegges/go-ipify"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -123,6 +123,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	s.Stop()
 	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
 
 	return nil

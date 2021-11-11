@@ -6,6 +6,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/events"
 )
 
 // Join creates the RequestAddValidator message into the SPN
@@ -20,7 +21,7 @@ func (b *Builder) Join(
 	if validatorMsg != nil {
 		msgs = append(msgs, validatorMsg)
 	}
-
+	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting transactions"))
 	response, err := b.cosmos.BroadcastTx(b.account.Name, msgs...)
 	if err != nil {
 		return "", err
@@ -30,6 +31,7 @@ func (b *Builder) Join(
 	if err != nil {
 		return "", err
 	}
+	b.ev.Send(events.New(events.StatusDone, "Transactions broadcasted"))
 
 	return string(out), err
 }
@@ -71,6 +73,8 @@ func (b *Builder) CreateAccountRequestMsg(
 	amount sdk.Coin,
 ) (msg sdk.Msg, err error) {
 	addr := b.account.Address(SPNAddressPrefix)
+	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+addr))
+
 	shouldCreateAcc := false
 	if !amount.IsZero() {
 		exist, err := CheckGenesisAddress(chainHome, addr)
@@ -86,11 +90,14 @@ func (b *Builder) CreateAccountRequestMsg(
 		shouldCreateAcc = !exist
 	}
 	if shouldCreateAcc {
+		b.ev.Send(events.New(events.StatusDone, "Account message created"))
 		msg = launchtypes.NewMsgRequestAddAccount(
-			b.account.Address(SPNAddressPrefix),
+			addr,
 			launchID,
 			sdk.NewCoins(amount),
 		)
+	} else {
+		b.ev.Send(events.New(events.StatusDone, "Account message not created"))
 	}
 	return msg, err
 
