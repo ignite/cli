@@ -11,7 +11,6 @@ import (
 type (
 	GentxInfo struct {
 		DelegatorAddress string
-		ValidatorAddress string
 		PubKey           []byte
 		SelfDelegation   sdk.Coin
 	}
@@ -34,9 +33,7 @@ type (
 		AppState struct {
 			Auth struct {
 				Accounts []struct {
-					Address       string `json:"address"`
-					AccountNumber uint64 `json:"account_number"`
-					Sequence      uint64 `json:"sequence"`
+					Address string `json:"address"`
 				} `json:"accounts"`
 			} `json:"auth"`
 		} `json:"app_state"`
@@ -57,11 +54,7 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 	if err != nil {
 		return genesis, errors.New("cannot open genesis file: " + err.Error())
 	}
-
-	if err := json.Unmarshal(genesisFile, &genesis); err != nil {
-		return genesis, err
-	}
-	return
+	return genesis, json.Unmarshal(genesisFile, &genesis)
 }
 
 func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
@@ -88,7 +81,6 @@ func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 		return info, gentx, errors.New("add validator gentx must contain 1 message")
 	}
 	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
-	info.ValidatorAddress = stargateGentx.Body.Messages[0].ValidatorAddress
 	info.PubKey = []byte(stargateGentx.Body.Messages[0].PubKey.Key)
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {

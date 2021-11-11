@@ -47,12 +47,8 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer shutdown()
 
-	var (
-		amountArg, _ = cmd.Flags().GetString(flagAmount)
-		from         = getFrom(cmd)
-	)
-
 	// parse the amount
+	amountArg, _ := cmd.Flags().GetString(flagAmount)
 	amount, err := sdk.ParseCoinNormalized(amountArg)
 	if err != nil {
 		return errors.Wrap(err, "error parsing amount")
@@ -89,16 +85,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := checkAccountExist(cmd, from); err != nil {
-		return err
-	}
-
 	// create the message to add the validator into the SPN
 	valMsg, err := nb.CreateValidatorRequestMsg(
 		cmd.Context(),
 		launchID,
 		peer,
-		info.ValidatorAddress,
+		info.DelegatorAddress,
 		gentx,
 		info.PubKey,
 		info.SelfDelegation,
