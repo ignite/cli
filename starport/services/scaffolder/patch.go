@@ -9,6 +9,26 @@ import (
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
 
+// supportSimulation checks if module_simulation.go exists
+// appends the generator to create the file if it doesn't
+func supportSimulation(
+	gens []*genny.Generator,
+	appPath,
+	modulePath,
+	moduleName string,
+) ([]*genny.Generator, error) {
+	simulation, err := modulecreate.AddSimulation(
+		appPath,
+		modulePath,
+		moduleName,
+	)
+	if err != nil {
+		return gens, err
+	}
+	gens = append(gens, simulation)
+	return gens, nil
+}
+
 // supportGenesisTests checks if types/genesis_test.go exists
 // appends the generator to create the file if it doesn't
 func supportGenesisTests(
