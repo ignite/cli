@@ -17,14 +17,12 @@
     "VUE_APP_API_TENDERMINT": "${containerEnv:RPC_ADDRESS}",
     "VUE_APP_WS_TENDERMINT": "wss://localhost:26657/websocket",
   },
-  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/starport,type=bind,consistency=cached",
-  "workspaceFolder": "/workspace/starport",
   "waitFor": "postCreateCommand",
-  "postCreateCommand": "make -C /workspace/starport/ install",
+  "postCreateCommand": "make -C ${containerWorkspaceFolder} install",
   "mounts": [
-    "source=${localWorkspaceFolder}/.cache/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
-    "source=${localWorkspaceFolder}/.cache/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
-    "source=${localWorkspaceFolder}/.cache/go/path,target=/workspace/go,type=bind,consistency=cache"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/path,target=/workspace/go,type=bind,consistency=cache"
   ],
   "settings": {
     "files.encoding": "utf8",
