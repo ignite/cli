@@ -36,6 +36,7 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 			opts.AppPath,
 		)
 	)
+
 	if err := g.Box(msgServerTemplate); err != nil {
 		return g, err
 	}
@@ -60,6 +61,13 @@ func NewStargate(opts *CreateOptions) (*genny.Generator, error) {
 	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
+
+	gSimapp, err := AddSimulation(opts.AppPath, opts.ModulePath, opts.ModuleName, opts.Params...)
+	if err != nil {
+		return g, err
+	}
+	g.Merge(gSimapp)
+
 	return g, nil
 }
 
@@ -157,7 +165,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 			app.GetSubspace(%[2]vmoduletypes.ModuleName),
 			%[4]v
 			%[6]v)
-		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper)
+		%[2]vModule := %[2]vmodule.NewAppModule(appCodec, app.%[5]vKeeper, app.AccountKeeper, app.BankKeeper)
 
 		%[1]v`
 		replacement = fmt.Sprintf(
@@ -175,7 +183,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *CreateOptions) genny
 		template = `%[2]vModule,
 %[1]v`
 		replacement = fmt.Sprintf(template, module.PlaceholderSgAppAppModule, opts.ModuleName)
-		content = replacer.Replace(content, module.PlaceholderSgAppAppModule, replacement)
+		content = replacer.ReplaceAll(content, module.PlaceholderSgAppAppModule, replacement)
 
 		// Init genesis
 		template = `%[2]vmoduletypes.ModuleName,

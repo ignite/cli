@@ -55,6 +55,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -252,7 +253,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		templateState := `%[2]v: &types.%[2]v{
 		%[3]v},
-%[1]v`
+		%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
