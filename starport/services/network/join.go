@@ -27,8 +27,8 @@ func (b *Blockchain) GetAccountAddress(ctx context.Context, accountName string) 
 }
 
 // CheckRequestAccount check if the add account request already exist
-func (b *Blockchain) CheckRequestAccount(ctx context.Context, launchID uint64, addr string) (bool, error) {
-	requests, err := b.builder.fetchRequests(ctx, launchID)
+func (b *Builder) CheckRequestAccount(ctx context.Context, launchID uint64, addr string) (bool, error) {
+	requests, err := b.fetchRequests(ctx, launchID)
 	if err != nil {
 		return false, err
 	}
@@ -45,8 +45,8 @@ func (b *Blockchain) CheckRequestAccount(ctx context.Context, launchID uint64, a
 }
 
 // checkRequestValidator check if the add validator request already exist
-func (b *Blockchain) checkRequestValidator(ctx context.Context, launchID uint64, addr string) (bool, uint64, error) {
-	requests, err := b.builder.fetchRequests(ctx, launchID)
+func (b *Builder) checkRequestValidator(ctx context.Context, launchID uint64, addr string) (bool, uint64, error) {
+	requests, err := b.fetchRequests(ctx, launchID)
 	if err != nil {
 		return false, 0, err
 	}
@@ -63,7 +63,7 @@ func (b *Blockchain) checkRequestValidator(ctx context.Context, launchID uint64,
 }
 
 // Join creates the RequestAddValidator message into the SPN
-func (b *Blockchain) Join(
+func (b *Builder) Join(
 	ctx context.Context,
 	launchID uint64,
 	valAddress, peer string,
@@ -88,12 +88,12 @@ func (b *Blockchain) Join(
 		peer,
 	)
 
-	response, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
+	response, err := b.cosmos.BroadcastTx(b.account.Name, msgCreateChain)
 	if err != nil {
 		return "", err
 	}
 
-	out, err := b.builder.cosmos.Context.Codec.MarshalJSON(response)
+	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
 	if err != nil {
 		return "", err
 	}
@@ -102,19 +102,19 @@ func (b *Blockchain) Join(
 }
 
 // CreateAccount creates an add AddAccount request
-func (b *Blockchain) CreateAccount(launchID uint64, coins sdk.Coins) (string, error) {
+func (b *Builder) CreateAccount(launchID uint64, coins sdk.Coins) (string, error) {
 	msgCreateChain := launchtypes.NewMsgRequestAddAccount(
-		b.builder.account.Address(SPNAddressPrefix),
+		b.account.Address(SPNAddressPrefix),
 		launchID,
 		coins,
 	)
 
-	response, err := b.builder.cosmos.BroadcastTx(b.builder.account.Name, msgCreateChain)
+	response, err := b.cosmos.BroadcastTx(b.account.Name, msgCreateChain)
 	if err != nil {
 		return "", err
 	}
 
-	out, err := b.builder.cosmos.Context.Codec.MarshalJSON(response)
+	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
 	if err != nil {
 		return "", err
 	}

@@ -63,34 +63,33 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer endRoutine()
 
-	// define the home path and the parse the gentx
-	initOptions, homeGentxPath, err := initOptionWithLaunchIDHome(cmd, launchID)
-	if err != nil {
-		return err
-	}
-	if gentxPath == "" {
-		gentxPath = homeGentxPath
-	}
-	info, gentx, err := network.ParseGentx(gentxPath)
-	if err != nil {
-		return err
-	}
-
 	// get the pear public address for the validator
 	publicAddress, err := askPublicAddress()
 	if err != nil {
 		return err
 	}
 
-	// initialize the blockchain from the launch ID
-	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	home := getHome(cmd)
+	if home == "" {
+		var err error
+		home, err = network.ChainHome(launchID)
+		if err != nil {
+			return err
+		}
+	}
+
+	// add the custom gentx if provided
+	if gentxPath != "" {
+		gentxPath = filepath.Join(home, "config/gentx/gentx.json")
+	}
+
+	info, gentx, err := network.ParseGentx(gentxPath)
 	if err != nil {
 		return err
 	}
 
 	// send message to add the validator into the SPN
-	result, err := blockchain.Join(
+	result, err := nb.Join(
 		cmd.Context(),
 		launchID,
 		info.ValidatorAddress,
@@ -103,10 +102,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	addr, err := blockchain.GetAccountAddress(cmd.Context(), getFrom(cmd))
-	if err != nil {
-		return err
-	}
+	addr := ""
 
 	genesis, exist, err := getChainGenesis(gentxPath)
 	if err != nil {
@@ -115,7 +111,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if exist {
 		hasAcc := genesis.HasAccount(addr)
 		if !hasAcc {
-			exist, err := blockchain.CheckRequestAccount(cmd.Context(), launchID, addr)
+			exist, err := nb.CheckRequestAccount(cmd.Context(), launchID, addr)
 			if err != nil {
 				return err
 			}

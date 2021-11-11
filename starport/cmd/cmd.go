@@ -165,21 +165,7 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 	return chain.New(absPath, chainOption...)
 }
 
-// initOptionWithLaunchIDHome check if chain home are set, if not uses the spn chain folder by launch id
-func initOptionWithLaunchIDHome(cmd *cobra.Command, launchID uint64) ([]network.InitOption, string, error) {
-	home := getHome(cmd)
-	if home == "" {
-		var err error
-		home, err = network.ChainHome(launchID)
-		if err != nil {
-			return nil, "", err
-		}
-	}
-
-	return []network.InitOption{network.InitializationHomePath(home)}, home, nil
-}
-
-func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []network.InitOption) []network.InitOption {
+func initOptionWithHomeFlag(cmd *cobra.Command, initOptions ...network.InitOption) []network.InitOption {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		initOptions = append(initOptions, network.InitializationHomePath(home))
