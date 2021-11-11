@@ -8,9 +8,11 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"math/rand"
 	"net/http"
 	"os"
 	"path/filepath"
+	"time"
 
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -42,7 +44,9 @@ func (b *Blockchain) Init(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain initialized"))
 
 	// initialize and verify the genesis
-	b.initGenesis(ctx)
+	if err := b.initGenesis(ctx); err != nil {
+		return err
+	}
 
 	b.isInitialized = true
 
@@ -50,26 +54,23 @@ func (b *Blockchain) Init(ctx context.Context) error {
 }
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
-// TODO: use account from Starport Account
 func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, accountName string) (string, error) {
 	if !b.isInitialized {
 		return "", errors.New("the blockchain must be initialized to initialize an account")
 	}
 
 	// create the chain account
-	// TODO: use account from Starport Account
 	chainCmd, err := b.chain.Commands(ctx)
 	if err != nil {
 		return "", err
 	}
-	acc, err := chainCmd.AddAccount(ctx, accountName, "", "")
+	address, err := b.ImportAccount(ctx, accountName)
 	if err != nil {
 		return "", err
 	}
 
 	// add account into the genesis
-	// TODO: determine a bigger account balance to allow starting the chain
-	err = chainCmd.AddGenesisAccount(ctx, acc.Address, v.StakingAmount)
+	err = chainCmd.AddGenesisAccount(ctx, address, v.StakingAmount)
 	if err != nil {
 		return "", err
 	}
@@ -97,7 +98,7 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 
 		// if the blockchain has been initialized with no genesis hash, we assign the fetched hash to it
 		// otherwise we check the genesis integrity with the existing hash
-		if b.genesisHash != "" {
+		if b.genesisHash == "" {
 			b.genesisHash = hash
 		} else if hash != b.genesisHash {
 			return fmt.Errorf("genesis from URL %s is invalid. Expected hash %s, actual hash %s", b.genesisURL, b.genesisHash, hash)
@@ -115,6 +116,38 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 
 	// check the genesis is valid
 	return b.checkGenesis(ctx)
+}
+
+// ImportAccount imports an account from Starport into the chain
+// we first export the account into a temporary key file and import it with the chain CLI
+func (b *Blockchain) ImportAccount(ctx context.Context, name string) (string, error) {
+	// keys import command of chain CLI requires that the key file is encrypted with a passphrase of at least 8 characters
+	// we generate a random passphrase to import the account
+	passphrase := randomPassphrase()
+
+	// export the key in a temporary file
+	armored, err := b.builder.cosmos.AccountRegistry.Export(name, passphrase)
+	if err != nil {
+		return "", err
+	}
+
+	keyFile, err := os.CreateTemp("", "")
+	if err != nil {
+		return "", err
+	}
+	defer os.Remove(keyFile.Name())
+
+	if _, err := keyFile.Write([]byte(armored)); err != nil {
+		return "", err
+	}
+
+	// import the key file into the chain
+	chainCmd, err := b.chain.Commands(ctx)
+	if err != nil {
+		return "", err
+	}
+	acc, err := chainCmd.ImportAccount(ctx, name, keyFile.Name(), passphrase)
+	return acc.Address, err
 }
 
 // checkGenesis checks the stored genesis is valid
@@ -157,4 +190,15 @@ func genesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, has
 	hexHash := hex.EncodeToString(h.Sum(nil))
 
 	return genesis, hexHash, nil
+}
+
+// randomPassphrase generates a random passphrase of 32 characters from account export and import
+func randomPassphrase() string {
+	var passphraseRunes = []rune("abcdefghijklmnopqrstuvwxyz")
+	rand.Seed(time.Now().UnixNano())
+	passBytes := make([]rune, 32)
+	for i := range passBytes {
+		passBytes[i] = passphraseRunes[rand.Intn(len(passphraseRunes))]
+	}
+	return string(passBytes)
 }
