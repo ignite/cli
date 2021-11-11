@@ -25,7 +25,7 @@ func (b Blockchain) Prepare(ctx context.Context) error {
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
 func (b Blockchain) applyGenesisAccounts(ctx context.Context, genesisAccs []launchtypes.GenesisAccount) error {
 	// TODO: detect the correct prefix
-	_ := "cosmos"
+	_ = "cosmos"
 
 	return nil
 }
