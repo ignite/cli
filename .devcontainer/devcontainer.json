@@ -1,0 +1,51 @@
+{
+  "build": {
+    "dockerfile": "${localWorkspaceFolder}/.gitpod.Dockerfile"
+  },
+  "forwardPorts": ["26657:443", 1317, 8080, 7575, 4500],
+  "containerEnv": {
+    "GOMODCACHE": "/var/cache/go/modules",
+    "GOCACHE": "/var/cache/go/build",
+    "RPC_ADDRESS": "http://localhost:26657",
+    "API_ADDRESS": "http://localhost:1317",
+    "GO111MODULE": "on"
+  },
+  "remoteEnv": {
+    "VUE_APP_CUSTOM_URL": "http://localhost",
+    "CHISEL_ADDR": "http://localhost:7575",
+    "VUE_APP_API_COSMOS":"${containerEnv:API_ADDRESS}",
+    "VUE_APP_API_TENDERMINT": "${containerEnv:RPC_ADDRESS}",
+    "VUE_APP_WS_TENDERMINT": "wss://localhost:26657/websocket",
+  },
+  "workspaceMount": "source=${localWorkspaceFolder},target=/workspace/starport,type=bind,consistency=cached",
+  "workspaceFolder": "/workspace/starport",
+  "waitFor": "postCreateCommand",
+  "postCreateCommand": "make -C /workspace/starport/ install",
+  "mounts": [
+    "source=${localWorkspaceFolder}/.cache/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
+    "source=${localWorkspaceFolder}/.cache/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
+    "source=${localWorkspaceFolder}/.cache/go/path,target=/workspace/go,type=bind,consistency=cache"
+  ],
+  "settings": {
+    "files.encoding": "utf8",
+    "files.autoGuessEncoding": false,
+    "editor.suggest.preview": true,
+    "go.toolsManagement.checkForUpdates": "local",
+    "go.toolsManagement.autoUpdate": true,
+    "go.useLanguageServer": true,
+    "go.lintTool": "golangci-lint",
+    "gopls": {
+      "ui.completion.usePlaceholders": true,
+      "formatting.gofumpt": true
+    }
+  },
+  "extensions": [
+    "bierner.github-markdown-preview",
+    "github.vscode-pull-request-github",
+    "golang.go",
+    "davidanson.vscode-markdownlint",
+    "eamodio.gitlens",
+    "ms-vscode.cpptools",
+    "redhat.vscode-yaml"
+  ]
+}
