@@ -52,6 +52,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(protoTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		// Messages template
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
