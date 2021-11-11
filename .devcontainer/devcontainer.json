@@ -18,11 +18,12 @@
     "VUE_APP_WS_TENDERMINT": "wss://localhost:26657/websocket",
   },
   "waitFor": "postCreateCommand",
+  "onCreateCommand": "mkdir -p /var/cache/go",
   "postAttachCommand": "make -C ${containerWorkspaceFolder} install",
   "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/go/path,target=/workspace/go,type=bind,consistency=cache"
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
+    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/path,target=/workspace/go,type=bind,consistency=cache"
   ],
   "settings": {
     "files.encoding": "utf8",
