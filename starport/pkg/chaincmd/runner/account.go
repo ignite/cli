@@ -20,21 +20,32 @@ var (
 	ErrAccountDoesNotExist = errors.New("account does not exit")
 )
 
-// Account represents a user account.
-type Account struct {
-	Name     string `json:"name"`
-	Address  string `json:"address"`
-	Mnemonic string `json:"mnemonic,omitempty"`
-}
-
 // AddAccount creates a new account or imports an account when mnemonic is provided.
 // returns with an error if the operation went unsuccessful or an account with the provided name
 // already exists.
-func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string) (Account, error) {
-	if err := r.CheckAccountExist(ctx, name); err != nil {
+func (r Runner) AddAccount(ctx context.Context, name, mnemonic string, coinType string) (Account, error) {
+	b := newBuffer()
+
+	// check if account already exists.
+	var accounts []Account
+	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.ListKeysCommand()); err != nil {
 		return Account{}, err
 	}
-	b := newBuffer()
+
+	data, err := b.JSONEnsuredBytes()
+	if err != nil {
+		return Account{}, err
+	}
+	if err := json.Unmarshal(data, &accounts); err != nil {
+		return Account{}, err
+	}
+
+	for _, account := range accounts {
+		if account.Name == name {
+			return Account{}, ErrAccountAlreadyExists
+		}
+	}
+	b.Reset()
 
 	account := Account{
 		Name:     name,
@@ -54,7 +65,7 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 		if err := r.run(
 			ctx,
 			runOptions{},
-			r.chainCmd.RecoverKeyCommand(name, coinType),
+			r.chainCmd.ImportKeyCommand(name, coinType),
 			step.Write(input.Bytes()),
 		); err != nil {
 			return Account{}, err
@@ -75,66 +86,43 @@ func (r Runner) AddAccount(ctx context.Context, name, mnemonic, coinType string)
 		if err := json.Unmarshal(data, &account); err != nil {
 			return Account{}, err
 		}
+
+		b.Reset()
 	}
 
-	// get the address of the account.
-	retrieved, err := r.ShowAccount(ctx, name)
-	if err != nil {
+	// get full details of the account.
+	runOptions := runOptions{
+		stdout: b,
+		stderr: os.Stderr,
+	}
+
+	stepOptions := []step.Option{
+		r.chainCmd.ShowKeyAddressCommand(name),
+	}
+
+	if r.chainCmd.KeyringPassword() != "" {
+		// If keyring password is defined, we write it into the command input
+		input := &bytes.Buffer{}
+		fmt.Fprintln(input, r.chainCmd.KeyringPassword())
+		stepOptions = append(stepOptions, step.Write(input.Bytes()))
+	} else {
+		// Otherwise we provide os stdin to the command
+		runOptions.stdin = os.Stdin
+	}
+
+	if err := r.run(ctx, runOptions, stepOptions...); err != nil {
 		return Account{}, err
 	}
-	account.Address = retrieved.Address
+	account.Address = strings.TrimSpace(b.String())
 
 	return account, nil
 }
 
-// ImportAccount import an account from a key file
-func (r Runner) ImportAccount(ctx context.Context, name, keyFile, passphrase string) (Account, error) {
-	if err := r.CheckAccountExist(ctx, name); err != nil {
-		return Account{}, err
-	}
-
-	// write the passphrase as input
-	// TODO: manage keyring backend other than test
-	input := &bytes.Buffer{}
-	fmt.Fprintln(input, passphrase)
-
-	if err := r.run(
-		ctx,
-		runOptions{},
-		r.chainCmd.ImportKeyCommand(name, keyFile),
-		step.Write(input.Bytes()),
-	); err != nil {
-		return Account{}, err
-	}
-
-	return r.ShowAccount(ctx, name)
-}
-
-// CheckAccountExist returns an error if the account already exists in the chain keyring
-func (r Runner) CheckAccountExist(ctx context.Context, name string) error {
-	b := newBuffer()
-
-	// get and decodes all accounts of the chains
-	var accounts []Account
-	if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.ListKeysCommand()); err != nil {
-		return err
-	}
-
-	data, err := b.JSONEnsuredBytes()
-	if err != nil {
-		return err
-	}
-	if err := json.Unmarshal(data, &accounts); err != nil {
-		return err
-	}
-
-	// search for the account name
-	for _, account := range accounts {
-		if account.Name == name {
-			return ErrAccountAlreadyExists
-		}
-	}
-	return nil
+// Account represents a user account.
+type Account struct {
+	Name     string `json:"name"`
+	Address  string `json:"address"`
+	Mnemonic string `json:"mnemonic,omitempty"`
 }
 
 // ShowAccount shows details of an account.

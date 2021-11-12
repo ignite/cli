@@ -2,10 +2,13 @@ package starportcmd
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -34,7 +37,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
-	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetYes())
@@ -52,11 +55,25 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
-	nb, s, shutdown, err := initializeNetwork(cmd)
+
+	s := clispinner.New()
+	defer s.Stop()
+
+	var (
+		wg sync.WaitGroup
+		ev = events.NewBus()
+	)
+	wg.Add(1)
+
+	defer wg.Wait()
+	defer ev.Shutdown()
+
+	go printEvents(&wg, ev, s)
+
+	nb, err := newNetwork(cmd, network.CollectEvents(ev))
 	if err != nil {
 		return err
 	}
-	defer shutdown()
 
 	// initialize the blockchain
 	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
@@ -93,9 +110,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if noCheck {
 		createOptions = append(createOptions, network.WithNoCheck())
-	} else {
-		// perform checks for the chain requires to initialize it and therefore erase the current home if it exists
-		// we ask the user for confirmation
+	} else if genesisURL != "" {
 		ok, err := blockchain.IsHomeDirExist()
 		if err != nil {
 			return err
@@ -120,7 +135,13 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 			}
 			s.Start()
 		}
+
+		if err := blockchain.Init(cmd.Context()); err != nil {
+			return err
+		}
 	}
+
+	s.SetText("Publishing...")
 
 	launchID, campaignID, err := blockchain.Publish(cmd.Context(), createOptions...)
 	if err != nil {

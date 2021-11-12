@@ -137,7 +137,7 @@ scavenged q tx CE401E1F95FC583355BF6ABB823A4655185E2983CACE7C430E22CC7B573152DD 
             },
             {
               "key": "sender",
-              "value": ""cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh""
+              "value": "cosmos1wzgkalxjhaqtznrzzp0xy5jgkxx82xaa660jxh"
             },
             { "key": "amount", "value": "100token" }
           ]

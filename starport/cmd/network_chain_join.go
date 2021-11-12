@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/gentx"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
@@ -29,7 +28,6 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainJoinHandler,
 	}
-	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())

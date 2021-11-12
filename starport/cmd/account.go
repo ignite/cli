@@ -119,19 +119,6 @@ func getPassphrase(cmd *cobra.Command) (string, error) {
 	return pass, nil
 }
 
-// checkAccountExist check if the account name exist
-func checkAccountExist(cmd *cobra.Command, name string) error {
-	ca, err := cosmosaccount.New(
-		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
-	)
-	if err != nil {
-		return err
-	}
-
-	_, err = ca.GetByName(name)
-	return err
-}
-
 // getAccountByAddress returns a cosmos account by the account address
 func getAccountByAddress(cmd *cobra.Command, address string) (acc cosmosaccount.Account, err error) {
 	ca, err := cosmosaccount.New(

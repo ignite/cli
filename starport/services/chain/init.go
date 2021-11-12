@@ -167,28 +167,20 @@ func (c *Chain) InitAccounts(ctx context.Context, conf chainconfig.Config) error
 		}
 	}
 
-	_, err = c.IssueGentx(ctx, Validator{
+	// create the gentx from the validator from the config
+	if _, err := c.plugin.Gentx(ctx, commands, Validator{
 		Name:          conf.Validator.Name,
 		StakingAmount: conf.Validator.Staked,
-	})
-	return err
-}
-
-// IssueGentx generates a gentx from the validator information in chain config and import it in the chain genesis
-func (c Chain) IssueGentx(ctx context.Context, v Validator) (string, error) {
-	commands, err := c.Commands(ctx)
-	if err != nil {
-		return "", err
-	}
-
-	// create the gentx from the validator from the config
-	gentxPath, err := c.plugin.Gentx(ctx, commands, v)
-	if err != nil {
-		return "", err
+	}); err != nil {
+		return err
 	}
 
 	// import the gentx into the genesis
-	return gentxPath, commands.CollectGentxs(ctx)
+	if err := commands.CollectGentxs(ctx); err != nil {
+		return err
+	}
+
+	return nil
 }
 
 // IsInitialized checks if the chain is initialized
@@ -220,9 +212,6 @@ type Validator struct {
 	CommissionMaxChangeRate string
 	MinSelfDelegation       string
 	GasPrices               string
-	Details                 string
-	Identity                string
-	Website                 string
 }
 
 // Account represents an account in the chain.
