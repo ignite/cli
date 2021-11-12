@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/gentx"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 const (
@@ -58,13 +59,22 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// parse the home path
-	home, err := getLaunchIDHome(cmd, launchID)
-	if err != nil {
-		return err
+	home := getHome(cmd)
+	if home == "" {
+		home, err = network.ChainHome(launchID)
+		if err != nil {
+			return err
+		}
 	}
 
-	// parse the gentx and check if it exist
-	gentxPath := getGentxPath(cmd, home)
+	// parse the gentx and check if it exists
+	gentxPath, _ := cmd.Flags().GetString(flagGentx)
+	customGentx := true
+	if gentxPath == "" {
+		customGentx = false
+		gentxPath = network.Gentx(home)
+	}
+
 	if err != nil {
 		return errors.Wrap(err, "error parsing gentx path")
 	}
@@ -81,10 +91,11 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// create the message to add the validator and account if needed
 	result, err := nb.Join(cmd.Context(),
-		home,
 		launchID,
+		home,
 		peer,
 		info.DelegatorAddress,
+		customGentx,
 		gentx,
 		info.PubKey,
 		info.SelfDelegation,

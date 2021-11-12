@@ -12,20 +12,25 @@ import (
 // Join creates the RequestAddValidator message into the SPN
 func (b *Builder) Join(
 	ctx context.Context,
-	chainHome string,
 	launchID uint64,
+	chainHome,
 	peer,
 	valAddress string,
+	customGentx bool,
 	gentx,
 	consPubKey []byte,
 	selfDelegation,
 	amount sdk.Coin,
 ) (string, error) {
-	accountMsg, err := b.CreateAccountRequestMsg(ctx, chainHome, launchID, amount)
+	messages := make([]sdk.Msg, 0)
+
+	accountMsg, err := b.CreateAccountRequestMsg(ctx, chainHome, customGentx, launchID, amount)
 	if err != nil {
 		return "", err
 	}
-	msgs := []sdk.Msg{accountMsg}
+	if accountMsg != nil {
+		messages = append(messages, accountMsg)
+	}
 
 	validatorMsg, err := b.CreateValidatorRequestMsg(ctx,
 		launchID,
@@ -38,12 +43,10 @@ func (b *Builder) Join(
 	if err != nil {
 		return "", err
 	}
-	if validatorMsg != nil {
-		msgs = append(msgs, validatorMsg)
-	}
+	messages = append(messages, validatorMsg)
 
 	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting transactions"))
-	response, err := b.cosmos.BroadcastTx(b.account.Name, msgs...)
+	response, err := b.cosmos.BroadcastTx(b.account.Name, messages...)
 	if err != nil {
 		return "", err
 	}
@@ -90,6 +93,7 @@ func (b *Builder) CreateValidatorRequestMsg(
 func (b *Builder) CreateAccountRequestMsg(
 	ctx context.Context,
 	chainHome string,
+	customGentx bool,
 	launchID uint64,
 	amount sdk.Coin,
 ) (msg sdk.Msg, err error) {
@@ -97,7 +101,7 @@ func (b *Builder) CreateAccountRequestMsg(
 	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	shouldCreateAcc := false
-	if !amount.IsZero() {
+	if !customGentx {
 		exist, err := CheckGenesisAddress(chainHome, address)
 		if err != nil {
 			return msg, err
@@ -110,7 +114,7 @@ func (b *Builder) CreateAccountRequestMsg(
 		}
 		shouldCreateAcc = !exist
 	}
-	if shouldCreateAcc {
+	if shouldCreateAcc || customGentx {
 		b.ev.Send(events.New(events.StatusDone, "Account message created"))
 		msg = launchtypes.NewMsgRequestAddAccount(
 			address,

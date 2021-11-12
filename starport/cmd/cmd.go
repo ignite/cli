@@ -122,14 +122,6 @@ func getHome(cmd *cobra.Command) (home string) {
 	return
 }
 
-func getLaunchIDHome(cmd *cobra.Command, launchID uint64) (string, error) {
-	home := getHome(cmd)
-	if home == "" {
-		return network.ChainHome(launchID)
-	}
-	return home, nil
-}
-
 func flagSetYes() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.Bool(flagYes, false, "Answers interactive yes/no questions with yes")
@@ -139,14 +131,6 @@ func flagSetYes() *flag.FlagSet {
 func getYes(cmd *cobra.Command) (ok bool) {
 	ok, _ = cmd.Flags().GetBool(flagYes)
 	return
-}
-
-func getGentxPath(cmd *cobra.Command, home string) string {
-	gentxPath, _ := cmd.Flags().GetString(flagGentx)
-	if gentxPath == "" {
-		gentxPath = network.Gentx(home)
-	}
-	return gentxPath
 }
 
 func flagSetProto3rdParty(additonalInfo string) *flag.FlagSet {
