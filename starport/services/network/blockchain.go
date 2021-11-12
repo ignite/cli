@@ -23,7 +23,7 @@ import (
 
 // Blockchain represents a blockchain.
 type Blockchain struct {
-	launchID	uint64
+	launchID      uint64
 	appPath       string
 	url           string
 	hash          string

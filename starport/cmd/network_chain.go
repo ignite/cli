@@ -13,7 +13,7 @@ func NewNetworkChain() *cobra.Command {
 	c.AddCommand(
 		NewNetworkChainPublish(),
 		NewNetworkChainPrepare(),
-		)
+	)
 
 	return c
 }
