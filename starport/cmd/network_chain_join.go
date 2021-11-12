@@ -96,7 +96,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the message to add the account if needed
-	accReqID, accAutoApproved, err := nb.CreateAccountRequestMsg(cmd.Context(),
+	accReqID, accAutoApproved, created, err := nb.CreateAccountRequestMsg(cmd.Context(),
 		home,
 		customGentx,
 		launchID,
@@ -108,7 +108,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if accAutoApproved {
 		fmt.Printf("%s Account %s added to the network by the coordinator!\n",
 			clispinner.OK, getFrom(cmd))
-	} else {
+	} else if created {
 		fmt.Printf("%s Request %d to add account to the network has been submitted!\n",
 			clispinner.OK, accReqID)
 	}

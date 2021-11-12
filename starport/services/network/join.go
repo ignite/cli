@@ -67,11 +67,11 @@ func (b *Builder) CreateAccountRequestMsg(
 	customGentx bool,
 	launchID uint64,
 	amount sdk.Coin,
-) (uint64, bool, error) {
+) (uint64, bool, bool, error) {
 	address := b.account.Address(SPNAddressPrefix)
 	spnAddress, err := SetSPNPrefix(address)
 	if err != nil {
-		return 0, false, err
+		return 0, false, false, err
 	}
 
 	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
@@ -80,12 +80,12 @@ func (b *Builder) CreateAccountRequestMsg(
 	if !customGentx {
 		exist, err := CheckGenesisAddress(chainHome, spnAddress)
 		if err != nil {
-			return 0, false, err
+			return 0, false, false, err
 		}
 		if !exist {
 			exist, err = b.CheckAccountExist(ctx, launchID, spnAddress)
 			if err != nil {
-				return 0, false, err
+				return 0, false, false, err
 			}
 		}
 		shouldCreateAcc = !exist
@@ -100,20 +100,20 @@ func (b *Builder) CreateAccountRequestMsg(
 		b.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
 		res, err := b.cosmos.BroadcastTx(b.account.Name, msg)
 		if err != nil {
-			return 0, false, err
+			return 0, false, false, err
 		}
 
 		var requestRes launchtypes.MsgRequestResponse
 		if err := res.Decode(&requestRes); err != nil {
-			return 0, false, err
+			return 0, false, false, err
 		}
 		b.ev.Send(events.New(events.StatusDone, "AddAccount transactions sent"))
 
-		return requestRes.RequestID, requestRes.AutoApproved, nil
+		return requestRes.RequestID, requestRes.AutoApproved, true, nil
 	}
 
 	b.ev.Send(events.New(events.StatusDone, "Account already exist"))
-	return 0, false, nil
+	return 0, false, false, nil
 }
 
 // GetAccountAddress return an account address for the blockchain by name
