@@ -98,7 +98,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the message to add the account if needed
-	accReqID, err := nb.CreateAccountRequestMsg(cmd.Context(),
+	accReqID, accAutoApproved, err := nb.CreateAccountRequestMsg(cmd.Context(),
 		home,
 		customGentx,
 		launchID,
@@ -107,12 +107,17 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 	s.Stop()
-	fmt.Printf("%s Request %d to add account to the network has been submitted!\n",
-		clispinner.OK, accReqID)
+	if accAutoApproved {
+		fmt.Printf("%s Account %s added to the network by the coordinator!\n",
+			clispinner.OK, getFrom(cmd))
+	} else {
+		fmt.Printf("%s Request %d to add account to the network has been submitted!\n",
+			clispinner.OK, accReqID)
+	}
 	s.Start()
 
 	// create the message to add the validator
-	valReqID, err := nb.Join(cmd.Context(),
+	valReqID, valAutoApproved, err := nb.Join(cmd.Context(),
 		launchID,
 		peer,
 		valAcc.Name,
@@ -126,8 +131,13 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	s.Stop()
-	fmt.Printf("%s Request %d to join the network as a validator has been submitted!\n",
-		clispinner.OK, valReqID)
+	if valAutoApproved {
+		fmt.Printf("%s Validator %s added to the network by the coordinator!\n",
+			clispinner.OK, info.DelegatorAddress)
+	} else {
+		fmt.Printf("%s Request %d to join the network as a validator has been submitted!\n",
+			clispinner.OK, valReqID)
+	}
 
 	return nil
 }
