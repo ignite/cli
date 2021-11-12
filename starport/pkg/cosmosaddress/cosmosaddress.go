@@ -17,3 +17,9 @@ func ChangePrefix(address, newPrefix string) (string, error) {
 	}
 	return bech32.ConvertAndEncode(newPrefix, pubKey)
 }
+
+// GetPrefix returns the bech 32 prefix used by the address
+func GetPrefix(address string) (string, error) {
+	prefix, _, err := bech32.DecodeAndConvert(address)
+	return prefix, err
+}

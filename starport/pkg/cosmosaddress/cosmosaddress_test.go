@@ -63,3 +63,16 @@ func TestChangePrefix(t *testing.T) {
 		})
 	}
 }
+
+func TestGetPrefix(t *testing.T) {
+	prefix, err := cosmosaddress.GetPrefix("cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj")
+	require.Equal(t, "cosmos", prefix)
+	require.NoError(t, err)
+	prefix, err = cosmosaddress.GetPrefix("mars1c6ac48k2ur8tl3tf0cpntlw5068kvp8xf4xq37")
+	require.Equal(t, "mars", prefix)
+	require.NoError(t, err)
+
+	// invalid bech32 address
+	_, err = cosmosaddress.GetPrefix("mars1c6ac48k2ur9tl3tf0cpntlw5068kvp8xf4xq37")
+	require.Error(t, err)
+}
