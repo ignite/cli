@@ -21,6 +21,11 @@ func ChainHome(launchID uint64) (string, error) {
 	return filepath.Join(home, ChainHomeRoot, strconv.FormatUint(launchID, 10)), err
 }
 
+// GenesisPath returns the default genesis path into the home dir
+func GenesisPath(home string) string {
+	return filepath.Join(home, genesisPath)
+}
+
 // Gentx returns the default gentx path into the home dir
 func Gentx(home string) string {
 	return filepath.Join(home, gentxPath)
@@ -28,7 +33,7 @@ func Gentx(home string) string {
 
 // getChainGenesis return the chain genesis path
 func getChainGenesis(home string) (gentx.ChainGenesis, bool, error) {
-	genesisPath := filepath.Join(home, genesisPath)
+	genesisPath := GenesisPath(home)
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
 		return gentx.ChainGenesis{}, false, nil

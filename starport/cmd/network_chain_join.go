@@ -24,7 +24,7 @@ const (
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "join [launch-id] [amount]",
-		Short: "Join to a network as a validator by launch id",
+		Short: "SendValidatorRequestMsg to a network as a validator by launch id",
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainJoinHandler,
 	}
@@ -69,24 +69,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// parse the gentx and check if it exists
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
-	customGentx := true
+	isCustomGentx := true
 	if gentxPath == "" {
-		customGentx = false
+		isCustomGentx = false
 		gentxPath = network.Gentx(home)
-	}
-
-	if err != nil {
-		return errors.Wrap(err, "error parsing gentx path")
-	}
-	info, gentx, err := gentx.ParseGentx(gentxPath)
-	if err != nil {
-		return err
-	}
-
-	// get the gentx account for the validator to sign the tx
-	valAcc, err := getAccountByAddress(cmd, info.DelegatorAddress)
-	if err != nil {
-		return err
 	}
 
 	// get the peer public address for the validator
@@ -96,47 +82,42 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// create the message to add the account if needed
-	accReqID, accAutoApproved, created, err := nb.CreateAccountRequestMsg(cmd.Context(),
+	err = nb.SendAccountRequestMsg(cmd.Context(),
 		home,
-		customGentx,
+		isCustomGentx,
 		launchID,
 		amount)
 	if err != nil {
 		return err
 	}
-	s.Stop()
-	if accAutoApproved {
-		fmt.Printf("%s Account %s added to the network by the coordinator!\n",
-			clispinner.OK, getFrom(cmd))
-	} else if created {
-		fmt.Printf("%s Request %d to add account to the network has been submitted!\n",
-			clispinner.OK, accReqID)
+
+	info, gentxContent, err := gentx.ParseGentx(gentxPath)
+	if err != nil {
+		return err
 	}
-	s.Start()
+
+	// get the validator address from the gentx
+	valAcc, err := getAccountByAddress(cmd, info.DelegatorAddress)
+	if err != nil {
+		return err
+	}
 
 	// create the message to add the validator
-	valReqID, valAutoApproved, err := nb.Join(cmd.Context(),
+	err = nb.Join(cmd.Context(),
+		home,
 		launchID,
+		isCustomGentx,
+		amount,
 		peer,
 		valAcc.Name,
-		info.DelegatorAddress,
-		gentx,
-		info.PubKey,
-		info.SelfDelegation,
+		gentxContent,
+		info,
 	)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
-	if valAutoApproved {
-		fmt.Printf("%s Validator %s added to the network by the coordinator!\n",
-			clispinner.OK, info.DelegatorAddress)
-	} else {
-		fmt.Printf("%s Request %d to join the network as a validator has been submitted!\n",
-			clispinner.OK, valReqID)
-	}
-
 	return nil
 }
 

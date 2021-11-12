@@ -87,7 +87,7 @@ func appModifyStargate(replacer placeholder.Replacer, opts *ImportOptions) genny
 		content = replacer.Replace(content, module.PlaceholderSgAppStoreKey, replacementStoreKey)
 
 		templateKeeperDefinition := `%[1]v
-		wasmDir := filepath.Join(homePath, "wasm")
+		wasmDir := filepath.SendValidatorRequestMsg(homePath, "wasm")
 	
 		wasmConfig, err := wasm.ReadWasmConfig(appOpts)
 		if err != nil {
