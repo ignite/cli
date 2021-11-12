@@ -48,11 +48,7 @@ func (b *Builder) SendValidatorRequestMsg(
 	}
 
 	// Check if the validator request already exist
-	exist, err := b.CheckValidatorExist(ctx, launchID, spnValAddress)
-	if err != nil {
-		return err
-	}
-	if exist {
+	if b.hasValidator(ctx, launchID, spnValAddress) {
 		return fmt.Errorf("validator %s already exist", spnValAddress)
 	}
 
@@ -115,10 +111,7 @@ func (b *Builder) SendAccountRequestMsg(
 	}
 	// check if account exist into the SPN store
 	if !accExist {
-		accExist, err = b.CheckAccountExist(ctx, launchID, spnAddress)
-		if err != nil {
-			return err
-		}
+		accExist = b.hasAccount(ctx, launchID, spnAddress)
 	}
 	if !accExist {
 		msg := launchtypes.NewMsgRequestAddAccount(
@@ -171,53 +164,6 @@ func (b *Blockchain) GetAccountAddress(ctx context.Context, accountName string) 
 	return acc.Address, nil
 }
 
-// CheckAccountExist check if the account already exists or is pending approval
-func (b *Builder) CheckAccountExist(ctx context.Context, launchID uint64, address string) (bool, error) {
-	if b.hasAccount(ctx, launchID, address) {
-		return true, nil
-	}
-	// verify if the account is pending approval
-	requests, err := b.fetchRequests(ctx, launchID)
-	if err != nil {
-		return false, err
-	}
-	for _, request := range requests {
-		switch req := request.Content.Content.(type) {
-		case *launchtypes.RequestContent_GenesisAccount:
-			if req.GenesisAccount.Address == address {
-				return true, nil
-			}
-		case *launchtypes.RequestContent_VestingAccount:
-			if req.VestingAccount.Address == address {
-				return true, nil
-			}
-		}
-	}
-	return false, nil
-}
-
-// CheckValidatorExist check if the validator already exists or is pending approval
-func (b *Builder) CheckValidatorExist(ctx context.Context, launchID uint64, address string) (bool, error) {
-	if b.hasValidator(ctx, launchID, address) {
-		return true, nil
-	}
-	// verify if the validator is pending approval
-	requests, err := b.fetchRequests(ctx, launchID)
-	if err != nil {
-		return false, err
-	}
-	for _, request := range requests {
-		genesisVal := request.Content.GetGenesisValidator()
-		if genesisVal == nil {
-			continue
-		}
-		if genesisVal.Address == address {
-			return true, nil
-		}
-	}
-	return false, nil
-}
-
 // hasValidator verify if the validator already exist into the SPN store
 func (b *Builder) hasValidator(ctx context.Context, launchID uint64, address string) bool {
 	_, err := launchtypes.NewQueryClient(b.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
@@ -241,16 +187,4 @@ func (b *Builder) hasAccount(ctx context.Context, launchID uint64, address strin
 		Address:  address,
 	})
 	return err == nil
-}
-
-// fetchRequests fetches the chain requests from SPN by launch id
-func (b *Builder) fetchRequests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
-	res, err := launchtypes.NewQueryClient(b.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
-		LaunchID: launchID,
-	})
-	if err != nil {
-		return nil, err
-	}
-
-	return res.Request, err
 }
