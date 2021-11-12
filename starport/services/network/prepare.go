@@ -151,11 +151,11 @@ func (b Blockchain) applyGenesisValidators(ctx context.Context, genesisVals []la
 		return err
 	}
 
-	return nil
+	return b.updateConfigFromGenesisValidators(genesisVals)
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
-func (b Blockchain) updateConfigFromGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
+func (b Blockchain) updateConfigFromGenesisValidators(genesisVals []launchtypes.GenesisValidator) error {
 	var p2pAddresses []string
 	for _, val := range genesisVals {
 		p2pAddresses = append(p2pAddresses, val.Peer)
