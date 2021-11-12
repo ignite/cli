@@ -1,10 +1,12 @@
 package starportcmd
 
 import (
+	"errors"
 	"fmt"
 	"os"
 	"text/tabwriter"
 
+	"github.com/cosmos/cosmos-sdk/types/bech32"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -127,4 +129,30 @@ func checkAccountExist(cmd *cobra.Command, name string) error {
 
 	_, err = ca.GetByName(name)
 	return err
+}
+
+func getAccountByAddress(cmd *cobra.Command, address string) (acc cosmosaccount.Account, err error) {
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
+	if err != nil {
+		return acc, err
+	}
+
+	list, err := ca.List()
+	if err != nil {
+		return acc, err
+	}
+
+	_, pubKey, err := bech32.DecodeAndConvert(address)
+	if err != nil {
+		return acc, err
+	}
+
+	for _, acc := range list {
+		if acc.PubKey() == string(pubKey) {
+			return acc, err
+		}
+	}
+	return acc, errors.New("address not found")
 }

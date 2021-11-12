@@ -10,6 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/gentx"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
@@ -28,6 +29,7 @@ func NewNetworkChainJoin() *cobra.Command {
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainJoinHandler,
 	}
+	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
@@ -83,23 +85,36 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// get the gentx account for the validator to sign the tx
+	valAcc, err := getAccountByAddress(cmd, info.DelegatorAddress)
+	if err != nil {
+		return err
+	}
+
 	// get the peer public address for the validator
 	peer, err := askPublicAddress(s)
 	if err != nil {
 		return err
 	}
 
-	// create the message to add the validator and account if needed
+	// create the message to add the account if needed
+	if err := nb.CreateAccountRequestMsg(cmd.Context(),
+		home,
+		customGentx,
+		launchID,
+		amount); err != nil {
+		return err
+	}
+
+	// create the message to add the validator
 	result, err := nb.Join(cmd.Context(),
 		launchID,
-		home,
 		peer,
+		valAcc.Name,
 		info.DelegatorAddress,
-		customGentx,
 		gentx,
 		info.PubKey,
 		info.SelfDelegation,
-		amount,
 	)
 	if err != nil {
 		return err

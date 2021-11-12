@@ -253,6 +253,26 @@ func (r Registry) GetByName(name string) (Account, error) {
 	return acc, nil
 }
 
+// GetByAddress returns an account by its address.
+func (r Registry) GetByAddress(address string) (Account, error) {
+	list, err := r.List()
+	if err != nil {
+		return Account{}, err
+	}
+
+	_, pubKey, err := bech32.DecodeAndConvert(address)
+	if err != nil {
+		return Account{}, err
+	}
+
+	for _, acc := range list {
+		if acc.PubKey() == string(pubKey) {
+			return acc, err
+		}
+	}
+	return Account{}, errors.New("address not found")
+}
+
 // List lists all accounts.
 func (r Registry) List() ([]Account, error) {
 	info, err := r.Keyring.List()

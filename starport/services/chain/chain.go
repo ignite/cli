@@ -334,15 +334,6 @@ func (c *Chain) ClientTOMLPath() (string, error) {
 	return filepath.Join(home, "config/client.toml"), nil
 }
 
-// GenTx returns gentx.json path of the app.
-func (c *Chain) GenTx() (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
-	}
-	return filepath.Join(home, "config/gentx/gentx.json"), nil
-}
-
 // KeyringBackend returns the keyring backend chosen for the chain.
 func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
 	// 1st.
