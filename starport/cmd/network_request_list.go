@@ -12,7 +12,7 @@ import (
 )
 
 // NewNetworkRequestList creates a new request list command to list
-// requests for a chain by filtering options.
+// requests for a chain
 func NewNetworkRequestList() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "list [launch-id]",
