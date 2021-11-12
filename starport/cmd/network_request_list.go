@@ -60,19 +60,26 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		switch req := request.Content.Content.(type) {
 		case *launchtypes.RequestContent_GenesisAccount:
 			requestType = "Add Genesis Account"
-			content = fmt.Sprintf("%s, %s", req.GenesisAccount.Address, req.GenesisAccount.Coins.String())
+			content = fmt.Sprintf("%s, %s",
+				req.GenesisAccount.Address,
+				req.GenesisAccount.Coins.String())
 		case *launchtypes.RequestContent_GenesisValidator:
 			requestType = "Add Genesis Validator"
-			content = fmt.Sprintf("%s, %s", req.GenesisValidator.Peer, req.GenesisValidator.SelfDelegation.String())
+			content = fmt.Sprintf("%s, %s, %s",
+				req.GenesisValidator.Peer,
+				req.GenesisValidator.Address,
+				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:
 			requestType = "Add Vesting Account"
-			content = fmt.Sprintf("%s, %s", req.VestingAccount.Address, req.VestingAccount.StartingBalance.String())
+			content = fmt.Sprintf("%s, %s",
+				req.VestingAccount.Address,
+				req.VestingAccount.StartingBalance.String())
 		case *launchtypes.RequestContent_ValidatorRemoval:
 			requestType = "Remove Validator"
-			content = fmt.Sprintf("%s, -", req.ValidatorRemoval.ValAddress)
+			content = fmt.Sprintf("%s", req.ValidatorRemoval.ValAddress)
 		case *launchtypes.RequestContent_AccountRemoval:
 			requestType = "Remove Account"
-			content = fmt.Sprintf("%s, -", req.AccountRemoval.Address)
+			content = fmt.Sprintf("%s", req.AccountRemoval.Address)
 		}
 
 		requestTable.Append([]string{
