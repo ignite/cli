@@ -27,6 +27,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
+	// TODO: Add routine from init
 	s := clispinner.New()
 	defer s.Stop()
 
@@ -45,6 +46,10 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+
+	// TODO: create and initialize the chain
+
+	// TODO: call prepare
 
 	return nil
 }
