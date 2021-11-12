@@ -1408,8 +1408,8 @@ github.com/tendermint/tm-db v0.6.3/go.mod h1:lfA1dL9/Y/Y8wwyPp2NMLyn5P5Ptr/gvDFN
 github.com/tendermint/tm-db v0.6.4 h1:3N2jlnYQkXNQclQwd/eKV/NzlqPlfK21cpRRIx80XXQ=
 github.com/tendermint/tm-db v0.6.4/go.mod h1:dptYhIpJ2M5kUuenLr+Yyf3zQOv1SgBZcl8/BmWlMBw=
 github.com/tendermint/vue v0.1.49/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
-github.com/tendermint/vue v0.1.53 h1:7xWnjBjgCG0qRy8/HT2UsYO1zC6miaOk2p2Qb8syVc0=
-github.com/tendermint/vue v0.1.53/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
+github.com/tendermint/vue v0.1.54 h1:NfyVVw73oBfbwXxGSGDdiVdjkZEFwBvSUTCy1Z22Rr0=
+github.com/tendermint/vue v0.1.54/go.mod h1:Sg9MGPF+uY+SJ79sdZgtC2LnH+FDU2qWuiRxoZn5bmw=
 github.com/tidwall/gjson v1.6.7/go.mod h1:zeFuBCIqD4sN/gmqBzZ4j7Jd6UcA2Fc56x7QFsv+8fI=
 github.com/tidwall/match v1.0.3/go.mod h1:eRSPERbgtNPcGhD8UCthc6PmLEQXEWd3PRB5JTxsfmM=
 github.com/tidwall/pretty v1.0.2/go.mod h1:XNkn88O1ChpSDQmQeStsy+sBenx6DDtFZJxhVysOjyk=
