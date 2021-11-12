@@ -19,20 +19,20 @@ func (b *Builder) Join(
 	gentx,
 	consPubKey []byte,
 	selfDelegation sdk.Coin,
-) (string, error) {
+) (uint64, error) {
 	// Change the chain address prefix to spn
 	spnValAddress, err := SetSPNPrefix(valAddress)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
 	// Check if the validator request already exist
 	exist, err := b.CheckValidatorExist(ctx, launchID, spnValAddress)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 	if exist {
-		return "", errors.New("validator already exist: " + spnValAddress)
+		return 0, errors.New("validator already exist: " + spnValAddress)
 	}
 
 	msg := launchtypes.NewMsgRequestAddValidator(
@@ -45,18 +45,18 @@ func (b *Builder) Join(
 	)
 
 	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-	response, err := b.cosmos.BroadcastTx(valKeyName, msg)
+	res, err := b.cosmos.BroadcastTx(valKeyName, msg)
 	if err != nil {
-		return "", err
+		return 0, err
 	}
 
-	out, err := b.cosmos.Context.Codec.MarshalJSON(response)
-	if err != nil {
-		return "", err
+	var requestRes launchtypes.MsgRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return 0, err
 	}
 	b.ev.Send(events.New(events.StatusDone, "AddValidator transaction sent"))
 
-	return string(out), err
+	return requestRes.RequestID, err
 }
 
 // CreateAccountRequestMsg creates an add AddAccount request message
@@ -66,11 +66,11 @@ func (b *Builder) CreateAccountRequestMsg(
 	customGentx bool,
 	launchID uint64,
 	amount sdk.Coin,
-) error {
+) (uint64, error) {
 	address := b.account.Address(SPNAddressPrefix)
 	spnAddress, err := SetSPNPrefix(address)
 	if err != nil {
-		return err
+		return 0, err
 	}
 
 	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
@@ -79,12 +79,12 @@ func (b *Builder) CreateAccountRequestMsg(
 	if !customGentx {
 		exist, err := CheckGenesisAddress(chainHome, spnAddress)
 		if err != nil {
-			return err
+			return 0, err
 		}
 		if !exist {
 			exist, err = b.CheckAccountExist(ctx, launchID, spnAddress)
 			if err != nil {
-				return err
+				return 0, err
 			}
 		}
 		shouldCreateAcc = !exist
@@ -97,20 +97,22 @@ func (b *Builder) CreateAccountRequestMsg(
 		)
 
 		b.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-		response, err := b.cosmos.BroadcastTx(b.account.Name, msg)
+		res, err := b.cosmos.BroadcastTx(b.account.Name, msg)
 		if err != nil {
-			return err
+			return 0, err
 		}
 
-		_, err = b.cosmos.Context.Codec.MarshalJSON(response)
-		if err != nil {
-			return err
+		var requestRes launchtypes.MsgRequestResponse
+		if err := res.Decode(&requestRes); err != nil {
+			return 0, err
 		}
 		b.ev.Send(events.New(events.StatusDone, "AddAccount transactions sent"))
-	} else {
-		b.ev.Send(events.New(events.StatusDone, "Account already exist"))
+
+		return requestRes.RequestID, nil
 	}
-	return nil
+
+	b.ev.Send(events.New(events.StatusDone, "Account already exist"))
+	return 0, nil
 }
 
 // GetAccountAddress return an account address for the blockchain by name

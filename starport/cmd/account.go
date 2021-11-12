@@ -144,13 +144,13 @@ func getAccountByAddress(cmd *cobra.Command, address string) (acc cosmosaccount.
 		return acc, err
 	}
 
-	_, pubKey, err := bech32.DecodeAndConvert(address)
+	prefix, _, err := bech32.DecodeAndConvert(address)
 	if err != nil {
 		return acc, err
 	}
 
 	for _, acc := range list {
-		if acc.PubKey() == string(pubKey) {
+		if acc.Address(prefix) == address {
 			return acc, err
 		}
 	}
