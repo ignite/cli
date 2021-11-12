@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 7
 description: Build an understanding of how to create and send packets across blockchains and navigate between blockchains.
 title: "Inter-Blockchain Communication: Basics"
 ---
@@ -84,19 +84,19 @@ These `starport type` commands create CRUD code for the following transactions:
 - Creating blog posts
 
   ```go
-  starport scaffold list post title content --module blog --no-message
+  starport scaffold list post title content --module blog
   ```
 
 - Processing acknowledgments for sent posts
 
   ```go
-  starport scaffold list sentPost postID title chain --module blog --no-message
+  starport scaffold list sentPost postID title chain --module blog
   ```
 
 - Managing post timeouts
 
   ```go
-  starport scaffold list timedoutPost title chain --module blog --no-message
+  starport scaffold list timedoutPost title chain --module blog
   ```
 
 The scaffolded code includes proto files for defining data structures, messages, messages handlers, keepers for modifying the state, and CLI commands.
@@ -170,7 +170,7 @@ To make sure the receiving chain has content on the creator of a blog post, add 
     var packet types.IbcPostPacketData
     packet.Title = msg.Title
     packet.Content = msg.Content
-    packet.Creator = msg.Sender // < ---
+    packet.Creator = msg.Creator // < ---
     // Transmit the packet
     err := k.TransmitIbcPostPacket(
         ctx,

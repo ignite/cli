@@ -41,6 +41,7 @@ func New(opts ...Option) *Tracer {
 
 type Replacer interface {
 	Replace(content, placeholder, replacement string) string
+	ReplaceAll(content, placeholder, replacement string) string
 	ReplaceOnce(content, placeholder, replacement string) string
 	AppendMiscError(miscError string)
 }
@@ -50,6 +51,15 @@ type Tracer struct {
 	missing        iterableStringSet
 	miscErrors     []string
 	additionalInfo string
+}
+
+// ReplaceAll replace all placeholders in content with replacement string.
+func (t *Tracer) ReplaceAll(content, placeholder, replacement string) string {
+	if strings.Count(content, placeholder) == 0 {
+		t.missing.Add(placeholder)
+		return content
+	}
+	return strings.ReplaceAll(content, placeholder, replacement)
 }
 
 // Replace placeholder in content with replacement string once.

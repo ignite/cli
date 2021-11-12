@@ -1,0 +1,89 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+const TypeMsg<%= queryName.UpperCamel %>Data = "<%= queryName.Snake %>_data"
+
+var (
+	_ sdk.Msg = &Msg<%= queryName.UpperCamel %>Data{}
+
+	// <%= queryName.UpperCamel %>ResultStoreKeyPrefix is a prefix for storing result
+	<%= queryName.UpperCamel %>ResultStoreKeyPrefix = "<%= queryName.Snake %>_result"
+
+	// Last<%= queryName.UpperCamel %>IDKey is the key for the last request id
+	Last<%= queryName.UpperCamel %>IDKey = "<%= queryName.Snake %>_last_id"
+
+	// <%= queryName.UpperCamel %>ClientIDKey is query request identifier
+	<%= queryName.UpperCamel %>ClientIDKey = "<%= queryName.Snake %>_id"
+)
+
+// NewMsg<%= queryName.UpperCamel %>Data creates a new <%= queryName.UpperCamel %> message
+func NewMsg<%= queryName.UpperCamel %>Data(
+	<%= MsgSigner.LowerCamel %> string,
+	oracleScriptID OracleScriptID,
+	sourceChannel string,
+	calldata *<%= queryName.UpperCamel %>CallData,
+	askCount uint64,
+	minCount uint64,
+	feeLimit sdk.Coins,
+	prepareGas uint64,
+	executeGas uint64,
+) *Msg<%= queryName.UpperCamel %>Data {
+	return &Msg<%= queryName.UpperCamel %>Data{
+		ClientID:       				<%= queryName.UpperCamel %>ClientIDKey,
+		<%= MsgSigner.UpperCamel %>:	<%= MsgSigner.LowerCamel %>,
+		OracleScriptID: 				uint64(oracleScriptID),
+		SourceChannel:  				sourceChannel,
+		Calldata:       				calldata,
+		AskCount:       				askCount,
+		MinCount:       				minCount,
+		FeeLimit:       				feeLimit,
+		PrepareGas:     				prepareGas,
+		ExecuteGas:     				executeGas,
+	}
+}
+
+// Route returns the message route
+func (m *Msg<%= queryName.UpperCamel %>Data) Route() string {
+	return RouterKey
+}
+
+// Type returns the message type
+func (m *Msg<%= queryName.UpperCamel %>Data) Type() string {
+	return TypeMsg<%= queryName.UpperCamel %>Data
+}
+
+// GetSigners returns the message signers
+func (m *Msg<%= queryName.UpperCamel %>Data) GetSigners() []sdk.AccAddress {
+	<%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
+	if err != nil {
+		panic(err)
+	}
+	return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+// GetSignBytes returns the signed bytes from the message
+func (m *Msg<%= queryName.UpperCamel %>Data) GetSignBytes() []byte {
+	bz := ModuleCdc.MustMarshalJSON(m)
+	return sdk.MustSortJSON(bz)
+}
+
+// ValidateBasic check the basic message validation
+func (m *Msg<%= queryName.UpperCamel %>Data) ValidateBasic() error {
+	_, err := sdk.AccAddressFromBech32(m.<%= MsgSigner.UpperCamel %>)
+	if err != nil {
+		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+	}
+	if m.SourceChannel == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid source channel")
+	}
+	return nil
+}
+
+// <%= queryName.UpperCamel %>ResultStoreKey is a function to generate key for each result in store
+func <%= queryName.UpperCamel %>ResultStoreKey(requestID OracleRequestID) []byte {
+	return append(KeyPrefix(<%= queryName.UpperCamel %>ResultStoreKeyPrefix), int64ToBytes(int64(requestID))...)
+}

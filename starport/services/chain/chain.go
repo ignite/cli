@@ -3,13 +3,12 @@ package chain
 import (
 	"context"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -143,8 +142,8 @@ func New(path string, options ...Option) (*Chain, error) {
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         ioutil.Discard,
-		stderr:         ioutil.Discard,
+		stdout:         io.Discard,
+		stderr:         io.Discard,
 	}
 
 	// Apply the options
@@ -210,7 +209,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := conf.LocateDefault(c.app.Path)
+	path, err := chainconfig.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -218,12 +217,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (conf.Config, error) {
+func (c *Chain) Config() (chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return conf.DefaultConf, nil
+		return chainconfig.DefaultConf, nil
 	}
-	return conf.ParseFile(configPath)
+	return chainconfig.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -245,6 +244,10 @@ func (c *Chain) ID() (string, error) {
 
 	// use app name by default.
 	return c.app.N(), nil
+}
+
+func (c *Chain) Name() string {
+	return c.app.N()
 }
 
 // Binary returns the name of app's default (appd) binary.

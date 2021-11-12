@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/md5"
 	"errors"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 )
@@ -27,7 +26,7 @@ func SaveDirChecksum(workdir string, paths []string, checksumSavePath string, ch
 
 	// save checksum
 	checksumFilePath := filepath.Join(checksumSavePath, checksumName)
-	return ioutil.WriteFile(checksumFilePath, checksum, 0644)
+	return os.WriteFile(checksumFilePath, checksum, 0644)
 }
 
 // HasDirChecksumChanged computes the md5 checksum of the provided paths (directories or files)
@@ -57,7 +56,7 @@ func HasDirChecksumChanged(workdir string, paths []string, checksumSavePath stri
 	}
 
 	// Compare checksums
-	savedChecksum, err := ioutil.ReadFile(checksumFilePath)
+	savedChecksum, err := os.ReadFile(checksumFilePath)
 	if err != nil {
 		return false, err
 	}
@@ -103,7 +102,7 @@ func checksumFromPaths(workdir string, paths []string) ([]byte, error) {
 			noFile = false
 
 			// write file content
-			content, err := ioutil.ReadFile(subPath)
+			content, err := os.ReadFile(subPath)
 			if err != nil {
 				return err
 			}

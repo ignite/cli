@@ -3,6 +3,8 @@ package modulecreate
 import (
 	"fmt"
 	"strings"
+
+	"github.com/tendermint/starport/starport/templates/field"
 )
 
 // CreateOptions represents the options to scaffold a Cosmos SDK module
@@ -12,6 +14,7 @@ type CreateOptions struct {
 	AppName    string
 	AppPath    string
 	OwnerName  string
+	Params     field.Fields
 
 	// True if the module should implement the IBC module interface
 	IsIBC bool

@@ -8,7 +8,7 @@ import (
 	dkeyring "github.com/99designs/keyring"
 	"github.com/cosmos/cosmos-sdk/crypto/hd"
 	"github.com/cosmos/cosmos-sdk/crypto/keyring"
-	"github.com/cosmos/cosmos-sdk/types"
+	sdktypes "github.com/cosmos/cosmos-sdk/types"
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 	"github.com/cosmos/go-bip39"
@@ -30,26 +30,81 @@ var (
 )
 
 const (
-	accountPrefixCosmos = "cosmos"
+	AccountPrefixCosmos = "cosmos"
+)
+
+// KeyringBackend is the backend for where keys are stored.
+type KeyringBackend string
+
+const (
+	// KeyringTest is the test keyring backend. With this backend, your keys will be
+	// stored under your app's data dir,
+	KeyringTest KeyringBackend = "test"
+
+	// KeyringOS is the OS keyring backend. with this backend, your keys will be
+	// stored in your operating system's secured keyring.
+	KeyringOS KeyringBackend = "os"
 )
 
 // Registry for accounts.
 type Registry struct {
-	kr keyring.Keyring
+	homePath           string
+	keyringServiceName string
+	keyringBackend     KeyringBackend
+
+	Keyring keyring.Keyring
+}
+
+// Option configures your registry.
+type Option func(*Registry)
+
+func WithHome(path string) Option {
+	return func(c *Registry) {
+		c.homePath = path
+	}
+}
+
+func WithKeyringServiceName(name string) Option {
+	return func(c *Registry) {
+		c.keyringServiceName = name
+	}
+}
+
+func WithKeyringBackend(backend KeyringBackend) Option {
+	return func(c *Registry) {
+		c.keyringBackend = backend
+	}
 }
 
 // New creates a new registry to manage accounts.
-func New(backend string) (Registry, error) {
-	kr, err := keyring.New(KeyringServiceName, backend, KeyringHome, os.Stdin)
+func New(options ...Option) (Registry, error) {
+	r := Registry{
+		keyringServiceName: sdktypes.KeyringServiceName(),
+		keyringBackend:     KeyringTest,
+		homePath:           KeyringHome,
+	}
+
+	for _, apply := range options {
+		apply(&r)
+	}
+
+	var err error
+
+	r.Keyring, err = keyring.New(r.keyringServiceName, string(r.keyringBackend), r.homePath, os.Stdin)
 	if err != nil {
 		return Registry{}, err
 	}
 
-	r := Registry{
-		kr: kr,
-	}
-
 	return r, nil
+}
+
+func NewStandalone(options ...Option) (Registry, error) {
+	return New(
+		append([]Option{
+			WithKeyringServiceName(KeyringServiceName),
+			WithHome(KeyringHome),
+		}, options...)...,
+	)
 }
 
 // Account represents an Cosmos SDK account.
@@ -64,7 +119,7 @@ type Account struct {
 // Address returns the address of the account from given prefix.
 func (a Account) Address(accPrefix string) string {
 	if accPrefix == "" {
-		accPrefix = accountPrefixCosmos
+		accPrefix = AccountPrefixCosmos
 	}
 
 	return toBench32(accPrefix, a.Info.GetPubKey().Address())
@@ -120,7 +175,7 @@ func (r Registry) Create(name string) (acc Account, mnemonic string, err error) 
 	if err != nil {
 		return Account{}, "", err
 	}
-	info, err := r.kr.NewAccount(name, mnemonic, "", r.hdPath(), algo)
+	info, err := r.Keyring.NewAccount(name, mnemonic, "", r.hdPath(), algo)
 	if err != nil {
 		return Account{}, "", err
 	}
@@ -150,11 +205,11 @@ func (r Registry) Import(name, secret, passphrase string) (Account, error) {
 		if err != nil {
 			return Account{}, err
 		}
-		_, err = r.kr.NewAccount(name, secret, passphrase, r.hdPath(), algo)
+		_, err = r.Keyring.NewAccount(name, secret, passphrase, r.hdPath(), algo)
 		if err != nil {
 			return Account{}, err
 		}
-	} else if err := r.kr.ImportPrivKey(name, secret, passphrase); err != nil {
+	} else if err := r.Keyring.ImportPrivKey(name, secret, passphrase); err != nil {
 		return Account{}, err
 	}
 
@@ -167,7 +222,7 @@ func (r Registry) Export(name, passphrase string) (key string, err error) {
 		return "", err
 	}
 
-	return r.kr.ExportPrivKeyArmor(name, passphrase)
+	return r.Keyring.ExportPrivKeyArmor(name, passphrase)
 
 }
 
@@ -177,12 +232,12 @@ func (r Registry) ExportHex(name, passphrase string) (hex string, err error) {
 		return "", err
 	}
 
-	return keyring.NewUnsafe(r.kr).UnsafeExportPrivKeyHex(name)
+	return keyring.NewUnsafe(r.Keyring).UnsafeExportPrivKeyHex(name)
 }
 
 // GetByName returns an account by its name.
 func (r Registry) GetByName(name string) (Account, error) {
-	info, err := r.kr.Key(name)
+	info, err := r.Keyring.Key(name)
 	if errors.Is(err, dkeyring.ErrKeyNotFound) || errors.Is(err, sdkerrors.ErrKeyNotFound) {
 		return Account{}, &AccountDoesNotExistError{name}
 	}
@@ -200,7 +255,7 @@ func (r Registry) GetByName(name string) (Account, error) {
 
 // List lists all accounts.
 func (r Registry) List() ([]Account, error) {
-	info, err := r.kr.List()
+	info, err := r.Keyring.List()
 	if err != nil {
 		return nil, err
 	}
@@ -219,7 +274,7 @@ func (r Registry) List() ([]Account, error) {
 
 // DeleteByName deletes an account by name.
 func (r Registry) DeleteByName(name string) error {
-	err := r.kr.Delete(name)
+	err := r.Keyring.Delete(name)
 	if err == dkeyring.ErrKeyNotFound {
 		return &AccountDoesNotExistError{name}
 	}
@@ -227,11 +282,11 @@ func (r Registry) DeleteByName(name string) error {
 }
 
 func (r Registry) hdPath() string {
-	return hd.CreateHDPath(types.GetConfig().GetCoinType(), 0, 0).String()
+	return hd.CreateHDPath(sdktypes.GetConfig().GetCoinType(), 0, 0).String()
 }
 
 func (r Registry) algo() (keyring.SignatureAlgo, error) {
-	algos, _ := r.kr.SupportedAlgorithms()
+	algos, _ := r.Keyring.SupportedAlgorithms()
 	return keyring.NewSigningAlgoFromString(string(hd.Secp256k1Type), algos)
 }
 

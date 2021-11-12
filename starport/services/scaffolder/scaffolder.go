@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
@@ -90,11 +90,11 @@ func protoc(projectPath, gomodPath string) error {
 		return err
 	}
 
-	confpath, err := conf.LocateDefault(projectPath)
+	confpath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
 		return err
 	}
-	conf, err := conf.ParseFile(confpath)
+	conf, err := chainconfig.ParseFile(confpath)
 	if err != nil {
 		return err
 	}

@@ -21,7 +21,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
     timeoutTimestamp uint64,
 ) error {
 
-    sourceChannelEnd, found := k.channelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
+    sourceChannelEnd, found := k.ChannelKeeper.GetChannel(ctx, sourcePort, sourceChannel)
     if !found {
         return sdkerrors.Wrapf(channeltypes.ErrChannelNotFound, "port ID (%s) channel ID (%s)", sourcePort, sourceChannel)
     }
@@ -30,7 +30,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
     destinationChannel := sourceChannelEnd.GetCounterparty().GetChannelID()
 
     // get the next sequence
-    sequence, found := k.channelKeeper.GetNextSequenceSend(ctx, sourcePort, sourceChannel)
+    sequence, found := k.ChannelKeeper.GetNextSequenceSend(ctx, sourcePort, sourceChannel)
     if !found {
         return sdkerrors.Wrapf(
             channeltypes.ErrSequenceSendNotFound,
@@ -38,7 +38,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         )
     }
 
-    channelCap, ok := k.scopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
+    channelCap, ok := k.ScopedKeeper.GetCapability(ctx, host.ChannelCapabilityPath(sourcePort, sourceChannel))
     if !ok {
         return sdkerrors.Wrap(channeltypes.ErrChannelCapabilityNotFound, "module does not own channel capability")
     }
@@ -59,7 +59,7 @@ func (k Keeper) Transmit<%= packetName.UpperCamel %>Packet(
         timeoutTimestamp,
     )
 
-    if err := k.channelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
+    if err := k.ChannelKeeper.SendPacket(ctx, channelCap, packet); err != nil {
         return err
     }
 
