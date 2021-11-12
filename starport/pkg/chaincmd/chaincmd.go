@@ -2,6 +2,7 @@ package chaincmd
 
 import (
 	"fmt"
+
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 )

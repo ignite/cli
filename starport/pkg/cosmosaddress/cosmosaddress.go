@@ -3,6 +3,7 @@ package cosmosaddress
 
 import (
 	"errors"
+
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
