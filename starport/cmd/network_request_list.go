@@ -76,10 +76,10 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 				req.VestingAccount.StartingBalance.String())
 		case *launchtypes.RequestContent_ValidatorRemoval:
 			requestType = "Remove Validator"
-			content = fmt.Sprintf("%s", req.ValidatorRemoval.ValAddress)
+			content = req.ValidatorRemoval.ValAddress
 		case *launchtypes.RequestContent_AccountRemoval:
 			requestType = "Remove Account"
-			content = fmt.Sprintf("%s", req.AccountRemoval.Address)
+			content = req.AccountRemoval.Address
 		}
 
 		requestTable.Append([]string{
