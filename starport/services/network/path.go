@@ -4,6 +4,8 @@ import (
 	"os"
 	"path/filepath"
 	"strconv"
+
+	"github.com/tendermint/starport/starport/pkg/gentx"
 )
 
 // ChainHomeRoot is the root dir for spn chain homes
@@ -38,17 +40,17 @@ func Gentx(home string) string {
 }
 
 // getChainGenesis return the chain genesis path
-func getChainGenesis(home string) (ChainGenesis, bool, error) {
+func getChainGenesis(home string) (gentx.ChainGenesis, bool, error) {
 	genesisPath := filepath.Join(home, genesisPath)
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
-		return ChainGenesis{}, false, nil
+		return gentx.ChainGenesis{}, false, nil
 	} else if err != nil {
-		return ChainGenesis{}, false, err
+		return gentx.ChainGenesis{}, false, err
 	}
-	net, err := ParseGenesis(genesisPath)
+	net, err := gentx.ParseGenesis(genesisPath)
 	if err != nil {
-		return ChainGenesis{}, false, err
+		return gentx.ChainGenesis{}, false, err
 	}
 	return net, true, nil
 }

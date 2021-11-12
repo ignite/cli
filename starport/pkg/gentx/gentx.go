@@ -1,4 +1,4 @@
-package network
+package gentx
 
 import (
 	"encoding/json"
@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	GentxInfo struct {
+	Info struct {
 		DelegatorAddress string
 		PubKey           []byte
 		SelfDelegation   sdk.Coin
@@ -32,11 +32,12 @@ type (
 	ChainGenesis struct {
 		AppState struct {
 			Auth struct {
-				Accounts []struct {
-					Address string `json:"address"`
-				} `json:"accounts"`
+				Accounts []acc `json:"accounts"`
 			} `json:"auth"`
 		} `json:"app_state"`
+	}
+	acc struct {
+		Address string `json:"address"`
 	}
 )
 
@@ -57,7 +58,7 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 	return genesis, json.Unmarshal(genesisFile, &genesis)
 }
 
-func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
+func ParseGentx(gentxPath string) (info Info, gentx []byte, err error) {
 	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
 		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
 	}
@@ -90,6 +91,5 @@ func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 		stargateGentx.Body.Messages[0].Value.Denom,
 		amount,
 	)
-
 	return info, gentx, nil
 }

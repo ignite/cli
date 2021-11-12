@@ -10,32 +10,27 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/gentx"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/services/network"
 )
 
 const (
-	flagGentx  = "gentx"
-	flagAmount = "amount"
+	flagGentx = "gentx"
 )
 
 // NewNetworkChainJoin creates a new chain join command to join
 // to a network as a validator.
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "join [launch-id]",
+		Use:   "join [launch-id] [amount]",
 		Short: "Join to a network as a validator by launch id",
-		Args:  cobra.ExactArgs(1),
+		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainJoinHandler,
 	}
-
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
-	c.Flags().String(flagAmount, "", "If is provided sends the \"create account\" message")
-
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
-
 	return c
 }
 
@@ -47,13 +42,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer shutdown()
 
-	// parse the amount
-	amountArg, _ := cmd.Flags().GetString(flagAmount)
-	amount, err := sdk.ParseCoinNormalized(amountArg)
-	if err != nil {
-		return errors.Wrap(err, "error parsing amount")
-	}
-
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
@@ -61,6 +49,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 	if launchID == 0 {
 		return errors.New("launch ID must be greater than 0")
+	}
+
+	// parse the amount
+	amount, err := sdk.ParseCoinNormalized(args[1])
+	if err != nil {
+		return errors.Wrap(err, "error parsing amount")
 	}
 
 	// parse the home path
@@ -74,7 +68,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return errors.Wrap(err, "error parsing gentx path")
 	}
-	info, gentx, err := network.ParseGentx(gentxPath)
+	info, gentx, err := gentx.ParseGentx(gentxPath)
 	if err != nil {
 		return err
 	}
@@ -85,38 +79,24 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// create the message to add the validator into the SPN
-	valMsg, err := nb.CreateValidatorRequestMsg(
-		cmd.Context(),
+	// create the message to add the validator and account if needed
+	result, err := nb.Join(cmd.Context(),
+		home,
 		launchID,
 		peer,
 		info.DelegatorAddress,
 		gentx,
 		info.PubKey,
 		info.SelfDelegation,
-	)
-	if err != nil {
-		return err
-	}
-
-	// create the message to add the account into the SPN
-	accMsg, err := nb.CreateAccountRequestMsg(
-		cmd.Context(),
-		home,
-		launchID,
 		amount,
 	)
 	if err != nil {
 		return err
 	}
 
-	result, err := nb.Join(valMsg, accMsg)
-	if err != nil {
-		return err
-	}
-
 	s.Stop()
-	fmt.Printf("%s Network joined\n%s", clispinner.OK, result)
+	fmt.Printf("%s Request to join the network as a validator has been submitted!\n%s",
+		clispinner.OK, result)
 
 	return nil
 }
