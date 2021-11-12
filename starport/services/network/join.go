@@ -70,17 +70,22 @@ func (b *Builder) CreateValidatorRequestMsg(
 	consPubKey []byte,
 	selfDelegation sdk.Coin,
 ) (sdk.Msg, error) {
+	spnValAddress, err := SetSPNPrefix(valAddress)
+	if err != nil {
+		return nil, err
+	}
+
 	// Check if the validator request already exist
-	exist, err := b.CheckValidatorExist(ctx, launchID, valAddress)
+	exist, err := b.CheckValidatorExist(ctx, launchID, spnValAddress)
 	if err != nil {
 		return nil, err
 	}
 	if exist {
-		return nil, errors.New("validator already exist: " + valAddress)
+		return nil, errors.New("validator already exist: " + spnValAddress)
 	}
 
 	return launchtypes.NewMsgRequestAddValidator(
-		valAddress,
+		spnValAddress,
 		launchID,
 		gentx,
 		consPubKey,
@@ -98,16 +103,21 @@ func (b *Builder) CreateAccountRequestMsg(
 	amount sdk.Coin,
 ) (msg sdk.Msg, err error) {
 	address := b.account.Address(SPNAddressPrefix)
-	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
+	spnAddress, err := SetSPNPrefix(address)
+	if err != nil {
+		return msg, err
+	}
+
+	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
 
 	shouldCreateAcc := false
 	if !customGentx {
-		exist, err := CheckGenesisAddress(chainHome, address)
+		exist, err := CheckGenesisAddress(chainHome, spnAddress)
 		if err != nil {
 			return msg, err
 		}
 		if !exist {
-			exist, err = b.CheckAccountExist(ctx, launchID, address)
+			exist, err = b.CheckAccountExist(ctx, launchID, spnAddress)
 			if err != nil {
 				return msg, err
 			}
@@ -115,9 +125,10 @@ func (b *Builder) CreateAccountRequestMsg(
 		shouldCreateAcc = !exist
 	}
 	if shouldCreateAcc || customGentx {
+
 		b.ev.Send(events.New(events.StatusDone, "Account message created"))
 		msg = launchtypes.NewMsgRequestAddAccount(
-			address,
+			spnAddress,
 			launchID,
 			sdk.NewCoins(amount),
 		)
@@ -225,5 +236,6 @@ func (b *Builder) fetchRequests(ctx context.Context, launchID uint64) ([]launcht
 	if err != nil {
 		return nil, err
 	}
+
 	return res.Request, err
 }
