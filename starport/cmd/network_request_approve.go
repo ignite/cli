@@ -14,8 +14,8 @@ const (
 	flagNoVerification = "no-verification"
 )
 
-// NewNetworkRequestApprove creates a new request approve command to approve requests
-// for a chain.
+// NewNetworkRequestApprove creates a new request approve
+// command to approve requests for a chain.
 func NewNetworkRequestApprove() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "approve [launch-id] [number<,...>]",
@@ -24,8 +24,10 @@ func NewNetworkRequestApprove() *cobra.Command {
 		RunE:    networkRequestApproveHandler,
 		Args:    cobra.ExactArgs(2),
 	}
-	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().Bool(flagNoVerification, false, "approve the requests without verifying them")
+	c.Flags().AddFlagSet(flagNetworkFrom())
+	c.Flags().AddFlagSet(flagSetHome())
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
@@ -59,8 +61,8 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !noVerification {
-		// Verify the request
-		// This operation generate the genesis in a temporary directory and verify this genesis is valid
+		// Verify the request. This operation generate the genesis
+		// in a temporary directory and verify this genesis is valid
 		err := nb.VerifyRequests(cmd.Context(), launchID, ids)
 		if err != nil {
 			return err
