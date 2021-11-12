@@ -15,6 +15,8 @@ const (
 	flagAddressPrefix  = "address-prefix"
 	flagPassphrase     = "passphrase"
 	flagNonInteractive = "non-interactive"
+	flagKeyringBackend = "keyring-backend"
+	flagFrom           = "from"
 )
 
 func NewAccount() *cobra.Command {
@@ -65,9 +67,9 @@ func flagSetKeyringBackend() *flag.FlagSet {
 	return fs
 }
 
-func getKeyringBackend(cmd *cobra.Command) string {
+func getKeyringBackend(cmd *cobra.Command) cosmosaccount.KeyringBackend {
 	backend, _ := cmd.Flags().GetString(flagKeyringBackend)
-	return backend
+	return cosmosaccount.KeyringBackend(backend)
 }
 
 func flagSetAccountPrefixes() *flag.FlagSet {
@@ -78,6 +80,11 @@ func flagSetAccountPrefixes() *flag.FlagSet {
 
 func getAddressPrefix(cmd *cobra.Command) string {
 	prefix, _ := cmd.Flags().GetString(flagAddressPrefix)
+	return prefix
+}
+
+func getFrom(cmd *cobra.Command) string {
+	prefix, _ := cmd.Flags().GetString(flagFrom)
 	return prefix
 }
 

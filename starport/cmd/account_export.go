@@ -35,7 +35,9 @@ func accountExportHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}
