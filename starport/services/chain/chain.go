@@ -307,6 +307,15 @@ func (c *Chain) GenesisPath() (string, error) {
 	return filepath.Join(home, "config/genesis.json"), nil
 }
 
+// GentxPath returns the directory where gentx are stored for the app.
+func (c *Chain) GentxPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx"), nil
+}
+
 // AppTOMLPath returns app.toml path of the app.
 func (c *Chain) AppTOMLPath() (string, error) {
 	home, err := c.Home()

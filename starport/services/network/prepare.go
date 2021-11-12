@@ -3,33 +3,48 @@ package network
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 
+	"github.com/pelletier/go-toml"
+	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 )
 
 // Prepare queries launch information and prepare the chain to be launched from these information
 func (b Blockchain) Prepare(ctx context.Context) error {
-	// Get the genesis accounts and apply them to the genesis
+	// get the genesis accounts and apply them to the genesis
 	// TODO: include launchID in the init process
 	genesisAccounts, err := b.builder.GenesisAccounts(ctx, b.launchID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error querying genesis accounts")
 	}
 	if err := b.applyGenesisAccounts(ctx, genesisAccounts); err != nil {
-		return err
+		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
 
-	// Get the genesis vesting accounts and apply them to the genesis
+	// get the genesis vesting accounts and apply them to the genesis
 	vestingAccounts, err := b.builder.VestingAccounts(ctx, b.launchID)
 	if err != nil {
-		return err
+		return errors.Wrap(err, "error querying vesting accounts")
 	}
 	if err := b.applyVestingAccounts(ctx, vestingAccounts); err != nil {
-		return err
+		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
 
-	// Get the genesis validators, gather gentxs and modify config to include the peers
+	// get the genesis validators, gather gentxs and modify config to include the peers
+	genesisValidators, err := b.builder.GenesisValidators(ctx, b.launchID)
+	if err != nil {
+		return errors.Wrap(err, "error querying genesis validators")
+	}
+	if err := b.applyGenesisValidators(ctx, genesisValidators); err != nil {
+		return errors.Wrap(err, "error applying genesis validators to genesis")
+	}
+
+	// TODO: Set the genesis time for chain with triggered launch
 
 	return nil
 }
@@ -78,7 +93,7 @@ func (b Blockchain) applyVestingAccounts(ctx context.Context, vestingAccs []laun
 			return err
 		}
 
-		// Only delayed vesting option is supported for now
+		// only delayed vesting option is supported for now
 		delayedVesting := acc.VestingOptions.GetDelayedVesting()
 		if delayedVesting == nil {
 			return fmt.Errorf("invalid vesting option for account %s", acc.Address)
@@ -98,4 +113,74 @@ func (b Blockchain) applyVestingAccounts(ctx context.Context, vestingAccs []laun
 	}
 
 	return nil
+}
+
+// applyGenesisValidators gathers the validator gentxs into the genesis and add peers in config
+func (b Blockchain) applyGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
+	// no validator
+	if len(genesisVals) == 0 {
+		return nil
+	}
+
+	// reset the gentx directory
+	gentxDir, err := b.chain.GentxPath()
+	if err != nil {
+		return err
+	}
+	if err := os.RemoveAll(gentxDir); err != nil {
+		return err
+	}
+	if err := os.MkdirAll(gentxDir, 0700); err != nil {
+		return err
+	}
+
+	// write gentxs
+	for i, val := range genesisVals {
+		gentxPath := filepath.Join(gentxDir, fmt.Sprintf("gentx%d.json", i))
+		if err = ioutil.WriteFile(gentxPath, val.GenTx, 0666); err != nil {
+			return err
+		}
+	}
+
+	// gather gentxs
+	cmd, err := b.chain.Commands(ctx)
+	if err != nil {
+		return err
+	}
+	if err := cmd.CollectGentxs(ctx); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+// updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
+func (b Blockchain) updateConfigFromGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
+	var p2pAddresses []string
+	for _, val := range genesisVals {
+		p2pAddresses = append(p2pAddresses, val.Peer)
+	}
+
+	// set persistent peers
+	configPath, err := b.chain.ConfigTOMLPath()
+	if err != nil {
+		return err
+	}
+	configToml, err := toml.LoadFile(configPath)
+	if err != nil {
+		return err
+	}
+	configToml.Set("p2p.persistent_peers", strings.Join(p2pAddresses, ","))
+	if err != nil {
+		return err
+	}
+
+	// save config.toml file
+	configTomlFile, err := os.OpenFile(configPath, os.O_RDWR|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer configTomlFile.Close()
+	_, err = configToml.WriteTo(configTomlFile)
+	return err
 }
