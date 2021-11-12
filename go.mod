@@ -56,7 +56,7 @@ require (
 	github.com/tendermint/spm v0.1.7
 	github.com/tendermint/spn v0.1.1-0.20211109105629-7de2146b06d9
 	github.com/tendermint/tendermint v0.34.13
-	github.com/tendermint/vue v0.1.53
+	github.com/tendermint/vue v0.1.54
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
