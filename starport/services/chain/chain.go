@@ -54,6 +54,7 @@ type Chain struct {
 	Version cosmosver.Version
 
 	plugin         Plugin
+	pluginManager plugins.Manager
 	sourceVersion  version
 	logLevel       LogLvl
 	serveCancel    context.CancelFunc
@@ -172,6 +173,9 @@ func New(path string, options ...Option) (*Chain, error) {
 
 	// initialize the plugin depending on the version of the chain
 	c.plugin = c.pickPlugin()
+
+	// Initialize the plugin manager with chain ID
+	c.pluginManager = plugins.NewManager(c.ID())
 
 	return c, nil
 }

@@ -60,6 +60,14 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
+	if conf.Plugins != nil {
+		// Pull plugins down if specified in config,
+		// Inject into commands
+		if err := c.pluginManager.Run(ctx, home, conf); err != nil {
+			return err
+		}
+	}
+
 	// init node.
 	if err := commands.Init(ctx, moniker); err != nil {
 		return err
