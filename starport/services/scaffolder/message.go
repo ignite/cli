@@ -84,7 +84,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
 		return sm, err
 	}
-	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -93,7 +93,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -137,6 +137,16 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
+	gens, err = supportSimulation(
+		gens,
+		opts.AppPath,
+		opts.ModulePath,
+		opts.ModuleName,
+	)
+	if err != nil {
+		return sm, err
+	}
+
 	// Scaffold
 	g, err = message.NewStargate(tracer, opts)
 	if err != nil {
@@ -157,11 +167,8 @@ func checkForbiddenMessageField(name string) error {
 		return err
 	}
 
-	switch mfName.LowerCase {
-	case
-		"creator",
-		datatype.TypeCustom:
-		return fmt.Errorf("%s is used by the packet scaffolder", name)
+	if mfName.LowerCase == datatype.TypeCustom {
+		return fmt.Errorf("%s is used by the message scaffolder", name)
 	}
 
 	return checkGoReservedWord(name)

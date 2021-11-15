@@ -1,7 +1,8 @@
 ---
 order: 1
 parent:
-  title: "Advanced Module: Interchain Exchange"
+  order: 8
+  title: "Advanced Module: Interchange"
 ---
 
 # Introduction 

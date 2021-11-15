@@ -18,6 +18,9 @@ module.exports = {
     ],
   ],
   themeConfig: {
+    logo: {
+      src: "/logo.png",
+    },
     algolia: {
       id: "BH4D9OD16A",
       key: "d6908a9436133e03e9b0131bad808775",
@@ -48,7 +51,7 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/7fwqwc3afK' target='_blank'>Discord</a>.",
+          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/H6wGTY8sxw' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
@@ -58,27 +61,23 @@ module.exports = {
       services: [
         {
           service: "medium",
-          url: "https://blog.cosmos.network/",
+          url: "https://medium.com/tendermint",
         },
         {
           service: "twitter",
-          url: "https://twitter.com/cosmos",
+          url: "https://twitter.com/starportHQ",
         },
         {
           service: "linkedin",
           url: "https://www.linkedin.com/company/tendermint/",
         },
         {
-          service: "reddit",
-          url: "https://reddit.com/r/cosmosnetwork",
-        },
-        {
           service: "discord",
-          url: "https://discord.gg/vcExX9T",
+          url: "https://discord.gg/H6wGTY8sxw",
         },
         {
           service: "youtube",
-          url: "https://www.youtube.com/c/CosmosProject",
+          url: "https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q",
         },
       ],
 

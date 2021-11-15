@@ -79,6 +79,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -151,7 +152,7 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		// Add the service messages
 		var queryIndexFields string
 		for i, index := range opts.Indexes {
-			queryIndexFields += fmt.Sprintf("  %s\n", index.ProtoType(i+1))
+			queryIndexFields += fmt.Sprintf("  %s;\n", index.ProtoType(i+1))
 		}
 
 		// Ensure custom types are imported
@@ -388,12 +389,12 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		templateState := `%[2]vList: []types.%[2]v{
-	{
-		%[3]v},
-	{
-		%[4]v},
-},
-%[1]v`
+		{
+			%[3]v},
+		{
+			%[4]v},
+	},
+	%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -507,12 +508,12 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var indexes string
 		for i, index := range opts.Indexes {
-			indexes += fmt.Sprintf("  %s\n", index.ProtoType(i+2))
+			indexes += fmt.Sprintf("  %s;\n", index.ProtoType(i+2))
 		}
 
 		var fields string
 		for i, f := range opts.Fields {
-			fields += fmt.Sprintf("  %s\n", f.ProtoType(i+2+len(opts.Indexes)))
+			fields += fmt.Sprintf("  %s;\n", f.ProtoType(i+2+len(opts.Indexes)))
 		}
 
 		// Ensure custom types are imported
