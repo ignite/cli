@@ -89,9 +89,13 @@ After all existing Starport installations are removed, follow the [Installing St
 
 ## Installing Starport on macOS with Homebrew
 
+Using brew to install Starport is supported only for macOS machines without the M1 chip. 
+
 ```bash
 brew install tendermint/tap/starport
 ```
+
+To install Starport on macOS machines with the M1 chip, use the curl command as described in [Installing Starport](#installing-starport). 
 
 ## Build from source
 
