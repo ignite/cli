@@ -62,6 +62,9 @@ func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config) error {
 	}
 
 	// Injection
+	if err := m.inject(); err != nil {
+		return err
+	}
 
 	return nil
 }

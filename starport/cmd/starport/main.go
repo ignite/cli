@@ -14,7 +14,10 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
-	err := starportcmd.New(ctx).ExecuteContext(ctx)
+	starportCmd := starportcmd.New(ctx)
+	// Injection here
+
+	err := starportCmd.ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")

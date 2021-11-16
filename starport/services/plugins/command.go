@@ -11,7 +11,3 @@ type Command interface {
 	NumArgs() int
 	Exec(*cobra.Command, []string) error
 }
-
-func ValidateParentCommand(parentCommand []string) {
-
-}

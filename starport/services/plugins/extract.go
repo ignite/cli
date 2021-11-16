@@ -50,6 +50,10 @@ func extractCommandPlugins(ctx context.Context, chainId string, cfg chaincfg.Con
 			return nil, err
 		}
 
+		if err := validateParentCommand(cmdPlugin.ParentCommand()); err != nil {
+			return nil, err
+		}
+
 		cmdPlugins = append(cmdPlugins, cmdPlugin)
 	}
 
@@ -84,9 +88,9 @@ func extractHookPlugins(ctx context.Context, chainId string, cfg chaincfg.Config
 		hookPlugin, ok := symCmdPlugin.(HookPlugin)
 		if !ok {
 			return nil, ErrCommandPluginNotRecognized
-		}
+		}		
 
-		if err := hookPlugin.Init(ctx); err != nil {
+		if err := validateParentCommand(cmdPlugin.ParentCommand()); err != nil {
 			return nil, err
 		}
 

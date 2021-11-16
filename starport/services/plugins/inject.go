@@ -1,6 +1,6 @@
 package plugins
 
-func (m *Manager) inject() {
+func (m *Manager) inject(command *cobra.Command) error {
 	for _, cmdPlugin := range m.cmdPlugins {
 		c := &cobra.Command{
 			Use:   cmdPlugin.Usage(),
@@ -13,4 +13,6 @@ func (m *Manager) inject() {
 	for _, hookPlugin := range m.hookPlugins {
 		
 	}
+
+	return nil
 }

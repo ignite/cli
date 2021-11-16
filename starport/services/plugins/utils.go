@@ -1,5 +1,18 @@
 package plugins
 
+func validateParentCommand(parentCommand *cobra.Command, subCommand []string) error {
+	innerCommand, _, err := parentCommand.Find(subCommand)
+	if err != nil {
+		return err
+	}
+
+	if !innerCommand {
+		return ErrCommandNotFound
+	}
+
+	return nil
+}
+
 func getPluginId(plug Plugin) string {
 	var plugId string
 	if plug.Name != "" {
