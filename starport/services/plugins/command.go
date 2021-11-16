@@ -8,5 +8,10 @@ type Command interface {
 	Usage() string
 	ShortDesc() string
 	LongDesc() string
-	Exec(context.Context, []string) (context.Context, error)
+	NumArgs() int
+	Exec(*cobra.Command, []string) error
+}
+
+func ValidateParentCommand(parentCommand []string) {
+
 }
