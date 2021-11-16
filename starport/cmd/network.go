@@ -72,10 +72,10 @@ var cosmos *cosmosclient.Client
 
 // initializeNetwork initializes event bus, CLIn components such as spinner and returns a new network builder
 func initializeNetwork(cmd *cobra.Command) (
-	*network.Builder,
-	*clispinner.Spinner,
-	func(),
-	error,
+	nb *network.Builder,
+	spinner *clispinner.Spinner,
+	cleanup func(),
+	err error,
 ) {
 	var (
 		wg sync.WaitGroup
@@ -91,7 +91,7 @@ func initializeNetwork(cmd *cobra.Command) (
 		wg.Wait()
 	}
 
-	nb, err := newNetwork(cmd, network.CollectEvents(ev))
+	nb, err = newNetwork(cmd, network.CollectEvents(ev))
 	if err != nil {
 		shutdown()
 	}

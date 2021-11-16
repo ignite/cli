@@ -54,7 +54,8 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 
 	// check if the provided account for the validator exists
 	validatorAccount, _ := cmd.Flags().GetString(flagValidatorAccount)
-	if err := checkAccountExist(cmd, validatorAccount); err != nil {
+	_, err = nb.AccountRegistry().GetByName(validatorAccount)
+	if err != nil {
 		return err
 	}
 

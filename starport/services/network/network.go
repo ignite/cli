@@ -123,6 +123,11 @@ func InitializationKeyringBackend(keyringBackend chaincmd.KeyringBackend) InitOp
 	}
 }
 
+// AccountRegistry returns the account registry used by the network builder
+func (b Builder) AccountRegistry() cosmosaccount.Registry {
+	return b.cosmos.AccountRegistry
+}
+
 // Blockchain initializes a blockchain from source and options.
 func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options ...InitOption) (*Blockchain, error) {
 	var o initOptions
