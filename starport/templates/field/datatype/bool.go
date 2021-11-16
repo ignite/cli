@@ -15,7 +15,7 @@ var (
 		ValueIndex:        "false",
 		ValueInvalidIndex: "false",
 		ProtoType: func(_, name string, index int) string {
-			return fmt.Sprintf("bool %s = %d;", name, index)
+			return fmt.Sprintf("bool %s = %d", name, index)
 		},
 		GenesisArgs: func(name multiformatname.Name, value int) string {
 			return fmt.Sprintf("%s: %t,\n", name.UpperCamel, value%2 == 0)
