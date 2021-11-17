@@ -2,9 +2,6 @@ package plugin
 
 import (
 	"log"
-	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -22,6 +19,7 @@ func init() {
 	// _ = exec.Command("popd").Run()
 }
 
+/*
 func Test_LoadPlugin(t *testing.T) {
 	tests := []struct {
 		Desc      string
@@ -104,3 +102,4 @@ func Test_Execute(t *testing.T) {
 	}
 
 }
+*/
