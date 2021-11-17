@@ -6,7 +6,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
 	"os"
 	"regexp"
 	"strings"
@@ -78,7 +77,7 @@ func (r Runner) Gentx(
 
 	if err := r.run(ctx, runOptions{
 		stdout: b,
-		stderr: io.MultiWriter(b, os.Stderr),
+		stderr: b,
 		stdin:  os.Stdin,
 	}, r.chainCmd.GentxCommand(validatorName, selfDelegation, options...)); err != nil {
 		return "", err
