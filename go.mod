@@ -29,10 +29,13 @@ require (
 	github.com/gookit/color v1.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
-	github.com/iancoleman/strcase v0.2.0
+	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.12
-	github.com/jpillora/chisel v1.7.6
-	github.com/manifoldco/promptui v0.9.0
+	github.com/jedib0t/go-pretty/v6 v6.2.4
+	github.com/jpillora/chisel v1.7.3
+	github.com/kr/pretty v0.3.0 // indirect
+	github.com/manifoldco/promptui v0.8.0
+	github.com/mattn/go-runewidth v0.0.13 // indirect
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.3.0 // indirect
 	github.com/otiai10/copy v1.6.0
@@ -51,7 +54,8 @@ require (
 	github.com/tendermint/vue v0.1.54
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
-	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
+	golang.org/x/sys v0.0.0-20211117180635-dee7805ff2e1 // indirect
+	golang.org/x/term v0.0.0-20210220032956-6a3ed077a48d
 )
 
 replace (

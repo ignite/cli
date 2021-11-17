@@ -17,6 +17,13 @@ accounts:
 validator:
   name: user1
   staked: "100000000stake"
+plugins:
+  - name: plugin1
+    description: this is test1
+    repository_url: https://github.com/tendermint/plugin1
+  - name: "plugin2"
+    description: "this is test2"
+    repository_url: "https://github.com/tendermint/plugin2"
 `
 
 	conf, err := Parse(strings.NewReader(confyml))
@@ -36,6 +43,18 @@ validator:
 		Name:   "user1",
 		Staked: "100000000stake",
 	}, conf.Validator)
+	require.Equal(t, []Plugin{
+		{
+			Name:          "plugin1",
+			Description:   "this is test1",
+			RepositoryURL: "https://github.com/tendermint/plugin1",
+		},
+		{
+			Name:          "plugin2",
+			Description:   "this is test2",
+			RepositoryURL: "https://github.com/tendermint/plugin2",
+		},
+	}, conf.Plugins)
 }
 
 func TestCoinTypeParse(t *testing.T) {

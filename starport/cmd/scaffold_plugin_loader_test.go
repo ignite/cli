@@ -7,7 +7,6 @@ import (
 
 func Test_LoadConfig(t *testing.T) {
 	fmt.Printf("test loadConfig: Check Config is fully loaded.")
-
 }
 
 func Test_LoadPlugin(t *testing.T) {

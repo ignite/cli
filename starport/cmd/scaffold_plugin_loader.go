@@ -16,7 +16,7 @@ func NewScaffoldPluginLoader() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			fmt.Println("must read config for configs")
-			//TODO Read config files to get
+			// TODO Read config files to get
 			return nil
 		},
 	}

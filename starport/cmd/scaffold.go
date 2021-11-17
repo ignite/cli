@@ -46,6 +46,8 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldPluginLoader())
 	// c.AddCommand(NewScaffoldWasm())
 
+	// TODO: Add running command for plugin.
+
 	return c
 }
 

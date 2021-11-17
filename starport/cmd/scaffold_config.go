@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
+
 	"github.com/spf13/cobra"
 )
 
@@ -15,7 +16,7 @@ func NewScaffoldPluginConfig() *cobra.Command {
 		RunE: func(cmd *cobra.Command, args []string) error {
 
 			fmt.Println("must read config for configs")
-			//TODO Read config files to get
+			// TODO Read config files to get
 			return nil
 		},
 	}
@@ -25,16 +26,4 @@ func NewScaffoldPluginConfig() *cobra.Command {
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
 	return c
-}
-
-func isInstalled(cmd *cobra.Command, args []string) error {
-
-	fmt.Printf("all plugins list")
-
-	return nil
-}
-
-func install(cmd *cobra.Command, args []string) error {
-
-	return nil
 }

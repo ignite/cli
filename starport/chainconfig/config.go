@@ -63,6 +63,7 @@ type Config struct {
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Host      Host                   `yaml:"host"`
+	Plugins   []Plugin               `yaml:"plugins"`
 }
 
 // AccountByName finds account by name.
@@ -187,6 +188,13 @@ type Host struct {
 	GRPC    string `yaml:"grpc"`
 	GRPCWeb string `yaml:"grpc-web"`
 	API     string `yaml:"api"`
+}
+
+// Plugin keeps configurations of 3rd party plugins.
+type Plugin struct {
+	Name          string `yaml:"name"`
+	Description   string `yaml:"description"`
+	RepositoryURL string `yaml:"repository_url"`
 }
 
 // Parse parses config.yml into UserConfig.
