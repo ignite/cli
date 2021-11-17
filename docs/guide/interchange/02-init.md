@@ -156,8 +156,6 @@ host:
   prof: ":6061"
   grpc: ":9091"
   api: ":1318"
-  frontend: ":8081"
-  dev-ui: ":12346"
 genesis:
   chain_id: "venus"
 init:
