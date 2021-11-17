@@ -95,7 +95,7 @@ Using brew to install Starport is supported only for macOS machines without the 
 brew install tendermint/tap/starport
 ```
 
-To install Starport on macOS machines with the M1 chip, use the curl command as described in [Installing Starport](#installing-starport). 
+To install Starport on macOS machines with the M1 chip, use the `curl` command as described in [Installing Starport](#installing-starport). 
 
 ## Build from source
 
