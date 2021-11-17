@@ -2,11 +2,14 @@ package plugin
 
 import (
 	"fmt"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/chainconfig"
 	"os"
 	"path/filepath"
+	"reflect"
 	"testing"
+
+	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/chainconfig"
 )
 
 func Test_IsExists(t *testing.T) {
@@ -127,4 +130,76 @@ func Test_IsInstalled(t *testing.T) {
 	fmt.Println(doesInstalledFalse)
 	require.Equal(t, false, doesInstalledFalse)
 
+}
+
+func Test_CheckMandatory(t *testing.T) {
+	tests := []struct {
+		Desc      string
+		Spec      *starportplugin
+		ExpectErr error
+	}{
+		{
+			Desc: "Required function is not exist",
+			Spec: &starportplugin{
+				name: "dummy",
+				funcSpecs: map[string]FuncSpec{
+					"Init": {
+						Name:       "Init",
+						ParamTypes: []reflect.Type{},
+					},
+				},
+			},
+			ExpectErr: ErrPluginWrongSpec,
+		},
+
+		{
+			Desc: "Required function has diff parameters",
+			Spec: &starportplugin{
+				name: "dummy",
+				funcSpecs: map[string]FuncSpec{
+					"Init": {
+						Name:       "Init",
+						ParamTypes: []reflect.Type{},
+					},
+
+					"Help": {
+						Name:       "Help",
+						ParamTypes: []reflect.Type{},
+					},
+				},
+			},
+			ExpectErr: ErrPluginWrongSpec,
+		},
+
+		{
+			Desc: "Success",
+			Spec: &starportplugin{
+				name: "dummy",
+				funcSpecs: map[string]FuncSpec{
+					"Init": {
+						Name:       "Init",
+						ParamTypes: []reflect.Type{},
+					},
+
+					"Help": {
+						Name:       "Help",
+						ParamTypes: []reflect.Type{reflect.TypeOf("")},
+					},
+				},
+			},
+			ExpectErr: nil,
+		},
+	}
+
+	for _, test := range tests {
+		// Prepare test
+		loader := configLoader{}
+		loader.pluginSpec = test.Spec
+
+		// Test
+		err := loader.checkMandatoryFunctions()
+
+		// Asserts
+		assert.Equal(t, test.ExpectErr, err)
+	}
 }

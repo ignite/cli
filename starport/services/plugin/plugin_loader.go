@@ -1,7 +1,6 @@
 package plugin
 
 import (
-	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -13,9 +12,11 @@ import (
 	"github.com/tendermint/starport/starport/chainconfig"
 )
 
-// Errors
 var (
-	ErrPluginWrongSpec = errors.New("plugin should follow basic specs")
+	mandatories = map[string][]reflect.Kind{
+		"Init": {},
+		"Help": {reflect.String},
+	}
 )
 
 // Loader provides managing features for plugin config.
@@ -136,29 +137,22 @@ func (l *configLoader) loadSymbol(symbolName string) (map[string]FuncSpec, error
 }
 
 func (l *configLoader) checkMandatoryFunctions() error {
-	mandatories := []string{
-		"Init",
-		"Help",
-	}
-
-	marks := map[string]bool{}
-
-	for _, v := range mandatories {
-		marks[v] = false
-	}
-
-	for k, v := range l.pluginSpec.funcSpecs {
-		marks[k] = true
-		_ = v
-	}
-
-	for _, v := range marks {
-		if !v {
+	for funcName, paramTypes := range mandatories {
+		loadSpec, ok := l.pluginSpec.funcSpecs[funcName]
+		if !ok {
 			return ErrPluginWrongSpec
 		}
-	}
 
-	// TODO: Check parameters.
+		if len(loadSpec.ParamTypes) != len(paramTypes) {
+			return ErrPluginWrongSpec
+		}
+
+		for i, t := range paramTypes {
+			if loadSpec.ParamTypes[i].Kind() != t {
+				return ErrPluginWrongSpec
+			}
+		}
+	}
 
 	return nil
 }

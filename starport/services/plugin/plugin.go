@@ -14,8 +14,9 @@ const (
 
 // Errors
 var (
-	ErrSymbolNotExist = errors.New("not exist symbol")
-	ErrNotInitilized  = errors.New("not initialized")
+	ErrSymbolNotExist  = errors.New("not exist symbol")
+	ErrNotInitilized   = errors.New("not initialized")
+	ErrPluginWrongSpec = errors.New("plugin should follow basic specs")
 )
 
 // StarportPlugin provides interfaces for starport plugin.
@@ -124,10 +125,15 @@ func convert(in string, expectType reflect.Type) (reflect.Value, error) {
 
 // List returns reflected function specs to call plugins.
 func (p *starportplugin) List() []FuncSpec {
-	specs := make([]FuncSpec, len(p.funcSpecs))
+	specs := make([]FuncSpec, len(p.funcSpecs)-len(mandatories))
 
 	i := 0
 	for _, v := range p.funcSpecs {
+		_, ok := mandatories[v.Name]
+		if ok {
+			continue
+		}
+
 		specs[i] = v
 		i++
 	}

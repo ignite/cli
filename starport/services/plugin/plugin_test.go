@@ -2,6 +2,9 @@ package plugin
 
 import (
 	"log"
+	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func init() {
@@ -17,6 +20,36 @@ func init() {
 	// }
 
 	// _ = exec.Command("popd").Run()
+}
+
+func Test_ListOmitMandatoryFunc(t *testing.T) {
+	// Mandatory functions should not be included on List() result.
+
+	plugin := &starportplugin{
+		name: "dummy",
+		funcSpecs: map[string]FuncSpec{
+			"Testfunc": {Name: "Testfunc"},
+		},
+	}
+
+	for fName := range mandatories {
+		plugin.funcSpecs[fName] = FuncSpec{Name: fName}
+	}
+
+	// Test
+	specs := plugin.List()
+
+	// Asserts
+	functions := []string{}
+	for _, spec := range specs {
+		functions = append(functions, spec.Name)
+	}
+
+	assert.Contains(t, functions, "Testfunc")
+
+	for fName := range mandatories {
+		assert.NotContains(t, functions, fName)
+	}
 }
 
 /*

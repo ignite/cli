@@ -56,9 +56,7 @@ func GetConfig() (chainconfig.Config, error) {
 
 func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
 	log.Println("Handle plugin Install", args)
-
 	var conf, _ = GetConfig()
-
 	if len(conf.Plugins) == 0 {
 		fmt.Println("There's no plugins to be implemented.")
 		return nil
@@ -69,7 +67,6 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 		return err
 	}
 	var pluginIdx = -1
-
 	// TODO: jkkim: Search plugin with name from []PluginConfig.
 	// How to set a selected Plugins? always first plugin? or need to find by its name?
 
@@ -104,7 +101,6 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 	if err != nil {
 		return err
 	}
-
 	return nil
 }
 

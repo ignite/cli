@@ -64,6 +64,10 @@ CRUD stands for "create, read, update, delete".`,
 		c.AddCommand(cmd)
 	}
 
+	// TODO: Add running command for plugin.
+
+	// TODO: Add running command for plugin.
+
 	return c
 }
 
