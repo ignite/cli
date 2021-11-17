@@ -230,7 +230,7 @@ After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/h
 }
 ```
 
-The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command `x/hello/client/cli/query_posts.go` . Run the following command and get the same JSON response:
+The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
 ```go
 hellod q hello posts
