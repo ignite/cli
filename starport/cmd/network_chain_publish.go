@@ -76,6 +76,10 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	if genesisURL != "" {
+		initOptions = append(initOptions, network.InitializationGenesisURL(genesisURL))
+	}
+
 	// init the chain.
 	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
 	if err != nil {
@@ -84,9 +88,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	var createOptions []network.CreateOption
 
-	if genesisURL != "" {
-		createOptions = append(createOptions, network.WithCustomGenesisFromURL(genesisURL))
-	}
 	if campaign != 0 {
 		createOptions = append(createOptions, network.WithCampaign(campaign))
 	}
@@ -119,6 +120,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 				return nil
 			}
 			s.Start()
+		}
+
+		// initialize the chain for checking
+		if err := blockchain.Init(cmd.Context()); err != nil {
+			return nil
 		}
 	}
 

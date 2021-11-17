@@ -93,13 +93,6 @@ type createOptions struct {
 // CreateOption configures chain creation.
 type CreateOption func(*createOptions)
 
-// WithCustomGenesisFromURL creates the chain with a custom one living at u.
-func WithCustomGenesisFromURL(u string) CreateOption {
-	return func(o *createOptions) {
-		o.genesisURL = u
-	}
-}
-
 func WithCampaign(id uint64) CreateOption {
 	return func(o *createOptions) {
 		o.campaignID = id
@@ -120,18 +113,12 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 		apply(&o)
 	}
 
-	var genesisHash string
-
 	// if check must be performed, we initialize the chain to check the initial genesis
 	if !o.noCheck {
-		b.genesisURL = o.genesisURL
-		if err := b.Init(ctx); err != nil {
-			return 0, 0, err
-		}
-		genesisHash = b.genesisHash
-	} else if b.genesisURL != "" {
+
+	} else if o.genesisURL != "" {
 		// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
-		_, genesisHash, err = genesisAndHashFromURL(ctx, o.genesisURL)
+		_, b.genesisHash, err = genesisAndHashFromURL(ctx, b.genesisURL)
 		if err != nil {
 			return 0, 0, err
 		}
@@ -199,8 +186,8 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 		chainID,
 		b.url,
 		b.hash,
-		o.genesisURL,
-		genesisHash,
+		b.genesisURL,
+		b.genesisHash,
 		true,
 		campaignID,
 	)

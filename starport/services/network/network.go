@@ -55,6 +55,7 @@ type initOptions struct {
 	mustNotInitializedBefore bool
 	homePath                 string
 	keyringBackend           chaincmd.KeyringBackend
+	genesisURL               string
 }
 
 // SourceOption sets the source for blockchain.
@@ -123,6 +124,13 @@ func InitializationKeyringBackend(keyringBackend chaincmd.KeyringBackend) InitOp
 	}
 }
 
+// InitializationGenesisURL provides a genesis url for the initial genesis of the chain blockchain
+func InitializationGenesisURL(genesisURL string) InitOption {
+	return func(o *initOptions) {
+		o.genesisURL = genesisURL
+	}
+}
+
 // AccountRegistry returns the account registry used by the network builder
 func (b Builder) AccountRegistry() cosmosaccount.Registry {
 	return b.cosmos.AccountRegistry
@@ -137,13 +145,13 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	source(&o)
 
 	var (
-		chainID     string
-		genesisURL  string
-		genesisHash string
+		genesisURL  = o.genesisURL
 		home        = o.homePath
 		url         = o.url
 		ref         = o.ref
 		hash        = o.hash
+		chainID     string
+		genesisHash string
 	)
 
 	// if a launch id is provided, chain information are fetched from Starport Network
