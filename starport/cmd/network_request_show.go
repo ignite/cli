@@ -4,9 +4,9 @@ import (
 	"fmt"
 	"strconv"
 
-	"github.com/goccy/go-yaml"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/yaml"
 )
 
 // NewNetworkRequestShow creates a new request show command to show
@@ -53,13 +53,11 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// convert the request object to yaml
-	proposalyaml, err := yaml.Marshal(request)
-	if err != nil {
-		return err
-	}
+
+	requestYaml, err := yaml.Parse(cmd.Context(), request)
 
 	s.Stop()
-	fmt.Println(string(proposalyaml))
+	fmt.Println(requestYaml)
 
 	return nil
 }
