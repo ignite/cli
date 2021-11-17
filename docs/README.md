@@ -33,7 +33,7 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 * [crypto.org chain](https://github.com/crypto-org-chain/chain-main) ([initialized with Starport](https://github.com/crypto-org-chain/chain-main/commit/37b2ecb49a9aae7c581270a4f2dbecfcd8e8a6e9))
 * [Cronos](https://github.com/crypto-org-chain/cronos)
 * [Plugchain](https://github.com/oracleNetworkProtocol/plugchain)
-* [BitCanna](https://github.com/BitCannaGlobal/testnet-bcna-cosmos)
+* [BitCanna](https://github.com/BitCannaGlobal/bcna)
 * [Panacea Core](https://github.com/medibloc/panacea-core)
 * [Rook](https://github.com/cmwaters/rook)
 * [PI Bridge](https://github.com/pchain-org/pi-bridge)
