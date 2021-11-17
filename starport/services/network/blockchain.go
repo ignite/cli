@@ -85,7 +85,6 @@ func (b *Blockchain) IsHomeDirExist() (ok bool, err error) {
 
 // createOptions holds info about how to create a chain.
 type createOptions struct {
-	genesisURL string
 	campaignID uint64
 	noCheck    bool
 }
@@ -113,11 +112,8 @@ func (b *Blockchain) Publish(ctx context.Context, options ...CreateOption) (laun
 		apply(&o)
 	}
 
-	// if check must be performed, we initialize the chain to check the initial genesis
-	if !o.noCheck {
-
-	} else if o.genesisURL != "" {
-		// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
+	// if the initial genesis is a genesis URL and no check are performed, we simply fetch it and get its hash
+	if o.noCheck && b.genesisURL != "" {
 		_, b.genesisHash, err = genesisAndHashFromURL(ctx, b.genesisURL)
 		if err != nil {
 			return 0, 0, err
