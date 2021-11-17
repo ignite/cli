@@ -22,7 +22,7 @@ To use the exchange, start by creating an order book for a pair of tokens:
 interchanged tx dex send-create-pair [src-port] [src-channel] [sourceDenom] [targetDenom]
 # Create pair broadcasted to the source blockchain
 
-interchanged tx dex send-create-pair dex channel-0 mcx vcx
+interchanged tx dex send-create-pair dex channel-0 marscoin venuscoin
 ```
 
 Define a pair of token with two denominations: 
