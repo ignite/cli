@@ -1,7 +1,7 @@
 package plugins
 
 type Hook interface {
-	ParentCommand() string
+	ParentCommand() []string
 	Name() string
 	Usage() string
 	ShortDesc() string

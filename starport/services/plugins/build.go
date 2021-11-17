@@ -1,13 +1,23 @@
 package plugins
 
-func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
-	outputDir := path.Join(dst, "output")
+import (
+	"context"
+	"path"
+	"strings"
 
+	chaincfg "github.com/tendermint/starport/starport/chainconfig"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
+)
+
+func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 	// Get plugin home
 	dst, err := formatPluginHome(m.ChainId, "")
 	if err != nil {
 		return err
 	}
+
+	outputDir := path.Join(dst, "output")
 
 	// Enter plugins directory, go get .
 	// Somehow have to account for remote dependencies in individual plugins

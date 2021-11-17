@@ -1,5 +1,12 @@
 package plugins
 
+import (
+	"context"
+
+	gogetter "github.com/hashicorp/go-getter"
+	chaincfg "github.com/tendermint/starport/starport/chainconfig"
+)
+
 // MUST BE RAN BEFORE BUILD
 func (m *Manager) pull(ctx context.Context, cfg chaincfg.Config) error {
 	for _, plug := range cfg.Plugins {

@@ -1,19 +1,30 @@
 package plugins
 
+import (
+	"io/ioutil"
+	"os"
+	"path"
+	"regexp"
+	"strings"
+
+	"github.com/spf13/cobra"
+	chaincfg "github.com/tendermint/starport/starport/chainconfig"
+)
+
 func validateParentCommand(parentCommand *cobra.Command, subCommand []string) error {
 	innerCommand, _, err := parentCommand.Find(subCommand)
 	if err != nil {
 		return err
 	}
 
-	if !innerCommand {
-		return ErrCommandNotFound
+	if innerCommand != nil {
+		return nil
 	}
 
-	return nil
+	return ErrCommandNotFound
 }
 
-func getPluginId(plug Plugin) string {
+func getPluginId(plug chaincfg.Plugin) string {
 	var plugId string
 	if plug.Name != "" {
 		plugId = plug.Name

@@ -1,12 +1,21 @@
 package plugins
 
-func (m *Manager) extractPlugins(ctx context.Context, cfg chaincfg.Config) error {
-	cmdPlugins, err := extractCommandPlugins(ctx, m.ChainId, cfg)
+import (
+	"context"
+	"path"
+	"plugin"
+
+	"github.com/spf13/cobra"
+	chaincfg "github.com/tendermint/starport/starport/chainconfig"
+)
+
+func (m *Manager) extractPlugins(ctx context.Context, parentCommand *cobra.Command, cfg chaincfg.Config) error {
+	cmdPlugins, err := extractCommandPlugins(ctx, m.ChainId, parentCommand, cfg)
 	if err != nil {
 		return err
 	}
 
-	hookPlugins, err := extractHookPlugins(ctx, m.ChainId, cfg)
+	hookPlugins, err := extractHookPlugins(ctx, m.ChainId, parentCommand, cfg)
 	if err != nil {
 		return err
 	}
@@ -16,7 +25,12 @@ func (m *Manager) extractPlugins(ctx context.Context, cfg chaincfg.Config) error
 	return nil
 }
 
-func extractCommandPlugins(ctx context.Context, chainId string, cfg chaincfg.Config) ([]CmdPlugin, error) {
+func extractCommandPlugins(
+	ctx context.Context,
+	chainId string,
+	parentCommand *cobra.Command,
+	cfg chaincfg.Config,
+) ([]CmdPlugin, error) {
 	pluginsDir, err := formatPluginHome(chainId, "")
 	if err != nil {
 		return nil, err
@@ -50,8 +64,10 @@ func extractCommandPlugins(ctx context.Context, chainId string, cfg chaincfg.Con
 			return nil, err
 		}
 
-		if err := validateParentCommand(cmdPlugin.ParentCommand()); err != nil {
-			return nil, err
+		for _, command := range cmdPlugin.Registry() {
+			if err := validateParentCommand(parentCommand, command.ParentCommand()); err != nil {
+				return nil, err
+			}
 		}
 
 		cmdPlugins = append(cmdPlugins, cmdPlugin)
@@ -60,7 +76,12 @@ func extractCommandPlugins(ctx context.Context, chainId string, cfg chaincfg.Con
 	return cmdPlugins, nil
 }
 
-func extractHookPlugins(ctx context.Context, chainId string, cfg chaincfg.Config) ([]HookPlugin, error) {
+func extractHookPlugins(
+	ctx context.Context,
+	chainId string,
+	parentCommand *cobra.Command,
+	cfg chaincfg.Config,
+) ([]HookPlugin, error) {
 	pluginsDir, err := formatPluginHome(chainId, "")
 	if err != nil {
 		return nil, err
@@ -88,10 +109,12 @@ func extractHookPlugins(ctx context.Context, chainId string, cfg chaincfg.Config
 		hookPlugin, ok := symCmdPlugin.(HookPlugin)
 		if !ok {
 			return nil, ErrCommandPluginNotRecognized
-		}		
+		}
 
-		if err := validateParentCommand(cmdPlugin.ParentCommand()); err != nil {
-			return nil, err
+		for _, command := range hookPlugin.Registry() {
+			if err := validateParentCommand(parentCommand, command.ParentCommand()); err != nil {
+				return nil, err
+			}
 		}
 
 		hookPlugins = append(hookPlugins, hookPlugin)

@@ -2,17 +2,10 @@ package plugins
 
 import (
 	"context"
-	"io/ioutil"
-	"os"
-	"path"
-	"plugin"
-	"regexp"
-	"strings"
+	"reflect"
 
-	gogetter "github.com/hashicorp/go-getter"
+	"github.com/spf13/cobra"
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
-	gocmd "github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
 // NOTE: Go plugins were added in 1.8, so using them is questionable
@@ -38,11 +31,15 @@ func NewManager(chainId string) Manager {
 // - Building
 // - Cache .so files
 // - Execution and Injection
-func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config) error {
+func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config, rootCommand *cobra.Command) error {
 	// Check for change in config contents since last
 	// Don't check for remote package changes, as theoretically we want it
 	// to be up to the user to reload the plugins.
-	configChanged := pluginsChanged(cfg, m.ChainId)
+	configChanged, err := pluginsChanged(cfg, m.ChainId)
+	if err != nil {
+		return err
+	}
+
 	if configChanged {
 		return nil
 	}
@@ -57,12 +54,12 @@ func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config) error {
 	}
 
 	// Extraction
-	if err := m.extractPlugins(); err != nil {
+	if err := m.extractPlugins(ctx, rootCommand, cfg); err != nil {
 		return err
 	}
 
 	// Injection
-	if err := m.inject(); err != nil {
+	if err := m.inject(ctx, rootCommand); err != nil {
 		return err
 	}
 
@@ -72,29 +69,29 @@ func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config) error {
 // Check if plugin-specified configuration is different from downloaded plugins
 // For now, ONLY CHECKS DIRECTORY NAMES
 // This is not adequate, because one could delete files from directories
-func pluginsChanged(cfg chaincfg.Config, chainId string) bool {
+func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
 	var configChanged bool
 	var configPluginNames []string
 	var fileConfigNames []string
 
-	for _, plug := cfg.Plugins {
+	for _, plug := range cfg.Plugins {
 		plugId := getPluginId(plug)
 		configPluginNames = append(configPluginNames, plugId)
 	}
 
 	dst, err := formatPluginHome(chainId, "")
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	pluginDirs, err := listDirs(dst)
 	if err != nil {
-		return err
+		return false, err
 	}
 
 	for _, plugDir := range pluginDirs {
 		fileConfigNames = append(fileConfigNames, plugDir.Name())
 	}
 
-	return !(configPluginNames == fileConfigNames)
+	return !reflect.DeepEqual(configPluginNames, fileConfigNames), nil
 }

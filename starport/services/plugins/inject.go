@@ -1,17 +1,27 @@
 package plugins
 
-func (m *Manager) inject(command *cobra.Command) error {
+import (
+	"context"
+
+	"github.com/spf13/cobra"
+)
+
+func (m *Manager) inject(ctx context.Context, command *cobra.Command) error {
 	for _, cmdPlugin := range m.cmdPlugins {
-		c := &cobra.Command{
-			Use:   cmdPlugin.Usage(),
-			Short: cmdPlugin.ShortDesc(),
-			Long:  cmdPlugin.LongDesc(),
-			Args: cobra.ExactArgs(hookPlugin.ExactArgs())
+		for _, command := range cmdPlugin.Registry() {
+			c := &cobra.Command{
+				Use:   command.Usage(),
+				Short: command.ShortDesc(),
+				Long:  command.LongDesc(),
+				Args:  cobra.ExactArgs(command.NumArgs()),
+			}
 		}
 	}
 
 	for _, hookPlugin := range m.hookPlugins {
-		
+		for _, hook := range hookPlugin.Registry() {
+
+		}
 	}
 
 	return nil

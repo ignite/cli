@@ -1,6 +1,8 @@
 package plugins
 
-import "context"
+import (
+	"github.com/spf13/cobra"
+)
 
 type Command interface {
 	ParentCommand() []string
