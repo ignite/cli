@@ -20,7 +20,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -140,15 +139,6 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 	}
 
 	return chain.New(absPath, chainOption...)
-}
-
-func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
-	// Check if custom home is provided
-	if home := getHomeFlag(cmd); home != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
-	}
-
-	return initOptions
 }
 
 var (

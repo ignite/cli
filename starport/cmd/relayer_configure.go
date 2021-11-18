@@ -85,7 +85,9 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
 		err = handleRelayerAccountErr(err)
 	}()
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}
@@ -480,4 +482,8 @@ func initChain(
 	fmt.Printf(" |· (balance: %s)\n\n", balance)
 
 	return c, nil
+}
+
+func printSection(title string) {
+	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
 }
