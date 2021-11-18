@@ -60,8 +60,8 @@ func getChainGenesis(home string) (gentx.ChainGenesis, bool, error) {
 	return net, true, nil
 }
 
-// CheckGenesisAddress returns true if the address exist into the genesis file
-func CheckGenesisAddress(home, addr string) (bool, error) {
+// CheckGenesisContainsAddress returns true if the address exist into the genesis file
+func CheckGenesisContainsAddress(home, addr string) (bool, error) {
 	genesis, exist, err := getChainGenesis(home)
 	if err != nil {
 		return false, err

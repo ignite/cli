@@ -24,7 +24,7 @@ const (
 func NewNetworkChainJoin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "join [launch-id] [amount]",
-		Short: "SendValidatorRequestMsg to a network as a validator by launch id",
+		Short: "Request to join a network as a validator",
 		Args:  cobra.ExactArgs(2),
 		RunE:  networkChainJoinHandler,
 	}

@@ -71,7 +71,7 @@ func (b *Builder) SendValidatorRequestMsg(
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
-	b.ev.Send(events.New(events.StatusDone, "SendValidatorRequestMsg transaction sent"))
+	b.ev.Send(events.New(events.StatusDone, "MsgRequestAddValidator transaction sent"))
 
 	if requestRes.AutoApproved {
 		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!\n"))
@@ -104,12 +104,12 @@ func (b *Builder) SendAccountRequestMsg(
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	accExist := false
 	if !isCustomGentx {
-		accExist, err = CheckGenesisAddress(chainHome, spnAddress)
+		accExist, err = CheckGenesisContainsAddress(chainHome, spnAddress)
 		if err != nil {
 			return err
 		}
 	}
-	// check if account exist into the SPN store
+	// check if account exists as a genesis account in SPN chain launch information
 	if !accExist {
 		accExist = b.hasAccount(ctx, launchID, spnAddress)
 	}
