@@ -15,8 +15,8 @@ import (
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -107,6 +107,12 @@ func flagGetPath(cmd *cobra.Command) (path string) {
 func flagSetHome() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagHome, "", "Home directory used for blockchains")
+	return fs
+}
+
+func flagNetworkFrom() *flag.FlagSet {
+	fs := flag.NewFlagSet("", flag.ContinueOnError)
+	fs.String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 	return fs
 }
 
