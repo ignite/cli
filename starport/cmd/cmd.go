@@ -13,9 +13,7 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/internal/version"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -75,18 +73,6 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 		return chain.LogVerbose
 	}
 	return chain.LogRegular
-}
-
-func printEvents(bus events.Bus, s *clispinner.Spinner) {
-	for event := range bus {
-		if event.IsOngoing() {
-			s.SetText(event.Text())
-			s.Start()
-		} else {
-			s.Stop()
-			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
-		}
-	}
 }
 
 func flagSetPath(cmd *cobra.Command) {

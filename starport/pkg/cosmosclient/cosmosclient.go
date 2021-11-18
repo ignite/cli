@@ -138,9 +138,10 @@ func WithUseFaucet(faucetAddress, denom string, minAmount int64) Option {
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
-		nodeAddress:   defaultNodeAddress,
-		addressPrefix: "cosmos",
-		out:           io.Discard,
+		nodeAddress:    defaultNodeAddress,
+		keyringBackend: cosmosaccount.KeyringTest,
+		addressPrefix:  "cosmos",
+		out:            io.Discard,
 	}
 
 	var err error
@@ -171,6 +172,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.AccountRegistry, err = cosmosaccount.New(
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
+		cosmosaccount.WithHome(c.homePath),
 	)
 	if err != nil {
 		return Client{}, err
