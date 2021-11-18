@@ -2,11 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
+	"sync"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -67,6 +70,35 @@ func NewNetwork() *cobra.Command {
 
 var cosmos *cosmosclient.Client
 
+// initializeNetwork initializes event bus, CLIn components such as spinner and returns a new network builder
+func initializeNetwork(cmd *cobra.Command) (
+	nb *network.Builder,
+	spinner *clispinner.Spinner,
+	cleanup func(),
+	err error,
+) {
+	var (
+		wg sync.WaitGroup
+		s  = clispinner.New()
+		ev = events.NewBus()
+	)
+	wg.Add(1)
+	go printEvents(&wg, ev, s)
+
+	shutdown := func() {
+		s.Stop()
+		ev.Shutdown()
+		wg.Wait()
+	}
+
+	nb, err = newNetwork(cmd, network.CollectEvents(ev))
+	if err != nil {
+		shutdown()
+	}
+	return nb, s, shutdown, err
+}
+
+// newNetwork returns a new network builder initialized with command flag
 func newNetwork(cmd *cobra.Command, options ...network.Option) (*network.Builder, error) {
 	// check preconfigured networks
 	if nightly && local {
