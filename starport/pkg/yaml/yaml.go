@@ -22,48 +22,6 @@ const (
 	mutableConsPubKeyPath = "$.content.content.genesisValidator.consPubKey"
 )
 
-func Parse(ctx context.Context, obj interface{}) (string, error) {
-	yml, err := yaml.MarshalContext(ctx, obj)
-	if err != nil {
-		return "", err
-	}
-	file, err := parser.ParseBytes(yml, 0)
-	if err != nil {
-		return "", err
-	}
-
-	file, err = normalizeByteSlice(file, string(yml), mutableGentxPath)
-	if err != nil {
-		return "", err
-	}
-
-	file, err = normalizeByteSlice(file, string(yml), mutableConsPubKeyPath)
-	if err != nil {
-		return "", err
-	}
-
-	return file.String(), nil
-	//for _, path := range mutablePaths {
-	//	yml, err = normalizeByteSlice(file, string(yml), path)
-	//	if err != nil {
-	//		return nil, err
-	//	}
-	//}
-}
-
-func normalizeByteSlice(file *ast.File, yml, yamlPath string) (*ast.File, error) {
-	path, err := yaml.PathString(yamlPath)
-	if err != nil {
-		return file, err
-	}
-	var obj []byte
-	err = path.Read(strings.NewReader(yml), &obj)
-	if !errors.Is(err, yaml.ErrNotFoundNode) {
-		return file, err
-	}
-	return file, path.ReplaceWithReader(file, strings.NewReader(string(obj)))
-}
-
 func ParseNormalized(ctx context.Context, obj interface{}) (string, error) {
 	requestYaml, err := yaml.MarshalContext(ctx, obj)
 	if err != nil {
@@ -73,6 +31,7 @@ func ParseNormalized(ctx context.Context, obj interface{}) (string, error) {
 	if err != nil {
 		return "", err
 	}
+
 	pathGentx, err := yaml.PathString(mutableGentxPath)
 	if err != nil {
 		return "", err
@@ -100,4 +59,53 @@ func ParseNormalized(ctx context.Context, obj interface{}) (string, error) {
 		return "", err
 	}
 	return file.String(), nil
+}
+
+func Parse(ctx context.Context, obj interface{}) (string, error) {
+	yml, err := yaml.MarshalContext(ctx, obj)
+	if err != nil {
+		return "", err
+	}
+	file, err := parser.ParseBytes(yml, 0)
+	if err != nil {
+		return "", err
+	}
+
+	err = normalizeByteSlice(file, yml, mutableGentxPath)
+	if err != nil {
+		return "", err
+	}
+
+	err = normalizeByteSlice(file, yml, mutableConsPubKeyPath)
+	if err != nil {
+		return "", err
+	}
+
+	return file.String(), nil
+}
+
+func normalizeByteSlice(file *ast.File, yml []byte, yamlPath string) error {
+	path, err := yaml.PathString(yamlPath)
+	if err != nil {
+		return err
+	}
+	var obj []byte
+	err = path.Read(strings.NewReader(string(yml)), &obj)
+	if !errors.Is(err, yaml.ErrNotFoundNode) {
+		return err
+	}
+	return path.ReplaceWithReader(file, strings.NewReader(string(obj)))
+}
+
+func normalizeByteSlice2(file *ast.File, yml []byte, yamlPath string) (*ast.File, []byte, error) {
+	path, err := yaml.PathString(yamlPath)
+	if err != nil {
+		return file, yml, err
+	}
+	var obj []byte
+	err = path.Read(strings.NewReader(string(yml)), &obj)
+	if !errors.Is(err, yaml.ErrNotFoundNode) {
+		return file, yml, err
+	}
+	return file, yml, path.ReplaceWithReader(file, strings.NewReader(string(obj)))
 }
