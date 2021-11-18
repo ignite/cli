@@ -110,10 +110,7 @@ func (b *Builder) SendAccountRequestMsg(
 		}
 	}
 	// check if account exists as a genesis account in SPN chain launch information
-	if !accExist {
-		accExist = b.hasAccount(ctx, launchID, spnAddress)
-	}
-	if !accExist {
+	if !accExist && !b.hasAccount(ctx, launchID, spnAddress) {
 		msg := launchtypes.NewMsgRequestAddAccount(
 			spnAddress,
 			launchID,

@@ -30,7 +30,6 @@ func NewNetworkChainJoin() *cobra.Command {
 	}
 	c.Flags().String(flagGentx, "", "Path to a gentx json file")
 	c.Flags().AddFlagSet(flagNetworkFrom())
-	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
@@ -58,13 +57,10 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error parsing amount")
 	}
 
-	// parse the home path
-	home := getHome(cmd)
-	if home == "" {
-		home, err = network.ChainHome(launchID)
-		if err != nil {
-			return err
-		}
+	// get the chain home path
+	home, err := network.ChainHome(launchID)
+	if err != nil {
+		return err
 	}
 
 	// parse the gentx and check if it exists
