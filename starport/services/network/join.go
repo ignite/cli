@@ -70,7 +70,7 @@ func (b *Builder) SendAccountRequestMsg(
 			return err
 		}
 
-		var requestRes launchtypes.MsgRequestResponse
+		var requestRes launchtypes.MsgRequestAddAccountResponse
 		if err := res.Decode(&requestRes); err != nil {
 			return err
 		}
@@ -126,7 +126,7 @@ func (b *Builder) SendValidatorRequestMsg(
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestResponse
+	var requestRes launchtypes.MsgRequestAddValidatorResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
