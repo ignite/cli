@@ -23,15 +23,17 @@ cd interchange
 ```
 
 This directory contains a working blockchain app.
+A local GitHub repository has been created for you with the initial scaffold.
+
 Next, create a new IBC module.
 
-## Create the ibcdex Module
+## Create the dex Module
 
-Scaffold a module inside your blockchain named `ibcdex` with IBC capabilities.
-The ibcdex module contains the logic to create and maintain order books and route them through IBC to the second blockchain.
+Scaffold a module inside your blockchain named `dex` with IBC capabilities.
+The dex module contains the logic to create and maintain order books and route them through IBC to the second blockchain.
 
 ```bash
-starport scaffold module ibcdex --ibc --ordering unordered --dep bank
+starport scaffold module dex --ibc --ordering unordered --dep bank
 ```
 
 ## Create CRUD logic for Buy and Sell Order Books
@@ -40,8 +42,8 @@ To scaffold two types with create, read, update and delete (CRUD) actions use th
 The following commands create `sellOrderBook` and `buyOrderBook` types.
 
 ```bash
-starport scaffold map sell-order-book amountDenom priceDenom --no-message --module ibcdex
-starport scaffold map buy-order-book amountDenom priceDenom --no-message --module ibcdex
+starport scaffold map sell-order-book amountDenom priceDenom --no-message --module dex
+starport scaffold map buy-order-book amountDenom priceDenom --no-message --module dex
 ```
 
 The values are:
@@ -51,7 +53,7 @@ The values are:
 
 The flag `--indexed` flag creates an "indexed type". Without this flag, a type is implemented like a list with new items appended. Indexed types act like key-value stores.
 
-The `--module ibcdex` flag specifies that the type should be scaffolded in the `ibcdex` module.
+The `--module dex` flag specifies that the type should be scaffolded in the `dex` module.
 
 ## Create the IBC Packets
 
@@ -62,9 +64,9 @@ Create three packets for IBC:
 - a buy order `buyOrder`
 
 ```bash
-starport scaffold packet create-pair sourceDenom targetDenom --module ibcdex
-starport scaffold packet sell-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module ibcdex
-starport scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module ibcdex
+starport scaffold packet create-pair sourceDenom targetDenom --module dex
+starport scaffold packet sell-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,gain:int --module dex
+starport scaffold packet buy-order amountDenom amount:int priceDenom price:int --ack remainingAmount:int,purchase:int --module dex
 ```
 
 The optional `--ack` flag defines field names and types of the acknowledgment returned after the packet has been received by the target chain. Value of `--ack` is a comma-separated (no spaces) list of names with optional types appended after a colon.
@@ -75,8 +77,8 @@ Cancelling orders is done locally in the network, there is no packet to send.
 Use the `message` command to create a message to cancel a sell or buy order.
 
 ```go
-starport scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module ibcdex
-starport scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module ibcdex
+starport scaffold message cancel-sell-order port channel amountDenom priceDenom orderID:int --desc "Cancel a sell order" --module dex
+starport scaffold message cancel-buy-order port channel amountDenom priceDenom orderID:int --desc "Cancel a buy order" --module dex
 ```
 
 The optional `--desc` flag lets you define a description of the CLI command that is used to broadcast a transaction with the message.
@@ -93,10 +95,10 @@ The token denoms must have the same behavior as described in the `ibc-transfer` 
 For a `voucher` you store: the source port ID, source channel ID, and the original denom.
 
 ```go
-starport scaffold map denom-trace port channel origin --no-message --module ibcdex
+starport scaffold map denom-trace port channel origin --no-message --module dex
 ```
 
-## Create the Configuration for two Blockchains
+## Create the Configuration for Two Blockchains
 
 Add two config files `mars.yml` and `venus.yml` to test two blockchain networks with specific token for each.
 Add the config files in the `interchange` folder.
@@ -145,12 +147,20 @@ host:
   prof: ":6061"
   grpc: ":9091"
   api: ":1318"
-  frontend: ":8081"
-  dev-ui: ":12346"
 genesis:
   chain_id: "venus"
 init:
   home: "$HOME/.venus"
+```
+
+On the `venus.yml` file, you can see the specific `host` parameter that you can use to change the ports for various running services (rpc, p2p, prof, grpc, grpc-web, api, frontend, and dev-ui). You can use the `host` parameter so you can run two blockchains in parallel and prevent conflict over using the same ports. 
+You can also use the `host` parameter to use specific ports for any of the services.
+
+After scaffolding, now is a good time to make a commit to the local GitHub repository that was created for you.
+
+```bash
+git add .
+git commit -m "Scaffold module, maps, packages and messages for the dex"
 ```
 
 Implement the code for the order book in the next chapter.

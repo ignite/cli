@@ -5,6 +5,8 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const TypeMsgSend<%= packetName.UpperCamel %> = "send_<%= packetName.Snake %>"
+
 var _ sdk.Msg = &MsgSend<%= packetName.UpperCamel %>{}
 
 func NewMsgSend<%= packetName.UpperCamel %>(
@@ -12,7 +14,7 @@ func NewMsgSend<%= packetName.UpperCamel %>(
     port string,
     channelID string,
     timeoutTimestamp uint64,<%= for (field) in fields { %>
-    <%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,<% } %>
+    <%= field.Name.LowerCamel %> <%= field.DataType() %>,<% } %>
 ) *MsgSend<%= packetName.UpperCamel %> {
     return &MsgSend<%= packetName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
@@ -28,7 +30,7 @@ func (msg *MsgSend<%= packetName.UpperCamel %>) Route() string {
 }
 
 func (msg *MsgSend<%= packetName.UpperCamel %>) Type() string {
-    return "Send<%= packetName.UpperCamel %>"
+    return TypeMsgSend<%= packetName.UpperCamel %>
 }
 
 func (msg *MsgSend<%= packetName.UpperCamel %>) GetSigners() []sdk.AccAddress {

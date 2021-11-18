@@ -5,9 +5,11 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const TypeMsg<%= MsgName.UpperCamel %> = "<%= MsgName.Snake %>"
+
 var _ sdk.Msg = &Msg<%= MsgName.UpperCamel %>{}
 
-func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.GetDatatype() %><% } %>) *Msg<%= MsgName.UpperCamel %> {
+func NewMsg<%= MsgName.UpperCamel %>(<%= MsgSigner.LowerCamel %> string<%= for (field) in Fields { %>, <%= field.Name.LowerCamel %> <%= field.DataType() %><% } %>) *Msg<%= MsgName.UpperCamel %> {
   return &Msg<%= MsgName.UpperCamel %>{
 		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,<%= for (field) in Fields { %>
     <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
@@ -19,7 +21,7 @@ func (msg *Msg<%= MsgName.UpperCamel %>) Route() string {
 }
 
 func (msg *Msg<%= MsgName.UpperCamel %>) Type() string {
-  return "<%= MsgName.UpperCamel %>"
+  return TypeMsg<%= MsgName.UpperCamel %>
 }
 
 func (msg *Msg<%= MsgName.UpperCamel %>) GetSigners() []sdk.AccAddress {

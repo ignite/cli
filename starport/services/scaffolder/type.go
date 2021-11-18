@@ -6,10 +6,11 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 	"github.com/tendermint/starport/starport/templates/typed"
 	"github.com/tendermint/starport/starport/templates/typed/dry"
@@ -134,11 +135,16 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	signer := ""
+	if !o.withoutMessage {
+		signer = o.signer
+	}
+
 	// Check and parse provided fields
 	if err := checkCustomTypes(ctx, s.path, moduleName, o.fields); err != nil {
 		return sm, err
 	}
-	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField)
+	tFields, err := field.ParseFields(o.fields, checkForbiddenTypeField, signer)
 	if err != nil {
 		return sm, err
 	}
@@ -197,8 +203,17 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	gens, err = supportSimulation(
+		gens,
+		opts.AppPath,
+		opts.ModulePath,
+		opts.ModuleName,
+	)
+	if err != nil {
+		return sm, err
+	}
+
 	// create the type generator depending on the model
-	// TODO: rename the template packages to make it consistent with the type new naming
 	switch {
 	case o.isList:
 		g, err = list.NewStargate(tracer, opts)
@@ -225,11 +240,11 @@ func (s Scaffolder) AddType(
 
 // checkForbiddenTypeIndex returns true if the name is forbidden as a field name
 func checkForbiddenTypeIndex(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
+	fieldSplit := strings.Split(name, datatype.Separator)
 	if len(fieldSplit) > 1 {
 		name = fieldSplit[0]
-		fieldType := fieldSplit[1]
-		if _, ok := field.StaticDataTypes[fieldType]; !ok {
+		fieldType := datatype.Name(fieldSplit[1])
+		if f, ok := datatype.SupportedTypes[fieldType]; !ok || f.NonIndex {
 			return fmt.Errorf("invalid index type %s", fieldType)
 		}
 	}
@@ -238,11 +253,6 @@ func checkForbiddenTypeIndex(name string) error {
 
 // checkForbiddenTypeField returns true if the name is forbidden as a field name
 func checkForbiddenTypeField(name string) error {
-	fieldSplit := strings.Split(name, typeSeparator)
-	if len(fieldSplit) > 1 {
-		name = fieldSplit[0]
-	}
-
 	mfName, err := multiformatname.NewName(name)
 	if err != nil {
 		return err
@@ -251,8 +261,9 @@ func checkForbiddenTypeField(name string) error {
 	switch mfName.LowerCase {
 	case
 		"id",
+		"params",
 		"appendedvalue",
-		"creator":
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by type scaffolder", name)
 	}
 

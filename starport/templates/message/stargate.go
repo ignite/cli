@@ -20,6 +20,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(protoTxMessageModify(replacer, opts))
 	g.RunFn(typesCodecModify(replacer, opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
+	g.RunFn(moduleSimulationModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
 		fsStargate,
@@ -83,11 +84,11 @@ func protoTxMessageModify(replacer placeholder.Replacer, opts *Options) genny.Ru
 
 		var msgFields string
 		for i, field := range opts.Fields {
-			msgFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
+			msgFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+2))
 		}
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+1)
+			resFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
 		}
 
 		template := `message Msg%[2]v {
@@ -108,10 +109,16 @@ message Msg%[2]vResponse {
 		content := replacer.Replace(f.String(), PlaceholderProtoTxMessage, replacement)
 
 		// Ensure custom types are imported
+		protoImports := append(opts.ResFields.ProtoImports(), opts.Fields.ProtoImports()...)
 		customFields := append(opts.ResFields.Custom(), opts.Fields.Custom()...)
 		for _, f := range customFields {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
@@ -170,6 +177,26 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_simulation.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		content := typed.ModuleSimulationMsgModify(
+			replacer,
+			f.String(),
+			opts.ModuleName,
+			opts.MsgName,
+		)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}

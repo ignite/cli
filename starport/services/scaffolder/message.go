@@ -5,10 +5,11 @@ import (
 	"fmt"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/message"
 	modulecreate "github.com/tendermint/starport/starport/templates/module/create"
 )
@@ -83,7 +84,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, fields); err != nil {
 		return sm, err
 	}
-	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField)
+	parsedMsgFields, err := field.ParseFields(fields, checkForbiddenMessageField, scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -92,7 +93,7 @@ func (s Scaffolder) AddMessage(
 	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
 		return sm, err
 	}
-	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord, scaffoldingOpts.signer)
 	if err != nil {
 		return sm, err
 	}
@@ -136,6 +137,16 @@ func (s Scaffolder) AddMessage(
 		return sm, err
 	}
 
+	gens, err = supportSimulation(
+		gens,
+		opts.AppPath,
+		opts.ModulePath,
+		opts.ModuleName,
+	)
+	if err != nil {
+		return sm, err
+	}
+
 	// Scaffold
 	g, err = message.NewStargate(tracer, opts)
 	if err != nil {
@@ -151,7 +162,12 @@ func (s Scaffolder) AddMessage(
 
 // checkForbiddenMessageField returns true if the name is forbidden as a message name
 func checkForbiddenMessageField(name string) error {
-	if name == "creator" {
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	if mfName.LowerCase == datatype.TypeCustom {
 		return fmt.Errorf("%s is used by the message scaffolder", name)
 	}
 

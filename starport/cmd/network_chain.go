@@ -6,14 +6,14 @@ import "github.com/spf13/cobra"
 // sub commands related to launching a network for a chain.
 func NewNetworkChain() *cobra.Command {
 	c := &cobra.Command{
-		Use:               "chain",
-		Short:             "Build networks",
-		PersistentPreRunE: ensureSPNAccountHook,
+		Use:   "chain",
+		Short: "Build networks",
 	}
-	c.AddCommand(NewNetworkChainCreate())
-	c.AddCommand(NewNetworkChainJoin())
-	c.AddCommand(NewNetworkChainStart())
-	c.AddCommand(NewNetworkChainShow())
-	c.AddCommand(NewNetworkChainList())
+
+	c.AddCommand(
+		NewNetworkChainPublish(),
+		NewNetworkChainInit(),
+	)
+
 	return c
 }

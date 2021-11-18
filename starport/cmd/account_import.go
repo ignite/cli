@@ -57,7 +57,9 @@ func accountImportHandler(cmd *cobra.Command, args []string) error {
 		secret = string(privKey)
 	}
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}

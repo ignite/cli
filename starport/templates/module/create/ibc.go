@@ -9,9 +9,9 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -128,7 +128,7 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		// Determine the new field number
 		content := f.String()
 
-		template := `string port_id = 1;
+		template := `string port_id = 2;
   %s`
 		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)

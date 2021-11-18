@@ -5,12 +5,18 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
+const (
+	TypeMsgCreate<%= TypeName.UpperCamel %> = "create_<%= TypeName.Snake %>"
+	TypeMsgUpdate<%= TypeName.UpperCamel %> = "update_<%= TypeName.Snake %>"
+	TypeMsgDelete<%= TypeName.UpperCamel %> = "delete_<%= TypeName.Snake %>"
+)
+
 var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
 
 func NewMsgCreate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
-    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
     <% } %>
 ) *MsgCreate<%= TypeName.UpperCamel %> {
   return &MsgCreate<%= TypeName.UpperCamel %>{
@@ -26,7 +32,7 @@ func (msg *MsgCreate<%= TypeName.UpperCamel %>) Route() string {
 }
 
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) Type() string {
-  return "Create<%= TypeName.UpperCamel %>"
+  return TypeMsgCreate<%= TypeName.UpperCamel %>
 }
 
 func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
@@ -54,8 +60,8 @@ var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
 
 func NewMsgUpdate<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
-    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.GetDatatype() %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
     <% } %>
 ) *MsgUpdate<%= TypeName.UpperCamel %> {
   return &MsgUpdate<%= TypeName.UpperCamel %>{
@@ -71,7 +77,7 @@ func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Route() string {
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
-  return "Update<%= TypeName.UpperCamel %>"
+  return TypeMsgUpdate<%= TypeName.UpperCamel %>
 }
 
 func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
@@ -99,7 +105,7 @@ var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
 
 func NewMsgDelete<%= TypeName.UpperCamel %>(
     <%= MsgSigner.LowerCamel %> string,
-    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.GetDatatype() %>,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
     <% } %>
 ) *MsgDelete<%= TypeName.UpperCamel %> {
   return &MsgDelete<%= TypeName.UpperCamel %>{
@@ -113,7 +119,7 @@ func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) Type() string {
-  return "Delete<%= TypeName.UpperCamel %>"
+  return TypeMsgDelete<%= TypeName.UpperCamel %>
 }
 
 func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {

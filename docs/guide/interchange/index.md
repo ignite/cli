@@ -1,6 +1,7 @@
 ---
 order: 1
 parent:
+  order: 8
   title: "Advanced Module: Interchange"
 ---
 
@@ -24,9 +25,9 @@ If you want to see the end result, please refer to the [example implementation](
 
 ## How the module works
 
-You will learn how to build an exchange that works with two or more blockchains. The module is called `ibcdex`.
+You will learn how to build an exchange that works with two or more blockchains. The module is called `dex`.
 
-The module allows to open an exchange order book between a pair of token from one blockchain and a token on another blockchain. The blockchains are required to have the `ibcdex` module available.
+The module allows to open an exchange order book between a pair of token from one blockchain and a token on another blockchain. The blockchains are required to have the `dex` module available.
 
 Tokens can be bought or sold with Limit Orders on a simple order book, there is no notion of Liquidity Pool or AMM.
 

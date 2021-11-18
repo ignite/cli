@@ -5,7 +5,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 
 	"github.com/ghodss/yaml"
 	"github.com/pkg/errors"
@@ -58,8 +57,8 @@ func Stderr(w io.Writer) Option {
 func New(ctx context.Context, chainCmd chaincmd.ChainCmd, options ...Option) (Runner, error) {
 	runner := Runner{
 		chainCmd: chainCmd,
-		stdout:   ioutil.Discard,
-		stderr:   ioutil.Discard,
+		stdout:   io.Discard,
+		stderr:   io.Discard,
 	}
 
 	applyOptions(&runner, options)
