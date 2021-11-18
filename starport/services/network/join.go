@@ -32,59 +32,6 @@ func (b *Builder) Join(
 	return b.SendValidatorRequestMsg(ctx, launchID, peer, valKeyName, gentx, gentxInfo)
 }
 
-// SendValidatorRequestMsg creates the RequestAddValidator message into the SPN
-func (b *Builder) SendValidatorRequestMsg(
-	ctx context.Context,
-	launchID uint64,
-	peer,
-	valKeyName string,
-	gentx []byte,
-	gentxInfo gentx.Info,
-) error {
-	// Change the chain address prefix to spn
-	spnValAddress, err := SetSPNPrefix(gentxInfo.DelegatorAddress)
-	if err != nil {
-		return err
-	}
-
-	// Check if the validator request already exist
-	if b.hasValidator(ctx, launchID, spnValAddress) {
-		return fmt.Errorf("validator %s already exist", spnValAddress)
-	}
-
-	msg := launchtypes.NewMsgRequestAddValidator(
-		spnValAddress,
-		launchID,
-		gentx,
-		gentxInfo.PubKey,
-		gentxInfo.SelfDelegation,
-		peer,
-	)
-
-	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-	res, err := b.cosmos.BroadcastTx(valKeyName, msg)
-	if err != nil {
-		return err
-	}
-
-	var requestRes launchtypes.MsgRequestResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-	b.ev.Send(events.New(events.StatusDone, "MsgRequestAddValidator transaction sent"))
-
-	if requestRes.AutoApproved {
-		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!\n"))
-	} else {
-		b.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!\n",
-				requestRes.RequestID),
-		))
-	}
-
-	return nil
-}
-
 // SendAccountRequestMsg creates an add AddAccount request message
 func (b *Builder) SendAccountRequestMsg(
 	ctx context.Context,
@@ -142,6 +89,59 @@ func (b *Builder) SendAccountRequestMsg(
 
 	b.ev.Send(events.New(events.StatusDone, "Account already exist"))
 	return err
+}
+
+// SendValidatorRequestMsg creates the RequestAddValidator message into the SPN
+func (b *Builder) SendValidatorRequestMsg(
+	ctx context.Context,
+	launchID uint64,
+	peer,
+	valKeyName string,
+	gentx []byte,
+	gentxInfo gentx.Info,
+) error {
+	// Change the chain address prefix to spn
+	spnValAddress, err := SetSPNPrefix(gentxInfo.DelegatorAddress)
+	if err != nil {
+		return err
+	}
+
+	// Check if the validator request already exist
+	if b.hasValidator(ctx, launchID, spnValAddress) {
+		return fmt.Errorf("validator %s already exist", spnValAddress)
+	}
+
+	msg := launchtypes.NewMsgRequestAddValidator(
+		spnValAddress,
+		launchID,
+		gentx,
+		gentxInfo.PubKey,
+		gentxInfo.SelfDelegation,
+		peer,
+	)
+
+	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+	res, err := b.cosmos.BroadcastTx(valKeyName, msg)
+	if err != nil {
+		return err
+	}
+
+	var requestRes launchtypes.MsgRequestResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return err
+	}
+	b.ev.Send(events.New(events.StatusDone, "MsgRequestAddValidator transaction sent"))
+
+	if requestRes.AutoApproved {
+		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!\n"))
+	} else {
+		b.ev.Send(events.New(events.StatusDone,
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!\n",
+				requestRes.RequestID),
+		))
+	}
+
+	return nil
 }
 
 // GetAccountAddress return an account address for the blockchain by name

@@ -77,16 +77,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// create the message to add the account if needed
-	err = nb.SendAccountRequestMsg(cmd.Context(),
-		home,
-		isCustomGentx,
-		launchID,
-		amount)
-	if err != nil {
-		return err
-	}
-
 	info, gentxContent, err := gentx.ParseGentx(gentxPath)
 	if err != nil {
 		return err
