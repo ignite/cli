@@ -47,7 +47,7 @@ func (b *Builder) SubmitRequest(launchID uint64, reviewals ...Reviewal) error {
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestResponse
+	var requestRes launchtypes.MsgSettleRequestResponse
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
