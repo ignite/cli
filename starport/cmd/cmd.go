@@ -13,14 +13,11 @@ import (
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/internal/version"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/networkbuilder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -78,18 +75,6 @@ func logLevel(cmd *cobra.Command) chain.LogLvl {
 	return chain.LogRegular
 }
 
-func printEvents(bus events.Bus, s *clispinner.Spinner) {
-	for event := range bus {
-		if event.IsOngoing() {
-			s.SetText(event.Text())
-			s.Start()
-		} else {
-			s.Stop()
-			fmt.Printf("%s %s\n", color.New(color.FgGreen).SprintFunc()("✔"), event.Description)
-		}
-	}
-}
-
 func flagSetPath(cmd *cobra.Command) {
 	cmd.PersistentFlags().StringP(flagPath, "p", ".", "path of the app")
 }
@@ -140,15 +125,6 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 	}
 
 	return chain.New(absPath, chainOption...)
-}
-
-func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []networkbuilder.InitOption) []networkbuilder.InitOption {
-	// Check if custom home is provided
-	if home := getHomeFlag(cmd); home != "" {
-		initOptions = append(initOptions, networkbuilder.InitializationHomePath(home))
-	}
-
-	return initOptions
 }
 
 var (

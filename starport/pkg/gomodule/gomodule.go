@@ -64,6 +64,9 @@ func ResolveDependencies(f *modfile.File) ([]module.Version, error) {
 	}
 
 	for _, req := range f.Require {
+		if req.Indirect {
+			continue
+		}
 		if !isReplacementAdded(req.Mod) {
 			versions = append(versions, req.Mod)
 		}
