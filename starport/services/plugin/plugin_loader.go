@@ -12,7 +12,7 @@ import (
 // Loader provides managing features for plugin config.
 type Loader interface {
 	IsInstalled(config chainconfig.Plugin) bool
-	LoadPlugin(config chainconfig.Plugin) (StarportPlugin, error)
+	LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error)
 }
 
 type configLoader struct {
@@ -25,15 +25,14 @@ func (l *configLoader) IsInstalled(config chainconfig.Plugin) bool {
 	return false
 }
 
-func (l *configLoader) LoadPlugin(config chainconfig.Plugin) (StarportPlugin, error) {
+func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error) {
 	// TODO: jkkim: How do I get path of real ".so" symbol?
-	configDir, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return nil, err
-	}
+	// configDir, err := chainconfig.ConfigDirPath()
+	// if err != nil {
+	// 	return nil, err
+	// }
 
-	pluginSymbol := fmt.Sprintf("%s/%s.so", configDir, config.Name)
-
+	pluginSymbol := fmt.Sprintf("%s/%s/%s.so", pluginPath, config.Name, config.Name)
 	specs, err := l.loadSymbol(pluginSymbol)
 	if err != nil {
 		return nil, err

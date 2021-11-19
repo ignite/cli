@@ -5,6 +5,7 @@ import (
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
@@ -42,11 +43,20 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldBandchain())
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldFlutter())
-	c.AddCommand(NewScaffoldPluginConfig())
-	c.AddCommand(NewScaffoldPluginLoader())
-	// c.AddCommand(NewScaffoldWasm())
 
-	// TODO: Add running command for plugin.
+	// TODO: How to load plugin configs here?
+	// TODO: Dummy data
+	configs := make([]chainconfig.Plugin, 3)
+	for i := 0; i < 3; i++ {
+		configs[i].Name = fmt.Sprintf("plugin-%d", i)
+		configs[i].Description = fmt.Sprintf("Test for plugin-%d", i)
+	}
+	//
+
+	pluginCmds := NewScaffoldPlugins(configs)
+	for _, cmd := range pluginCmds {
+		c.AddCommand(cmd)
+	}
 
 	return c
 }
