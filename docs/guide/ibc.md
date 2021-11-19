@@ -1,5 +1,5 @@
 ---
-order: 6
+order: 7
 description: Build an understanding of how to create and send packets across blockchains and navigate between blockchains.
 title: "Inter-Blockchain Communication: Basics"
 ---
@@ -348,8 +348,6 @@ host:
   grpc: ":9092"
   grpc-web: ":9093"
   api: ":1318"
-  frontend: ":8081"
-  dev-ui: ":12346"
 genesis:
   chain_id: "mars"
 init:

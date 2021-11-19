@@ -55,3 +55,45 @@ func TestReplace(t *testing.T) {
 		})
 	}
 }
+
+func TestReplaceAll(t *testing.T) {
+	for _, tc := range []struct {
+		desc    string
+		content string
+		replace []string
+		missing []string
+	}{
+		{
+			desc:    "FoundAll",
+			content: "#one #one #two",
+			replace: []string{"#one", "#two"},
+		},
+		{
+			desc:    "MissingAll",
+			content: "",
+			replace: []string{"#one", "#two"},
+			missing: []string{"#one", "#two"},
+		},
+		{
+			desc:    "MissingOne",
+			content: "#two #two",
+			replace: []string{"#one", "#two"},
+			missing: []string{"#one"},
+		},
+	} {
+		tc := tc
+		t.Run(tc.desc, func(t *testing.T) {
+			tr := New()
+			content := tc.content
+			for _, placeholder := range tc.replace {
+				content = tr.ReplaceAll(content, placeholder, "")
+			}
+			err := tr.Err()
+			if err != nil {
+				require.ErrorIs(t, err, newErrMissingPlaceholder(tc.missing))
+			} else {
+				require.Empty(t, tc.missing)
+			}
+		})
+	}
+}

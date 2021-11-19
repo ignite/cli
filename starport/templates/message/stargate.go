@@ -20,6 +20,7 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(protoTxMessageModify(replacer, opts))
 	g.RunFn(typesCodecModify(replacer, opts))
 	g.RunFn(clientCliTxModify(replacer, opts))
+	g.RunFn(moduleSimulationModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
 		fsStargate,
@@ -176,6 +177,26 @@ func clientCliTxModify(replacer placeholder.Replacer, opts *Options) genny.RunFn
 %[1]v`
 		replacement := fmt.Sprintf(template, Placeholder, opts.MsgName.UpperCamel)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
+		newFile := genny.NewFileS(path, content)
+		return r.File(newFile)
+	}
+}
+
+func moduleSimulationModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
+	return func(r *genny.Runner) error {
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "module_simulation.go")
+		f, err := r.Disk.Find(path)
+		if err != nil {
+			return err
+		}
+
+		content := typed.ModuleSimulationMsgModify(
+			replacer,
+			f.String(),
+			opts.ModuleName,
+			opts.MsgName,
+		)
+
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)
 	}
