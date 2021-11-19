@@ -7,7 +7,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gentx"
 )
@@ -79,8 +78,8 @@ func (b *Builder) SendAccountRequestMsg(
 			b.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
 		} else {
 			b.ev.Send(events.New(events.StatusDone,
-				fmt.Sprintf("%s Request %d to add account to the network has been submitted!",
-					clispinner.OK, requestRes.RequestID),
+				fmt.Sprintf("Request %d to add account to the network has been submitted!",
+					requestRes.RequestID),
 			))
 		}
 		return nil
