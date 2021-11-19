@@ -53,8 +53,10 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// convert the request object to yaml
-
 	requestYaml, err := yaml.Parse(cmd.Context(), request)
+	if err != nil {
+		return err
+	}
 
 	s.Stop()
 	fmt.Println(requestYaml)
