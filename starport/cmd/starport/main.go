@@ -15,8 +15,8 @@ func main() {
 	ctx := clictx.From(context.Background())
 
 	starportCmd := starportcmd.New(ctx)
-	// Injection here
-
+	// Set PersistentPreRunE here (https://pkg.go.dev/github.com/spf13/cobra#Command)
+	starportCmd.PersistentPreRunE = plugins.PersistentPreRunE
 	err := starportCmd.ExecuteContext(ctx)
 
 	if ctx.Err() == context.Canceled || err == context.Canceled {

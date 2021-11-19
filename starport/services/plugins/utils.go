@@ -4,6 +4,7 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"reflect"
 	"regexp"
 	"strings"
 
@@ -11,8 +12,68 @@ import (
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 )
 
-func validateParentCommand(parentCommand *cobra.Command, subCommand []string) error {
-	innerCommand, _, err := parentCommand.Find(subCommand)
+func getConfigPlugins(configPath string) ([]chaincfg.Plugin, error) {
+	cfg, err := chaincfg.ParseFile(configPath)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg.Plugins, nil
+}
+
+// Searches file, for now does not query the plugin repo
+func pluginDownloaded(chainId, pluginId string) (bool, error) {
+	dst, err := formatPluginHome(chainId, "")
+	if err != nil {
+		return false, err
+	}
+
+	pluginDirs, err := listDirs(dst)
+	if err != nil {
+		return false, err
+	}
+
+	for _, plugDir := range pluginDirs {
+		if pluginId == plugDir.Name() {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+// Check if plugin-specified configuration is different from downloaded plugins
+// For now, ONLY CHECKS DIRECTORY NAMES
+// This is not adequate, because one could delete files from directories
+func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
+	var configPluginNames []string
+	var fileConfigNames []string
+
+	for _, plug := range cfg.Plugins {
+		plugId := getPluginId(plug)
+		configPluginNames = append(configPluginNames, plugId)
+	}
+
+	dst, err := formatPluginHome(chainId, "")
+	if err != nil {
+		return false, err
+	}
+
+	pluginDirs, err := listDirs(dst)
+	if err != nil {
+		return false, err
+	}
+
+	for _, plugDir := range pluginDirs {
+		fileConfigNames = append(fileConfigNames, plugDir.Name())
+	}
+
+	return !reflect.DeepEqual(configPluginNames, fileConfigNames), nil
+}
+
+func validateParentCommand(rootCommand *cobra.Command, subCommand []string) error {
+	// this takes args, idk if that is the same as path
+	innerCommand, _, err := rootCommand.Find(subCommand)
 	if err != nil {
 		return err
 	}

@@ -27,23 +27,18 @@ func (m *Manager) extractPlugins(ctx context.Context, parentCommand *cobra.Comma
 
 func extractCommandPlugins(
 	ctx context.Context,
-	chainId string,
+	pluginDir string,
 	parentCommand *cobra.Command,
 	cfg chaincfg.Config,
 ) ([]CmdPlugin, error) {
-	pluginsDir, err := formatPluginHome(chainId, "")
-	if err != nil {
-		return nil, err
-	}
-
-	pluginFiles, err := listFiles(pluginsDir, `.*_cmd.so`)
+	pluginFiles, err := listFiles(pluginDir, `.*_cmd.so`)
 	if err != nil {
 		return nil, err
 	}
 
 	var cmdPlugins []CmdPlugin
 	for _, pluginFile := range pluginFiles {
-		pluginDir := path.Join(pluginsDir, pluginFile.Name())
+		pluginDir := path.Join(pluginDir, pluginFile.Name())
 		plug, err := plugin.Open(pluginDir)
 		if err != nil {
 			return nil, err
@@ -78,23 +73,18 @@ func extractCommandPlugins(
 
 func extractHookPlugins(
 	ctx context.Context,
-	chainId string,
+	pluginDir string,
 	parentCommand *cobra.Command,
 	cfg chaincfg.Config,
 ) ([]HookPlugin, error) {
-	pluginsDir, err := formatPluginHome(chainId, "")
-	if err != nil {
-		return nil, err
-	}
-
-	pluginFiles, err := listFiles(pluginsDir, `.*_hook.so`)
+	pluginFiles, err := listFiles(pluginDir, `.*_hook.so`)
 	if err != nil {
 		return nil, err
 	}
 
 	var hookPlugins []HookPlugin
 	for _, pluginFile := range pluginFiles {
-		pluginDir := path.Join(pluginsDir, pluginFile.Name())
+		pluginDir := path.Join(pluginDir, pluginFile.Name())
 		plug, err := plugin.Open(pluginDir)
 		if err != nil {
 			return nil, err

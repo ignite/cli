@@ -1,5 +1,7 @@
 package plugins
 
+// use map keys for command names soon
+
 type CmdPlugin interface {
 	Module
 	Registry() map[string]Command

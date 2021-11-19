@@ -2,7 +2,6 @@ package plugins
 
 import (
 	"context"
-	"reflect"
 
 	"github.com/spf13/cobra"
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
@@ -31,25 +30,8 @@ func NewManager(chainId string) Manager {
 // - Building
 // - Cache .so files
 // - Execution and Injection
-func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config, rootCommand *cobra.Command) error {
-	// Check for change in config contents since last
-	// Don't check for remote package changes, as theoretically we want it
-	// to be up to the user to reload the plugins.
-	configChanged, err := pluginsChanged(cfg, m.ChainId)
-	if err != nil {
-		return err
-	}
-
-	if configChanged {
-		return nil
-	}
-
-	if err := m.pull(ctx, cfg); err != nil {
-		return err
-	}
-
-	// Build
-	if err := m.build(ctx, cfg); err != nil {
+func (m *Manager) RunAll(ctx context.Context, cfg chaincfg.Config, rootCommand *cobra.Command) error {
+	if err := m.PullBuild(ctx, cfg); err != nil {
 		return err
 	}
 
@@ -66,32 +48,28 @@ func (m *Manager) Run(ctx context.Context, cfg chaincfg.Config, rootCommand *cob
 	return nil
 }
 
-// Check if plugin-specified configuration is different from downloaded plugins
-// For now, ONLY CHECKS DIRECTORY NAMES
-// This is not adequate, because one could delete files from directories
-func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
-	var configChanged bool
-	var configPluginNames []string
-	var fileConfigNames []string
-
-	for _, plug := range cfg.Plugins {
-		plugId := getPluginId(plug)
-		configPluginNames = append(configPluginNames, plugId)
-	}
-
-	dst, err := formatPluginHome(chainId, "")
+func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
+	// Check for change in config contents since last
+	// Don't check for remote package changes, as theoretically we want it
+	// to be up to the user to reload the plugins.
+	configChanged, err := pluginsChanged(cfg, m.ChainId)
 	if err != nil {
-		return false, err
+		return err
 	}
 
-	pluginDirs, err := listDirs(dst)
-	if err != nil {
-		return false, err
+	if configChanged {
+		return nil
 	}
 
-	for _, plugDir := range pluginDirs {
-		fileConfigNames = append(fileConfigNames, plugDir.Name())
+	// Pull
+	if err := m.pull(ctx, cfg); err != nil {
+		return err
 	}
 
-	return !reflect.DeepEqual(configPluginNames, fileConfigNames), nil
+	// Build
+	if err := m.build(ctx, cfg); err != nil {
+		return err
+	}
+
+	return nil
 }

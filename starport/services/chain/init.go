@@ -63,7 +63,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	if conf.Plugins != nil {
 		// Pull plugins down if specified in config,
 		// Inject into commands
-		if err := c.pluginManager.Run(ctx, home, conf); err != nil {
+		if err := c.pluginManager.PullBuild(ctx, home, conf); err != nil {
 			return err
 		}
 	}
