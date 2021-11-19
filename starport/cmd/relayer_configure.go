@@ -483,7 +483,3 @@ func initChain(
 
 	return c, nil
 }
-
-func printSection(title string) {
-	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
-}
