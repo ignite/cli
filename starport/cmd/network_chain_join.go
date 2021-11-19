@@ -82,12 +82,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// get the validator address from the gentx
-	valAcc, err := getAccountByAddress(cmd, info.DelegatorAddress)
-	if err != nil {
-		return err
-	}
-
 	// create the message to add the validator
 	err = nb.Join(cmd.Context(),
 		home,
@@ -95,7 +89,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		isCustomGentx,
 		amount,
 		peer,
-		valAcc.Name,
 		gentxContent,
 		info,
 	)

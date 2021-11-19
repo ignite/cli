@@ -18,8 +18,7 @@ func (b *Builder) Join(
 	launchID uint64,
 	customGentx bool,
 	amount sdk.Coin,
-	peer,
-	valKeyName string,
+	peer string,
 	gentx []byte,
 	gentxInfo gentx.Info) error {
 	if err := b.SendAccountRequestMsg(ctx,
@@ -29,7 +28,7 @@ func (b *Builder) Join(
 		amount); err != nil {
 		return err
 	}
-	return b.SendValidatorRequestMsg(ctx, launchID, peer, valKeyName, gentx, gentxInfo)
+	return b.SendValidatorRequestMsg(ctx, launchID, peer, gentx, gentxInfo)
 }
 
 // SendAccountRequestMsg creates an add AddAccount request message
@@ -95,8 +94,7 @@ func (b *Builder) SendAccountRequestMsg(
 func (b *Builder) SendValidatorRequestMsg(
 	ctx context.Context,
 	launchID uint64,
-	peer,
-	valKeyName string,
+	peer string,
 	gentx []byte,
 	gentxInfo gentx.Info,
 ) error {
@@ -121,7 +119,7 @@ func (b *Builder) SendValidatorRequestMsg(
 	)
 
 	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-	res, err := b.cosmos.BroadcastTx(valKeyName, msg)
+	res, err := b.cosmos.BroadcastTx(b.account.Name, msg)
 	if err != nil {
 		return err
 	}
