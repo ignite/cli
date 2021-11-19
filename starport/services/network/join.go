@@ -73,13 +73,13 @@ func (b *Builder) SendAccountRequestMsg(
 		if err := res.Decode(&requestRes); err != nil {
 			return err
 		}
-		b.ev.Send(events.New(events.StatusDone, "AddAccount transactions sent"))
+		b.ev.Send(events.New(events.StatusDone, "MsgRequestAddAccount transactions sent"))
 
 		if requestRes.AutoApproved {
 			b.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
 		} else {
 			b.ev.Send(events.New(events.StatusDone,
-				fmt.Sprintf("%s Request %d to add account to the network has been submitted!\n",
+				fmt.Sprintf("%s Request %d to add account to the network has been submitted!",
 					clispinner.OK, requestRes.RequestID),
 			))
 		}
@@ -131,10 +131,10 @@ func (b *Builder) SendValidatorRequestMsg(
 	b.ev.Send(events.New(events.StatusDone, "MsgRequestAddValidator transaction sent"))
 
 	if requestRes.AutoApproved {
-		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!\n"))
+		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
 	} else {
 		b.ev.Send(events.New(events.StatusDone,
-			fmt.Sprintf("Request %d to join the network as a validator has been submitted!\n",
+			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
 				requestRes.RequestID),
 		))
 	}
