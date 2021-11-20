@@ -4,8 +4,8 @@ import (
 	"io/ioutil"
 	"os"
 	"path"
+	"path/filepath"
 	"reflect"
-	"regexp"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -61,6 +61,10 @@ func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
 
 	pluginDirs, err := listDirs(dst)
 	if err != nil {
+		if len(configPluginNames) > 0 && os.IsNotExist(err) {
+			return true, nil
+		}
+
 		return false, err
 	}
 
@@ -132,25 +136,50 @@ func listDirs(dir string) ([]os.FileInfo, error) {
 }
 
 func listFiles(dir, pattern string) ([]os.FileInfo, error) {
-	files, err := ioutil.ReadDir(dir)
+	// files, err := ioutil.ReadDir(dir)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// var filteredFiles []os.FileInfo
+	// for _, file := range files {
+	// 	if file.IsDir() {
+	// 		continue
+	// 	}
+
+	// 	matched, err := filepath.Match(pattern, file.Name())
+	// 	if err != nil {
+	// 		return nil, err
+	// 	}
+
+	// 	if matched {
+	// 		filteredFiles = append(filteredFiles, file)
+	// 	}
+	// }
+
+	// return filteredFiles, nil
+
+	// var matches []string
+	var filteredFiles []os.FileInfo
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if info.IsDir() {
+			return nil
+		}
+
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			// matches = append(matches, path)
+			filteredFiles = append(filteredFiles, info)
+		}
+		return nil
+	})
 	if err != nil {
 		return nil, err
-	}
-
-	filteredFiles := []os.FileInfo{}
-	for _, file := range files {
-		if file.IsDir() {
-			continue
-		}
-
-		matched, err := regexp.MatchString(pattern, file.Name())
-		if err != nil {
-			return nil, err
-		}
-
-		if matched {
-			filteredFiles = append(filteredFiles, file)
-		}
 	}
 
 	return filteredFiles, nil

@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 	"path"
 	"strings"
 
@@ -40,7 +41,11 @@ func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 				outputName := strings.Trim(fileName, ".cmd.go")
 				inputFileDir := path.Join(pluginDir, fileName)
 				outputFileDir := path.Join(outputDir, outputName+"_cmd.so")
-				buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+				err := buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+				if err != nil {
+					fmt.Println(err.Error())
+					return err
+				}
 			}
 		}
 
@@ -55,7 +60,11 @@ func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 				outputName := strings.Trim(fileName, ".hook.go")
 				inputFileDir := path.Join(pluginDir, fileName)
 				outputFileDir := path.Join(outputDir, outputName+"_hook.so")
-				buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+				err := buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+				if err != nil {
+					fmt.Println(err.Error())
+					return err
+				}
 			}
 		}
 	}
@@ -64,6 +73,7 @@ func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 }
 
 func buildPlugin(ctx context.Context, output string, path string, flags []string) error {
+	fmt.Println(output, path)
 	command := []string{
 		"go",
 		gocmd.CommandBuild,

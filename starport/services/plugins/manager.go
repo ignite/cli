@@ -31,6 +31,10 @@ func NewManager(chainId string) Manager {
 // - Cache .so files
 // - Execution and Injection
 func (m *Manager) RunAll(ctx context.Context, cfg chaincfg.Config, rootCommand *cobra.Command) error {
+	if len(cfg.Plugins) == 0 {
+		return nil
+	}
+
 	if err := m.PullBuild(ctx, cfg); err != nil {
 		return err
 	}
@@ -44,17 +48,21 @@ func (m *Manager) RunAll(ctx context.Context, cfg chaincfg.Config, rootCommand *
 }
 
 func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
+	if len(cfg.Plugins) == 0 {
+		return nil
+	}
+
 	// Check for change in config contents since last
 	// Don't check for remote package changes, as theoretically we want it
 	// to be up to the user to reload the plugins.
-	configChanged, err := pluginsChanged(cfg, m.ChainId)
-	if err != nil {
-		return err
-	}
+	// configChanged, err := pluginsChanged(cfg, m.ChainId)
+	// if err != nil {
+	// 	return err
+	// }
 
-	if configChanged {
-		return nil
-	}
+	// if !configChanged {
+	// 	return nil
+	// }
 
 	// Pull
 	if err := m.pull(ctx, cfg); err != nil {
