@@ -78,9 +78,19 @@ func PersistentPreRunE(cmd *cobra.Command, args []string) error {
 				hookPath := strings.Split(cmd.CommandPath(), " ")
 				hookPluginCommandPath := append(hook.ParentCommand(), hook.Name())
 				if reflect.DeepEqual(hookPath, hookPluginCommandPath) {
-
+					switch hook.Type() {
+					case "pre":
+						cmd.PreRunE = hook.PreRun
+					case "post":
+						cmd.PostRunE = hook.PostRun
+					default:
+						cmd.PreRunE = hook.PreRun
+						cmd.PostRunE = hook.PostRun
+					}
 				}
 			}
 		}
 	}
+
+	return nil
 }

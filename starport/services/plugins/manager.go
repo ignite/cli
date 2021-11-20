@@ -40,11 +40,6 @@ func (m *Manager) RunAll(ctx context.Context, cfg chaincfg.Config, rootCommand *
 		return err
 	}
 
-	// Injection
-	if err := m.inject(ctx, rootCommand); err != nil {
-		return err
-	}
-
 	return nil
 }
 

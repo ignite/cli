@@ -9,6 +9,7 @@ import (
 	starportcmd "github.com/tendermint/starport/starport/cmd"
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/validation"
+	"github.com/tendermint/starport/starport/services/plugins"
 )
 
 func main() {
@@ -16,6 +17,7 @@ func main() {
 
 	starportCmd := starportcmd.New(ctx)
 	// Set PersistentPreRunE here (https://pkg.go.dev/github.com/spf13/cobra#Command)
+	// Find a way to have this run on setup, not on every usage of the command
 	starportCmd.PersistentPreRunE = plugins.PersistentPreRunE
 	err := starportCmd.ExecuteContext(ctx)
 
