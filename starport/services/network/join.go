@@ -7,8 +7,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gentx"
 )
 
 func (b *Builder) Join(
@@ -19,19 +19,19 @@ func (b *Builder) Join(
 	amount sdk.Coin,
 	peer string,
 	gentx []byte,
-	gentxInfo gentx.Info) error {
-	if err := b.SendAccountRequestMsg(ctx,
+	gentxInfo cosmosutil.Info) error {
+	if err := b.SendAccountRequest(ctx,
 		chainHome,
 		customGentx,
 		launchID,
 		amount); err != nil {
 		return err
 	}
-	return b.SendValidatorRequestMsg(ctx, launchID, peer, gentx, gentxInfo)
+	return b.SendValidatorRequest(ctx, launchID, peer, gentx, gentxInfo)
 }
 
-// SendAccountRequestMsg creates an add AddAccount request message
-func (b *Builder) SendAccountRequestMsg(
+// SendAccountRequest creates an add AddAccount request message
+func (b *Builder) SendAccountRequest(
 	ctx context.Context,
 	chainHome string,
 	isCustomGentx bool,
@@ -89,13 +89,13 @@ func (b *Builder) SendAccountRequestMsg(
 	return err
 }
 
-// SendValidatorRequestMsg creates the RequestAddValidator message into the SPN
-func (b *Builder) SendValidatorRequestMsg(
+// SendValidatorRequest creates the RequestAddValidator message into the SPN
+func (b *Builder) SendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
 	peer string,
 	gentx []byte,
-	gentxInfo gentx.Info,
+	gentxInfo cosmosutil.Info,
 ) error {
 	// Change the chain address prefix to spn
 	spnValAddress, err := SetSPNPrefix(gentxInfo.DelegatorAddress)

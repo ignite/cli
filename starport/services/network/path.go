@@ -5,7 +5,7 @@ import (
 	"path/filepath"
 	"strconv"
 
-	"github.com/tendermint/starport/starport/pkg/gentx"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 // ChainHomeRoot is the root dir for spn chain homes
@@ -45,17 +45,17 @@ func Gentx(home string) string {
 }
 
 // getChainGenesis return the chain genesis path
-func getChainGenesis(home string) (gentx.ChainGenesis, bool, error) {
+func getChainGenesis(home string) (cosmosutil.ChainGenesis, bool, error) {
 	genesisPath := GenesisPath(home)
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
-		return gentx.ChainGenesis{}, false, nil
+		return cosmosutil.ChainGenesis{}, false, nil
 	} else if err != nil {
-		return gentx.ChainGenesis{}, false, err
+		return cosmosutil.ChainGenesis{}, false, err
 	}
-	net, err := gentx.ParseGenesis(genesisPath)
+	net, err := cosmosutil.ParseGenesis(genesisPath)
 	if err != nil {
-		return gentx.ChainGenesis{}, false, err
+		return cosmosutil.ChainGenesis{}, false, err
 	}
 	return net, true, nil
 }

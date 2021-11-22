@@ -10,7 +10,7 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/gentx"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -77,7 +77,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	info, gentxContent, err := gentx.ParseGentx(gentxPath)
+	info, gentxContent, err := cosmosutil.ParseGentx(gentxPath)
 	if err != nil {
 		return err
 	}
