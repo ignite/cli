@@ -1,12 +1,12 @@
 package cosmosutil_test
 
 import (
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"os"
 	"path/filepath"
 	"testing"
 
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 func TestChainHome(t *testing.T) {
