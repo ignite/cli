@@ -56,6 +56,7 @@ type initOptions struct {
 	homePath                 string
 	keyringBackend           chaincmd.KeyringBackend
 	genesisURL               string
+	prepareLaunch			bool
 }
 
 // SourceOption sets the source for blockchain.
@@ -131,6 +132,14 @@ func InitializationGenesisURL(genesisURL string) InitOption {
 	}
 }
 
+// InitializationPrepareLaunch initializes the blockchain for launch preparation
+func InitializationPrepareLaunch() InitOption {
+	return func(o *initOptions) {
+		o.prepareLaunch = true
+	}
+}
+
+
 // AccountRegistry returns the account registry used by the network builder
 func (b Builder) AccountRegistry() cosmosaccount.Registry {
 	return b.cosmos.AccountRegistry
@@ -174,7 +183,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 
 		// If no custom home is provided, a default home determined from the launch ID is used
 		if home == "" {
-			home, err = ChainHome(o.launchID)
+			home, err = ChainHome(o.launchID, o.prepareLaunch)
 			if err != nil {
 				return nil, err
 			}

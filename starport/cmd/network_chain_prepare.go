@@ -1,13 +1,13 @@
 package starportcmd
 
 import (
-	"sync"
-
+	"fmt"
+	"github.com/manifoldco/promptui"
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network"
+	"strconv"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -27,29 +27,56 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
-	// TODO: Add routine from init
-	s := clispinner.New()
-	defer s.Stop()
+	nb, s, shutdown, err := initializeNetwork(cmd)
+	if err != nil {
+		return err
+	}
+	defer shutdown()
 
-	var (
-		wg sync.WaitGroup
-		ev = events.NewBus()
-	)
-	wg.Add(1)
+	// parse launch ID
+	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	if err != nil {
+		return errors.Wrap(err, "error parsing launchID")
+	}
+	if launchID == 0 {
+		return errors.New("launch ID must be greater than 0")
+	}
 
-	defer wg.Wait()
-	defer ev.Shutdown()
+	chainHome, exist, err := network.IsChainHomeExist(launchID, true)
+	if err != nil {
+		return err
+	}
+	if !getYes(cmd) && exist {
+		prompt := promptui.Prompt{
+			Label: fmt.Sprintf("The chain launch has already been prepared under: %s. Would you like to overwrite the home directory",
+				chainHome,
+			),
+			IsConfirm: true,
+		}
+		s.Stop()
+		if _, err := prompt.Run(); err != nil {
+			fmt.Println("said no")
+			return nil
+		}
+		s.Start()
+	}
 
-	go printEvents(&wg, ev, s)
-
-	_, err := newNetwork(cmd, network.CollectEvents(ev))
+	// initialize the blockchain from the launch ID
+	initOptions := initOptionWithHomeFlag(cmd, network.InitializationPrepareLaunch())
+	sourceOption := network.SourceLaunchID(launchID)
+	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
 	if err != nil {
 		return err
 	}
 
-	// TODO: create and initialize the chain
+	if err := blockchain.Init(cmd.Context()); err != nil {
+		return err
+	}
 
-	// TODO: call prepare
+	// prepare for launch
+	if err := blockchain.Prepare(cmd.Context()); err != nil {
+		return err
+	}
 
 	return nil
 }
