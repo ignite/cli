@@ -131,7 +131,7 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ## Delete Name
 
-To define the keeper for the delete name transaction, add this code to the `msg_server_buy_name.go` file:
+To define the keeper for the delete name transaction, add this code to the `msg_server_delete_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_delete_name.go
