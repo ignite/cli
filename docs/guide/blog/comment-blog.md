@@ -227,6 +227,22 @@ When a `Comment` message is sent to the `AppendComment` function, four actions o
 
 ## Write Data to the Store
 
+Before you add code to `comment.go`, make a small modification in `post.go` to get the post
+
+```go
+func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
+	// Get the store using storeKey (which is "blog") and PostKey (which is "Post-")
+	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.PostKey))
+	// Convert the post ID into bytes
+	byteKey := make([]byte, 8)
+	binary.BigEndian.PutUint64(byteKey, id)
+	// Get the post bytes using post ID as a key
+	bz := store.Get(byteKey)
+	// Unmarshal the post bytes into the post object
+	k.cdc.MustUnmarshal(bz, &post)
+	return post
+}
+```
 Very similar to implementation done in `x/blog/keeper/post.go` we will implement `x/blog/keeper/comment.go`
 
 Now, inside `x/blog/keeper/comment.go` file, implement `GetCommentCount`, `SetCommentCount` and `AppendCommentCount`
@@ -303,6 +319,8 @@ By following these steps, you have implemented all of the code required to creat
 
 - `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
+
+
 
 
 ## Display Posts
