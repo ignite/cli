@@ -351,33 +351,51 @@ import (
 )
 
 func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
+
 	// Throw an error if request is nil
 	if req == nil {
 		return nil, status.Error(codes.InvalidArgument, "invalid request")
 	}
+
 	// Define a variable that will store a list of posts
 	var comments []*types.Comment
+	
 	// Get context with the information about the environment
 	ctx := sdk.UnwrapSDKContext(c)
+	
 	// Get the key-value module store using the store key (in our case store key is "chain")
 	store := ctx.KVStore(k.storeKey)
+	
 	// Get the part of the store that keeps posts (using post key, which is "Post-value-")
 	commentStore := prefix.NewStore(store, []byte(types.CommentKey))
+
+	// Get the post by ID 
+	post := k.GetPost(ctx, req.Id)
+
+	// Get the post ID
+	postID := post.Id
+	
 	// Paginate the posts store based on PageRequest
 	pageRes, err := query.Paginate(commentStore, req.Pagination, func(key []byte, value []byte) error {
 		var comment types.Comment
 		if err := k.cdc.Unmarshal(value, &comment); err != nil {
 			return err
 		}
-		comments = append(comments, &comment)
+
+		if comment.PostID == postID {
+			comments = append(comments, &comment)	
+		}
+		
 		return nil
 	})
+
 	// Throw an error if pagination failed
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
+
 	// Return a struct containing a list of posts and pagination info
-	return &types.QueryCommentsResponse{Comment: comments, Pagination: pageRes}, nil
+	return &types.QueryCommentsResponse{Post: &post, Comment: comments, Pagination: pageRes}, nil
 }
 ```
 
@@ -440,30 +458,21 @@ txhash: 0CAFC113D1C73BC0210EFEA5964EBD2EB530311169FB442C5CBF0B5E92521C41
 Display post:
 
 ```bash
-blogd q blog posts
-```
-
-```bash
-Post:
-- body: This is the first post
-  createdAt: "38"
-  creator: cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd
-  id: "0"
-  title: Uno
-```
-
-Display comment:
-
-```bash
-blogd q blog comments
+blogd q blog comments 0
 ```
 
 ```bash
 Comment:
-- blogID: "0"
-  body: This is the first comment
-  createdAt: "98"
-  creator: cosmos17pvwgu36fu37j8y9gc4pasxsj3p26ghmlqvngd
+- body: Let us add random comment
+  createdAt: "14094"
+  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
+  id: "0"
+  postID: "0"
+  title: comment
+Post:
+  body: This is the first post
+  createdAt: "14046"
+  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
   id: "0"
   title: Uno
 ```
@@ -520,4 +529,4 @@ You have successfully completed these steps:
 
 * Add comment to existing blog
 * Check if the comment is valid
-* Use CLI to write and display comment
+* Use CLI to write and display comment for each respective post
