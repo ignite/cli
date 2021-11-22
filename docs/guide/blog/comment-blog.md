@@ -165,6 +165,28 @@ var (
 ```
 
 
+In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a few modification.
+
+```go
+func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
+	// Get the context
+	ctx := sdk.UnwrapSDKContext(goCtx)
+	// Create variable of type Post
+	var post = types.Post{
+		Creator:   msg.Creator,
+		Id:        msg.Id,
+		Title:     msg.Title,
+		Body:      msg.Body,
+		CreatedAt: ctx.BlockHeight(),
+	}
+	// Add a post to the store and get back the ID
+	id := k.AppendPost(ctx, post)
+	// Return the ID of the post
+	return &types.MsgCreatePostResponse{Id: id}, nil
+}
+```
+
+
 ## Write Data to the Store
 
 Define the `Comment` type and the `AppendComment` keeper method.
