@@ -27,7 +27,6 @@ starport scaffold type comment
 
 The `type` command scaffolds a type definition and creates `comment.proto` file. 
 
-create proto/blog/comment.proto
 
 ## Create a new message called comment
 
@@ -309,7 +308,7 @@ By following these steps, you have implemented all of the code required to creat
 ## Display Posts
 
 ```bash
-starport scaffold query comments --response title,body,postID
+starport scaffold query comments id:uint --response title,body
 ```
 
 Very similar to previous blog tutorial, we will make changes to `proto/blog/query.proto`
@@ -321,15 +320,17 @@ In the `proto/blog/query.proto` file:
 import "blog/comment.proto";
 
 message QueryCommentsRequest {
+	uint64 id = 1;
     // Adding pagination to request
-  cosmos.base.query.v1beta1.PageRequest pagination = 1;
+    cosmos.base.query.v1beta1.PageRequest pagination = 2;
 }
 //...
 message QueryCommentsResponse {
-    // Returning a list of comments
-  repeated Comment Comment = 1;
+  Post Post = 1;
+  	// Returning a list of comments
+  repeated Comment Comment = 2;
     // Adding pagination to response
-  cosmos.base.query.v1beta1.PageResponse pagination = 2;
+  cosmos.base.query.v1beta1.PageResponse pagination = 3;
 }
 ```
 
