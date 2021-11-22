@@ -1,11 +1,9 @@
-package network
+package cosmosutil
 
 import (
 	"os"
 	"path/filepath"
 	"strconv"
-
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 // ChainHomeRoot is the root dir for spn chain homes
@@ -45,17 +43,17 @@ func Gentx(home string) string {
 }
 
 // getChainGenesis return the chain genesis path
-func getChainGenesis(home string) (cosmosutil.ChainGenesis, bool, error) {
+func getChainGenesis(home string) (ChainGenesis, bool, error) {
 	genesisPath := GenesisPath(home)
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
-		return cosmosutil.ChainGenesis{}, false, nil
+		return ChainGenesis{}, false, nil
 	} else if err != nil {
-		return cosmosutil.ChainGenesis{}, false, err
+		return ChainGenesis{}, false, err
 	}
-	net, err := cosmosutil.ParseGenesis(genesisPath)
+	net, err := ParseGenesis(genesisPath)
 	if err != nil {
-		return cosmosutil.ChainGenesis{}, false, err
+		return ChainGenesis{}, false, err
 	}
 	return net, true, nil
 }

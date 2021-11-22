@@ -12,7 +12,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/services/network"
 )
 
 const (
@@ -58,7 +57,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// get the chain home path
-	home, err := network.ChainHome(launchID)
+	home, err := cosmosutil.ChainHome(launchID)
 	if err != nil {
 		return err
 	}
@@ -68,7 +67,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	isCustomGentx := true
 	if gentxPath == "" {
 		isCustomGentx = false
-		gentxPath = network.Gentx(home)
+		gentxPath = cosmosutil.Gentx(home)
 	}
 
 	// get the peer public address for the validator

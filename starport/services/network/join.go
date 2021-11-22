@@ -7,6 +7,7 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
@@ -39,7 +40,7 @@ func (b *Builder) SendAccountRequest(
 	amount sdk.Coin,
 ) error {
 	address := b.account.Address(SPNAddressPrefix)
-	spnAddress, err := SetSPNPrefix(address)
+	spnAddress, err := cosmosaddress.ChangePrefix(address, SPNAddressPrefix)
 	if err != nil {
 		return err
 	}
@@ -49,7 +50,7 @@ func (b *Builder) SendAccountRequest(
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	accExist := false
 	if !isCustomGentx {
-		accExist, err = CheckGenesisContainsAddress(chainHome, spnAddress)
+		accExist, err = cosmosutil.CheckGenesisContainsAddress(chainHome, spnAddress)
 		if err != nil {
 			return err
 		}
@@ -98,7 +99,7 @@ func (b *Builder) SendValidatorRequest(
 	gentxInfo cosmosutil.Info,
 ) error {
 	// Change the chain address prefix to spn
-	spnValAddress, err := SetSPNPrefix(gentxInfo.DelegatorAddress)
+	spnValAddress, err := cosmosaddress.ChangePrefix(gentxInfo.DelegatorAddress, SPNAddressPrefix)
 	if err != nil {
 		return err
 	}
