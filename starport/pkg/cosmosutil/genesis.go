@@ -16,7 +16,7 @@ func SetGenesisTime(genesisPath string, genesisTime int64) error {
 		return err
 	}
 
-	genesis := make(map[string]interface{}, 0)
+	genesis := make(map[string]interface{})
 	if err := json.Unmarshal(genesisBytes, &genesis); err != nil {
 		return err
 	}

@@ -1,11 +1,12 @@
 package starportcmd
 
 import (
+	"strconv"
+
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/services/network"
-	"strconv"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch

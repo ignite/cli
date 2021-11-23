@@ -17,13 +17,12 @@ const (
 }
 `
 	unixTime = 1600000000
-	rfcTime = "2020-09-13T15:26:40+03:00"
+	rfcTime  = "2020-09-13T15:26:40+03:00"
 )
-
 
 func TestSetGenesisTime(t *testing.T) {
 	tmp, err := os.MkdirTemp("", "")
-	t.Cleanup(func () {os.RemoveAll(tmp)})
+	t.Cleanup(func() { os.RemoveAll(tmp) })
 	tmpGenesis := filepath.Join(tmp, "genesis.json")
 
 	// fails with no file
@@ -35,7 +34,7 @@ func TestSetGenesisTime(t *testing.T) {
 
 	// check genesis modified value
 	var actual struct {
-		Foo string `json:"foo"`
+		Foo         string `json:"foo"`
 		GenesisTime string `json:"genesis_time"`
 	}
 	actualBytes, err := os.ReadFile(tmpGenesis)

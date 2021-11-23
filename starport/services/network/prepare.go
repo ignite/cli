@@ -3,16 +3,17 @@ package network
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
+
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
 )
 
 // Prepare queries launch information and prepare the chain to be launched from these information
@@ -22,8 +23,11 @@ func (b Blockchain) Prepare(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
+
 	_, err = os.Stat(chainHome)
-	if _, err := os.Stat(chainHome); os.IsNotExist(err) {
+
+	// nolint:gocritic
+	if os.IsNotExist(err) {
 		// if no config exists, we perform a full initialization of the chain with a new validator key
 		if err := b.Init(ctx); err != nil {
 			return err
