@@ -53,7 +53,10 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// convert the request object to yaml
-	requestYaml, err := yaml.Parse(cmd.Context(), request)
+	requestYaml, err := yaml.ParseString(cmd.Context(), request,
+		"$.content.content.genesisValidator.genTx",
+		"$.content.content.genesisValidator.consPubKey",
+	)
 	if err != nil {
 		return err
 	}

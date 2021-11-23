@@ -9,12 +9,7 @@ import (
 	"github.com/goccy/go-yaml/parser"
 )
 
-var byteSlicePaths = []string{
-	"$.content.content.genesisValidator.genTx",
-	"$.content.content.genesisValidator.consPubKey",
-}
-
-func Parse(ctx context.Context, obj interface{}) (string, error) {
+func ParseString(ctx context.Context, obj interface{}, paths ...string) (string, error) {
 	requestYaml, err := yaml.MarshalContext(ctx, obj)
 	if err != nil {
 		return "", err
@@ -25,7 +20,7 @@ func Parse(ctx context.Context, obj interface{}) (string, error) {
 	}
 
 	// normalize the structure converting the byte slice fields to string
-	for _, path := range byteSlicePaths {
+	for _, path := range paths {
 		pathString, err := yaml.PathString(path)
 		if err != nil {
 			return "", err
