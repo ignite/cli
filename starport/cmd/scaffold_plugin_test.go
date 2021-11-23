@@ -5,58 +5,57 @@ import (
 
 	"github.com/stretchr/testify/assert"
 	"github.com/tendermint/starport/starport/chainconfig"
+	"github.com/tendermint/starport/starport/services/plugin"
 	"github.com/tendermint/starport/starport/services/plugin/mocks"
 )
 
-func Test_ScaffoldPlugins(t *testing.T) {
+func Test_ScaffoldPlugins_NotInstalled(t *testing.T) {
 	// Test fixtures
-	testConfigs := []struct {
-		IsInstalled bool
-		Plugin      chainconfig.Plugin
-	}{
-		{
-			IsInstalled: true,
-			Plugin:      chainconfig.Plugin{Name: "test-0"},
-		},
-
-		{
-			IsInstalled: false,
-			Plugin:      chainconfig.Plugin{Name: "test-1"},
-		},
-
-		{
-			IsInstalled: true,
-			Plugin:      chainconfig.Plugin{Name: "test-2"},
-		},
-	}
-
-	allPlugins := make([]chainconfig.Plugin, len(testConfigs))
-	for i, test := range testConfigs {
-		allPlugins[i] = test.Plugin
-	}
+	testPlugin := chainconfig.Plugin{Name: "test-1"}
 
 	// Mocks
 	mockLoader := mocks.Loader{}
 	pluginLoader = &mockLoader
 
-	for _, test := range testConfigs {
-		mockLoader.On("IsInstalled", test.Plugin).Return(test.IsInstalled)
-	}
+	// Intentionally returns false
+	mockLoader.On("IsInstalled", testPlugin).Return(false)
 
 	// Test
-	cmds := NewScaffoldPlugins(allPlugins)
+	cmds := NewScaffoldPlugins([]chainconfig.Plugin{testPlugin})
 
 	// Asserts
 	mockLoader.AssertExpectations(t)
+	assert.Zero(t, len(cmds))
+}
 
-	installedPlugins := make([]chainconfig.Plugin, 0)
-	for _, test := range testConfigs {
-		if test.IsInstalled {
-			installedPlugins = append(installedPlugins, test.Plugin)
-		}
+func Test_ScaffoldPlugins_Installed(t *testing.T) {
+	// Test fixtures
+	testPlugin := chainconfig.Plugin{Name: "test-0"}
+
+	// Mocks
+	mockLoader := mocks.Loader{}
+	pluginLoader = &mockLoader
+
+	mockLoader.On("IsInstalled", testPlugin).Return(true)
+
+	mockPlugin := mocks.StarportPlugin{}
+	mockFuncs := []plugin.FuncSpec{
+		{Name: "func1"},
+		{Name: "func2"},
 	}
 
-	for i, cmd := range cmds {
-		assert.Equal(t, cmd.Use, installedPlugins[i].Name)
+	mockPlugin.On("List").Return(mockFuncs)
+	mockLoader.On("LoadPlugin", testPlugin, pluginHome).Return(&mockPlugin, nil)
+
+	// Test
+	cmds := NewScaffoldPlugins([]chainconfig.Plugin{testPlugin})
+
+	// Asserts
+	mockLoader.AssertExpectations(t)
+	assert.Equal(t, 1, len(cmds))
+	assert.Equal(t, testPlugin.Name, cmds[0].Use)
+
+	for i, cmd := range cmds[0].Commands() {
+		assert.Equal(t, mockFuncs[i].Name, cmd.Use)
 	}
 }

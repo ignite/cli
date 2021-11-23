@@ -2,6 +2,8 @@ package starportcmd
 
 import (
 	"fmt"
+	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
@@ -44,16 +46,20 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldFlutter())
 
-	// TODO: How to load plugin configs here?
-	// TODO: Dummy data
-	configs := make([]chainconfig.Plugin, 3)
-	for i := 0; i < 3; i++ {
-		configs[i].Name = fmt.Sprintf("plugin-%d", i)
-		configs[i].Description = fmt.Sprintf("Test for plugin-%d", i)
+	// TODO: Refactoring this.
+	confPath, err := chainconfig.LocateDefault(os.Getenv("HOME") + "/.starport")
+	if err != nil {
+		log.Println(err)
+		return c
 	}
-	//
 
-	pluginCmds := NewScaffoldPlugins(configs)
+	conf, err := chainconfig.ParseFile(confPath)
+	if err != nil {
+		log.Println(err)
+		return c
+	}
+
+	pluginCmds := NewScaffoldPlugins(conf.Plugins)
 	for _, cmd := range pluginCmds {
 		c.AddCommand(cmd)
 	}

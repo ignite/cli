@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"fmt"
 	"log"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/chainconfig"
@@ -10,6 +11,7 @@ import (
 )
 
 var (
+	pluginHome   = fmt.Sprintf("%s/.starport/plugins", os.Getenv("HOME")) // TODO:
 	pluginLoader plugin.Loader
 )
 
@@ -26,17 +28,37 @@ func init() {
 func NewScaffoldPlugins(pluginConfigs []chainconfig.Plugin) []*cobra.Command {
 	cmds := make([]*cobra.Command, 0)
 
-	for _, p := range pluginConfigs {
-		if pluginLoader.IsInstalled(p) {
-			cmds = append(cmds, &cobra.Command{
-				Use:   p.Name,
-				Short: p.Description,
-				RunE: func(cmd *cobra.Command, args []string) error {
-					// TODO: Run plugin here.
-					fmt.Println("Run plugin ", cmd.Use)
-					return nil
-				},
-			})
+	for i, cfg := range pluginConfigs {
+		i := i // Fix scopelint
+
+		if pluginLoader.IsInstalled(cfg) {
+			plugin, err := pluginLoader.LoadPlugin(pluginConfigs[i], pluginHome)
+			if err != nil {
+				log.Println(err)
+				continue
+			}
+
+			pluginCmd := &cobra.Command{
+				Use:   cfg.Name,
+				Short: cfg.Description,
+			}
+
+			funcList := plugin.List()
+
+			for _, f := range funcList {
+				f := f // Fix scope
+
+				pluginCmd.AddCommand(&cobra.Command{
+					Use:   f.Name,
+					Short: f.Name, // TODO: Any alternatives?
+					Args:  cobra.ExactArgs(len(f.ParamTypes)),
+					RunE: func(cmd *cobra.Command, args []string) error {
+						return plugin.Execute(f.Name, args)
+					},
+				})
+			}
+
+			cmds = append(cmds, pluginCmd)
 		}
 	}
 

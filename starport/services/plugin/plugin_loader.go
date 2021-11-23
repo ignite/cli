@@ -67,12 +67,6 @@ func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
 }
 
 func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error) {
-	// TODO: jkkim: How do I get path of real ".so" symbol?
-	// configDir, err := chainconfig.ConfigDirPath()
-	// if err != nil {
-	// 	return nil, err
-	// }
-
 	pluginSymbol := fmt.Sprintf("%s/%s/%s.so", pluginPath, config.Name, config.Name)
 	specs, err := l.loadSymbol(pluginSymbol)
 	if err != nil {

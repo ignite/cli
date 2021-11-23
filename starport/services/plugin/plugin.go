@@ -2,7 +2,7 @@ package plugin
 
 import (
 	"errors"
-	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 )
@@ -21,7 +21,10 @@ var (
 // StarportPlugin provides interfaces for starport plugin.
 type StarportPlugin interface {
 	Execute(name string, args []string) error
-	List() error
+	List() []FuncSpec
+
+	// TODO: Need?
+	// Cause single plugin can have multiple functions.
 	Usage(name string) error
 
 	Name() string
@@ -35,6 +38,7 @@ type starportplugin struct {
 func (p *starportplugin) Execute(name string, args []string) error {
 	spec, ok := p.funcSpecs[name]
 	if !ok {
+		log.Println(ErrSymbolNotExist.Error())
 		return ErrSymbolNotExist
 	}
 
@@ -42,6 +46,7 @@ func (p *starportplugin) Execute(name string, args []string) error {
 	for i, paramType := range spec.ParamTypes {
 		val, err := convert(args[i], paramType)
 		if err != nil {
+			log.Println(err)
 			return err
 		}
 
@@ -120,18 +125,16 @@ func convert(in string, expectType reflect.Type) (reflect.Value, error) {
 	}
 }
 
-func (p *starportplugin) List() error {
-	// TODO:
+func (p *starportplugin) List() []FuncSpec {
+	specs := make([]FuncSpec, len(p.funcSpecs))
 
-	if len(p.funcSpecs) == 0 {
-		return ErrNotInitilized
+	i := 0
+	for _, v := range p.funcSpecs {
+		specs[i] = v
+		i++
 	}
 
-	for k, spec := range p.funcSpecs {
-		fmt.Printf("%+v %+v\n", k, spec)
-	}
-
-	return nil
+	return specs
 }
 
 func (p *starportplugin) Usage(name string) error {
