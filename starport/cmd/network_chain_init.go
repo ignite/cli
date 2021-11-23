@@ -60,7 +60,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
-	chainHome, exist, err := network.IsChainHomeExist(launchID, false)
+	chainHome, exist, err := network.IsChainHomeExist(launchID)
 	if err != nil {
 		return err
 	}

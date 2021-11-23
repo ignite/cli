@@ -8,6 +8,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -16,9 +17,20 @@ import (
 
 // Prepare queries launch information and prepare the chain to be launched from these information
 func (b Blockchain) Prepare(ctx context.Context) error {
-	if !b.isInitialized {
-		return errors.New("the blockchain must be initialized to prepare for launch")
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
+	if _, err := b.chain.Build(ctx, ""); err != nil {
+		return err
 	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain built"))
+
+	// set genesis to initial state
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
+	if err := b.initGenesis(ctx); err != nil {
+		return err
+	}
+	b.builder.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+
+	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	// get the genesis accounts and apply them to the genesis
 	genesisAccounts, err := b.builder.GenesisAccounts(ctx, b.launchID)
@@ -52,7 +64,13 @@ func (b Blockchain) Prepare(ctx context.Context) error {
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
-	return cosmosutil.SetGenesisTime(genesisPath, b.launchTime)
+	if err := cosmosutil.SetGenesisTime(genesisPath, b.launchTime); err != nil {
+		return errors.Wrap(err, "genesis time can't be set")
+	}
+
+	b.builder.ev.Send(events.New(events.StatusDone, "Genesis built"))
+
+	return nil
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI

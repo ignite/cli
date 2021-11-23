@@ -118,13 +118,6 @@ func InitializationHomePath(homePath string) InitOption {
 	}
 }
 
-// InitializationKeyringBackend provides the keyring backend to use to initialize the blockchain
-func InitializationKeyringBackend(keyringBackend chaincmd.KeyringBackend) InitOption {
-	return func(o *initOptions) {
-		o.keyringBackend = keyringBackend
-	}
-}
-
 // InitializationGenesisURL provides a genesis url for the initial genesis of the chain blockchain
 func InitializationGenesisURL(genesisURL string) InitOption {
 	return func(o *initOptions) {
@@ -184,7 +177,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 
 		// If no custom home is provided, a default home determined from the launch ID is used
 		if home == "" {
-			home, err = ChainHome(o.launchID, o.prepareLaunch)
+			home, err = ChainHome(o.launchID)
 			if err != nil {
 				return nil, err
 			}

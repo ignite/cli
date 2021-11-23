@@ -13,19 +13,11 @@ func TestChainHome(t *testing.T) {
 	home, err := os.UserHomeDir()
 	require.NoError(t, err)
 
-	chainHome, err := network.ChainHome(0, false)
+	chainHome, err := network.ChainHome(0)
 	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, network.ChainHomeInitDir, "0"), chainHome)
+	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, "0"), chainHome)
 
-	chainHome, err = network.ChainHome(10, false)
+	chainHome, err = network.ChainHome(10)
 	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, network.ChainHomeInitDir, "10"), chainHome)
-
-	chainHome, err = network.ChainHome(0, true)
-	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, network.ChainHomeLaunchDir, "0"), chainHome)
-
-	chainHome, err = network.ChainHome(10, true)
-	require.NoError(t, err)
-	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, network.ChainHomeLaunchDir, "10"), chainHome)
+	require.Equal(t, filepath.Join(home, network.ChainHomeRoot, "10"), chainHome)
 }

@@ -1,8 +1,6 @@
 package starportcmd
 
 import (
-	"fmt"
-	"github.com/manifoldco/promptui"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -27,7 +25,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, _, shutdown, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
 	}
@@ -42,34 +40,11 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	chainHome, exist, err := network.IsChainHomeExist(launchID, true)
-	if err != nil {
-		return err
-	}
-	if !getYes(cmd) && exist {
-		prompt := promptui.Prompt{
-			Label: fmt.Sprintf("The chain launch has already been prepared under: %s. Would you like to overwrite the home directory",
-				chainHome,
-			),
-			IsConfirm: true,
-		}
-		s.Stop()
-		if _, err := prompt.Run(); err != nil {
-			fmt.Println("said no")
-			return nil
-		}
-		s.Start()
-	}
-
 	// initialize the blockchain from the launch ID
 	initOptions := initOptionWithHomeFlag(cmd, network.InitializationPrepareLaunch())
 	sourceOption := network.SourceLaunchID(launchID)
 	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
 	if err != nil {
-		return err
-	}
-
-	if err := blockchain.Init(cmd.Context()); err != nil {
 		return err
 	}
 
