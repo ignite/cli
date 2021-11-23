@@ -1,6 +1,7 @@
 package cosmosutil_test
 
 import (
+	"encoding/json"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"os"
@@ -8,8 +9,38 @@ import (
 	"testing"
 )
 
+const (
+	genesisSample = `
+{
+	"foo": "bar",
+	"genesis_time": "foobar"
+}
+`
+	unixTime = 1600000000
+	rfcTime = "2020-09-13T15:26:40+03:00"
+)
+
+
 func TestSetGenesisTime(t *testing.T) {
-	require.Error(t, cosmosutil.SetGenesisTime(filepath.Join(os.TempDir(),"no", "genesis.json"), 0))
+	tmp, err := os.MkdirTemp("", "")
+	t.Cleanup(func () {os.RemoveAll(tmp)})
+	tmpGenesis := filepath.Join(tmp, "genesis.json")
 
+	// fails with no file
+	require.NoError(t, err)
+	require.Error(t, cosmosutil.SetGenesisTime(tmpGenesis, 0))
 
+	require.NoError(t, os.WriteFile(tmpGenesis, []byte(genesisSample), 0644))
+	require.NoError(t, cosmosutil.SetGenesisTime(tmpGenesis, unixTime))
+
+	// check genesis modified value
+	var actual struct {
+		Foo string `json:"foo"`
+		GenesisTime string `json:"genesis_time"`
+	}
+	actualBytes, err := os.ReadFile(tmpGenesis)
+	require.NoError(t, err)
+	require.NoError(t, json.Unmarshal(actualBytes, &actual))
+	require.Equal(t, "bar", actual.Foo)
+	require.Equal(t, rfcTime, actual.GenesisTime)
 }
