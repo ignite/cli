@@ -6,16 +6,21 @@ import (
 	"strings"
 )
 
+const (
+	separator = ","
+	sepRange  = "-"
+)
+
 // ParseListRange parses comma separated numbers and range to []uint64.
 func ParseListRange(arg string) ([]uint64, error) {
 	list := make([]uint64, 0)
-	for _, numberRange := range strings.Split(arg, ",") {
+	for _, numberRange := range strings.Split(arg, separator) {
 		trimmedRange := strings.TrimSpace(numberRange)
 		if trimmedRange == "" {
 			continue
 		}
 
-		numbers := strings.Split(trimmedRange, "/")
+		numbers := strings.Split(trimmedRange, sepRange)
 		switch len(numbers) {
 		case 1:
 			trimmed := strings.TrimSpace(numbers[0])
