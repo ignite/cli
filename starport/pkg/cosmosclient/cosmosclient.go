@@ -138,9 +138,10 @@ func WithUseFaucet(faucetAddress, denom string, minAmount int64) Option {
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
-		nodeAddress:   defaultNodeAddress,
-		addressPrefix: "cosmos",
-		out:           io.Discard,
+		nodeAddress:    defaultNodeAddress,
+		keyringBackend: cosmosaccount.KeyringTest,
+		addressPrefix:  "cosmos",
+		out:            io.Discard,
 	}
 
 	var err error
@@ -171,6 +172,7 @@ func New(ctx context.Context, options ...Option) (Client, error) {
 	c.AccountRegistry, err = cosmosaccount.New(
 		cosmosaccount.WithKeyringServiceName(c.keyringServiceName),
 		cosmosaccount.WithKeyringBackend(c.keyringBackend),
+		cosmosaccount.WithHome(c.homePath),
 	)
 	if err != nil {
 		return Client{}, err
@@ -267,7 +269,7 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		WithFromName(accountName).
 		WithFromAddress(accountAddress)
 
-	txf, err := c.Factory.Prepare(context)
+	txf, err := prepareFactory(context, c.Factory)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -283,11 +285,11 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 
 	// Return the provision function
 	return gas, func() (Response, error) {
-		txUnsigned, err := txf.BuildUnsignedTx(msgs...)
+		txUnsigned, err := tx.BuildUnsignedTx(txf, msgs...)
 		if err != nil {
 			return Response{}, err
 		}
-		if err = tx.Sign(txf, accountName, txUnsigned, true); err != nil {
+		if err := tx.Sign(txf, accountName, txUnsigned, true); err != nil {
 			return Response{}, err
 		}
 
@@ -400,6 +402,33 @@ func handleBroadcastResult(resp *sdktypes.TxResponse, err error) error {
 	}
 	return nil
 }
+
+func prepareFactory(clientCtx client.Context, txf tx.Factory) (tx.Factory, error) {
+	from := clientCtx.GetFromAddress()
+
+	if err := txf.AccountRetriever().EnsureExists(clientCtx, from); err != nil {
+		return txf, err
+	}
+
+	initNum, initSeq := txf.AccountNumber(), txf.Sequence()
+	if initNum == 0 || initSeq == 0 {
+		num, seq, err := txf.AccountRetriever().GetAccountNumberSequence(clientCtx, from)
+		if err != nil {
+			return txf, err
+		}
+
+		if initNum == 0 {
+			txf = txf.WithAccountNumber(num)
+		}
+
+		if initSeq == 0 {
+			txf = txf.WithSequence(seq)
+		}
+	}
+
+	return txf, nil
+}
+
 func newContext(
 	c *rpchttp.HTTP,
 	out io.Writer,
