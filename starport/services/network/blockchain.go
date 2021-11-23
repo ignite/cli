@@ -26,6 +26,7 @@ type Blockchain struct {
 	builder       *Builder
 	genesisURL    string
 	genesisHash   string
+	launchTime    int64
 }
 
 // setup setups the blockchain.

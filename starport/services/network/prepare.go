@@ -3,21 +3,24 @@ package network
 import (
 	"context"
 	"fmt"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"strings"
-
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"io/ioutil"
+	"os"
+	"path/filepath"
+	"strings"
 )
 
 // Prepare queries launch information and prepare the chain to be launched from these information
 func (b Blockchain) Prepare(ctx context.Context) error {
+	if !b.isInitialized {
+		return errors.New("the blockchain must be initialized to prepare for launch")
+	}
+
 	// get the genesis accounts and apply them to the genesis
-	// TODO: include launchID in the init process
 	genesisAccounts, err := b.builder.GenesisAccounts(ctx, b.launchID)
 	if err != nil {
 		return errors.Wrap(err, "error querying genesis accounts")
@@ -44,9 +47,12 @@ func (b Blockchain) Prepare(ctx context.Context) error {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
-	// TODO: Set the genesis time for chain with triggered launch
-
-	return nil
+	// set the genesis time for the chain
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return errors.Wrap(err, "genesis of the blockchain can't be read")
+	}
+	return cosmosutil.SetGenesisTime(genesisPath, b.launchTime)
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
