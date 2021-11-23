@@ -2,7 +2,6 @@ package network
 
 import (
 	"context"
-	"errors"
 	"fmt"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -140,23 +139,6 @@ func (b *Builder) SendValidatorRequest(
 	}
 
 	return nil
-}
-
-// GetAccountAddress return an account address for the blockchain by name
-func (b *Blockchain) GetAccountAddress(ctx context.Context, accountName string) (string, error) {
-	if !b.isInitialized {
-		return "", errors.New("the blockchain must be initialized to show an account")
-	}
-
-	chainCmd, err := b.chain.Commands(ctx)
-	if err != nil {
-		return "", err
-	}
-	acc, err := chainCmd.ShowAccount(ctx, accountName)
-	if err != nil {
-		return "", err
-	}
-	return acc.Address, nil
 }
 
 // hasValidator verify if the validator already exist into the SPN store
