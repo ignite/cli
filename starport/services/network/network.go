@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
@@ -175,7 +174,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 
 		// If no custom home is provided, a default home determined from the launch ID is used
 		if home == "" {
-			home, err = cosmosutil.ChainHome(o.launchID)
+			home, err = ChainHome(o.launchID)
 			if err != nil {
 				return nil, err
 			}

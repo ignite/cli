@@ -10,7 +10,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -61,7 +60,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
-	chainHome, exist, err := cosmosutil.IsChainHomeExist(launchID)
+	chainHome, exist, err := network.IsChainHomeExist(launchID)
 	if err != nil {
 		return err
 	}
