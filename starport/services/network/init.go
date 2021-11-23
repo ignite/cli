@@ -18,8 +18,8 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-// Init initializes blockchain by building the binaries and running the init command and
-// create the initial genesis of the chain
+// Init initializes blockchain by building the binaries and running the init command,
+// create the initial genesis of the chain and setup a validator key
 func (b *Blockchain) Init(ctx context.Context) error {
 	chainHome, err := b.chain.Home()
 	if err != nil {
@@ -88,6 +88,16 @@ func (b *Blockchain) InitAccount(ctx context.Context, v chain.Validator, account
 
 // initGenesis creates the initial genesis of the genesis depending on the initial genesis type (default, url, ...)
 func (b *Blockchain) initGenesis(ctx context.Context) error {
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return err
+	}
+
+	// remove existing genesis
+	if err := os.Remove(genesisPath); err != nil {
+		return err
+	}
+
 	// if the blockchain has a genesis URL, the initial genesis is fetched from the url
 	// otherwise, default genesis is used, which requires no action since the default genesis is generated from the init command
 	if b.genesisURL != "" {
@@ -105,13 +115,21 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 		}
 
 		// replace the default genesis with the fetched genesis
-		genesisPath, err := b.chain.GenesisPath()
-		if err != nil {
-			return err
-		}
 		if err := os.WriteFile(genesisPath, genesis, 0644); err != nil {
 			return err
 		}
+	} else {
+		// default genesis is used, init cli command is used to generate it
+		cmd, err := b.chain.Commands(ctx)
+		if err != nil {
+			return err
+		}
+
+		// TODO: reuse existing moniker
+		if err := cmd.Init(ctx, "moniker"); err != nil {
+			return err
+		}
+
 	}
 
 	// check the genesis is valid

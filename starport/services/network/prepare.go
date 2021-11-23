@@ -17,19 +17,39 @@ import (
 
 // Prepare queries launch information and prepare the chain to be launched from these information
 func (b Blockchain) Prepare(ctx context.Context) error {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-	if _, err := b.chain.Build(ctx, ""); err != nil {
+	// chain initialization
+	chainHome, err := b.chain.Home()
+	if err != nil {
 		return err
 	}
-	b.builder.ev.Send(events.New(events.StatusDone, "Blockchain built"))
-
-	// set genesis to initial state
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
-	if err := b.initGenesis(ctx); err != nil {
+	_, err = os.Stat(chainHome)
+	if _, err := os.Stat(chainHome); os.IsNotExist(err) {
+		// if no config exists, we perform a full initialization of the chain with a new validator key
+		if err := b.Init(ctx); err != nil {
+			return err
+		}
+	} else if err != nil {
 		return err
-	}
-	b.builder.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+	} else {
+		// if config and validator key already exists we only build the chain and initialized the genesis
+		b.builder.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
+		if _, err := b.chain.Build(ctx, ""); err != nil {
+			return err
+		}
+		b.builder.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 
+		b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
+		if err := b.initGenesis(ctx); err != nil {
+			return err
+		}
+		b.builder.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+	}
+
+	return b.buildGenesis(ctx)
+}
+
+// buildGenesis builds the genesis for the chain from the launch approved requests
+func (b Blockchain) buildGenesis(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	// get the genesis accounts and apply them to the genesis
