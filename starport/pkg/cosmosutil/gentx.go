@@ -32,12 +32,11 @@ type (
 	ChainGenesis struct {
 		AppState struct {
 			Auth struct {
-				Accounts []acc `json:"accounts"`
+				Accounts []struct {
+					Address string `json:"address"`
+				} `json:"accounts"`
 			} `json:"auth"`
 		} `json:"app_state"`
-	}
-	acc struct {
-		Address string `json:"address"`
 	}
 )
 
