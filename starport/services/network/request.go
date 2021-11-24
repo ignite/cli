@@ -51,6 +51,5 @@ func (b *Builder) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
-	b.ev.Send(events.New(events.StatusDone, "Settle request transactions sent"))
 	return nil
 }
