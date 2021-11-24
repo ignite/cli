@@ -11,9 +11,9 @@ import (
 
 // MUST BE RAN BEFORE BUILD
 func (m *Manager) pull(ctx context.Context, cfg chaincfg.Config) error {
-	for _, plug := range cfg.Plugins {
+	for _, cfgPlugin := range cfg.Plugins {
 		// Seperate individual plugins by ID
-		plugId := getPluginId(plug)
+		plugId := getPluginId(cfgPlugin)
 
 		// Check GOPATH for plugin?
 
@@ -31,7 +31,7 @@ func (m *Manager) pull(ctx context.Context, cfg chaincfg.Config) error {
 			}
 		}
 
-		if err := download(plug.Repo, plug.Subdir, dst); err != nil {
+		if err := download(cfgPlugin.Repo, cfgPlugin.Subdir, dst); err != nil {
 			return err
 		}
 	}

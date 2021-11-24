@@ -15,12 +15,12 @@ import (
 func main() {
 	ctx := clictx.From(context.Background())
 
+	// Check if this actually preruns, idk if it is right now
 	starportCmd := starportcmd.New(ctx)
 	// Set PersistentPreRunE here (https://pkg.go.dev/github.com/spf13/cobra#Command)
 	// Find a way to have this run on setup, not on every usage of the command
 	starportCmd.PersistentPreRunE = plugins.PersistentPreRunE
 	err := starportCmd.ExecuteContext(ctx)
-
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
 		return

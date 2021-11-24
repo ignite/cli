@@ -45,7 +45,7 @@ func pluginDownloaded(chainId, pluginId string) (bool, error) {
 // Check if plugin-specified configuration is different from downloaded plugins
 // For now, ONLY CHECKS DIRECTORY NAMES
 // This is not adequate, because one could delete files from directories
-func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
+func PluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
 	var configPluginNames []string
 	var fileConfigNames []string
 

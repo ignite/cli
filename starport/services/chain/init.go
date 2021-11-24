@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/chainconfig"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/confile"
+	"github.com/tendermint/starport/starport/services/plugins"
 )
 
 const (
@@ -67,6 +68,11 @@ func (c *Chain) InitChain(ctx context.Context) error {
 
 	// overwrite configuration changes from Starport's config.yml to
 	// over app's sdk configs.
+
+	pluginManager := plugins.NewManager(chainID)
+	if err := pluginManager.PullBuild(ctx, conf); err != nil {
+		return err
+	}
 
 	if err := c.plugin.Configure(home, conf); err != nil {
 		return err

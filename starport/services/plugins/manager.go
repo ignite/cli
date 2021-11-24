@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/spf13/cobra"
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
@@ -55,7 +56,7 @@ func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
 	// Check for change in config contents since last
 	// Don't check for remote package changes, as theoretically we want it
 	// to be up to the user to reload the plugins.
-	// configChanged, err := pluginsChanged(cfg, m.ChainId)
+	// configChanged, err := PluginsChanged(cfg, m.ChainId)
 	// if err != nil {
 	// 	return err
 	// }
@@ -64,11 +65,13 @@ func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
 	// 	return nil
 	// }
 
+	fmt.Println("pulling")
 	// Pull
 	if err := m.pull(ctx, cfg); err != nil {
 		return err
 	}
 
+	fmt.Println("building")
 	// Build
 	if err := m.build(ctx, cfg); err != nil {
 		return err
