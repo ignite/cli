@@ -1,12 +1,13 @@
 ---
 order: 9
+description: Add test files.
 ---
 
-# Write tests
+# Write Test Files
 
 To test your application, add the test files to your code.
 
-After you add the test files below, change into the `interchange` directory with your terminal, then run
+After you add the test files, change into the `interchange` directory with your terminal, then run:
 
 ```bash
 go test -timeout 30s ./x/dex/types
@@ -16,7 +17,7 @@ go test -timeout 30s ./x/dex/types
 
 Create a new `order_book_test.go` file in the `types` directory.
 
-Add the following testsuite.
+Add the following testsuite:
 
 ```go
 // types/order_book_test.go
@@ -134,7 +135,7 @@ func TestRemoveOrderFromID(t *testing.T) {
 
 ## Buy Order Tests
 
-Create a new `buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book.
+Create a new `buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book:
 
 ```go
 // types/buy_order_book_test.go
@@ -426,7 +427,7 @@ func TestFillSellOrder(t *testing.T) {
 
 ## Sell Order Tests
 
-Create a new testsuite for Sell Orders in a new file `types/sell_order_book_test.go`.
+Create a new testsuite for Sell Orders in a new file `types/sell_order_book_test.go`:
 
 ```go
 // types/sell_order_book_test.go
@@ -712,7 +713,9 @@ func TestFillBuyOrder(t *testing.T) {
 }
 ```
 
-When the tests are successful, your output should be 
+## Successful Test Output
+
+When the tests are successful, your output is:
 
 ```go
 ok      github.com/cosmonaut/interchange/x/dex/types       0.550s
