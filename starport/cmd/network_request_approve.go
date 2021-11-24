@@ -71,7 +71,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	// Submit the approved requests
 	reviewals := make([]network.Reviewal, 0)
 	for _, id := range ids {
-		reviewals = append(reviewals, network.ApproveProposal(id))
+		reviewals = append(reviewals, network.ApproveRequest(id))
 	}
 	if err := nb.SubmitRequest(launchID, reviewals...); err != nil {
 		return err
