@@ -55,7 +55,6 @@ func (b *Builder) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
-	b.ev.Send(events.New(events.StatusDone, "Settle request transactions sent"))
 	return nil
 }
 
@@ -71,6 +70,43 @@ func (b *Builder) fetchRequest(ctx context.Context, launchID, requestID uint64) 
 	return res.Request, err
 }
 
+// verifyAddValidatorRequest verify the validator request parameters
+func (b *Builder) verifyAddValidatorRequest(
+	req *launchtypes.RequestContent_GenesisValidator,
+	id uint64,
+) error {
+	// If this is an add validator request
+	valAddress := req.GenesisValidator.Address
+	selfDelegation := req.GenesisValidator.SelfDelegation
+
+	// Check values inside the gentx are correct
+	info, _, err := gentx.ParseGentx(req.GenesisValidator.GenTx)
+	if err != nil {
+		return fmt.Errorf("cannot parse request %v gentx: %v", id, err.Error())
+	}
+
+	// Check validator address
+	if valAddress != info.DelegatorAddress {
+		return fmt.Errorf(
+			"request %v contains a validator address %v that doesn't match the one inside the gentx: %v",
+			id,
+			valAddress,
+			info.DelegatorAddress,
+		)
+	}
+
+	// Check self delegation
+	if !selfDelegation.IsEqual(info.SelfDelegation) {
+		return fmt.Errorf(
+			"request %v contains a self delegation %v that doesn't match the one inside the gentx: %v",
+			id,
+			selfDelegation.String(),
+			info.SelfDelegation.String(),
+		)
+	}
+	return nil
+}
+
 // VerifyRequests if the requests are correct and simulate them with the current launch information
 // Correctness means checks that have to be performed off-chain
 func (b *Builder) VerifyRequests(ctx context.Context, launchID uint64, requests []uint64) error {
@@ -84,34 +120,9 @@ func (b *Builder) VerifyRequests(ctx context.Context, launchID uint64, requests 
 
 		req, ok := request.Content.Content.(*launchtypes.RequestContent_GenesisValidator)
 		if ok {
-			// If this is an add validator request
-			valAddress := req.GenesisValidator.Address
-			selfDelegation := req.GenesisValidator.SelfDelegation
-
-			// Check values inside the gentx are correct
-			info, _, err := gentx.ParseGentx(req.GenesisValidator.GenTx)
+			err := b.verifyAddValidatorRequest(req, id)
 			if err != nil {
-				return fmt.Errorf("cannot parse request %v gentx: %v", id, err.Error())
-			}
-
-			// Check validator address
-			if valAddress != info.DelegatorAddress {
-				return fmt.Errorf(
-					"request %v contains a validator address %v that doesn't match the one inside the gentx: %v",
-					id,
-					valAddress,
-					info.DelegatorAddress,
-				)
-			}
-
-			// Check self delegation
-			if !selfDelegation.IsEqual(info.SelfDelegation) {
-				return fmt.Errorf(
-					"request %v contains a self delegation %v that doesn't match the one inside the gentx: %v",
-					id,
-					selfDelegation.String(),
-					info.SelfDelegation.String(),
-				)
+				return err
 			}
 		}
 	}
