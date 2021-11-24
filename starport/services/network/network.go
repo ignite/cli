@@ -192,6 +192,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	b.ev.Send(events.New(events.StatusDone, "Source code fetched"))
 
 	bc := &Blockchain{
+		launchID:    o.launchID,
 		appPath:     path,
 		url:         url,
 		hash:        hash,
