@@ -57,7 +57,7 @@ func (b Blockchain) buildGenesis(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	// get the genesis accounts and apply them to the genesis
-	genesisAccounts, err := b.genesisAccounts(ctx)
+	genesisAccounts, err := b.builder.GenesisAccounts(ctx, b.launchID)
 	if err != nil {
 		return errors.Wrap(err, "error querying genesis accounts")
 	}
@@ -66,7 +66,7 @@ func (b Blockchain) buildGenesis(ctx context.Context) error {
 	}
 
 	// get the genesis vesting accounts and apply them to the genesis
-	vestingAccounts, err := b.vestingAccounts(ctx)
+	vestingAccounts, err := b.builder.VestingAccounts(ctx, b.launchID)
 	if err != nil {
 		return errors.Wrap(err, "error querying vesting accounts")
 	}
@@ -75,7 +75,7 @@ func (b Blockchain) buildGenesis(ctx context.Context) error {
 	}
 
 	// get the genesis validators, gather gentxs and modify config to include the peers
-	genesisValidators, err := b.genesisValidators(ctx)
+	genesisValidators, err := b.builder.GenesisValidators(ctx, b.launchID)
 	if err != nil {
 		return errors.Wrap(err, "error querying genesis validators")
 	}
@@ -95,42 +95,6 @@ func (b Blockchain) buildGenesis(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusDone, "Genesis built"))
 
 	return nil
-}
-
-// genesisAccounts returns the list of approved genesis account for a blockchain with information from SPN
-func (b Blockchain) genesisAccounts(ctx context.Context) ([]launchtypes.GenesisAccount, error) {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Fetching genesis accounts"))
-	res, err := launchtypes.NewQueryClient(b.builder.cosmos.Context).GenesisAccountAll(ctx, &launchtypes.QueryAllGenesisAccountRequest{
-		LaunchID: b.launchID,
-	})
-	if err != nil {
-		return []launchtypes.GenesisAccount{}, err
-	}
-	return res.GenesisAccount, err
-}
-
-// vestingAccounts returns the list of approved genesis vesting account for a blockchain with information from SPN
-func (b Blockchain) vestingAccounts(ctx context.Context) ([]launchtypes.VestingAccount, error) {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Fetching genesis vesting accounts"))
-	res, err := launchtypes.NewQueryClient(b.builder.cosmos.Context).VestingAccountAll(ctx, &launchtypes.QueryAllVestingAccountRequest{
-		LaunchID: b.launchID,
-	})
-	if err != nil {
-		return []launchtypes.VestingAccount{}, err
-	}
-	return res.VestingAccount, err
-}
-
-// genesisValidators returns the list of approved genesis validators for for a blockchain with information from SPN
-func (b Blockchain) genesisValidators(ctx context.Context) ([]launchtypes.GenesisValidator, error) {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Fetching genesis validators"))
-	res, err := launchtypes.NewQueryClient(b.builder.cosmos.Context).GenesisValidatorAll(ctx, &launchtypes.QueryAllGenesisValidatorRequest{
-		LaunchID: b.launchID,
-	})
-	if err != nil {
-		return []launchtypes.GenesisValidator{}, err
-	}
-	return res.GenesisValidator, err
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
