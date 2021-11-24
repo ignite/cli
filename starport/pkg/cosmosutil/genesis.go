@@ -22,7 +22,7 @@ func SetGenesisTime(genesisPath string, genesisTime int64) error {
 	}
 
 	// check the genesis time with the RFC3339 standard format
-	formattedTime := time.Unix(genesisTime, 0).Format(time.RFC3339)
+	formattedTime := time.Unix(genesisTime, 0).UTC().Format(time.RFC3339Nano)
 
 	// modify and save the new genesis
 	genesis[genesisTimeField] = &formattedTime
