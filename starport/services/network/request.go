@@ -74,10 +74,7 @@ func (b *Builder) fetchRequest(ctx context.Context, launchID, requestID uint64) 
 }
 
 // verifyAddValidatorRequest verify the validator request parameters
-func (b *Builder) verifyAddValidatorRequest(
-	req *launchtypes.RequestContent_GenesisValidator,
-	id uint64,
-) error {
+func (*Builder) verifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator) error {
 	// If this is an add validator request
 	peer := req.GenesisValidator.Peer
 	valAddress := req.GenesisValidator.Address
@@ -87,14 +84,13 @@ func (b *Builder) verifyAddValidatorRequest(
 	// Check values inside the gentx are correct
 	info, _, err := gentx.ParseGentx(req.GenesisValidator.GenTx)
 	if err != nil {
-		return fmt.Errorf("cannot parse request %d gentx: %s", id, err.Error())
+		return fmt.Errorf("cannot parse gentx %s", err.Error())
 	}
 
 	// Check validator address
 	if valAddress != info.DelegatorAddress {
 		return fmt.Errorf(
-			"request %d contains a validator address %s that doesn't match the one inside the gentx: %s",
-			id,
+			"the validator address %s doesn't match the one inside the gentx %s",
 			valAddress,
 			info.DelegatorAddress,
 		)
@@ -103,8 +99,7 @@ func (b *Builder) verifyAddValidatorRequest(
 	// Check validator address
 	if res := bytes.Compare(consPubKey, info.PubKey); res != 0 {
 		return fmt.Errorf(
-			"request %d contains a consensus pub key %s that doesn't match the one inside the gentx: %s",
-			id,
+			"the consensus pub key %s doesn't match the one inside the gentx %s",
 			string(consPubKey),
 			string(info.PubKey),
 		)
@@ -113,8 +108,7 @@ func (b *Builder) verifyAddValidatorRequest(
 	// Check self delegation
 	if !selfDelegation.IsEqual(info.SelfDelegation) {
 		return fmt.Errorf(
-			"request %d contains a self delegation %s that doesn't match the one inside the gentx: %s",
-			id,
+			"the self delegation %s doesn't match the one inside the gentx %s",
 			selfDelegation.String(),
 			info.SelfDelegation.String(),
 		)
@@ -124,17 +118,13 @@ func (b *Builder) verifyAddValidatorRequest(
 	nodeHost := strings.Split(peer, "@")
 	if len(nodeHost) < 2 {
 		return fmt.Errorf(
-			"request %d contains a peer %s that doesn't match the peer format <node-id>@<host>",
-			id,
+			"the peer %s doesn't match the peer format <node-id>@<host>",
 			peer,
 		)
 	}
 	nodeID := nodeHost[0]
 	if len(nodeID) == 0 {
-		return fmt.Errorf(
-			"request %d contains an empty peer node id",
-			id,
-		)
+		return fmt.Errorf("empty peer node id")
 	}
 
 	// Looks up the given host
@@ -142,8 +132,7 @@ func (b *Builder) verifyAddValidatorRequest(
 	hostName, err := net.LookupHost(host)
 	if err != nil || len(hostName) == 0 {
 		return fmt.Errorf(
-			"request %d contains a peer host %s that contains an invalid host",
-			id,
+			"the peer host %s contains an invalid host",
 			host,
 		)
 	}
@@ -163,9 +152,9 @@ func (b *Builder) VerifyRequests(ctx context.Context, launchID uint64, requests 
 
 		req, ok := request.Content.Content.(*launchtypes.RequestContent_GenesisValidator)
 		if ok {
-			err := b.verifyAddValidatorRequest(req, id)
+			err := b.verifyAddValidatorRequest(req)
 			if err != nil {
-				return err
+				return fmt.Errorf("request %d error: %s", id, err.Error())
 			}
 		}
 	}
