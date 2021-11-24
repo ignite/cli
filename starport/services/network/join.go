@@ -112,7 +112,7 @@ func (b *Builder) sendAccountRequest(
 	}
 
 	b.ev.Send(events.New(events.StatusDone, "Account already exist"))
-	return err
+	return nil
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
@@ -168,7 +168,6 @@ func (b *Builder) sendValidatorRequest(
 				requestRes.RequestID),
 		))
 	}
-
 	return nil
 }
 
