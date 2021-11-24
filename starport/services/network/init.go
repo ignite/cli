@@ -125,7 +125,7 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 			return err
 		}
 
-		// TODO: reuse existing moniker
+		// TODO: use validator moniker https://github.com/tendermint/starport/issues/1834
 		if err := cmd.Init(ctx, "moniker"); err != nil {
 			return err
 		}
