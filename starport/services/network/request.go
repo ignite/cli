@@ -1,8 +1,11 @@
 package network
 
 import (
+	"bytes"
 	"context"
 	"fmt"
+	"net"
+	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -76,32 +79,72 @@ func (b *Builder) verifyAddValidatorRequest(
 	id uint64,
 ) error {
 	// If this is an add validator request
+	peer := req.GenesisValidator.Peer
 	valAddress := req.GenesisValidator.Address
+	consPubKey := req.GenesisValidator.ConsPubKey
 	selfDelegation := req.GenesisValidator.SelfDelegation
 
 	// Check values inside the gentx are correct
 	info, _, err := gentx.ParseGentx(req.GenesisValidator.GenTx)
 	if err != nil {
-		return fmt.Errorf("cannot parse request %v gentx: %v", id, err.Error())
+		return fmt.Errorf("cannot parse request %d gentx: %s", id, err.Error())
 	}
 
 	// Check validator address
 	if valAddress != info.DelegatorAddress {
 		return fmt.Errorf(
-			"request %v contains a validator address %v that doesn't match the one inside the gentx: %v",
+			"request %d contains a validator address %s that doesn't match the one inside the gentx: %s",
 			id,
 			valAddress,
 			info.DelegatorAddress,
 		)
 	}
 
+	// Check validator address
+	if res := bytes.Compare(consPubKey, info.PubKey); res != 0 {
+		return fmt.Errorf(
+			"request %d contains a consensus pub key %s that doesn't match the one inside the gentx: %s",
+			id,
+			string(consPubKey),
+			string(info.PubKey),
+		)
+	}
+
 	// Check self delegation
 	if !selfDelegation.IsEqual(info.SelfDelegation) {
 		return fmt.Errorf(
-			"request %v contains a self delegation %v that doesn't match the one inside the gentx: %v",
+			"request %d contains a self delegation %s that doesn't match the one inside the gentx: %s",
 			id,
 			selfDelegation.String(),
 			info.SelfDelegation.String(),
+		)
+	}
+
+	// Check the format of the peer
+	nodeHost := strings.Split(peer, "@")
+	if len(nodeHost) < 2 {
+		return fmt.Errorf(
+			"request %d contains a peer %s that doesn't match the peer format <node-id>@<host>",
+			id,
+			peer,
+		)
+	}
+	nodeID := nodeHost[0]
+	if len(nodeID) == 0 {
+		return fmt.Errorf(
+			"request %d contains an empty peer node id",
+			id,
+		)
+	}
+
+	// Looks up the given host
+	host := nodeHost[1]
+	hostName, err := net.LookupHost(host)
+	if err != nil || len(hostName) == 0 {
+		return fmt.Errorf(
+			"request %d contains a peer host %s that contains an invalid host",
+			id,
+			host,
 		)
 	}
 	return nil
