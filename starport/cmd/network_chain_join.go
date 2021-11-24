@@ -10,7 +10,6 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -57,40 +56,35 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error parsing amount")
 	}
 
+	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
+	sourceOption := network.SourceLaunchID(launchID)
+	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	if err != nil {
+		return err
+	}
+
 	// get the chain home path
 	home, err := network.ChainHome(launchID)
 	if err != nil {
 		return err
 	}
 
-	// parse the gentx and check if it exists
+	// parse the gentx flag
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
-	isCustomGentx := true
-	if gentxPath == "" {
-		isCustomGentx = false
-		gentxPath = cosmosutil.GentxPath(home)
-	}
 
 	// get the peer public address for the validator
-	peer, err := askPublicAddress(s)
-	if err != nil {
-		return err
-	}
-
-	info, gentxContent, err := cosmosutil.ParseGentx(gentxPath)
+	publicAddr, err := askPublicAddress(s)
 	if err != nil {
 		return err
 	}
 
 	// create the message to add the validator
-	err = nb.Join(cmd.Context(),
+	err = blockchain.Join(cmd.Context(),
 		home,
 		launchID,
-		isCustomGentx,
 		amount,
-		peer,
-		gentxContent,
-		info,
+		publicAddr,
+		gentxPath,
 	)
 	if err != nil {
 		return err

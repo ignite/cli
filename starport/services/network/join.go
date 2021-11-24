@@ -11,27 +11,47 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
-func (b *Builder) Join(
+func (b *Blockchain) Join(
 	ctx context.Context,
 	chainHome string,
 	launchID uint64,
-	customGentx bool,
 	amount sdk.Coin,
-	peer string,
-	gentx []byte,
-	gentxInfo cosmosutil.GentxInfo) error {
-	if err := b.SendAccountRequest(ctx,
+	publicAddress string,
+	gentxPath string) error {
+
+	// Get the chain node id to build the peer string `<nodeID>@<host>`
+	cmd, err := b.chain.Commands(ctx)
+	if err != nil {
+		return err
+	}
+	nodeID, err := cmd.ShowNodeID(ctx)
+	if err != nil {
+		return err
+	}
+	peer := fmt.Sprintf("%s@%s", nodeID, publicAddress)
+
+	// Check if a custom gentx is provided
+	isCustomGentx := gentxPath != ""
+	// If the custom gentx is not provided, get the chain default
+	if !isCustomGentx {
+		gentxPath, err = b.chain.GentxPath()
+		if err != nil {
+			return err
+		}
+	}
+
+	if err := b.builder.sendAccountRequest(ctx,
 		chainHome,
-		customGentx,
+		isCustomGentx,
 		launchID,
 		amount); err != nil {
 		return err
 	}
-	return b.SendValidatorRequest(ctx, launchID, peer, gentx, gentxInfo)
+	return b.builder.sendValidatorRequest(ctx, launchID, peer, gentxPath)
 }
 
-// SendAccountRequest creates an add AddAccount request message
-func (b *Builder) SendAccountRequest(
+// sendAccountRequest creates an add AddAccount request message
+func (b *Builder) sendAccountRequest(
 	ctx context.Context,
 	chainHome string,
 	isCustomGentx bool,
@@ -89,14 +109,19 @@ func (b *Builder) SendAccountRequest(
 	return err
 }
 
-// SendValidatorRequest creates the RequestAddValidator message into the SPN
-func (b *Builder) SendValidatorRequest(
+// sendValidatorRequest creates the RequestAddValidator message into the SPN
+func (b *Builder) sendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
 	peer string,
-	gentx []byte,
-	gentxInfo cosmosutil.GentxInfo,
+	gentxPath string,
 ) error {
+	// Parse the gentx content
+	gentxInfo, gentx, err := cosmosutil.ParseGentx(gentxPath)
+	if err != nil {
+		return err
+	}
+
 	// Change the chain address prefix to spn
 	spnValAddress, err := cosmosaddress.ChangePrefix(gentxInfo.DelegatorAddress, SPNAddressPrefix)
 	if err != nil {

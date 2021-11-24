@@ -5,24 +5,14 @@ import (
 	"path/filepath"
 )
 
-const (
-	gentxPath   = "config/gentx/gentx.json"
-	genesisPath = "config/genesis.json"
-)
-
-// GenesisPath returns the default genesis path into the home dir
-func GenesisPath(home string) string {
-	return filepath.Join(home, genesisPath)
-}
-
-// GentxPath returns the default gentx path into the home dir
-func GentxPath(home string) string {
-	return filepath.Join(home, gentxPath)
+// genesisPath returns the default genesis path into the home dir
+func genesisPath(home string) string {
+	return filepath.Join(home, "config/genesis.json")
 }
 
 // getChainGenesis return the chain genesis path
 func getChainGenesis(home string) (ChainGenesis, bool, error) {
-	genesisPath := GenesisPath(home)
+	genesisPath := genesisPath(home)
 	_, err := os.Stat(genesisPath)
 	if os.IsNotExist(err) {
 		return ChainGenesis{}, false, nil
