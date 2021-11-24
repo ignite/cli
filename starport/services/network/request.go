@@ -30,7 +30,7 @@ func RejectRequest(requestID uint64) Reviewal {
 
 // SubmitRequest submits reviewal for proposals in batch for chain.
 func (b *Builder) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
-	b.ev.Send(events.New(events.StatusOngoing, "Settling requests..."))
+	b.ev.Send(events.New(events.StatusOngoing, "Submitting requests..."))
 
 	messages := make([]sdk.Msg, len(reviewal))
 	for i, reviewal := range reviewal {
