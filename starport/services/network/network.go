@@ -6,7 +6,6 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -159,7 +158,7 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 	// if a launch id is provided, chain information are fetched from Starport Network
 	if o.launchID > 0 {
 		b.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
-		chainLaunch, err := b.fetchChainLaunch(ctx, o.launchID)
+		chainLaunch, err := b.ChainLaunch(ctx, o.launchID)
 		if err != nil {
 			return nil, err
 		}
@@ -202,17 +201,6 @@ func (b *Builder) Blockchain(ctx context.Context, source SourceOption, options .
 		launchTime:  launchTime,
 	}
 	return bc, bc.setup(chainID, home, o.keyringBackend)
-}
-
-// fetchChainLaunch fetches the chain launch from Starport Network from a launch id
-func (b *Builder) fetchChainLaunch(ctx context.Context, launchID uint64) (launchtypes.Chain, error) {
-	res, err := launchtypes.NewQueryClient(b.cosmos.Context).Chain(ctx, &launchtypes.QueryGetChainRequest{
-		LaunchID: launchID,
-	})
-	if err != nil {
-		return launchtypes.Chain{}, err
-	}
-	return res.Chain, err
 }
 
 // fetchSource fetches the chain source from url and returns a temporary path where source is saved
