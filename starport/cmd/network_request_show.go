@@ -6,7 +6,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/yaml"
 )
 
 // NewNetworkRequestShow creates a new request show command to show
@@ -52,17 +51,8 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// convert the request object to yaml
-	requestYaml, err := yaml.ParseString(cmd.Context(), request,
-		"$.content.content.genesisValidator.genTx",
-		"$.content.content.genesisValidator.consPubKey",
-	)
-	if err != nil {
-		return err
-	}
-
 	s.Stop()
-	fmt.Println(requestYaml)
+	fmt.Println(request)
 
 	return nil
 }
