@@ -68,7 +68,7 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 	isCustomGentx := true
 	if gentxPath == "" {
 		isCustomGentx = false
-		gentxPath = cosmosutil.Gentx(home)
+		gentxPath = cosmosutil.GentxPath(home)
 	}
 
 	// get the peer public address for the validator

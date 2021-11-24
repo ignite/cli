@@ -15,8 +15,8 @@ func GenesisPath(home string) string {
 	return filepath.Join(home, genesisPath)
 }
 
-// Gentx returns the default gentx path into the home dir
-func Gentx(home string) string {
+// GentxPath returns the default gentx path into the home dir
+func GentxPath(home string) string {
 	return filepath.Join(home, gentxPath)
 }
 

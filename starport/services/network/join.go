@@ -19,7 +19,7 @@ func (b *Builder) Join(
 	amount sdk.Coin,
 	peer string,
 	gentx []byte,
-	gentxInfo cosmosutil.Info) error {
+	gentxInfo cosmosutil.GentxInfo) error {
 	if err := b.SendAccountRequest(ctx,
 		chainHome,
 		customGentx,
@@ -95,7 +95,7 @@ func (b *Builder) SendValidatorRequest(
 	launchID uint64,
 	peer string,
 	gentx []byte,
-	gentxInfo cosmosutil.Info,
+	gentxInfo cosmosutil.GentxInfo,
 ) error {
 	// Change the chain address prefix to spn
 	spnValAddress, err := cosmosaddress.ChangePrefix(gentxInfo.DelegatorAddress, SPNAddressPrefix)

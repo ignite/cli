@@ -56,15 +56,15 @@ func TestParseGenesis(t *testing.T) {
 	}{
 		{
 			name:         "parse genesis file 1",
-			genesisPath:  "test/genesis1.json",
+			genesisPath:  "testdata/genesis1.json",
 			wantAccounts: []acc{{Address: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"}},
 		}, {
 			name:         "parse genesis file 2",
-			genesisPath:  "test/genesis2.json",
+			genesisPath:  "testdata/genesis2.json",
 			wantAccounts: []acc{{Address: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa"}},
 		}, {
 			name:        "parse not found file",
-			genesisPath: "test/genesis_not_found.json",
+			genesisPath: "testdata/genesis_not_found.json",
 			wantErr:     true,
 		},
 	}
@@ -85,13 +85,13 @@ func TestParseGentx(t *testing.T) {
 	tests := []struct {
 		name      string
 		gentxPath string
-		wantInfo  Info
+		wantInfo  GentxInfo
 		wantErr   bool
 	}{
 		{
 			name:      "parse gentx file 1",
-			gentxPath: "test/gentx1.json",
-			wantInfo: Info{
+			gentxPath: "testdata/gentx1.json",
+			wantInfo: GentxInfo{
 				DelegatorAddress: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
 				PubKey:           []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 				SelfDelegation: sdk.Coin{
@@ -101,8 +101,8 @@ func TestParseGentx(t *testing.T) {
 			},
 		}, {
 			name:      "parse gentx file 2",
-			gentxPath: "test/gentx2.json",
-			wantInfo: Info{
+			gentxPath: "testdata/gentx2.json",
+			wantInfo: GentxInfo{
 				DelegatorAddress: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
 				PubKey:           []byte("OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="),
 				SelfDelegation: sdk.Coin{
@@ -112,11 +112,11 @@ func TestParseGentx(t *testing.T) {
 			},
 		}, {
 			name:      "parse invalid file",
-			gentxPath: "test/gentx_invalid.json",
+			gentxPath: "testdata/gentx_invalid.json",
 			wantErr:   true,
 		}, {
 			name:      "not found file",
-			gentxPath: "test/gentx_not_found.json",
+			gentxPath: "testdata/gentx_not_found.json",
 			wantErr:   true,
 		},
 	}

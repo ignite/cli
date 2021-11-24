@@ -9,7 +9,7 @@ import (
 )
 
 type (
-	Info struct {
+	GentxInfo struct {
 		DelegatorAddress string
 		PubKey           []byte
 		SelfDelegation   sdk.Coin
@@ -58,7 +58,7 @@ func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
 	return genesis, json.Unmarshal(genesisFile, &genesis)
 }
 
-func ParseGentx(gentxPath string) (info Info, gentx []byte, err error) {
+func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
 		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
 	}
