@@ -13,7 +13,6 @@ import (
 
 func (b *Blockchain) Join(
 	ctx context.Context,
-	chainHome string,
 	launchID uint64,
 	amount sdk.Coin,
 	publicAddress string,
@@ -32,7 +31,8 @@ func (b *Blockchain) Join(
 
 	// Check if a custom gentx is provided
 	isCustomGentx := gentxPath != ""
-	// If the custom gentx is not provided, get the chain default
+	// If the custom gentx is not provided, get the chain
+	// default from the chain home folder
 	if !isCustomGentx {
 		gentxPath, err = b.chain.GentxPath()
 		if err != nil {
@@ -40,8 +40,14 @@ func (b *Blockchain) Join(
 		}
 	}
 
+	// Get the chain genesis path from the home folder
+	genesisPath, err := b.chain.GenesisPath()
+	if err != nil {
+		return err
+	}
+
 	if err := b.builder.sendAccountRequest(ctx,
-		chainHome,
+		genesisPath,
 		isCustomGentx,
 		launchID,
 		amount); err != nil {
@@ -53,7 +59,7 @@ func (b *Blockchain) Join(
 // sendAccountRequest creates an add AddAccount request message
 func (b *Builder) sendAccountRequest(
 	ctx context.Context,
-	chainHome string,
+	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
 	amount sdk.Coin,
@@ -69,7 +75,7 @@ func (b *Builder) sendAccountRequest(
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	accExist := false
 	if !isCustomGentx {
-		accExist, err = cosmosutil.CheckGenesisContainsAddress(chainHome, spnAddress)
+		accExist, err = cosmosutil.CheckGenesisContainsAddress(genesisPath, spnAddress)
 		if err != nil {
 			return err
 		}

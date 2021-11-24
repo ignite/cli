@@ -63,12 +63,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// get the chain home path
-	home, err := network.ChainHome(launchID)
-	if err != nil {
-		return err
-	}
-
 	// parse the gentx flag
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
@@ -80,7 +74,6 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 
 	// create the message to add the validator
 	err = blockchain.Join(cmd.Context(),
-		home,
 		launchID,
 		amount,
 		publicAddr,

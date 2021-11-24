@@ -9,11 +9,13 @@ import (
 )
 
 type (
+	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
 		DelegatorAddress string
 		PubKey           []byte
 		SelfDelegation   sdk.Coin
 	}
+	// StargateGentx represents the stargate gentx file
 	StargateGentx struct {
 		Body struct {
 			Messages []struct {
@@ -29,34 +31,9 @@ type (
 			} `json:"messages"`
 		} `json:"body"`
 	}
-	ChainGenesis struct {
-		AppState struct {
-			Auth struct {
-				Accounts []struct {
-					Address string `json:"address"`
-				} `json:"accounts"`
-			} `json:"auth"`
-		} `json:"app_state"`
-	}
 )
 
-func (g ChainGenesis) HasAccount(address string) bool {
-	for _, account := range g.AppState.Auth.Accounts {
-		if account.Address == address {
-			return true
-		}
-	}
-	return false
-}
-
-func ParseGenesis(genesisPath string) (genesis ChainGenesis, err error) {
-	genesisFile, err := os.ReadFile(genesisPath)
-	if err != nil {
-		return genesis, errors.New("cannot open genesis file: " + err.Error())
-	}
-	return genesis, json.Unmarshal(genesisFile, &genesis)
-}
-
+// ParseGentx returns GentxInfo and the gentx file in bytes
 func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
 		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
