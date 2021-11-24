@@ -2,17 +2,12 @@ package starportcmd
 
 import (
 	"fmt"
-	"io"
-	"os"
-	"sync"
-
 	"github.com/olekukonko/tablewriter"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network"
+	"io"
+	"os"
 )
 
 var LaunchSummaryHeader = []string{"Launch ID", "Chain ID", "Source", "Campaign ID"}
@@ -41,22 +36,11 @@ func NewNetworkChainList() *cobra.Command {
 }
 
 func networkChainListHandler(cmd *cobra.Command, args []string) error {
-	// TODO: use routine from network init PR
-	s := clispinner.New()
-	defer s.Stop()
-	var (
-		wg sync.WaitGroup
-		ev = events.NewBus()
-	)
-	wg.Add(1)
-	defer wg.Wait()
-	defer ev.Shutdown()
-	go printEvents(&wg, ev, s)
-
-	nb, err := newNetwork(cmd, network.CollectEvents(ev))
+	nb, s, shutdown, err := initializeNetwork(cmd)
 	if err != nil {
 		return err
 	}
+	defer shutdown()
 
 	chains, err := nb.ChainLaunches(cmd.Context())
 	if err != nil {
