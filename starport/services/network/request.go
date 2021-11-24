@@ -12,28 +12,28 @@ type Reviewal struct {
 	IsApproved bool
 }
 
-// ApproveProposal returns approval for a proposal with id.
-func ApproveProposal(requestID uint64) Reviewal {
+// ApproveRequest returns approval for a request with id.
+func ApproveRequest(requestID uint64) Reviewal {
 	return Reviewal{
 		RequestID:  requestID,
 		IsApproved: true,
 	}
 }
 
-// RejectProposal returns rejection for a proposals with id.
-func RejectProposal(requestID uint64) Reviewal {
+// RejectRequest returns rejection for a request with id.
+func RejectRequest(requestID uint64) Reviewal {
 	return Reviewal{
 		RequestID:  requestID,
 		IsApproved: false,
 	}
 }
 
-// SubmitRequest submits reviewals for proposals in batch for chain.
-func (b *Builder) SubmitRequest(launchID uint64, reviewals ...Reviewal) error {
-	b.ev.Send(events.New(events.StatusOngoing, "Approving requests..."))
+// SubmitRequest submits reviewal for proposals in batch for chain.
+func (b *Builder) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
+	b.ev.Send(events.New(events.StatusOngoing, "Settling requests..."))
 
-	messages := make([]sdk.Msg, len(reviewals))
-	for i, reviewal := range reviewals {
+	messages := make([]sdk.Msg, len(reviewal))
+	for i, reviewal := range reviewal {
 		messages[i] = launchtypes.NewMsgSettleRequest(
 			b.account.Address(SPNAddressPrefix),
 			launchID,

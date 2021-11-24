@@ -52,7 +52,7 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	// Submit the rejected requests
 	reviewals := make([]network.Reviewal, 0)
 	for _, id := range ids {
-		reviewals = append(reviewals, network.RejectProposal(id))
+		reviewals = append(reviewals, network.RejectRequest(id))
 	}
 	if err := nb.SubmitRequest(launchID, reviewals...); err != nil {
 		return err
