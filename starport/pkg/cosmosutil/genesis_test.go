@@ -17,7 +17,7 @@ const (
 }
 `
 	unixTime = 1600000000
-	rfcTime  = "2020-09-13T15:26:40+03:00"
+	rfcTime  = "2020-09-13T12:26:40Z"
 )
 
 func TestSetGenesisTime(t *testing.T) {
