@@ -29,11 +29,10 @@ require (
 	github.com/gookit/color v1.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
-	github.com/hashicorp/go-getter v1.5.9 // indirect
+	github.com/hashicorp/go-getter v1.5.9
 	github.com/iancoleman/strcase v0.1.3
-	github.com/imdario/mergo v0.3.11
+	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.3
-	github.com/karrick/godirwalk v1.16.1 // indirect
 	github.com/kr/pretty v0.3.0 // indirect
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3

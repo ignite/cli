@@ -3,6 +3,8 @@ package plugins
 import (
 	"context"
 	"fmt"
+	"log"
+	"os"
 	"path"
 	"strings"
 
@@ -22,9 +24,14 @@ func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 
 	for _, cfgPlugin := range cfg.Plugins {
 		pluginDir := path.Join(dst, getPluginId(cfgPlugin))
-		// Enter plugins directory, go get .
+
+		// Enter plugins directory, go mod tidy
 		// Somehow have to account for remote dependencies in individual plugins
-		if err := gocmd.GetAll(ctx, pluginDir, nil); err != nil {
+		if err := gocmd.ModTidy(ctx, pluginDir); err != nil {
+			return err
+		}
+
+		if err := gocmd.ModVerify(ctx, pluginDir); err != nil {
 			return err
 		}
 
@@ -53,9 +60,9 @@ func traversePluginFiles(ctx context.Context, pluginDir string, outputDir string
 		for _, pluginFile := range cmdPlugins {
 			fileName := pluginFile.Name()
 			outputName := strings.Trim(fileName, ".cmd.go")
-			inputFileDir := path.Join(pluginDir, fileName)
-			outputFileDir := path.Join(outputDir, outputName+"_cmd.so")
-			err := buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+			inputFile := path.Join(pluginDir, fileName)
+			outputFile := path.Join(outputDir, outputName+"_cmd.so")
+			err := buildPlugin(ctx, outputFile, inputFile, pluginDir, []string{})
 			if err != nil {
 				fmt.Println(err.Error())
 				return err
@@ -72,9 +79,9 @@ func traversePluginFiles(ctx context.Context, pluginDir string, outputDir string
 		for _, pluginFile := range hookPlugins {
 			fileName := pluginFile.Name()
 			outputName := strings.Trim(fileName, ".hook.go")
-			inputFileDir := path.Join(pluginDir, fileName)
-			outputFileDir := path.Join(outputDir, outputName+"_hook.so")
-			err := buildPlugin(ctx, outputFileDir, inputFileDir, []string{})
+			inputFile := path.Join(pluginDir, fileName)
+			outputFile := path.Join(outputDir, outputName+"_hook.so")
+			err := buildPlugin(ctx, outputFile, inputFile, pluginDir, []string{})
 			if err != nil {
 				fmt.Println(err.Error())
 				return err
@@ -86,18 +93,31 @@ func traversePluginFiles(ctx context.Context, pluginDir string, outputDir string
 }
 
 // ERROR IN HERE
-func buildPlugin(ctx context.Context, output string, path string, flags []string) error {
+// maybe build is being run in some other directory without go.mod?
+// its because the work directory is the underlying chain, and the chain does not have the dependencies.
+// probably change work directory?
+func buildPlugin(ctx context.Context, output string, pluginFile string, pluginDir string, flags []string) error {
 	command := []string{
-		"go",
+		gocmd.Name(),
 		gocmd.CommandBuild,
 		FLAG_BUILD_MODE_PLUGIN,
 		gocmd.FlagOut,
 		output,
-		path,
+		pluginFile,
+	}
+
+	if err := os.Chdir(pluginDir); err != nil {
+		log.Println(err.Error())
+		return err
 	}
 
 	// Command is not using relative paths, main reason for error i think
-	fmt.Println(command)
 	command = append(command, flags...)
-	return exec.Exec(ctx, command)
+	if err := exec.Exec(ctx, command); err != nil {
+		fmt.Println("caught here")
+		fmt.Println(err.Error())
+		return err
+	}
+
+	return nil
 }

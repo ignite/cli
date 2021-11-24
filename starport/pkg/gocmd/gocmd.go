@@ -103,18 +103,6 @@ func InstallAll(ctx context.Context, path string, flags []string, options ...exe
 	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
 }
 
-// InstallAll runs go get ./... on path with options.
-func GetAll(ctx context.Context, path string, flags []string, options ...exec.Option) error {
-	command := []string{
-		Name(),
-		CommandGet,
-	}
-	command = append(command, flags...)
-	command = append(command, "./...")
-
-	return exec.Exec(ctx, command, append(options, exec.StepOption(step.Workdir(path)))...)
-}
-
 // Ldflags returns a combined ldflags set from flags.
 func Ldflags(flags ...string) string {
 	return strings.Join(flags, " ")
