@@ -116,19 +116,13 @@ func (*Builder) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesi
 
 	// Check the format of the peer
 	nodeHost := strings.Split(peer, "@")
-	if len(nodeHost) < 2 {
+	if len(nodeHost) != 2 ||
+		len(nodeHost[0]) == 0 ||
+		len(nodeHost[1]) == 0 {
 		return fmt.Errorf(
 			"the peer %s doesn't match the peer format <node-id>@<host>",
 			peer,
 		)
-	}
-	nodeID := nodeHost[0]
-	if len(nodeID) == 0 {
-		return fmt.Errorf("empty peer node id")
-	}
-	host := nodeHost[1]
-	if len(host) == 0 {
-		return fmt.Errorf("empty peer host")
 	}
 	return nil
 }

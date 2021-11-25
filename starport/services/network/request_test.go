@@ -57,7 +57,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 					Peer:           "@127.163.0.1:2446",
 				},
 			},
-			want: fmt.Errorf("empty peer node id"),
+			want: fmt.Errorf("the peer @127.163.0.1:2446 doesn't match the peer format <node-id>@<host>"),
 		},
 		{
 			name: "invalid peer host",
@@ -70,7 +70,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 					Peer:           "nodeid@",
 				},
 			},
-			want: fmt.Errorf("empty peer host"),
+			want: fmt.Errorf("the peer nodeid@ doesn't match the peer format <node-id>@<host>"),
 		},
 		{
 			name: "invalid gentx",
