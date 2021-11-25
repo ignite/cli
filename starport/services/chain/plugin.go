@@ -13,13 +13,13 @@ type Plugin interface {
 	// Name of a Cosmos version.
 	Name() string
 
-	// GentxCommand returns step.Exec configuration for gentx command.
+	// Gentx returns step.Exec configuration for gentx command.
 	Gentx(context.Context, chaincmdrunner.Runner, Validator) (path string, err error)
 
 	// Configure configures config defaults.
 	Configure(string, chainconfig.Config) error
 
-	// StartCommands returns step.Exec configuration to start servers.
+	// Start returns step.Exec configuration to start servers.
 	Start(context.Context, chaincmdrunner.Runner, chainconfig.Config) error
 
 	// Home returns the blockchain node's home dir.
