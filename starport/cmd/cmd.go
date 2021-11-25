@@ -17,6 +17,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
@@ -132,12 +133,12 @@ func getYes(cmd *cobra.Command) (ok bool) {
 	return
 }
 
-func flagSetProto3rdParty(additonalInfo string) *flag.FlagSet {
+func flagSetProto3rdParty(additionalInfo string) *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 
 	info := "Enables proto code generation for 3rd party modules used in your chain"
-	if additonalInfo != "" {
-		info += ". " + additonalInfo
+	if additionalInfo != "" {
+		info += ". " + additionalInfo
 	}
 
 	fs.Bool(flagProto3rdParty, false, info)
@@ -164,7 +165,7 @@ func newChainWithHomeFlags(cmd *cobra.Command, chainOption ...chain.Option) (*ch
 	return chain.New(absPath, chainOption...)
 }
 
-func initOptionWithHomeFlag(cmd *cobra.Command, initOptions []network.InitOption) []network.InitOption {
+func initOptionWithHomeFlag(cmd *cobra.Command, initOptions ...network.InitOption) []network.InitOption {
 	// Check if custom home is provided
 	if home := getHome(cmd); home != "" {
 		initOptions = append(initOptions, network.InitializationHomePath(home))
