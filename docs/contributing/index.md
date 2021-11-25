@@ -32,7 +32,7 @@ Some of the best content contributions come during the PR review cycles. Follow 
 
 ## Writing and contributing
 
-We welcome contributions to the tutorials. 
+We welcome contributions to the docs and tutorials. 
 
 Our technical content follows the [Google developer documentation style guide](https://developers.google.com/style). Highlights to help you get started:
 
@@ -55,7 +55,7 @@ Other useful resources:
 Technical content includes Knowledge Base article and interactive tutorials. 
  
 - The Knowledge Base content is in the `docs/kb` folder. 
-- The Starport Developer Guide content is in the `docs/guide` folder. 
+- The Starport Developer Tutorials content is in the `docs/guide` folder. 
 
 Locations and folders for other content can vary. Explore the self-describing folders for the content that you are interested in. Some articles and tutorials reside in a single Markdown file while sub-folders might be present for other tutorials.
 
