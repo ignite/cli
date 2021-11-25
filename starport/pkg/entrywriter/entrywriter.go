@@ -4,44 +4,42 @@ import (
 	"errors"
 	"fmt"
 	"io"
-	"os"
 	"text/tabwriter"
 )
 
-type Tab string
-
-type Entry []string
-
 // Write writes into out the tabulated entries
-func Write(out io.Writer, tabs []Tab, entries ...Entry) error {
+func Write(out io.Writer, header []string, entries ...[]string) error {
 	w := &tabwriter.Writer{}
 	w.Init(out, 0, 8, 0, '\t', 0)
 
-	formatLine := func (line []string) (formatted string) {
+	formatLine := func(line []string) (formatted string) {
 		for _, cell := range line {
-			formatted += fmt.Sprintf("%s\t", cell)
+			formatted += fmt.Sprintf("%s \t", cell)
 		}
-		return formatted + "\n"
+		return formatted
 	}
 
-	if len(tabs) == 0 {
-		return errors.New("no tab")
+	if len(header) == 0 {
+		return errors.New("empty header")
 	}
 
-	formatLine(tabs)
-
-	fmt.Fprintln(w, "name\taddress\tpublic key")
-
-	for _, acc := range accounts {
-		fmt.Fprintf(w, "%s\t%s\t%s\n",
-			acc.Name,
-			acc.Address(getAddressPrefix(cmd)),
-			acc.PubKey(),
-		)
+	// write header
+	if _, err := fmt.Fprintln(w, formatLine(header)); err != nil {
+		return err
 	}
 
-	fmt.Fprintln(w)
-	w.Flush()
+	// write entries
+	for i, entry := range entries {
+		if len(entry) != len(header) {
+			return fmt.Errorf("entry %d doesn't match header length", i)
+		}
+		if _, err := fmt.Fprintf(w, formatLine(entry) + "\n"); err != nil {
+			return err
+		}
+	}
 
-	return nil
+	if _, err := fmt.Fprintln(w); err != nil {
+		return err
+	}
+	return w.Flush()
 }
