@@ -1,12 +1,13 @@
 ---
 order: 6
+description: Implement logic to create sell orders.
 ---
 
-# Creating Sell Orders
+# Create Sell Orders
 
-In this chapter you will implement the logic for creating sell orders.
+In this chapter, you implement the logic for creating sell orders.
 
-The packet proto file for a sell order is already generated. Add the seller information.
+The packet proto file for a sell order is already generated. Add the seller information:
 
 ```proto
 // proto/dex/packet.proto
@@ -16,7 +17,7 @@ message SellOrderPacketData {
 }
 ```
 
-Now build the proto with the already known command.
+Now, use Starport CLI to build the proto files for the `send-sell-order` command. You used this command in a previous chapter. 
 
 ```bash
 starport generate proto-go
@@ -24,16 +25,16 @@ starport generate proto-go
 
 ## Message Handling in SendSellOrder
 
-Sell orders are created using `send-sell-order`. This command creates a transaction with a `SendSellOrder` message, which triggers the `SendSellOrder` keeper method.
+Sell orders are created using the `send-sell-order` command. This command creates a transaction with a `SendSellOrder` message that triggers the `SendSellOrder` keeper method.
 
-`SendSellOrder` should:
+The `SendSellOrder` command:
 
-* Check that an order book for specified denom pair exists
-* Safely burn or lock tokens
-  * If the token is an IBC token, burn the tokens
-  * If the token is a native token, lock the tokens
-* Save the voucher received on the target chain to later resolve a denom
-* Transmit an IBC packet to the target chain
+* Checks that an order book for a specified denom pair exists.
+* Safely burns or locks token.
+  * If the token is an IBC token, burn the token.
+  * If the token is a native token, lock the token.
+* Saves the voucher that is received on the target chain to later resolve a denom.
+* Transmits an IBC packet to the target chain.
 
 ```go
 // x/dex/keeper/msg_server_sell_order.go
@@ -75,11 +76,11 @@ func (k msgServer) SendSellOrder(goCtx context.Context, msg *types.MsgSendSellOr
 
 ## On Receiving a Sell Order
 
-When a "sell order" packet is received on the target chain, the module should:
+When a "sell order" packet is received on the target chain, you want the module to:
 
 * Update the sell order book
 * Distribute sold token to the buyer
-* Send to chain A the sell order after the fill attempt
+* Send the sell order to chain A after the fill attempt
 
 ```go
 // x/dex/keeper/sell_order.go
@@ -126,7 +127,7 @@ func (k Keeper) OnRecvSellOrderPacket(ctx sdk.Context, packet channeltypes.Packe
 
 ### Implement a FillBuyOrder Function
 
-`FillBuyOrder` try to fill the sell order with the order book and returns all the side effects.
+The `FillBuyOrder` function tries to fill the sell order with the order book and returns all the side effects:
 
 ```go
 // x/dex/types/sell_order_book.go
@@ -166,9 +167,9 @@ func (s *SellOrderBook) FillBuyOrder(order Order) (
 }
 ```
 
-#### Implement a `LiquidateFromBuyOrder` Function
+### Implement a LiquidateFromBuyOrder Function
 
-`LiquidateFromBuyOrder` liquidates the first buy order of the book from the sell order if no match is found, return false for match.
+The `LiquidateFromBuyOrder` function liquidates the first buy order of the book from the sell order. If no match is found, return false for match:
 
 ```go
 // x/dex/types/sell_order_book.go
@@ -221,9 +222,16 @@ func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (
 }
 ```
 
-## Implement the `OnAcknowledgement` Function for Sell Order Packets
+### Implement the OnAcknowledgement Function for Sell Order Packets
 
-Once an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed in `OnAcknowledgementSellOrderPacket`. The module on the source chain will store the remaining sell order in the sell order book and will distribute sold tokens to the buyers and will distribute to the seller the price of the amount sold. On error the module mints the burned tokens.
+After an IBC packet is processed on the target chain, an acknowledgement is returned to the source chain and processed by the `OnAcknowledgementSellOrderPacket` function. 
+
+The dex module on the source chain:
+
+- Stores the remaining sell order in the sell order book.
+- Distributes sold tokens to the buyers.
+- Distributes the price of the amount sold to the seller. 
+- On error, mints the burned tokens.
 
 ```go
 // x/dex/keeper/sell_order.go
@@ -291,9 +299,9 @@ func (s *SellOrderBook) AppendOrder(creator string, amount int32, price int32) (
 }
 ```
 
-## Add the OnTimeout of a Sell Order Packet Function
+### Add the OnTimeout of a Sell Order Packet Function
 
-If a timeout occurs, we mint back the native token.
+If a timeout occurs, mint back the native token:
 
 ```go
 // x/dex/keeper/sell_order.go
@@ -310,9 +318,11 @@ func (k Keeper) OnTimeoutSellOrderPacket(ctx sdk.Context, packet channeltypes.Pa
 }
 ```
 
+## Summary
+
 Great, you have completed the sell order logic.
 
-It is a good time to make another git commit again to save the state of your work.
+It is a good time to make another git commit again to save the state of your work:
 
 ```bash
 git add .
