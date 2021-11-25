@@ -1,0 +1,66 @@
+{
+  "auth_info": {
+    "fee": {
+      "amount": [
+        {
+          "amount": "5000",
+          "denom": "stake"
+        }
+      ],
+      "gas_limit": "200000",
+      "granter": "",
+      "payer": ""
+    },
+    "signer_infos": [
+      {
+        "mode_info": {
+          "single": {
+            "mode": "SIGN_MODE_DIRECT"
+          }
+        },
+        "public_key": {
+          "@type": "/cosmos.crypto.secp256k1.PubKey",
+          "key": "AslH/zmmjEHI/jWup3tC/TfG4eRiD959tyE9z98xt/oO"
+        },
+        "sequence": "0"
+      }
+    ]
+  },
+  "body": {
+    "extension_options": [],
+    "memo": "a412c917cb29f73cc3ad0592bbd0152fe0e690bd@192.168.0.148:26656",
+    "messages": [
+      {
+        "@type": "/cosmos.staking.v1beta1.MsgCreateValidator",
+        "commission": {
+          "max_change_rate": "0.010000000000000000",
+          "max_rate": "0.200000000000000000",
+          "rate": "0.100000000000000000"
+        },
+        "delegator_address": "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
+        "description": {
+          "details": "",
+          "identity": "",
+          "moniker": "alice",
+          "security_contact": "",
+          "website": ""
+        },
+        "min_self_delegation": "1",
+        "pubkey": {
+          "@type": "/cosmos.crypto.ed25519.PubKey",
+          "key": "OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="
+        },
+        "validator_address": "cosmosvaloper1mmlqwyqk7neqegffp99q86eckpm4pjah5sl2dw",
+        "value": {
+          "amount": "95000000",
+          "denom": "stake"
+        }
+      }
+    ],
+    "non_critical_extension_options": [],
+    "timeout_height": "0"
+  },
+  "signatures": [
+    "XDwkcX6QNRDL7FYD/UCNXmwVZHR7tCVyTh+VKAC8KJESZyCEo4/Uo9HGRX2pWGX0nrn/v5h2HKzHxXc/41rDag=="
+  ]
+}
