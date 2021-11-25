@@ -33,7 +33,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 		if len(entry) != len(header) {
 			return fmt.Errorf("entry %d doesn't match header length", i)
 		}
-		if _, err := fmt.Fprintf(w, formatLine(entry) + "\n"); err != nil {
+		if _, err := fmt.Fprintf(w, formatLine(entry)+"\n"); err != nil {
 			return err
 		}
 	}
