@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"net"
 	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
@@ -106,7 +105,8 @@ func (*Builder) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesi
 	}
 
 	// Check self delegation
-	if !selfDelegation.IsEqual(info.SelfDelegation) {
+	if selfDelegation.Denom != info.SelfDelegation.Denom ||
+		!selfDelegation.IsEqual(info.SelfDelegation) {
 		return fmt.Errorf(
 			"the self delegation %s doesn't match the one inside the gentx %s",
 			selfDelegation.String(),
@@ -126,15 +126,9 @@ func (*Builder) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesi
 	if len(nodeID) == 0 {
 		return fmt.Errorf("empty peer node id")
 	}
-
-	// Looks up the given host
 	host := nodeHost[1]
-	hostName, err := net.LookupHost(host)
-	if err != nil || len(hostName) == 0 {
-		return fmt.Errorf(
-			"the peer host %s contains an invalid host",
-			host,
-		)
+	if len(host) == 0 {
+		return fmt.Errorf("empty peer host")
 	}
 	return nil
 }
