@@ -46,7 +46,7 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. 
 
-**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github describing the proposed changes.
+**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github that describes the proposed changes.
 
 If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
 
@@ -54,7 +54,7 @@ If you're not sure where to start, check out [contributing.md](contributing.md) 
 
 Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
 
-- [Website](https://starport.com)
-- [Twitter](https://twitter.com/StarportHQ)
-- [Blog](https://medium.com/tendermint)
-- [Jobs](https://tendermint.com/careers)
+- [Starport.com website](https://starport.com)
+- [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
+- [Starport.com/blog](https://starport.com/blog/)
+- [Tendermint jobs](https://tendermint.com/careers)
