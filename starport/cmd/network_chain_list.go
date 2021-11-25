@@ -2,12 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/olekukonko/tablewriter"
+	"io"
+	"os"
+
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"io"
-	"os"
+	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
 var LaunchSummaryHeader = []string{"Launch ID", "Chain ID", "Source", "Campaign ID"}
@@ -49,9 +51,7 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	sums := launchSummaries(chains)
 
 	s.Stop()
-	renderLaunchSummaries(sums, os.Stdout)
-
-	return nil
+	return renderLaunchSummaries(sums, os.Stdout)
 }
 
 // launchSummaries returns the list of launch summaries from the list of chain launches
@@ -75,13 +75,15 @@ func launchSummaries(chains []launchtypes.Chain) (sums []LaunchSummary) {
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(launchSummaries []LaunchSummary, out io.Writer) {
-	launchTable := tablewriter.NewWriter(out)
-	launchTable.SetHeader(LaunchSummaryHeader)
+func renderLaunchSummaries(launchSummaries []LaunchSummary, out io.Writer) error {
+	var launchEntries [][]string
 
 	for _, sum := range launchSummaries {
-		launchTable.Append([]string{sum.LaunchID, sum.ChainID, sum.Source, sum.CampaignID})
+		launchEntries = append(launchEntries, []string{sum.LaunchID, sum.ChainID, sum.Source, sum.CampaignID})
 	}
 
-	launchTable.Render()
+	if err := entrywriter.Write(out, LaunchSummaryHeader, launchEntries...); err != nil {
+		return errors.Wrap(err, "error printing chain summaries")
+	}
+	return nil
 }
