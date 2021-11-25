@@ -59,7 +59,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	defer shutdown()
 
 	// initialize the blockchain
-	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
+	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
 
 	var sourceOption network.SourceOption
 
