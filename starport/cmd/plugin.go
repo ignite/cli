@@ -29,27 +29,39 @@ type PluginCmdHandler interface {
 type pluginCmdHandler struct {
 }
 
-func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
-	log.Println("HandleInstall", args[0])
-
-	// @jkkim
-	// how to test? because default path always will be <usr>/<user_name>/.starport Do I need to find alternative path for this?
-	path, err := chainconfig.ConfigDirPath() // check if there's any config.yml
+func GetConfig() (chainconfig.Config, error) {
+	// ignore all path other than /usr/<user_name>/.starport
+	projectPath, err := chainconfig.ConfigDirPath()
 	if err != nil {
-		return err
+		return chainconfig.Config{}, nil
 	}
 
-	// var tempPath string = "/Users/dongyookang/ffplay/GolandProjects/starport-development/mars"
-	conf, err := chainconfig.ParseFile(filepath.Join(path, "config.yml"))
+	confPath, err := chainconfig.LocateDefault(projectPath)
 	if err != nil {
-		return err
+		return chainconfig.Config{}, nil
 	}
 
-	log.Println("config Plugins", conf.Plugins)
+	conf, err := chainconfig.ParseFile(confPath)
+	if err != nil {
+		return chainconfig.Config{}, nil
+	}
 
 	if len(conf.Plugins) == 0 {
 		fmt.Println("There's no plugins to be implemented.")
-		return err
+		return chainconfig.Config{}, nil
+	}
+
+	return conf, nil
+}
+
+func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
+	log.Println("Handle plugin Install", args)
+
+	var conf, _ = GetConfig()
+
+	if len(conf.Plugins) == 0 {
+		fmt.Println("There's no plugins to be implemented.")
+		return nil
 	}
 
 	loader, err := plugin.NewLoader()
@@ -78,6 +90,7 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 	// TODO: jkkim: Check installed by call PluginConfig.IsInstalled()
 	isInstalled := loader.IsInstalled(selectedPlugin)
 	if isInstalled {
+		fmt.Println("Selected Plugins", selectedPlugin.Name)
 		return nil
 	}
 

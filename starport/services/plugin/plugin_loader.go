@@ -2,7 +2,10 @@ package plugin
 
 import (
 	"fmt"
+	"io/fs"
 	"log"
+	"os"
+	"path/filepath"
 	"plugin"
 	"reflect"
 
@@ -18,11 +21,49 @@ type Loader interface {
 type configLoader struct {
 }
 
-// IsInstalled checks whether the plugins are installed.
-func (l *configLoader) IsInstalled(config chainconfig.Plugin) bool {
-	// TODO: jkkim: Check plugin file exist on home.
+func IsExists(path string) (bool, error) {
+	_, err := os.Stat(path)
+	if err == nil {
+		return true, nil
+	}
+	if os.IsNotExist(err) {
+		return false, nil
+	}
+	return false, err
+}
 
-	return false
+func find(root, ext string) []string {
+	var a []string
+	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
+		if e != nil {
+			return e
+		}
+		if filepath.Ext(d.Name()) == ext {
+			a = append(a, s)
+		}
+		return nil
+	})
+	return a
+}
+
+// IsInstalled checks whether the given plugin is installed.
+func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
+	isExists := false
+	// TODO: D.K: Check plugin file exist on home.
+	defaultPath, _ := chainconfig.ConfigDirPath()
+	var pluginsPath = filepath.Join(defaultPath, "plugins")
+	pluginsDirectory, _ := IsExists(pluginsPath)
+	if pluginsDirectory {
+		var pluginPath = filepath.Join(pluginsPath, plugin.Name)
+		selectedPluginPath, _ := IsExists(pluginPath)
+		if selectedPluginPath {
+			fileList := find(pluginPath, ".so")
+			if len(fileList) > 0 {
+				isExists = true
+			}
+		}
+	}
+	return isExists
 }
 
 func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error) {
