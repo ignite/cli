@@ -6,12 +6,11 @@ import (
 	"time"
 
 	gogetter "github.com/hashicorp/go-getter"
-	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 )
 
 // MUST BE RAN BEFORE BUILD
-func (m *Manager) pull(ctx context.Context, cfg chaincfg.Config) error {
-	for _, cfgPlugin := range cfg.Plugins {
+func (m *Manager) pull(ctx context.Context) error {
+	for _, cfgPlugin := range m.Config.Plugins {
 		// Seperate individual plugins by ID
 		plugId := getPluginId(cfgPlugin)
 

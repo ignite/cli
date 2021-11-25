@@ -3,27 +3,25 @@ package plugins
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path"
 	"strings"
 
-	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
-func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
+func (m *Manager) build(ctx context.Context) error {
 	// Get plugin home
-	dst, err := formatPluginHome(m.ChainId, "")
+	pluginHome, err := formatPluginHome(m.ChainId, "")
 	if err != nil {
 		return err
 	}
 
-	outputDir := path.Join(dst, "output")
+	outputDir := path.Join(pluginHome, "output")
 
-	for _, cfgPlugin := range cfg.Plugins {
-		pluginDir := path.Join(dst, getPluginId(cfgPlugin))
+	for _, cfgPlugin := range m.Config.Plugins {
+		pluginDir := path.Join(pluginHome, getPluginId(cfgPlugin))
 
 		// Enter plugins directory, go mod tidy
 		// Somehow have to account for remote dependencies in individual plugins
@@ -38,7 +36,7 @@ func (m *Manager) build(ctx context.Context, cfg chaincfg.Config) error {
 		if cfgPlugin.Subdir != "" {
 			pluginDir = path.Join(pluginDir, cfgPlugin.Subdir)
 		} else {
-			pluginDir = path.Join(dst, cfgPlugin.Name)
+			pluginDir = path.Join(pluginHome, cfgPlugin.Name)
 		}
 
 		if err := traversePluginFiles(ctx, pluginDir, outputDir); err != nil {
@@ -107,7 +105,6 @@ func buildPlugin(ctx context.Context, output string, pluginFile string, pluginDi
 	}
 
 	if err := os.Chdir(pluginDir); err != nil {
-		log.Println(err.Error())
 		return err
 	}
 

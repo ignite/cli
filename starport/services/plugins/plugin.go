@@ -1,13 +1,13 @@
 package plugins
 
-// use map keys for command names soon
+import "github.com/lukerhoads/plugintypes"
 
 type CmdPlugin interface {
 	Module
-	Registry() map[string]Command
+	Registry() map[string]plugintypes.Command
 }
 
 type HookPlugin interface {
 	Module
-	Registry() map[string]Hook
+	Registry() map[string]plugintypes.Hook
 }

@@ -2,6 +2,7 @@ package starportcmd
 
 import "github.com/spf13/cobra"
 
+// NewPlugin returns a command that groups sub commands related to chain plugins.
 func NewPlugin() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "plugin [command]",

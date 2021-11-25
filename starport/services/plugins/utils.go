@@ -136,30 +136,6 @@ func listDirs(dir string) ([]os.FileInfo, error) {
 }
 
 func listFiles(dir, pattern string) ([]os.FileInfo, error) {
-	// files, err := ioutil.ReadDir(dir)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// var filteredFiles []os.FileInfo
-	// for _, file := range files {
-	// 	if file.IsDir() {
-	// 		continue
-	// 	}
-
-	// 	matched, err := filepath.Match(pattern, file.Name())
-	// 	if err != nil {
-	// 		return nil, err
-	// 	}
-
-	// 	if matched {
-	// 		filteredFiles = append(filteredFiles, file)
-	// 	}
-	// }
-
-	// return filteredFiles, nil
-
-	// var matches []string
 	var filteredFiles []os.FileInfo
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -176,9 +152,11 @@ func listFiles(dir, pattern string) ([]os.FileInfo, error) {
 			// matches = append(matches, path)
 			filteredFiles = append(filteredFiles, info)
 		}
+
 		return nil
 	})
 	if err != nil {
+		// error here
 		return nil, err
 	}
 

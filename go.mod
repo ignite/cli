@@ -34,6 +34,7 @@ require (
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.3.0 // indirect
+	github.com/lukerhoads/plugintypes v1.0.1
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.3.0 // indirect

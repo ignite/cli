@@ -2,7 +2,7 @@ package plugins
 
 import (
 	"context"
-	"log"
+	"path"
 	"reflect"
 	"strings"
 
@@ -10,6 +10,8 @@ import (
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/goenv"
 )
+
+// I think I solved this in inject
 
 // Set PersistentPreRunE here (https://pkg.go.dev/github.com/spf13/cobra#Command)
 // Find a way to have this run on setup, not on every usage of the command
@@ -41,23 +43,25 @@ func PersistentPreRunE(cmd *cobra.Command, args []string) error {
 	}
 
 	for _, configPlugin := range configPlugins {
-		log.Println("Config: ", configPlugin.Name)
 		// Make sure plugin is downloaded
 		// If not, download it
 		// If it is, extract it
 
+		pluginHome, err := formatPluginHome(chainId, "")
+		if err != nil {
+			return err
+		}
+
 		pluginId := getPluginId(configPlugin)
-		pluginHome, err := formatPluginHome(chainId, pluginId)
+		pluginDir := path.Join(pluginHome, pluginId)
+		outputDir := path.Join(pluginHome, "output")
+
+		cmdPlugins, err = extractCommandPlugins(ctx, pluginDir, outputDir, cmd, cfg)
 		if err != nil {
 			return err
 		}
 
-		cmdPlugins, err = extractCommandPlugins(ctx, pluginHome, cmd, cfg)
-		if err != nil {
-			return err
-		}
-
-		hookPlugins, err = extractHookPlugins(ctx, pluginHome, cmd, cfg)
+		hookPlugins, err = extractHookPlugins(ctx, pluginDir, outputDir, cmd, cfg)
 		if err != nil {
 			return err
 		}

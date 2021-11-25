@@ -19,10 +19,10 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
+	"github.com/tendermint/starport/starport/pkg/goenv"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
-	"github.com/tendermint/starport/starport/services/plugins"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -53,9 +53,11 @@ test, build, and launch your blockchain.
 To get started, create a blockchain:
 
 starport scaffold chain github.com/cosmonaut/mars`,
-		SilenceUsage:      true,
-		SilenceErrors:     true,
-		PersistentPreRunE: plugins.PersistentPreRunE,
+		SilenceUsage:  true,
+		SilenceErrors: true,
+		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			return goenv.ConfigurePath()
+		},
 	}
 
 	c.AddCommand(NewScaffold())

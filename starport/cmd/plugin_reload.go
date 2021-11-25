@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/services/plugins"
 )
 
+// NewPluginReload creates a new reload command to manually refresh chain plugins.
 func NewPluginReload() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "reload",
@@ -57,8 +58,8 @@ func pluginReloadHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pluginManager := plugins.NewManager(chainId)
-	if err := pluginManager.PullBuild(cmd.Context(), chainConfig); err != nil {
+	pluginManager := plugins.NewManager(chainId, chainConfig)
+	if err := pluginManager.PullBuild(cmd.Context()); err != nil {
 		return err
 	}
 
@@ -68,7 +69,6 @@ func pluginReloadHandler(cmd *cobra.Command, args []string) error {
 
 // Add support for custom config files
 func getCommandConfig(cmd *cobra.Command) (chainconfig.Config, error) {
-	var configPath string
 	configPath, err := cmd.Flags().GetString(flagConfig)
 	if err != nil {
 		return chainconfig.Config{}, err

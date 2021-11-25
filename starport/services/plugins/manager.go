@@ -15,14 +15,16 @@ import (
 // Plugin manager
 type Manager struct {
 	ChainId string `yaml:"chain_id"`
+	Config  chaincfg.Config
 
 	cmdPlugins  []CmdPlugin
 	hookPlugins []HookPlugin
 }
 
-func NewManager(chainId string) Manager {
+func NewManager(chainId string, cfg chaincfg.Config) Manager {
 	return Manager{
 		ChainId: chainId,
+		Config:  cfg,
 	}
 }
 
@@ -31,25 +33,25 @@ func NewManager(chainId string) Manager {
 // - Building
 // - Cache .so files
 // - Execution and Injection
-func (m *Manager) RunAll(ctx context.Context, cfg chaincfg.Config, rootCommand *cobra.Command) error {
-	if len(cfg.Plugins) == 0 {
+func (m *Manager) RunAll(ctx context.Context, rootCommand *cobra.Command) error {
+	if len(m.Config.Plugins) == 0 {
 		return nil
 	}
 
-	if err := m.PullBuild(ctx, cfg); err != nil {
+	if err := m.PullBuild(ctx); err != nil {
 		return err
 	}
 
 	// Extraction
-	if err := m.extractPlugins(ctx, rootCommand, cfg); err != nil {
+	if err := m.extractPlugins(ctx, rootCommand); err != nil {
 		return err
 	}
 
 	return nil
 }
 
-func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
-	if len(cfg.Plugins) == 0 {
+func (m *Manager) PullBuild(ctx context.Context) error {
+	if len(m.Config.Plugins) == 0 {
 		return nil
 	}
 
@@ -67,13 +69,13 @@ func (m *Manager) PullBuild(ctx context.Context, cfg chaincfg.Config) error {
 
 	fmt.Println("pulling")
 	// Pull
-	if err := m.pull(ctx, cfg); err != nil {
+	if err := m.pull(ctx); err != nil {
 		return err
 	}
 
 	fmt.Println("building")
 	// Build
-	if err := m.build(ctx, cfg); err != nil {
+	if err := m.build(ctx); err != nil {
 		return err
 	}
 
