@@ -298,6 +298,15 @@ func (c *Chain) DefaultHome() (string, error) {
 	return c.plugin.Home(), nil
 }
 
+// GentxPath returns gentx.json path of the app.
+func (c *Chain) GentxPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx/gentx.json"), nil
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
 	home, err := c.Home()

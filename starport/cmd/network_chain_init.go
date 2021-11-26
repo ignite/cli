@@ -80,7 +80,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// initialize the blockchain from the launch ID
-	initOptions := initOptionWithHomeFlag(cmd)
+	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
 	sourceOption := network.SourceLaunchID(launchID)
 	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
 	if err != nil {
