@@ -32,3 +32,11 @@ type ExtractedCommandModule struct {
 	NumArgs       int
 	Exec          func(*cobra.Command, []string) error
 }
+
+type ExtractedHookModule struct {
+	ParentCommand []string
+	Name          string
+	HookType      string
+	PreRun        func(*cobra.Command, []string) error
+	PostRun       func(*cobra.Command, []string) error
+}

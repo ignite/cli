@@ -13,7 +13,7 @@ type Manager struct {
 	Config  chaincfg.Config
 
 	cmdPlugins  []ExtractedCommandModule
-	hookPlugins []HookModule
+	hookPlugins []ExtractedHookModule
 }
 
 func NewManager(chainId string, cfg chaincfg.Config) Manager {

@@ -36,23 +36,21 @@ func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command) err
 		}
 	}
 
-	for _, hookPlugin := range m.hookPlugins {
-		for _, hook := range hookPlugin.Registry() {
-			targetCommand, _, err := rootCmd.Find(hook.ParentCommand())
-			if err != nil {
-				return err
-			}
+	for _, hook := range m.hookPlugins {
+		targetCommand, _, err := rootCmd.Find(hook.ParentCommand)
+		if err != nil {
+			return err
+		}
 
-			if targetCommand != nil {
-				switch hook.Type() {
-				case "pre":
-					targetCommand.PreRunE = hook.PreRun
-				case "post":
-					targetCommand.PostRunE = hook.PostRun
-				default:
-					targetCommand.PreRunE = hook.PreRun
-					targetCommand.PostRunE = hook.PostRun
-				}
+		if targetCommand != nil {
+			switch hook.HookType {
+			case "pre":
+				targetCommand.PreRunE = hook.PreRun
+			case "post":
+				targetCommand.PostRunE = hook.PostRun
+			default:
+				targetCommand.PreRunE = hook.PreRun
+				targetCommand.PostRunE = hook.PostRun
 			}
 		}
 	}

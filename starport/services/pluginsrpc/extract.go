@@ -103,7 +103,7 @@ func extractCommandPlugins(
 
 			cmdModule := raw2.(plugintypes.CommandModule)
 			extractedCommandModules = append(extractedCommandModules, ExtractedCommandModule{
-				ParentCommand: []string{},
+				ParentCommand: cmdModule.GetParentCommand(),
 				Name:          cmdModule.GetName(),
 				Usage:         cmdModule.GetUsage(),
 				ShortDesc:     cmdModule.GetShortDesc(),
@@ -147,17 +147,17 @@ func extractHookPlugins(
 	outputDir string,
 	parentCommand *cobra.Command,
 	cfg chaincfg.Config,
-) ([]HookModule, error) {
+) ([]ExtractedHookModule, error) {
 	pluginFiles, err := listFiles(outputDir, `.*_hook`)
 	if err != nil {
 		return nil, err
 	}
 
 	if len(pluginFiles) == 0 {
-		return []HookModule{}, nil
+		return []ExtractedHookModule{}, nil
 	}
 
-	var hookPlugins []HookModule
+	var extractedHookModules []ExtractedHookModule
 	for _, pluginFile := range pluginFiles {
 		pluginDir := path.Join(outputDir, pluginFile.Name())
 		PluginMap := BasePluginMap
@@ -167,21 +167,93 @@ func extractHookPlugins(
 			Plugins:         PluginMap,
 			Cmd:             exec.Command(pluginDir),
 		})
-		defer client.Kill()
 
 		rpcClient, err := client.Client()
 		if err != nil {
-			return []HookModule{}, err
+			return []ExtractedHookModule{}, err
 		}
 
-		raw, err := rpcClient.Dispense("hook")
+		raw, err := rpcClient.Dispense("command_map")
 		if err != nil {
-			return []HookModule{}, err
+			return []ExtractedHookModule{}, err
 		}
 
-		cmdModule := raw.(HookModule)
-		hookPlugins = append(hookPlugins, cmdModule)
+		cmdMapper := raw.(plugintypes.CommandMapper)
+
+		// Edit pluginMap off of that, and then make execute functions for each thing
+		for _, loadedModule := range cmdMapper.Commands() {
+			NewPluginMap := map[string]plugin.Plugin{
+				loadedModule: &plugintypes.CommandModulePlugin{},
+			}
+
+			client2 := plugin.NewClient(&plugin.ClientConfig{
+				HandshakeConfig: HandshakeConfig,
+				Plugins:         NewPluginMap,
+				Cmd:             exec.Command(pluginDir),
+			})
+
+			rpcClient2, err := client2.Client()
+			if err != nil {
+				return []ExtractedHookModule{}, err
+			}
+
+			raw2, err := rpcClient2.Dispense(loadedModule)
+			if err != nil {
+				return []ExtractedHookModule{}, err
+			}
+
+			hookModule := raw2.(plugintypes.HookModule)
+			extractedHookModules = append(extractedHookModules, ExtractedHookModule{
+				ParentCommand: hookModule.GetParentCommand(),
+				Name:          hookModule.GetName(),
+				HookType:      hookModule.GetType(),
+				PreRun: func(cmd *cobra.Command, args []string) error {
+					client := plugin.NewClient(&plugin.ClientConfig{
+						HandshakeConfig: HandshakeConfig,
+						Plugins:         NewPluginMap,
+						Cmd:             exec.Command(pluginDir),
+					})
+
+					rpcClient, err := client.Client()
+					if err != nil {
+						return err
+					}
+
+					raw, err := rpcClient.Dispense(loadedModule)
+					if err != nil {
+						return err
+					}
+
+					cmdModuleExec := raw.(plugintypes.HookModule)
+					return cmdModuleExec.PreRun(cmd, args)
+				},
+				PostRun: func(cmd *cobra.Command, args []string) error {
+					client := plugin.NewClient(&plugin.ClientConfig{
+						HandshakeConfig: HandshakeConfig,
+						Plugins:         NewPluginMap,
+						Cmd:             exec.Command(pluginDir),
+					})
+
+					rpcClient, err := client.Client()
+					if err != nil {
+						return err
+					}
+
+					raw, err := rpcClient.Dispense(loadedModule)
+					if err != nil {
+						return err
+					}
+
+					cmdModuleExec := raw.(plugintypes.HookModule)
+					return cmdModuleExec.PostRun(cmd, args)
+				},
+			})
+
+			client2.Kill()
+		}
+
+		client.Kill()
 	}
 
-	return hookPlugins, nil
+	return extractedHookModules, nil
 }
