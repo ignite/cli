@@ -2,11 +2,12 @@ package cosmosutil_test
 
 import (
 	"encoding/json"
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"os"
 	"path/filepath"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 const (

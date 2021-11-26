@@ -94,7 +94,7 @@ func (b *Blockchain) initGenesis(ctx context.Context) error {
 	}
 
 	// remove existing genesis
-	if err := os.Remove(genesisPath); err != nil {
+	if err := os.RemoveAll(genesisPath); err != nil {
 		return err
 	}
 
