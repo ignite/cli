@@ -85,4 +85,4 @@ build:
   binary: "newchaind"
 ```
 
-Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/v0.42/run-node/run-node.html).
+Learn more about how to use the binary to [run a chain in production](https://docs.cosmos.network/master/run-node/run-node.html).
