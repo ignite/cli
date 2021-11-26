@@ -1,11 +1,19 @@
 package entrywriter_test
 
 import (
-	"github.com/stretchr/testify/require"
-	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"errors"
 	"io"
 	"testing"
+
+	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
+
+type WriterWithError struct {}
+
+func (WriterWithError) Write(_ []byte) (n int, err error) {
+	return 0, errors.New("writer with error")
+}
 
 func TestWrite(t *testing.T) {
 	header := []string{"foobar", "bar", "foo"}
@@ -22,4 +30,7 @@ func TestWrite(t *testing.T) {
 
 	entries[0] = []string{"foo", "bar"}
 	require.Error(t, entrywriter.Write(io.Discard, header, entries...), "should prevent entry length mismatch")
+
+	var wErr WriterWithError
+	require.Error(t, entrywriter.Write(wErr, header, entries...), "should catch writer errors")
 }
