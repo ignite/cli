@@ -58,5 +58,6 @@ Starport is a free and open source product maintained by [Tendermint](https://te
 - [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
 - [Starport.com/blog](https://starport.com/blog/)
 - [Starport Discord](https://discord.com/invite/H6wGTY8sxw)
+- [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
 - [Starport docs](https://docs.starport.com/)
 - [Tendermint jobs](https://tendermint.com/careers)
