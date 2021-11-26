@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
-type WriterWithError struct {}
+type WriterWithError struct{}
 
 func (WriterWithError) Write(_ []byte) (n int, err error) {
 	return 0, errors.New("writer with error")

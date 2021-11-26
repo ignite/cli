@@ -48,14 +48,14 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	sums := launchSummaries(chains)
+	sums := LaunchSummaries(chains)
 
 	s.Stop()
 	return renderLaunchSummaries(sums, os.Stdout)
 }
 
-// launchSummaries returns the list of launch summaries from the list of chain launches
-func launchSummaries(chains []launchtypes.Chain) (sums []LaunchSummary) {
+// LaunchSummaries returns the list of launch summaries from the list of chain launches
+func LaunchSummaries(chains []launchtypes.Chain) (sums []LaunchSummary) {
 	for _, chain := range chains {
 		var campaignID string
 		if chain.HasCampaign {
