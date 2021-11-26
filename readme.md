@@ -29,7 +29,7 @@ To learn more about building a JavaScript frontend for your Cosmos SDK blockchai
 
 ## Questions
 
-For questions and support, join the official [Starport Discord server](https://discord.gg/7fwqwc3afK). The issue list in this repo is exclusively for bug reports and feature requests.
+For questions and support, join the official [Starport Discord](https://discord.gg/7fwqwc3afK) server. The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK Compatibility
 
@@ -50,11 +50,13 @@ We welcome contributions from everyone. The `develop` branch contains the develo
 
 If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
 
-## Stay in touch
+## Community
 
-Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Here's where you can find us. Stay in touch.
 
 - [Starport.com website](https://starport.com)
 - [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
 - [Starport.com/blog](https://starport.com/blog/)
+- [Starport Discord](https://discord.com/invite/H6wGTY8sxw)
+- [Starport docs](https://docs.starport.com/)
 - [Tendermint jobs](https://tendermint.com/careers)
