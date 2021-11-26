@@ -13,6 +13,8 @@ func NewPlugin() *cobra.Command {
 
 	flagSetPath(c)
 	c.AddCommand(NewPluginReload())
+	c.AddCommand(NewPluginPull())
+	c.AddCommand(NewPluginBuild())
 
 	return c
 }

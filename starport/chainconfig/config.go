@@ -191,9 +191,9 @@ type Host struct {
 }
 
 type Plugin struct {
-	Name   string `yaml:"name"`
-	Repo   string `yaml:"repo"`
-	Subdir string `yaml:"subdir"`
+	Name   string   `yaml:"name"`
+	Repo   string   `yaml:"repo"`
+	Subdir []string `yaml:"subdir"`
 }
 
 // Parse parses config.yml into UserConfig.

@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -13,6 +14,7 @@ import (
 	"github.com/fatih/color"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
+	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/internal/version"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -20,9 +22,11 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/pkg/goenv"
+	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/pluginsrpc"
 	"github.com/tendermint/starport/starport/services/scaffolder"
 )
 
@@ -56,6 +60,26 @@ starport scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+			log.Println("hello from prerun")
+
+			if !strings.Contains(cmd.CommandPath(), "starport plugin") {
+				cfg, chainId, err := getDefaultConfig(cmd)
+				if err != nil && err != chaincfg.ErrCouldntLocateConfig {
+					panic(err)
+				}
+
+				// this is running before we can reload
+				// reload plugins
+				// Maybe find a way to cache this?
+				if err != chaincfg.ErrCouldntLocateConfig && len(cfg.Plugins) > 0 {
+					// Initiate plugin manager with config, call the method to retain configuration?
+					pluginManager := pluginsrpc.NewManager(chainId, cfg)
+					if err := pluginManager.InjectPlugins(ctx, cmd); err != nil {
+						panic(err)
+					}
+				}
+			}
+
 			return goenv.ConfigurePath()
 		},
 	}
@@ -287,4 +311,28 @@ https://docs.starport.network/migration`, sc.Version.String(),
 		)
 	}
 	return sc, nil
+}
+
+func getDefaultConfig(cmd *cobra.Command) (chaincfg.Config, string, error) {
+	// need new way of getting path of chain
+	appPath := flagGetPath(cmd)
+	absPath, err := filepath.Abs(appPath)
+	if err != nil {
+		return chaincfg.Config{}, "", err
+	}
+
+	p, gappPath, err := gomodulepath.Find(absPath)
+	if err != nil {
+		return chaincfg.Config{}, "", err
+	}
+
+	chainId := p.Root
+
+	configPath, err := chaincfg.LocateDefault(gappPath)
+	if err != nil {
+		return chaincfg.Config{}, "", err
+	}
+
+	res, err := chaincfg.ParseFile(configPath)
+	return res, chainId, err
 }

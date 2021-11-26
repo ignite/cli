@@ -30,11 +30,12 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/hashicorp/go-getter v1.5.9
+	github.com/hashicorp/go-plugin v1.4.3
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.3
 	github.com/kr/pretty v0.3.0 // indirect
-	github.com/lukerhoads/plugintypes v1.0.1
+	github.com/lukerhoads/plugintypes v1.0.4-0.20211126234550-9ba5fa9ff6bf
 	github.com/manifoldco/promptui v0.8.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.3.0 // indirect

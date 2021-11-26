@@ -13,31 +13,12 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clictx"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/pkg/validation"
-	"github.com/tendermint/starport/starport/services/plugins"
 )
 
 func main() {
 	ctx := clictx.From(context.Background())
 
-	// Check if this actually preruns, idk if it is right now
-	starportCommand := starportcmd.New(ctx)
-
-	// Get config
-	cfg, chainId, err := getDefaultConfig(starportCommand)
-	if err != nil && err != chaincfg.ErrCouldntLocateConfig {
-		panic(err)
-	}
-
-	if err != chaincfg.ErrCouldntLocateConfig {
-		// Initiate plugin manager with config, call the method to retain configuration?
-		// Need CHAINID please!!!
-		pluginManager := plugins.NewManager(chainId, cfg)
-		if err := pluginManager.InjectPlugins(ctx, starportCommand); err != nil {
-			panic(err)
-		}
-	}
-
-	err = starportCommand.ExecuteContext(ctx)
+	err := starportcmd.New(ctx).ExecuteContext(ctx)
 	if ctx.Err() == context.Canceled || err == context.Canceled {
 		fmt.Println("aborted")
 		return

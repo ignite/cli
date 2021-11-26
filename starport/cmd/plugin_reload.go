@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/plugins"
+	"github.com/tendermint/starport/starport/services/pluginsrpc"
 )
 
 // NewPluginReload creates a new reload command to manually refresh chain plugins.
@@ -58,7 +58,7 @@ func pluginReloadHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pluginManager := plugins.NewManager(chainId, chainConfig)
+	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
 	if err := pluginManager.PullBuild(cmd.Context()); err != nil {
 		return err
 	}
