@@ -34,7 +34,7 @@ func (b *Blockchain) Join(
 	// If the custom gentx is not provided, get the chain
 	// default from the chain home folder
 	if !isCustomGentx {
-		gentxPath, err = b.chain.GentxPath()
+		gentxPath, err = b.chain.DefaultGentxPath()
 		if err != nil {
 			return err
 		}

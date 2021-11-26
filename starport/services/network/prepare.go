@@ -171,7 +171,7 @@ func (b Blockchain) applyGenesisValidators(ctx context.Context, genesisVals []la
 	}
 
 	// reset the gentx directory
-	gentxDir, err := b.chain.GentxPath()
+	gentxDir, err := b.chain.GentxsPath()
 	if err != nil {
 		return err
 	}
