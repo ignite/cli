@@ -2,7 +2,6 @@ package pluginsrpc
 
 import (
 	"context"
-	"log"
 	"os/exec"
 	"path"
 
@@ -18,17 +17,14 @@ func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command) er
 		return err
 	}
 
-	for _, cfgPlugin := range m.Config.Plugins {
-		pluginId := getPluginId(cfgPlugin)
-		pluginDir := path.Join(pluginHome, pluginId)
-		outputDir := path.Join(pluginHome, "output")
-
-		cmdPlugins, err := extractCommandPlugins(ctx, pluginDir, outputDir, rootCmd, m.Config)
+	outputDir := path.Join(pluginHome, "output")
+	for i := 0; i < len(m.Config.Plugins); i++ {
+		cmdPlugins, err := extractCommandPlugins(ctx, outputDir, rootCmd, m.Config)
 		if err != nil {
 			return err
 		}
 
-		hookPlugins, err := extractHookPlugins(ctx, pluginDir, outputDir, rootCmd, m.Config)
+		hookPlugins, err := extractHookPlugins(ctx, outputDir, rootCmd, m.Config)
 		if err != nil {
 			return err
 		}
@@ -42,12 +38,11 @@ func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command) er
 
 func extractCommandPlugins(
 	ctx context.Context,
-	pluginDir string,
 	outputDir string,
 	parentCommand *cobra.Command,
 	cfg chaincfg.Config,
 ) ([]ExtractedCommandModule, error) {
-	pluginFiles, err := listFiles(outputDir, `*_cmd`)
+	pluginFiles, err := listDirsMatch(outputDir, `*_cmd`)
 	if err != nil {
 		return nil, err
 	}
@@ -131,7 +126,6 @@ func extractCommandPlugins(
 				},
 			})
 
-			log.Println("success!", cmdModule)
 			client2.Kill()
 		}
 
@@ -143,12 +137,11 @@ func extractCommandPlugins(
 
 func extractHookPlugins(
 	ctx context.Context,
-	pluginDir string,
 	outputDir string,
 	parentCommand *cobra.Command,
 	cfg chaincfg.Config,
 ) ([]ExtractedHookModule, error) {
-	pluginFiles, err := listFiles(outputDir, `.*_hook`)
+	pluginFiles, err := listDirsMatch(outputDir, `*_hook`)
 	if err != nil {
 		return nil, err
 	}
@@ -173,17 +166,17 @@ func extractHookPlugins(
 			return []ExtractedHookModule{}, err
 		}
 
-		raw, err := rpcClient.Dispense("command_map")
+		raw, err := rpcClient.Dispense("hook_map")
 		if err != nil {
 			return []ExtractedHookModule{}, err
 		}
 
-		cmdMapper := raw.(plugintypes.CommandMapper)
+		hookMapper := raw.(plugintypes.HookMapper)
 
 		// Edit pluginMap off of that, and then make execute functions for each thing
-		for _, loadedModule := range cmdMapper.Commands() {
+		for _, loadedModule := range hookMapper.Hooks() {
 			NewPluginMap := map[string]plugin.Plugin{
-				loadedModule: &plugintypes.CommandModulePlugin{},
+				loadedModule: &plugintypes.HookModulePlugin{},
 			}
 
 			client2 := plugin.NewClient(&plugin.ClientConfig{

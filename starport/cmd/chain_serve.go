@@ -17,7 +17,7 @@ func NewChainServe() *cobra.Command {
 		Use:   "serve",
 		Short: "Start a blockchain node in development",
 		Long:  "Start a blockchain node with automatic reloading",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.MinimumNArgs(0), // min args so we can hit prerun
 		RunE:  chainServeHandler,
 	}
 

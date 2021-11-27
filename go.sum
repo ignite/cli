@@ -923,6 +923,10 @@ github.com/lukerhoads/plugintypes v1.0.4-0.20211126225307-c1a6242789c1 h1:7rzFuf
 github.com/lukerhoads/plugintypes v1.0.4-0.20211126225307-c1a6242789c1/go.mod h1:jLerouiAhVEySMonsgjBbfP9NqCVEmWP4fK61C1AYfo=
 github.com/lukerhoads/plugintypes v1.0.4-0.20211126234550-9ba5fa9ff6bf h1:Rn/7aQLxeYAL5JDxxzYG3/lDsGNdqjlA27sje0HabAY=
 github.com/lukerhoads/plugintypes v1.0.4-0.20211126234550-9ba5fa9ff6bf/go.mod h1:jLerouiAhVEySMonsgjBbfP9NqCVEmWP4fK61C1AYfo=
+github.com/lukerhoads/plugintypes v1.0.4-0.20211127064311-8c0732e29438 h1:sTs3a07KF1lHmInF2VEePmpvzfHMK08K69en3VQ9X0o=
+github.com/lukerhoads/plugintypes v1.0.4-0.20211127064311-8c0732e29438/go.mod h1:jLerouiAhVEySMonsgjBbfP9NqCVEmWP4fK61C1AYfo=
+github.com/lukerhoads/plugintypes v1.0.4-0.20211127083628-02a80895f543 h1:WLxrdrFGbQszSyMRjo57/Z9r13GLkmSXwP8KVgImTXU=
+github.com/lukerhoads/plugintypes v1.0.4-0.20211127083628-02a80895f543/go.mod h1:jLerouiAhVEySMonsgjBbfP9NqCVEmWP4fK61C1AYfo=
 github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a h1:weJVJJRzAJBFRlAiJQROKQs8oC9vOxvm4rZmBBk0ONw=
 github.com/lunixbochs/vtclean v0.0.0-20180621232353-2d01aacdc34a/go.mod h1:pHhQNgMf3btfWnGBVipUOjRYhoOsdGqdm/+2c2E2WMI=
 github.com/magiconair/properties v1.8.0/go.mod h1:PppfXfuXeibc/6YijjN8zIbojt8czPbwD3XqdrwzmxQ=

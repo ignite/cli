@@ -3,6 +3,7 @@ package pluginsrpc
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path"
 	"strings"
@@ -21,6 +22,10 @@ func (m *Manager) Build(ctx context.Context) error {
 	}
 
 	outputDir := path.Join(pluginHome, "output")
+	dir, err := ioutil.ReadDir(outputDir)
+	for _, d := range dir {
+		os.RemoveAll(path.Join(outputDir, d.Name()))
+	}
 
 	for _, cfgPlugin := range m.Config.Plugins {
 		pluginDir := path.Join(pluginHome, getPluginId(cfgPlugin))

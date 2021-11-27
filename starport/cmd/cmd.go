@@ -74,8 +74,12 @@ starport scaffold chain github.com/cosmonaut/mars`,
 				if err != chaincfg.ErrCouldntLocateConfig && len(cfg.Plugins) > 0 {
 					// Initiate plugin manager with config, call the method to retain configuration?
 					pluginManager := pluginsrpc.NewManager(chainId, cfg)
-					if err := pluginManager.InjectPlugins(ctx, cmd); err != nil {
+					if cancel, err := pluginManager.InjectPlugins(ctx, cmd, args); err != nil {
 						panic(err)
+					} else if cancel {
+						// Check for completion of injected plugins, if so, return
+						cmd.RunE = func(cmd *cobra.Command, args []string) error { return nil }
+						return nil
 					}
 				}
 			}

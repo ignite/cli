@@ -130,6 +130,31 @@ func listDirs(dir string) ([]os.FileInfo, error) {
 	return filteredFiles, nil
 }
 
+func listDirsMatch(dir, pattern string) ([]os.FileInfo, error) {
+	var filteredFiles []os.FileInfo
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+
+		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
+			return err
+		} else if matched {
+			// Test this, if it is proper for telling an exe
+			if info.Mode()&0111 != 0 {
+				filteredFiles = append(filteredFiles, info)
+			}
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return filteredFiles, nil
+}
+
 func listFiles(dir, pattern string) ([]os.FileInfo, error) {
 	var filteredFiles []os.FileInfo
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
@@ -144,14 +169,12 @@ func listFiles(dir, pattern string) ([]os.FileInfo, error) {
 		if matched, err := filepath.Match(pattern, filepath.Base(path)); err != nil {
 			return err
 		} else if matched {
-			// matches = append(matches, path)
 			filteredFiles = append(filteredFiles, info)
 		}
 
 		return nil
 	})
 	if err != nil {
-		// error here
 		return nil, err
 	}
 

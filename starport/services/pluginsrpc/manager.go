@@ -24,21 +24,17 @@ func NewManager(chainId string, cfg chaincfg.Config) Manager {
 }
 
 // RunAll runs through all plugin processing steps provided by manager.
-func (m *Manager) RunAll(ctx context.Context, rootCommand *cobra.Command) error {
+func (m *Manager) RunAll(ctx context.Context, rootCommand *cobra.Command, args []string) (bool, error) {
 	if len(m.Config.Plugins) == 0 {
-		return nil
+		return false, nil
 	}
 
 	if err := m.PullBuild(ctx); err != nil {
-		return err
+		return false, err
 	}
 
 	// Inject plugins
-	if err := m.InjectPlugins(ctx, rootCommand); err != nil {
-		return err
-	}
-
-	return nil
+	return m.InjectPlugins(ctx, rootCommand, args)
 }
 
 // PullBuild both pulls and builds plugins specified in config.yml file.
