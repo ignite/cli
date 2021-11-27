@@ -44,7 +44,7 @@ package plugins
 // 	parentCommand *cobra.Command,
 // 	cfg chaincfg.Config,
 // ) ([]CmdPlugin, error) {
-// 	pluginFiles, err := listFiles(outputDir, `*_cmd.so`)
+// 	pluginFiles, err := listFilesMatch(outputDir, `*_cmd.so`)
 // 	if err != nil {
 // 		return nil, err
 // 	}
@@ -90,7 +90,7 @@ package plugins
 // 	parentCommand *cobra.Command,
 // 	cfg chaincfg.Config,
 // ) ([]HookPlugin, error) {
-// 	pluginFiles, err := listFiles(outputDir, `.*_hook.so`)
+// 	pluginFiles, err := listFilesMatch(outputDir, `.*_hook.so`)
 // 	if err != nil {
 // 		return nil, err
 // 	}

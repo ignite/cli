@@ -26,7 +26,6 @@ func main() {
 
 	if err != nil {
 		var validationErr validation.Error
-
 		if errors.As(err, &validationErr) {
 			fmt.Println(validationErr.ValidationInfo())
 		} else {

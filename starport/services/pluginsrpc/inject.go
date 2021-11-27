@@ -2,7 +2,6 @@ package pluginsrpc
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"strings"
 
@@ -38,7 +37,7 @@ func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command, arg
 
 			baseUsage := strings.Split(cmd.Usage, " ")[0]
 			if args[0] != baseUsage {
-				return false, errors.New("Command not found")
+				return false, ErrCommandNotFound
 			}
 
 			reloadedTargetCommand, _, err := targetCommand.Find([]string{baseUsage})

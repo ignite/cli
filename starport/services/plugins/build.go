@@ -54,7 +54,7 @@ package plugins
 
 // // Context?
 // func traversePluginFiles(ctx context.Context, pluginDir string, outputDir string) error {
-// 	cmdPlugins, err := listFiles(pluginDir, "*.cmd.go")
+// 	cmdPlugins, err := listFilesMatch(pluginDir, "*.cmd.go")
 // 	if err != nil {
 // 		return err
 // 	}
@@ -73,7 +73,7 @@ package plugins
 // 		}
 // 	}
 
-// 	hookPlugins, err := listFiles(pluginDir, "*.hook.go")
+// 	hookPlugins, err := listFilesMatch(pluginDir, "*.hook.go")
 // 	if err != nil {
 // 		return err
 // 	}

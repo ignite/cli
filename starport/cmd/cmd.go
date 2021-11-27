@@ -3,7 +3,6 @@ package starportcmd
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"path/filepath"
 	"sort"
@@ -60,8 +59,6 @@ starport scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			log.Println("hello from prerun")
-
 			if !strings.Contains(cmd.CommandPath(), "starport plugin") {
 				cfg, chainId, err := getDefaultConfig(cmd)
 				if err != nil && err != chaincfg.ErrCouldntLocateConfig {

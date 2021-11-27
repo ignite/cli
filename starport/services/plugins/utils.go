@@ -130,7 +130,7 @@ func listDirs(dir string) ([]os.FileInfo, error) {
 	return filteredFiles, nil
 }
 
-func listFiles(dir, pattern string) ([]os.FileInfo, error) {
+func listFilesMatch(dir, pattern string) ([]os.FileInfo, error) {
 	var filteredFiles []os.FileInfo
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
