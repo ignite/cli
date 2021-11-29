@@ -2,30 +2,33 @@ package starportcmd
 
 import (
 	"fmt"
+	"log"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/pluginsrpc"
 )
 
-// NewPluginReload creates a new reload command to manually refresh chain plugins.
-func NewPluginPull() *cobra.Command {
+const (
+	flagState = "state"
+)
+
+// NewPluginList creates a new list command to retrieve plugins.
+func NewPluginList() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "pull",
-		Short: "Pull plugins specified in config file.",
-		RunE:  pluginPullHandler,
+		Use:   "list",
+		Short: "List built plugins.",
+		Long:  "List plugins specified in the config file that are also loaded.",
+		RunE:  pluginListHandler,
 	}
 
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
+	c.Flags().StringP(flagState, "s", "configured", "Plugin state (configured, downloaded, built)")
 
 	return c
 }
 
-func pluginPullHandler(cmd *cobra.Command, args []string) error {
-	s := clispinner.New().SetText("Pulling plugins...")
-	defer s.Stop()
-
+func pluginListHandler(cmd *cobra.Command, args []string) error {
 	chainOption := []chain.Option{
 		chain.LogLevel(logLevel(cmd)),
 	}
@@ -54,11 +57,27 @@ func pluginPullHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	pluginState, err := cmd.Flags().GetString("state")
+	if err != nil {
+		return err
+	}
+	log.Println(pluginState)
+
 	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
-	if err := pluginManager.Pull(cmd.Context()); err != nil {
+	plugins, err := pluginManager.List(cmd.Context(), pluginsrpc.PluginStateFromString(pluginState))
+	if err != nil {
 		return err
 	}
 
-	fmt.Println("🔄  Pulled plugins.")
+	var output string
+	if len(plugins) > 0 {
+		for _, plugin := range plugins {
+			output += fmt.Sprintf("%s\n", plugin)
+		}
+	} else {
+		output = "None"
+	}
+
+	log.Println("Plugins: \n", output)
 	return nil
 }

@@ -20,7 +20,6 @@ func NewPluginReload() *cobra.Command {
 		RunE:  pluginReloadHandler,
 	}
 
-	flagSetPath(c)
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
 
 	return c

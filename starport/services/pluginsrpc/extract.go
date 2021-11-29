@@ -12,12 +12,11 @@ import (
 )
 
 func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command) error {
-	pluginHome, err := formatPluginHome(m.ChainId, "")
+	outputDir, err := formatPluginHome(m.ChainId, "output")
 	if err != nil {
 		return err
 	}
 
-	outputDir := path.Join(pluginHome, "output")
 	for i := 0; i < len(m.Config.Plugins); i++ {
 		cmdPlugins, err := extractCommandPlugins(ctx, outputDir, rootCmd, m.Config)
 		if err != nil {
@@ -50,6 +49,8 @@ func extractCommandPlugins(
 	if len(pluginFiles) == 0 {
 		return []ExtractedCommandModule{}, nil
 	}
+
+	// Remove pluginFiles that are not specified in the config
 
 	var extractedCommandModules []ExtractedCommandModule
 	for _, pluginFile := range pluginFiles {
@@ -149,6 +150,8 @@ func extractHookPlugins(
 	if len(pluginFiles) == 0 {
 		return []ExtractedHookModule{}, nil
 	}
+
+	// Remove pluginFiles that are not specified in the config
 
 	var extractedHookModules []ExtractedHookModule
 	for _, pluginFile := range pluginFiles {

@@ -40,3 +40,38 @@ type ExtractedHookModule struct {
 	PreRun        func(*cobra.Command, []string) error
 	PostRun       func(*cobra.Command, []string) error
 }
+
+type PluginState uint32
+
+const (
+	Undefined PluginState = iota
+	Configured
+	Downloaded
+	Built
+)
+
+func PluginStateFromString(state string) PluginState {
+	switch state {
+	case "configured":
+		return Configured
+	case "downloaded":
+		return Downloaded
+	case "built":
+		return Built
+	}
+
+	return Undefined
+}
+
+func (p PluginState) String() string {
+	switch p {
+	case Configured:
+		return "configured"
+	case Downloaded:
+		return "downloaded"
+	case Built:
+		return "built"
+	}
+
+	return "undefined"
+}

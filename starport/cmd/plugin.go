@@ -11,10 +11,10 @@ func NewPlugin() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 	}
 
-	flagSetPath(c)
 	c.AddCommand(NewPluginReload())
 	c.AddCommand(NewPluginPull())
 	c.AddCommand(NewPluginBuild())
+	c.AddCommand(NewPluginList())
 
 	return c
 }
