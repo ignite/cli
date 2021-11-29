@@ -38,9 +38,11 @@ const (
 	optionValidatorGasPrices               = "--gas-prices"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
+	optionBroadcastMode                    = "--broadcast-mode"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
+	constSync       = "sync"
 )
 
 type KeyringBackend string
@@ -435,6 +437,8 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		fromAddress,
 		toAddress,
 		amount,
+		optionBroadcastMode,
+		constSync,
 		optionYes,
 	)
 
