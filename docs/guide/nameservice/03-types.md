@@ -48,7 +48,7 @@ The `starport scaffold map whois name value price --no-message` command created 
     * Queries to get data from the blockchain. 
     * Define queries as proto messages.
     * Register the messages in the `Query` service.
-    * 
+
 * `proto/nameservice/genesis.proto`
 
     A type for exporting the state of the blockchain, for example, during software upgrades.
