@@ -91,14 +91,15 @@ func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 		cmd: cmd,
 	}
 
+	n.wg.Add(1)
+	go printEvents(n.wg, n.ev, n.Spinner)
+
 	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
+		n.Cleanup()
 		return NetworkBuilder{}, err
 	}
 
 	n.AccountRegistry = n.cc.AccountRegistry
-
-	n.wg.Add(1)
-	go printEvents(n.wg, n.ev, n.Spinner)
 
 	return n, nil
 }
