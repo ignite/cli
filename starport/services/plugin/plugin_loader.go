@@ -1,6 +1,7 @@
 package plugin
 
 import (
+	"errors"
 	"fmt"
 	"io/fs"
 	"log"
@@ -12,6 +13,11 @@ import (
 	"github.com/tendermint/starport/starport/chainconfig"
 )
 
+// Errors
+var (
+	ErrPluginWrongSpec = errors.New("plugin should follow basic specs")
+)
+
 // Loader provides managing features for plugin config.
 type Loader interface {
 	IsInstalled(config chainconfig.Plugin) bool
@@ -19,6 +25,7 @@ type Loader interface {
 }
 
 type configLoader struct {
+	pluginSpec *starportplugin
 }
 
 func IsExists(path string) (bool, error) {
@@ -78,6 +85,14 @@ func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) 
 		funcSpecs: specs,
 	}
 
+	l.pluginSpec = &p
+
+	err = l.checkMandatoryFunctions()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
 	return &p, nil
 }
 
@@ -115,9 +130,35 @@ func (l *configLoader) loadSymbol(symbolName string) (map[string]FuncSpec, error
 		funcCallSpecs[method.Name] = callSpec
 	}
 
-	// TODO: jkkim: Check mandatory functions.
+	return funcCallSpecs, err
+}
 
-	return funcCallSpecs, nil
+func (l *configLoader) checkMandatoryFunctions() error {
+	mandatories := []string{
+		"Init",
+		"Help",
+	}
+
+	marks := map[string]bool{}
+
+	for _, v := range mandatories {
+		marks[v] = false
+	}
+
+	for k, v := range l.pluginSpec.funcSpecs {
+		marks[k] = true
+		_ = v
+	}
+
+	for _, v := range marks {
+		if !v {
+			return ErrPluginWrongSpec
+		}
+	}
+
+	// TODO: Check parameters.
+
+	return nil
 }
 
 // NewLoader creates loader for plugin.

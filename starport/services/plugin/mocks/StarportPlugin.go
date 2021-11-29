@@ -26,6 +26,20 @@ func (_m *StarportPlugin) Execute(name string, args []string) error {
 	return r0
 }
 
+// Help provides a mock function with given fields: name
+func (_m *StarportPlugin) Help(name string) string {
+	ret := _m.Called(name)
+
+	var r0 string
+	if rf, ok := ret.Get(0).(func(string) string); ok {
+		r0 = rf(name)
+	} else {
+		r0 = ret.Get(0).(string)
+	}
+
+	return r0
+}
+
 // List provides a mock function with given fields:
 func (_m *StarportPlugin) List() []plugin.FuncSpec {
 	ret := _m.Called()
@@ -51,20 +65,6 @@ func (_m *StarportPlugin) Name() string {
 		r0 = rf()
 	} else {
 		r0 = ret.Get(0).(string)
-	}
-
-	return r0
-}
-
-// Usage provides a mock function with given fields: name
-func (_m *StarportPlugin) Usage(name string) error {
-	ret := _m.Called(name)
-
-	var r0 error
-	if rf, ok := ret.Get(0).(func(string) error); ok {
-		r0 = rf(name)
-	} else {
-		r0 = ret.Error(0)
 	}
 
 	return r0

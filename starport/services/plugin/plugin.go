@@ -22,11 +22,7 @@ var (
 type StarportPlugin interface {
 	Execute(name string, args []string) error
 	List() []FuncSpec
-
-	// TODO: Need?
-	// Cause single plugin can have multiple functions.
-	Usage(name string) error
-
+	Help(name string) string
 	Name() string
 }
 
@@ -35,6 +31,7 @@ type starportplugin struct {
 	funcSpecs map[string]FuncSpec
 }
 
+// Execute try to run plugin's function.
 func (p *starportplugin) Execute(name string, args []string) error {
 	spec, ok := p.funcSpecs[name]
 	if !ok {
@@ -125,6 +122,7 @@ func convert(in string, expectType reflect.Type) (reflect.Value, error) {
 	}
 }
 
+// List returns reflected function specs to call plugins.
 func (p *starportplugin) List() []FuncSpec {
 	specs := make([]FuncSpec, len(p.funcSpecs))
 
@@ -137,11 +135,22 @@ func (p *starportplugin) List() []FuncSpec {
 	return specs
 }
 
-func (p *starportplugin) Usage(name string) error {
-	// TODO: How to provide help?
-	return nil
+// Help provides help text of plugin function.
+func (p *starportplugin) Help(name string) string {
+	spec, ok := p.funcSpecs["Help"]
+	if !ok {
+		return ""
+	}
+
+	rets := spec.Func.Call([]reflect.Value{reflect.ValueOf(name)})
+	if len(rets) == 0 {
+		return ""
+	}
+
+	return rets[0].String()
 }
 
+// Name returns current plugin's name.
 func (p *starportplugin) Name() string {
 	return p.name
 }

@@ -44,8 +44,11 @@ func Test_ScaffoldPlugins_Installed(t *testing.T) {
 		{Name: "func2"},
 	}
 
-	mockPlugin.On("List").Return(mockFuncs)
 	mockLoader.On("LoadPlugin", testPlugin, pluginHome).Return(&mockPlugin, nil)
+
+	mockPlugin.On("List").Return(mockFuncs)
+	mockPlugin.On("Help", "func1").Return("")
+	mockPlugin.On("Help", "func2").Return("")
 
 	// Test
 	cmds := NewScaffoldPlugins([]chainconfig.Plugin{testPlugin})

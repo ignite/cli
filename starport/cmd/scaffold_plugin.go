@@ -50,7 +50,8 @@ func NewScaffoldPlugins(pluginConfigs []chainconfig.Plugin) []*cobra.Command {
 
 				pluginCmd.AddCommand(&cobra.Command{
 					Use:   f.Name,
-					Short: f.Name, // TODO: Any alternatives?
+					Short: plugin.Help(f.Name),
+					Long:  plugin.Help(f.Name),
 					Args:  cobra.ExactArgs(len(f.ParamTypes)),
 					RunE: func(cmd *cobra.Command, args []string) error {
 						return plugin.Execute(f.Name, args)
