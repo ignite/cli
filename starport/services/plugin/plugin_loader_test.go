@@ -11,19 +11,17 @@ import (
 
 func Test_IsExists(t *testing.T) {
 	testConfigLoader := configLoader{}
-	var configPathForTrue, err = chainconfig.ConfigDirPath()
-	fmt.Println(configPathForTrue)
+	var configPath, err = chainconfig.ConfigDirPath()
+	fmt.Println(configPath)
+	exist := false
+	_, errStat := os.Stat(configPath)
+	if errStat == nil {
+		exist = true
+	}
 
-	doesExists, err := (&testConfigLoader).IsExists(configPathForTrue)
+	doesExists, err := (&testConfigLoader).IsExists(configPath)
 	require.NoError(t, err)
-	require.Equal(t, true, doesExists)
-
-	var configPathForFalse, errs = chainconfig.ConfigDirPath()
-	var pluginsPath = filepath.Join(configPathForFalse, "doesNotExist")
-	fmt.Println(pluginsPath)
-	doesNotExists, errs := (&testConfigLoader).IsExists(pluginsPath)
-	require.NoError(t, errs)
-	require.Equal(t, false, doesNotExists)
+	require.Equal(t, exist, doesExists)
 }
 
 func check(e error) {
