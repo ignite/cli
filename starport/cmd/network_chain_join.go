@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/xchisel"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (
@@ -34,14 +34,13 @@ func NewNetworkChainJoin() *cobra.Command {
 }
 
 func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
-	// initialize network common methods
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
-	// parse launch ID
+	// parse launch ID.
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
 	if err != nil {
 		return errors.Wrap(err, "error parsing launchID")
@@ -50,41 +49,37 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	// parse the amount
+	// parse the amount.
 	amount, err := sdk.ParseCoinNormalized(args[1])
 	if err != nil {
 		return errors.Wrap(err, "error parsing amount")
 	}
 
-	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
-	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
-	if err != nil {
-		return err
-	}
-
-	// parse the gentx flag
 	gentxPath, _ := cmd.Flags().GetString(flagGentx)
 
-	// get the peer public address for the validator
-	publicAddr, err := askPublicAddress(s)
+	// get the peer public address for the validator.
+	publicAddr, err := askPublicAddress(nb.Spinner)
 	if err != nil {
 		return err
 	}
 
-	// create the message to add the validator
-	err = blockchain.Join(cmd.Context(),
-		launchID,
-		amount,
-		publicAddr,
-		gentxPath,
-	)
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	s.Stop()
-	return nil
+	launchInfo, err := n.LaunchInfo(cmd.Context(), launchID)
+	if err != nil {
+		return err
+	}
+
+	c, err := nb.Chain(networkchain.SourceLaunch(launchInfo))
+	if err != nil {
+		return err
+	}
+
+	// create the message to add the validator.
+	return n.Join(cmd.Context(), c, launchID, amount, publicAddr, gentxPath)
 }
 
 // askPublicAddress prepare questions to interactively ask for a publicAddress

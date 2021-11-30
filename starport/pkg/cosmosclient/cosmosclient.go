@@ -4,16 +4,15 @@ package cosmosclient
 import (
 	"context"
 	"encoding/hex"
-	"encoding/json"
 	"fmt"
 	"io"
-	"net/http"
 	"os"
 	"path/filepath"
-	"strconv"
 	"strings"
 	"sync"
+	"time"
 
+	"github.com/cenkalti/backoff/v4"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -24,6 +23,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/tx/signing"
 	authtx "github.com/cosmos/cosmos-sdk/x/auth/tx"
 	authtypes "github.com/cosmos/cosmos-sdk/x/auth/types"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
 	staking "github.com/cosmos/cosmos-sdk/x/staking/types"
 	proto "github.com/gogo/protobuf/proto"
 	prototypes "github.com/gogo/protobuf/types"
@@ -33,6 +33,10 @@ import (
 	rpchttp "github.com/tendermint/tendermint/rpc/client/http"
 )
 
+// FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
+// is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
+var FaucetTransferEnsureDuration = time.Minute * 2
+
 const (
 	defaultNodeAddress   = "http://localhost:26657"
 	defaultGasAdjustment = 1.0
@@ -40,8 +44,9 @@ const (
 )
 
 const (
-	faucetDenom     = "token"
-	faucetMinAmount = 100
+	defaultFaucetAddress   = "http://localhost:4500"
+	defaultFaucetDenom     = "token"
+	defaultFaucetMinAmount = 100
 )
 
 // Client is a client to access your chain by querying and broadcasting transactions.
@@ -61,14 +66,13 @@ type Client struct {
 	addressPrefix string
 
 	nodeAddress string
-	apiAddress  string
 	out         io.Writer
 	chainID     string
 
 	useFaucet       bool
 	faucetAddress   string
 	faucetDenom     string
-	faucetMinAmount int64
+	faucetMinAmount uint64
 
 	homePath           string
 	keyringServiceName string
@@ -110,19 +114,13 @@ func WithNodeAddress(addr string) Option {
 	}
 }
 
-func WithAPIAddress(addr string) Option {
-	return func(c *Client) {
-		c.apiAddress = addr
-	}
-}
-
 func WithAddressPrefix(prefix string) Option {
 	return func(c *Client) {
 		c.addressPrefix = prefix
 	}
 }
 
-func WithUseFaucet(faucetAddress, denom string, minAmount int64) Option {
+func WithUseFaucet(faucetAddress, denom string, minAmount uint64) Option {
 	return func(c *Client) {
 		c.useFaucet = true
 		c.faucetAddress = faucetAddress
@@ -138,10 +136,13 @@ func WithUseFaucet(faucetAddress, denom string, minAmount int64) Option {
 // New creates a new client with given options.
 func New(ctx context.Context, options ...Option) (Client, error) {
 	c := Client{
-		nodeAddress:    defaultNodeAddress,
-		keyringBackend: cosmosaccount.KeyringTest,
-		addressPrefix:  "cosmos",
-		out:            io.Discard,
+		nodeAddress:     defaultNodeAddress,
+		keyringBackend:  cosmosaccount.KeyringTest,
+		addressPrefix:   "cosmos",
+		faucetAddress:   defaultFaucetAddress,
+		faucetDenom:     defaultFaucetDenom,
+		faucetMinAmount: defaultFaucetMinAmount,
+		out:             io.Discard,
 	}
 
 	var err error
@@ -334,39 +335,8 @@ func (c *Client) prepareBroadcast(ctx context.Context, accountName string, _ []s
 // makeSureAccountHasTokens makes sure the address has a positive balance
 // it requests funds from the faucet if the address has an empty balance
 func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) error {
-	// check the balance.
-	balancesEndpoint := fmt.Sprintf("%s/bank/balances/%s", c.apiAddress, address)
-	req, err := http.NewRequestWithContext(ctx, http.MethodGet, balancesEndpoint, nil)
-	if err != nil {
-		return err
-	}
-	resp, err := http.DefaultClient.Do(req)
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	var balances struct {
-		Result []struct {
-			Denom  string `json:"denom"`
-			Amount string `json:"amount"`
-		} `json:"result"`
-	}
-	if err := json.NewDecoder(resp.Body).Decode(&balances); err != nil {
-		return err
-	}
-
-	// if the balance is enough do nothing.
-	if len(balances.Result) > 0 {
-		for _, c := range balances.Result {
-			amount, err := strconv.ParseInt(c.Amount, 10, 32)
-			if err != nil {
-				return err
-			}
-			if c.Denom == faucetDenom && amount >= faucetMinAmount {
-				return nil
-			}
-		}
+	if err := c.checkAccountBalance(ctx, address); err == nil {
+		return nil
 	}
 
 	// request coins from the faucet.
@@ -384,7 +354,33 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 		}
 	}
 
-	return nil
+	// make sure funds are retrieved.
+	ctx, cancel := context.WithTimeout(ctx, FaucetTransferEnsureDuration)
+	defer cancel()
+
+	return backoff.Retry(func() error {
+		return c.checkAccountBalance(ctx, address)
+	}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
+}
+
+func (c *Client) checkAccountBalance(ctx context.Context, address string) (err error) {
+	balancesResp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+		Address: address,
+	})
+	if err != nil {
+		return err
+	}
+
+	// if the balance is enough do nothing.
+	if len(balancesResp.Balances) > 0 {
+		for _, coin := range balancesResp.Balances {
+			if coin.Denom == c.faucetDenom && coin.Amount.Uint64() >= c.faucetMinAmount {
+				return nil
+			}
+		}
+	}
+
+	return errors.New("account has not enough balance")
 }
 
 // handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
