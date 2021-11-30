@@ -19,7 +19,6 @@ var (
 	local   bool
 
 	spnNodeAddress   string
-	spnAPIAddress    string
 	spnFaucetAddress string
 )
 
@@ -28,19 +27,15 @@ const (
 	flagLocal   = "local"
 
 	flagSPNNodeAddress   = "spn-node-address"
-	flagSPNAPIAddress    = "spn-api-address"
 	flagSPNFaucetAddress = "spn-faucet-address"
 
 	spnNodeAddressAlpha   = "https://rpc.alpha.starport.network:443"
-	spnAPIAddressAlpha    = "https://rest.alpha.starport.network"
 	spnFaucetAddressAlpha = "https://faucet.alpha.starport.network"
 
 	spnNodeAddressNightly   = "https://rpc.nightly.starport.network:443"
-	spnAPIAddressNightly    = "https://api.nightly.starport.network"
 	spnFaucetAddressNightly = "https://faucet.nightly.starport.network"
 
 	spnNodeAddressLocal   = "http://0.0.0.0:26657"
-	spnAPIAddressLocal    = "http://0.0.0.0:1317"
 	spnFaucetAddressLocal = "http://0.0.0.0:4500"
 )
 
@@ -59,7 +54,6 @@ func NewNetwork() *cobra.Command {
 	c.PersistentFlags().BoolVar(&local, flagLocal, false, "Use local SPN network")
 	c.PersistentFlags().BoolVar(&nightly, flagNightly, false, "Use nightly SPN network")
 	c.PersistentFlags().StringVar(&spnNodeAddress, flagSPNNodeAddress, spnNodeAddressAlpha, "SPN node address")
-	c.PersistentFlags().StringVar(&spnAPIAddress, flagSPNAPIAddress, spnAPIAddressAlpha, "SPN api address")
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
@@ -137,18 +131,15 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	}
 	if local {
 		spnNodeAddress = spnNodeAddressLocal
-		spnAPIAddress = spnAPIAddressLocal
 		spnFaucetAddress = spnFaucetAddressLocal
 	} else if nightly {
 		spnNodeAddress = spnNodeAddressNightly
-		spnAPIAddress = spnAPIAddressNightly
 		spnFaucetAddress = spnFaucetAddressNightly
 	}
 
 	cosmosOptions := []cosmosclient.Option{
 		cosmosclient.WithHome(getHome(cmd)),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
-		cosmosclient.WithAPIAddress(spnAPIAddress),
 		cosmosclient.WithAddressPrefix(networkchain.SPN),
 		cosmosclient.WithUseFaucet(spnFaucetAddress, "", 0),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
