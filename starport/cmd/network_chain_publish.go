@@ -2,12 +2,12 @@ package starportcmd
 
 import (
 	"fmt"
+	"os"
 
-	"github.com/manifoldco/promptui"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (
@@ -52,88 +52,76 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
-	nb, s, shutdown, err := initializeNetwork(cmd)
+
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
-	// initialize the blockchain
-	initOptions := initOptionWithHomeFlag(cmd, network.MustNotInitializedBefore())
+	// use source from chosen target.
+	var sourceOption networkchain.SourceOption
 
-	var sourceOption network.SourceOption
-
-	if !xurl.IsLocalPath(source) {
-		switch {
-		case tag != "":
-			sourceOption = network.SourceRemoteTag(source, tag)
-		case branch != "":
-			sourceOption = network.SourceRemoteBranch(source, branch)
-		case hash != "":
-			sourceOption = network.SourceRemoteHash(source, hash)
-		default:
-			sourceOption = network.SourceRemote(source)
-		}
+	switch {
+	case tag != "":
+		sourceOption = networkchain.SourceRemoteTag(source, tag)
+	case branch != "":
+		sourceOption = networkchain.SourceRemoteBranch(source, branch)
+	case hash != "":
+		sourceOption = networkchain.SourceRemoteHash(source, hash)
+	default:
+		sourceOption = networkchain.SourceRemote(source)
 	}
 
+	var initOptions []networkchain.Option
+
+	// use custom genesis from url if given.
 	if genesisURL != "" {
-		initOptions = append(initOptions, network.InitializationGenesisURL(genesisURL))
+		initOptions = append(initOptions, networkchain.WithGenesisFromURL(genesisURL))
 	}
+
+	// init in a temp dir.
+	homeDir, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(homeDir)
+
+	initOptions = append(initOptions, networkchain.WithHome(homeDir))
 
 	// init the chain.
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	c, err := nb.Chain(sourceOption, initOptions...)
 	if err != nil {
 		return err
 	}
 
-	var createOptions []network.CreateOption
+	var publishOptions []network.PublishOption
+
+	if genesisURL != "" {
+		publishOptions = append(publishOptions, network.WithCustomGenesis(genesisURL))
+	}
 
 	if campaign != 0 {
-		createOptions = append(createOptions, network.WithCampaign(campaign))
+		publishOptions = append(publishOptions, network.WithCampaign(campaign))
 	}
 
 	if noCheck {
-		createOptions = append(createOptions, network.WithNoCheck())
-	} else {
-		// perform checks for the chain requires to initialize it and therefore erase the current home if it exists
-		// we ask the user for confirmation
-		ok, err := blockchain.IsHomeDirExist()
-		if err != nil {
-			return err
-		}
-
-		if ok && !getYes(cmd) {
-			home, err := blockchain.Home()
-			if err != nil {
-				return err
-			}
-			prompt := promptui.Prompt{
-				Label: fmt.Sprintf("Data directory for blockchain already exists: %s. Would you like to overwrite it",
-					home,
-				),
-				IsConfirm: true,
-			}
-
-			s.Stop()
-			if _, err := prompt.Run(); err != nil {
-				fmt.Println("said no")
-				return nil
-			}
-			s.Start()
-		}
-
-		// initialize the chain for checking
-		if err := blockchain.Init(cmd.Context()); err != nil {
-			return nil
-		}
+		publishOptions = append(publishOptions, network.WithNoCheck())
+	} else if err := c.Init(cmd.Context()); err != nil { // initialize the chain for checking.
+		return err
 	}
 
-	launchID, campaignID, err := blockchain.Publish(cmd.Context(), createOptions...)
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	s.Stop()
+	launchID, campaignID, err := n.Publish(cmd.Context(), c, publishOptions...)
+	if err != nil {
+		return err
+	}
+
+	nb.Spinner.Stop()
 
 	fmt.Printf("%s Network published \n", clispinner.OK)
 	fmt.Printf("%s Launch ID: %d \n", clispinner.Bullet, launchID)
