@@ -12,7 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
-var LaunchSummaryHeader = []string{"Launch ID", "Chain ID", "Source", "Campaign ID"}
+var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}
 
 // LaunchSummary holds summarized information about a chain launch
 type LaunchSummary struct {

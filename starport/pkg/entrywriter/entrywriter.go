@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 	"text/tabwriter"
 )
 
@@ -12,8 +13,11 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 	w := &tabwriter.Writer{}
 	w.Init(out, 0, 8, 0, '\t', 0)
 
-	formatLine := func(line []string) (formatted string) {
+	formatLine := func(line []string, title bool) (formatted string) {
 		for _, cell := range line {
+			if title {
+				cell = strings.Title(cell)
+			}
 			formatted += fmt.Sprintf("%s \t", cell)
 		}
 		return formatted
@@ -24,7 +28,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 	}
 
 	// write header
-	if _, err := fmt.Fprintln(w, formatLine(header)); err != nil {
+	if _, err := fmt.Fprintln(w, formatLine(header, true)); err != nil {
 		return err
 	}
 
@@ -33,7 +37,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 		if len(entry) != len(header) {
 			return fmt.Errorf("entry %d doesn't match header length", i)
 		}
-		if _, err := fmt.Fprintf(w, formatLine(entry)+"\n"); err != nil {
+		if _, err := fmt.Fprintf(w, formatLine(entry, false)+"\n"); err != nil {
 			return err
 		}
 	}

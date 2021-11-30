@@ -44,7 +44,7 @@ func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error 
 	for _, acc := range accounts {
 		accEntries = append(accEntries, []string{acc.Name, acc.Address(getAddressPrefix(cmd)), acc.PubKey()})
 	}
-	if err := entrywriter.Write(os.Stdout, []string{"Name", "Address", "Public Key"}, accEntries...); err != nil {
+	if err := entrywriter.Write(os.Stdout, []string{"name", "address", "public key"}, accEntries...); err != nil {
 		return errors.Wrap(err, "error printing accounts")
 	}
 	return nil
