@@ -1,7 +1,6 @@
 package starportcmd
 
 import (
-	"fmt"
 	"sync"
 
 	"github.com/pkg/errors"
@@ -12,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 var (
@@ -64,39 +64,70 @@ func NewNetwork() *cobra.Command {
 
 var cosmos *cosmosclient.Client
 
-// initializeNetwork initializes event bus, CLIn components such as spinner and returns a new network builder
-func initializeNetwork(cmd *cobra.Command) (
-	nb *network.Builder,
-	spinner *clispinner.Spinner,
-	cleanup func(),
-	err error,
-) {
-	var (
-		wg sync.WaitGroup
-		s  = clispinner.New()
-		ev = events.NewBus()
-	)
-	wg.Add(1)
-	go printEvents(&wg, ev, s)
+type NetworkBuilder struct {
+	AccountRegistry cosmosaccount.Registry
+	Spinner         *clispinner.Spinner
 
-	shutdown := func() {
-		s.Stop()
-		ev.Shutdown()
-		wg.Wait()
-	}
-
-	nb, err = newNetwork(cmd, network.CollectEvents(ev))
-	if err != nil {
-		shutdown()
-	}
-	return nb, s, shutdown, err
+	ev  events.Bus
+	wg  *sync.WaitGroup
+	cmd *cobra.Command
+	cc  cosmosclient.Client
 }
 
-// newNetwork returns a new network builder initialized with command flag
-func newNetwork(cmd *cobra.Command, options ...network.Option) (*network.Builder, error) {
+func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
+	var err error
+
+	n := NetworkBuilder{
+		Spinner: clispinner.New(),
+		ev:      events.NewBus(),
+		wg:      &sync.WaitGroup{},
+		cmd:     cmd,
+	}
+
+	n.wg.Add(1)
+	go printEvents(n.wg, n.ev, n.Spinner)
+
+	if n.cc, err = getNetworkCosmosClient(cmd); err != nil {
+		n.Cleanup()
+		return NetworkBuilder{}, err
+	}
+
+	n.AccountRegistry = n.cc.AccountRegistry
+
+	return n, nil
+}
+
+func (n NetworkBuilder) Chain(source networkchain.SourceOption, options ...networkchain.Option) (*networkchain.Chain, error) {
+	options = append(options, networkchain.CollectEvents(n.ev))
+
+	if home := getHome(n.cmd); home != "" {
+		options = append(options, networkchain.WithHome(home))
+	}
+
+	return networkchain.New(n.cmd.Context(), n.AccountRegistry, source, options...)
+}
+
+func (n NetworkBuilder) Network(options ...network.Option) (network.Network, error) {
+	options = append(options, network.CollectEvents(n.ev))
+
+	account, err := cosmos.AccountRegistry.GetByName(getFrom(n.cmd))
+	if err != nil {
+		return network.Network{}, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
+	}
+
+	return network.New(*cosmos, account, options...)
+}
+
+func (n NetworkBuilder) Cleanup() {
+	n.Spinner.Stop()
+	n.ev.Shutdown()
+	n.wg.Wait()
+}
+
+func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	// check preconfigured networks
 	if nightly && local {
-		return nil, errors.New("local and nightly networks can't be specified in the same command")
+		return cosmosclient.Client{}, errors.New("local and nightly networks can't be specified in the same command")
 	}
 	if local {
 		spnNodeAddress = spnNodeAddressLocal
@@ -107,10 +138,10 @@ func newNetwork(cmd *cobra.Command, options ...network.Option) (*network.Builder
 	}
 
 	cosmosOptions := []cosmosclient.Option{
-		cosmosclient.WithHome(getHome(cmd)),
+		cosmosclient.WithHome(cosmosaccount.KeyringHome),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
-		cosmosclient.WithAddressPrefix(network.SPNAddressPrefix),
-		cosmosclient.WithUseFaucet(spnFaucetAddress, "", 0),
+		cosmosclient.WithAddressPrefix(networkchain.SPN),
+		cosmosclient.WithUseFaucet(spnFaucetAddress, "token", 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 	}
 
@@ -129,23 +160,14 @@ func newNetwork(cmd *cobra.Command, options ...network.Option) (*network.Builder
 	if cosmos == nil {
 		client, err := cosmosclient.New(cmd.Context(), cosmosOptions...)
 		if err != nil {
-			return nil, err
+			return cosmosclient.Client{}, err
 		}
 		cosmos = &client
 	}
 
 	if err := cosmos.AccountRegistry.EnsureDefaultAccount(); err != nil {
-		return nil, err
+		return cosmosclient.Client{}, err
 	}
 
-	account, err := cosmos.AccountRegistry.GetByName(getFrom(cmd))
-	if err != nil {
-		return nil, errors.Wrap(err, "make sure that this account exists, use 'starport account -h' to manage accounts")
-	}
-
-	return network.New(*cosmos, account, options...)
-}
-
-func printSection(title string) {
-	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
+	return *cosmos, nil
 }
