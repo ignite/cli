@@ -2,6 +2,7 @@ package numbers
 
 import (
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 )
@@ -13,7 +14,8 @@ const (
 
 // ParseListRange parses comma separated numbers and range to []uint64.
 func ParseListRange(arg string) ([]uint64, error) {
-	list := make([]uint64, 0)
+	result := make([]uint64, 0)
+	listNumbers := make(map[uint64]struct{})
 	for _, numberRange := range strings.Split(arg, separator) {
 		trimmedRange := strings.TrimSpace(numberRange)
 		if trimmedRange == "" {
@@ -28,7 +30,11 @@ func ParseListRange(arg string) ([]uint64, error) {
 			if err != nil {
 				return nil, err
 			}
-			list = append(list, i)
+			if _, ok := listNumbers[i]; ok {
+				continue
+			}
+			listNumbers[i] = struct{}{}
+			result = append(result, i)
 		case 2:
 			var (
 				startN = strings.TrimSpace(numbers[0])
@@ -55,13 +61,20 @@ func ParseListRange(arg string) ([]uint64, error) {
 				start, end = end, start
 			}
 			for ; start <= end; start++ {
-				list = append(list, start)
+				if _, ok := listNumbers[start]; ok {
+					continue
+				}
+				listNumbers[start] = struct{}{}
+				result = append(result, start)
 			}
 		default:
 			return nil, fmt.Errorf("cannot parse the number range: %s", trimmedRange)
 		}
 	}
-	return list, nil
+	sort.Slice(result, func(i, j int) bool {
+		return result[i] < result[j]
+	})
+	return result, nil
 }
 
 // ParseList parses comma separated numbers to []int.
