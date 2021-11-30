@@ -28,7 +28,8 @@ type configLoader struct {
 	pluginSpec *starportplugin
 }
 
-func IsExists(path string) (bool, error) {
+// IsExists return true(bool) if given path does exist or doesn't
+func (l *configLoader) IsExists(path string) (bool, error) {
 	_, err := os.Stat(path)
 	if err == nil {
 		return true, nil
@@ -39,7 +40,8 @@ func IsExists(path string) (bool, error) {
 	return false, err
 }
 
-func find(root, ext string) []string {
+// Find return name of all files that does exist on given path, and given extension
+func (l *configLoader) Find(root, ext string) []string {
 	var a []string
 	filepath.WalkDir(root, func(s string, d fs.DirEntry, e error) error {
 		if e != nil {
@@ -59,12 +61,12 @@ func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
 	// TODO: D.K: Check plugin file exist on home.
 	defaultPath, _ := chainconfig.ConfigDirPath()
 	var pluginsPath = filepath.Join(defaultPath, "plugins")
-	pluginsDirectory, _ := IsExists(pluginsPath)
+	pluginsDirectory, _ := l.IsExists(pluginsPath)
 	if pluginsDirectory {
 		var pluginPath = filepath.Join(pluginsPath, plugin.Name)
-		selectedPluginPath, _ := IsExists(pluginPath)
+		selectedPluginPath, _ := l.IsExists(pluginPath)
 		if selectedPluginPath {
-			fileList := find(pluginPath, ".so")
+			fileList := l.Find(pluginPath, ".so")
 			if len(fileList) > 0 {
 				isExists = true
 			}
