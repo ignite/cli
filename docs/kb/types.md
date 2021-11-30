@@ -33,11 +33,12 @@ starport scaffold list coordinator-description description:string --no-message
 ```
 Now we can scaffold a message using the `CoordinatorDescription` type:
 ```shell
-starport scaffold map coordinator description:CoordinatorDescription address:string --no-message
+starport scaffold message add-coordinator address:string description:CoordinatorDescription
 ```
-To send the message using the CLI, we should pass the custom type as a JSON:
+Run the chain and send the message using the CLI, we should pass the custom type as a JSON:
 ```shell
-testd tx test settle-request '{"description":"coordinator description"}' true --from alice --chain-id mars
+starport chain serve
+marsd tx mars add-coordinator cosmos1t4jkut0yfnsmqle9vxk3adfwwm9vj9gsj98vqf '{"description":"coordinator description"}' true --from alice --chain-id mars
 ```
 If the developer tries to use another type not created yet, the starport fails:
 ```shell
