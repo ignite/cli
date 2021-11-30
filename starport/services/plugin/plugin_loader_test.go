@@ -37,8 +37,14 @@ func Test_Find(t *testing.T) {
 		check(os.WriteFile(name, d, 0644))
 	}
 
-	var configPathForFalse, _ = chainconfig.ConfigDirPath()
-	var pluginsPath = filepath.Join(configPathForFalse, "plugins")
+	var starPortPath, _ = chainconfig.ConfigDirPath()
+	starPortPathDirExist, _ := (&testConfigLoader).IsExists(starPortPath)
+	if !starPortPathDirExist {
+		mkErr := os.Mkdir(starPortPath, 0755)
+		check(mkErr)
+	}
+
+	var pluginsPath = filepath.Join(starPortPath, "plugins")
 	pluginDirExist, _ := (&testConfigLoader).IsExists(pluginsPath)
 
 	if !pluginDirExist {
@@ -80,8 +86,14 @@ func Test_IsInstalled(t *testing.T) {
 		check(os.WriteFile(name, d, 0644))
 	}
 
-	var configPathForFalse, _ = chainconfig.ConfigDirPath()
-	var pluginsPath = filepath.Join(configPathForFalse, "plugins")
+	var starPortPath, _ = chainconfig.ConfigDirPath()
+	starPortPathDirExist, _ := (&testConfigLoader).IsExists(starPortPath)
+	if !starPortPathDirExist {
+		mkErr := os.Mkdir(starPortPath, 0755)
+		check(mkErr)
+	}
+
+	var pluginsPath = filepath.Join(starPortPath, "plugins")
 	pluginDirExist, _ := (&testConfigLoader).IsExists(pluginsPath)
 
 	if !pluginDirExist {
