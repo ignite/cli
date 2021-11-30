@@ -9,7 +9,7 @@ The simulator can help you test different scenarios for your chain, simulating t
 
 ## Module simulation
 
-Every new module implements the Cosmos SDK simulator. Each new message creates a new file with the simulation methods necessary for the tests. Scaffolding a `CRUD` like a `list` or `map` creates a simulation file with `create`, `update` and `delete` simulation methods into the `x/<module>/simulation` folder and registers this methods into the `x/<module>/module_simulation.go`. Scaffolding a single message creates an empty simulation method to be implemented by the user. Also, the user should maintain the simulation methods for each new modification into the message keeper methods.
+Every new module implements the [cosmos-sdk simulator](https://docs.cosmos.network/master/building-modules/simulator.html). Each new message creates a new file with the simulation methods necessary for the tests. Scaffolding a `CRUD` like a `list` or `map` creates a simulation file with `create`, `update` and `delete` simulation methods into the `x/<module>/simulation` folder and registers this methods into the `x/<module>/module_simulation.go`. Scaffolding a single message creates an empty simulation method to be implemented by the user. Also, the user should maintain the simulation methods for each new modification into the message keeper methods.
 Every simulation has your weight. This is because the sender of the operation is assigned randomly. The weight defines how much the simulation will call the message. For better randomizes, the developer can define a random seed, the simulation with the same random seed is deterministic with the same output.
 
 ## Scaffolding Simulation
