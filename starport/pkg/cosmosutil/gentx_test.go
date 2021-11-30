@@ -1,10 +1,11 @@
-package cosmosutil
+package cosmosutil_test
 
 import (
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
 
 func TestChainGenesis_HasAccount(t *testing.T) {
@@ -42,7 +43,7 @@ func TestChainGenesis_HasAccount(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			g := ChainGenesis{}
+			g := cosmosutil.ChainGenesis{}
 			for _, acc := range tt.accounts {
 				g.AppState.Auth.Accounts = append(g.AppState.Auth.Accounts, account{Address: acc})
 			}
@@ -75,12 +76,13 @@ func TestParseGenesis(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotGenesis, err := ParseGenesis(tt.genesisPath)
+			gotGenesis, err := cosmosutil.ParseGenesis(tt.genesisPath)
 			if tt.wantErr {
 				require.Error(t, err)
 				return
 			}
 			require.NoError(t, err)
+
 			gotAddrs := make([]string, 0)
 			for _, acc := range gotGenesis.AppState.Auth.Accounts {
 				gotAddrs = append(gotAddrs, acc.Address)
@@ -94,13 +96,13 @@ func TestParseGentx(t *testing.T) {
 	tests := []struct {
 		name      string
 		gentxPath string
-		wantInfo  GentxInfo
+		wantInfo  cosmosutil.GentxInfo
 		wantErr   bool
 	}{
 		{
 			name:      "parse gentx file 1",
 			gentxPath: "testdata/gentx1.json",
-			wantInfo: GentxInfo{
+			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
 				PubKey:           []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 				SelfDelegation: sdk.Coin{
@@ -111,7 +113,7 @@ func TestParseGentx(t *testing.T) {
 		}, {
 			name:      "parse gentx file 2",
 			gentxPath: "testdata/gentx2.json",
-			wantInfo: GentxInfo{
+			wantInfo: cosmosutil.GentxInfo{
 				DelegatorAddress: "cosmos1mmlqwyqk7neqegffp99q86eckpm4pjah3ytlpa",
 				PubKey:           []byte("OL+EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="),
 				SelfDelegation: sdk.Coin{
@@ -131,7 +133,7 @@ func TestParseGentx(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotInfo, _, err := ParseGentx(tt.gentxPath)
+			gotInfo, _, err := cosmosutil.ParseGentx(tt.gentxPath)
 			if tt.wantErr {
 				require.Error(t, err)
 				return
