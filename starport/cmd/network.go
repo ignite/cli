@@ -85,10 +85,9 @@ func newNetworkBuilder(cmd *cobra.Command) (NetworkBuilder, error) {
 
 	n := NetworkBuilder{
 		Spinner: clispinner.New(),
-
-		ev:  events.NewBus(),
-		wg:  &sync.WaitGroup{},
-		cmd: cmd,
+		ev:      events.NewBus(),
+		wg:      &sync.WaitGroup{},
+		cmd:     cmd,
 	}
 
 	n.wg.Add(1)
