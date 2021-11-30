@@ -279,5 +279,5 @@ https://docs.starport.network/migration`, sc.Version.String(),
 }
 
 func printSection(title string) {
-	fmt.Printf("---------------------------------------------\n%s\n---------------------------------------------\n\n", title)
+	fmt.Printf("------\n%s\n------\n\n", title)
 }
