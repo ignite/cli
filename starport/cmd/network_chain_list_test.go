@@ -49,9 +49,8 @@ func TestLaunchSummaries(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if gotSums := starportcmd.LaunchSummaries(tt.chains); !reflect.DeepEqual(gotSums, tt.wantSums) {
-				t.Errorf("LaunchSummaries() = %v, want %v", gotSums, tt.wantSums)
-			}
+			gotSums := starportcmd.LaunchSummaries(tt.chains)
+			require.Equal(t, tt.wantSums, gotSums)
 		})
 	}
 }
