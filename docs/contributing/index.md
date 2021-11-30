@@ -1,9 +1,4 @@
----
-parent:
-  order: false
----
-
-# Contributing
+# Contributing to Starport docs
 
 - [Contributing](#contributing)
   - [Using this repo](#using-this-repo)
@@ -16,23 +11,29 @@ parent:
     - [Preview Draft PRs on a Local Web Browser](#preview-draft-prs-on-a-local-web-browser)
   
 
-Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials.
+Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
 
-To set up your environment for success, follow our [technical set up](technical-setup.md) guidelines.
+To set up your environment for success, follow the [technical setup](technical-setup.md) guidelines.
 
 ## Using this repo
 
-- To provide feedback, file an issue and provide abundant details to help us understand how we can make it better.
-- To provide feedback and a fix, you can make a direct contribution. This repo is protected since we provide the code and the docs to help you learn. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to the `develop` branch.
+Review existing [Starport issues](../../issues/) to see if your question has already been asked and answered.
+
+- To provide feedback, file an issue and provide generous details to help us understand how we can make it better.
+- To provide a fix, make a direct contribution. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to the `develop` branch.
 - Start by creating a draft pull request. Create your draft PR early, even if your work is just beginning or incomplete. Your draft PR indicates to the community that you're working on something and provides a space for conversations early in the development process. Merging is blocked for `Draft` PRs, so they provide a safe place to experiment and invite comments. 
 
 ## Reviewing technical content PRs 
 
-Some of the best content contributions come during the PR review cycles. Follow best practices for technical content PR reviews just like you do for code reviews. For in-line suggestions, use the [GitHub suggesting feature](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request). The PR owner can merge in your suggested commits one at a time or in batch (preferred). When you do a more granular extensive review that results in more than 20 in-line suggestions, go ahead and check out the branch and make the changes yourself. 
+Some of the best content contributions come during the PR review cycles. Follow best practices for technical content PR reviews just like you do for code reviews. 
+
+- For in-line suggestions, use the [GitHub suggesting feature](https://docs.github.com/en/github/collaborating-with-pull-requests/reviewing-changes-in-pull-requests/commenting-on-a-pull-request). 
+- The PR owner can merge in your suggested commits one at a time or in batch (preferred). 
+- When you do a more granular extensive review that results in more than 20 in-line suggestions, go ahead and check out the branch and make the changes yourself. 
 
 ## Writing and contributing
 
-We welcome contributions to the tutorials. 
+We welcome contributions to the docs and tutorials. 
 
 Our technical content follows the [Google developer documentation style guide](https://developers.google.com/style). Highlights to help you get started:
 
@@ -52,10 +53,10 @@ Other useful resources:
 
 ## Where can I find the tutorials and docs?
 
-Technical content includes Knowledge Base article and interactive tutorials. 
+Technical content includes knowledge base articles and interactive tutorials. 
  
+- The Starport Developer Tutorials content is in the `docs/guide` folder. 
 - The Knowledge Base content is in the `docs/kb` folder. 
-- The Starport Developer Guide content is in the `docs/guide` folder. 
 
 Locations and folders for other content can vary. Explore the self-describing folders for the content that you are interested in. Some articles and tutorials reside in a single Markdown file while sub-folders might be present for other tutorials.
 
@@ -69,7 +70,7 @@ The Tendermint (All in Bits) Ecosystem Development team owns the technical conte
 
 Meet the [people behind Starport and contributors](https://github.com/tendermint/starport/graphs/contributors).
 
-## Viewing Tutorial Builds
+## Viewing tutorial builds
 
 There are two ways to see what your changes will look like in production before the updated pages are published.
 
@@ -84,9 +85,9 @@ To view a deployed preview on a **Ready for review** PR, click the **Details** l
 
 ![deploy-preview](./deploy-preview.png)
 
-### Preview Draft PRs on a Local Web Browser
+### Preview draft PRs on a local web browser
 
-Since the deploy preview doesn't work on Draft PRs, follow these steps to preview the tutorial build on a local web browser.
+Since the deploy preview doesn't work on Draft PRs, follow these steps to preview a tutorial build on a local web browser.
 
 1. If you haven't already, clone the tutorials repo to your local machine and change to that directory. For example:
 

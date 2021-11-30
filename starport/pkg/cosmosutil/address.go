@@ -1,5 +1,4 @@
-// Package cosmosaddress implements helper methods to interact with Cosmos-SDK address
-package cosmosaddress
+package cosmosutil
 
 import (
 	"errors"
@@ -7,8 +6,8 @@ import (
 	"github.com/cosmos/cosmos-sdk/types/bech32"
 )
 
-// ChangePrefix returns the address with another prefix
-func ChangePrefix(address, newPrefix string) (string, error) {
+// ChangeAddressPrefix returns the address with another prefix
+func ChangeAddressPrefix(address, newPrefix string) (string, error) {
 	if newPrefix == "" {
 		return "", errors.New("empty prefix")
 	}
@@ -19,8 +18,8 @@ func ChangePrefix(address, newPrefix string) (string, error) {
 	return bech32.ConvertAndEncode(newPrefix, pubKey)
 }
 
-// GetPrefix returns the bech 32 prefix used by the address
-func GetPrefix(address string) (string, error) {
+// GetAddressPrefix returns the bech 32 prefix used by the address
+func GetAddressPrefix(address string) (string, error) {
 	prefix, _, err := bech32.DecodeAndConvert(address)
 	return prefix, err
 }
