@@ -138,10 +138,10 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	}
 
 	cosmosOptions := []cosmosclient.Option{
-		cosmosclient.WithHome(getHome(cmd)),
+		cosmosclient.WithHome(cosmosaccount.KeyringHome),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
 		cosmosclient.WithAddressPrefix(networkchain.SPN),
-		cosmosclient.WithUseFaucet(spnFaucetAddress, "", 0),
+		cosmosclient.WithUseFaucet(spnFaucetAddress, "token", 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 	}
 
