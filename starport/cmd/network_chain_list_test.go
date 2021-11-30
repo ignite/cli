@@ -1,9 +1,9 @@
 package starportcmd_test
 
 import (
-	"reflect"
 	"testing"
 
+	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	starportcmd "github.com/tendermint/starport/starport/cmd"
 )
