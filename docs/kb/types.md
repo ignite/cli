@@ -18,29 +18,29 @@ Starport can support different types, like a number, string, bool, etc. This doc
 | array.int    | ints     | []int32     | List of integer numbers          |
 | uint         | -        | uint64      | Unsigned integer numbers         |
 | array.uint   | uints    | []uint64    | List of unsigned integer numbers |
-| coin         | -        | sdk.Coin    | Cosmos-sdk coin type             |
-| array.coin   | coins    | sdk.Coins   | List of Cosmos-sdk coin type     |
+| coin         | -        | sdk.Coin    | Cosmos-SDK coin type             |
+| array.coin   | coins    | sdk.Coins   | List of Cosmos-SDK coin type     |
 
 ## Custom Type Scaffold
 
-Starport gives the to use custom field scaffolded before into the chain. The developer can create a `list` type called `user` and use this type in the next scaffold type.
+Starport allows to use previously scaffolded fields. The developer can create a `list` type called `user` and use this type in the next scaffold type.
 
 ### Scaffolding
 
-We will scaffold a new `Coordinator` type to be reusable in the future:
+We scaffold a new `CoordinatorDescription` type to be reusable in the future:
 ```shell
-starport scaffold list coordinator address:string id:uint --no-message
+starport scaffold list coordinator-description description:string --no-message
 ```
-Now we can scaffold a message using the `Coordinator` type:
+Now we can scaffold a message using the `CoordinatorDescription` type:
 ```shell
-starport scaffold message blocks owner:Coordinator approve:bool
+starport scaffold map coordinator description:CoordinatorDescription address:string --no-message
 ```
 To send the message using the CLI, we should pass the custom type as a JSON:
 ```shell
-testd tx test settle-request '{"id":100,"address":"cosmos1t4jkut0yfnsmqle9vxk3adfwwm9vj9gsj98vqf","validatorID":33}' true --from alice --chain-id test
+testd tx test settle-request '{"description":"coordinator description"}' true --from alice --chain-id mars
 ```
 If the developer tries to use another type not created yet, the starport fails:
 ```shell
-starport scaffold message settle-request validator:Validator approve:bool
--> the field type Validator doesn't exist
+starport scaffold message validator validator:ValidatorDescription address:string
+-> the field type ValidatorDescription doesn't exist
 ```
