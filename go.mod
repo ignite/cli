@@ -8,9 +8,10 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
+	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/charmbracelet/glow v1.4.0
 	github.com/containerd/containerd v1.5.8 // indirect
-	github.com/cosmos/cosmos-sdk v0.44.3
+	github.com/cosmos/cosmos-sdk v0.44.4
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
@@ -47,9 +48,9 @@ require (
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.2
 	github.com/tendermint/spm v0.1.5
-	github.com/tendermint/spn v0.1.1-0.20211118142755-379d54f61d67
+	github.com/tendermint/spn v0.1.1-0.20211129160658-aa02296826a8
 	github.com/tendermint/tendermint v0.34.14
-	github.com/tendermint/vue v0.1.54
+	github.com/tendermint/vue v0.1.55
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
