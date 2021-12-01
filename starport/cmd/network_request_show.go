@@ -25,11 +25,11 @@ func NewNetworkRequestShow() *cobra.Command {
 
 func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	// initialize network common methods
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -46,13 +46,17 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 		return errors.Wrap(err, "error parsing requestID")
 	}
 
-	request, err := nb.FetchRequest(cmd.Context(), launchID, requestID)
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	s.Stop()
-	fmt.Println(request)
+	request, err := n.FetchRequest(cmd.Context(), launchID, requestID)
+	if err != nil {
+		return err
+	}
 
+	nb.Spinner.Stop()
+	fmt.Println(request)
 	return nil
 }
