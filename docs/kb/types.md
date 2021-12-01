@@ -9,17 +9,19 @@ Types with CRUD operations are scaffolded with the `starport scaffold` command.
 
 ## Built-in Types
 
-| Type         | Alias    | Code Type   | Description                      |
-| ------------ | -------- | ----------- | -------------------------------- |
-| string       | -        | string      | Text type                        |
-| array.string | strings  | []string    | List of text type                |
-| bool         | -        | bool        | Boolean type                     |
-| int          | -        | int32       | Integer numbers                  |
-| array.int    | ints     | []int32     | List of integer numbers          |
-| uint         | -        | uint64      | Unsigned integer numbers         |
-| array.uint   | uints    | []uint64    | List of unsigned integer numbers |
-| coin         | -        | sdk.Coin    | Cosmos SDK coin type             |
-| array.coin   | coins    | sdk.Coins   | List of Cosmos SDK coin types     |
+| Type         | Alias    | Index | Code Type   | Description                     |
+| ------------ | -------- | ----- | ----------- | ------------------------------- |
+| string       | -        | yes   | string      | Text type                       |
+| array.string | strings  | no    | []string    | List of text type               |
+| bool         | -        | yes   | bool        | Boolean type                    |
+| int          | -        | yes   | int32       | Integer type                    |
+| array.int    | ints     | no    | []int32     | List of integers types          |
+| uint         | -        | yes   | uint64      | Unsigned integer type           |
+| array.uint   | uints    | no    | []uint64    | List of unsigned integers types |
+| coin         | -        | no    | sdk.Coin    | Cosmos SDK coin type            |
+| array.coin   | coins    | no    | sdk.Coins   | List of Cosmos SDK coin types   |
+
+You cannot use some types as an index, like the map and list indexes and module params.
 
 ## Custom Types
 
