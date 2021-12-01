@@ -140,8 +140,8 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			b := &Builder{}
-			err := b.verifyAddValidatorRequest(tt.req)
+			n := Network{}
+			err := n.verifyAddValidatorRequest(tt.req)
 			if tt.want != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.want.Error(), err.Error())

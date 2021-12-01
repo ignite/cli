@@ -33,11 +33,11 @@ func NewNetworkRequestApprove() *cobra.Command {
 
 func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	// initialize network common methods
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -60,10 +60,15 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
 	if !noVerification {
 		// Verify the request. This operation generate the genesis
 		// in a temporary directory and verify this genesis is valid
-		err := nb.VerifyRequests(cmd.Context(), launchID, ids)
+		err := n.VerifyRequests(cmd.Context(), launchID, ids)
 		if err != nil {
 			return err
 		}
@@ -73,11 +78,11 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	for _, id := range ids {
 		reviewals = append(reviewals, network.ApproveRequest(id))
 	}
-	if err := nb.SubmitRequest(launchID, reviewals...); err != nil {
+	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
 		return err
 	}
 
-	s.Stop()
+	nb.Spinner.Stop()
 	fmt.Printf("Request(s) %s approved ✅\n", numbers.List(ids, "#"))
 	return nil
 }
