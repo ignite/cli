@@ -28,11 +28,11 @@ func NewNetworkRequestReject() *cobra.Command {
 
 func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	// initialize network common methods
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -49,16 +49,21 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
 	// Submit the rejected requests
 	reviewals := make([]network.Reviewal, 0)
 	for _, id := range ids {
 		reviewals = append(reviewals, network.RejectRequest(id))
 	}
-	if err := nb.SubmitRequest(launchID, reviewals...); err != nil {
+	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
 		return err
 	}
 
-	s.Stop()
+	nb.Spinner.Stop()
 	fmt.Printf("Request(s) %s rejected ✅\n", numbers.List(ids, "#"))
 	return nil
 }
