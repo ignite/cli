@@ -28,11 +28,11 @@ func NewNetworkRequestList() *cobra.Command {
 
 func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	// initialize network common methods
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -43,7 +43,12 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	requests, err := nb.FetchRequests(cmd.Context(), launchID)
+	n, err := nb.Network()
+	if err != nil {
+		return err
+	}
+
+	requests, err := n.FetchRequests(cmd.Context(), launchID)
 	if err != nil {
 		return err
 	}
@@ -89,7 +94,7 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		})
 	}
 
-	s.Stop()
+	nb.Spinner.Stop()
 	requestTable.Render()
 	return nil
 }

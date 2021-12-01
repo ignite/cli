@@ -7,8 +7,8 @@ import (
 )
 
 // FetchRequests fetches the chain requests from SPN by launch id
-func (b *Builder) FetchRequests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
-	res, err := launchtypes.NewQueryClient(b.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
+func (n Network) FetchRequests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
+	res, err := launchtypes.NewQueryClient(n.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
 		LaunchID: launchID,
 	})
 	if err != nil {
