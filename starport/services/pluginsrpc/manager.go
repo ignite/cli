@@ -16,12 +16,19 @@ type Manager struct {
 	hookPlugins []ExtractedHookModule
 }
 
-func NewManager(chainId string, cfg chaincfg.Config) Manager {
+func NewManager(chainId string, cfg chaincfg.Config) (Manager, error) {
 	// Pull cmdplugins and hookplugins from cache
-	return Manager{
+	m := Manager{
 		ChainId: chainId,
 		Config:  cfg,
 	}
+
+	err := m.RetrieveCached()
+	if err != nil {
+		return Manager{}, err
+	}
+
+	return m, nil
 }
 
 // RunAll runs through all plugin processing steps provided by manager.
@@ -47,17 +54,14 @@ func (m *Manager) PullBuild(ctx context.Context) error {
 	// Check for change in config contents since last
 	// Don't check for remote package changes, as theoretically we want it
 	// to be up to the user to reload the plugins.
-	// configChanged, err := PluginsChanged(cfg, m.ChainId)
-	// if err != nil {
-	// 	return err
-	// }
+	configChanged, err := PluginsChanged(m.Config, m.ChainId)
+	if err != nil {
+		return err
+	}
 
-	// if !configChanged {
-	// 	return nil
-	// }
-
-	// could also use the pulled git repo to fetch for potential changes, which is
-	// definitely possible
+	if !configChanged {
+		return nil
+	}
 
 	if err := m.Pull(ctx); err != nil {
 		return err
