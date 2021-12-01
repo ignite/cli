@@ -16,10 +16,11 @@ const (
 // NewPluginList creates a new list command to retrieve plugins.
 func NewPluginList() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "list",
-		Short: "List built plugins.",
-		Long:  "List plugins specified in the config file that are also loaded.",
-		RunE:  pluginListHandler,
+		Use:     "list",
+		Aliases: []string{"ls"},
+		Short:   "List built plugins.",
+		Long:    "List plugins specified in the config file that are also loaded.",
+		RunE:    pluginListHandler,
 	}
 
 	c.Flags().StringP(flagConfig, "c", "", "Starport config file (default: ./config.yml)")
@@ -61,7 +62,6 @@ func pluginListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	log.Println(pluginState)
 
 	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
 	plugins, err := pluginManager.List(cmd.Context(), pluginsrpc.PluginStateFromString(pluginState))

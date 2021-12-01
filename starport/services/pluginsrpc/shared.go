@@ -2,10 +2,42 @@ package pluginsrpc
 
 import (
 	"context"
+	"strings"
 
+	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
 	"github.com/lukerhoads/plugintypes"
 	"github.com/spf13/cobra"
+)
+
+var (
+	// check if log includes a pre defined set of messages, used in go-plugin
+	excludedSet = []string{
+		"waiting for RPC",
+		"plugin started",
+		"plugin process",
+		"using plugin",
+		"plugin address",
+		"plugin exited",
+		"plugin server",
+		"plugin: path",
+		"starting plugin",
+	}
+
+	pluginLogger = hclog.New(&hclog.LoggerOptions{
+		Output:      hclog.DefaultOutput,
+		Level:       hclog.Trace,
+		DisableTime: true,
+		Exclude: func(level hclog.Level, msg string, args ...interface{}) bool {
+			for _, excluded := range excludedSet {
+				if strings.Contains(msg, excluded) {
+					return true
+				}
+			}
+
+			return false
+		},
+	})
 )
 
 type InitArgs struct {

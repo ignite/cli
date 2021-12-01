@@ -30,6 +30,7 @@ require (
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
 	github.com/hashicorp/go-getter v1.5.9
+	github.com/hashicorp/go-hclog v1.0.0
 	github.com/hashicorp/go-plugin v1.4.3
 	github.com/iancoleman/strcase v0.1.3
 	github.com/imdario/mergo v0.3.12

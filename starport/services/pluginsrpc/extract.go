@@ -8,46 +8,41 @@ import (
 	"github.com/hashicorp/go-plugin"
 	"github.com/lukerhoads/plugintypes"
 	"github.com/spf13/cobra"
-	chaincfg "github.com/tendermint/starport/starport/chainconfig"
 )
 
-func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command) error {
+func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command, args []string) error {
 	outputDir, err := formatPluginHome(m.ChainId, "output")
 	if err != nil {
 		return err
 	}
 
 	for i := 0; i < len(m.Config.Plugins); i++ {
-		cmdPlugins, err := extractCommandPlugins(ctx, outputDir, rootCmd, m.Config)
+		err := m.extractCommandPlugins(ctx, outputDir, rootCmd)
 		if err != nil {
 			return err
 		}
 
-		hookPlugins, err := extractHookPlugins(ctx, outputDir, rootCmd, m.Config)
+		err = m.extractHookPlugins(ctx, outputDir, rootCmd)
 		if err != nil {
 			return err
 		}
-
-		m.cmdPlugins = append(m.cmdPlugins, cmdPlugins...)
-		m.hookPlugins = append(m.hookPlugins, hookPlugins...)
 	}
 
 	return nil
 }
 
-func extractCommandPlugins(
+func (m *Manager) extractCommandPlugins(
 	ctx context.Context,
 	outputDir string,
 	parentCommand *cobra.Command,
-	cfg chaincfg.Config,
-) ([]ExtractedCommandModule, error) {
+) error {
 	pluginFiles, err := listDirsMatch(outputDir, `*_cmd`)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if len(pluginFiles) == 0 {
-		return []ExtractedCommandModule{}, nil
+		return nil
 	}
 
 	// Remove pluginFiles that are not specified in the config
@@ -61,22 +56,27 @@ func extractCommandPlugins(
 			HandshakeConfig: HandshakeConfig,
 			Plugins:         PluginMap,
 			Cmd:             exec.Command(pluginDir),
+			Logger:          pluginLogger,
 		})
 
 		rpcClient, err := client.Client()
 		if err != nil {
-			return []ExtractedCommandModule{}, err
+			return err
 		}
 
 		raw, err := rpcClient.Dispense("command_map")
 		if err != nil {
-			return []ExtractedCommandModule{}, err
+			return err
 		}
 
 		cmdMapper := raw.(plugintypes.CommandMapper)
 
+		storedCommands := cmdMapper.Commands()
 		// Edit pluginMap off of that, and then make execute functions for each thing
-		for _, loadedModule := range cmdMapper.Commands() {
+
+		client.Kill()
+
+		for _, loadedModule := range storedCommands {
 			NewPluginMap := map[string]plugin.Plugin{
 				loadedModule: &plugintypes.CommandModulePlugin{},
 			}
@@ -85,19 +85,24 @@ func extractCommandPlugins(
 				HandshakeConfig: HandshakeConfig,
 				Plugins:         NewPluginMap,
 				Cmd:             exec.Command(pluginDir),
+				Logger:          pluginLogger,
 			})
 
 			rpcClient2, err := client2.Client()
 			if err != nil {
-				return []ExtractedCommandModule{}, err
+				return err
 			}
 
 			raw2, err := rpcClient2.Dispense(loadedModule)
 			if err != nil {
-				return []ExtractedCommandModule{}, err
+				return err
 			}
 
-			cmdModule := raw2.(plugintypes.CommandModule)
+			cmdModule, ok := raw2.(plugintypes.CommandModule)
+			if !ok {
+				return ErrCommandPluginNotRecognized
+			}
+
 			extractedCommandModules = append(extractedCommandModules, ExtractedCommandModule{
 				ParentCommand: cmdModule.GetParentCommand(),
 				Name:          cmdModule.GetName(),
@@ -110,6 +115,7 @@ func extractCommandPlugins(
 						HandshakeConfig: HandshakeConfig,
 						Plugins:         NewPluginMap,
 						Cmd:             exec.Command(pluginDir),
+						Logger:          pluginLogger,
 					})
 
 					rpcClient, err := client.Client()
@@ -123,32 +129,36 @@ func extractCommandPlugins(
 					}
 
 					cmdModuleExec := raw.(plugintypes.CommandModule)
-					return cmdModuleExec.Exec(cmd, args)
+					err = cmdModuleExec.Exec(cmd, args)
+					if err != nil {
+						return err
+					}
+
+					client.Kill()
+					return nil
 				},
 			})
 
 			client2.Kill()
 		}
-
-		client.Kill()
 	}
 
-	return extractedCommandModules, nil
+	m.cmdPlugins = append(m.cmdPlugins, extractedCommandModules...)
+	return nil
 }
 
-func extractHookPlugins(
+func (m *Manager) extractHookPlugins(
 	ctx context.Context,
 	outputDir string,
 	parentCommand *cobra.Command,
-	cfg chaincfg.Config,
-) ([]ExtractedHookModule, error) {
+) error {
 	pluginFiles, err := listDirsMatch(outputDir, `*_hook`)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	if len(pluginFiles) == 0 {
-		return []ExtractedHookModule{}, nil
+		return nil
 	}
 
 	// Remove pluginFiles that are not specified in the config
@@ -162,22 +172,27 @@ func extractHookPlugins(
 			HandshakeConfig: HandshakeConfig,
 			Plugins:         PluginMap,
 			Cmd:             exec.Command(pluginDir),
+			Logger:          pluginLogger,
 		})
 
 		rpcClient, err := client.Client()
 		if err != nil {
-			return []ExtractedHookModule{}, err
+			return err
 		}
 
 		raw, err := rpcClient.Dispense("hook_map")
 		if err != nil {
-			return []ExtractedHookModule{}, err
+			return err
 		}
 
 		hookMapper := raw.(plugintypes.HookMapper)
 
+		storedHooks := hookMapper.Hooks()
+
+		client.Kill()
+
 		// Edit pluginMap off of that, and then make execute functions for each thing
-		for _, loadedModule := range hookMapper.Hooks() {
+		for _, loadedModule := range storedHooks {
 			NewPluginMap := map[string]plugin.Plugin{
 				loadedModule: &plugintypes.HookModulePlugin{},
 			}
@@ -186,19 +201,25 @@ func extractHookPlugins(
 				HandshakeConfig: HandshakeConfig,
 				Plugins:         NewPluginMap,
 				Cmd:             exec.Command(pluginDir),
+				Logger:          pluginLogger,
 			})
 
 			rpcClient2, err := client2.Client()
 			if err != nil {
-				return []ExtractedHookModule{}, err
+				return err
 			}
 
 			raw2, err := rpcClient2.Dispense(loadedModule)
 			if err != nil {
-				return []ExtractedHookModule{}, err
+				return err
 			}
 
-			hookModule := raw2.(plugintypes.HookModule)
+			// stops here on cast, making me think something is wrong with plugintypes
+			hookModule, ok := raw2.(plugintypes.HookModule)
+			if !ok {
+				return ErrHookPluginNotRecognized
+			}
+
 			extractedHookModules = append(extractedHookModules, ExtractedHookModule{
 				ParentCommand: hookModule.GetParentCommand(),
 				Name:          hookModule.GetName(),
@@ -208,6 +229,7 @@ func extractHookPlugins(
 						HandshakeConfig: HandshakeConfig,
 						Plugins:         NewPluginMap,
 						Cmd:             exec.Command(pluginDir),
+						Logger:          pluginLogger,
 					})
 
 					rpcClient, err := client.Client()
@@ -221,13 +243,20 @@ func extractHookPlugins(
 					}
 
 					cmdModuleExec := raw.(plugintypes.HookModule)
-					return cmdModuleExec.PreRun(cmd, args)
+					err = cmdModuleExec.PreRun(cmd, args)
+					if err != nil {
+						return err
+					}
+
+					client.Kill()
+					return nil
 				},
 				PostRun: func(cmd *cobra.Command, args []string) error {
 					client := plugin.NewClient(&plugin.ClientConfig{
 						HandshakeConfig: HandshakeConfig,
 						Plugins:         NewPluginMap,
 						Cmd:             exec.Command(pluginDir),
+						Logger:          pluginLogger,
 					})
 
 					rpcClient, err := client.Client()
@@ -241,15 +270,20 @@ func extractHookPlugins(
 					}
 
 					cmdModuleExec := raw.(plugintypes.HookModule)
-					return cmdModuleExec.PostRun(cmd, args)
+					err = cmdModuleExec.PostRun(cmd, args)
+					if err != nil {
+						return err
+					}
+
+					client.Kill()
+					return nil
 				},
 			})
 
 			client2.Kill()
 		}
-
-		client.Kill()
 	}
 
-	return extractedHookModules, nil
+	m.hookPlugins = append(m.hookPlugins, extractedHookModules...)
+	return nil
 }

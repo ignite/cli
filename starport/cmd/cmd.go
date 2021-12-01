@@ -59,25 +59,37 @@ starport scaffold chain github.com/cosmonaut/mars`,
 		SilenceUsage:  true,
 		SilenceErrors: true,
 		PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
-			if !strings.Contains(cmd.CommandPath(), "starport plugin") {
-				cfg, chainId, err := getDefaultConfig(cmd)
-				if err != nil && err != chaincfg.ErrCouldntLocateConfig {
+			cfg, chainId, cErr := getDefaultConfig(cmd)
+			// ErrCouldntLocateConfig means it is a build run
+			if cErr != nil && cErr != chaincfg.ErrCouldntLocateConfig {
+				panic(cErr)
+			}
+
+			if strings.Contains(cmd.CommandPath(), "starport plugin") {
+				return goenv.ConfigurePath()
+			}
+
+			// If arg length is zero, inject hooks and that is it.
+			if cErr != chaincfg.ErrCouldntLocateConfig && len(args) == 0 {
+				pluginManager := pluginsrpc.NewManager(chainId, cfg)
+				if err := pluginManager.InjectHooks(ctx, cmd); err != nil {
 					panic(err)
 				}
 
-				// this is running before we can reload
-				// reload plugins
-				// Maybe find a way to cache this?
-				if err != chaincfg.ErrCouldntLocateConfig && len(cfg.Plugins) > 0 {
-					// Initiate plugin manager with config, call the method to retain configuration?
-					pluginManager := pluginsrpc.NewManager(chainId, cfg)
-					if cancel, err := pluginManager.InjectPlugins(ctx, cmd, args); err != nil {
-						panic(err)
-					} else if cancel {
-						// Check for completion of injected plugins, if so, return
-						cmd.RunE = func(cmd *cobra.Command, args []string) error { return nil }
-						return nil
-					}
+				return goenv.ConfigurePath()
+			}
+
+			// If arg length is greater than one, we will most likely need a command, and
+			// we might need a hook.
+			if cErr != chaincfg.ErrCouldntLocateConfig && len(cfg.Plugins) > 0 {
+				// Initiate plugin manager with config, call the method to retain configuration?
+				pluginManager := pluginsrpc.NewManager(chainId, cfg)
+				if cancel, err := pluginManager.InjectPlugins(ctx, cmd, args); err != nil {
+					panic(err)
+				} else if cancel {
+					// Check for completion of injected plugins, if so, return
+					cmd.RunE = func(cmd *cobra.Command, args []string) error { return nil }
+					return nil
 				}
 			}
 

@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"io/ioutil"
-	"log"
 	"os"
 	"path"
 	"strings"
@@ -55,7 +54,6 @@ func (m *Manager) Build(ctx context.Context) error {
 			if err := traversePluginFiles(ctx, pluginId, pluginDir, outputDir); err != nil {
 				return err
 			}
-			log.Println("not exiting my guy")
 		}
 	}
 

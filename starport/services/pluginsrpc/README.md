@@ -52,7 +52,7 @@ type Hook interface {
 ```
 
 ### Field Guide
-- ParentCommand: Command to nest your plugin under.
+- ParentCommand: Command to nest your plugin under. Cannot be under the plugin command.
 - Name: Name your plugin is referred to as. Not required.
 - Usage: Printed as a brief show of how the command is formatted.
 - ShortDesc: Short description of command.

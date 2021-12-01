@@ -17,6 +17,7 @@ type Manager struct {
 }
 
 func NewManager(chainId string, cfg chaincfg.Config) Manager {
+	// Pull cmdplugins and hookplugins from cache
 	return Manager{
 		ChainId: chainId,
 		Config:  cfg,
