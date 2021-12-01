@@ -1,7 +1,7 @@
 # Understanding [Some Concept]
 
 <!--
-Use this article template as a quick starting point when writing Cosmos SDK conceptual tutorials. 
+Use this article template as a quick starting point when writing Starport conceptual tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 

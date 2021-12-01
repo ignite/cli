@@ -35,7 +35,7 @@ import (
 
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
 // is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
-var FaucetTransferEnsureDuration = time.Minute * 2
+var FaucetTransferEnsureDuration = time.Second * 40
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
