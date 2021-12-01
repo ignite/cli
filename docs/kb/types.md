@@ -23,9 +23,11 @@ Types with CRUD operations are scaffolded with the `starport scaffold` command.
 
 ## Custom Types
 
-Starport supports using previously scaffolded fields. For example, you can create a `list` type called `user` and then use the `user` type in a subsequent `starport scaffold` command.
+You can create custom types and then use the custom type later. 
 
-To scaffold a new `CoordinatorDescription` type that is reusable in the future:
+For example, you can create a `list` type called `user` and then use the `user` type in a subsequent `starport scaffold` command.
+
+Here's an example of how to scaffold a new `CoordinatorDescription` type that is reusable in the future:
 
 ```shell
 starport scaffold list coordinator-description description:string --no-message
@@ -37,7 +39,9 @@ Now you can scaffold a message using the `CoordinatorDescription` type:
 starport scaffold message add-coordinator address:string description:CoordinatorDescription
 ```
 
-Run the chain and then send the message using the CLI. To pass the custom type as a JSON:
+Run the chain and then send the message using the CLI. 
+
+To pass the custom type in JSON format:
 
 ```shell
 starport chain serve
