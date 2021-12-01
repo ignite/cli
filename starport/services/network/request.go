@@ -53,10 +53,7 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	}
 
 	var requestRes launchtypes.MsgSettleRequestResponse
-	if err := res.Decode(&requestRes); err != nil {
-		return err
-	}
-	return nil
+	return res.Decode(&requestRes)
 }
 
 // fetchRequest fetches the chain request from SPN by launch and request id
