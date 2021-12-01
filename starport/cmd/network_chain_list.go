@@ -2,12 +2,12 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/services/network"
 	"io"
 	"os"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
@@ -38,48 +38,39 @@ func NewNetworkChainList() *cobra.Command {
 }
 
 func networkChainListHandler(cmd *cobra.Command, args []string) error {
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
-	chains, err := nb.ChainLaunches(cmd.Context())
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
-	sums := LaunchSummaries(chains)
-
-	s.Stop()
-	return renderLaunchSummaries(sums, os.Stdout)
-}
-
-// LaunchSummaries returns the list of launch summaries from the list of chain launches
-func LaunchSummaries(chains []launchtypes.Chain) (sums []LaunchSummary) {
-	for _, chain := range chains {
-		var campaignID string
-		if chain.HasCampaign {
-			campaignID = fmt.Sprintf("%d", chain.CampaignID)
-		} else {
-			campaignID = "no campaign"
-		}
-
-		sums = append(sums, LaunchSummary{
-			LaunchID:   fmt.Sprintf("%d", chain.LaunchID),
-			ChainID:    chain.GenesisChainID,
-			Source:     chain.SourceURL,
-			CampaignID: campaignID,
-		})
+	launchesInfo, err := n.LaunchesInfo(cmd.Context())
+	if err != nil {
+		return err
 	}
-	return sums
+	return renderLaunchSummaries(launchesInfo, os.Stdout)
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(launchSummaries []LaunchSummary, out io.Writer) error {
+func renderLaunchSummaries(launchesInfo []network.LaunchInfo, out io.Writer) error {
 	var launchEntries [][]string
 
-	for _, sum := range launchSummaries {
-		launchEntries = append(launchEntries, []string{sum.LaunchID, sum.ChainID, sum.Source, sum.CampaignID})
+	for _, info := range launchesInfo {
+		campaign := "no campaign"
+		if info.CampaignID > 0 {
+			campaign = fmt.Sprintf("%d", info.CampaignID)
+		}
+
+		launchEntries = append(launchEntries, []string{
+			fmt.Sprintf("%d", info.ID),
+			info.ChainID,
+			info.SourceURL,
+			campaign,
+		})
 	}
 
 	if err := entrywriter.Write(out, LaunchSummaryHeader, launchEntries...); err != nil {
