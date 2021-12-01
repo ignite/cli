@@ -1,4 +1,4 @@
-# Starport Technical Setup 
+# Setting up a Starport Development Environment 
 
 To ensure you have a successful experience developing with Starport, ensure that your local system meets these technical requirements.
 
@@ -20,11 +20,11 @@ This installation method removes existing Go installations, installs Go in `/usr
 
 **Note:** We recommend not using brew to install Go.
 
-## Define the Go PATH 
+## Add the Go bin directory to your PATH 
 
 Ensure the Go environment variables are [set properly](https://golang.org/doc/gopath_code#GOPATH) on your system. Many of the initial problems are related to incorrect environment variables. 
 
-1. Edit your `~/.bashrc` file and add `(export PATH=$PATH:$(go env GOPATH)/bin)`. 
+1. Edit your `~/.bashrc` file and add `export PATH=$PATH:$(go env GOPATH)/bin`. 
 2. To apply the changes, run `source ~/.bashrc`.
 
 ## Remove Existing Starport Installations 
@@ -37,7 +37,6 @@ Before you install a new version of Starport, remove all existing Starport insta
 
 2. Repeat this step until all `starport` installations are removed from your system.
 
-## Install the Latest Starport Version
 
 `curl https://get.starport.network/starport! | bash`
 
