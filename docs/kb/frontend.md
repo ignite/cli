@@ -1,6 +1,6 @@
 ---
 description: Details on the Vue frontend app created by Starport.
-order: 7
+order: 8
 ---
 
 # Frontend Overview
