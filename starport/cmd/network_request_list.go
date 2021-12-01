@@ -12,6 +12,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
+var requestSummaryHeader = []string{"ID", "Type", "Content"}
+
 // NewNetworkRequestList creates a new request list command to list
 // requests for a chain
 func NewNetworkRequestList() *cobra.Command {
@@ -57,8 +59,6 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	nb.Spinner.Stop()
 	return renderRequestSummaries(requests, os.Stdout)
 }
-
-var requestSummaryHeader = []string{"ID", "Type", "Content"}
 
 // renderRequestSummaries writes into the provided out, the list of summarized requests
 func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error {
