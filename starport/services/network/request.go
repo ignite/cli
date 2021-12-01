@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"fmt"
-	"strings"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -118,10 +117,7 @@ func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesis
 	}
 
 	// Check the format of the peer
-	nodeHost := strings.Split(peer, "@")
-	if len(nodeHost) != 2 ||
-		len(nodeHost[0]) == 0 ||
-		len(nodeHost[1]) == 0 {
+	if !cosmosutil.VerifyPeerFormat(peer) {
 		return fmt.Errorf(
 			"the peer %s doesn't match the peer format <node-id>@<host>",
 			peer,
