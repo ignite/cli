@@ -1,6 +1,7 @@
 package cosmosutil
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
@@ -11,10 +12,12 @@ import (
 var GentxFilename = "gentx.json"
 
 type (
+	// PubKey represents the public key in bytes array
+	PubKey []byte
 	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
 		DelegatorAddress string
-		PubKey           []byte
+		PubKey           PubKey
 		SelfDelegation   sdk.Coin
 	}
 	// StargateGentx represents the stargate gentx file
@@ -34,6 +37,12 @@ type (
 		} `json:"body"`
 	}
 )
+
+// Equal returns true if the public keys are equal
+func (pb PubKey) Equal(key []byte) bool {
+	res := bytes.Compare(pb, key)
+	return res == 0
+}
 
 // GentxFromPath returns GentxInfo from the json file
 func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {

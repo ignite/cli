@@ -1,7 +1,6 @@
 package network
 
 import (
-	"bytes"
 	"context"
 	"fmt"
 
@@ -98,7 +97,7 @@ func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesis
 	}
 
 	// Check validator address
-	if res := bytes.Compare(consPubKey, info.PubKey); res != 0 {
+	if !info.PubKey.Equal(consPubKey) {
 		return fmt.Errorf(
 			"the consensus pub key %s doesn't match the one inside the gentx %s",
 			string(consPubKey),

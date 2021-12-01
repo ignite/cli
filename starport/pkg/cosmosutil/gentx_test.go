@@ -143,3 +143,32 @@ func TestParseGentx(t *testing.T) {
 		})
 	}
 }
+
+func TestPubKey_Equal(t *testing.T) {
+	tests := []struct {
+		name   string
+		pb     []byte
+		cmpKey []byte
+		want   bool
+	}{
+		{
+			name:   "equal public keys",
+			pb:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
+			cmpKey: []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
+			want:   true,
+		},
+		{
+			name:   "not equal public keys",
+			pb:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
+			cmpKey: []byte("EIoo7DwyaBFDbPbgAhwS5rvgIqoUa0x8qWqzfQVQ="),
+			want:   false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			pb := cosmosutil.PubKey(tt.pb)
+			got := pb.Equal(tt.cmpKey)
+			require.Equal(t, tt.want, got)
+		})
+	}
+}
