@@ -43,7 +43,7 @@ Our users must be able to follow the tutorial from beginning to end on their own
 
 Introductory paragraph about the topic that explains what this topic is about and why the user should care; what problem does the tutorial solve?
 
-In this guide, you will [accomplish/build/] [some thing]...
+In this guide, you will [accomplish/build/] [some important thing]...
 
 When you're finished, you'll be able to...
 
@@ -62,7 +62,7 @@ To complete this tutorial, you will need:
 
 <!-- Example - uncomment to use
 
-- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../starport/install.md). 
+- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../guide/install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 
@@ -89,7 +89,7 @@ starport --version
 You'll see release details like the following output:
 
 ```
-starport version v0.17.0 darwin/amd64 -build date: 2021-07-15T18:34:28Z
+starport version v0.18.4 darwin/amd64 -build date: 2021-12-01T18:34:28Z
 ```
 
 <!-- When asking the user to open a file, be sure to specify the file name:
@@ -141,7 +141,7 @@ Transition to the next step.
 
 ## Conclusion
 
-In this article you [accomplished/built] [something]. Now you can....
+In this article you [accomplished or built] [some important thing]. Now you can....
 
 <!-- Speak to the benefits of this technique or procedure and optionally provide places for further exploration. -->
 
