@@ -1,6 +1,6 @@
 # Set Up Your Starport Development Environment 
 
-To ensure you have a successful experience developing with Starport, ensure that your local system meets these technical requirements.
+To ensure you have a successful experience developing with Starport, make sure that your local system meets these technical requirements.
 
 Starport is supported for the following operating systems:
 
