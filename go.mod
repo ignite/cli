@@ -36,7 +36,6 @@ require (
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.3.0 // indirect
-	github.com/olekukonko/tablewriter v0.0.5
 	github.com/otiai10/copy v1.6.0
 	github.com/pelletier/go-toml v1.9.3
 	github.com/pkg/errors v0.9.1
