@@ -1,7 +1,7 @@
 # How To [Build/Create/Do Something] in Starport
 
 <!--
-Use this tutorial template as a quick starting point when writing Cosmos SDK how-to tutorials. 
+Use this tutorial template as a quick starting point when writing Starport how-to tutorials. 
 
 After you review the template, delete the comments and begin writing your outline or article. Examples of Markdown formatting syntax are provided at the bottom of this template.
 
