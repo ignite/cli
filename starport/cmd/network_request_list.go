@@ -2,13 +2,14 @@ package starportcmd
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 
-	"github.com/olekukonko/tablewriter"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/entrywriter"
 )
 
 // NewNetworkRequestList creates a new request list command to list
@@ -48,15 +49,20 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	requests, err := n.FetchRequests(cmd.Context(), launchID)
+	requests, err := n.Requests(cmd.Context(), launchID)
 	if err != nil {
 		return err
 	}
 
-	// Rendering
-	requestTable := tablewriter.NewWriter(os.Stdout)
-	requestTable.SetHeader([]string{"ID", "Type", "Content"})
+	nb.Spinner.Stop()
+	return renderRequestSummaries(requests, os.Stdout)
+}
 
+var requestSummaryHeader = []string{"ID", "Type", "Content"}
+
+// renderRequestSummaries writes into the provided out, the list of summarized requests
+func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error {
+	requestEntries := make([][]string, 0)
 	for _, request := range requests {
 		id := fmt.Sprintf("%d", request.RequestID)
 		requestType := "Unknown"
@@ -87,14 +93,11 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 			content = req.AccountRemoval.Address
 		}
 
-		requestTable.Append([]string{
+		requestEntries = append(requestEntries, []string{
 			id,
 			requestType,
 			content,
 		})
 	}
-
-	nb.Spinner.Stop()
-	requestTable.Render()
-	return nil
+	return entrywriter.MustWrite(out, requestSummaryHeader, requestEntries...)
 }
