@@ -2,10 +2,10 @@ package network
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 type LaunchInfo = networkchain.Launch
