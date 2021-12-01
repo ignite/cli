@@ -3,7 +3,6 @@ package starportcmd
 import (
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
@@ -44,10 +43,7 @@ func printAccounts(cmd *cobra.Command, accounts ...cosmosaccount.Account) error 
 	for _, acc := range accounts {
 		accEntries = append(accEntries, []string{acc.Name, acc.Address(getAddressPrefix(cmd)), acc.PubKey()})
 	}
-	if err := entrywriter.Write(os.Stdout, []string{"name", "address", "public key"}, accEntries...); err != nil {
-		return errors.Wrap(err, "error printing accounts")
-	}
-	return nil
+	return entrywriter.MustWrite(os.Stdout, []string{"name", "address", "public key"}, accEntries...)
 }
 
 func flagSetKeyringBackend() *flag.FlagSet {

@@ -1,12 +1,24 @@
 package entrywriter
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"strings"
 	"text/tabwriter"
+
+	"github.com/pkg/errors"
 )
+
+var ErrInvalidFormat = errors.New("invalid entry format")
+
+// MustWrite writes into out the tabulated entries and panic if the entry format is invalid
+func MustWrite(out io.Writer, header []string, entries ...[]string) error {
+	err := Write(out, header, entries...)
+	if errors.Is(err, ErrInvalidFormat) {
+		panic(err)
+	}
+	return err
+}
 
 // Write writes into out the tabulated entries
 func Write(out io.Writer, header []string, entries ...[]string) error {
@@ -24,7 +36,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 	}
 
 	if len(header) == 0 {
-		return errors.New("empty header")
+		return errors.Wrap(ErrInvalidFormat, "empty header")
 	}
 
 	// write header
@@ -35,7 +47,7 @@ func Write(out io.Writer, header []string, entries ...[]string) error {
 	// write entries
 	for i, entry := range entries {
 		if len(entry) != len(header) {
-			return fmt.Errorf("entry %d doesn't match header length", i)
+			return errors.Wrapf(ErrInvalidFormat, "entry %d doesn't match header length", i)
 		}
 		if _, err := fmt.Fprintf(w, formatLine(entry, false)+"\n"); err != nil {
 			return err

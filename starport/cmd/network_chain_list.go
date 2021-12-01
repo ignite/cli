@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
@@ -75,8 +74,5 @@ func renderLaunchSummaries(launchesInfo []network.LaunchInfo, out io.Writer) err
 		})
 	}
 
-	if err := entrywriter.Write(out, LaunchSummaryHeader, launchEntries...); err != nil {
-		return errors.Wrap(err, "error printing chain summaries")
-	}
-	return nil
+	return entrywriter.MustWrite(out, LaunchSummaryHeader, launchEntries...)
 }

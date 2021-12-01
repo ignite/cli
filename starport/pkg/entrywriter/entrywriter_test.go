@@ -26,10 +26,13 @@ func TestWrite(t *testing.T) {
 
 	require.NoError(t, entrywriter.Write(io.Discard, header, entries...))
 	require.NoError(t, entrywriter.Write(io.Discard, header), "should allow no entry")
-	require.Error(t, entrywriter.Write(io.Discard, []string{}), "should prevent no header")
+
+	err := entrywriter.Write(io.Discard, []string{})
+	require.ErrorIs(t, err, entrywriter.ErrInvalidFormat, "should prevent no header")
 
 	entries[0] = []string{"foo", "bar"}
-	require.Error(t, entrywriter.Write(io.Discard, header, entries...), "should prevent entry length mismatch")
+	err = entrywriter.Write(io.Discard, header, entries...)
+	require.ErrorIs(t, err, entrywriter.ErrInvalidFormat, "should prevent entry length mismatch")
 
 	var wErr WriterWithError
 	require.Error(t, entrywriter.Write(wErr, header, entries...), "should catch writer errors")
