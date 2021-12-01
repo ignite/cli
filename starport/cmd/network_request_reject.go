@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -44,7 +45,7 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the list of request ids
-	ids, err := numbers.ParseListRange(args[1])
+	ids, err := numbers.ParseList(args[1])
 	if err != nil {
 		return err
 	}
@@ -64,6 +65,6 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("Request(s) %s rejected ✅\n", numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s rejected\n", clispinner.OK, numbers.List(ids, "#"))
 	return nil
 }

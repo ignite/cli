@@ -12,18 +12,21 @@ const (
 	sepRange  = "-"
 )
 
-// ParseListRange parses comma separated numbers and range to []uint64.
-func ParseListRange(arg string) ([]uint64, error) {
+// ParseList parses comma separated numbers and range to []uint64.
+func ParseList(arg string) ([]uint64, error) {
 	result := make([]uint64, 0)
 	listNumbers := make(map[uint64]struct{})
+	// Split the slice by the separator
 	for _, numberRange := range strings.Split(arg, separator) {
 		trimmedRange := strings.TrimSpace(numberRange)
 		if trimmedRange == "" {
 			continue
 		}
 
+		// Split the number by the separator range
 		numbers := strings.Split(trimmedRange, sepRange)
 		switch len(numbers) {
+		// Parse a single number
 		case 1:
 			trimmed := strings.TrimSpace(numbers[0])
 			i, err := strconv.ParseUint(trimmed, 10, 32)
@@ -35,6 +38,7 @@ func ParseListRange(arg string) ([]uint64, error) {
 			}
 			listNumbers[i] = struct{}{}
 			result = append(result, i)
+		// Parse a range number (eg: 3-7)
 		case 2:
 			var (
 				startN = strings.TrimSpace(numbers[0])
@@ -75,23 +79,6 @@ func ParseListRange(arg string) ([]uint64, error) {
 		return result[i] < result[j]
 	})
 	return result, nil
-}
-
-// ParseList parses comma separated numbers to []int.
-func ParseList(list string) ([]int, error) {
-	ints := []int{}
-	for _, number := range strings.Split(list, ",") {
-		trimmed := strings.TrimSpace(number)
-		if trimmed == "" {
-			continue
-		}
-		i, err := strconv.ParseInt(trimmed, 10, 32)
-		if err != nil {
-			return nil, err
-		}
-		ints = append(ints, int(i))
-	}
-	return ints, nil
 }
 
 // List creates a comma separated int list with optional prefix for each uint64.
