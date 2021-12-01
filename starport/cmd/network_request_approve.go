@@ -50,7 +50,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Get the list of request ids
-	ids, err := numbers.ParseListRange(args[1])
+	ids, err := numbers.ParseList(args[1])
 	if err != nil {
 		return err
 	}

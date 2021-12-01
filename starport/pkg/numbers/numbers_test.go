@@ -32,25 +32,6 @@ func TestParseListRange(t *testing.T) {
 	}
 	for _, tt := range cases {
 		t.Run("list "+tt.list, func(t *testing.T) {
-			parsed, err := ParseListRange(tt.list)
-			require.NoError(t, err)
-			require.Equal(t, tt.parsed, parsed)
-		})
-	}
-}
-
-func TestParseList(t *testing.T) {
-	cases := []struct {
-		list   string
-		parsed []int
-	}{
-		{"1,2,3", []int{1, 2, 3}},
-		{"1, 2,3 ", []int{1, 2, 3}},
-		{",1, 2,", []int{1, 2}},
-		{",", []int{}},
-	}
-	for i, tt := range cases {
-		t.Run(fmt.Sprintf("no: %d", i), func(t *testing.T) {
 			parsed, err := ParseList(tt.list)
 			require.NoError(t, err)
 			require.Equal(t, tt.parsed, parsed)
