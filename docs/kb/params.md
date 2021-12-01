@@ -14,3 +14,12 @@ starport scaffold module launch --params minLaunch:uint,maxLaunch:int
 ```
 
 After the parameters are scaffolded, change the `x/<module>/types/params.go` file to set the default values and validate the field. The params support all built-in Starport types.
+
+## Params Types
+
+| Type   | Code Type | Description             |
+| ------ | --------- | ----------------------- |
+| string | string    | Text type               |
+| bool   | bool      | Boolean type            |
+| int    | int32     | Integer number          |
+| uint   | uint64    | Unsigned integer number |
