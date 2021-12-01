@@ -2,7 +2,6 @@ package pluginsrpc
 
 import (
 	"context"
-	"log"
 	"os/exec"
 	"path"
 
@@ -244,7 +243,6 @@ func (m *Manager) extractHookPlugins(
 					}
 
 					cmdModuleExec := raw.(plugintypes.HookModule)
-					log.Println("Executing this again? ", cmd.CommandPath())
 					err = cmdModuleExec.PreRun(cmd, args)
 					if err != nil {
 						return err

@@ -2,9 +2,10 @@ package starportcmd
 
 import (
 	"fmt"
-	"log"
+	"path"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/pluginsrpc"
 )
@@ -48,10 +49,18 @@ func pluginListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	chainConfig, err := c.Config()
+	configFileName := c.ConfigPath()
+	if configFileName == "" {
+		return ErrConfigurationNotFound
+	}
+
+	appPath, err := appPathFromCmd(cmd)
 	if err != nil {
 		return err
 	}
+
+	configPath := path.Join(appPath, configFileName)
+	chainConfig, err := chainconfig.ParseFile(configPath)
 
 	chainId, err := c.ID()
 	if err != nil {
@@ -78,6 +87,6 @@ func pluginListHandler(cmd *cobra.Command, args []string) error {
 		output = "None"
 	}
 
-	log.Println("Plugins: \n", output)
+	fmt.Printf("🔌 Plugins: \n%s", output)
 	return nil
 }
