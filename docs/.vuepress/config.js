@@ -51,7 +51,7 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/invite/starport' target='_blank'>Discord</a>.",
+          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/starport' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
@@ -73,7 +73,7 @@ module.exports = {
         },
         {
           service: "discord",
-          url: "https://discord.gg/invite/starport",
+          url: "https://discord.gg/starport",
         },
         {
           service: "youtube",
@@ -114,7 +114,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/invite/starport",
+              url: "https://discord.gg/starport",
             },
           ],
         },
