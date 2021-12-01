@@ -2,12 +2,13 @@ package pluginsrpc
 
 import (
 	"context"
+	"log"
 	"os/exec"
 	"path"
 
 	"github.com/hashicorp/go-plugin"
-	"github.com/lukerhoads/plugintypes"
 	"github.com/spf13/cobra"
+	plugintypes "github.com/tendermint/starport/starport/services/pluginsrpc/types"
 )
 
 func (m *Manager) extractPlugins(ctx context.Context, rootCmd *cobra.Command, args []string) error {
@@ -243,6 +244,7 @@ func (m *Manager) extractHookPlugins(
 					}
 
 					cmdModuleExec := raw.(plugintypes.HookModule)
+					log.Println("Executing this again? ", cmd.CommandPath())
 					err = cmdModuleExec.PreRun(cmd, args)
 					if err != nil {
 						return err

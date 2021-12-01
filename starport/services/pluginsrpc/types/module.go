@@ -1,4 +1,4 @@
-package pluginsrpc
+package plugintypes
 
 import "context"
 

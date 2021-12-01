@@ -6,8 +6,8 @@ import (
 
 	"github.com/hashicorp/go-hclog"
 	"github.com/hashicorp/go-plugin"
-	"github.com/lukerhoads/plugintypes"
 	"github.com/spf13/cobra"
+	plugintypes "github.com/tendermint/starport/starport/services/pluginsrpc/types"
 )
 
 var (

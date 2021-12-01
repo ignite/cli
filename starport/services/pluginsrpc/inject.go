@@ -18,20 +18,22 @@ func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command, arg
 	}
 
 	// We have to enable the combination of hooks and commands
-	finished, err := m.InjectCommands(ctx, rootCmd, args)
-	if err != nil {
-		return finished, err
-	}
+	// finished, err := m.InjectCommands(ctx, rootCmd, args)
+	// if err != nil {
+	// 	return finished, err
+	// }
 
-	err = m.InjectHooks(ctx, rootCmd)
+	err := m.InjectHooks(ctx, rootCmd)
 	if err != nil {
 		return false, err
 	}
 
-	return false, nil
+	return m.InjectCommands(ctx, rootCmd, args)
 }
 
 func (m *Manager) InjectCommands(ctx context.Context, rootCmd *cobra.Command, args []string) (bool, error) {
+	fmt.Println("💉 Injecting commands...")
+
 	outputDir, err := formatPluginHome(m.ChainId, "output")
 	if err != nil {
 		return false, err
@@ -85,6 +87,8 @@ func (m *Manager) InjectCommands(ctx context.Context, rootCmd *cobra.Command, ar
 }
 
 func (m *Manager) InjectHooks(ctx context.Context, rootCmd *cobra.Command) error {
+	fmt.Println("💉 Injecting hooks...")
+
 	outputDir, err := formatPluginHome(m.ChainId, "output")
 	if err != nil {
 		return err
@@ -98,9 +102,14 @@ func (m *Manager) InjectHooks(ctx context.Context, rootCmd *cobra.Command) error
 	}
 
 	for _, hookPlugin := range m.hookPlugins {
+		// This will count subcommands. Stop this behavior
 		targetCommand, _, err := rootCmd.Find(hookPlugin.ParentCommand)
 		if err != nil {
 			return err
+		}
+
+		if len(strings.Split(targetCommand.CommandPath(), " ")) != len(hookPlugin.ParentCommand) {
+			return nil
 		}
 
 		if targetCommand != nil {

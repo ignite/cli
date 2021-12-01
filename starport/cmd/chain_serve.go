@@ -1,8 +1,6 @@
 package starportcmd
 
 import (
-	"log"
-
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/chain"
 )
@@ -20,11 +18,7 @@ func NewChainServe() *cobra.Command {
 		Short: "Start a blockchain node in development",
 		Long:  "Start a blockchain node with automatic reloading",
 		Args:  cobra.MinimumNArgs(0), // min args so we can hit prerun
-		PreRunE: func(cmd *cobra.Command, args []string) error {
-			log.Println("in here bitch")
-			return nil
-		},
-		RunE: chainServeHandler,
+		RunE:  chainServeHandler,
 	}
 
 	c.Flags().AddFlagSet(flagSetHome())

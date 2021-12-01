@@ -25,6 +25,8 @@ To learn how to use Starport, check out the [Starport Documentation](https://doc
 
 To install Starport locally on GNU, Linux, or macOS, see [Install Starport](https://docs.starport.com/guide/install.html).
 
+To learn about Starport's plugin system, see [pluginsrpc](starport/services/pluginsrpc/readme.md)
+
 To learn more about building a JavaScript frontend for your Cosmos SDK blockchain, see [tendermint/vue](https://github.com/tendermint/vue).
 
 ## Questions

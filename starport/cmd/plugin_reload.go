@@ -1,7 +1,7 @@
 package starportcmd
 
 import (
-	"fmt"
+	"log"
 	"path/filepath"
 
 	"github.com/spf13/cobra"
@@ -9,7 +9,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/gomodulepath"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/pluginsrpc"
 )
 
 // NewPluginReload creates a new reload command to manually refresh chain plugins.
@@ -47,22 +46,36 @@ func pluginReloadHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	chainConfig, err := c.Config()
+	_, err = c.Config() // defaults to default config
 	if err != nil {
 		return err
 	}
 
-	chainId, err := c.ID()
-	if err != nil {
-		return err
+	configPath := c.ConfigPath()
+	log.Println(configPath)
+	if configPath == "" {
+		// Prompt user for input (which config file to use)
+		configFile := promptConfig()
+
+		appPath, err := appPathFromCmd(cmd)
+		if err != nil {
+			return err
+		}
+
+		log.Println(appPath, configFile)
 	}
 
-	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
-	if err := pluginManager.PullBuild(cmd.Context()); err != nil {
-		return err
-	}
+	// chainId, err := c.ID()
+	// if err != nil {
+	// 	return err
+	// }
 
-	fmt.Println("🔄  Reloaded plugins.")
+	// pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
+	// if err := pluginManager.PullBuild(cmd.Context()); err != nil {
+	// 	return err
+	// }
+
+	// fmt.Println("🔄  Reloaded plugins.")
 	return nil
 }
 

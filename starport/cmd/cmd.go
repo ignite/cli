@@ -88,6 +88,7 @@ starport scaffold chain github.com/cosmonaut/mars`,
 					panic(err)
 				} else if cancel {
 					// Check for completion of injected plugins, if so, return
+					cmd.PreRunE = func(cmd *cobra.Command, args []string) error { return nil }
 					cmd.RunE = func(cmd *cobra.Command, args []string) error { return nil }
 					return nil
 				}
