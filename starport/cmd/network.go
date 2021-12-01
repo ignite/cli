@@ -141,7 +141,7 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 		cosmosclient.WithHome(cosmosaccount.KeyringHome),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
 		cosmosclient.WithAddressPrefix(networkchain.SPN),
-		cosmosclient.WithUseFaucet(spnFaucetAddress, "token", 5),
+		cosmosclient.WithUseFaucet(spnFaucetAddress, "spn", 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 	}
 
