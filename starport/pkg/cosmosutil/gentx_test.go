@@ -133,7 +133,7 @@ func TestParseGentx(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotInfo, _, err := cosmosutil.ParseGentx(tt.gentxPath)
+			gotInfo, _, err := cosmosutil.GentxFromPath(tt.gentxPath)
 			if tt.wantErr {
 				require.Error(t, err)
 				return

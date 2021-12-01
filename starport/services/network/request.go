@@ -8,8 +8,8 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/gentx"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -76,13 +76,15 @@ func (n Network) fetchRequest(ctx context.Context, launchID, requestID uint64) (
 // verifyAddValidatorRequest verify the validator request parameters
 func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator) error {
 	// If this is an add validator request
-	peer := req.GenesisValidator.Peer
-	valAddress := req.GenesisValidator.Address
-	consPubKey := req.GenesisValidator.ConsPubKey
-	selfDelegation := req.GenesisValidator.SelfDelegation
+	var (
+		peer           = req.GenesisValidator.Peer
+		valAddress     = req.GenesisValidator.Address
+		consPubKey     = req.GenesisValidator.ConsPubKey
+		selfDelegation = req.GenesisValidator.SelfDelegation
+	)
 
 	// Check values inside the gentx are correct
-	info, _, err := gentx.ParseGentx(req.GenesisValidator.GenTx)
+	info, _, err := cosmosutil.ParseGentx(req.GenesisValidator.GenTx)
 	if err != nil {
 		return fmt.Errorf("cannot parse gentx %s", err.Error())
 	}
@@ -130,7 +132,7 @@ func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesis
 
 // VerifyRequests if the requests are correct and simulate them with the current launch information
 // Correctness means checks that have to be performed off-chain
-func (n Network) VerifyRequests(ctx context.Context, launchID uint64, requests []uint64) error {
+func (n Network) VerifyRequests(ctx context.Context, launchID uint64, requests ...uint64) error {
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying requests..."))
 	// Check all request
 	for _, id := range requests {

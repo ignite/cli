@@ -35,17 +35,21 @@ type (
 	}
 )
 
-// ParseGentx returns GentxInfo and the gentx file in bytes
-func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
-	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
-		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
+// GentxFromPath returns GentxInfo from the json file
+func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return info, gentx, errors.New("chain home folder is not initialized yet: " + path)
 	}
 
-	gentx, err = os.ReadFile(gentxPath)
+	gentx, err = os.ReadFile(path)
 	if err != nil {
 		return info, gentx, err
 	}
+	return ParseGentx(gentx)
+}
 
+// ParseGentx returns GentxInfo and the gentx file in bytes
+func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {

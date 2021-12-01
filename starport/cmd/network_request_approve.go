@@ -6,6 +6,7 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/services/network"
 )
@@ -68,7 +69,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	if !noVerification {
 		// Verify the request. This operation generate the genesis
 		// in a temporary directory and verify this genesis is valid
-		err := n.VerifyRequests(cmd.Context(), launchID, ids)
+		err := n.VerifyRequests(cmd.Context(), launchID, ids...)
 		if err != nil {
 			return err
 		}
@@ -83,6 +84,6 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("Request(s) %s approved ✅\n", numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s approved\n", clispinner.OK, numbers.List(ids, "#"))
 	return nil
 }
