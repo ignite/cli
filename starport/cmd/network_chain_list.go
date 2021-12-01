@@ -44,6 +44,8 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer nb.Cleanup()
 
+	nb.Spinner.Stop()
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
