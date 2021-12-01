@@ -1,14 +1,14 @@
-# Contributing to Starport docs
+# Contributing to Starport Docs
 
-- [Contributing](#contributing)
+- [Contributing to Starport Docs](#contributing-to-starport-docs)
   - [Using this repo](#using-this-repo)
   - [Reviewing technical content PRs](#reviewing-technical-content-prs)
   - [Writing and contributing](#writing-and-contributing)
   - [Where can I find the tutorials and docs?](#where-can-i-find-the-tutorials-and-docs)
   - [Who works on the tutorials?](#who-works-on-the-tutorials)
-  - [Viewing Tutorial Builds](#viewing-tutorial-builds)
+  - [Viewing tutorial builds](#viewing-tutorial-builds)
     - [Preview PRs on a Deployed Preview](#preview-prs-on-a-deployed-preview)
-    - [Preview Draft PRs on a Local Web Browser](#preview-draft-prs-on-a-local-web-browser)
+    - [Preview draft PRs on a local web browser](#preview-draft-prs-on-a-local-web-browser)
   
 
 Thank you for considering making contributions. We appreciate your interest in helping us to create and maintain awesome tutorials and documentation.
