@@ -2,7 +2,9 @@ package network
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
@@ -76,4 +78,15 @@ func (n Network) LaunchInfo(ctx context.Context, id uint64) (LaunchInfo, error) 
 
 	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
 	return info, nil
+}
+
+func ParseLaunchID(strID string) (uint64, error) {
+	launchID, err := strconv.ParseUint(strID, 10, 64)
+	if err != nil {
+		return 0, errors.Wrap(err, "error parsing launchID")
+	}
+	if launchID == 0 {
+		return 0, errors.New("launch ID must be greater than 0")
+	}
+	return launchID, nil
 }

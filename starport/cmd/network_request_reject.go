@@ -2,9 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
-	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
@@ -36,12 +34,9 @@ func networkRequestRejectHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	launchID, err := network.ParseLaunchID(args[0])
 	if err != nil {
-		return errors.Wrap(err, "error parsing launchID")
-	}
-	if launchID == 0 {
-		return errors.New("launch ID must be greater than 0")
+		return err
 	}
 
 	// Get the list of request ids
