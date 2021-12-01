@@ -51,7 +51,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	request, err := n.FetchRequest(cmd.Context(), launchID, requestID)
+	request, err := n.Request(cmd.Context(), launchID, requestID)
 	if err != nil {
 		return err
 	}

@@ -7,8 +7,8 @@ import (
 	"github.com/tendermint/starport/starport/pkg/yaml"
 )
 
-// FetchRequest fetches the chain request from SPN by launch and request id
-func (n Network) FetchRequest(ctx context.Context, launchID, requestID uint64) (string, error) {
+// Request fetches the chain request from SPN by launch and request id
+func (n Network) Request(ctx context.Context, launchID, requestID uint64) (string, error) {
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Request(ctx, &launchtypes.QueryGetRequestRequest{
 		LaunchID:  launchID,
 		RequestID: requestID,
