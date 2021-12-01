@@ -1,6 +1,6 @@
-# article-templates — Cosmos and Starport Community Article Templates
+# Starport Article Templates
 
-Use these templates along with our style guide to help you create articles for the Cosmos community. 
+Use these templates along with our style guide to help you create articles for the Starport community. 
 
 Choose the template that best fits the kind of content you're creating:
 
