@@ -23,10 +23,10 @@ type CachedHook struct {
 	plugintypes.Hook
 }
 
-func (m *Manager) RetrieveCached() ([]ExtractedCommandModule, error) {
+func (m *Manager) RetrieveCached() error {
 	// cacheHome := formatPluginHome(m.ChainId, "cached")
 
 	// cachedFiles := listFilesMatch()
 
-	return []ExtractedCommandModule{}, nil
+	return nil
 }

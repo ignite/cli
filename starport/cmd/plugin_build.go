@@ -55,7 +55,11 @@ func pluginBuildHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
+	pluginManager, err := pluginsrpc.NewManager(chainId, chainConfig)
+	if err != nil {
+		return err
+	}
+
 	if err := pluginManager.Build(cmd.Context()); err != nil {
 		return err
 	}

@@ -71,7 +71,11 @@ starport scaffold chain github.com/cosmonaut/mars`,
 
 			// If arg length is zero, inject hooks and that is it.
 			if cErr != chaincfg.ErrCouldntLocateConfig && len(args) == 0 {
-				pluginManager := pluginsrpc.NewManager(chainId, cfg)
+				pluginManager, err := pluginsrpc.NewManager(chainId, cfg)
+				if err != nil {
+					panic(err)
+				}
+
 				if err := pluginManager.InjectHooks(ctx, cmd); err != nil {
 					panic(err)
 				}
@@ -83,7 +87,11 @@ starport scaffold chain github.com/cosmonaut/mars`,
 			// we might need a hook.
 			if cErr != chaincfg.ErrCouldntLocateConfig && len(cfg.Plugins) > 0 {
 				// Initiate plugin manager with config, call the method to retain configuration?
-				pluginManager := pluginsrpc.NewManager(chainId, cfg)
+				pluginManager, err := pluginsrpc.NewManager(chainId, cfg)
+				if err != nil {
+					panic(err)
+				}
+
 				if cancel, err := pluginManager.InjectPlugins(ctx, cmd, args); err != nil {
 					panic(err)
 				} else if cancel {

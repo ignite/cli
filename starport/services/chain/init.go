@@ -69,7 +69,11 @@ func (c *Chain) InitChain(ctx context.Context) error {
 	// overwrite configuration changes from Starport's config.yml to
 	// over app's sdk configs.
 
-	pluginManager := pluginsrpc.NewManager(chainID, conf)
+	pluginManager, err := pluginsrpc.NewManager(chainID, conf)
+	if err != nil {
+		return err
+	}
+
 	if err := pluginManager.PullBuild(ctx); err != nil {
 		return err
 	}

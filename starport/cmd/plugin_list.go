@@ -72,7 +72,11 @@ func pluginListHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
+	pluginManager, err := pluginsrpc.NewManager(chainId, chainConfig)
+	if err != nil {
+		return err
+	}
+
 	plugins, err := pluginManager.List(cmd.Context(), pluginsrpc.PluginStateFromString(pluginState))
 	if err != nil {
 		return err

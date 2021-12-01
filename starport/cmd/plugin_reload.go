@@ -66,7 +66,11 @@ func pluginReloadHandler(cmd *cobra.Command, args []string) error {
 	configPath := path.Join(appPath, configFileName)
 	chainConfig, err := chainconfig.ParseFile(configPath)
 
-	pluginManager := pluginsrpc.NewManager(chainId, chainConfig)
+	pluginManager, err := pluginsrpc.NewManager(chainId, chainConfig)
+	if err != nil {
+		return err
+	}
+
 	if err := pluginManager.PullBuild(cmd.Context()); err != nil {
 		return err
 	}
