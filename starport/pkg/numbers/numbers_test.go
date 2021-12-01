@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseListRange(t *testing.T) {
+func TestParseList(t *testing.T) {
 	cases := []struct {
 		list   string
 		parsed []uint64
