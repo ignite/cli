@@ -18,9 +18,9 @@ func ParseChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	launch := ChainLaunch{
 		ID:         chain.LaunchID,
 		ChainID:    chain.GenesisChainID,
-		CampaignID: chain.CampaignID,
 		SourceURL:  chain.SourceURL,
 		SourceHash: chain.SourceHash,
+		CampaignID: chain.CampaignID,
 	}
 
 	// check if custom genesis URL is provided.
