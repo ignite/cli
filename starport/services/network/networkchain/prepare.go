@@ -1,4 +1,4 @@
-package network
+package networkchain
 
 import (
 	"context"
@@ -17,7 +17,7 @@ import (
 )
 
 // Prepare queries launch information and prepare the chain to be launched from these information
-func (b Blockchain) Prepare(ctx context.Context) error {
+func (c Chain) Prepare(ctx context.Context) error {
 	// chain initialization
 	chainHome, err := b.chain.Home()
 	if err != nil {
@@ -53,7 +53,7 @@ func (b Blockchain) Prepare(ctx context.Context) error {
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (b Blockchain) buildGenesis(ctx context.Context) error {
+func (c Chain) buildGenesis(ctx context.Context) error {
 	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	// get the genesis accounts and apply them to the genesis
@@ -98,7 +98,7 @@ func (b Blockchain) buildGenesis(ctx context.Context) error {
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
-func (b Blockchain) applyGenesisAccounts(ctx context.Context, genesisAccs []launchtypes.GenesisAccount) error {
+func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []launchtypes.GenesisAccount) error {
 	var err error
 	// TODO: detect the correct prefix
 	prefix := "cosmos"
@@ -126,7 +126,7 @@ func (b Blockchain) applyGenesisAccounts(ctx context.Context, genesisAccs []laun
 }
 
 // applyVestingAccounts adds the genesis vesting account into the genesis using the chain CLI
-func (b Blockchain) applyVestingAccounts(ctx context.Context, vestingAccs []launchtypes.VestingAccount) error {
+func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []launchtypes.VestingAccount) error {
 	var err error
 	prefix := "cosmos"
 
@@ -164,7 +164,7 @@ func (b Blockchain) applyVestingAccounts(ctx context.Context, vestingAccs []laun
 }
 
 // applyGenesisValidators gathers the validator gentxs into the genesis and add peers in config
-func (b Blockchain) applyGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
+func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
 	// no validator
 	if len(genesisVals) == 0 {
 		return nil
@@ -203,7 +203,7 @@ func (b Blockchain) applyGenesisValidators(ctx context.Context, genesisVals []la
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
-func (b Blockchain) updateConfigFromGenesisValidators(genesisVals []launchtypes.GenesisValidator) error {
+func (bc Chain) updateConfigFromGenesisValidators(genesisVals []launchtypes.GenesisValidator) error {
 	var p2pAddresses []string
 	for _, val := range genesisVals {
 		p2pAddresses = append(p2pAddresses, val.Peer)
