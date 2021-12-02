@@ -120,7 +120,7 @@ func (n Network) sendValidatorRequest(
 	gentxPath string,
 ) error {
 	// Parse the gentx content
-	gentxInfo, gentx, err := cosmosutil.ParseGentx(gentxPath)
+	gentxInfo, gentx, err := cosmosutil.GentxFromPath(gentxPath)
 	if err != nil {
 		return err
 	}

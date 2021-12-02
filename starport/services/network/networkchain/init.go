@@ -3,9 +3,7 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"math/rand"
 	"os"
-	"time"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -84,18 +82,4 @@ func (c *Chain) checkGenesis(ctx context.Context) error {
 	// TODO: static analysis of the genesis with validate-genesis doesn't check the full validity of the genesis
 	// example: gentxs formats are not checked
 	// to perform a full validity check of the genesis we must try to start the chain with sample accounts
-}
-
-var passphraseRunes = []rune("abcdefghijklmnopqrstuvwxyz")
-
-// randomPassphrase generates a random passphrase of 32 characters from account export and import
-func randomPassphrase() string {
-	rand.Seed(time.Now().UnixNano())
-
-	passBytes := make([]rune, 32)
-	for i := range passBytes {
-		passBytes[i] = passphraseRunes[rand.Intn(len(passphraseRunes))]
-	}
-
-	return string(passBytes)
 }
