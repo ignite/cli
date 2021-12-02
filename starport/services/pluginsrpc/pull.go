@@ -3,7 +3,9 @@ package pluginsrpc
 import (
 	"context"
 	"fmt"
+	"io/ioutil"
 	"os"
+	"path"
 	"time"
 
 	gogetter "github.com/hashicorp/go-getter"
@@ -12,6 +14,21 @@ import (
 // MUST BE RAN BEFORE BUILD
 func (m *Manager) Pull(ctx context.Context) error {
 	fmt.Println("🤏 Pulling plugins...")
+
+	pluginHome, err := formatPluginHome(m.ChainId, "")
+	if err != nil {
+		return err
+	}
+
+	outputDir := path.Join(pluginHome, "cached")
+	dir, err := ioutil.ReadDir(outputDir)
+	if err != nil {
+		return err
+	}
+
+	for _, d := range dir {
+		os.RemoveAll(path.Join(outputDir, d.Name()))
+	}
 
 	for _, cfgPlugin := range m.Config.Plugins {
 		// Seperate individual plugins by ID

@@ -16,16 +16,27 @@ import (
 func (m *Manager) Build(ctx context.Context) error {
 	fmt.Println("🛠️ Building plugins...")
 
-	// Get plugin home
+	outputDir, err := formatPluginHome(m.ChainId, "output")
+	if err != nil {
+		return err
+	}
+
 	pluginHome, err := formatPluginHome(m.ChainId, "")
 	if err != nil {
 		return err
 	}
 
-	outputDir := path.Join(pluginHome, "output")
-	dir, err := ioutil.ReadDir(outputDir)
-	for _, d := range dir {
-		os.RemoveAll(path.Join(outputDir, d.Name()))
+	// Inferring all requireddirs need to be cleaned
+	for _, requiredDir := range requiredDirs {
+		outputDir := path.Join(pluginHome, requiredDir)
+		dir, err := ioutil.ReadDir(outputDir)
+		if err != nil {
+			return err
+		}
+
+		for _, d := range dir {
+			os.RemoveAll(path.Join(outputDir, d.Name()))
+		}
 	}
 
 	for _, cfgPlugin := range m.Config.Plugins {
