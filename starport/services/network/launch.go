@@ -52,6 +52,8 @@ func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) err
 		return err
 	}
 
-	n.ev.Send(events.New(events.StatusDone, "The chain was launched"))
+	n.ev.Send(events.New(events.StatusDone,
+		fmt.Sprintf("Chain %d will be launched in %d seconds", launchID, remainingTime),
+	))
 	return nil
 }
