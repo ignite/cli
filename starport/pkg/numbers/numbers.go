@@ -38,6 +38,7 @@ func ParseList(arg string) ([]uint64, error) {
 			}
 			listNumbers[i] = struct{}{}
 			result = append(result, i)
+
 		// Parse a range number (eg: 3-7)
 		case 2:
 			var (
