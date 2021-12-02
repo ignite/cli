@@ -26,11 +26,11 @@ func NewNetworkChainPrepare() *cobra.Command {
 }
 
 func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
-	nb, _, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)

@@ -3,6 +3,7 @@ package networkchain
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -10,16 +11,14 @@ import (
 
 	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
-// Prepare queries launch information and prepare the chain to be launched from these information
-func (c Chain) Prepare(ctx context.Context) error {
+// Prepare queries launch information and prepare the chain to be launched from genesis information
+func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
-	chainHome, err := b.chain.Home()
+	chainHome, err := c.chain.Home()
 	if err != nil {
 		return err
 	}
@@ -29,94 +28,78 @@ func (c Chain) Prepare(ctx context.Context) error {
 	// nolint:gocritic
 	if os.IsNotExist(err) {
 		// if no config exists, we perform a full initialization of the chain with a new validator key
-		if err := b.Init(ctx); err != nil {
+		if err := c.Init(ctx); err != nil {
 			return err
 		}
 	} else if err != nil {
 		return err
 	} else {
 		// if config and validator key already exists we only build the chain and initialized the genesis
-		b.builder.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
-		if _, err := b.chain.Build(ctx, ""); err != nil {
+		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
+		if _, err := c.chain.Build(ctx, ""); err != nil {
 			return err
 		}
-		b.builder.ev.Send(events.New(events.StatusDone, "Blockchain built"))
+		c.ev.Send(events.New(events.StatusDone, "Blockchain built"))
 
-		b.builder.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
-		if err := b.initGenesis(ctx); err != nil {
+		c.ev.Send(events.New(events.StatusOngoing, "Initializing the genesis"))
+		if err := c.initGenesis(ctx); err != nil {
 			return err
 		}
-		b.builder.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
+		c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
 	}
 
-	return b.buildGenesis(ctx)
+	return c.buildGenesis(ctx, gi)
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
-func (c Chain) buildGenesis(ctx context.Context) error {
-	b.builder.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
+func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
+	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
-	// get the genesis accounts and apply them to the genesis
-	genesisAccounts, err := b.builder.GenesisAccounts(ctx, b.launchID)
-	if err != nil {
-		return errors.Wrap(err, "error querying genesis accounts")
-	}
-	if err := b.applyGenesisAccounts(ctx, genesisAccounts); err != nil {
+	// apply genesis information to the genesis
+	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-
-	// get the genesis vesting accounts and apply them to the genesis
-	vestingAccounts, err := b.builder.VestingAccounts(ctx, b.launchID)
-	if err != nil {
-		return errors.Wrap(err, "error querying vesting accounts")
-	}
-	if err := b.applyVestingAccounts(ctx, vestingAccounts); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
-
-	// get the genesis validators, gather gentxs and modify config to include the peers
-	genesisValidators, err := b.builder.GenesisValidators(ctx, b.launchID)
-	if err != nil {
-		return errors.Wrap(err, "error querying genesis validators")
-	}
-	if err := b.applyGenesisValidators(ctx, genesisValidators); err != nil {
+	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
 	// set the genesis time for the chain
-	genesisPath, err := b.chain.GenesisPath()
+	genesisPath, err := c.chain.GenesisPath()
 	if err != nil {
 		return errors.Wrap(err, "genesis of the blockchain can't be read")
 	}
-	if err := cosmosutil.SetGenesisTime(genesisPath, b.launchTime); err != nil {
+	if err := cosmosutil.SetGenesisTime(genesisPath, c.launchTime); err != nil {
 		return errors.Wrap(err, "genesis time can't be set")
 	}
 
-	b.builder.ev.Send(events.New(events.StatusDone, "Genesis built"))
+	c.ev.Send(events.New(events.StatusDone, "Genesis built"))
 
 	return nil
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
-func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []launchtypes.GenesisAccount) error {
+func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []networktypes.GenesisAccount) error {
 	var err error
 	// TODO: detect the correct prefix
 	prefix := "cosmos"
 
-	cmd, err := b.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, acc := range genesisAccs {
 		// change the address prefix to the target chain prefix
-		acc.Address, err = cosmosaddress.ChangePrefix(acc.Address, prefix)
+		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, prefix)
 		if err != nil {
 			return err
 		}
 
 		// call add genesis account cli command
-		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins.String())
+		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins)
 		if err != nil {
 			return err
 		}
@@ -126,34 +109,28 @@ func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []launchtyp
 }
 
 // applyVestingAccounts adds the genesis vesting account into the genesis using the chain CLI
-func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []launchtypes.VestingAccount) error {
+func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []networktypes.VestingAccount) error {
 	var err error
 	prefix := "cosmos"
 
-	cmd, err := b.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, acc := range vestingAccs {
-		acc.Address, err = cosmosaddress.ChangePrefix(acc.Address, prefix)
+		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, prefix)
 		if err != nil {
 			return err
-		}
-
-		// only delayed vesting option is supported for now
-		delayedVesting := acc.VestingOptions.GetDelayedVesting()
-		if delayedVesting == nil {
-			return fmt.Errorf("invalid vesting option for account %s", acc.Address)
 		}
 
 		// call add genesis account cli command with delayed vesting option
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
-			acc.StartingBalance.String(),
-			delayedVesting.Vesting.String(),
-			delayedVesting.EndTime,
+			acc.StartingBalance,
+			acc.Vesting,
+			acc.EndTime,
 		)
 		if err != nil {
 			return err
@@ -164,14 +141,14 @@ func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []launchtyp
 }
 
 // applyGenesisValidators gathers the validator gentxs into the genesis and add peers in config
-func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []launchtypes.GenesisValidator) error {
+func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []networktypes.GenesisValidator) error {
 	// no validator
 	if len(genesisVals) == 0 {
 		return nil
 	}
 
 	// reset the gentx directory
-	gentxDir, err := b.chain.GentxsPath()
+	gentxDir, err := c.chain.GentxsPath()
 	if err != nil {
 		return err
 	}
@@ -185,13 +162,13 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []launcht
 	// write gentxs
 	for i, val := range genesisVals {
 		gentxPath := filepath.Join(gentxDir, fmt.Sprintf("gentx%d.json", i))
-		if err = ioutil.WriteFile(gentxPath, val.GenTx, 0666); err != nil {
+		if err = ioutil.WriteFile(gentxPath, val.Gentx, 0666); err != nil {
 			return err
 		}
 	}
 
 	// gather gentxs
-	cmd, err := b.chain.Commands(ctx)
+	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
 	}
@@ -203,14 +180,14 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []launcht
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain
-func (bc Chain) updateConfigFromGenesisValidators(genesisVals []launchtypes.GenesisValidator) error {
+func (c Chain) updateConfigFromGenesisValidators(genesisVals []networktypes.GenesisValidator) error {
 	var p2pAddresses []string
 	for _, val := range genesisVals {
 		p2pAddresses = append(p2pAddresses, val.Peer)
 	}
 
 	// set persistent peers
-	configPath, err := b.chain.ConfigTOMLPath()
+	configPath, err := c.chain.ConfigTOMLPath()
 	if err != nil {
 		return err
 	}
