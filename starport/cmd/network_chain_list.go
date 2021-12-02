@@ -2,13 +2,13 @@ package starportcmd
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}

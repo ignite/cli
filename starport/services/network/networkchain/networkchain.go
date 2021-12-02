@@ -3,7 +3,6 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"os"
 
 	"github.com/go-git/go-git/v5"
@@ -15,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 const (

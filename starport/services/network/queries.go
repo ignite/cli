@@ -2,10 +2,10 @@ package network
 
 import (
 	"context"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // ChainLaunch fetches the chain launch from Starport Network by launch id.
