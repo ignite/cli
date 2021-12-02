@@ -17,8 +17,13 @@ import (
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
-// SPN name used as an address prefix and as a home dir for chains to publish.
-const SPN = "spn"
+const (
+	// SPN name used as an address prefix and as a home dir for chains to publish.
+	SPN = "spn"
+
+	// SPNDenom is the denom used for the spn chain native token
+	SPNDenom = "spn"
+)
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
 type Chain struct {
