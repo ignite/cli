@@ -7,7 +7,12 @@ import (
 	"path/filepath"
 
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
+	"github.com/tendermint/starport/starport/pkg/randstr"
 	"github.com/tendermint/starport/starport/services/chain"
+)
+
+const (
+	passphraseLength = 32
 )
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json
@@ -49,7 +54,7 @@ func (c Chain) InitAccount(ctx context.Context, v chain.Validator, accountName s
 func (c *Chain) ImportAccount(ctx context.Context, name string) (string, error) {
 	// keys import command of chain CLI requires that the key file is encrypted with a passphrase of at least 8 characters
 	// we generate a random passphrase to import the account
-	passphrase := randomPassphrase()
+	passphrase := randstr.Runes(passphraseLength)
 
 	// export the key in a temporary file.
 	armored, err := c.ar.Export(name, passphrase)
