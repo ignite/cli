@@ -7,6 +7,10 @@ import (
 	"github.com/spf13/cobra"
 )
 
+const (
+	flagRemainingTime = "remaining-time"
+)
+
 // NewNetworkChainLaunch creates a new chain launch command to launch
 // the network as a coordinator.
 func NewNetworkChainLaunch() *cobra.Command {
@@ -16,8 +20,11 @@ func NewNetworkChainLaunch() *cobra.Command {
 		Args:  cobra.ExactArgs(1),
 		RunE:  networkChainLaunchHandler,
 	}
+
+	c.Flags().String(flagRemainingTime, "", "The remaining time to launch the chain")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
+
 	return c
 }
 
@@ -37,10 +44,12 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
+	remainingTime, _ := cmd.Flags().GetUint64(flagRemainingTime)
+
 	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	return n.Launch(launchID)
+	return n.Launch(cmd.Context(), launchID, remainingTime)
 }

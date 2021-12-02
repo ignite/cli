@@ -1,6 +1,7 @@
 package network
 
 import (
+	"context"
 	"fmt"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
@@ -9,8 +10,17 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
+// LaunchParams fetches the chain launch module params from SPN
+func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
+	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Params(ctx, &launchtypes.QueryParamsRequest{})
+	if err != nil {
+		return launchtypes.Params{}, err
+	}
+	return res.GetParams(), nil
+}
+
 // Launch launch a chain as a coordinator
-func (n Network) Launch(launchID uint64) error {
+func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) error {
 	address := n.account.Address(networkchain.SPN)
 	spnAddress, err := cosmosutil.ChangeAddressPrefix(address, networkchain.SPN)
 	if err != nil {
@@ -19,15 +29,26 @@ func (n Network) Launch(launchID uint64) error {
 
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 
-	msg := launchtypes.NewMsgTriggerLaunch(spnAddress, launchID, 0)
+	params, err := n.LaunchParams(ctx)
+	if err != nil {
+		return err
+	}
+
+	if remainingTime < params.MinLaunchTime {
+		remainingTime = params.MinLaunchTime
+	} else if remainingTime > params.MaxLaunchTime {
+		remainingTime = params.MaxLaunchTime
+	}
+
+	msg := launchtypes.NewMsgTriggerLaunch(spnAddress, launchID, remainingTime)
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting launch transaction"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
 	}
 
-	var requestRes launchtypes.MsgRequestAddAccountResponse
-	if err := res.Decode(&requestRes); err != nil {
+	var launchRes launchtypes.MsgTriggerLaunchResponse
+	if err := res.Decode(&launchRes); err != nil {
 		return err
 	}
 
