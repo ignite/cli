@@ -10,7 +10,10 @@ func NewNetworkRequest() *cobra.Command {
 		Short: "Handle requests",
 	}
 
-	c.AddCommand(NewNetworkRequestList())
+	c.AddCommand(
+		NewNetworkRequestList(),
+		NewNetworkRequestApprove(),
+	)
 
 	return c
 }
