@@ -57,9 +57,6 @@ The values are:
 - `amountDenom`: the token to be sold and in which quantity
 - `priceDenom`: the token selling price
 
-The `--indexed` flag creates an "indexed type". Without this flag, a type is implemented like a list with new items appended. Indexed types act like key-value stores.
-
-The `--module dex` flag specifies to scaffold the type in the `dex` module.
 
 ## Create the IBC Packets
 
