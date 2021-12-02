@@ -3,11 +3,11 @@ package networkchain
 import (
 	"context"
 	"fmt"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"os"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -85,38 +85,8 @@ func SourceRemoteHash(url, hash string) SourceOption {
 	}
 }
 
-// Launch represents the launch of a chain on SPN
-type Launch struct {
-	ID          uint64
-	ChainID     string
-	SourceURL   string
-	SourceHash  string
-	GenesisURL  string
-	GenesisHash string
-	CampaignID  uint64
-}
-
-// ParseLaunch parses a chain launch from SPN and returns a launch object
-func ParseLaunch(chainLaunch launchtypes.Chain) Launch {
-	launch := Launch{
-		ID:         chainLaunch.LaunchID,
-		ChainID:    chainLaunch.GenesisChainID,
-		CampaignID: chainLaunch.CampaignID,
-		SourceURL:  chainLaunch.SourceURL,
-		SourceHash: chainLaunch.SourceHash,
-	}
-
-	// check if custom genesis URL is provided.
-	if customGenesisURL := chainLaunch.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
-		launch.GenesisURL = customGenesisURL.Url
-		launch.GenesisHash = customGenesisURL.Hash
-	}
-
-	return launch
-}
-
 // SourceLaunch returns a source option for initializing a chain from a launch
-func SourceLaunch(launch Launch) SourceOption {
+func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 	return func(c *Chain) {
 		c.id = launch.ChainID
 		c.url = launch.SourceURL

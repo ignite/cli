@@ -2,13 +2,13 @@ package starportcmd
 
 import (
 	"fmt"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"io"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
-	"github.com/tendermint/starport/starport/services/network"
 )
 
 var LaunchSummaryHeader = []string{"launch ID", "chain ID", "source", "campaign ID"}
@@ -49,27 +49,27 @@ func networkChainListHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
-	launchesInfo, err := n.LaunchesInfo(cmd.Context())
+	chainLaunches, err := n.ChainLaunches(cmd.Context())
 	if err != nil {
 		return err
 	}
-	return renderLaunchSummaries(launchesInfo, os.Stdout)
+	return renderLaunchSummaries(chainLaunches, os.Stdout)
 }
 
 // renderLaunchSummaries writes into the provided out, the list of summarized launches
-func renderLaunchSummaries(launchesInfo []network.LaunchInfo, out io.Writer) error {
+func renderLaunchSummaries(chainLaunches []networktypes.ChainLaunch, out io.Writer) error {
 	var launchEntries [][]string
 
-	for _, info := range launchesInfo {
+	for _, c := range chainLaunches {
 		campaign := "no campaign"
-		if info.CampaignID > 0 {
-			campaign = fmt.Sprintf("%d", info.CampaignID)
+		if c.CampaignID > 0 {
+			campaign = fmt.Sprintf("%d", c.CampaignID)
 		}
 
 		launchEntries = append(launchEntries, []string{
-			fmt.Sprintf("%d", info.ID),
-			info.ChainID,
-			info.SourceURL,
+			fmt.Sprintf("%d", c.ID),
+			c.ChainID,
+			c.SourceURL,
 			campaign,
 		})
 	}
