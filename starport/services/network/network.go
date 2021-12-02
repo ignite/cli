@@ -81,7 +81,7 @@ func (n Network) LaunchInfo(ctx context.Context, id uint64) (LaunchInfo, error) 
 }
 
 func ParseLaunchID(id string) (uint64, error) {
-	launchID, err := strconv.ParseUint(strID, 10, 64)
+	launchID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
 		return 0, errors.Wrap(err, "error parsing launchID")
 	}
