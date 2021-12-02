@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// InjectPlugins injects both hook and command plugins
 func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command, args []string) (bool, error) {
 	fmt.Println("💉 Injecting plugins...")
 
@@ -17,12 +18,6 @@ func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command, arg
 		}
 	}
 
-	// We have to enable the combination of hooks and commands
-	// finished, err := m.InjectCommands(ctx, rootCmd, args)
-	// if err != nil {
-	// 	return finished, err
-	// }
-
 	err := m.InjectHooks(ctx, rootCmd)
 	if err != nil {
 		return false, err
@@ -31,15 +26,16 @@ func (m *Manager) InjectPlugins(ctx context.Context, rootCmd *cobra.Command, arg
 	return m.InjectCommands(ctx, rootCmd, args)
 }
 
+// InjectCommands loads stored/downloaded commands and injects them into the process
 func (m *Manager) InjectCommands(ctx context.Context, rootCmd *cobra.Command, args []string) (bool, error) {
 	fmt.Println("💉 Injecting commands...")
 
-	outputDir, err := formatPluginHome(m.ChainId, "output")
-	if err != nil {
-		return false, err
-	}
-
 	if len(m.cmdPlugins) == 0 {
+		outputDir, err := formatPluginHome(m.ChainId, "output")
+		if err != nil {
+			return false, err
+		}
+
 		if err := m.extractCommandPlugins(ctx, outputDir, rootCmd); err != nil {
 			return false, err
 		}
@@ -73,7 +69,6 @@ func (m *Manager) InjectCommands(ctx context.Context, rootCmd *cobra.Command, ar
 				return false, err
 			}
 
-			// This is what calls prerun again
 			err = reloadedTargetCommand.Execute()
 			if err != nil {
 				return true, err
@@ -86,16 +81,16 @@ func (m *Manager) InjectCommands(ctx context.Context, rootCmd *cobra.Command, ar
 	return false, nil
 }
 
+// InjectHooks loads stored/downloaded hooks and injects them into the process
 func (m *Manager) InjectHooks(ctx context.Context, rootCmd *cobra.Command) error {
 	fmt.Println("💉 Injecting hooks...")
 
-	outputDir, err := formatPluginHome(m.ChainId, "output")
-	if err != nil {
-		return err
-	}
-
 	if len(m.hookPlugins) == 0 {
-		// hook specific extract
+		outputDir, err := formatPluginHome(m.ChainId, "output")
+		if err != nil {
+			return err
+		}
+
 		if err := m.extractHookPlugins(ctx, outputDir, rootCmd); err != nil {
 			return err
 		}

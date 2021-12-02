@@ -5,7 +5,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"reflect"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -45,7 +44,7 @@ func pluginDownloaded(chainId, pluginId string) (bool, error) {
 // Check if plugin-specified configuration is different from downloaded plugins
 // For now, ONLY CHECKS DIRECTORY NAMES
 // This is not adequate, because one could delete files from directories
-func PluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
+func pluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
 	var configPluginNames []string
 	var fileConfigNames []string
 
@@ -72,7 +71,23 @@ func PluginsChanged(cfg chaincfg.Config, chainId string) (bool, error) {
 		fileConfigNames = append(fileConfigNames, plugDir.Name())
 	}
 
-	return !reflect.DeepEqual(configPluginNames, fileConfigNames), nil
+	for _, configPluginName := range configPluginNames {
+		if !contains(fileConfigNames, configPluginName) {
+			return true, nil
+		}
+	}
+
+	return false, nil
+}
+
+func contains(parent []string, child string) bool {
+	for _, v := range parent {
+		if v == child {
+			return true
+		}
+	}
+
+	return false
 }
 
 func validateParentCommand(rootCommand *cobra.Command, subCommand []string) error {

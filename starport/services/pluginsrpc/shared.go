@@ -1,7 +1,6 @@
 package pluginsrpc
 
 import (
-	"context"
 	"strings"
 
 	"github.com/hashicorp/go-hclog"
@@ -11,7 +10,7 @@ import (
 )
 
 var (
-	// check if log includes a pre defined set of messages, used in go-plugin
+	// Blacklisted strings in an RPC log broadcast output
 	excludedSet = []string{
 		"waiting for RPC",
 		"plugin started",
@@ -24,6 +23,7 @@ var (
 		"starting plugin",
 	}
 
+	// PluginLogger that filters unnecessary debug messages
 	pluginLogger = hclog.New(&hclog.LoggerOptions{
 		Output:      hclog.DefaultOutput,
 		Level:       hclog.Trace,
@@ -40,22 +40,24 @@ var (
 	})
 )
 
-type InitArgs struct {
-	ctx context.Context
-}
-
+// Basic handshake config used for all RPC connections
 var HandshakeConfig = plugin.HandshakeConfig{
 	ProtocolVersion:  1,
 	MagicCookieKey:   "BASIC_PLUGIN",
 	MagicCookieValue: "hello",
 }
 
+// BasePluginMap represents what the extractor expects to see available in an RPC plugin.
 var BasePluginMap = map[string]plugin.Plugin{
 	"command_map": &plugintypes.CommandMapperPlugin{},
 	"hook_map":    &plugintypes.HookMapperPlugin{},
 }
 
+// Extracted representation of a command module.
 type ExtractedCommandModule struct {
+	ModuleName string
+	PluginDir  string
+
 	ParentCommand []string
 	Name          string
 	Usage         string
@@ -65,7 +67,11 @@ type ExtractedCommandModule struct {
 	Exec          func(*cobra.Command, []string) error
 }
 
+// Extracted representation of a hook module.
 type ExtractedHookModule struct {
+	ModuleName string
+	PluginDir  string
+
 	ParentCommand []string
 	Name          string
 	HookType      string
@@ -73,6 +79,7 @@ type ExtractedHookModule struct {
 	PostRun       func(*cobra.Command, []string) error
 }
 
+// PluginState represents the states a plugin can be in
 type PluginState uint32
 
 const (

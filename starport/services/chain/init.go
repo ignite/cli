@@ -74,7 +74,7 @@ func (c *Chain) InitChain(ctx context.Context) error {
 		return err
 	}
 
-	if err := pluginManager.PullBuild(ctx); err != nil {
+	if err := pluginManager.PullBuild(ctx, false); err != nil {
 		return err
 	}
 

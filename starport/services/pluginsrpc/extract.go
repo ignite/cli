@@ -70,10 +70,7 @@ func (m *Manager) extractCommandPlugins(
 		}
 
 		cmdMapper := raw.(plugintypes.CommandMapper)
-
 		storedCommands := cmdMapper.Commands()
-		// Edit pluginMap off of that, and then make execute functions for each thing
-
 		client.Kill()
 
 		for _, loadedModule := range storedCommands {
@@ -104,6 +101,8 @@ func (m *Manager) extractCommandPlugins(
 			}
 
 			extractedCommandModules = append(extractedCommandModules, ExtractedCommandModule{
+				ModuleName:    loadedModule,
+				PluginDir:     pluginDir,
 				ParentCommand: cmdModule.GetParentCommand(),
 				Name:          cmdModule.GetName(),
 				Usage:         cmdModule.GetUsage(),
@@ -221,6 +220,8 @@ func (m *Manager) extractHookPlugins(
 			}
 
 			extractedHookModules = append(extractedHookModules, ExtractedHookModule{
+				ModuleName:    loadedModule,
+				PluginDir:     pluginDir,
 				ParentCommand: hookModule.GetParentCommand(),
 				Name:          hookModule.GetName(),
 				HookType:      hookModule.GetType(),
@@ -242,8 +243,8 @@ func (m *Manager) extractHookPlugins(
 						return err
 					}
 
-					cmdModuleExec := raw.(plugintypes.HookModule)
-					err = cmdModuleExec.PreRun(cmd, args)
+					hookModuleExec := raw.(plugintypes.HookModule)
+					err = hookModuleExec.PreRun(cmd, args)
 					if err != nil {
 						return err
 					}
@@ -269,8 +270,8 @@ func (m *Manager) extractHookPlugins(
 						return err
 					}
 
-					cmdModuleExec := raw.(plugintypes.HookModule)
-					err = cmdModuleExec.PostRun(cmd, args)
+					hookModuleExec := raw.(plugintypes.HookModule)
+					err = hookModuleExec.PostRun(cmd, args)
 					if err != nil {
 						return err
 					}

@@ -1,5 +1,6 @@
 package pluginsrpc
 
+// HookType represents when a hook can be run, in this case "pre" or "post"
 type HookType string
 
 const (

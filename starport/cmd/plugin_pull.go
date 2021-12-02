@@ -2,10 +2,8 @@ package starportcmd
 
 import (
 	"fmt"
-	"path"
 
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/services/chain"
 	"github.com/tendermint/starport/starport/services/pluginsrpc"
@@ -46,18 +44,10 @@ func pluginPullHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	configFileName := c.ConfigPath()
-	if configFileName == "" {
-		return ErrConfigurationNotFound
-	}
-
-	appPath, err := appPathFromCmd(cmd)
+	chainConfig, err := getCommandConfig(cmd)
 	if err != nil {
 		return err
 	}
-
-	configPath := path.Join(appPath, configFileName)
-	chainConfig, err := chainconfig.ParseFile(configPath)
 
 	chainId, err := c.ID()
 	if err != nil {

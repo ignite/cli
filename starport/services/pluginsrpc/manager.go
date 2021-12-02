@@ -2,9 +2,15 @@ package pluginsrpc
 
 import (
 	"context"
+	"errors"
+	"os"
 
 	"github.com/spf13/cobra"
 	chaincfg "github.com/tendermint/starport/starport/chainconfig"
+)
+
+var (
+	requiredDirs = []string{"output", "cached"}
 )
 
 // Plugin manager manages the plugins a given scaffolded blockchain.
@@ -23,9 +29,21 @@ func NewManager(chainId string, cfg chaincfg.Config) (Manager, error) {
 		Config:  cfg,
 	}
 
-	err := m.RetrieveCached()
-	if err != nil {
-		return Manager{}, err
+	for _, requiredDir := range requiredDirs {
+		dirHome, err := formatPluginHome(m.ChainId, requiredDir)
+		if err != nil {
+			return Manager{}, err
+		}
+
+		_, err = os.Stat(dirHome)
+		if err != nil {
+			if errors.Is(err, os.ErrNotExist) {
+				err := os.Mkdir(dirHome, 0755)
+				if err != nil {
+					return Manager{}, err
+				}
+			}
+		}
 	}
 
 	return m, nil
@@ -37,7 +55,7 @@ func (m *Manager) RunAll(ctx context.Context, rootCommand *cobra.Command, args [
 		return false, nil
 	}
 
-	if err := m.PullBuild(ctx); err != nil {
+	if err := m.PullBuild(ctx, false); err != nil {
 		return false, err
 	}
 
@@ -46,20 +64,25 @@ func (m *Manager) RunAll(ctx context.Context, rootCommand *cobra.Command, args [
 }
 
 // PullBuild both pulls and builds plugins specified in config.yml file.
-func (m *Manager) PullBuild(ctx context.Context) error {
+func (m *Manager) PullBuild(ctx context.Context, force bool) error {
 	if len(m.Config.Plugins) == 0 {
 		return nil
 	}
 
-	// Check for change in config contents since last
-	// Don't check for remote package changes, as theoretically we want it
-	// to be up to the user to reload the plugins.
-	configChanged, err := PluginsChanged(m.Config, m.ChainId)
-	if err != nil {
-		return err
-	}
+	// If the call does not force a rerun, check for a change in config
+	if !force {
+		// Check for change in config contents since last
+		// Don't check for remote package changes, as theoretically we want it
+		// to be up to the user to reload the plugins.
+		configChanged, err := pluginsChanged(m.Config, m.ChainId)
+		if err != nil {
+			return err
+		}
 
-	if !configChanged {
+		if !configChanged {
+			return nil
+		}
+
 		return nil
 	}
 

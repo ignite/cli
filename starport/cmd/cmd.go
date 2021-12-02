@@ -76,7 +76,16 @@ starport scaffold chain github.com/cosmonaut/mars`,
 					panic(err)
 				}
 
+				if err := pluginManager.RetrieveCached(ctx); err != nil {
+					panic(err)
+				}
+
 				if err := pluginManager.InjectHooks(ctx, cmd); err != nil {
+					panic(err)
+				}
+
+				err = pluginManager.Cache(ctx)
+				if err != nil {
 					panic(err)
 				}
 
@@ -92,13 +101,27 @@ starport scaffold chain github.com/cosmonaut/mars`,
 					panic(err)
 				}
 
+				if err := pluginManager.RetrieveCached(ctx); err != nil {
+					panic(err)
+				}
+
 				if cancel, err := pluginManager.InjectPlugins(ctx, cmd, args); err != nil {
 					panic(err)
 				} else if cancel {
 					// Check for completion of injected plugins, if so, return
 					cmd.PreRunE = func(cmd *cobra.Command, args []string) error { return nil }
 					cmd.RunE = func(cmd *cobra.Command, args []string) error { return nil }
+					err = pluginManager.Cache(ctx)
+					if err != nil {
+						panic(err)
+					}
+
 					return nil
+				}
+
+				err = pluginManager.Cache(ctx)
+				if err != nil {
+					panic(err)
 				}
 			}
 
