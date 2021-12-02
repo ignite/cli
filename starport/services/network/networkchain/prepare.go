@@ -15,7 +15,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 )
 
-// Prepare queries launch information and prepare the chain to be launched from genesis information
+// Prepare prepares the chain to be launched from genesis information
 func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) error {
 	// chain initialization
 	chainHome, err := c.chain.Home()
@@ -27,14 +27,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 
 	// nolint:gocritic
 	if os.IsNotExist(err) {
-		// if no config exists, we perform a full initialization of the chain with a new validator key
+		// if no config exists, perform a full initialization of the chain with a new validator key
 		if err := c.Init(ctx); err != nil {
 			return err
 		}
 	} else if err != nil {
 		return err
 	} else {
-		// if config and validator key already exists we only build the chain and initialized the genesis
+		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
 		if _, err := c.chain.Build(ctx, ""); err != nil {
 			return err
@@ -98,7 +98,7 @@ func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []networkty
 			return err
 		}
 
-		// call add genesis account cli command
+		// call the add genesis account CLI command
 		err = cmd.AddGenesisAccount(ctx, acc.Address, acc.Coins)
 		if err != nil {
 			return err
@@ -124,7 +124,7 @@ func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []networkty
 			return err
 		}
 
-		// call add genesis account cli command with delayed vesting option
+		// call the add genesis account CLI command with delayed vesting option
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
@@ -140,7 +140,7 @@ func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []networkty
 	return nil
 }
 
-// applyGenesisValidators gathers the validator gentxs into the genesis and add peers in config
+// applyGenesisValidators gathers the validator gentxs into the genesis and adds peers in config
 func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []networktypes.GenesisValidator) error {
 	// no validator
 	if len(genesisVals) == 0 {

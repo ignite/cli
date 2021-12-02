@@ -41,7 +41,7 @@ func (n Network) GenesisInformation(ctx context.Context, launchID uint64) (gi ne
 	return networktypes.NewGenesisInformation(genAccs, vestingAccs, genVals), nil
 }
 
-// GenesisAccounts returns the list of approved genesis account for a launch from SPN
+// GenesisAccounts returns the list of approved genesis accounts for a launch from SPN
 func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs []networktypes.GenesisAccount, err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis accounts"))
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccountAll(ctx, &launchtypes.QueryAllGenesisAccountRequest{
@@ -58,7 +58,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 	return genAccs, nil
 }
 
-// VestingAccounts returns the list of approved genesis vesting account for a launch from SPN
+// VestingAccounts returns the list of approved genesis vesting accounts for a launch from SPN
 func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingAccs []networktypes.VestingAccount, err error) {
 	n.ev.Send(events.New(events.StatusOngoing, "Fetching genesis vesting accounts"))
 	res, err := launchtypes.NewQueryClient(b.cosmos.Context).VestingAccountAll(ctx, &launchtypes.QueryAllVestingAccountRequest{

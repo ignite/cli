@@ -10,7 +10,7 @@ import (
 )
 
 // Init initializes blockchain by building the binaries and running the init command and
-// create the initial genesis of the chain.
+// create the initial genesis of the chain, and set up a validator key
 func (c *Chain) Init(ctx context.Context) error {
 	chainHome, err := c.chain.Home()
 	if err != nil {
@@ -59,8 +59,8 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 		return err
 	}
 
-	// if the blockchain has a genesis URL, the initial genesis is fetched from the url
-	// otherwise, default genesis is used, which requires no action since the default genesis is generated from the init command
+	// if the blockchain has a genesis URL, the initial genesis is fetched from the URL
+	// otherwise, the default genesis is used, which requires no action since the default genesis is generated from the init command
 	if c.genesisURL != "" {
 		genesis, hash, err := cosmosutil.GenesisAndHashFromURL(ctx, c.genesisURL)
 		if err != nil {
@@ -80,7 +80,7 @@ func (c *Chain) initGenesis(ctx context.Context) error {
 			return err
 		}
 	} else {
-		// default genesis is used, init cli command is used to generate it
+		// default genesis is used, init CLI command is used to generate it
 		cmd, err := c.chain.Commands(ctx)
 		if err != nil {
 			return err
