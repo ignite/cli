@@ -11,7 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/services/chain"
-	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 const (
@@ -37,11 +37,11 @@ func NewNetworkChainInit() *cobra.Command {
 }
 
 func networkChainInitHandler(cmd *cobra.Command, args []string) error {
-	nb, s, shutdown, err := initializeNetwork(cmd)
+	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
 		return err
 	}
-	defer shutdown()
+	defer nb.Cleanup()
 
 	// parse launch ID
 	launchID, err := strconv.ParseUint(args[0], 10, 64)
@@ -52,18 +52,19 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	// check if the provided account for the validator exists
+	// check if the provided account for the validator exists.
 	validatorAccount, _ := cmd.Flags().GetString(flagValidatorAccount)
-	_, err = nb.AccountRegistry().GetByName(validatorAccount)
+	if _, err = nb.AccountRegistry.GetByName(validatorAccount); err != nil {
+		return err
+	}
+
+	// if a chain has already been initialized with this launch ID, we ask for confirmation
+	// before erasing the directory.
+	chainHome, exist, err := networkchain.IsChainHomeExist(launchID)
 	if err != nil {
 		return err
 	}
 
-	// if a chain has already been initialized with this launch ID, we ask for confirmation before erasing the directory
-	chainHome, exist, err := network.IsChainHomeExist(launchID)
-	if err != nil {
-		return err
-	}
 	if !getYes(cmd) && exist {
 		prompt := promptui.Prompt{
 			Label: fmt.Sprintf("The chain has already been initialized under: %s. Would you like to overwrite the home directory",
@@ -71,33 +72,40 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 			),
 			IsConfirm: true,
 		}
-		s.Stop()
+		nb.Spinner.Stop()
 		if _, err := prompt.Run(); err != nil {
 			fmt.Println("said no")
 			return nil
 		}
-		s.Start()
+		nb.Spinner.Start()
 	}
 
-	// initialize the blockchain from the launch ID
-	initOptions := initOptionWithHomeFlag(cmd, []network.InitOption{network.MustNotInitializedBefore()})
-	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	if err := blockchain.Init(cmd.Context()); err != nil {
+	launchInfo, err := n.LaunchInfo(cmd.Context(), launchID)
+	if err != nil {
 		return err
 	}
 
-	// ask validator information
+	c, err := nb.Chain(networkchain.SourceLaunch(launchInfo))
+	if err != nil {
+		return err
+	}
+
+	if err := c.Init(cmd.Context()); err != nil {
+		return err
+	}
+
+	// ask validator information.
 	v, err := askValidatorInfo(validatorAccount)
 	if err != nil {
 		return err
 	}
 
-	gentxPath, err := blockchain.InitAccount(cmd.Context(), v, validatorAccount)
+	gentxPath, err := c.InitAccount(cmd.Context(), v, validatorAccount)
 	if err != nil {
 		return err
 	}

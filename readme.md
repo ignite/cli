@@ -31,7 +31,7 @@ To learn more about building a JavaScript frontend for your Cosmos SDK blockchai
 
 ## Questions
 
-For questions and support, join the official [Starport Discord server](https://discord.gg/7fwqwc3afK). The issue list in this repo is exclusively for bug reports and feature requests.
+For questions and support, join the official [Starport Discord](https://discord.gg/starport) server. The issue list in this repo is exclusively for bug reports and feature requests.
 
 ## Cosmos SDK Compatibility
 
@@ -48,15 +48,18 @@ To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migratio
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. 
 
-**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github describing the proposed changes.
+**Important** Before you start implementing a new Starport feature, the first step is to create an issue on Github that describes the proposed changes.
 
 If you're not sure where to start, check out [contributing.md](contributing.md) for our guidelines and policies for how we develop Starport. Thank you to everyone who has contributed to Starport!
 
-## Stay in touch
+## Community
 
-Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Follow us to get the latest updates!
+Starport is a free and open source product maintained by [Tendermint](https://tendermint.com). Here's where you can find us. Stay in touch.
 
-- [Website](https://starport.com)
-- [Twitter](https://twitter.com/StarportHQ)
-- [Blog](https://medium.com/tendermint)
-- [Jobs](https://tendermint.com/careers)
+- [Starport.com website](https://starport.com)
+- [@StarportHQ on Twitter](https://twitter.com/StarportHQ)
+- [Starport.com/blog](https://starport.com/blog/)
+- [Starport Discord](https://discord.com/starport)
+- [Starport YouTube](https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q)
+- [Starport docs](https://docs.starport.com/)
+- [Tendermint jobs](https://tendermint.com/careers)
