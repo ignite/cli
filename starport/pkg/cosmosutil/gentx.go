@@ -1,6 +1,7 @@
 package cosmosutil
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"os"
@@ -11,10 +12,12 @@ import (
 var GentxFilename = "gentx.json"
 
 type (
+	// PubKey represents the public key in bytes array
+	PubKey []byte
 	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
 		DelegatorAddress string
-		PubKey           []byte
+		PubKey           PubKey
 		SelfDelegation   sdk.Coin
 	}
 	// StargateGentx represents the stargate gentx file
@@ -35,17 +38,27 @@ type (
 	}
 )
 
-// ParseGentx returns GentxInfo and the gentx file in bytes
-func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
-	if _, err := os.Stat(gentxPath); os.IsNotExist(err) {
-		return info, gentx, errors.New("chain home folder is not initialized yet: " + gentxPath)
+// Equal returns true if the public keys are equal
+func (pb PubKey) Equal(key []byte) bool {
+	res := bytes.Compare(pb, key)
+	return res == 0
+}
+
+// GentxFromPath returns GentxInfo from the json file
+func GentxFromPath(path string) (info GentxInfo, gentx []byte, err error) {
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		return info, gentx, errors.New("chain home folder is not initialized yet: " + path)
 	}
 
-	gentx, err = os.ReadFile(gentxPath)
+	gentx, err = os.ReadFile(path)
 	if err != nil {
 		return info, gentx, err
 	}
+	return ParseGentx(gentx)
+}
 
+// ParseGentx returns GentxInfo and the gentx file in bytes
+func ParseGentx(gentx []byte) (info GentxInfo, file []byte, err error) {
 	// Try parsing Stargate gentx
 	var stargateGentx StargateGentx
 	if err := json.Unmarshal(gentx, &stargateGentx); err != nil {
