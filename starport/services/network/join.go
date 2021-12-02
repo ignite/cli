@@ -6,74 +6,73 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosaddress"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
-func (b *Blockchain) Join(
+// Join to the network.
+func (n Network) Join(
 	ctx context.Context,
+	c Chain,
 	launchID uint64,
 	amount sdk.Coin,
 	publicAddress string,
-	gentxPath string) error {
-
-	// Get the chain node id to build the peer string `<nodeID>@<host>`
-	cmd, err := b.chain.Commands(ctx)
+	gentxPath string,
+) error {
+	peer, err := c.Peer(ctx, publicAddress)
 	if err != nil {
 		return err
 	}
-	nodeID, err := cmd.ShowNodeID(ctx)
-	if err != nil {
-		return err
-	}
-	peer := fmt.Sprintf("%s@%s", nodeID, publicAddress)
 
-	// Check if a custom gentx is provided
 	isCustomGentx := gentxPath != ""
-	// If the custom gentx is not provided, get the chain
-	// default from the chain home folder
+
+	// if the custom gentx is not provided, get the chain default from the chain home folder.
 	if !isCustomGentx {
-		gentxPath, err = b.chain.DefaultGentxPath()
+		gentxPath, err = c.DefaultGentxPath()
 		if err != nil {
 			return err
 		}
 	}
 
-	// Get the chain genesis path from the home folder
-	genesisPath, err := b.chain.GenesisPath()
+	// get the chain genesis path from the home folder
+	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
 
-	if err := b.builder.sendAccountRequest(ctx,
+	if err := n.sendAccountRequest(
+		ctx,
 		genesisPath,
 		isCustomGentx,
 		launchID,
-		amount); err != nil {
+		amount,
+	); err != nil {
 		return err
 	}
-	return b.builder.sendValidatorRequest(ctx, launchID, peer, gentxPath)
+
+	return n.sendValidatorRequest(ctx, launchID, peer, gentxPath)
 }
 
-// sendAccountRequest creates an add AddAccount request message
-func (b *Builder) sendAccountRequest(
+// sendAccountRequest creates an add AddAccount request message.
+func (n Network) sendAccountRequest(
 	ctx context.Context,
 	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
 	amount sdk.Coin,
 ) error {
-	address := b.account.Address(SPNAddressPrefix)
-	spnAddress, err := cosmosaddress.ChangePrefix(address, SPNAddressPrefix)
+	address := n.account.Address(networkchain.SPN)
+	spnAddress, err := cosmosutil.ChangeAddressPrefix(address, networkchain.SPN)
 	if err != nil {
 		return err
 	}
 
-	b.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
+	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
-	accExist := false
+	var accExist bool
+
 	if !isCustomGentx {
 		accExist, err = cosmosutil.CheckGenesisContainsAddress(genesisPath, spnAddress)
 		if err != nil {
@@ -81,15 +80,15 @@ func (b *Builder) sendAccountRequest(
 		}
 	}
 	// check if account exists as a genesis account in SPN chain launch information
-	if !accExist && !b.hasAccount(ctx, launchID, spnAddress) {
+	if !accExist && !n.hasAccount(ctx, launchID, spnAddress) {
 		msg := launchtypes.NewMsgRequestAddAccount(
 			spnAddress,
 			launchID,
 			sdk.NewCoins(amount),
 		)
 
-		b.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-		res, err := b.cosmos.BroadcastTx(b.account.Name, msg)
+		n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+		res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 		if err != nil {
 			return err
 		}
@@ -98,12 +97,11 @@ func (b *Builder) sendAccountRequest(
 		if err := res.Decode(&requestRes); err != nil {
 			return err
 		}
-		b.ev.Send(events.New(events.StatusDone, "MsgRequestAddAccount transactions sent"))
 
 		if requestRes.AutoApproved {
-			b.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+			n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
 		} else {
-			b.ev.Send(events.New(events.StatusDone,
+			n.ev.Send(events.New(events.StatusDone,
 				fmt.Sprintf("Request %d to add account to the network has been submitted!",
 					requestRes.RequestID),
 			))
@@ -111,12 +109,12 @@ func (b *Builder) sendAccountRequest(
 		return nil
 	}
 
-	b.ev.Send(events.New(events.StatusDone, "Account already exist"))
+	n.ev.Send(events.New(events.StatusDone, "Account already exist"))
 	return nil
 }
 
 // sendValidatorRequest creates the RequestAddValidator message into the SPN
-func (b *Builder) sendValidatorRequest(
+func (n Network) sendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
 	peer string,
@@ -129,13 +127,13 @@ func (b *Builder) sendValidatorRequest(
 	}
 
 	// Change the chain address prefix to spn
-	spnValAddress, err := cosmosaddress.ChangePrefix(gentxInfo.DelegatorAddress, SPNAddressPrefix)
+	spnValAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networkchain.SPN)
 	if err != nil {
 		return err
 	}
 
 	// Check if the validator request already exist
-	if b.hasValidator(ctx, launchID, spnValAddress) {
+	if n.hasValidator(ctx, launchID, spnValAddress) {
 		return fmt.Errorf("validator %s already exist", spnValAddress)
 	}
 
@@ -148,8 +146,9 @@ func (b *Builder) sendValidatorRequest(
 		peer,
 	)
 
-	b.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
-	res, err := b.cosmos.BroadcastTx(b.account.Name, msg)
+	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting validator transaction"))
+
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err
 	}
@@ -158,12 +157,11 @@ func (b *Builder) sendValidatorRequest(
 	if err := res.Decode(&requestRes); err != nil {
 		return err
 	}
-	b.ev.Send(events.New(events.StatusDone, "MsgRequestAddValidator transaction sent"))
 
 	if requestRes.AutoApproved {
-		b.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
+		n.ev.Send(events.New(events.StatusDone, "Validator added to the network by the coordinator!"))
 	} else {
-		b.ev.Send(events.New(events.StatusDone,
+		n.ev.Send(events.New(events.StatusDone,
 			fmt.Sprintf("Request %d to join the network as a validator has been submitted!",
 				requestRes.RequestID),
 		))
@@ -172,8 +170,8 @@ func (b *Builder) sendValidatorRequest(
 }
 
 // hasValidator verify if the validator already exist into the SPN store
-func (b *Builder) hasValidator(ctx context.Context, launchID uint64, address string) bool {
-	_, err := launchtypes.NewQueryClient(b.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
+func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) bool {
+	_, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
@@ -181,15 +179,15 @@ func (b *Builder) hasValidator(ctx context.Context, launchID uint64, address str
 }
 
 // hasAccount verify if the account already exist into the SPN store
-func (b *Builder) hasAccount(ctx context.Context, launchID uint64, address string) bool {
-	_, err := launchtypes.NewQueryClient(b.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
+func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) bool {
+	_, err := launchtypes.NewQueryClient(n.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
 	if err == nil {
 		return true
 	}
-	_, err = launchtypes.NewQueryClient(b.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
+	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})

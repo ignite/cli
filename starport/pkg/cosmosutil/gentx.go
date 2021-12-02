@@ -8,6 +8,8 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 )
 
+var GentxFilename = "gentx.json"
+
 type (
 	// GentxInfo represents the basic info about gentx file
 	GentxInfo struct {
@@ -57,15 +59,19 @@ func ParseGentx(gentxPath string) (info GentxInfo, gentx []byte, err error) {
 	if len(stargateGentx.Body.Messages) != 1 {
 		return info, gentx, errors.New("add validator gentx must contain 1 message")
 	}
+
 	info.DelegatorAddress = stargateGentx.Body.Messages[0].DelegatorAddress
 	info.PubKey = []byte(stargateGentx.Body.Messages[0].PubKey.Key)
+
 	amount, ok := sdk.NewIntFromString(stargateGentx.Body.Messages[0].Value.Amount)
 	if !ok {
 		return info, gentx, errors.New("the self-delegation inside the gentx is invalid")
 	}
+
 	info.SelfDelegation = sdk.NewCoin(
 		stargateGentx.Body.Messages[0].Value.Denom,
 		amount,
 	)
+
 	return info, gentx, nil
 }

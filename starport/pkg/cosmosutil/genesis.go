@@ -1,8 +1,14 @@
 package cosmosutil
 
 import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"io"
+	"net/http"
 	"os"
 	"time"
 )
@@ -77,4 +83,32 @@ func SetGenesisTime(genesisPath string, genesisTime int64) error {
 		return err
 	}
 	return os.WriteFile(genesisPath, genesisBytes, 0644)
+}
+
+// GenesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash.
+func GenesisAndHashFromURL(ctx context.Context, url string) (genesis []byte, hash string, err error) {
+	req, err := http.NewRequestWithContext(ctx, http.MethodGet, url, nil)
+	if err != nil {
+		return nil, "", err
+	}
+
+	resp, err := http.DefaultClient.Do(req)
+	if err != nil {
+		return nil, "", err
+	}
+	defer resp.Body.Close()
+
+	genesis, err = io.ReadAll(resp.Body)
+	if err != nil {
+		return nil, "", err
+	}
+
+	h := sha256.New()
+	if _, err := io.Copy(h, bytes.NewReader(genesis)); err != nil {
+		return nil, "", err
+	}
+
+	hexHash := hex.EncodeToString(h.Sum(nil))
+
+	return genesis, hexHash, nil
 }
