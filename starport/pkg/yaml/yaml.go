@@ -9,6 +9,8 @@ import (
 	"github.com/goccy/go-yaml/parser"
 )
 
+// ParseString converts an object to a string in a YAML format and transforms
+// the byte slice fields from the path to string to be more readable.
 func ParseString(ctx context.Context, obj interface{}, paths ...string) (string, error) {
 	requestYaml, err := yaml.MarshalContext(ctx, obj)
 	if err != nil {
