@@ -67,8 +67,6 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if !noVerification {
-		// Verify the request. This operation generate the genesis
-		// in a temporary directory and verify this genesis is valid
 		err := n.VerifyRequests(cmd.Context(), launchID, ids...)
 		if err != nil {
 			return err
