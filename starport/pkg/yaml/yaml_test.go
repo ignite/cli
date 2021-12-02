@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestParseString(t *testing.T) {
+func TestMarshall(t *testing.T) {
 	type byteSliceParser struct {
 		Field1 string `json:"field1"`
 		Field2 struct {
@@ -137,7 +137,7 @@ field3: field3`,
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := ParseString(context.Background(), tt.args.obj, tt.args.paths...)
+			got, err := Marshall(context.Background(), tt.args.obj, tt.args.paths...)
 			if tt.err != nil {
 				require.ErrorIs(t, tt.err, err)
 				return

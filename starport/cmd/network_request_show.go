@@ -59,7 +59,7 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 
 	// convert the request object to YAML to be more readable
 	// and convert the byte array fields to string.
-	requestYaml, err := yaml.ParseString(cmd.Context(), request,
+	requestYaml, err := yaml.Marshall(cmd.Context(), request,
 		"$.content.content.genesisValidator.genTx",
 		"$.content.content.genesisValidator.consPubKey",
 	)
