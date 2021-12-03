@@ -68,12 +68,12 @@ func networkChainJoinHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	launchInfo, err := n.LaunchInfo(cmd.Context(), launchID)
+	chainLaunch, err := n.ChainLaunch(cmd.Context(), launchID)
 	if err != nil {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(launchInfo))
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 	if err != nil {
 		return err
 	}
