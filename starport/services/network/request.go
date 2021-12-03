@@ -143,9 +143,9 @@ func (n Network) VerifyRequests(ctx context.Context, launchID uint64, requests .
 	}
 	n.ev.Send(events.New(events.StatusDone, "Requests verified"))
 
-	// TODO simulate the proposals
-	// If all proposals are correct, simulate them
-	// return n.SimulateProposals(ctx, chainID, proposals, commandOut)
+	// TODO simulate the requests
+	// If all requests are correct, simulate them
+	// return n.SimulateRequests(ctx, launchID, requests)
 
 	return nil
 }

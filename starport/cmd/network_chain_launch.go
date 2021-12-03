@@ -51,5 +51,17 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.Launch(cmd.Context(), launchID, remainingTime)
+	if err := n.Launch(
+		cmd.Context(),
+		launchID,
+		remainingTime,
+	); err != nil {
+		return err
+	}
+
+	// TODO simulate the requests
+	// If all requests are correct, simulate them
+	// return n.SimulateRequests(ctx, launchID, requests)
+
+	return nil
 }
