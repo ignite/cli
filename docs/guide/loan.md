@@ -284,7 +284,6 @@ Add your first loan:
 loand tx loan request-loan 100token 2token 200token 500 --from alice 
 ```
 
-
 Query your loan:
 
 ```bash
