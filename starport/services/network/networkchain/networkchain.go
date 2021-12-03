@@ -36,6 +36,7 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
+	launchTime	int64
 
 	keyringBackend chaincmd.KeyringBackend
 
@@ -94,6 +95,7 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
 		c.home = ChainHome(launch.ID)
+		c.launchTime = launch.LaunchTime
 	}
 }
 

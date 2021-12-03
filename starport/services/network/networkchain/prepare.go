@@ -176,7 +176,7 @@ func (c Chain) applyGenesisValidators(ctx context.Context, genesisVals []network
 		return err
 	}
 
-	return b.updateConfigFromGenesisValidators(genesisVals)
+	return c.updateConfigFromGenesisValidators(genesisVals)
 }
 
 // updateConfigFromGenesisValidators adds the peer addresses into the config.toml of the chain

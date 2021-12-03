@@ -10,16 +10,23 @@ type ChainLaunch struct {
 	SourceHash  string
 	GenesisURL  string
 	GenesisHash string
+	LaunchTime	int64
 	CampaignID  uint64
 }
 
 // ParseChainLaunch parses a chain launch data from SPN and returns a ChainLaunch object
 func ParseChainLaunch(chain launchtypes.Chain) ChainLaunch {
+	var launchTime int64
+	if chain.LaunchTriggered {
+		launchTime = chain.LaunchTimestamp
+	}
+
 	launch := ChainLaunch{
 		ID:         chain.LaunchID,
 		ChainID:    chain.GenesisChainID,
 		SourceURL:  chain.SourceURL,
 		SourceHash: chain.SourceHash,
+		LaunchTime: launchTime,
 		CampaignID: chain.CampaignID,
 	}
 
