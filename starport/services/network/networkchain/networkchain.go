@@ -192,6 +192,14 @@ func (c Chain) GenesisPath() (path string, err error) {
 	return c.chain.GenesisPath()
 }
 
+func (c Chain) GentxsPath() (path string, err error) {
+	return c.chain.GentxsPath()
+}
+
+func (c Chain) DefaultGentxPath() (path string, err error) {
+	return c.chain.DefaultGentxPath()
+}
+
 func (c Chain) SourceURL() string {
 	return c.url
 }

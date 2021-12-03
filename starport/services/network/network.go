@@ -20,8 +20,8 @@ type Chain interface {
 	Name() string
 	SourceURL() string
 	SourceHash() string
-	GentxPath() (string, error)
 	GenesisPath() (string, error)
+	GentxsPath() (string, error)
 	DefaultGentxPath() (string, error)
 	Peer(ctx context.Context, addr string) (string, error)
 }
