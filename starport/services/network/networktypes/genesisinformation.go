@@ -2,35 +2,36 @@ package networktypes
 
 import (
 	"errors"
+
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
 // GenesisInformation represents all information for a chain to construct the genesis\
 type GenesisInformation struct {
-	GenesisAccounts []GenesisAccount
-	VestingAccounts []VestingAccount
+	GenesisAccounts   []GenesisAccount
+	VestingAccounts   []VestingAccount
 	GenesisValidators []GenesisValidator
 }
 
 // GenesisAccount represents an account with initial coin allocation for the chain for the chain genesis
 type GenesisAccount struct {
 	Address string
-	Coins string
+	Coins   string
 }
 
 // VestingAccount represents a vesting account with initial coin allocation  and vesting option for the chain genesis
 // VestingAccount supports currently only delayed vesting option
 type VestingAccount struct {
-	Address string
+	Address         string
 	StartingBalance string
-	Vesting string
-	EndTime int64
+	Vesting         string
+	EndTime         int64
 }
 
 // GenesisValidator represents a genesis validator associated with a gentx in the chain genesis
 type GenesisValidator struct {
 	Gentx []byte
-	Peer string
+	Peer  string
 }
 
 // NewGenesisInformation initializes a new GenesisInformation
@@ -38,10 +39,10 @@ func NewGenesisInformation(
 	genAccs []GenesisAccount,
 	vestingAccs []VestingAccount,
 	genVals []GenesisValidator,
-	) GenesisInformation {
+) GenesisInformation {
 	return GenesisInformation{
-		GenesisAccounts: genAccs,
-		VestingAccounts: vestingAccs,
+		GenesisAccounts:   genAccs,
+		VestingAccounts:   vestingAccs,
 		GenesisValidators: genVals,
 	}
 }
@@ -50,7 +51,7 @@ func NewGenesisInformation(
 func ParseGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,
-		Coins: acc.Coins.String(),
+		Coins:   acc.Coins.String(),
 	}
 }
 
@@ -62,10 +63,10 @@ func ParseVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error)
 	}
 
 	return VestingAccount{
-		Address: acc.Address,
+		Address:         acc.Address,
 		StartingBalance: acc.StartingBalance.String(),
-		Vesting: delayedVesting.Vesting.String(),
-		EndTime: delayedVesting.EndTime,
+		Vesting:         delayedVesting.Vesting.String(),
+		EndTime:         delayedVesting.EndTime,
 	}, nil
 }
 
@@ -73,6 +74,6 @@ func ParseVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error)
 func ParseGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	return GenesisValidator{
 		Gentx: val.GenTx,
-		Peer: val.Peer,
+		Peer:  val.Peer,
 	}
 }

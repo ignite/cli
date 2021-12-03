@@ -36,7 +36,7 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
-	launchTime	int64
+	launchTime  int64
 
 	keyringBackend chaincmd.KeyringBackend
 

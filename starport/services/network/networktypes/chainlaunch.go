@@ -10,7 +10,7 @@ type ChainLaunch struct {
 	SourceHash  string
 	GenesisURL  string
 	GenesisHash string
-	LaunchTime	int64
+	LaunchTime  int64
 	CampaignID  uint64
 }
 

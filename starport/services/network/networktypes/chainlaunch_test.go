@@ -42,10 +42,10 @@ func TestParseChainLaunch(t *testing.T) {
 		{
 			name: "launched chain with custom genesis url and no campaign",
 			fetched: launchtypes.Chain{
-				LaunchID:       1,
-				GenesisChainID: "bar-1",
-				SourceURL:      "bar.com",
-				SourceHash:     "0xbbb",
+				LaunchID:        1,
+				GenesisChainID:  "bar-1",
+				SourceURL:       "bar.com",
+				SourceHash:      "0xbbb",
 				LaunchTriggered: true,
 				LaunchTimestamp: 100,
 				InitialGenesis: launchtypes.NewGenesisURL(
@@ -60,7 +60,7 @@ func TestParseChainLaunch(t *testing.T) {
 				SourceHash:  "0xbbb",
 				GenesisURL:  "genesisfoo.com",
 				GenesisHash: "0xccc",
-				LaunchTime: 100,
+				LaunchTime:  100,
 				CampaignID:  0,
 			},
 		},

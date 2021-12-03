@@ -3,7 +3,6 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -13,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Prepare prepares the chain to be launched from genesis information
