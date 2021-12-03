@@ -29,6 +29,7 @@ type PluginCmdHandler interface {
 type pluginCmdHandler struct {
 }
 
+// GetConfig returns starport's config.
 func GetConfig() (chainconfig.Config, error) {
 	// ignore all path other than /usr/<user_name>/.starport
 	projectPath, err := chainconfig.ConfigDirPath()
@@ -55,21 +56,19 @@ func GetConfig() (chainconfig.Config, error) {
 }
 
 func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
-	log.Println("Handle plugin Install", args)
 	var conf, _ = GetConfig()
 	if len(conf.Plugins) == 0 {
-		fmt.Println("There's no plugins to be implemented.")
+		log.Println("There's no plugins to be implemented.")
 		return nil
 	}
 
 	loader, err := plugin.NewLoader()
 	if err != nil {
+		log.Println("NewLoader", err)
 		return err
 	}
-	var pluginIdx = -1
-	// TODO: jkkim: Search plugin with name from []PluginConfig.
-	// How to set a selected Plugins? always first plugin? or need to find by its name?
 
+	var pluginIdx = -1
 	for index, pluginSingle := range conf.Plugins {
 		if args[0] == pluginSingle.Name {
 			pluginIdx = index
@@ -78,41 +77,39 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 	}
 
 	if pluginIdx == -1 {
-		fmt.Println("There's no plugin with given name")
+		log.Println("There's no plugin with given name")
 		return err
 	}
 
 	selectedPlugin := conf.Plugins[pluginIdx]
 
-	// TODO: jkkim: Check installed by call PluginConfig.IsInstalled()
 	isInstalled := loader.IsInstalled(selectedPlugin)
 	if isInstalled {
-		fmt.Println("Selected Plugins", selectedPlugin.Name)
+		log.Printf("Plugins %s already installed", selectedPlugin.Name)
 		return nil
 	}
 
 	builder, err := plugin.NewBuilder()
 	if err != nil {
+		log.Println("NewBuilder", err)
 		return err
 	}
 
-	// TODO: jkkim: Install plugin Builder.Build()
 	err = builder.Build(selectedPlugin)
 	if err != nil {
+		log.Println("Build", err)
 		return err
 	}
+
 	return nil
 }
 
 func (p *pluginCmdHandler) HandleList(cmd *cobra.Command, args []string) error {
-	log.Println("HandleList: printout all list in configs")
 	path, err := chainconfig.ConfigDirPath() // check if there's any config.yml
 	if err != nil {
 		return err
 	}
 	conf, err := chainconfig.ParseFile(filepath.Join(path, "config.yml"))
-	// var tempPath string = "/Users/dongyookang/ffplay/GolandProjects/starport-development/mars"
-	// conf, err := chainconfig.ParseFile(filepath.Join(tempPath, "config.yml"))
 
 	if err != nil {
 		return err
