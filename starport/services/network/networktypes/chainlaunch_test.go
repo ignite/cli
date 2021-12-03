@@ -4,15 +4,11 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/spn/x/launch/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 func TestParseChainLaunch(t *testing.T) {
-	type args struct {
-		chain types.Chain
-	}
 	tests := []struct {
 		name     string
 		fetched  launchtypes.Chain
