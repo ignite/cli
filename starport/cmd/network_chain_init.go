@@ -15,7 +15,11 @@ import (
 )
 
 const (
-	flagValidatorAccount = "validator-account"
+	flagValidatorAccount         = "validator-account"
+	flagValidatorWebsite         = "validator-website"
+	flagValidatorDetails         = "validator-details"
+	flagValidatorSecurityContact = "validator-security-contact"
+	flagValidatorMoniker         = "validator-moniker"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -28,6 +32,10 @@ func NewNetworkChainInit() *cobra.Command {
 	}
 
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
+	c.Flags().String(flagValidatorWebsite, "", "Add validator website")
+	c.Flags().String(flagValidatorDetails, "", "Add validator description")
+	c.Flags().String(flagValidatorSecurityContact, "", "Add validator Security Contact")
+	c.Flags().String(flagValidatorMoniker, "", "Add validator moniker")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -100,7 +108,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(validatorAccount)
+	v, err := askValidatorInfo(cmd)
 	if err != nil {
 		return err
 	}
@@ -115,11 +123,21 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(validatorName string) (chain.Validator, error) {
-	// TODO: allowing more customization for the validator
+func askValidatorInfo(cmd *cobra.Command) (chain.Validator, error) {
+	var (
+		account, _         = cmd.Flags().GetString(flagValidatorAccount)
+		website, _         = cmd.Flags().GetString(flagValidatorWebsite)
+		details, _         = cmd.Flags().GetString(flagValidatorDetails)
+		securityContact, _ = cmd.Flags().GetString(flagValidatorSecurityContact)
+		moniker, _         = cmd.Flags().GetString(flagValidatorMoniker)
+	)
+
 	v := chain.Validator{
-		Name:              validatorName,
-		Moniker:           validatorName,
+		Name:              account,
+		Website:           website,
+		Details:           details,
+		Moniker:           moniker,
+		SecurityContact:   securityContact,
 		GasPrices:         "0stake",
 		MinSelfDelegation: "1",
 	}

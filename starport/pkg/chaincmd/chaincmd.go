@@ -39,6 +39,7 @@ const (
 	optionValidatorDetails                 = "--details"
 	optionValidatorIdentity                = "--identity"
 	optionValidatorWebsite                 = "--website"
+	optionValidatorSecurityContact         = "--security-contact"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
 	optionCoinType                         = "--coin-type"
@@ -368,6 +369,16 @@ func GentxWithWebsite(website string) GentxOption {
 	return func(command []string) []string {
 		if len(website) > 0 {
 			return append(command, optionValidatorWebsite, website)
+		}
+		return command
+	}
+}
+
+// GentxWithSecurityContact provides validator security contact option for the gentx command
+func GentxWithSecurityContact(securityContact string) GentxOption {
+	return func(command []string) []string {
+		if len(securityContact) > 0 {
+			return append(command, optionValidatorSecurityContact, securityContact)
 		}
 		return command
 	}
