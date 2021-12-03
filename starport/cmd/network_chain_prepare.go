@@ -5,7 +5,6 @@ import (
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -18,7 +17,7 @@ func NewNetworkChainPrepare() *cobra.Command {
 		RunE:  networkChainPrepareHandler,
 	}
 
-	c.Flags().String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
+	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	c.Flags().AddFlagSet(flagSetHome())
 
