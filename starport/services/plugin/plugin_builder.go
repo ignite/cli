@@ -1,10 +1,18 @@
 package plugin
 
 import (
+	"bytes"
+	"context"
 	"fmt"
 	"os"
 
+// for clone
 	"github.com/go-git/go-git/v5"
+
+// for build
+	"github.com/tendermint/starport/starport/pkg/cmdrunner"
+	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+
 	"github.com/tendermint/starport/starport/chainconfig"
 )
 
@@ -43,7 +51,7 @@ func (b *builder) download(url string) error {
 	_ = pluginDir
 
 	_, err := git.PlainClone(pluginDir, false, &git.CloneOptions{
-		URL: url,
+		URL:      url,
 		Progress: os.Stdout,
 	})
 
@@ -57,8 +65,8 @@ func (b *builder) download(url string) error {
 	}
 
 	worktree, err := repository.Worktree()
-		if err != nil {
-			panic(err)
+	if err != nil {
+		panic(err)
 	}
 
 	err = worktree.Pull(&git.PullOptions{RemoteName: "origin"})
@@ -84,8 +92,26 @@ func (b *builder) download(url string) error {
 func (b *builder) build(name string) error {
 	// TODO:
 	// Build plugin.
-	// go build -buildmode=plugin
-	return nil
+	errb := &bytes.Buffer{}
+
+	err := cmdrunner.
+		New(
+			cmdrunner.DefaultStderr(errb),
+			cmdrunner.DefaultWorkdir(pluginDir),
+		).
+		Run(context.Background(),
+			step.New(
+				step.Exec(
+					"go",
+					"build",
+					"-buildmode=plugin",
+					"-o",
+					// plugin output name ex) xxx.so
+					"<name>.so",
+				),
+			),
+		)
+	return err
 }
 
 // NewBuilder creates new plugin builder.
