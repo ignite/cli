@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 const (
@@ -84,16 +85,8 @@ func SourceRemoteHash(url, hash string) SourceOption {
 	}
 }
 
-type Launch struct {
-	ID          uint64
-	ChainID     string
-	SourceURL   string
-	SourceHash  string
-	GenesisURL  string
-	GenesisHash string
-}
-
-func SourceLaunch(launch Launch) SourceOption {
+// SourceLaunch returns a source option for initializing a chain from a launch
+func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 	return func(c *Chain) {
 		c.id = launch.ChainID
 		c.url = launch.SourceURL
