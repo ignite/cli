@@ -6,7 +6,7 @@ description: Test different scenarios for your chain.
 
 # Chain Simulation
 
-The Starport chain simulator can help you test different scenarios for your chain, simulating the messages, blocks, and accounts. You can scaffold a base simulation for each module along with dummy simulation methods for each scaffolded message.
+The Starport chain simulator can help you to run your chain based in randomized inputs for you can make fuzz testing and also benchmark test for your chain, simulating the messages, blocks, and accounts. You can scaffold a template to perform simulation testing in each module along with a boilerplate simulation methods for each scaffolded message.
 
 ## Module Simulation
 
