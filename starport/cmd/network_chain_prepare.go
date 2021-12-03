@@ -1,12 +1,12 @@
 package starportcmd
 
 import (
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"strconv"
 
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
-	"github.com/tendermint/starport/starport/services/network"
 )
 
 // NewNetworkChainPrepare returns a new command to prepare the chain for launch
@@ -41,18 +41,27 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	// initialize the blockchain from the launch ID
-	initOptions := initOptionWithHomeFlag(cmd, network.InitializationPrepareLaunch())
-	sourceOption := network.SourceLaunchID(launchID)
-	blockchain, err := nb.Blockchain(cmd.Context(), sourceOption, initOptions...)
+	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	// prepare for launch
-	if err := blockchain.Prepare(cmd.Context()); err != nil {
+	// fetch chain information
+	chainLaunch, err := n.ChainLaunch(cmd.Context(), launchID)
+	if err != nil {
 		return err
 	}
 
-	return nil
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	if err != nil {
+		return err
+	}
+
+	// fetch the information to construct genesis
+	genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
+	if err != nil {
+		return err
+	}
+
+	return c.Prepare(cmd.Context(), genesisInformation)
 }
