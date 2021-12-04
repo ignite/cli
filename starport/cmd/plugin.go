@@ -8,6 +8,7 @@ import (
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
 
+	"github.com/fatih/color"
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/services/plugin"
 )
@@ -27,7 +28,6 @@ type pluginCmdHandler struct {
 
 // GetConfig returns starport's config.
 func GetConfig() (chainconfig.Config, error) {
-	// ignore all path other than /usr/<user_name>/.starport
 	projectPath, err := chainconfig.ConfigDirPath()
 	if err != nil {
 		return chainconfig.Config{}, nil
@@ -52,50 +52,50 @@ func GetConfig() (chainconfig.Config, error) {
 }
 
 func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
-	var conf, _ = GetConfig()
-	if len(conf.Plugins) == 0 {
-		log.Println("There's no plugins to be implemented.")
-		return nil
-	}
+	color.Yellow("Install Plugin...")
+
+	conf, _ := GetConfig()
 
 	loader, err := plugin.NewLoader()
 	if err != nil {
-		log.Println("NewLoader", err)
+		color.Red("Failed %+v.", err)
 		return err
 	}
 
-	var pluginIdx = -1
-	for index, pluginSingle := range conf.Plugins {
-		if args[0] == pluginSingle.Name {
-			pluginIdx = index
+	var foundConfig *chainconfig.Plugin
+
+	for _, plugin := range conf.Plugins {
+		if args[0] == plugin.Name {
+			v := plugin
+			foundConfig = &v
 			break
 		}
 	}
 
-	if pluginIdx == -1 {
-		log.Println("There's no plugin with given name")
+	if foundConfig == nil {
+		color.Red("Can't find plugin %s.", args[0])
 		return err
 	}
 
-	selectedPlugin := conf.Plugins[pluginIdx]
-
-	isInstalled := loader.IsInstalled(selectedPlugin)
+	isInstalled := loader.IsInstalled(*foundConfig)
 	if isInstalled {
-		log.Printf("Plugins %s already installed\n", selectedPlugin.Name)
+		color.Green("Plugins %s already installed.", foundConfig.Name)
 		return nil
 	}
 
 	builder, err := plugin.NewBuilder()
 	if err != nil {
-		log.Println("NewBuilder", err)
+		color.Red("Failed %+v.", err)
 		return err
 	}
 
-	err = builder.Build(selectedPlugin)
+	err = builder.Build(*foundConfig)
 	if err != nil {
-		log.Println("Build", err)
+		color.Red("Failed %+v.", err)
 		return err
 	}
+
+	color.Green("Successful.")
 
 	return nil
 }

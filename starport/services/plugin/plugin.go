@@ -51,7 +51,6 @@ func (p *starportplugin) Execute(name string, args []string) error {
 		paramValues[i] = val
 	}
 
-	// TODO: Any err required?
 	_ = spec.Func.Call(paramValues)
 
 	return nil

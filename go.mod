@@ -14,7 +14,7 @@ require (
 	github.com/cosmos/go-bip39 v1.0.0
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
-	github.com/fatih/color v1.12.0
+	github.com/fatih/color v1.13.0
 	github.com/ghodss/yaml v1.0.0
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/gobuffalo/envy v1.9.0 // indirect

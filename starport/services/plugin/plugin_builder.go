@@ -32,7 +32,6 @@ type Builder interface {
 }
 
 type builder struct {
-	pluginSpec *starportplugin
 }
 
 func (b *builder) Build(config chainconfig.Plugin) error {
@@ -102,8 +101,6 @@ func (b *builder) download(pluginName, url string) (string, error) {
 			return err
 		}
 	*/
-
-	_ = b.pluginSpec
 
 	return fmt.Sprintf("%s/%s", repoPath, pluginName), nil
 }

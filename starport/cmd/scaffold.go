@@ -49,17 +49,6 @@ CRUD stands for "create, read, update, delete".`,
 		log.Println(err)
 		return nil
 	}
-	// confPath, err := chainconfig.LocateDefault(os.Getenv("HOME") + "/.starport")
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return c
-	// }
-
-	// conf, err := chainconfig.ParseFile(confPath)
-	// if err != nil {
-	// 	log.Println(err)
-	// 	return c
-	// }
 
 	pluginCmds := NewScaffoldPlugins(conf.Plugins)
 	for _, cmd := range pluginCmds {

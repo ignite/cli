@@ -61,8 +61,6 @@ func (l *configLoader) Find(root, ext string) []string {
 
 // IsInstalled checks whether the given plugin is installed.
 func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
-	// isExists := false
-	// TODO: D.K: Check plugin file exist on home.
 	defaultPath, err := chainconfig.ConfigDirPath()
 	if err != nil {
 		panic(err)
@@ -77,7 +75,6 @@ func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
 
 	isExist, err := l.IsExists(pluginPath)
 	if err != nil {
-		log.Println(err)
 		return false
 	}
 
@@ -86,19 +83,6 @@ func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
 		if len(libList) > 0 {
 			return true
 		}
-		/*
-			var pluginPath = filepath.Join(pluginsHome, plugin.Name)
-
-			fmt.Println("PluginPath", pluginPath, plugin)
-
-			selectedPluginPath, _ := l.IsExists(pluginPath)
-			if selectedPluginPath {
-				fileList := l.Find(pluginPath, ".so")
-				if len(fileList) > 0 {
-					isExists = true
-				}
-			}
-		*/
 	}
 	return false
 }
