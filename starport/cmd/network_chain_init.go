@@ -20,6 +20,7 @@ const (
 	flagValidatorDetails         = "validator-details"
 	flagValidatorSecurityContact = "validator-security-contact"
 	flagValidatorMoniker         = "validator-moniker"
+	flagValidatorIdentity        = "validator-identity"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -36,6 +37,7 @@ func NewNetworkChainInit() *cobra.Command {
 	c.Flags().String(flagValidatorDetails, "", "Add validator description")
 	c.Flags().String(flagValidatorSecurityContact, "", "Add validator Security Contact")
 	c.Flags().String(flagValidatorMoniker, "", "Add validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "Add validator identity")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -130,6 +132,7 @@ func askValidatorInfo(cmd *cobra.Command) (chain.Validator, error) {
 		details, _         = cmd.Flags().GetString(flagValidatorDetails)
 		securityContact, _ = cmd.Flags().GetString(flagValidatorSecurityContact)
 		moniker, _         = cmd.Flags().GetString(flagValidatorMoniker)
+		identity, _        = cmd.Flags().GetString(flagValidatorIdentity)
 	)
 
 	v := chain.Validator{
@@ -137,6 +140,7 @@ func askValidatorInfo(cmd *cobra.Command) (chain.Validator, error) {
 		Website:           website,
 		Details:           details,
 		Moniker:           moniker,
+		Identity:          identity,
 		SecurityContact:   securityContact,
 		GasPrices:         "0stake",
 		MinSelfDelegation: "1",
