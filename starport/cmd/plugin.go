@@ -28,12 +28,7 @@ type pluginCmdHandler struct {
 
 // GetConfig returns starport's config.
 func GetConfig() (chainconfig.Config, error) {
-	projectPath, err := chainconfig.ConfigDirPath()
-	if err != nil {
-		return chainconfig.Config{}, nil
-	}
-
-	confPath, err := chainconfig.LocateDefault(projectPath)
+	confPath, err := chainconfig.LocateDefault("./")
 	if err != nil {
 		return chainconfig.Config{}, nil
 	}
