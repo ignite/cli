@@ -65,6 +65,9 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer nb.Cleanup()
 
+	if campaign > 0 && campaignName != "" {
+		return fmt.Errorf("you cannot set the campaign id and the campaign name in the same publish command")
+	}
 	// use source from chosen target.
 	var sourceOption networkchain.SourceOption
 
@@ -113,12 +116,12 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	// use custom chain id if given.
 	if chainID != "" {
-		publishOptions = append(publishOptions, network.WithChainID(genesisURL))
+		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
 	// use custom campaign if given.
 	if campaignName != "" {
-		publishOptions = append(publishOptions, network.WithCampaignName(genesisURL))
+		publishOptions = append(publishOptions, network.WithCampaignName(campaignName))
 	}
 
 	if noCheck {
