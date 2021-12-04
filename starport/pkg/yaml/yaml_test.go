@@ -137,7 +137,7 @@ field3: field3`,
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			got, err := Marshall(context.Background(), tt.args.obj, tt.args.paths...)
+			got, err := Marshal(context.Background(), tt.args.obj, tt.args.paths...)
 			if tt.err != nil {
 				require.ErrorIs(t, tt.err, err)
 				return

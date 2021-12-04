@@ -9,9 +9,9 @@ import (
 	"github.com/goccy/go-yaml/parser"
 )
 
-// Marshall converts an object to a string in a YAML format and transforms
+// Marshal converts an object to a string in a YAML format and transforms
 // the byte slice fields from the path to string to be more readable.
-func Marshall(ctx context.Context, obj interface{}, paths ...string) (string, error) {
+func Marshal(ctx context.Context, obj interface{}, paths ...string) (string, error) {
 	requestYaml, err := yaml.MarshalContext(ctx, obj)
 	if err != nil {
 		return "", err
@@ -27,14 +27,17 @@ func Marshall(ctx context.Context, obj interface{}, paths ...string) (string, er
 		if err != nil {
 			return "", err
 		}
-		var obj []byte
-		err = pathString.Read(strings.NewReader(string(requestYaml)), &obj)
+		var byteSlice []byte
+		err = pathString.Read(strings.NewReader(string(requestYaml)), &byteSlice)
 		if err != nil && !errors.Is(err, yaml.ErrNotFoundNode) {
 			return "", err
 		}
-		if err := pathString.ReplaceWithReader(file, strings.NewReader(string(obj))); err != nil {
+		if err := pathString.ReplaceWithReader(file,
+			strings.NewReader(string(byteSlice)),
+		); err != nil {
 			return "", err
 		}
 	}
+
 	return file.String(), nil
 }
