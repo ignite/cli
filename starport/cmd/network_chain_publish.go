@@ -11,14 +11,13 @@ import (
 )
 
 const (
-	flagTag          = "tag"
-	flagBranch       = "branch"
-	flagHash         = "hash"
-	flagGenesis      = "genesis"
-	flagCampaign     = "campaign"
-	flagNoCheck      = "no-check"
-	flagChainID      = "chain-id"
-	flagCampaignName = "campaign-name"
+	flagTag      = "tag"
+	flagBranch   = "branch"
+	flagHash     = "hash"
+	flagGenesis  = "genesis"
+	flagCampaign = "campaign"
+	flagNoCheck  = "no-check"
+	flagChainID  = "chain-id"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -35,7 +34,6 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
 	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
-	c.Flags().String(flagCampaignName, "", "Campaign name to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().AddFlagSet(flagNetworkFrom())
@@ -48,15 +46,14 @@ func NewNetworkChainPublish() *cobra.Command {
 
 func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	var (
-		source          = args[0]
-		tag, _          = cmd.Flags().GetString(flagTag)
-		branch, _       = cmd.Flags().GetString(flagBranch)
-		hash, _         = cmd.Flags().GetString(flagHash)
-		genesisURL, _   = cmd.Flags().GetString(flagGenesis)
-		chainID, _      = cmd.Flags().GetString(flagChainID)
-		campaignName, _ = cmd.Flags().GetString(flagCampaignName)
-		campaign, _     = cmd.Flags().GetUint64(flagCampaign)
-		noCheck, _      = cmd.Flags().GetBool(flagNoCheck)
+		source        = args[0]
+		tag, _        = cmd.Flags().GetString(flagTag)
+		branch, _     = cmd.Flags().GetString(flagBranch)
+		hash, _       = cmd.Flags().GetString(flagHash)
+		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
+		chainID, _    = cmd.Flags().GetString(flagChainID)
+		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
+		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
 
 	nb, err := newNetworkBuilder(cmd)
@@ -65,9 +62,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer nb.Cleanup()
 
-	if campaign > 0 && campaignName != "" {
-		return fmt.Errorf("you cannot set the campaign id and the campaign name in the same publish command")
-	}
 	// use source from chosen target.
 	var sourceOption networkchain.SourceOption
 
@@ -117,11 +111,6 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 	// use custom chain id if given.
 	if chainID != "" {
 		publishOptions = append(publishOptions, network.WithChainID(chainID))
-	}
-
-	// use custom campaign if given.
-	if campaignName != "" {
-		publishOptions = append(publishOptions, network.WithCampaignName(campaignName))
 	}
 
 	if noCheck {

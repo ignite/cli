@@ -13,11 +13,10 @@ import (
 
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
-	genesisURL   string
-	chainID      string
-	campaignName string
-	campaignID   uint64
-	noCheck      bool
+	genesisURL string
+	chainID    string
+	campaignID uint64
+	noCheck    bool
 }
 
 // PublishOption configures chain creation.
@@ -27,13 +26,6 @@ type PublishOption func(*publishOptions)
 func WithCampaign(id uint64) PublishOption {
 	return func(o *publishOptions) {
 		o.campaignID = id
-	}
-}
-
-// WithCampaignName use a custom campaign name.
-func WithCampaignName(campaignName string) PublishOption {
-	return func(o *publishOptions) {
-		o.campaignName = campaignName
 	}
 }
 
@@ -116,13 +108,9 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			return 0, 0, err
 		}
 	} else {
-		campaignName := o.campaignName
-		if campaignName == "" {
-			campaignName = c.Name()
-		}
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
 			coordinatorAddress,
-			campaignName,
+			c.Name(),
 			nil,
 			false,
 		)
