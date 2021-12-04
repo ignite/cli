@@ -3,11 +3,9 @@ package starportcmd
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/spf13/cobra"
 	flag "github.com/spf13/pflag"
-	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/services/scaffolder"
@@ -46,27 +44,27 @@ CRUD stands for "create, read, update, delete".`,
 	c.AddCommand(NewScaffoldVue())
 	c.AddCommand(NewScaffoldFlutter())
 
-	// TODO: Refactoring this.
-	confPath, err := chainconfig.LocateDefault(os.Getenv("HOME") + "/.starport")
+	conf, err := GetConfig()
 	if err != nil {
 		log.Println(err)
-		return c
+		return nil
 	}
+	// confPath, err := chainconfig.LocateDefault(os.Getenv("HOME") + "/.starport")
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return c
+	// }
 
-	conf, err := chainconfig.ParseFile(confPath)
-	if err != nil {
-		log.Println(err)
-		return c
-	}
+	// conf, err := chainconfig.ParseFile(confPath)
+	// if err != nil {
+	// 	log.Println(err)
+	// 	return c
+	// }
 
 	pluginCmds := NewScaffoldPlugins(conf.Plugins)
 	for _, cmd := range pluginCmds {
 		c.AddCommand(cmd)
 	}
-
-	// TODO: Add running command for plugin.
-
-	// TODO: Add running command for plugin.
 
 	return c
 }

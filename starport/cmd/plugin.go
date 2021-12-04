@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"path/filepath"
 
 	"github.com/jedib0t/go-pretty/v6/table"
 	"github.com/spf13/cobra"
@@ -12,9 +11,6 @@ import (
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/services/plugin"
 )
-
-// TODO: Log issues.
-// What is common method to log on Starport?
 
 var (
 	pluginHandler PluginCmdHandler = &pluginCmdHandler{}
@@ -85,7 +81,7 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 
 	isInstalled := loader.IsInstalled(selectedPlugin)
 	if isInstalled {
-		log.Printf("Plugins %s already installed", selectedPlugin.Name)
+		log.Printf("Plugins %s already installed\n", selectedPlugin.Name)
 		return nil
 	}
 
@@ -105,33 +101,38 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 }
 
 func (p *pluginCmdHandler) HandleList(cmd *cobra.Command, args []string) error {
-	path, err := chainconfig.ConfigDirPath() // check if there's any config.yml
+	conf, err := GetConfig()
 	if err != nil {
 		return err
 	}
-	conf, err := chainconfig.ParseFile(filepath.Join(path, "config.yml"))
 
+	loader, err := plugin.NewLoader()
 	if err != nil {
+		log.Println(err)
 		return err
 	}
 
 	t := table.NewWriter()
+	defer t.Render()
+
 	t.SetOutputMirror(os.Stdout)
-	t.AppendHeader(table.Row{"#", "Name", "Repository URL", "Description"})
+	t.AppendHeader(table.Row{"#", "Name", "Installed", "Repository URL", "Description"})
 
 	if len(conf.Plugins) == 0 {
 		rowConfigAutoMerge := table.RowConfig{AutoMerge: true}
-		var noData = "No Plugin Data"
-		t.AppendRow(table.Row{noData, noData, noData, noData}, rowConfigAutoMerge)
-
+		msg := "No Plugin Data"
+		t.AppendRow(table.Row{msg, msg, msg, msg, msg}, rowConfigAutoMerge)
 	} else {
-		for index, pluginSingle := range conf.Plugins {
-			t.AppendRows([]table.Row{
-				{index, pluginSingle.Name, pluginSingle.RepositoryURL, pluginSingle.Description},
-			})
+		rows := make([]table.Row, len(conf.Plugins))
+
+		for i, plugin := range conf.Plugins {
+			row := table.Row{i, plugin.Name, loader.IsInstalled(plugin), plugin.RepositoryURL, plugin.Description}
+			rows[i] = row
 		}
+
+		t.AppendRows(rows)
 	}
-	t.Render()
+
 	return nil
 }
 
