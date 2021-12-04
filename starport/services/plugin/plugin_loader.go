@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"plugin"
 	"reflect"
+	"strings"
 
 	"github.com/tendermint/starport/starport/chainconfig"
 )
@@ -32,13 +33,15 @@ type configLoader struct {
 // IsExists return true(bool) if given path does exist or doesn't
 func (l *configLoader) IsExists(path string) (bool, error) {
 	_, err := os.Stat(path)
-	if err == nil {
-		return true, nil
+	if err != nil {
+		return false, err
 	}
+
 	if os.IsNotExist(err) {
 		return false, nil
 	}
-	return false, err
+
+	return true, err
 }
 
 // Find return name of all files that does exist on given path, and given extension
@@ -58,26 +61,53 @@ func (l *configLoader) Find(root, ext string) []string {
 
 // IsInstalled checks whether the given plugin is installed.
 func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
-	isExists := false
+	// isExists := false
 	// TODO: D.K: Check plugin file exist on home.
-	defaultPath, _ := chainconfig.ConfigDirPath()
-	var pluginsPath = filepath.Join(defaultPath, "plugins")
-	pluginsDirectory, _ := l.IsExists(pluginsPath)
-	if pluginsDirectory {
-		var pluginPath = filepath.Join(pluginsPath, plugin.Name)
-		selectedPluginPath, _ := l.IsExists(pluginPath)
-		if selectedPluginPath {
-			fileList := l.Find(pluginPath, ".so")
-			if len(fileList) > 0 {
-				isExists = true
-			}
-		}
+	defaultPath, err := chainconfig.ConfigDirPath()
+	if err != nil {
+		panic(err)
 	}
-	return isExists
+
+	pluginsHome := filepath.Join(defaultPath, "plugins")
+
+	tokens := strings.Split(plugin.RepositoryURL, "/")
+	repoName := tokens[len(tokens)-1]
+
+	pluginPath := fmt.Sprintf("%s/%s/%s", pluginsHome, repoName, plugin.Name)
+
+	isExist, err := l.IsExists(pluginPath)
+	if err != nil {
+		log.Println(err)
+		return false
+	}
+
+	if isExist {
+		libList := l.Find(pluginPath, ".so")
+		if len(libList) > 0 {
+			return true
+		}
+		/*
+			var pluginPath = filepath.Join(pluginsHome, plugin.Name)
+
+			fmt.Println("PluginPath", pluginPath, plugin)
+
+			selectedPluginPath, _ := l.IsExists(pluginPath)
+			if selectedPluginPath {
+				fileList := l.Find(pluginPath, ".so")
+				if len(fileList) > 0 {
+					isExists = true
+				}
+			}
+		*/
+	}
+	return false
 }
 
 func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error) {
-	pluginSymbol := fmt.Sprintf("%s/%s/%s.so", pluginPath, config.Name, config.Name)
+	tokens := strings.Split(config.RepositoryURL, "/")
+	repoName := tokens[len(tokens)-1]
+
+	pluginSymbol := fmt.Sprintf("%s/%s/%s/%s.so", pluginPath, repoName, config.Name, config.Name)
 	specs, err := l.loadSymbol(pluginSymbol)
 	if err != nil {
 		return nil, err
@@ -140,10 +170,12 @@ func (l *configLoader) checkMandatoryFunctions() error {
 	for funcName, paramTypes := range mandatories {
 		loadSpec, ok := l.pluginSpec.funcSpecs[funcName]
 		if !ok {
+			log.Println("Not exist func ", funcName)
 			return ErrPluginWrongSpec
 		}
 
 		if len(loadSpec.ParamTypes) != len(paramTypes) {
+			log.Println("Invalid param ", funcName)
 			return ErrPluginWrongSpec
 		}
 
