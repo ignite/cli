@@ -18,8 +18,8 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 	return res.GetParams(), nil
 }
 
-// Launch launches a chain as a coordinator
-func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) error {
+// TriggerLaunch launches a chain as a coordinator
+func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint64) error {
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 
 	address := n.account.Address(networkchain.SPN)

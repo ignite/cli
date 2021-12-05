@@ -51,5 +51,5 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return n.Launch(cmd.Context(), launchID, remainingTime)
+	return n.TriggerLaunch(cmd.Context(), launchID, remainingTime)
 }
