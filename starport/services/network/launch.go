@@ -5,7 +5,6 @@ import (
 	"fmt"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -21,14 +20,9 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 
 // Launch launches a chain as a coordinator
 func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) error {
-	address := n.account.Address(networkchain.SPN)
-	spnAddress, err := cosmosutil.ChangeAddressPrefix(address, networkchain.SPN)
-	if err != nil {
-		return err
-	}
-
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 
+	address := n.account.Address(networkchain.SPN)
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
 		return err
@@ -40,7 +34,7 @@ func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) err
 		remainingTime = params.MaxLaunchTime
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(spnAddress, launchID, remainingTime)
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTime)
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting launch transaction"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
