@@ -21,7 +21,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 		RunE:  networkChainLaunchHandler,
 	}
 
-	c.Flags().String(flagRemainingTime, "", "The remaining time for validator preparation before the chain is effectively launched")
+	c.Flags().Duration(flagRemainingTime, 0, "The remaining time for validator preparation before the chain is effectively launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
@@ -44,12 +44,12 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 		return errors.New("launch ID must be greater than 0")
 	}
 
-	remainingTime, _ := cmd.Flags().GetUint64(flagRemainingTime)
+	remainingTime, _ := cmd.Flags().GetDuration(flagRemainingTime)
 
 	n, err := nb.Network()
 	if err != nil {
 		return err
 	}
 
-	return n.TriggerLaunch(cmd.Context(), launchID, remainingTime)
+	return n.TriggerLaunch(cmd.Context(), launchID, uint64(remainingTime.Seconds()))
 }
