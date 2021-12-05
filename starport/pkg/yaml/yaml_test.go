@@ -7,7 +7,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestMarshall(t *testing.T) {
+func TestMarshal(t *testing.T) {
 	type byteSliceParser struct {
 		Field1 string `json:"field1"`
 		Field2 struct {
