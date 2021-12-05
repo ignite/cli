@@ -34,8 +34,8 @@ func TestToString(t *testing.T) {
 			want: "Mon Jan  1 00:00:00 UTC 0001",
 		},
 		{
-			date: time.Unix(10000000000, 100),
-			want: "Sat Nov 20 14:46:40 -03 2286",
+			date: time.Unix(10000000000, 100).In(time.UTC),
+			want: "Sat Nov 20 17:46:40 UTC 2286",
 		},
 		{
 			date: time.Date(2020, 10, 11, 12, 30, 50, 0, time.FixedZone("Europe/Berlin", 3*60*60)),
