@@ -3,11 +3,9 @@ package network
 import (
 	"context"
 
-	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 // Network is network builder.
@@ -46,34 +44,4 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 		opt(&n)
 	}
 	return n, nil
-}
-
-type LaunchInfo = networkchain.Launch
-
-// LaunchInfo fetches the chain launch from Starport Network by launch id.
-func (n Network) LaunchInfo(ctx context.Context, id uint64) (LaunchInfo, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
-
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Chain(ctx, &launchtypes.QueryGetChainRequest{
-		LaunchID: id,
-	})
-	if err != nil {
-		return LaunchInfo{}, err
-	}
-
-	info := LaunchInfo{
-		ID:         id,
-		ChainID:    res.Chain.GenesisChainID,
-		SourceURL:  res.Chain.SourceURL,
-		SourceHash: res.Chain.SourceHash,
-	}
-
-	// check if custom genesis URL is provided.
-	if customGenesisURL := res.Chain.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
-		info.GenesisURL = customGenesisURL.Url
-		info.GenesisHash = customGenesisURL.Hash
-	}
-
-	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
-	return info, nil
 }

@@ -12,7 +12,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/cenkalti/backoff/v4"
+	"github.com/cenkalti/backoff"
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -36,6 +36,8 @@ import (
 // FaucetTransferEnsureDuration is the duration that BroadcastTx will wait when a faucet transfer
 // is triggered prior to broadcasting but transfer's tx is not committed in the state yet.
 var FaucetTransferEnsureDuration = time.Second * 40
+
+var errCannotRetrieveFundsFromFaucet = errors.New("cannot retrieve funds from faucet")
 
 const (
 	defaultNodeAddress   = "http://localhost:26657"
@@ -343,14 +345,14 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	fc := cosmosfaucet.NewClient(c.faucetAddress)
 	faucetResp, err := fc.Transfer(ctx, cosmosfaucet.TransferRequest{AccountAddress: address})
 	if err != nil {
-		return errors.Wrap(err, "faucet server request failed")
+		return errors.Wrap(errCannotRetrieveFundsFromFaucet, err.Error())
 	}
 	if faucetResp.Error != "" {
-		return fmt.Errorf("cannot retrieve tokens from faucet: %s", faucetResp.Error)
+		return errors.Wrap(errCannotRetrieveFundsFromFaucet, faucetResp.Error)
 	}
 	for _, transfer := range faucetResp.Transfers {
 		if transfer.Error != "" {
-			return fmt.Errorf("cannot retrieve tokens from faucet: %s", transfer.Error)
+			return errors.Wrap(errCannotRetrieveFundsFromFaucet, transfer.Error)
 		}
 	}
 
@@ -363,24 +365,20 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	}, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
 
-func (c *Client) checkAccountBalance(ctx context.Context, address string) (err error) {
-	balancesResp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+func (c *Client) checkAccountBalance(ctx context.Context, address string) error {
+	resp, err := banktypes.NewQueryClient(c.Context).Balance(ctx, &banktypes.QueryBalanceRequest{
 		Address: address,
+		Denom:   c.faucetDenom,
 	})
 	if err != nil {
 		return err
 	}
 
-	// if the balance is enough do nothing.
-	if len(balancesResp.Balances) > 0 {
-		for _, coin := range balancesResp.Balances {
-			if coin.Denom == c.faucetDenom && coin.Amount.Uint64() >= c.faucetMinAmount {
-				return nil
-			}
-		}
+	if resp.Balance.Amount.Uint64() >= c.faucetMinAmount {
+		return nil
 	}
 
-	return errors.New("account has not enough balance")
+	return fmt.Errorf("account has not enough %q balance, min. required amount: %d", c.faucetDenom, c.faucetMinAmount)
 }
 
 // handleBroadcastResult handles the result of broadcast messages result and checks if an error occurred
