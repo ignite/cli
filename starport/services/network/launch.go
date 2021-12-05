@@ -19,7 +19,7 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 	return res.GetParams(), nil
 }
 
-// Launch launch a chain as a coordinator
+// Launch launches a chain as a coordinator
 func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) error {
 	address := n.account.Address(networkchain.SPN)
 	spnAddress, err := cosmosutil.ChangeAddressPrefix(address, networkchain.SPN)

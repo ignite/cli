@@ -21,7 +21,7 @@ func NewNetworkChainLaunch() *cobra.Command {
 		RunE:  networkChainLaunchHandler,
 	}
 
-	c.Flags().String(flagRemainingTime, "", "The remaining time to launch the chain")
+	c.Flags().String(flagRemainingTime, "", "The remaining time for validator preparation before the chain is effectively launched")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
@@ -51,17 +51,5 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	if err := n.Launch(
-		cmd.Context(),
-		launchID,
-		remainingTime,
-	); err != nil {
-		return err
-	}
-
-	// TODO simulate the requests
-	// If all requests are correct, simulate them
-	// return n.SimulateRequests(ctx, launchID, requests)
-
-	return nil
+	return n.Launch(cmd.Context(), launchID, remainingTime)
 }
