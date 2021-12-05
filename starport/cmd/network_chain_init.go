@@ -33,11 +33,11 @@ func NewNetworkChainInit() *cobra.Command {
 	}
 
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
-	c.Flags().String(flagValidatorWebsite, "", "Add validator website")
-	c.Flags().String(flagValidatorDetails, "", "Add validator description")
-	c.Flags().String(flagValidatorSecurityContact, "", "Add validator Security Contact")
-	c.Flags().String(flagValidatorMoniker, "", "Add validator moniker")
-	c.Flags().String(flagValidatorIdentity, "", "Add validator identity")
+	c.Flags().String(flagValidatorWebsite, "", "Associate a website to the validator")
+	c.Flags().String(flagValidatorDetails, "", "Provide details about the validator")
+	c.Flags().String(flagValidatorSecurityContact, "", "Provide a validator security contact email")
+	c.Flags().String(flagValidatorMoniker, "", "Provide a custom validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "Provide a validator identity signature (ex. UPort or Keybase)")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
