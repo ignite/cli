@@ -29,9 +29,13 @@ func (n Network) Launch(ctx context.Context, launchID, remainingTime uint64) err
 	}
 
 	if remainingTime < params.MinLaunchTime {
-		remainingTime = params.MinLaunchTime
+		return fmt.Errorf("remaining time %d lower than minimum %d",
+			remainingTime,
+			params.MaxLaunchTime)
 	} else if remainingTime > params.MaxLaunchTime {
-		remainingTime = params.MaxLaunchTime
+		return fmt.Errorf("remaining time %d greater than maximum %d",
+			remainingTime,
+			params.MaxLaunchTime)
 	}
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTime)
