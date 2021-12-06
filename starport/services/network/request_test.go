@@ -38,7 +38,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "valid genesis validator request",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
@@ -50,7 +50,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid peer node id",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
@@ -63,7 +63,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid peer host",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
@@ -76,7 +76,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid gentx",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          []byte(`{}`),
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
@@ -89,7 +89,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid self delegation denom",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("foo", sdk.NewInt(95000000)),
@@ -102,7 +102,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid self delegation value",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(3)),
@@ -115,7 +115,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid consensus pub key",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj",
+					Address:        "spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
@@ -128,14 +128,14 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 			name: "invalid validator address",
 			req: &launchtypes.RequestContent_GenesisValidator{
 				GenesisValidator: &launchtypes.GenesisValidator{
-					Address:        "cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p",
+					Address:        "spn1gkheudhhjsvq0s8fxt7p6pwe0k3k30keaytytm",
 					GenTx:          gentx,
 					ConsPubKey:     []byte("aeQLCJOjXUyB7evOodI4mbrshIt3vhHGlycJDbUkaMs="),
 					SelfDelegation: sdk.NewCoin("stake", sdk.NewInt(95000000)),
 					Peer:           "nodeid@127.163.0.1:2446",
 				},
 			},
-			want: fmt.Errorf("the validator address cosmos1gkheudhhjsvq0s8fxt7p6pwe0k3k30kepcnz9p doesn't match the one inside the gentx cosmos1dd246yq6z5vzjz9gh8cff46pll75yyl8ygndsj"),
+			want: fmt.Errorf("the validator address spn1gkheudhhjsvq0s8fxt7p6pwe0k3k30keaytytm doesn't match the one inside the gentx spn1dd246yq6z5vzjz9gh8cff46pll75yyl8c5tt7g"),
 		},
 	}
 	for _, tt := range tests {
