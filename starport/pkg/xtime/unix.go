@@ -12,10 +12,10 @@ func Seconds(seconds uint64) time.Duration {
 // NowAfter returns a unix date string from now plus the duration
 func NowAfter(unix time.Duration) string {
 	date := time.Now().Add(unix)
-	return Format(date)
+	return FormatUnix(date)
 }
 
-// Format formats the time.Time to unix date string
-func Format(date time.Time) string {
+// FormatUnix formats the time.Time to unix date string
+func FormatUnix(date time.Time) string {
 	return date.Format(time.UnixDate)
 }

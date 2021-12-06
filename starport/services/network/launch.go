@@ -48,7 +48,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, uint64(remainingTime.Seconds()))
-	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting launch transaction"))
+	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
 		return err

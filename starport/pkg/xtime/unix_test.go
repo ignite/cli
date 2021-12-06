@@ -39,7 +39,7 @@ func TestNowAfter(t *testing.T) {
 	}
 }
 
-func TestFormat(t *testing.T) {
+func TestFormatUnix(t *testing.T) {
 	tests := []struct {
 		date time.Time
 		want string
@@ -59,7 +59,7 @@ func TestFormat(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run("test date "+tt.date.String(), func(t *testing.T) {
-			got := Format(tt.date)
+			got := FormatUnix(tt.date)
 			require.Equal(t, tt.want, got)
 		})
 	}
