@@ -2,7 +2,9 @@ package network
 
 import (
 	"context"
+	"strconv"
 
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
@@ -44,4 +46,15 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 		opt(&n)
 	}
 	return n, nil
+}
+
+func ParseLaunchID(id string) (uint64, error) {
+	launchID, err := strconv.ParseUint(id, 10, 64)
+	if err != nil {
+		return 0, errors.Wrap(err, "error parsing launchID")
+	}
+	if launchID == 0 {
+		return 0, errors.New("launch ID must be greater than 0")
+	}
+	return launchID, nil
 }
