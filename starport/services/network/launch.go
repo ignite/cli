@@ -36,7 +36,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint
 	case remainingTime < params.MinLaunchTime:
 		return fmt.Errorf("remaining time %s lower than minimum %s",
 			date.Now(remainingTime),
-			date.Now(params.MaxLaunchTime))
+			date.Now(params.MinLaunchTime))
 	case remainingTime > params.MaxLaunchTime:
 		return fmt.Errorf("remaining time %s greater than maximum %s",
 			date.Now(remainingTime),
@@ -56,7 +56,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d will be launched at %s", launchID, date.Now(remainingTime)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, date.Now(remainingTime)),
 	))
 	return nil
 }
