@@ -65,48 +65,16 @@ func (b *builder) download(pluginName, url string) (string, error) {
 		Depth:    1,
 	})
 
-	if err != nil {
+	if err != nil && err != git.ErrRepositoryAlreadyExists {
 		log.Println("clone", err)
 		return "", err
 	}
-
-	/*
-		repository, err := git.PlainOpen(pluginHome)
-		if err != nil {
-			log.Println("open", err)
-			return err
-		}
-
-		worktree, err := repository.Worktree()
-		if err != nil {
-			log.Println("open", err)
-			return err
-		}
-
-		err = worktree.Pull(&git.PullOptions{RemoteName: "origin"})
-		if err != nil {
-			log.Println("pull", err)
-			return err
-		}
-
-		reference, err := repository.Head()
-		if err != nil {
-			log.Println("Head ", err)
-			return err
-		}
-
-		_, err = repository.CommitObject(reference.Hash())
-		if err != nil {
-			log.Println("hash ", err)
-			return err
-		}
-	*/
 
 	return fmt.Sprintf("%s/%s", repoPath, pluginName), nil
 }
 
 func (b *builder) build(path, name string) error {
-	log.Printf("Build plugin %s\n", name)
+	log.Printf("Build plugin %s %s\n", path, name)
 
 	errb := &bytes.Buffer{}
 
