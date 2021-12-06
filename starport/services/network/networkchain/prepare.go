@@ -25,15 +25,15 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 
 	_, err = os.Stat(chainHome)
 
-	// nolint:gocritic
-	if os.IsNotExist(err) {
+	switch {
+	case os.IsNotExist(err):
 		// if no config exists, perform a full initialization of the chain with a new validator key
 		if err := c.Init(ctx); err != nil {
 			return err
 		}
-	} else if err != nil {
+	case err != nil:
 		return err
-	} else {
+	default:
 		// if config and validator key already exists, build the chain and initialize the genesis
 		c.ev.Send(events.New(events.StatusOngoing, "Building the blockchain"))
 		if _, err := c.chain.Build(ctx, ""); err != nil {
