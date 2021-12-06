@@ -8,7 +8,6 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/charmbracelet/glow v1.4.0
 	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.4

@@ -10,7 +10,10 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"time"
 )
+
+const genesisTimeField = "genesis_time"
 
 // ChainGenesis represents the stargate genesis file
 type ChainGenesis struct {
@@ -55,6 +58,31 @@ func CheckGenesisContainsAddress(genesisPath, addr string) (bool, error) {
 		return false, err
 	}
 	return genesis.HasAccount(addr), nil
+}
+
+// SetGenesisTime sets the genesis time inside a genesis file
+func SetGenesisTime(genesisPath string, genesisTime int64) error {
+	// fetch and parse genesis
+	genesisBytes, err := os.ReadFile(genesisPath)
+	if err != nil {
+		return err
+	}
+
+	var genesis map[string]interface{}
+	if err := json.Unmarshal(genesisBytes, &genesis); err != nil {
+		return err
+	}
+
+	// check the genesis time with the RFC3339 standard format
+	formattedTime := time.Unix(genesisTime, 0).UTC().Format(time.RFC3339Nano)
+
+	// modify and save the new genesis
+	genesis[genesisTimeField] = &formattedTime
+	genesisBytes, err = json.Marshal(genesis)
+	if err != nil {
+		return err
+	}
+	return os.WriteFile(genesisPath, genesisBytes, 0644)
 }
 
 // GenesisAndHashFromURL fetches the genesis from the given url and returns its content along with the sha256 hash.

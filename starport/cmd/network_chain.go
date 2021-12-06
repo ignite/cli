@@ -17,6 +17,7 @@ func NewNetworkChain() *cobra.Command {
 		NewNetworkChainPublish(),
 		NewNetworkChainInit(),
 		NewNetworkChainJoin(),
+		NewNetworkChainPrepare(),
 	)
 
 	return c

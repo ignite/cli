@@ -29,7 +29,8 @@ func (n Network) Join(
 
 	// if the custom gentx is not provided, get the chain default from the chain home folder.
 	if !isCustomGentx {
-		if gentxPath, err = c.GentxPath(); err != nil {
+		gentxPath, err = c.DefaultGentxPath()
+		if err != nil {
 			return err
 		}
 	}
