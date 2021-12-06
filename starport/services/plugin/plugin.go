@@ -34,6 +34,13 @@ type starportplugin struct {
 
 // Execute try to run plugin's function.
 func (p *starportplugin) Execute(name string, args []string) error {
+	initSpec, ok := p.funcSpecs["Init"]
+	if !ok {
+		panic("No Init function")
+	}
+
+	_ = initSpec.Func.Call([]reflect.Value{})
+
 	spec, ok := p.funcSpecs[name]
 	if !ok {
 		log.Println(ErrSymbolNotExist.Error())
