@@ -13,6 +13,7 @@ func NewNetworkRequest() *cobra.Command {
 	c.AddCommand(
 		NewNetworkRequestList(),
 		NewNetworkRequestApprove(),
+		NewNetworkRequestReject(),
 	)
 
 	return c
