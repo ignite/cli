@@ -1,14 +1,14 @@
-package date
+package xtime
 
 import (
 	"time"
 )
 
-func Now(unix uint64) string {
+func NowAfter(unix uint64) string {
 	date := time.Now().Add(time.Duration(unix) * time.Second)
-	return ToString(date)
+	return Format(date)
 }
 
-func ToString(date time.Time) string {
+func Format(date time.Time) string {
 	return date.Format(time.UnixDate)
 }

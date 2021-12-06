@@ -1,4 +1,4 @@
-package date
+package xtime
 
 import (
 	"fmt"
@@ -8,7 +8,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestNow(t *testing.T) {
+func TestNowAfter(t *testing.T) {
 	tests := []uint64{
 		9999999999,
 		10000,
@@ -17,14 +17,14 @@ func TestNow(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("test %d value", tt), func(t *testing.T) {
-			got := Now(tt)
+			got := NowAfter(tt)
 			date := time.Now().Add(time.Duration(tt) * time.Second)
 			require.Equal(t, date.Format(time.UnixDate), got)
 		})
 	}
 }
 
-func TestToString(t *testing.T) {
+func TestFormat(t *testing.T) {
 	tests := []struct {
 		date time.Time
 		want string
@@ -44,7 +44,7 @@ func TestToString(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run("test date "+tt.date.String(), func(t *testing.T) {
-			got := ToString(tt.date)
+			got := Format(tt.date)
 			require.Equal(t, tt.want, got)
 		})
 	}

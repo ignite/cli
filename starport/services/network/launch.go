@@ -6,8 +6,8 @@ import (
 	"time"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
-	"github.com/tendermint/starport/starport/pkg/date"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/xtime"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -37,12 +37,12 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 		remainingTimestamp = params.MinLaunchTime
 	case remainingTimestamp < params.MinLaunchTime:
 		return fmt.Errorf("remaining time %s lower than minimum %s",
-			date.Now(remainingTimestamp),
-			date.Now(params.MinLaunchTime))
+			xtime.NowAfter(remainingTimestamp),
+			xtime.NowAfter(params.MinLaunchTime))
 	case remainingTimestamp > params.MaxLaunchTime:
 		return fmt.Errorf("remaining time %s greater than maximum %s",
-			date.Now(remainingTimestamp),
-			date.Now(params.MaxLaunchTime))
+			xtime.NowAfter(remainingTimestamp),
+			xtime.NowAfter(params.MaxLaunchTime))
 	}
 
 	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTimestamp)
@@ -58,7 +58,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d will be launched on %s", launchID, date.Now(remainingTimestamp)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTimestamp)),
 	))
 	return nil
 }
