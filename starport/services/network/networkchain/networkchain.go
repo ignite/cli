@@ -36,6 +36,7 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
+	launchTime  int64
 
 	keyringBackend chaincmd.KeyringBackend
 
@@ -94,6 +95,7 @@ func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
 		c.home = ChainHome(launch.ID)
+		c.launchTime = launch.LaunchTime
 	}
 }
 
@@ -190,8 +192,12 @@ func (c Chain) GenesisPath() (path string, err error) {
 	return c.chain.GenesisPath()
 }
 
-func (c Chain) GentxPath() (path string, err error) {
-	return c.chain.GentxPath()
+func (c Chain) GentxsPath() (path string, err error) {
+	return c.chain.GentxsPath()
+}
+
+func (c Chain) DefaultGentxPath() (path string, err error) {
+	return c.chain.DefaultGentxPath()
 }
 
 func (c Chain) SourceURL() string {
