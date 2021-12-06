@@ -40,17 +40,30 @@ func (n Network) Join(
 		return err
 	}
 
+	// parse the gentx content
+	gentxInfo, gentx, err := cosmosutil.GentxFromPath(gentxPath)
+	if err != nil {
+		return err
+	}
+
+	// change the chain address prefix to spn
+	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networkchain.SPN)
+	if err != nil {
+		return err
+	}
+
 	if err := n.sendAccountRequest(
 		ctx,
 		genesisPath,
 		isCustomGentx,
 		launchID,
+		accountAddress,
 		amount,
 	); err != nil {
 		return err
 	}
 
-	return n.sendValidatorRequest(ctx, launchID, peer, gentxPath)
+	return n.sendValidatorRequest(ctx, launchID, peer, accountAddress, gentx, gentxInfo)
 }
 
 // sendAccountRequest creates an add AddAccount request message.
@@ -59,6 +72,7 @@ func (n Network) sendAccountRequest(
 	genesisPath string,
 	isCustomGentx bool,
 	launchID uint64,
+	accountAddress string,
 	amount sdk.Coin,
 ) error {
 	address := n.account.Address(networkchain.SPN)
@@ -81,8 +95,9 @@ func (n Network) sendAccountRequest(
 	// check if account exists as a genesis account in SPN chain launch information
 	if !accExist && !n.hasAccount(ctx, launchID, spnAddress) {
 		msg := launchtypes.NewMsgRequestAddAccount(
-			spnAddress,
+			n.account.Address(networkchain.SPN),
 			launchID,
+			accountAddress,
 			sdk.NewCoins(amount),
 		)
 
@@ -117,28 +132,19 @@ func (n Network) sendValidatorRequest(
 	ctx context.Context,
 	launchID uint64,
 	peer string,
-	gentxPath string,
+	valAddress string,
+	gentx []byte,
+	gentxInfo cosmosutil.GentxInfo,
 ) error {
-	// Parse the gentx content
-	gentxInfo, gentx, err := cosmosutil.GentxFromPath(gentxPath)
-	if err != nil {
-		return err
-	}
-
-	// Change the chain address prefix to spn
-	spnValAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networkchain.SPN)
-	if err != nil {
-		return err
-	}
-
 	// Check if the validator request already exist
-	if n.hasValidator(ctx, launchID, spnValAddress) {
-		return fmt.Errorf("validator %s already exist", spnValAddress)
+	if n.hasValidator(ctx, launchID, valAddress) {
+		return fmt.Errorf("validator %s already exist", valAddress)
 	}
 
 	msg := launchtypes.NewMsgRequestAddValidator(
-		spnValAddress,
+		n.account.Address(networkchain.SPN),
 		launchID,
+		valAddress,
 		gentx,
 		gentxInfo.PubKey,
 		gentxInfo.SelfDelegation,
