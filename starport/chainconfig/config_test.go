@@ -4,6 +4,7 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 
@@ -17,6 +18,14 @@ accounts:
 validator:
   name: user1
   staked: "100000000stake"
+plugins:
+  - name: plugin1
+    path: /path/to/plugin1
+  - name: plugin2
+    path: /path/to/plugin2
+    with:
+      foo: bar
+      bar: baz
 `
 
 	conf, err := Parse(strings.NewReader(confyml))
@@ -36,6 +45,17 @@ validator:
 		Name:   "user1",
 		Staked: "100000000stake",
 	}, conf.Validator)
+	if assert.Equal(t, 2, len(conf.Plugins)) {
+		assert.Equal(t, Plugin{
+			Name: "plugin1",
+			Path: "/path/to/plugin1",
+		}, conf.Plugins[0])
+		assert.Equal(t, Plugin{
+			Name: "plugin2",
+			Path: "/path/to/plugin2",
+			With: map[string]string{"foo": "bar", "bar": "baz"},
+		}, conf.Plugins[1])
+	}
 }
 
 func TestCoinTypeParse(t *testing.T) {

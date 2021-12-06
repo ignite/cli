@@ -20,7 +20,7 @@ func generateGoHandler(cmd *cobra.Command, args []string) error {
 	s := clispinner.New().SetText("Generating...")
 	defer s.Stop()
 
-	c, err := newChainWithHomeFlags(cmd)
+	c, err := NewChainWithHomeFlags(cmd)
 	if err != nil {
 		return err
 	}

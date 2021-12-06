@@ -65,7 +65,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		chainOption = append(chainOption, chain.EnableThirdPartyModuleCodegen())
 	}
 
-	c, err := newChainWithHomeFlags(cmd, chainOption...)
+	c, err := NewChainWithHomeFlags(cmd, chainOption...)
 	if err != nil {
 		return err
 	}

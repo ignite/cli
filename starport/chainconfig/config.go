@@ -63,6 +63,7 @@ type Config struct {
 	Init      Init                   `yaml:"init"`
 	Genesis   map[string]interface{} `yaml:"genesis"`
 	Host      Host                   `yaml:"host"`
+	Plugins   []Plugin               `yaml:"plugins"`
 }
 
 // AccountByName finds account by name.
@@ -187,6 +188,31 @@ type Host struct {
 	GRPC    string `yaml:"grpc"`
 	GRPCWeb string `yaml:"grpc-web"`
 	API     string `yaml:"api"`
+}
+
+// Plugin keeps plugin name and location.
+type Plugin struct {
+	// Name can be anything
+	Name string `yaml:"name"`
+	// Path holds the location of the plugin.
+	// A path can be local, in that case it must start with a `/`.
+	// A remote path on the other hand, is an URL to a public remote git
+	// repository. For example:
+	//
+	// path: github.com/foo/bar
+	//
+	// It can contain a path inside that repository, if for instance the repo
+	// contains multiple plugins, For example:
+	//
+	// path: github.com/foo/bar/plugin1
+	//
+	// It can also specify a tag or a branch, by adding a `@` and the branch/tag
+	// name at the end of the path. For example:
+	//
+	// path: github.com/foo/bar/plugin1@v42
+	Path string `yaml:"path"`
+	// With holds arguments passed to the plugin interface
+	With map[string]string `yaml:"with"`
 }
 
 // Parse parses config.yml into UserConfig.

@@ -29,9 +29,12 @@ require (
 	github.com/gookit/color v1.5.0
 	github.com/gorilla/mux v1.8.0
 	github.com/gorilla/rpc v1.2.0
+	github.com/hashicorp/go-hclog v0.14.1
+	github.com/hashicorp/go-plugin v1.4.3
 	github.com/iancoleman/strcase v0.2.0
 	github.com/imdario/mergo v0.3.12
 	github.com/jpillora/chisel v1.7.6
+	github.com/kr/pretty v0.3.0 // indirect
 	github.com/manifoldco/promptui v0.9.0
 	github.com/mattn/go-zglob v0.0.3
 	github.com/moby/sys/mount v0.3.0 // indirect

@@ -43,6 +43,66 @@ Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migration guide](https://docs.starport.com/migration/).
 
+## Plugin system
+
+Starport commands can be extended using plugins. A plugin is a program that
+uses github.com/hashicorp/go-plugin to communicate with the starport binary.
+
+#### Use a plugin
+
+Plugins must be declared in the `config.yml` file, using the following syntax:
+
+```yaml
+plugins:
+  - name: my-plugin
+    // path can be a repository or a local path
+    // the directory must contain go code under a main package.
+    // For repositories you can specify a suffix @branch or @tag to target a
+    // specific git reference.
+    path: github.com/org/repo/my-plugin
+    // Additional parameters can be passed to the plugin
+    with:
+      key: value
+```
+
+Once declared, the next time the starport binary will be executed under this
+configuration, it will fetch, build and run the plugin. As a result, more
+commands should be available in the list of the starport commands.
+
+`starport plugin` command allows to list the plugins and their status, and to
+update a plugin if you need to get the latest version.
+
+### Make a plugin
+
+A plugin must implement `plugin.Interface`.
+
+The easiest way to make a plugin is to use the `starport plugin scaffold`
+command. For example:
+
+```
+$ cd /home/user/src
+$ starport plugin scaffold github.com/foo/bar
+```
+
+It will create a folder `bar` under `/home/user/src` and generate predefined
+`go.mod` and `main.go`. The code contains everything required to connect to the
+starport binary via `hashicorp/go-plugin`. What need to be adapted is the
+implementation of the `plugin.Interface` (`Commands` and `Execute` methods).
+
+To test your plugin, you only need to declare it under a chain config, for
+instance:
+
+```yaml
+plugins:
+  - name: bar
+    path: /home/user/src/bar
+```
+
+Then run `starport`, the plugin will compile and should be listed among the
+starport commands. Each time `starport` is executed, the plugin is recompiled
+if the files have changed since the last compilation. This allows fast and easy plugin
+development, you only care about code and `starport` handles the compilation.
+
 ## Contributing
 
 We welcome contributions from everyone. The `develop` branch contains the development version of the code. You can create a branch from `develop` and create a pull request, or maintain your own fork and submit a cross-repository pull request. 
