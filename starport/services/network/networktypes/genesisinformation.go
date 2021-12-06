@@ -6,7 +6,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
-// GenesisInformation represents all information for a chain to construct the genesis\
+// GenesisInformation represents all information for a chain to construct the genesis.
 type GenesisInformation struct {
 	GenesisAccounts   []GenesisAccount
 	VestingAccounts   []VestingAccount
