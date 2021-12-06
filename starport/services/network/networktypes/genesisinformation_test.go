@@ -14,7 +14,7 @@ var (
 	sampleCoinsStr = sampleCoins.String()
 )
 
-func TestParseGenesisAccount(t *testing.T) {
+func TestToGenesisAccount(t *testing.T) {
 	tests := []struct {
 		name     string
 		fetched  launchtypes.GenesisAccount
@@ -35,13 +35,13 @@ func TestParseGenesisAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
-				require.EqualValues(t, tt.expected, networktypes.ParseGenesisAccount(tt.fetched))
+				require.EqualValues(t, tt.expected, networktypes.ToGenesisAccount(tt.fetched))
 			})
 		})
 	}
 }
 
-func TestParseVestingAccount(t *testing.T) {
+func TestToVestingAccount(t *testing.T) {
 	tests := []struct {
 		name     string
 		fetched  launchtypes.VestingAccount
@@ -80,7 +80,7 @@ func TestParseVestingAccount(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
-				vestingAcc, err := networktypes.ParseVestingAccount(tt.fetched)
+				vestingAcc, err := networktypes.ToVestingAccount(tt.fetched)
 				require.EqualValues(t, tt.isError, err != nil)
 				require.EqualValues(t, tt.expected, vestingAcc)
 			})
@@ -88,7 +88,7 @@ func TestParseVestingAccount(t *testing.T) {
 	}
 }
 
-func TestParseGenesisValidator(t *testing.T) {
+func TestToGenesisValidator(t *testing.T) {
 	tests := []struct {
 		name     string
 		fetched  launchtypes.GenesisValidator
@@ -109,7 +109,7 @@ func TestParseGenesisValidator(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Run(tt.name, func(t *testing.T) {
-				require.EqualValues(t, tt.expected, networktypes.ParseGenesisValidator(tt.fetched))
+				require.EqualValues(t, tt.expected, networktypes.ToGenesisValidator(tt.fetched))
 			})
 		})
 	}

@@ -22,7 +22,7 @@ func (n Network) ChainLaunch(ctx context.Context, id uint64) (networktypes.Chain
 
 	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
 
-	return networktypes.ParseChainLaunch(res.Chain), nil
+	return networktypes.ToChainLaunch(res.Chain), nil
 }
 
 // ChainLaunches fetches the chain launches from Starport Network
@@ -37,7 +37,7 @@ func (n Network) ChainLaunches(ctx context.Context) ([]networktypes.ChainLaunch,
 
 	// Parse fetched chains
 	for _, chain := range res.Chain {
-		chainLaunches = append(chainLaunches, networktypes.ParseChainLaunch(chain))
+		chainLaunches = append(chainLaunches, networktypes.ToChainLaunch(chain))
 	}
 
 	return chainLaunches, err
@@ -74,7 +74,7 @@ func (n Network) GenesisAccounts(ctx context.Context, launchID uint64) (genAccs 
 	}
 
 	for _, acc := range res.GenesisAccount {
-		genAccs = append(genAccs, networktypes.ParseGenesisAccount(acc))
+		genAccs = append(genAccs, networktypes.ToGenesisAccount(acc))
 	}
 
 	return genAccs, nil
@@ -91,7 +91,7 @@ func (n Network) VestingAccounts(ctx context.Context, launchID uint64) (vestingA
 	}
 
 	for i, acc := range res.VestingAccount {
-		parsedAcc, err := networktypes.ParseVestingAccount(acc)
+		parsedAcc, err := networktypes.ToVestingAccount(acc)
 		if err != nil {
 			return vestingAccs, errors.Wrapf(err, "error parsing vesting account %d", i)
 		}
@@ -113,7 +113,7 @@ func (n Network) GenesisValidators(ctx context.Context, launchID uint64) (genVal
 	}
 
 	for _, acc := range res.GenesisValidator {
-		genVals = append(genVals, networktypes.ParseGenesisValidator(acc))
+		genVals = append(genVals, networktypes.ToGenesisValidator(acc))
 	}
 
 	return genVals, nil

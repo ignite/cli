@@ -47,16 +47,16 @@ func NewGenesisInformation(
 	}
 }
 
-// ParseGenesisAccount parses genesis account from SPN
-func ParseGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
+// ToGenesisAccount converts genesis account from SPN
+func ToGenesisAccount(acc launchtypes.GenesisAccount) GenesisAccount {
 	return GenesisAccount{
 		Address: acc.Address,
 		Coins:   acc.Coins.String(),
 	}
 }
 
-// ParseVestingAccount parses vesting account from SPN
-func ParseVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
+// ToVestingAccount converts vesting account from SPN
+func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 	delayedVesting := acc.VestingOptions.GetDelayedVesting()
 	if delayedVesting == nil {
 		return VestingAccount{}, errors.New("only delayed vesting option is supported")
@@ -70,8 +70,8 @@ func ParseVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error)
 	}, nil
 }
 
-// ParseGenesisValidator parses genesis validator from SPN
-func ParseGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
+// ToGenesisValidator converts genesis validator from SPN
+func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	return GenesisValidator{
 		Gentx: val.GenTx,
 		Peer:  val.Peer,

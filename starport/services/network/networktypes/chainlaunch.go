@@ -14,8 +14,8 @@ type ChainLaunch struct {
 	CampaignID  uint64
 }
 
-// ParseChainLaunch parses a chain launch data from SPN and returns a ChainLaunch object
-func ParseChainLaunch(chain launchtypes.Chain) ChainLaunch {
+// ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object
+func ToChainLaunch(chain launchtypes.Chain) ChainLaunch {
 	var launchTime int64
 	if chain.LaunchTriggered {
 		launchTime = chain.LaunchTimestamp

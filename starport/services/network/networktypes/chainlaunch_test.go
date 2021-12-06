@@ -8,7 +8,7 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-func TestParseChainLaunch(t *testing.T) {
+func TestToChainLaunch(t *testing.T) {
 	tests := []struct {
 		name     string
 		fetched  launchtypes.Chain
@@ -63,7 +63,7 @@ func TestParseChainLaunch(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			require.EqualValues(t, tt.expected, networktypes.ParseChainLaunch(tt.fetched))
+			require.EqualValues(t, tt.expected, networktypes.ToChainLaunch(tt.fetched))
 		})
 	}
 }
