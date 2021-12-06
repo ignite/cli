@@ -77,6 +77,7 @@ type Option func(*rootOptions)
 type rootOptions struct {
 	addSubCmds         []*cobra.Command
 	startCmdCustomizer func(*cobra.Command)
+	envPrefix          string
 }
 
 func newRootOptions(options ...Option) rootOptions {
@@ -105,6 +106,13 @@ func CustomizeStartCmd(h func(startCmd *cobra.Command)) Option {
 	}
 }
 
+// WithEnvPrefix accepts a new prefix for environment variables.
+func WithEnvPrefix(envPrefix string) Option {
+	return func(o *rootOptions) {
+		o.envPrefix = envPrefix
+	}
+}
+
 // NewRootCmd creates a new root command for a Cosmos SDK application
 func NewRootCmd(
 	appName,
@@ -130,7 +138,7 @@ func NewRootCmd(
 		WithAccountRetriever(types.AccountRetriever{}).
 		WithBroadcastMode(flags.BroadcastBlock).
 		WithHomeDir(defaultNodeHome).
-		WithViper("")
+		WithViper(rootOptions.envPrefix)
 
 	rootCmd := &cobra.Command{
 		Use:   appName + "d",
