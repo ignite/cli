@@ -22,30 +22,32 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 
 // TriggerLaunch launches a chain as a coordinator
 func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTime time.Duration) error {
-	remainingTimestamp := uint64(remainingTime.Seconds())
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
-
-	address := n.account.Address(networkchain.SPN)
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
 		return err
 	}
 
+	var (
+		minLaunch = xtime.Seconds(params.MinLaunchTime)
+		maxLaunch = xtime.Seconds(params.MaxLaunchTime)
+		address   = n.account.Address(networkchain.SPN)
+	)
 	switch {
-	case remainingTimestamp == 0:
+	case remainingTime == 0:
 		// if the user does not specify the remaining time, use the minimal one
-		remainingTimestamp = params.MinLaunchTime
-	case remainingTimestamp < params.MinLaunchTime:
+		remainingTime = minLaunch
+	case remainingTime < minLaunch:
 		return fmt.Errorf("remaining time %s lower than minimum %s",
-			xtime.NowAfter(remainingTimestamp),
-			xtime.NowAfter(params.MinLaunchTime))
-	case remainingTimestamp > params.MaxLaunchTime:
+			xtime.NowAfter(remainingTime),
+			xtime.NowAfter(minLaunch))
+	case remainingTime > maxLaunch:
 		return fmt.Errorf("remaining time %s greater than maximum %s",
-			xtime.NowAfter(remainingTimestamp),
-			xtime.NowAfter(params.MaxLaunchTime))
+			xtime.NowAfter(remainingTime),
+			xtime.NowAfter(maxLaunch))
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTimestamp)
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, uint64(remainingTime.Seconds()))
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting launch transaction"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
@@ -58,7 +60,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTimestamp)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, xtime.NowAfter(remainingTime)),
 	))
 	return nil
 }

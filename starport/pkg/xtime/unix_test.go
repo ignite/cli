@@ -8,6 +8,21 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
+func TestSeconds(t *testing.T) {
+	tests := []uint64{
+		9999999999,
+		10000,
+		100,
+		0,
+	}
+	for _, tt := range tests {
+		t.Run(fmt.Sprintf("test %d value", tt), func(t *testing.T) {
+			got := Seconds(tt)
+			require.Equal(t, time.Duration(tt)*time.Second, got)
+		})
+	}
+}
+
 func TestNowAfter(t *testing.T) {
 	tests := []uint64{
 		9999999999,
@@ -17,7 +32,7 @@ func TestNowAfter(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(fmt.Sprintf("test %d value", tt), func(t *testing.T) {
-			got := NowAfter(tt)
+			got := NowAfter(Seconds(tt))
 			date := time.Now().Add(time.Duration(tt) * time.Second)
 			require.Equal(t, date.Format(time.UnixDate), got)
 		})

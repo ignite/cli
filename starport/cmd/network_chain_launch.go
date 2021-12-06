@@ -1,10 +1,8 @@
 package starportcmd
 
 import (
-	"strconv"
-
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 const (
@@ -35,13 +33,10 @@ func networkChainLaunchHandler(cmd *cobra.Command, args []string) error {
 	}
 	defer nb.Cleanup()
 
-	// parse launch ID.
-	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	// parse launch ID
+	launchID, err := network.ParseLaunchID(args[0])
 	if err != nil {
-		return errors.Wrap(err, "error parsing launchID")
-	}
-	if launchID == 0 {
-		return errors.New("launch ID must be greater than 0")
+		return err
 	}
 
 	remainingTime, _ := cmd.Flags().GetDuration(flagRemainingTime)
