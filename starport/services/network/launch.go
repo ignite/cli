@@ -3,6 +3,7 @@ package network
 import (
 	"context"
 	"fmt"
+	"time"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/date"
@@ -20,7 +21,8 @@ func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 }
 
 // TriggerLaunch launches a chain as a coordinator
-func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint64) error {
+func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTime time.Duration) error {
+	remainingTimestamp := uint64(remainingTime.Seconds())
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 
 	address := n.account.Address(networkchain.SPN)
@@ -30,20 +32,20 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint
 	}
 
 	switch {
-	case remainingTime == 0:
+	case remainingTimestamp == 0:
 		// if the user does not specify the remaining time, use the minimal one
-		remainingTime = params.MinLaunchTime
-	case remainingTime < params.MinLaunchTime:
+		remainingTimestamp = params.MinLaunchTime
+	case remainingTimestamp < params.MinLaunchTime:
 		return fmt.Errorf("remaining time %s lower than minimum %s",
-			date.Now(remainingTime),
+			date.Now(remainingTimestamp),
 			date.Now(params.MinLaunchTime))
-	case remainingTime > params.MaxLaunchTime:
+	case remainingTimestamp > params.MaxLaunchTime:
 		return fmt.Errorf("remaining time %s greater than maximum %s",
-			date.Now(remainingTime),
+			date.Now(remainingTimestamp),
 			date.Now(params.MaxLaunchTime))
 	}
 
-	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTime)
+	msg := launchtypes.NewMsgTriggerLaunch(address, launchID, remainingTimestamp)
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting launch transaction"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
@@ -56,7 +58,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID, remainingTime uint
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
-		fmt.Sprintf("Chain %d will be launched on %s", launchID, date.Now(remainingTime)),
+		fmt.Sprintf("Chain %d will be launched on %s", launchID, date.Now(remainingTimestamp)),
 	))
 	return nil
 }
