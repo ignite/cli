@@ -96,12 +96,19 @@ func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesis
 		return fmt.Errorf("cannot parse gentx %s", err.Error())
 	}
 
+	// Change the address prefix fetched from the gentx to the one used on SPN
+	// Because all on-chain stored address on SPN uses the SPN prefix
+	spnFetchedAddress, err := cosmosutil.ChangeAddressPrefix(info.DelegatorAddress, networkchain.SPN)
+	if err != nil {
+		return err
+	}
+
 	// Check validator address
-	if valAddress != info.DelegatorAddress {
+	if valAddress != spnFetchedAddress {
 		return fmt.Errorf(
 			"the validator address %s doesn't match the one inside the gentx %s",
 			valAddress,
-			info.DelegatorAddress,
+			spnFetchedAddress,
 		)
 	}
 
