@@ -1309,8 +1309,11 @@ github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2l
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.5 h1:/MkM8SOsHBkX1kbo74a2WNmrViLaEem/OzBHI5v6l1c=
 github.com/tendermint/spm v0.1.5/go.mod h1:+rHrI1axfSX1R0DY6KA4IbrHPgJ0WVNJKhey71ulXO8=
+github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
 github.com/tendermint/spn v0.1.1-0.20211129160658-aa02296826a8 h1:r2v49c2eGM0+cOSLo6XKbNsfcj6/ZhfZgz1OGndg6Hc=
 github.com/tendermint/spn v0.1.1-0.20211129160658-aa02296826a8/go.mod h1:Z3T6kPy6krX6rwnemnQsTUaOknmldNT20kJN3VMMwPU=
+github.com/tendermint/spn v0.1.1-0.20211206083100-23fad166be21 h1:V5lGvmagsFMPwCkGPwiUnQxPAfwM7TpRr0XXg6rwON0=
+github.com/tendermint/spn v0.1.1-0.20211206083100-23fad166be21/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
 github.com/tendermint/tendermint v0.34.0-rc6/go.mod h1:ugzyZO5foutZImv0Iyx/gOFCX6mjJTgbLHTwi17VDVg=
 github.com/tendermint/tendermint v0.34.0/go.mod h1:Aj3PIipBFSNO21r+Lq3TtzQ+uKESxkbA3yo/INM4QwQ=
