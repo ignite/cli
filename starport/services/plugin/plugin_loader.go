@@ -24,6 +24,8 @@ var (
 type Loader interface {
 	IsInstalled(config chainconfig.Plugin) bool
 	LoadPlugin(config chainconfig.Plugin, pluginPath string) (StarportPlugin, error)
+
+	LoadSymbol(symbol string) (map[string]FuncSpec, error)
 }
 
 type configLoader struct {
@@ -92,7 +94,7 @@ func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) 
 	repoName := tokens[len(tokens)-1]
 
 	pluginSymbol := fmt.Sprintf("%s/%s/%s/%s.so", pluginPath, repoName, config.Name, config.Name)
-	specs, err := l.loadSymbol(pluginSymbol)
+	specs, err := l.LoadSymbol(pluginSymbol)
 	if err != nil {
 		return nil, err
 	}
@@ -104,16 +106,10 @@ func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) 
 
 	l.pluginSpec = &p
 
-	err = l.checkMandatoryFunctions()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
-
 	return &p, nil
 }
 
-func (l *configLoader) loadSymbol(symbolName string) (map[string]FuncSpec, error) {
+func (l *configLoader) LoadSymbol(symbolName string) (map[string]FuncSpec, error) {
 	p, err := plugin.Open(symbolName)
 	if err != nil {
 		log.Println(err)
@@ -147,12 +143,18 @@ func (l *configLoader) loadSymbol(symbolName string) (map[string]FuncSpec, error
 		funcCallSpecs[method.Name] = callSpec
 	}
 
+	err = l.checkMandatoryFunctions(funcCallSpecs)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
 	return funcCallSpecs, err
 }
 
-func (l *configLoader) checkMandatoryFunctions() error {
+func (l *configLoader) checkMandatoryFunctions(spec map[string]FuncSpec) error {
 	for funcName, paramTypes := range mandatories {
-		loadSpec, ok := l.pluginSpec.funcSpecs[funcName]
+		loadSpec, ok := spec[funcName]
 		if !ok {
 			log.Println("Not exist func ", funcName)
 			return ErrPluginWrongSpec

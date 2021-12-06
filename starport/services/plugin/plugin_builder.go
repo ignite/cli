@@ -91,7 +91,20 @@ func (b *builder) build(path, name string) error {
 		),
 		)
 
-	// TODO: Check mandatory functions.
+	if err != nil {
+		return err
+	}
+
+	loader, err := NewLoader()
+	if err != nil {
+		return err
+	}
+
+	symbolName := fmt.Sprintf("%s/%s.so", path, name)
+	_, err = loader.LoadSymbol(symbolName)
+	if err != nil {
+		os.Remove(symbolName)
+	}
 
 	return err
 }

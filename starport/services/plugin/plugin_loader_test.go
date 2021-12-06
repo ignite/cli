@@ -178,7 +178,7 @@ func Test_CheckMandatory(t *testing.T) {
 		loader.pluginSpec = test.Spec
 
 		// Test
-		err := loader.checkMandatoryFunctions()
+		err := loader.checkMandatoryFunctions(test.Spec.funcSpecs)
 
 		// Asserts
 		assert.Equal(t, test.ExpectErr, err)

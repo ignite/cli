@@ -50,3 +50,26 @@ func (_m *Loader) LoadPlugin(config chainconfig.Plugin, pluginPath string) (plug
 
 	return r0, r1
 }
+
+// LoadSymbol provides a mock function with given fields: symbol
+func (_m *Loader) LoadSymbol(symbol string) (map[string]plugin.FuncSpec, error) {
+	ret := _m.Called(symbol)
+
+	var r0 map[string]plugin.FuncSpec
+	if rf, ok := ret.Get(0).(func(string) map[string]plugin.FuncSpec); ok {
+		r0 = rf(symbol)
+	} else {
+		if ret.Get(0) != nil {
+			r0 = ret.Get(0).(map[string]plugin.FuncSpec)
+		}
+	}
+
+	var r1 error
+	if rf, ok := ret.Get(1).(func(string) error); ok {
+		r1 = rf(symbol)
+	} else {
+		r1 = ret.Error(1)
+	}
+
+	return r0, r1
+}
