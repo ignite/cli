@@ -11,21 +11,21 @@ import (
 )
 
 var (
-	pluginHome   = fmt.Sprintf("%s/.starport/plugins", os.Getenv("HOME")) // TODO:
+	pluginHome   = fmt.Sprintf("%s/.starport/plugins", os.Getenv("HOME"))
 	pluginLoader plugin.Loader
 )
 
-func init() {
+// NewScaffoldPlugins returns the command to plugin.
+func NewScaffoldPlugins(chainID string, pluginConfigs []chainconfig.Plugin) []*cobra.Command {
 	var err error
 
-	pluginLoader, err = plugin.NewLoader()
-	if err != nil {
-		log.Panic(err)
+	if pluginLoader == nil {
+		pluginLoader, err = plugin.NewLoader(chainID)
+		if err != nil {
+			log.Println(err)
+			return nil
+		}
 	}
-}
-
-// NewScaffoldPlugins returns the command to plugin.
-func NewScaffoldPlugins(pluginConfigs []chainconfig.Plugin) []*cobra.Command {
 	cmds := make([]*cobra.Command, 0)
 
 	for i, cfg := range pluginConfigs {

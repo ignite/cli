@@ -29,6 +29,7 @@ type Loader interface {
 }
 
 type configLoader struct {
+	chainID    string
 	pluginSpec *starportplugin
 }
 
@@ -73,7 +74,7 @@ func (l *configLoader) IsInstalled(plugin chainconfig.Plugin) bool {
 	tokens := strings.Split(plugin.RepositoryURL, "/")
 	repoName := tokens[len(tokens)-1]
 
-	pluginPath := fmt.Sprintf("%s/%s/%s", pluginsHome, repoName, plugin.Name)
+	pluginPath := fmt.Sprintf("%s/%s/%s/%s", pluginsHome, l.chainID, repoName, plugin.Name)
 
 	isExist, err := l.IsExists(pluginPath)
 	if err != nil {
@@ -93,7 +94,7 @@ func (l *configLoader) LoadPlugin(config chainconfig.Plugin, pluginPath string) 
 	tokens := strings.Split(config.RepositoryURL, "/")
 	repoName := tokens[len(tokens)-1]
 
-	pluginSymbol := fmt.Sprintf("%s/%s/%s/%s.so", pluginPath, repoName, config.Name, config.Name)
+	pluginSymbol := fmt.Sprintf("%s/%s/%s/%s/%s.so", pluginPath, l.chainID, repoName, config.Name, config.Name)
 	specs, err := l.LoadSymbol(pluginSymbol)
 	if err != nil {
 		return nil, err
@@ -176,6 +177,6 @@ func (l *configLoader) checkMandatoryFunctions(spec map[string]FuncSpec) error {
 }
 
 // NewLoader creates loader for plugin.
-func NewLoader() (Loader, error) {
-	return &configLoader{}, nil
+func NewLoader(chainID string) (Loader, error) {
+	return &configLoader{chainID: chainID}, nil
 }

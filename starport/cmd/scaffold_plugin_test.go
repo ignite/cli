@@ -21,7 +21,7 @@ func Test_ScaffoldPlugins_NotInstalled(t *testing.T) {
 	mockLoader.On("IsInstalled", testPlugin).Return(false)
 
 	// Test
-	cmds := NewScaffoldPlugins([]chainconfig.Plugin{testPlugin})
+	cmds := NewScaffoldPlugins("mars", []chainconfig.Plugin{testPlugin})
 
 	// Asserts
 	mockLoader.AssertExpectations(t)
@@ -51,7 +51,7 @@ func Test_ScaffoldPlugins_Installed(t *testing.T) {
 	mockPlugin.On("Help", "func2").Return("")
 
 	// Test
-	cmds := NewScaffoldPlugins([]chainconfig.Plugin{testPlugin})
+	cmds := NewScaffoldPlugins("mars", []chainconfig.Plugin{testPlugin})
 
 	// Asserts
 	mockLoader.AssertExpectations(t)

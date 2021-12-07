@@ -32,6 +32,7 @@ type Builder interface {
 }
 
 type builder struct {
+	chainID string
 }
 
 func (b *builder) Build(config chainconfig.Plugin) error {
@@ -57,7 +58,7 @@ func (b *builder) download(pluginName, url string) (string, error) {
 	pathTokens := strings.Split(url, "/")
 	repoName := pathTokens[len(pathTokens)-1]
 
-	repoPath := fmt.Sprintf("%s/%s/%s", starportHome, pluginDir, repoName)
+	repoPath := fmt.Sprintf("%s/%s/%s/%s", starportHome, pluginDir, b.chainID, repoName)
 
 	_, err = git.PlainClone(repoPath, false, &git.CloneOptions{
 		URL:      url,
@@ -95,7 +96,7 @@ func (b *builder) build(path, name string) error {
 		return err
 	}
 
-	loader, err := NewLoader()
+	loader, err := NewLoader(b.chainID)
 	if err != nil {
 		return err
 	}
@@ -110,6 +111,6 @@ func (b *builder) build(path, name string) error {
 }
 
 // NewBuilder creates new plugin builder.
-func NewBuilder() (Builder, error) {
-	return &builder{}, nil
+func NewBuilder(chainID string) (Builder, error) {
+	return &builder{chainID: chainID}, nil
 }

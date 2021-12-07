@@ -49,11 +49,24 @@ func GetConfig() (chainconfig.Config, error) {
 func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) error {
 	color.Yellow("Install Plugin...")
 
-	conf, _ := GetConfig()
+	c, err := newChainWithHomeFlags(cmd)
+	if err != nil {
+		return err
+	}
 
-	loader, err := plugin.NewLoader()
+	id, err := c.ID()
+	if err != nil {
+		return err
+	}
+
+	loader, err := plugin.NewLoader(id)
 	if err != nil {
 		color.Red("Failed %+v.", err)
+		return err
+	}
+
+	conf, err := c.Config()
+	if err != nil {
 		return err
 	}
 
@@ -78,7 +91,7 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 		return nil
 	}
 
-	builder, err := plugin.NewBuilder()
+	builder, err := plugin.NewBuilder(id)
 	if err != nil {
 		color.Red("Failed %+v.", err)
 		return err
@@ -96,14 +109,24 @@ func (p *pluginCmdHandler) HandleInstall(cmd *cobra.Command, args []string) erro
 }
 
 func (p *pluginCmdHandler) HandleList(cmd *cobra.Command, args []string) error {
-	conf, err := GetConfig()
+	c, err := newChainWithHomeFlags(cmd)
 	if err != nil {
 		return err
 	}
 
-	loader, err := plugin.NewLoader()
+	id, err := c.ID()
+	if err != nil {
+		return err
+	}
+
+	loader, err := plugin.NewLoader(id)
 	if err != nil {
 		log.Println(err)
+		return err
+	}
+
+	conf, err := c.Config()
+	if err != nil {
 		return err
 	}
 
@@ -141,6 +164,8 @@ func NewPlugin() *cobra.Command {
 
 	c.AddCommand(pluginListCmd())
 	c.AddCommand(pluginInstallCmd())
+
+	c.Flags().AddFlagSet(flagSetHome())
 
 	return c
 }

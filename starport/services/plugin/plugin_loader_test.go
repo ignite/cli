@@ -71,6 +71,8 @@ func Test_IsInstalled(t *testing.T) {
 		RepositoryURL: "github.com/dummy-user/plugin-repo",
 	}
 
+	chainID := "mars"
+
 	testConfigLoader := configLoader{}
 	starportHome, _ := chainconfig.ConfigDirPath()
 
@@ -89,7 +91,7 @@ func Test_IsInstalled(t *testing.T) {
 	}
 
 	// Create dummy plugin files.
-	pluginRepoHome := filepath.Join(pluginsHome, "plugin-repo")
+	pluginRepoHome := filepath.Join(pluginsHome, chainID, "plugin-repo")
 	pluginPath := filepath.Join(pluginRepoHome, pluginConfig.Name)
 
 	if exist, _ := testConfigLoader.IsExists(pluginPath); !exist {
@@ -102,7 +104,7 @@ func Test_IsInstalled(t *testing.T) {
 	defer os.RemoveAll(pluginRepoHome)
 
 	// Test
-	pluginLoader, _ := NewLoader()
+	pluginLoader, _ := NewLoader(chainID)
 	isPluginInstalled := pluginLoader.IsInstalled(pluginConfig)
 	require.Equal(t, false, isPluginInstalled)
 

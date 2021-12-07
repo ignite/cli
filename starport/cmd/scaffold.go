@@ -50,7 +50,19 @@ CRUD stands for "create, read, update, delete".`,
 		return nil
 	}
 
-	pluginCmds := NewScaffoldPlugins(conf.Plugins)
+	chain, err := newChainWithHomeFlags(c)
+	if err != nil {
+		log.Println(err)
+		return c
+	}
+
+	id, err := chain.ID()
+	if err != nil {
+		log.Println(err)
+		return c
+	}
+
+	pluginCmds := NewScaffoldPlugins(id, conf.Plugins)
 	for _, cmd := range pluginCmds {
 		c.AddCommand(cmd)
 	}
