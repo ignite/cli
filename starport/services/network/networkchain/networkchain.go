@@ -22,7 +22,7 @@ const (
 	SPN = "spn"
 
 	// SPNDenom is the denom used for the spn chain native token
-	SPNDenom = "spn"
+	SPNDenom = "uspn"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
