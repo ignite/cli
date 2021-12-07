@@ -19,6 +19,10 @@ cd mars
 starport chain serve
 ```
 
+## HackAtom - Starport plugin system
+
+Visit [How to test plugins systems](https://github.com/dsrvlabs/starport/blob/5bc801733ce18a56a8ad96b7ed6d0b18d9a2ef92/docs/plugin/index.md) to test new plugin system.
+
 ## Documentation
 
 To learn how to use Starport, check out the [Starport Documentation](https://docs.starport.com). To learn more about how to build blockchain apps with Starport, see the [Starport Developer Tutorials](https://docs.starport.com/guide/). 
