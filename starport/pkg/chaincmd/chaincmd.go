@@ -42,6 +42,8 @@ const (
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
 	optionCoinType                         = "--coin-type"
+	optionVestingAmount                    = "--vesting-amount"
+	optionVestingEndTime                   = "--vesting-end-time"
 	optionBroadcastMode                    = "--broadcast-mode"
 
 	constTendermint = "tendermint"
@@ -275,6 +277,21 @@ func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 		commandAddGenesisAccount,
 		address,
 		coins,
+	}
+
+	return c.daemonCommand(command)
+}
+
+// AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain
+func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
+	command := []string{
+		commandAddGenesisAccount,
+		address,
+		originalCoins,
+		optionVestingAmount,
+		vestingCoins,
+		optionVestingEndTime,
+		fmt.Sprintf("%d", vestingEndTime),
 	}
 
 	return c.daemonCommand(command)
