@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
@@ -198,6 +199,10 @@ func (c Chain) GentxsPath() (path string, err error) {
 
 func (c Chain) DefaultGentxPath() (path string, err error) {
 	return c.chain.DefaultGentxPath()
+}
+
+func (c Chain) Config() (config chainconfig.Config, err error) {
+	return c.chain.Config()
 }
 
 func (c Chain) SourceURL() string {
