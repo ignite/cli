@@ -1,14 +1,15 @@
 package starportcmd
 
 import (
+	"bytes"
 	"context"
 	"fmt"
-	"io"
 	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
@@ -84,66 +85,73 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	content := ""
 	switch showType {
 	case chainShowGenesis:
-		return printChainGenesis(c)
+		content, err = formatChainGenesis(c)
 	case chainShowInfo:
-		return printChainInfo(c, launchID)
+		content, err = formatChainInfo(cmd.Context(), c, launchID)
 	case chainShowAccounts:
-		return printChainAccounts(cmd.Context(), n, launchID, os.Stdout)
+		content, err = formatChainAccounts(cmd.Context(), n, launchID)
 	case chainShowPeers:
-		return printChainPeers(cmd.Context(), n, launchID)
+		content, err = formatChainPeers(cmd.Context(), n, launchID)
 	}
-	return nil
-}
-
-func printChainGenesis(c network.Chain) error {
-	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return err
 	}
+
+	nb.Spinner.Stop()
+	fmt.Print(content)
+	return nil
+}
+
+func formatChainGenesis(c network.Chain) (string, error) {
+	genesisPath, err := c.GenesisPath()
+	if err != nil {
+		return "", err
+	}
 	if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
-		return fmt.Errorf("chain genesis not initialized: %s", genesisPath)
+		return "", fmt.Errorf("chain genesis not initialized: %s", genesisPath)
 	}
 	genesisFile, err := os.ReadFile(genesisPath)
 	if err != nil {
-		return err
+		return "", err
 	}
-	fmt.Println(string(genesisFile))
-	return nil
+	return string(genesisFile), nil
 }
 
-func printChainInfo(c *networkchain.Chain, launchID uint64) error {
+func formatChainInfo(ctx context.Context, c *networkchain.Chain, launchID uint64) (string, error) {
 	home, err := c.Home()
 	if err != nil {
-		return err
+		return "", err
 	}
 	id, err := c.ID()
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	fmt.Printf(`Chain Info:
- -Launch ID: %d
- -Chain ID: %s
- -Name: %s
- -Source URL: %s
- -Hash: %s
- -Home Path: %s`,
-		launchID,
-		id,
-		c.Name(),
-		c.SourceURL(),
-		c.SourceHash(),
-		home,
-	)
-	return nil
+	info := struct {
+		LaunchID  uint64 `json:"LaunchID"`
+		ChainID   string `json:"ChainID"`
+		Name      string `json:"Name"`
+		SourceURL string `json:"SourceURL"`
+		Hash      string `json:"Hash"`
+		HomePath  string `json:"HomePath"`
+	}{
+		LaunchID:  launchID,
+		ChainID:   id,
+		Name:      c.Name(),
+		SourceURL: c.SourceURL(),
+		Hash:      c.SourceHash(),
+		HomePath:  home,
+	}
+	return yaml.Marshal(ctx, info)
 }
 
-func printChainAccounts(ctx context.Context, n network.Network, launchID uint64, out io.Writer) error {
+func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64) (string, error) {
 	genesisInformation, err := n.GenesisInformation(ctx, launchID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	genesisAccEntries := make([][]string, 0)
@@ -153,19 +161,21 @@ func printChainAccounts(ctx context.Context, n network.Network, launchID uint64,
 			acc.Coins,
 		})
 	}
-	return entrywriter.MustWrite(out, chainAccSummaryHeader, genesisAccEntries...)
+	result := bytes.NewBufferString("")
+	err = entrywriter.MustWrite(result, chainAccSummaryHeader, genesisAccEntries...)
+	return result.String(), err
 }
 
-func printChainPeers(ctx context.Context, n network.Network, launchID uint64) error {
+func formatChainPeers(ctx context.Context, n network.Network, launchID uint64) (string, error) {
 	genesisInformation, err := n.GenesisInformation(ctx, launchID)
 	if err != nil {
-		return err
+		return "", err
 	}
 
 	peers := make([]string, 0)
 	for _, acc := range genesisInformation.GenesisValidators {
 		peers = append(peers, acc.Peer)
 	}
-	fmt.Printf("Persistent Peers: %s", strings.Join(peers, ","))
-	return nil
+
+	return fmt.Sprintf("Persistent Peers: %s\n", strings.Join(peers, ",")), nil
 }
