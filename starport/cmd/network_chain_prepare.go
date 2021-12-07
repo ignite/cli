@@ -1,6 +1,8 @@
 package starportcmd
 
 import (
+	"fmt"
+
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
@@ -57,5 +59,6 @@ func networkChainPrepareHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	fmt.Println("🛠️  After launch triggered, start your node by running: `{binary} --home {home} start`")
 	return c.Prepare(cmd.Context(), genesisInformation)
 }
