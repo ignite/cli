@@ -14,10 +14,13 @@ func NewChain() *cobra.Command {
 	}
 
 	flagSetPath(c)
-	c.AddCommand(NewChainServe())
-	c.AddCommand(NewChainBuild())
-	c.AddCommand(NewChainInit())
-	c.AddCommand(NewChainFaucet())
+	c.AddCommand(
+		NewChainServe(),
+		NewChainBuild(),
+		NewChainInit(),
+		NewChainFaucet(),
+		NewChainSimulation(),
+	)
 
 	return c
 }
