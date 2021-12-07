@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/yaml"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 // NewNetworkRequestShow creates a new request show command to show
@@ -33,12 +34,9 @@ func networkRequestShowHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	launchID, err := network.ParseLaunchID(args[0])
 	if err != nil {
-		return errors.Wrap(err, "error parsing launchID")
-	}
-	if launchID == 0 {
-		return errors.New("launch ID must be greater than 0")
+		return err
 	}
 
 	// parse request ID
