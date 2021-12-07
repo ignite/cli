@@ -20,6 +20,7 @@ const (
 	flagIBC                 = "ibc"
 	flagParams              = "params"
 	flagIBCOrdering         = "ordering"
+	flagNoRegistration      = "no-registration"
 	flagRequireRegistration = "require-registration"
 )
 
@@ -37,6 +38,7 @@ func NewScaffoldModule() *cobra.Command {
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
+	c.Flags().Bool(flagNoRegistration, false, "if true, module will scaffold with no registration")
 	c.Flags().Bool(flagRequireRegistration, false, "if true command will fail if module can't be registered")
 	c.Flags().StringSlice(flagParams, []string{}, "scaffold module params")
 
@@ -60,6 +62,10 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	noRegistration, err := cmd.Flags().GetBool(flagNoRegistration)
+	if err != nil {
+		return err
+	}
 	requireRegistration, err := cmd.Flags().GetBool(flagRequireRegistration)
 	if err != nil {
 		return err
@@ -77,6 +83,11 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	// Check if the module must be an IBC module
 	if ibcModule {
 		options = append(options, scaffolder.WithIBCChannelOrdering(ibcOrdering), scaffolder.WithIBC())
+	}
+
+	if noRegistration {
+		newSourceModification, runErr := xgenny.RunWithValidation(tracer, !modulecreate.NewStargateAppModify(tracer, opts))
+		sm.Merge(newSourceModification)
 	}
 
 	// Get module dependencies
