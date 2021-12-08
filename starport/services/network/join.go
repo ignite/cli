@@ -75,26 +75,20 @@ func (n Network) sendAccountRequest(
 	launchID uint64,
 	accountAddress string,
 	amount sdk.Coin,
-) error {
+) (err error) {
 	address := n.account.Address(networkchain.SPN)
-	spnAddress, err := cosmosutil.ChangeAddressPrefix(address, networkchain.SPN)
-	if err != nil {
-		return err
-	}
-
-	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+spnAddress))
+	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
 	var accExist bool
-
 	if !isCustomGentx {
-		accExist, err = cosmosutil.CheckGenesisContainsAddress(genesisPath, spnAddress)
+		accExist, err = cosmosutil.CheckGenesisContainsAddress(genesisPath, address)
 		if err != nil {
 			return err
 		}
 	}
 	// check if account exists as a genesis account in SPN chain launch information
-	if !accExist && !n.hasAccount(ctx, launchID, spnAddress) {
+	if !accExist && !n.hasAccount(ctx, launchID, address) {
 		msg := launchtypes.NewMsgRequestAddAccount(
 			n.account.Address(networkchain.SPN),
 			launchID,
