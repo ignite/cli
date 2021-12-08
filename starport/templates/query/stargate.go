@@ -36,9 +36,9 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		}
 
 		// RPC service
-		templateRPC := `// Queries a list of %[3]v items.
+		templateRPC := `// Queries a list of %[2]v items.
 	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
@@ -46,10 +46,10 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			templateRPC,
 			Placeholder2,
 			opts.QueryName.UpperCamel,
-			opts.QueryName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.QueryName.Snake,
 		)
 		content := replacer.Replace(f.String(), Placeholder2, replacementRPC)
 

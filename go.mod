@@ -8,7 +8,6 @@ require (
 	github.com/blang/semver v3.5.1+incompatible
 	github.com/briandowns/spinner v1.11.1
 	github.com/cenkalti/backoff v2.2.1+incompatible
-	github.com/cenkalti/backoff/v4 v4.1.2
 	github.com/charmbracelet/glow v1.4.0
 	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.4
@@ -46,8 +45,8 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter v1.0.2
-	github.com/tendermint/spm v0.1.5
-	github.com/tendermint/spn v0.1.1-0.20211129160658-aa02296826a8
+	github.com/tendermint/spm v0.1.8
+	github.com/tendermint/spn v0.1.1-0.20211206232052-b887f40714e0
 	github.com/tendermint/tendermint v0.34.14
 	github.com/tendermint/vue v0.1.55
 	golang.org/x/mod v0.4.2

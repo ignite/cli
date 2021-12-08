@@ -2,12 +2,12 @@ package network
 
 import (
 	"context"
+	"strconv"
 
-	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
 	"github.com/tendermint/starport/starport/pkg/cosmosclient"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 // Network is network builder.
@@ -22,8 +22,9 @@ type Chain interface {
 	Name() string
 	SourceURL() string
 	SourceHash() string
-	GentxPath() (string, error)
 	GenesisPath() (string, error)
+	GentxsPath() (string, error)
+	DefaultGentxPath() (string, error)
 	Peer(ctx context.Context, addr string) (string, error)
 }
 
@@ -48,32 +49,13 @@ func New(cosmos cosmosclient.Client, account cosmosaccount.Account, options ...O
 	return n, nil
 }
 
-type LaunchInfo = networkchain.Launch
-
-// LaunchInfo fetches the chain launch from Starport Network by launch id.
-func (n Network) LaunchInfo(ctx context.Context, id uint64) (LaunchInfo, error) {
-	n.ev.Send(events.New(events.StatusOngoing, "Fetching chain information"))
-
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Chain(ctx, &launchtypes.QueryGetChainRequest{
-		LaunchID: id,
-	})
+func ParseLaunchID(id string) (uint64, error) {
+	launchID, err := strconv.ParseUint(id, 10, 64)
 	if err != nil {
-		return LaunchInfo{}, err
+		return 0, errors.Wrap(err, "error parsing launchID")
 	}
-
-	info := LaunchInfo{
-		ID:         id,
-		ChainID:    res.Chain.GenesisChainID,
-		SourceURL:  res.Chain.SourceURL,
-		SourceHash: res.Chain.SourceHash,
+	if launchID == 0 {
+		return 0, errors.New("launch ID must be greater than 0")
 	}
-
-	// check if custom genesis URL is provided.
-	if customGenesisURL := res.Chain.InitialGenesis.GetGenesisURL(); customGenesisURL != nil {
-		info.GenesisURL = customGenesisURL.Url
-		info.GenesisHash = customGenesisURL.Hash
-	}
-
-	n.ev.Send(events.New(events.StatusOngoing, "Chain information fetched"))
-	return info, nil
+	return launchID, nil
 }

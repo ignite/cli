@@ -33,6 +33,30 @@ func RejectRequest(requestID uint64) Reviewal {
 	}
 }
 
+// Requests fetches the chain requests from SPN by launch id
+func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.Request, error) {
+	res, err := launchtypes.NewQueryClient(n.cosmos.Context).RequestAll(ctx, &launchtypes.QueryAllRequestRequest{
+		LaunchID: launchID,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return res.Request, err
+}
+
+// Request fetches the chain request from SPN by launch and request id
+func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launchtypes.Request, error) {
+	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Request(ctx, &launchtypes.QueryGetRequestRequest{
+		LaunchID:  launchID,
+		RequestID: requestID,
+	})
+	if err != nil {
+		return launchtypes.Request{}, err
+	}
+	return res.Request, err
+}
+
 // SubmitRequest submits reviewals for proposals in batch for chain.
 func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	n.ev.Send(events.New(events.StatusOngoing, "Submitting requests..."))
@@ -56,18 +80,6 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	return res.Decode(&requestRes)
 }
 
-// fetchRequest fetches the chain request from SPN by launch and request id
-func (n Network) fetchRequest(ctx context.Context, launchID, requestID uint64) (launchtypes.Request, error) {
-	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Request(ctx, &launchtypes.QueryGetRequestRequest{
-		LaunchID:  launchID,
-		RequestID: requestID,
-	})
-	if err != nil {
-		return launchtypes.Request{}, err
-	}
-	return res.Request, err
-}
-
 // verifyAddValidatorRequest verify the validator request parameters
 func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_GenesisValidator) error {
 	// If this is an add validator request
@@ -84,12 +96,19 @@ func (Network) verifyAddValidatorRequest(req *launchtypes.RequestContent_Genesis
 		return fmt.Errorf("cannot parse gentx %s", err.Error())
 	}
 
+	// Change the address prefix fetched from the gentx to the one used on SPN
+	// Because all on-chain stored address on SPN uses the SPN prefix
+	spnFetchedAddress, err := cosmosutil.ChangeAddressPrefix(info.DelegatorAddress, networkchain.SPN)
+	if err != nil {
+		return err
+	}
+
 	// Check validator address
-	if valAddress != info.DelegatorAddress {
+	if valAddress != spnFetchedAddress {
 		return fmt.Errorf(
 			"the validator address %s doesn't match the one inside the gentx %s",
 			valAddress,
-			info.DelegatorAddress,
+			spnFetchedAddress,
 		)
 	}
 
@@ -128,7 +147,7 @@ func (n Network) VerifyRequests(ctx context.Context, launchID uint64, requests .
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying requests..."))
 	// Check all request
 	for _, id := range requests {
-		request, err := n.fetchRequest(ctx, launchID, id)
+		request, err := n.Request(ctx, launchID, id)
 		if err != nil {
 			return err
 		}
@@ -143,9 +162,9 @@ func (n Network) VerifyRequests(ctx context.Context, launchID uint64, requests .
 	}
 	n.ev.Send(events.New(events.StatusDone, "Requests verified"))
 
-	// TODO simulate the proposals
-	// If all proposals are correct, simulate them
-	// return n.SimulateProposals(ctx, chainID, proposals, commandOut)
+	// TODO simulate the requests
+	// If all requests are correct, simulate them
+	// return n.SimulateRequests(ctx, launchID, requests)
 
 	return nil
 }
