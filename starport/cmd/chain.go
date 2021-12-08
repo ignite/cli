@@ -13,7 +13,6 @@ func NewChain() *cobra.Command {
 		Args:    cobra.ExactArgs(1),
 	}
 
-	flagSetPath(c)
 	c.AddCommand(
 		NewChainServe(),
 		NewChainBuild(),

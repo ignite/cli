@@ -16,6 +16,7 @@ func NewChainInit() *cobra.Command {
 		RunE:  chainInitHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 
 	return c

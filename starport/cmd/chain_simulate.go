@@ -37,11 +37,7 @@ func NewChainSimulate() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  chainSimulationHandler,
 	}
-
 	simappFlags(c)
-	c.Flags().StringP(flagPath, "p", ".", "path to scaffold the chain")
-	c.Flags().AddFlagSet(flagSetHome())
-
 	return c
 }
 

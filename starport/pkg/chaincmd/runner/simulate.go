@@ -19,7 +19,7 @@ func (r Runner) Simulation(
 	genesisTime int64,
 ) error {
 	return r.run(ctx, runOptions{stdout: os.Stdout},
-		r.chainCmd.SimulationCommand(
+		chaincmd.SimulationCommand(
 			appPath,
 			chaincmd.SimappWithGenesis(config.GenesisFile),
 			chaincmd.SimappWithParams(config.ParamsFile),

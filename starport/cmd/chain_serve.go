@@ -21,6 +21,7 @@ func NewChainServe() *cobra.Command {
 		RunE:  chainServeHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty(""))
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")

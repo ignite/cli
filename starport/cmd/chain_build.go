@@ -36,6 +36,7 @@ Sample usages:
 		RunE: chainBuildHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")
