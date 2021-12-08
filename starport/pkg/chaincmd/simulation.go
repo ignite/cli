@@ -8,24 +8,24 @@ import (
 )
 
 const (
-	optionSimappGenesis                = "--Genesis"
-	optionSimappParams                 = "--Params"
-	optionSimappExportParamsPath       = "--ExportParamsPath"
-	optionSimappExportParamsHeight     = "--ExportParamsHeight"
-	optionSimappExportStatePath        = "--ExportStatePath"
-	optionSimappExportStatsPath        = "--ExportStatsPath"
-	optionSimappSeed                   = "--Seed"
-	optionSimappInitialBlockHeight     = "--InitialBlockHeight"
-	optionSimappNumBlocks              = "--NumBlocks"
-	optionSimappBlockSize              = "--BlockSize"
-	optionSimappLean                   = "--Lean"
-	optionSimappCommit                 = "--Commit"
-	optionSimappSimulateEveryOperation = "--SimulateEveryOperation"
-	optionSimappPrintAllInvariants     = "--PrintAllInvariants"
-	optionSimappEnabled                = "--Enabled"
-	optionSimappVerbose                = "--Verbose"
-	optionSimappPeriod                 = "--Period"
-	optionSimappGenesisTime            = "--GenesisTime"
+	optionSimappGenesis                = "-Genesis"
+	optionSimappParams                 = "-Params"
+	optionSimappExportParamsPath       = "-ExportParamsPath"
+	optionSimappExportParamsHeight     = "-ExportParamsHeight"
+	optionSimappExportStatePath        = "-ExportStatePath"
+	optionSimappExportStatsPath        = "-ExportStatsPath"
+	optionSimappSeed                   = "-Seed"
+	optionSimappInitialBlockHeight     = "-InitialBlockHeight"
+	optionSimappNumBlocks              = "-NumBlocks"
+	optionSimappBlockSize              = "-BlockSize"
+	optionSimappLean                   = "-Lean"
+	optionSimappCommit                 = "-Commit"
+	optionSimappSimulateEveryOperation = "-SimulateEveryOperation"
+	optionSimappPrintAllInvariants     = "-PrintAllInvariants"
+	optionSimappEnabled                = "-Enabled"
+	optionSimappVerbose                = "-Verbose"
+	optionSimappPeriod                 = "-Period"
+	optionSimappGenesisTime            = "-GenesisTime"
 
 	goApp               = "go"
 	commandGoTest       = "test"
@@ -132,42 +132,60 @@ func SimappWithBlockSize(blockSize int) SimappOption {
 // SimappWithLean provides lean option for the simapp command
 func SimappWithLean(lean bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappLean, strconv.FormatBool(lean))
+		if lean {
+			return append(command, optionSimappLean)
+		}
+		return command
 	}
 }
 
 // SimappWithCommit provides commit option for the simapp command
 func SimappWithCommit(commit bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappCommit, strconv.FormatBool(commit))
+		if commit {
+			return append(command, optionSimappCommit)
+		}
+		return command
 	}
 }
 
 // SimappWithSimulateEveryOperation provides simulateEveryOperation option for the simapp command
 func SimappWithSimulateEveryOperation(simulateEveryOperation bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappSimulateEveryOperation, strconv.FormatBool(simulateEveryOperation))
+		if simulateEveryOperation {
+			return append(command, optionSimappSimulateEveryOperation)
+		}
+		return command
 	}
 }
 
 // SimappWithPrintAllInvariants provides printAllInvariants option for the simapp command
 func SimappWithPrintAllInvariants(printAllInvariants bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappPrintAllInvariants, strconv.FormatBool(printAllInvariants))
+		if printAllInvariants {
+			return append(command, optionSimappPrintAllInvariants)
+		}
+		return command
 	}
 }
 
 // SimappWithEnable provides enable option for the simapp command
 func SimappWithEnable(enable bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappEnabled, strconv.FormatBool(enable))
+		if enable {
+			return append(command, optionSimappEnabled)
+		}
+		return command
 	}
 }
 
 // SimappWithVerbose provides verbose option for the simapp command
 func SimappWithVerbose(verbose bool) SimappOption {
 	return func(command []string) []string {
-		return append(command, optionSimappVerbose, strconv.FormatBool(verbose))
+		if verbose {
+			return append(command, optionSimappVerbose)
+		}
+		return command
 	}
 }
 
