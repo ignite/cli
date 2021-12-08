@@ -1,0 +1,23 @@
+version: '3.4'
+
+services:
+  node_1:
+    build:
+      context: ../
+      args:
+        PROJECT: <%= AppName %>
+        PROJECT_BIN: <%= BinaryNamePrefix %>d
+        VERSION: v0.0.0
+        REPOSITORY: https://github.com/<%= OwnerAndRepoName %>
+        NAMESPACE: <%= AppName %>
+        PROJECT_DIR: .<%= BinaryNamePrefix %>
+    ports:
+      - '26656:26656'
+      - '26657:26657'
+    environment:
+      - MONIKER=node_1
+      - CHAIN_JSON=https://raw.githubusercontent.com/cosmos/chain-registry/master/<%= AppName %>/chain.json
+    env_file:
+      - ../.env
+    volumes:
+      - ./node-data/.<%= BinaryNamePrefix %>:/root/.<%= BinaryNamePrefix %>

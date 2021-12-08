@@ -1,0 +1,21 @@
+
+VERSION := $(shell echo $(shell git describe --tags) | sed 's/^v//')
+COMMIT := $(shell git log -1 --format='%H')
+LEDGER_ENABLED ?= true
+BINDIR ?= $(GOPATH)/bin
+
+ifeq ($(LEDGER_ENABLED),true)
+	build_tags += ledger
+endif
+
+ldflags = -X github.com/cosmos/cosmos-sdk/version.Name=<%= AppName %> \
+	-X github.com/cosmos/cosmos-sdk/version.AppName=<%= AppName %>d \
+	-X github.com/cosmos/cosmos-sdk/version.Commit=$(COMMIT) \
+	-X github.com/cosmos/cosmos-sdk/version.Version=$(VERSION) \
+	-X "github.com/cosmos/cosmos-sdk/version.BuildTags=$(build_tags)"
+
+BUILD_FLAGS := -tags "$(build_tags)" -ldflags '$(ldflags)'
+
+
+install: go.sum
+	go install $(BUILD_FLAGS) ./cmd/<%= BinaryNamePrefix %>d
