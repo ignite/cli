@@ -3,6 +3,7 @@ package starportcmd
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"os"
 	"strconv"
@@ -114,8 +115,9 @@ func formatChainGenesis(nb NetworkBuilder, chainLaunch networktypes.ChainLaunch)
 	if err != nil {
 		return "", err
 	}
+	// TODO run the prepare command in dry run mode and print the genesis if not exist
 	if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
-		return "", fmt.Errorf("chain genesis not initialized: %s", genesisPath)
+		return "", errors.New("chain genesis not found, run the 'network chain prepare' command first")
 	}
 	genesisFile, err := os.ReadFile(genesisPath)
 	if err != nil {
