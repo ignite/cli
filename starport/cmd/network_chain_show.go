@@ -5,6 +5,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"strconv"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -33,7 +34,8 @@ var (
 		chainShowPeers:    {},
 	}
 
-	chainAccSummaryHeader = []string{"Genesis Account", "Coins"}
+	chainGenesisAccSummaryHeader = []string{"Genesis Account", "Coins"}
+	chainVestingAccSummaryHeader = []string{"Vesting Account", "StartingBalance", "Vesting", "EndTime"}
 )
 
 // NewNetworkChainShow creates a new chain show command to show
@@ -145,6 +147,7 @@ func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64
 	if err != nil {
 		return "", err
 	}
+	accountSummary := bytes.NewBufferString("")
 
 	genesisAccEntries := make([][]string, 0)
 	for _, acc := range genesisInformation.GenesisAccounts {
@@ -153,9 +156,35 @@ func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64
 			acc.Coins,
 		})
 	}
-	result := bytes.NewBufferString("")
-	err = entrywriter.MustWrite(result, chainAccSummaryHeader, genesisAccEntries...)
-	return result.String(), err
+	if len(genesisAccEntries) > 0 {
+		if err = entrywriter.MustWrite(
+			accountSummary,
+			chainGenesisAccSummaryHeader,
+			genesisAccEntries...,
+		); err != nil {
+			return "", err
+		}
+	}
+
+	genesisVestingAccEntries := make([][]string, 0)
+	for _, acc := range genesisInformation.VestingAccounts {
+		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
+			acc.Address,
+			acc.StartingBalance,
+			acc.Vesting,
+			strconv.FormatInt(acc.EndTime, 10),
+		})
+	}
+	if len(genesisVestingAccEntries) > 0 {
+		if err = entrywriter.MustWrite(
+			accountSummary,
+			chainVestingAccSummaryHeader,
+			genesisVestingAccEntries...,
+		); err != nil {
+			return "", err
+		}
+	}
+	return accountSummary.String(), err
 }
 
 func formatChainPeers(ctx context.Context, n network.Network, launchID uint64) (string, error) {
