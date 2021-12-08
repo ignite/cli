@@ -19,7 +19,7 @@ func NewChain() *cobra.Command {
 		NewChainBuild(),
 		NewChainInit(),
 		NewChainFaucet(),
-		NewChainSimulation(),
+		NewChainSimulate(),
 	)
 
 	return c

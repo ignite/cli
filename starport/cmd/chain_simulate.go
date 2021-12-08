@@ -26,10 +26,10 @@ const (
 	flagSimappGenesisTime            = "genesisTime"
 )
 
-// NewChainSimulation creates a new simulation command to run the blockchain simulation.
-func NewChainSimulation() *cobra.Command {
+// NewChainSimulate creates a new simulation command to run the blockchain simulation.
+func NewChainSimulate() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "simulation",
+		Use:   "simulate",
 		Short: "Run the blockchain simulation node in development",
 		Long:  "Run the blockchain simulation for all chain modules",
 		Args:  cobra.ExactArgs(0),
