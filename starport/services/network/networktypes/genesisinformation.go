@@ -23,7 +23,7 @@ type GenesisAccount struct {
 // VestingAccount supports currently only delayed vesting option
 type VestingAccount struct {
 	Address         string
-	StartingBalance string
+	TotalBalance string
 	Vesting         string
 	EndTime         int64
 }
@@ -64,7 +64,7 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 
 	return VestingAccount{
 		Address:         acc.Address,
-		StartingBalance: acc.StartingBalance.String(),
+		TotalBalance: delayedVesting.TotalBalance.String(),
 		Vesting:         delayedVesting.Vesting.String(),
 		EndTime:         delayedVesting.EndTime,
 	}, nil
