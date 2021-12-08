@@ -5,6 +5,7 @@ import (
 	"strconv"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
+	"github.com/tendermint/starport/starport/pkg/gocmd"
 )
 
 const (
@@ -27,7 +28,6 @@ const (
 	optionSimappPeriod                 = "-Period"
 	optionSimappGenesisTime            = "-GenesisTime"
 
-	goApp               = "go"
 	commandGoTest       = "test"
 	optionGoBenchmem    = "-benchmem"
 	optionGoSimappRun   = "-run=^$"
@@ -217,5 +217,5 @@ func SimulationCommand(appPath string, options ...SimappOption) step.Option {
 	for _, applyOption := range options {
 		command = applyOption(command)
 	}
-	return step.Exec(goApp, command...)
+	return step.Exec(gocmd.Name(), command...)
 }
