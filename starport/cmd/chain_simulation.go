@@ -3,28 +3,27 @@ package starportcmd
 import (
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/services/chain"
 )
 
 const (
-	flagSimappGenesis          = "Genesis"
-	flagSimappParams           = "Params"
-	flagExportParamsPath       = "ExportParamsPath"
-	flagExportParamsHeight     = "ExportParamsHeight"
-	flagExportStatePath        = "ExportStatePath"
-	flagExportStatsPath        = "ExportStatsPath"
-	flagSeed                   = "Seed"
-	flagInitialBlockHeight     = "InitialBlockHeight"
-	flagNumBlocks              = "NumBlocks"
-	flagBlockSize              = "BlockSize"
-	flagLean                   = "Lean"
-	flagCommit                 = "Commit"
-	flagSimulateEveryOperation = "SimulateEveryOperation"
-	flagPrintAllInvariants     = "PrintAllInvariants"
-
-	flagEnabled     = "Enabled"
-	flagVerbose     = "Verbose"
-	flagPeriod      = "Period"
-	flagGenesisTime = "GenesisTime"
+	flagSimappGenesis                = "genesis"
+	flagSimappParams                 = "params"
+	flagSimappExportParamsPath       = "exportParamsPath"
+	flagSimappExportParamsHeight     = "exportParamsHeight"
+	flagSimappExportStatePath        = "exportStatePath"
+	flagSimappExportStatsPath        = "exportStatsPath"
+	flagSimappSeed                   = "seed"
+	flagSimappInitialBlockHeight     = "initialBlockHeight"
+	flagSimappNumBlocks              = "numBlocks"
+	flagSimappBlockSize              = "blockSize"
+	flagSimappLean                   = "lean"
+	flagSimappCommit                 = "commit"
+	flagSimappSimulateEveryOperation = "simulateEveryOperation"
+	flagSimappPrintAllInvariants     = "printAllInvariants"
+	flagSimappVerbose                = "verbose"
+	flagSimappPeriod                 = "period"
+	flagSimappGenesisTime            = "genesisTime"
 )
 
 // NewChainSimulation creates a new simulation command to run the blockchain simulation.
@@ -45,10 +44,9 @@ func NewChainSimulation() *cobra.Command {
 func chainSimulationHandler(cmd *cobra.Command, args []string) error {
 	var (
 		// simulation flags
-		enabled, _     = cmd.Flags().GetBool("Enabled")
-		verbose, _     = cmd.Flags().GetBool("Verbose")
-		period, _      = cmd.Flags().GetUint("Period")
-		genesisTime, _ = cmd.Flags().GetInt64("GenesisTime")
+		verbose, _     = cmd.Flags().GetBool(flagSimappVerbose)
+		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
+		genesisTime, _ = cmd.Flags().GetInt64(flagSimappGenesisTime)
 		config         = newConfigFromFlags(cmd)
 	)
 
@@ -58,26 +56,31 @@ func chainSimulationHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	return c.Simulate(cmd.Context())
+	return c.Simulate(cmd.Context(),
+		chain.SimappWithVerbose(verbose),
+		chain.SimappWithPeriod(period),
+		chain.SimappWithGenesisTime(genesisTime),
+		chain.SimappWithConfig(config),
+	)
 }
 
 // newConfigFromFlags creates a simulation from the retrieved values of the flags.
 func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 	var (
-		genesis, _                = cmd.Flags().GetString(flagGenesis)
-		params, _                 = cmd.Flags().GetString(flagParams)
-		exportParamsPath, _       = cmd.Flags().GetString(flagExportParamsPath)
-		exportParamsHeight, _     = cmd.Flags().GetInt(flagExportParamsHeight)
-		exportStatePath, _        = cmd.Flags().GetString(flagExportStatePath)
-		exportStatsPath, _        = cmd.Flags().GetString(flagExportStatsPath)
-		seed, _                   = cmd.Flags().GetInt64(flagSeed)
-		initialBlockHeight, _     = cmd.Flags().GetInt(flagInitialBlockHeight)
-		numBlocks, _              = cmd.Flags().GetInt(flagNumBlocks)
-		blockSize, _              = cmd.Flags().GetInt(flagBlockSize)
-		lean, _                   = cmd.Flags().GetBool(flagLean)
-		commit, _                 = cmd.Flags().GetBool(flagCommit)
-		simulateEveryOperation, _ = cmd.Flags().GetBool(flagSimulateEveryOperation)
-		printAllInvariants, _     = cmd.Flags().GetBool(flagPrintAllInvariants)
+		genesis, _                = cmd.Flags().GetString(flagSimappGenesis)
+		params, _                 = cmd.Flags().GetString(flagSimappParams)
+		exportParamsPath, _       = cmd.Flags().GetString(flagSimappExportParamsPath)
+		exportParamsHeight, _     = cmd.Flags().GetInt(flagSimappExportParamsHeight)
+		exportStatePath, _        = cmd.Flags().GetString(flagSimappExportStatePath)
+		exportStatsPath, _        = cmd.Flags().GetString(flagSimappExportStatsPath)
+		seed, _                   = cmd.Flags().GetInt64(flagSimappSeed)
+		initialBlockHeight, _     = cmd.Flags().GetInt(flagSimappInitialBlockHeight)
+		numBlocks, _              = cmd.Flags().GetInt(flagSimappNumBlocks)
+		blockSize, _              = cmd.Flags().GetInt(flagSimappBlockSize)
+		lean, _                   = cmd.Flags().GetBool(flagSimappLean)
+		commit, _                 = cmd.Flags().GetBool(flagSimappCommit)
+		simulateEveryOperation, _ = cmd.Flags().GetBool(flagSimappSimulateEveryOperation)
+		printAllInvariants, _     = cmd.Flags().GetBool(flagSimappPrintAllInvariants)
 	)
 	return simulation.Config{
 		GenesisFile:        genesis,
@@ -99,24 +102,23 @@ func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 
 func simappFlags(c *cobra.Command) {
 	// config fields
-	c.Flags().String(flagGenesis, "", "custom simulation genesis file; cannot be used with params file")
-	c.Flags().String(flagParams, "", "custom simulation params file which overrides any random params; cannot be used with genesis")
-	c.Flags().String(flagExportParamsPath, "", "custom file path to save the exported params JSON")
-	c.Flags().Int(flagExportParamsHeight, 0, "height to which export the randomly generated params")
-	c.Flags().String(flagExportStatePath, "", "custom file path to save the exported app state JSON")
-	c.Flags().String(flagExportStatsPath, "", "custom file path to save the exported simulation statistics JSON")
-	c.Flags().Int64(flagSeed, 42, "simulation random seed")
-	c.Flags().Int(flagInitialBlockHeight, 1, "initial block to start the simulation")
-	c.Flags().Int(flagNumBlocks, 500, "number of new blocks to simulate from the initial block height")
-	c.Flags().Int(flagBlockSize, 200, "operations per block")
-	c.Flags().Bool(flagLean, false, "lean simulation log output")
-	c.Flags().Bool(flagCommit, false, "have the simulation commit")
-	c.Flags().Bool(flagSimulateEveryOperation, false, "run slow invariants every operation")
-	c.Flags().Bool(flagPrintAllInvariants, false, "print all invariants if a broken invariant is found")
+	c.Flags().String(flagSimappGenesis, "", "custom simulation genesis file; cannot be used with params file")
+	c.Flags().String(flagSimappParams, "", "custom simulation params file which overrides any random params; cannot be used with genesis")
+	c.Flags().String(flagSimappExportParamsPath, "", "custom file path to save the exported params JSON")
+	c.Flags().Int(flagSimappExportParamsHeight, 0, "height to which export the randomly generated params")
+	c.Flags().String(flagSimappExportStatePath, "", "custom file path to save the exported app state JSON")
+	c.Flags().String(flagSimappExportStatsPath, "", "custom file path to save the exported simulation statistics JSON")
+	c.Flags().Int64(flagSimappSeed, 42, "simulation random seed")
+	c.Flags().Int(flagSimappInitialBlockHeight, 1, "initial block to start the simulation")
+	c.Flags().Int(flagSimappNumBlocks, 200, "number of new blocks to simulate from the initial block height")
+	c.Flags().Int(flagSimappBlockSize, 30, "operations per block")
+	c.Flags().Bool(flagSimappLean, false, "lean simulation log output")
+	c.Flags().Bool(flagSimappCommit, true, "have the simulation commit")
+	c.Flags().Bool(flagSimappSimulateEveryOperation, false, "run slow invariants every operation")
+	c.Flags().Bool(flagSimappPrintAllInvariants, false, "print all invariants if a broken invariant is found")
 
 	// simulation flags
-	c.Flags().Bool(flagEnabled, false, "enable the simulation")
-	c.Flags().Bool(flagVerbose, false, "verbose log output")
-	c.Flags().Uint(flagPeriod, 0, "run slow invariants only once every period assertions")
-	c.Flags().Int64(flagGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
+	c.Flags().BoolP(flagSimappVerbose, "v", false, "verbose log output")
+	c.Flags().Uint(flagSimappPeriod, 0, "run slow invariants only once every period assertions")
+	c.Flags().Int64(flagSimappGenesisTime, 0, "override genesis UNIX time instead of using a random UNIX time")
 }
