@@ -22,6 +22,7 @@ func ParseList(arg string) ([]uint64, error) {
 		if trimmedRange == "" {
 			continue
 		}
+
 		// Split the number by the separator range
 		numbers := strings.Split(trimmedRange, sepRange)
 		switch len(numbers) {
