@@ -1,6 +1,8 @@
 package starportcmd
 
 import (
+	"path/filepath"
+
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/services/chain"
@@ -35,23 +37,29 @@ func NewChainSimulate() *cobra.Command {
 		Args:  cobra.ExactArgs(0),
 		RunE:  chainSimulationHandler,
 	}
+
 	simappFlags(c)
-	flagSetPath(c)
+	c.Flags().StringP(flagPath, "p", ".", "path to scaffold the chain")
 	c.Flags().AddFlagSet(flagSetHome())
+
 	return c
 }
 
 func chainSimulationHandler(cmd *cobra.Command, args []string) error {
 	var (
-		// simulation flags
 		verbose, _     = cmd.Flags().GetBool(flagSimappVerbose)
 		period, _      = cmd.Flags().GetUint(flagSimappPeriod)
 		genesisTime, _ = cmd.Flags().GetInt64(flagSimappGenesisTime)
 		config         = newConfigFromFlags(cmd)
+		appPath        = flagGetPath(cmd)
 	)
 
-	// create the chain
-	c, err := newChainWithHomeFlags(cmd)
+	// create the chain with path
+	absPath, err := filepath.Abs(appPath)
+	if err != nil {
+		return err
+	}
+	c, err := chain.New(absPath)
 	if err != nil {
 		return err
 	}

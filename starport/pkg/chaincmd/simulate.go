@@ -205,13 +205,13 @@ func SimappWithGenesisTime(genesisTime int64) SimappOption {
 
 // SimulationCommand returns the cli command for golang built in tests
 // cli is the daemon for Stargate
-func (c ChainCmd) SimulationCommand(home string, options ...SimappOption) step.Option {
+func (c ChainCmd) SimulationCommand(appPath string, options ...SimappOption) step.Option {
 	command := []string{
 		commandGoTest,
 		optionGoBenchmem,
 		optionGoSimappRun,
 		optionGoSimappBench,
-		filepath.Join(home, "app"),
+		filepath.Join(appPath, "app"),
 	}
 
 	// Apply the options provided by the user

@@ -11,7 +11,7 @@ import (
 // Simulation run the chain simulation.
 func (r Runner) Simulation(
 	ctx context.Context,
-	home string,
+	appPath string,
 	enabled bool,
 	verbose bool,
 	config simulation.Config,
@@ -20,7 +20,7 @@ func (r Runner) Simulation(
 ) error {
 	return r.run(ctx, runOptions{stdout: os.Stdout},
 		r.chainCmd.SimulationCommand(
-			home,
+			appPath,
 			chaincmd.SimappWithGenesis(config.GenesisFile),
 			chaincmd.SimappWithParams(config.ParamsFile),
 			chaincmd.SimappWithExportParamsPath(config.ExportParamsPath),
