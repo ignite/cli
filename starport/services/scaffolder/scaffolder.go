@@ -76,26 +76,38 @@ func owner(modulePath string) string {
 }
 
 func finish(path, gomodPath string) error {
-	if err := protoc(path, gomodPath); err != nil {
-		return err
-	}
-	if err := tidy(path); err != nil {
-		return err
-	}
-	return fmtProject(path)
-}
-
-func protoc(projectPath, gomodPath string) error {
-	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
-		return err
-	}
-
-	confpath, err := chainconfig.LocateDefault(projectPath)
+	confpath, err := chainconfig.LocateDefault(path)
 	if err != nil {
 		return err
 	}
 	conf, err := chainconfig.ParseFile(confpath)
 	if err != nil {
+		return err
+	}
+
+	if conf.Build.Proto.Auto {
+		if err := protoc(path, gomodPath, conf); err != nil {
+			return err
+		}
+	}
+
+	if conf.Build.AutoTidy {
+		if err := tidy(path); err != nil {
+			return err
+		}
+	}
+
+	if conf.Build.AutoFmt {
+		if err := fmtProject(path); err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func protoc(projectPath, gomodPath string, conf chainconfig.Config) error {
+	if err := cosmosgen.InstallDependencies(context.Background(), projectPath); err != nil {
 		return err
 	}
 
