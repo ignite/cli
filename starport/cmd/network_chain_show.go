@@ -8,10 +8,12 @@ import (
 	"strings"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
 	"github.com/tendermint/starport/starport/pkg/yaml"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 type ShowType string
@@ -80,17 +82,12 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
-	if err != nil {
-		return err
-	}
-
 	content := ""
 	switch showType {
 	case chainShowGenesis:
-		content, err = formatChainGenesis(c)
+		content, err = formatChainGenesis(nb, chainLaunch)
 	case chainShowInfo:
-		content, err = formatChainInfo(cmd.Context(), c, launchID)
+		content, err = formatChainInfo(cmd.Context(), chainLaunch)
 	case chainShowAccounts:
 		content, err = formatChainAccounts(cmd.Context(), n, launchID)
 	case chainShowPeers:
@@ -105,7 +102,12 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-func formatChainGenesis(c network.Chain) (string, error) {
+func formatChainGenesis(nb NetworkBuilder, chainLaunch networktypes.ChainLaunch) (string, error) {
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
+	if err != nil {
+		return "", err
+	}
+
 	genesisPath, err := c.GenesisPath()
 	if err != nil {
 		return "", err
@@ -120,32 +122,22 @@ func formatChainGenesis(c network.Chain) (string, error) {
 	return string(genesisFile), nil
 }
 
-func formatChainInfo(ctx context.Context, c *networkchain.Chain, launchID uint64) (string, error) {
-	home, err := c.Home()
-	if err != nil {
-		return "", err
+func formatChainInfo(ctx context.Context, chainLaunch networktypes.ChainLaunch) (info string, err error) {
+	var genesis []byte
+	if chainLaunch.GenesisURL != "" {
+		genesis, _, err = cosmosutil.GenesisAndHashFromURL(ctx, chainLaunch.GenesisURL)
+		if err != nil {
+			return "", err
+		}
 	}
-	id, err := c.ID()
-	if err != nil {
-		return "", err
-	}
-
-	info := struct {
-		LaunchID  uint64 `json:"LaunchID"`
-		ChainID   string `json:"ChainID"`
-		Name      string `json:"Name"`
-		SourceURL string `json:"SourceURL"`
-		Hash      string `json:"Hash"`
-		HomePath  string `json:"HomePath"`
+	chainInfo := struct {
+		Chain   networktypes.ChainLaunch `json:"Chain"`
+		Genesis []byte                   `json:"Genesis"`
 	}{
-		LaunchID:  launchID,
-		ChainID:   id,
-		Name:      c.Name(),
-		SourceURL: c.SourceURL(),
-		Hash:      c.SourceHash(),
-		HomePath:  home,
+		Chain:   chainLaunch,
+		Genesis: genesis,
 	}
-	return yaml.Marshal(ctx, info)
+	return yaml.Marshal(ctx, chainInfo, "$.Genesis")
 }
 
 func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64) (string, error) {
