@@ -182,7 +182,6 @@ import (
 func (k msgServer) RequestLoan(goCtx context.Context, msg *types.MsgRequestLoan) (*types.MsgRequestLoanResponse, error) {
 	ctx := sdk.UnwrapSDKContext(goCtx)
 
-	// TODO: Handling the message
 	// Create a new Loan with the following user input
 	var loan = types.Loan{
 		Amount:     msg.Amount,
@@ -282,7 +281,7 @@ starport chain serve
 Add your first loan:
 
 ```bash
-loand tx loan request-loan 100token 2token 200token 500 --from alice -y
+loand tx loan request-loan 100token 2token 200token 500 --from alice 
 ```
 
 Query your loan:
@@ -348,7 +347,7 @@ func (k msgServer) ApproveLoan(goCtx context.Context, msg *types.MsgApproveLoan)
 
 	loan, found := k.GetLoan(ctx, msg.Id)
 	if !found {
-		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, fmt.Sprintf("key %d doesn't exist", msg.Id))
+		return nil, sdkerrors.Wrapf(sdkerrors.ErrKeyNotFound, "key %d doesn't exist", msg.Id)
 	}
 
 	// TODO: for some reason the error doesn't get printed to the terminal
@@ -595,7 +594,7 @@ loand query bank balances <alice_address>
 Now repay the loan:
 
 ```bash
-loand tx loan repay-loan 3 --from bob -y
+loand tx loan repay-loan 0 --from bob -y
 ```
 
 The loan status is now `repayed`:
@@ -746,7 +745,7 @@ Take the lender address from above, this is alice address.
 loand query bank balances <alice_address>
 ```
 
-Now, repay the loan:
+Now, liquidate the loan:
 
 ```bash
 loand tx loan liquidate-loan 0 --from alice -y
