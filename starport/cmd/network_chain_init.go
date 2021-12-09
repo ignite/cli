@@ -14,7 +14,12 @@ import (
 )
 
 const (
-	flagValidatorAccount = "validator-account"
+	flagValidatorAccount         = "validator-account"
+	flagValidatorWebsite         = "validator-website"
+	flagValidatorDetails         = "validator-details"
+	flagValidatorSecurityContact = "validator-security-contact"
+	flagValidatorMoniker         = "validator-moniker"
+	flagValidatorIdentity        = "validator-identity"
 )
 
 // NewNetworkChainInit returns a new command to initialize a chain from a published chain ID
@@ -27,6 +32,11 @@ func NewNetworkChainInit() *cobra.Command {
 	}
 
 	c.Flags().String(flagValidatorAccount, cosmosaccount.DefaultAccount, "Account for the chain validator")
+	c.Flags().String(flagValidatorWebsite, "", "Associate a website to the validator")
+	c.Flags().String(flagValidatorDetails, "", "Provide details about the validator")
+	c.Flags().String(flagValidatorSecurityContact, "", "Provide a validator security contact email")
+	c.Flags().String(flagValidatorMoniker, "", "Provide a custom validator moniker")
+	c.Flags().String(flagValidatorIdentity, "", "Provide a validator identity signature (ex. UPort or Keybase)")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
@@ -101,7 +111,7 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// ask validator information.
-	v, err := askValidatorInfo(validatorAccount, stakeDenom)
+	v, err := askValidatorInfo(cmd, stakeDenom)
 	if err != nil {
 		return err
 	}
@@ -116,11 +126,26 @@ func networkChainInitHandler(cmd *cobra.Command, args []string) error {
 }
 
 // askValidatorInfo prompts to the user questions to query validator information
-func askValidatorInfo(validatorName, stakeDenom string) (chain.Validator, error) {
+func askValidatorInfo(cmd *cobra.Command, stakeDenom string) (chain.Validator, error) {
+	var (
+		account, _         = cmd.Flags().GetString(flagValidatorAccount)
+		website, _         = cmd.Flags().GetString(flagValidatorWebsite)
+		details, _         = cmd.Flags().GetString(flagValidatorDetails)
+		securityContact, _ = cmd.Flags().GetString(flagValidatorSecurityContact)
+		moniker, _         = cmd.Flags().GetString(flagValidatorMoniker)
+		identity, _        = cmd.Flags().GetString(flagValidatorIdentity)
+	)
 	v := chain.Validator{
-		Name:    validatorName,
-		Moniker: validatorName,
+		Name:              account,
+		Website:           website,
+		Details:           details,
+		Moniker:           moniker,
+		Identity:          identity,
+		SecurityContact:   securityContact,
+		GasPrices:         "0stake",
+		MinSelfDelegation: "1",
 	}
+
 	questions := append([]cliquiz.Question{},
 		cliquiz.NewQuestion("Staking amount",
 			&v.StakingAmount,
