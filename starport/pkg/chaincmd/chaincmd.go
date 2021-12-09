@@ -39,9 +39,12 @@ const (
 	optionValidatorDetails                 = "--details"
 	optionValidatorIdentity                = "--identity"
 	optionValidatorWebsite                 = "--website"
+	optionValidatorSecurityContact         = "--security-contact"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
 	optionCoinType                         = "--coin-type"
+	optionVestingAmount                    = "--vesting-amount"
+	optionVestingEndTime                   = "--vesting-end-time"
 	optionBroadcastMode                    = "--broadcast-mode"
 
 	constTendermint = "tendermint"
@@ -280,6 +283,21 @@ func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	return c.daemonCommand(command)
 }
 
+// AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain
+func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
+	command := []string{
+		commandAddGenesisAccount,
+		address,
+		originalCoins,
+		optionVestingAmount,
+		vestingCoins,
+		optionVestingEndTime,
+		fmt.Sprintf("%d", vestingEndTime),
+	}
+
+	return c.daemonCommand(command)
+}
+
 // GentxOption for the GentxCommand
 type GentxOption func([]string) []string
 
@@ -368,6 +386,16 @@ func GentxWithWebsite(website string) GentxOption {
 	return func(command []string) []string {
 		if len(website) > 0 {
 			return append(command, optionValidatorWebsite, website)
+		}
+		return command
+	}
+}
+
+// GentxWithSecurityContact provides validator security contact option for the gentx command
+func GentxWithSecurityContact(securityContact string) GentxOption {
+	return func(command []string) []string {
+		if len(securityContact) > 0 {
+			return append(command, optionValidatorSecurityContact, securityContact)
 		}
 		return command
 	}
