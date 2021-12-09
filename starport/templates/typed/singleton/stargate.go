@@ -105,17 +105,17 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 %[1]v`
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
 
