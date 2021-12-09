@@ -77,3 +77,12 @@ func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 		Peer:  val.Peer,
 	}
 }
+
+// ApplyRequest applies to the genesisInformation the changes implied by the approval of a request
+func ApplyRequest(genesisInformation GenesisInformation, request launchtypes.Request) (GenesisInformation, error) {
+	//switch requestContent := request.Content.Content.(type) {
+	//case *launchtypes.RequestContent_GenesisAccount:
+	//	ga := requestContent.GenesisAccount
+	//
+	//}
+}
