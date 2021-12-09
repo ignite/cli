@@ -14,7 +14,7 @@ import (
 
 const (
 	passphraseLength = 32
-	sampleAccount = "alice"
+	sampleAccount    = "alice"
 )
 
 // InitAccount initializes an account for the blockchain and issue a gentx in config/gentx/gentx.json

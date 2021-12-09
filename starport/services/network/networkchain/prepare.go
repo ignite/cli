@@ -55,11 +55,16 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformation) error {
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
+	addressPrefix, err := c.detectPrefix(ctx)
+	if err != nil {
+		return errors.Wrap(err, "error detecting chain prefix")
+	}
+
 	// apply genesis information to the genesis
-	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts); err != nil {
+	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
 	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
@@ -81,10 +86,12 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 }
 
 // applyGenesisAccounts adds the genesis account into the genesis using the chain CLI
-func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []networktypes.GenesisAccount) error {
+func (c Chain) applyGenesisAccounts(
+	ctx context.Context,
+	genesisAccs []networktypes.GenesisAccount,
+	addressPrefix string,
+) error {
 	var err error
-	// TODO: detect the correct prefix
-	prefix := "cosmos"
 
 	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
@@ -93,7 +100,7 @@ func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []networkty
 
 	for _, acc := range genesisAccs {
 		// change the address prefix to the target chain prefix
-		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, prefix)
+		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, addressPrefix)
 		if err != nil {
 			return err
 		}
@@ -109,17 +116,18 @@ func (c Chain) applyGenesisAccounts(ctx context.Context, genesisAccs []networkty
 }
 
 // applyVestingAccounts adds the genesis vesting account into the genesis using the chain CLI
-func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []networktypes.VestingAccount) error {
-	var err error
-	prefix := "cosmos"
-
+func (c Chain) applyVestingAccounts(
+	ctx context.Context,
+	vestingAccs []networktypes.VestingAccount,
+	addressPrefix string,
+) error {
 	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
 	}
 
 	for _, acc := range vestingAccs {
-		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, prefix)
+		acc.Address, err = cosmosutil.ChangeAddressPrefix(acc.Address, addressPrefix)
 		if err != nil {
 			return err
 		}
