@@ -21,20 +21,23 @@ import (
 type ShowType string
 
 const (
-	chainShowInfo     ShowType = "info"
-	chainShowGenesis  ShowType = "genesis"
-	chainShowAccounts ShowType = "accounts"
-	chainShowPeers    ShowType = "peers"
+	chainShowInfo       ShowType = "info"
+	chainShowGenesis    ShowType = "genesis"
+	chainShowAccounts   ShowType = "accounts"
+	chainShowValidators ShowType = "validators"
+	chainShowPeers      ShowType = "peers"
 )
 
 var (
 	showTypes = map[ShowType]struct{}{
-		chainShowInfo:     {},
-		chainShowGenesis:  {},
-		chainShowAccounts: {},
-		chainShowPeers:    {},
+		chainShowInfo:       {},
+		chainShowGenesis:    {},
+		chainShowAccounts:   {},
+		chainShowValidators: {},
+		chainShowPeers:      {},
 	}
 
+	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
 	chainGenesisAccSummaryHeader = []string{"Genesis Account", "Coins"}
 	chainVestingAccSummaryHeader = []string{"Vesting Account", "StartingBalance", "Vesting", "EndTime"}
 )
@@ -93,6 +96,8 @@ func networkChainShowHandler(cmd *cobra.Command, args []string) error {
 		content, err = formatChainInfo(cmd.Context(), chainLaunch)
 	case chainShowAccounts:
 		content, err = formatChainAccounts(cmd.Context(), n, launchID)
+	case chainShowValidators:
+		content, err = formatChainValidators(cmd.Context(), n, launchID)
 	case chainShowPeers:
 		content, err = formatChainPeers(cmd.Context(), n, launchID)
 	}
@@ -145,14 +150,13 @@ func formatChainInfo(ctx context.Context, chainLaunch networktypes.ChainLaunch) 
 }
 
 func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64) (string, error) {
-	genesisInformation, err := n.GenesisInformation(ctx, launchID)
+	accountSummary := bytes.NewBufferString("")
+	genesisAccs, err := n.GenesisAccounts(ctx, launchID)
 	if err != nil {
 		return "", err
 	}
-	accountSummary := bytes.NewBufferString("")
-
 	genesisAccEntries := make([][]string, 0)
-	for _, acc := range genesisInformation.GenesisAccounts {
+	for _, acc := range genesisAccs {
 		genesisAccEntries = append(genesisAccEntries, []string{
 			acc.Address,
 			acc.Coins,
@@ -168,8 +172,12 @@ func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64
 		}
 	}
 
+	vestingAccs, err := n.VestingAccounts(ctx, launchID)
+	if err != nil {
+		return "", err
+	}
 	genesisVestingAccEntries := make([][]string, 0)
-	for _, acc := range genesisInformation.VestingAccounts {
+	for _, acc := range vestingAccs {
 		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
 			acc.Address,
 			acc.StartingBalance,
@@ -189,16 +197,42 @@ func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64
 	return accountSummary.String(), err
 }
 
+func formatChainValidators(ctx context.Context, n network.Network, launchID uint64) (string, error) {
+	validatorSummary := bytes.NewBufferString("")
+	validators, err := n.GenesisValidators(ctx, launchID)
+	if err != nil {
+		return "", err
+	}
+	validatorEntries := make([][]string, 0)
+	for _, acc := range validators {
+		validatorEntries = append(validatorEntries, []string{
+			acc.Address,
+			acc.SelfDelegation.String(),
+			acc.Peer,
+		})
+	}
+	if len(validatorEntries) > 0 {
+		if err = entrywriter.MustWrite(
+			validatorSummary,
+			chainGenesisValSummaryHeader,
+			validatorEntries...,
+		); err != nil {
+			return "", err
+		}
+	}
+	return validatorSummary.String(), err
+}
+
 func formatChainPeers(ctx context.Context, n network.Network, launchID uint64) (string, error) {
-	genesisInformation, err := n.GenesisInformation(ctx, launchID)
+	genVals, err := n.GenesisValidators(ctx, launchID)
 	if err != nil {
 		return "", err
 	}
 
 	peers := make([]string, 0)
-	for _, acc := range genesisInformation.GenesisValidators {
+	for _, acc := range genVals {
 		peers = append(peers, acc.Peer)
 	}
 
-	return fmt.Sprintf("Persistent Peers: %s\n", strings.Join(peers, ",")), nil
+	return fmt.Sprintf("Peers: %s\n", strings.Join(peers, ",")), nil
 }
