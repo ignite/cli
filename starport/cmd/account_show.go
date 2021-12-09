@@ -34,6 +34,5 @@ func accountShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printAccounts(cmd, acc)
-	return nil
+	return printAccounts(cmd, acc)
 }
