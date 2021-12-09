@@ -3,10 +3,10 @@ package networkchain
 import (
 	"context"
 	"errors"
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"os"
 	"path/filepath"
 
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/randstr"
 	"github.com/tendermint/starport/starport/services/chain"
