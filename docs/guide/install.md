@@ -4,7 +4,7 @@ description: Steps to install Starport on your local computer.
 ---
 
 [Install Starport](#install-starport)
-  - [Prerequisites](#prerequisites)
+  - [Prerequisites]
     - [Operating Systems](#operating-systems)
     - [Go](#go)
   - [Verify Your Starport Version](#verify-your-starport-version)
