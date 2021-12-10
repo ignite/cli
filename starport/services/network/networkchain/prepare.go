@@ -136,7 +136,7 @@ func (c Chain) applyVestingAccounts(ctx context.Context, vestingAccs []networkty
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
-			acc.StartingBalance,
+			acc.TotalBalance,
 			acc.Vesting,
 			acc.EndTime,
 		)
