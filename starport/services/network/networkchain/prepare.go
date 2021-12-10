@@ -48,7 +48,15 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 		c.ev.Send(events.New(events.StatusDone, "Genesis initialized"))
 	}
 
-	return c.buildGenesis(ctx, gi)
+	if err := c.buildGenesis(ctx, gi); err != nil {
+		return err
+	}
+
+	cmd, err := c.chain.Commands(ctx)
+	if err != nil {
+		return err
+	}
+	return cmd.UnsafeReset(ctx)
 }
 
 // buildGenesis builds the genesis for the chain from the launch approved requests
@@ -136,7 +144,7 @@ func (c Chain) applyVestingAccounts(
 		err = cmd.AddVestingAccount(
 			ctx,
 			acc.Address,
-			acc.StartingBalance,
+			acc.TotalBalance,
 			acc.Vesting,
 			acc.EndTime,
 		)
