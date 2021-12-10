@@ -4,12 +4,11 @@ import (
 	"fmt"
 	"io"
 	"os"
-	"strconv"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/entrywriter"
+	"github.com/tendermint/starport/starport/services/network"
 )
 
 var requestSummaryHeader = []string{"ID", "Type", "Content"}
@@ -38,12 +37,9 @@ func networkRequestListHandler(cmd *cobra.Command, args []string) error {
 	defer nb.Cleanup()
 
 	// parse launch ID
-	launchID, err := strconv.ParseUint(args[0], 10, 64)
+	launchID, err := network.ParseLaunchID(args[0])
 	if err != nil {
-		return errors.Wrap(err, "error parsing launchID")
-	}
-	if launchID == 0 {
-		return errors.New("launch ID must be greater than 0")
+		return err
 	}
 
 	n, err := nb.Network()
@@ -82,9 +78,19 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:
 			requestType = "Add Vesting Account"
+
+			// parse vesting options
+			var vestingCoins string
+			dv := req.VestingAccount.VestingOptions.GetDelayedVesting()
+			if dv == nil {
+				vestingCoins = "unrecognized vesting option"
+			} else {
+				vestingCoins = fmt.Sprintf("%s (vesting: %s)", dv.TotalBalance, dv.Vesting)
+			}
 			content = fmt.Sprintf("%s, %s",
 				req.VestingAccount.Address,
-				req.VestingAccount.StartingBalance.String())
+				vestingCoins,
+			)
 		case *launchtypes.RequestContent_ValidatorRemoval:
 			requestType = "Remove Validator"
 			content = req.ValidatorRemoval.ValAddress
