@@ -90,7 +90,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		_, err = campaigntypes.
 			NewQueryClient(n.cosmos.Context).
 			Campaign(ctx, &campaigntypes.QueryGetCampaignRequest{
-				Id: o.campaignID,
+				CampaignID: o.campaignID,
 			})
 		if err != nil {
 			return 0, 0, err
@@ -100,7 +100,6 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			coordinatorAddress,
 			c.Name(),
 			nil,
-			false,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {

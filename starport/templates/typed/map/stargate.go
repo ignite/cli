@@ -121,30 +121,31 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
-		var lowerCamelIndexes []string
+		var snakeIndexes []string
 		for _, index := range opts.Indexes {
-			lowerCamelIndexes = append(lowerCamelIndexes, fmt.Sprintf("{%s}", index.Name.LowerCamel))
+			snakeIndexes = append(snakeIndexes, fmt.Sprintf("{%s}", index.Name.Snake))
 		}
-		indexPath := strings.Join(lowerCamelIndexes, "/")
+		indexPath := strings.Join(snakeIndexes, "/")
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/%[7]v";
 	}
 
-	// Queries a list of %[3]v items.
+	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
-		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
+		replacementService := fmt.Sprintf(templateService,
+			typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 			indexPath,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
