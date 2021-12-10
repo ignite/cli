@@ -39,7 +39,7 @@ var (
 
 	chainGenesisValSummaryHeader = []string{"Genesis Validator", "Self Delegation", "Peer"}
 	chainGenesisAccSummaryHeader = []string{"Genesis Account", "Coins"}
-	chainVestingAccSummaryHeader = []string{"Vesting Account", "StartingBalance", "Vesting", "EndTime"}
+	chainVestingAccSummaryHeader = []string{"Vesting Account", "Total Balance", "Vesting", "EndTime"}
 )
 
 // NewNetworkChainShow creates a new chain show command to show
@@ -180,7 +180,7 @@ func formatChainAccounts(ctx context.Context, n network.Network, launchID uint64
 	for _, acc := range vestingAccs {
 		genesisVestingAccEntries = append(genesisVestingAccEntries, []string{
 			acc.Address,
-			acc.StartingBalance,
+			acc.TotalBalance,
 			acc.Vesting,
 			strconv.FormatInt(acc.EndTime, 10),
 		})
