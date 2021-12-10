@@ -52,10 +52,12 @@ func (g *generator) generateGo() error {
 	_, err = os.Stat(generatedPath)
 	if err == nil {
 		err = copy.Copy(generatedPath, g.appPath)
-		return errors.Wrap(err, "cannot copy path")
-	}
-	if !os.IsNotExist(err) {
+		if err != nil {
+			return errors.Wrap(err, "cannot copy path")
+		}
+	} else if !os.IsNotExist(err) {
 		return err
 	}
+
 	return nil
 }
