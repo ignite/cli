@@ -25,6 +25,7 @@ func NewScaffoldPacket() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetSkipProto(c)
 	c.Flags().StringSlice(flagAck, []string{}, "Custom acknowledgment type (field1,field2,...)")
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
@@ -42,6 +43,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		packetFields = args[1:]
 		signer       = flagGetSigner(cmd)
 		appPath      = flagGetPath(cmd)
+		skipProto    = flagGetSkipProto(cmd)
 	)
 
 	module, err := cmd.Flags().GetString(flagModule)
@@ -74,7 +76,7 @@ func createPacketHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, options...)
+	sm, err := sc.AddPacket(cmd.Context(), placeholder.New(), module, packet, packetFields, ackFields, skipProto, options...)
 	if err != nil {
 		return err
 	}

@@ -15,6 +15,7 @@ func NewScaffoldSingle() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetSkipProto(c)
 	c.Flags().AddFlagSet(flagSetScaffoldType())
 
 	return c

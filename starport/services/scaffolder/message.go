@@ -53,6 +53,7 @@ func (s Scaffolder) AddMessage(
 	msgName string,
 	fields,
 	resFields []string,
+	skipProto bool,
 	options ...MessageOption,
 ) (sm xgenny.SourceModification, err error) {
 	// Create the options
@@ -156,6 +157,10 @@ func (s Scaffolder) AddMessage(
 	sm, err = xgenny.RunWithValidation(tracer, gens...)
 	if err != nil {
 		return sm, err
+	}
+
+	if skipProto {
+		return sm, nil
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

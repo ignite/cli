@@ -23,6 +23,7 @@ func NewScaffoldChain() *cobra.Command {
 		RunE:  scaffoldChainHandler,
 	}
 
+	flagSetSkipProto(c)
 	c.Flags().StringP(flagPath, "p", ".", "path to scaffold the chain")
 	c.Flags().String(flagAddressPrefix, "cosmos", "Address prefix")
 	c.Flags().Bool(flagNoDefaultModule, false, "Prevent scaffolding a default module in the app")
@@ -39,9 +40,10 @@ func scaffoldChainHandler(cmd *cobra.Command, args []string) error {
 		addressPrefix, _   = cmd.Flags().GetString(flagAddressPrefix)
 		noDefaultModule, _ = cmd.Flags().GetBool(flagNoDefaultModule)
 		appPath            = flagGetPath(cmd)
+		skipProto          = flagGetSkipProto(cmd)
 	)
 
-	appdir, err := scaffolder.Init(placeholder.New(), appPath, name, addressPrefix, noDefaultModule)
+	appdir, err := scaffolder.Init(placeholder.New(), appPath, name, addressPrefix, noDefaultModule, skipProto)
 	if err != nil {
 		return err
 	}

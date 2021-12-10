@@ -59,6 +59,7 @@ func scaffoldType(
 		withoutMessage = flagGetNoMessage(cmd)
 		signer         = flagGetSigner(cmd)
 		appPath        = flagGetPath(cmd)
+		skipProto      = flagGetSkipProto(cmd)
 	)
 
 	var options []scaffolder.AddTypeOption
@@ -83,7 +84,7 @@ func scaffoldType(
 		return err
 	}
 
-	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, options...)
+	sm, err := sc.AddType(cmd.Context(), typeName, placeholder.New(), kind, skipProto, options...)
 	if err != nil {
 		return err
 	}

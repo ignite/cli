@@ -28,7 +28,7 @@ var (
 )
 
 // Init initializes a new app with name and given options.
-func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule bool) (path string, err error) {
+func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaultModule, skipProto bool) (path string, err error) {
 	if root, err = filepath.Abs(root); err != nil {
 		return "", err
 	}
@@ -45,8 +45,10 @@ func Init(tracer *placeholder.Tracer, root, name, addressPrefix string, noDefaul
 		return "", err
 	}
 
-	if err := finish(path, pathInfo.RawPath); err != nil {
-		return "", err
+	if !skipProto {
+		if err := finish(path, pathInfo.RawPath); err != nil {
+			return "", err
+		}
 	}
 
 	// initialize git repository and perform the first commit

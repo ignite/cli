@@ -30,6 +30,7 @@ const (
 	flagHome          = "home"
 	flagProto3rdParty = "proto-all-modules"
 	flagYes           = "yes"
+	flagSkipProto     = "skip"
 
 	checkVersionTimeout = time.Millisecond * 600
 )
@@ -114,6 +115,15 @@ func flagNetworkFrom() *flag.FlagSet {
 	fs := flag.NewFlagSet("", flag.ContinueOnError)
 	fs.String(flagFrom, cosmosaccount.DefaultAccount, "Account name to use for sending transactions to SPN")
 	return fs
+}
+
+func flagSetSkipProto(cmd *cobra.Command) {
+	cmd.PersistentFlags().BoolP(flagSkipProto, "s", false, "skip generating proto go")
+}
+
+func flagGetSkipProto(cmd *cobra.Command) (skipProto bool) {
+	skipProto, _ = cmd.Flags().GetBool(flagSkipProto)
+	return
 }
 
 func getHome(cmd *cobra.Command) (home string) {

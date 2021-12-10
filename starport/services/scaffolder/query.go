@@ -20,7 +20,7 @@ func (s Scaffolder) AddQuery(
 	description string,
 	reqFields,
 	resFields []string,
-	paginated bool,
+	paginated, skipProto bool,
 ) (sm xgenny.SourceModification, err error) {
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
@@ -83,6 +83,10 @@ func (s Scaffolder) AddQuery(
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
 		return sm, err
+	}
+
+	if skipProto {
+		return sm, nil
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

@@ -21,6 +21,7 @@ func NewScaffoldBandchain() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetSkipProto(c)
 	c.Flags().String(flagModule, "", "IBC Module to add the packet into")
 	c.Flags().String(flagSigner, "", "Label for the message signer (default: creator)")
 
@@ -29,9 +30,10 @@ func NewScaffoldBandchain() *cobra.Command {
 
 func createBandchainHandler(cmd *cobra.Command, args []string) error {
 	var (
-		oracle  = args[0]
-		appPath = flagGetPath(cmd)
-		signer  = flagGetSigner(cmd)
+		oracle    = args[0]
+		appPath   = flagGetPath(cmd)
+		signer    = flagGetSigner(cmd)
+		skipProto = flagGetSkipProto(cmd)
 	)
 
 	s := clispinner.New().SetText("Scaffolding...")
@@ -55,7 +57,7 @@ func createBandchainHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddOracle(placeholder.New(), module, oracle, options...)
+	sm, err := sc.AddOracle(placeholder.New(), module, oracle, skipProto, options...)
 	if err != nil {
 		return err
 	}

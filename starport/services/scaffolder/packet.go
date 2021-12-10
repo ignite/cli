@@ -57,6 +57,7 @@ func (s Scaffolder) AddPacket(
 	packetName string,
 	packetFields,
 	ackFields []string,
+	skipProto bool,
 	options ...PacketOption,
 ) (sm xgenny.SourceModification, err error) {
 	// apply options.
@@ -140,6 +141,10 @@ func (s Scaffolder) AddPacket(
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
 		return sm, err
+	}
+
+	if skipProto {
+		return sm, nil
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

@@ -22,6 +22,7 @@ func NewScaffoldQuery() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetSkipProto(c)
 	c.Flags().String(flagModule, "", "Module to add the query into. Default: app's main module")
 	c.Flags().StringSliceP(flagResponse, "r", []string{}, "Response fields")
 	c.Flags().StringP(flagDescription, "d", "", "Description of the command")
@@ -32,6 +33,7 @@ func NewScaffoldQuery() *cobra.Command {
 
 func queryHandler(cmd *cobra.Command, args []string) error {
 	appPath := flagGetPath(cmd)
+	skipProto := flagGetSkipProto(cmd)
 
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
@@ -68,7 +70,7 @@ func queryHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated)
+	sm, err := sc.AddQuery(cmd.Context(), placeholder.New(), module, args[0], desc, args[1:], resFields, paginated, skipProto)
 	if err != nil {
 		return err
 	}

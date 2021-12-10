@@ -45,6 +45,7 @@ func (s *Scaffolder) AddOracle(
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName string,
+	skipProto bool,
 	options ...OracleOption,
 ) (sm xgenny.SourceModification, err error) {
 	if err := s.installBandPacket(); err != nil {
@@ -105,6 +106,10 @@ func (s *Scaffolder) AddOracle(
 	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
 		return sm, err
+	}
+
+	if skipProto {
+		return sm, nil
 	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

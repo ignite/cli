@@ -112,6 +112,7 @@ func (s Scaffolder) AddType(
 	typeName string,
 	tracer *placeholder.Tracer,
 	kind AddTypeKind,
+	skipProto bool,
 	options ...AddTypeOption,
 ) (sm xgenny.SourceModification, err error) {
 	// apply options.
@@ -235,6 +236,9 @@ func (s Scaffolder) AddType(
 		return sm, err
 	}
 
+	if skipProto {
+		return sm, nil
+	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 

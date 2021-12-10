@@ -39,10 +39,7 @@ var DefaultConf = Config{
 		API:     "0.0.0.0:1317",
 	},
 	Build: Build{
-		AutoTidy: false,
-		AutoFmt:  false,
 		Proto: Proto{
-			Auto: false,
 			Path: "proto",
 			ThirdPartyPaths: []string{
 				"third_party/proto",
@@ -98,11 +95,9 @@ type Validator struct {
 
 // Build holds build configs.
 type Build struct {
-	Main     string `yaml:"main"`
-	Binary   string `yaml:"binary"`
-	AutoTidy bool   `yaml:"auto_tidy"`
-	AutoFmt  bool   `yaml:"auto_fmt"`
-	Proto    Proto  `yaml:"proto"`
+	Main   string `yaml:"main"`
+	Binary string `yaml:"binary"`
+	Proto  Proto  `yaml:"proto"`
 }
 
 // Proto holds proto build configs.
@@ -113,9 +108,6 @@ type Proto struct {
 	// ThirdPartyPath is the relative path of where the third party proto files are
 	// located that used by the app.
 	ThirdPartyPaths []string `yaml:"third_party_paths"`
-
-	// auto generate go code when scafolding
-	Auto bool `yaml:"auto"`
 }
 
 // Client configures code generation for clients.

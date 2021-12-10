@@ -34,6 +34,7 @@ func NewScaffoldModule() *cobra.Command {
 	}
 
 	flagSetPath(c)
+	flagSetSkipProto(c)
 	c.Flags().StringSlice(flagDep, []string{}, "module dependencies (e.g. --dep account,bank)")
 	c.Flags().Bool(flagIBC, false, "scaffold an IBC module")
 	c.Flags().String(flagIBCOrdering, "none", "channel ordering of the IBC module [none|ordered|unordered]")
@@ -45,8 +46,9 @@ func NewScaffoldModule() *cobra.Command {
 
 func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 	var (
-		name    = args[0]
-		appPath = flagGetPath(cmd)
+		name      = args[0]
+		appPath   = flagGetPath(cmd)
+		skipProto = flagGetSkipProto(cmd)
 	)
 	s := clispinner.New().SetText("Scaffolding...")
 	defer s.Stop()
@@ -113,7 +115,7 @@ func scaffoldModuleHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	sm, err := sc.CreateModule(placeholder.New(), name, options...)
+	sm, err := sc.CreateModule(placeholder.New(), name, skipProto, options...)
 	s.Stop()
 	if err != nil {
 		var validationErr validation.Error

@@ -145,6 +145,7 @@ func WithDependencies(dependencies []modulecreate.Dependency) ModuleCreationOpti
 func (s Scaffolder) CreateModule(
 	tracer *placeholder.Tracer,
 	moduleName string,
+	skipProto bool,
 	options ...ModuleCreationOption,
 ) (sm xgenny.SourceModification, err error) {
 	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
@@ -224,6 +225,9 @@ func (s Scaffolder) CreateModule(
 		return sm, runErr
 	}
 
+	if skipProto {
+		return sm, nil
+	}
 	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }
 
