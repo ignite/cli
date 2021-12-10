@@ -20,7 +20,6 @@ const (
 	flagSimappNumBlocks              = "numBlocks"
 	flagSimappBlockSize              = "blockSize"
 	flagSimappLean                   = "lean"
-	flagSimappCommit                 = "commit"
 	flagSimappSimulateEveryOperation = "simulateEveryOperation"
 	flagSimappPrintAllInvariants     = "printAllInvariants"
 	flagSimappVerbose                = "verbose"
@@ -32,9 +31,9 @@ const (
 func NewChainSimulate() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "simulate",
-		Short: "Run the blockchain simulation node in development",
-		Long:  "Run the blockchain simulation for all chain modules",
-		Args:  cobra.ExactArgs(0),
+		Short: "Run simulation testing for the blockchain",
+		Long:  "Run simulation testing for the blockchain. It sends many randomized-input messages of each module to a simulated node and checks if invariants break",
+		Args:  cobra.NoArgs,
 		RunE:  chainSimulationHandler,
 	}
 	simappFlags(c)
@@ -49,13 +48,17 @@ func chainSimulationHandler(cmd *cobra.Command, args []string) error {
 		config         = newConfigFromFlags(cmd)
 		appPath        = flagGetPath(cmd)
 	)
-
 	// create the chain with path
 	absPath, err := filepath.Abs(appPath)
 	if err != nil {
 		return err
 	}
 	c, err := chain.New(absPath)
+	if err != nil {
+		return err
+	}
+
+	config.ChainID, err = c.ID()
 	if err != nil {
 		return err
 	}
@@ -82,11 +85,11 @@ func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 		numBlocks, _              = cmd.Flags().GetInt(flagSimappNumBlocks)
 		blockSize, _              = cmd.Flags().GetInt(flagSimappBlockSize)
 		lean, _                   = cmd.Flags().GetBool(flagSimappLean)
-		commit, _                 = cmd.Flags().GetBool(flagSimappCommit)
 		simulateEveryOperation, _ = cmd.Flags().GetBool(flagSimappSimulateEveryOperation)
 		printAllInvariants, _     = cmd.Flags().GetBool(flagSimappPrintAllInvariants)
 	)
 	return simulation.Config{
+		Commit:             true,
 		GenesisFile:        genesis,
 		ParamsFile:         params,
 		ExportParamsPath:   exportParamsPath,
@@ -98,7 +101,6 @@ func newConfigFromFlags(cmd *cobra.Command) simulation.Config {
 		NumBlocks:          numBlocks,
 		BlockSize:          blockSize,
 		Lean:               lean,
-		Commit:             commit,
 		OnOperation:        simulateEveryOperation,
 		AllInvariants:      printAllInvariants,
 	}
@@ -117,7 +119,6 @@ func simappFlags(c *cobra.Command) {
 	c.Flags().Int(flagSimappNumBlocks, 200, "number of new blocks to simulate from the initial block height")
 	c.Flags().Int(flagSimappBlockSize, 30, "operations per block")
 	c.Flags().Bool(flagSimappLean, false, "lean simulation log output")
-	c.Flags().Bool(flagSimappCommit, true, "have the simulation commit")
 	c.Flags().Bool(flagSimappSimulateEveryOperation, false, "run slow invariants every operation")
 	c.Flags().Bool(flagSimappPrintAllInvariants, false, "print all invariants if a broken invariant is found")
 

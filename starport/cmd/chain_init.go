@@ -12,7 +12,7 @@ func NewChainInit() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "init",
 		Short: "Initialize your chain",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE:  chainInitHandler,
 	}
 

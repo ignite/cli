@@ -3,7 +3,6 @@ package chain
 import (
 	"context"
 
-	"github.com/cosmos/cosmos-sdk/simapp"
 	"github.com/cosmos/cosmos-sdk/types/simulation"
 )
 
@@ -17,7 +16,9 @@ type simappOptions struct {
 
 func newSimappOptions() simappOptions {
 	return simappOptions{
-		config:      simapp.NewConfigFromFlags(),
+		config: simulation.Config{
+			Commit: true,
+		},
 		enabled:     true,
 		verbose:     false,
 		period:      0,
