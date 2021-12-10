@@ -25,7 +25,7 @@ You can run [Starport](https://github.com/tendermint/starport) in a web-based Gi
 
 Be sure you have met the prerequisites before you install and use Starport. 
 
-### Operating System
+### Operating Systems
 
 Starport is supported for the following operating systems:
 
