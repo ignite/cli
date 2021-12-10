@@ -50,16 +50,14 @@ func (g *generator) generateGo() error {
 	generatedPath := filepath.Join(tmp, g.o.gomodPath)
 
 	_, err = os.Stat(generatedPath)
-	if !os.IsNotExist(err) {
-		return err
-	}
-
 	if err == nil {
 		err = copy.Copy(generatedPath, g.appPath)
 		if err != nil {
 			return errors.Wrap(err, "cannot copy path")
 		}
+	} else if !os.IsNotExist(err) {
+		return err
 	}
 
-	return err
+	return nil
 }
