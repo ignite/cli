@@ -8,6 +8,7 @@ import (
 	profiletypes "github.com/tendermint/spn/x/profile/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -72,9 +73,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		CoordinatorByAddress(ctx, &profiletypes.QueryGetCoordinatorByAddressRequest{
 			Address: coordinatorAddress,
 		})
-
-	// TODO check for not found and only then create a new coordinator, otherwise return the err.
-	if err != nil {
+	err = sdkerror.Unwrap(err)
+	if err == sdkerror.ErrInvalidRequest {
 		msgCreateCoordinator := profiletypes.NewMsgCreateCoordinator(
 			coordinatorAddress,
 			"",
@@ -84,6 +84,8 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		if _, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCoordinator); err != nil {
 			return 0, 0, err
 		}
+	} else if err != nil {
+		return 0, 0, err
 	}
 
 	if campaignID != 0 {
@@ -93,7 +95,7 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 				CampaignID: o.campaignID,
 			})
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, sdkerror.Unwrap(err)
 		}
 	} else {
 		msgCreateCampaign := campaigntypes.NewMsgCreateCampaign(
@@ -103,12 +105,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {
-			return 0, 0, err
+			return 0, 0, sdkerror.Unwrap(err)
 		}
 
 		var createCampaignRes campaigntypes.MsgCreateCampaignResponse
 		if err := res.Decode(&createCampaignRes); err != nil {
-			return 0, 0, err
+			return 0, 0, sdkerror.Unwrap(err)
 		}
 		campaignID = createCampaignRes.CampaignID
 	}
@@ -125,12 +127,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 	)
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateChain)
 	if err != nil {
-		return 0, 0, err
+		return 0, 0, sdkerror.Unwrap(err)
 	}
 
 	var createChainRes launchtypes.MsgCreateChainResponse
 	if err := res.Decode(&createChainRes); err != nil {
-		return 0, 0, err
+		return 0, 0, sdkerror.Unwrap(err)
 	}
 
 	return createChainRes.LaunchID, campaignID, nil
