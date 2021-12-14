@@ -65,6 +65,10 @@ A decentralized network of independent, scalable, and interoperable blockchains.
 
 A modular framework that simplifies the process of building secure blockchain applications.
 
+### CRUD 
+
+The four functions that are considered necessary to implement a persistent storage application: create, read, update and delete. Starport scaffold commands create and modify the source code files to add CRUD functionality.
+
 ### current reward height
 
 The current block height tracked for a chain for reward distribution. This value is increased when a monitoring packet is received.
@@ -117,9 +121,13 @@ The initial block of data in the history of a blockchain network.
 
 A protocol that allows blockchains to talk to each other. The backbone of the Cosmos ecosystem, the Inter-Blockchain Communication protocol (IBC) handles reliable transport across different sovereign blockchains. This end-to-end, connection-oriented, stateful protocol provides reliable, ordered, and authenticated communication between heterogeneous blockchains. 
 
+### IBC module
+
+The standard for the interaction between two blockchains in the Cosmos SDK. The IBC module defines how packets and messages are constructed to be interpreted by the sending and the receiving blockchain.
+
 ### IBC relayer
 
-A built-in relayer in Starport that connects blockchains that run on your local computer to blockchains that run on remote computers. The Starport relayer uses the TypeScript relayer.
+The IBC relayer lets you connect between sets of IBC-enabled chains. A built-in relayer in Starport connects blockchains that run on your local computer to blockchains that run on remote computers. The Starport relayer uses the TypeScript relayer.
 
 ### incentivized block
 
@@ -301,7 +309,7 @@ The percentage of reward that is distributed to a validator  during a distributi
 
 ### voucher
 
-A tokenized share that can be transferred
+A tokenized share that can be transferred. 
 
 ## W
 
