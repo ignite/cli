@@ -78,9 +78,19 @@ func renderRequestSummaries(requests []launchtypes.Request, out io.Writer) error
 				req.GenesisValidator.SelfDelegation.String())
 		case *launchtypes.RequestContent_VestingAccount:
 			requestType = "Add Vesting Account"
+
+			// parse vesting options
+			var vestingCoins string
+			dv := req.VestingAccount.VestingOptions.GetDelayedVesting()
+			if dv == nil {
+				vestingCoins = "unrecognized vesting option"
+			} else {
+				vestingCoins = fmt.Sprintf("%s (vesting: %s)", dv.TotalBalance, dv.Vesting)
+			}
 			content = fmt.Sprintf("%s, %s",
 				req.VestingAccount.Address,
-				req.VestingAccount.StartingBalance.String())
+				vestingCoins,
+			)
 		case *launchtypes.RequestContent_ValidatorRemoval:
 			requestType = "Remove Validator"
 			content = req.ValidatorRemoval.ValAddress
