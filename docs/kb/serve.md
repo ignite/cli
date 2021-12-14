@@ -8,7 +8,7 @@ description: Use the Starport serve command to start your blockchain.
 Blockchains are decentralized applications.
 
 - In production, blockchains often run the same software on many validator nodes that are run by different people and entities. To launch a blockchain in production, the validator entities coordinate the launch process to start their nodes simultaneously.
-- During development, a blockchain can be started locally on a single validator node. This convenient process lets you can restart a chain quickly and iterate faster. Starting a chain on a single node in development is similar to starting a traditional web application on a local server.
+- During development, a blockchain can be started locally on a single validator node. This convenient process lets you restart a chain quickly and iterate faster. Starting a chain on a single node in development is similar to starting a traditional web application on a local server.
 
 ## Start a Blockchain Node in Development
 
