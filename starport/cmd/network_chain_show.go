@@ -46,7 +46,7 @@ var (
 // a chain on SPN.
 func NewNetworkChainShow() *cobra.Command {
 	c := &cobra.Command{
-		Use:   "show [info|genesis|accounts|peers] [launch-id]",
+		Use:   "show [info|genesis|accounts|validators|peers] [launch-id]",
 		Short: "Show details of a chain",
 		RunE:  networkChainShowHandler,
 		Args:  cobra.ExactArgs(2),
