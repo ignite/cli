@@ -6,8 +6,8 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
-// errInvalidRequest is an error returned in methods manipulating requests when they are invalid
-var errInvalidRequest = errors.New("request is invalid")
+// ErrInvalidRequest is an error returned in methods manipulating requests when they are invalid
+var ErrInvalidRequest = errors.New("request is invalid")
 
 // GenesisInformation represents all information for a chain to construct the genesis.
 type GenesisInformation struct {
@@ -76,13 +76,17 @@ func NewGenesisInformation(
 	vestingAccs []VestingAccount,
 	genVals []GenesisValidator,
 ) (gi GenesisInformation) {
+
 	// convert account arrays into maps
+	gi.GenesisAccounts = make(map[string]GenesisAccount)
 	for _, genAcc := range genAccs {
 		gi.GenesisAccounts[genAcc.Address] = genAcc
 	}
+	gi.VestingAccounts = make(map[string]VestingAccount)
 	for _, vestingAcc := range vestingAccs {
 		gi.VestingAccounts[vestingAcc.Address] = vestingAcc
 	}
+	gi.GenesisValidators = make(map[string]GenesisValidator)
 	for _, genVal := range genVals {
 		gi.GenesisValidators[genVal.Address] = genVal
 	}
@@ -119,8 +123,10 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 	case *launchtypes.RequestContent_GenesisAccount:
 		// new genesis account in the genesis
 		ga := ToGenesisAccount(*requestContent.GenesisAccount)
-		if _, ok := gi.GenesisAccounts[ga.Address]; ok {
-			return gi, errors.Wrapf(errInvalidRequest, "genesis account %s already in genesis", ga.Address)
+		_, genExist := gi.GenesisAccounts[ga.Address]
+		_, vestingExist := gi.VestingAccounts[ga.Address]
+		if genExist || vestingExist {
+			return gi, errors.Wrapf(ErrInvalidRequest, "genesis account %s already in genesis", ga.Address)
 		}
 		gi.GenesisAccounts[ga.Address] = ga
 
@@ -134,8 +140,10 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 			return gi, err
 		}
 
-		if _, ok := gi.VestingAccounts[va.Address]; ok {
-			return gi, errors.Wrapf(errInvalidRequest, "vesting account %s already in genesis", va.Address)
+		_, genExist := gi.GenesisAccounts[va.Address]
+		_, vestingExist := gi.VestingAccounts[va.Address]
+		if genExist || vestingExist {
+			return gi, errors.Wrapf(ErrInvalidRequest, "vesting account %s already in genesis", va.Address)
 		}
 		gi.VestingAccounts[va.Address] = va
 
@@ -145,7 +153,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		_, genExist := gi.GenesisAccounts[ar.Address]
 		_, vestingExist := gi.VestingAccounts[ar.Address]
 		if !genExist && !vestingExist {
-			return gi, errors.Wrapf(errInvalidRequest, "account %s can't be removed because it doesn't exist", ar.Address)
+			return gi, errors.Wrapf(ErrInvalidRequest, "account %s can't be removed because it doesn't exist", ar.Address)
 		}
 		delete(gi.GenesisAccounts, ar.Address)
 		delete(gi.VestingAccounts, ar.Address)
@@ -154,7 +162,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		// new genesis validator in the genesis
 		gv := ToGenesisValidator(*requestContent.GenesisValidator)
 		if _, ok := gi.GenesisValidators[gv.Address]; ok {
-			return gi, errors.Wrapf(errInvalidRequest, "genesis validator %s already in genesis", gv.Address)
+			return gi, errors.Wrapf(ErrInvalidRequest, "genesis validator %s already in genesis", gv.Address)
 		}
 		gi.GenesisValidators[gv.Address] = gv
 
@@ -162,7 +170,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		// validator removed from the genesis
 		vr := requestContent.ValidatorRemoval
 		if _, ok := gi.GenesisValidators[vr.ValAddress]; !ok {
-			return gi, errors.Wrapf(errInvalidRequest, "genesis validator %s can't be removed because it doesn't exist", vr.ValAddress)
+			return gi, errors.Wrapf(ErrInvalidRequest, "genesis validator %s can't be removed because it doesn't exist", vr.ValAddress)
 		}
 	}
 
