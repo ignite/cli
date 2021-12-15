@@ -10,7 +10,6 @@ import (
 
 func NewGenerateDart() *cobra.Command {
 	c := &cobra.Command{
-		Hidden: true,
 		Use:    "dart",
 		Short:  "Generate a Dart client",
 		RunE:   generateDartHandler,
