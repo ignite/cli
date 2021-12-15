@@ -14,6 +14,7 @@ import (
 // publishOptions holds info about how to create a chain.
 type publishOptions struct {
 	genesisURL string
+	chainID    string
 	campaignID uint64
 	noCheck    bool
 }
@@ -21,9 +22,17 @@ type publishOptions struct {
 // PublishOption configures chain creation.
 type PublishOption func(*publishOptions)
 
+// WithCampaign add a campaign id.
 func WithCampaign(id uint64) PublishOption {
 	return func(o *publishOptions) {
 		o.campaignID = id
+	}
+}
+
+// WithChainID use a custom chain id.
+func WithChainID(chainID string) PublishOption {
+	return func(o *publishOptions) {
+		o.chainID = chainID
 	}
 }
 
@@ -57,9 +66,12 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 		}
 	}
 
-	chainID, err := c.ID()
-	if err != nil {
-		return 0, 0, err
+	chainID := o.chainID
+	if chainID == "" {
+		chainID, err = c.ID()
+		if err != nil {
+			return 0, 0, err
+		}
 	}
 
 	coordinatorAddress := n.account.Address(networkchain.SPN)
@@ -100,7 +112,6 @@ func (n Network) Publish(ctx context.Context, c Chain, options ...PublishOption)
 			coordinatorAddress,
 			c.Name(),
 			nil,
-			false,
 		)
 		res, err := n.cosmos.BroadcastTx(n.account.Name, msgCreateCampaign)
 		if err != nil {

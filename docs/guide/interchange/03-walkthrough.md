@@ -32,7 +32,7 @@ Define a pair of token with two denominations:
 
 Creating an order book affects state on the source blockchain to which the transaction was broadcast and the target blockchain. 
 
-On the source blockchain, the `send-createPair` command creates an empty sell order book:
+On the source blockchain, the `send-create-pair` command creates an empty sell order book:
 
 ```yml
 # Created a sell order book on the source blockchain
@@ -107,7 +107,7 @@ A buy order has the same arguments, the amount of token to be purchased and a pr
 interchanged tx dex send-buy-order dex channel-0 marscoin 10 venuscoin 5
 ```
 
-The `send-buyOrder` command locks token on the target blockchain and creates a buy order book on the target blockchain:
+The `send-buy-order` command locks token on the target blockchain:
 
 ```yml
 # Target blockchain
