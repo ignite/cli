@@ -8,6 +8,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -39,10 +40,9 @@ func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.R
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return nil, err
+		return nil, sdkerror.Unwrap(err)
 	}
-
-	return res.Request, err
+	return res.Request, nil
 }
 
 // Request fetches the chain request from SPN by launch and request id
@@ -52,9 +52,9 @@ func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launc
 		RequestID: requestID,
 	})
 	if err != nil {
-		return launchtypes.Request{}, err
+		return launchtypes.Request{}, sdkerror.Unwrap(err)
 	}
-	return res.Request, err
+	return res.Request, nil
 }
 
 // SubmitRequest submits reviewals for proposals in batch for chain.
@@ -73,11 +73,15 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, messages...)
 	if err != nil {
-		return err
+		return sdkerror.Unwrap(err)
 	}
 
 	var requestRes launchtypes.MsgSettleRequestResponse
-	return res.Decode(&requestRes)
+	err = res.Decode(&requestRes)
+	if err != nil {
+		return sdkerror.Unwrap(err)
+	}
+	return nil
 }
 
 // verifyAddValidatorRequest verify the validator request parameters
