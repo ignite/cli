@@ -62,10 +62,6 @@ Reset the state only once. Use this flag to resume a failed reset or to initiali
 
 Reset state on every file change. Do not import state and turn off state persistence.
 
-`--rebuild-proto-once` use with `--reset-once`
-
-Force code generation from proto files for custom and third-party modules. By default, Starport statically scaffolds files generated from Cosmos SDK standard proto files, instead of generating them dynamically. Use this flag to perform code generation on all modules if a blockchain was scaffolded on an earlier Starport version or after a Cosmos SDK upgrade.
-
 `--verbose`
 
 Enters verbose detailed mode with extensive logging.
