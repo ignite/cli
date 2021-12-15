@@ -34,8 +34,8 @@ type VestingAccount struct {
 // GenesisValidator represents a genesis validator associated with a gentx in the chain genesis
 type GenesisValidator struct {
 	Address string
-	Gentx []byte
-	Peer  string
+	Gentx   []byte
+	Peer    string
 }
 
 // ToGenesisAccount converts genesis account from SPN
@@ -65,8 +65,8 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	return GenesisValidator{
 		Address: val.Address,
-		Gentx: val.GenTx,
-		Peer:  val.Peer,
+		Gentx:   val.GenTx,
+		Peer:    val.Peer,
 	}
 }
 
@@ -76,7 +76,7 @@ func NewGenesisInformation(
 	vestingAccs []VestingAccount,
 	genVals []GenesisValidator,
 ) (gi GenesisInformation) {
-	// convert accounts array into map
+	// convert account arrays into maps
 	for _, genAcc := range genAccs {
 		gi.GenesisAccounts[genAcc.Address] = genAcc
 	}
@@ -89,8 +89,32 @@ func NewGenesisInformation(
 	return gi
 }
 
+// GetGenesisAccounts converts into array and returns genesis accounts
+func (gi GenesisInformation) GetGenesisAccounts() (accs []GenesisAccount) {
+	for _, genAcc := range gi.GenesisAccounts {
+		accs = append(accs, genAcc)
+	}
+	return accs
+}
+
+// GetVestingAccounts converts into array and returns vesting accounts
+func (gi GenesisInformation) GetVestingAccounts() (accs []VestingAccount) {
+	for _, vestingAcc := range gi.VestingAccounts {
+		accs = append(accs, vestingAcc)
+	}
+	return accs
+}
+
+// GetGenesisValidators converts into array and returns genesis validators
+func (gi GenesisInformation) GetGenesisValidators() (vals []GenesisValidator) {
+	for _, genVal := range gi.GenesisValidators {
+		vals = append(vals, genVal)
+	}
+	return vals
+}
+
 // ApplyRequest applies to the genesisInformation the changes implied by the approval of a request
-func ApplyRequest(gi GenesisInformation, request launchtypes.Request) (GenesisInformation, error) {
+func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisInformation, error) {
 	switch requestContent := request.Content.Content.(type) {
 	case *launchtypes.RequestContent_GenesisAccount:
 		// new genesis account in the genesis
@@ -133,7 +157,6 @@ func ApplyRequest(gi GenesisInformation, request launchtypes.Request) (GenesisIn
 			return gi, errors.Wrapf(errInvalidRequests, "genesis validator %s already in genesis", gv.Address)
 		}
 		gi.GenesisValidators[gv.Address] = gv
-
 
 	case *launchtypes.RequestContent_ValidatorRemoval:
 		// validator removed from the genesis

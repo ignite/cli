@@ -56,13 +56,13 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 	c.ev.Send(events.New(events.StatusOngoing, "Building the genesis"))
 
 	// apply genesis information to the genesis
-	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts); err != nil {
+	if err := c.applyGenesisAccounts(ctx, gi.GetGenesisAccounts()); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.GetVestingAccounts()); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
-	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
+	if err := c.applyGenesisValidators(ctx, gi.GetGenesisValidators()); err != nil {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 
