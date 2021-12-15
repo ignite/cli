@@ -51,7 +51,7 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// Verify the requests are valid
-	_, err = cmd.Flags().GetBool(flagNoVerification)
+	noVerification, err := cmd.Flags().GetBool(flagNoVerification)
 	if err != nil {
 		return err
 	}
@@ -61,12 +61,12 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// if !noVerification {
-	//	err := n.VerifyRequests(cmd.Context(), launchID, ids...)
-	//	if err != nil {
-	//		return err
-	//	}
-	// }
+	// if requests must be verified, we simulate the chain in a temporary directory with the requests
+	if !noVerification {
+		// add verify request
+		_ = noVerification
+	}
+
 	// Submit the approved requests
 	reviewals := make([]network.Reviewal, 0)
 	for _, id := range ids {

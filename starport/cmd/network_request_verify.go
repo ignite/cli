@@ -1,12 +1,15 @@
 package starportcmd
 
 import (
+	"context"
 	"fmt"
+	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/services/network"
+	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
 // NewNetworkRequestVerify creates a new request approve
@@ -39,7 +42,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// Get the list of request ids
+	// get the list of request ids
 	ids, err := numbers.ParseList(args[1])
 	if err != nil {
 		return err
@@ -50,22 +53,56 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	// if !noVerification {
-	//	err := n.VerifyRequests(cmd.Context(), launchID, ids...)
-	//	if err != nil {
-	//		return err
-	//	}
-	// }
-	// Submit the approved requests
-	reviewals := make([]network.Reviewal, 0)
-	for _, id := range ids {
-		reviewals = append(reviewals, network.ApproveRequest(id))
-	}
-	if err := n.SubmitRequest(launchID, reviewals...); err != nil {
+	// verify the requests
+	if err := verifyRequest(cmd.Context(), nb, n, launchID, ids...); err != nil {
 		return err
 	}
 
 	nb.Spinner.Stop()
-	fmt.Printf("%s Request(s) %s approved\n", clispinner.OK, numbers.List(ids, "#"))
+	fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
+	return nil
+}
+
+// verifyRequest initialize the chain from the launch ID in a temporary directory
+// and simulate the launch of the chain from genesis with the request IDs
+func verifyRequest(
+	ctx context.Context,
+	nb NetworkBuilder,
+	n network.Network,
+	launchID uint64,
+	requestIDs ...uint64,
+) error {
+	// initialize the chain with a temporary dir
+	chainLaunch, err := n.ChainLaunch(ctx, launchID)
+	if err != nil {
+		return err
+	}
+
+	homeDir, err := os.MkdirTemp("", "")
+	if err != nil {
+		return err
+	}
+	defer os.RemoveAll(homeDir)
+
+	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkchain.WithHome(homeDir))
+	if err != nil {
+		return err
+	}
+
+	// fetch the current genesis information and the requests for the chain for simulation
+	genesisInformation, err := n.GenesisInformation(ctx, launchID)
+	if err != nil {
+		return err
+	}
+
+	requests, err := n.RequestFromIDs(ctx, launchID, requestIDs...)
+	if err != nil {
+		return err
+	}
+
+	if err := c.SimulateRequests(ctx, genesisInformation, requests); err != nil {
+		return err
+	}
+
 	return nil
 }
