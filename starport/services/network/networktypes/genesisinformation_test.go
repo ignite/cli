@@ -147,10 +147,10 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 	)
 
 	tests := []struct {
-		name string
-		gi   networktypes.GenesisInformation
-		r    launchtypes.Request
-		err  error
+		name           string
+		gi             networktypes.GenesisInformation
+		r              launchtypes.Request
+		invalidRequest bool
 	}{
 		{
 			name: "genesis account request",
@@ -202,7 +202,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					newCoins("1000bar"),
 				),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "genesis account: existing vesting account",
@@ -214,7 +214,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					newCoins("1000bar"),
 				),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "vesting account: existing genesis account",
@@ -230,7 +230,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					),
 				),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "vesting account: existing vesting account",
@@ -246,7 +246,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					),
 				),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "existing genesis validator",
@@ -261,7 +261,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 					"bar",
 				),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "remove genesis account",
@@ -290,7 +290,7 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			r: launchtypes.Request{
 				Content: launchtypes.NewAccountRemoval("spn1pquxnnpnjyl3ptz3uxs0lrs93s5ljepzq4wyp6"),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 		{
 			name: "remove account: non-existent genesis validator",
@@ -298,14 +298,14 @@ func TestGenesisInformation_ApplyRequest(t *testing.T) {
 			r: launchtypes.Request{
 				Content: launchtypes.NewValidatorRemoval("spn1g50xher44l9hjuatjdfxgv254jh2wgzfs55yu3"),
 			},
-			err: networktypes.ErrInvalidRequest,
+			invalidRequest: true,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			newGi, err := tt.gi.ApplyRequest(tt.r)
-			if tt.err != nil {
-				require.ErrorIs(t, err, tt.err)
+			if tt.invalidRequest {
+				require.ErrorAs(t, err, &networktypes.ErrInvalidRequest{})
 				return
 			}
 

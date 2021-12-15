@@ -9,28 +9,23 @@ import (
 	"github.com/tendermint/starport/starport/services/network"
 )
 
-const (
-	flagNoVerification = "no-verification"
-)
-
-// NewNetworkRequestApprove creates a new request approve
+// NewNetworkRequestVerify creates a new request approve
 // command to approve requests for a chain.
-func NewNetworkRequestApprove() *cobra.Command {
+func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "approve [launch-id] [number<,...>]",
+		Use:     "simulate [launch-id] [number<,...>]",
 		Aliases: []string{"accept"},
-		Short:   "Approve requests",
-		RunE:    networkRequestApproveHandler,
+		Short:   "Simulate requests and check generated genesis",
+		RunE:    networkRequestVerifyHandler,
 		Args:    cobra.ExactArgs(2),
 	}
-	c.Flags().Bool(flagNoVerification, false, "approve the requests without verifying them")
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetKeyringBackend())
 	return c
 }
 
-func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
+func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 	// initialize network common methods
 	nb, err := newNetworkBuilder(cmd)
 	if err != nil {
@@ -46,12 +41,6 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 
 	// Get the list of request ids
 	ids, err := numbers.ParseList(args[1])
-	if err != nil {
-		return err
-	}
-
-	// Verify the requests are valid
-	_, err = cmd.Flags().GetBool(flagNoVerification)
 	if err != nil {
 		return err
 	}
