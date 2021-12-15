@@ -49,25 +49,24 @@ func TestToVestingAccount(t *testing.T) {
 		{
 			name: "vesting account",
 			fetched: launchtypes.VestingAccount{
-				Address:         "spn123",
-				StartingBalance: sampleCoins,
+				Address: "spn123",
 				VestingOptions: *launchtypes.NewDelayedVesting(
+					sampleCoins,
 					sampleCoins,
 					1000,
 				),
 			},
 			expected: networktypes.VestingAccount{
-				Address:         "spn123",
-				StartingBalance: sampleCoinsStr,
-				Vesting:         sampleCoinsStr,
-				EndTime:         1000,
+				Address:      "spn123",
+				TotalBalance: sampleCoinsStr,
+				Vesting:      sampleCoinsStr,
+				EndTime:      1000,
 			},
 		},
 		{
 			name: "unrecognized vesting option",
 			fetched: launchtypes.VestingAccount{
-				Address:         "spn123",
-				StartingBalance: sampleCoins,
+				Address: "spn123",
 				VestingOptions: launchtypes.VestingOptions{
 					Options: nil,
 				},
