@@ -132,10 +132,10 @@ func New(ctx context.Context, ar cosmosaccount.Registry, source SourceOption, op
 	c := &Chain{
 		ar: ar,
 	}
+	source(c)
 	for _, apply := range options {
 		apply(c)
 	}
-	source(c)
 
 	c.ev.Send(events.New(events.StatusOngoing, "Fetching the source code"))
 

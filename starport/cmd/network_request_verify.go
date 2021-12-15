@@ -6,6 +6,7 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
 	"github.com/tendermint/starport/starport/services/network"
@@ -16,9 +17,9 @@ import (
 // command to approve requests for a chain.
 func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "simulate [launch-id] [number<,...>]",
+		Use:     "verify [launch-id] [number<,...>]",
 		Aliases: []string{"accept"},
-		Short:   "Simulate requests and check generated genesis",
+		Short:   "Verify the request and simulate the chain genesis from them",
 		RunE:    networkRequestVerifyHandler,
 		Args:    cobra.ExactArgs(2),
 	}
@@ -82,9 +83,14 @@ func verifyRequest(
 	if err != nil {
 		return err
 	}
-	defer os.RemoveAll(homeDir)
+	fmt.Println(homeDir)
+	// defer os.RemoveAll(homeDir)
 
-	c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch), networkchain.WithHome(homeDir))
+	c, err := nb.Chain(
+		networkchain.SourceLaunch(chainLaunch),
+		networkchain.WithHome(homeDir),
+		networkchain.WithKeyringBackend(chaincmd.KeyringBackendTest),
+	)
 	if err != nil {
 		return err
 	}
