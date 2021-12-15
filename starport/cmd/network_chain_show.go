@@ -2,9 +2,9 @@ package starportcmd
 
 import (
 	"bytes"
-	"errors"
 	"fmt"
 	"os"
+	"path/filepath"
 	"strconv"
 	"strings"
 
@@ -130,9 +130,34 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err != nil {
 				return err
 			}
-			// TODO run the prepare command in dry run mode and print the genesis if not exist
+
+			// check if the genesis already exist
 			if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
-				return errors.New("chain genesis not found, run the 'network chain prepare' command first")
+				// fetch the information to construct genesis
+				chainID, err := c.ID()
+				if err != nil {
+					return err
+				}
+				genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
+				if err != nil {
+					return err
+				}
+
+				// create the chain into a temp dir
+				home := filepath.Join(os.TempDir(), "spn/temp", chainID)
+				c.SetHome(home)
+				defer os.RemoveAll(home)
+
+				err = c.Prepare(cmd.Context(), genesisInformation)
+				if err != nil {
+					return err
+				}
+
+				// get the new genesis path
+				genesisPath, err = c.GenesisPath()
+				if err != nil {
+					return err
+				}
 			}
 			genesisFile, err := os.ReadFile(genesisPath)
 			if err != nil {
