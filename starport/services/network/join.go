@@ -202,10 +202,10 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		Address:  address,
 	})
 	err = sdkerror.Unwrap(err)
-	if err != nil && err != sdkerror.ErrInvalidRequest {
+	if err == sdkerror.ErrInvalidRequest {
+		return false, nil
+	} else if err != nil {
 		return false, err
-	} else if err == nil {
-		return true, nil
 	}
 
 	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
@@ -213,10 +213,10 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		Address:  address,
 	})
 	err = sdkerror.Unwrap(err)
-	if err != nil && err != sdkerror.ErrInvalidRequest {
+	if err == sdkerror.ErrInvalidRequest {
+		return false, nil
+	} else if err != nil {
 		return false, err
-	} else if err == nil {
-		return true, nil
 	}
-	return false, nil
+	return true, nil
 }
