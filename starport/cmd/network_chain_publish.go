@@ -17,6 +17,7 @@ const (
 	flagGenesis  = "genesis"
 	flagCampaign = "campaign"
 	flagNoCheck  = "no-check"
+	flagChainID  = "chain-id"
 )
 
 // NewNetworkChainPublish returns a new command to publish a new chain to start a new network.
@@ -32,6 +33,7 @@ func NewNetworkChainPublish() *cobra.Command {
 	c.Flags().String(flagTag, "", "Git tag to use for the repo")
 	c.Flags().String(flagHash, "", "Git hash to use for the repo")
 	c.Flags().String(flagGenesis, "", "URL to a custom Genesis")
+	c.Flags().String(flagChainID, "", "Chain ID to use for this network")
 	c.Flags().Uint64(flagCampaign, 0, "Campaign ID to use for this network")
 	c.Flags().Bool(flagNoCheck, false, "Skip verifying chain's integrity")
 	c.Flags().AddFlagSet(flagNetworkFrom())
@@ -49,6 +51,7 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 		branch, _     = cmd.Flags().GetString(flagBranch)
 		hash, _       = cmd.Flags().GetString(flagHash)
 		genesisURL, _ = cmd.Flags().GetString(flagGenesis)
+		chainID, _    = cmd.Flags().GetString(flagChainID)
 		campaign, _   = cmd.Flags().GetUint64(flagCampaign)
 		noCheck, _    = cmd.Flags().GetBool(flagNoCheck)
 	)
@@ -103,6 +106,11 @@ func networkChainPublishHandler(cmd *cobra.Command, args []string) error {
 
 	if campaign != 0 {
 		publishOptions = append(publishOptions, network.WithCampaign(campaign))
+	}
+
+	// use custom chain id if given.
+	if chainID != "" {
+		publishOptions = append(publishOptions, network.WithChainID(chainID))
 	}
 
 	if noCheck {

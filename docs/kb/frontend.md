@@ -29,4 +29,4 @@ By default, the filesystem is watched and the clients are regenerated automatica
 
 To regenerate all clients for custom and standard Cosmos SDK modules, run this command:
 
-`starport chain serve --reset-once --rebuild-proto-once`
+`starport generate vuex`

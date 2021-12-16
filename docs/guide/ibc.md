@@ -184,7 +184,7 @@ To make sure the receiving chain has content on the creator of a blog post, add 
 
 ### Receive the post
 
-The methods for primary transaction logic are in the `planet/x/blog/keeper/ibcPost.go` file. Use these methods to manage IBC packets:
+The methods for primary transaction logic are in the `planet/x/blog/keeper/ibc_post.go` file. Use these methods to manage IBC packets:
 
 - `TransmitIbcPostPacket` is called manually to send the packet over IBC. This method also defines the logic before the packet is sent over IBC to another blockchain app.
 - `OnRecvIbcPostPacket` hook is automatically called when a packet is received on the chain. This method defines the packet reception logic.
@@ -208,7 +208,7 @@ Append the type instance as `PostID` on receiving the packet:
 - The `title` is the Title of the blog post
 - The `content` is the Content of the blog post
 
-In the `ibcPost.go` file, make sure to import `"strconv"` below `"errors"`, and then modify `OnRecvIbcPostPacket` with the following code:
+In the `ibc_post.go` file, make sure to import `"strconv"` below `"errors"`, and then modify `OnRecvIbcPostPacket` with the following code:
 
 ```go
 // x/blog/keeper/ibc_post.go
