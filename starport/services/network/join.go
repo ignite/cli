@@ -8,6 +8,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
+	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -86,39 +87,45 @@ func (n Network) sendAccountRequest(
 		if err != nil {
 			return err
 		}
+		if accExist {
+			return fmt.Errorf("account %s already exist", address)
+		}
 	}
 	// check if account exists as a genesis account in SPN chain launch information
-	if !accExist && !n.hasAccount(ctx, launchID, address) {
-		msg := launchtypes.NewMsgRequestAddAccount(
-			n.account.Address(networkchain.SPN),
-			launchID,
-			accountAddress,
-			sdk.NewCoins(amount),
-		)
-
-		n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
-		res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
-		if err != nil {
-			return err
-		}
-
-		var requestRes launchtypes.MsgRequestAddAccountResponse
-		if err := res.Decode(&requestRes); err != nil {
-			return err
-		}
-
-		if requestRes.AutoApproved {
-			n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
-		} else {
-			n.ev.Send(events.New(events.StatusDone,
-				fmt.Sprintf("Request %d to add account to the network has been submitted!",
-					requestRes.RequestID),
-			))
-		}
-		return nil
+	hasAccount, err := n.hasAccount(ctx, launchID, address)
+	if err != nil {
+		return err
+	}
+	if hasAccount {
+		return fmt.Errorf("account %s already exist", address)
 	}
 
-	n.ev.Send(events.New(events.StatusDone, "Account already exist"))
+	msg := launchtypes.NewMsgRequestAddAccount(
+		n.account.Address(networkchain.SPN),
+		launchID,
+		accountAddress,
+		sdk.NewCoins(amount),
+	)
+
+	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
+	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
+	if err != nil {
+		return sdkerror.Unwrap(err)
+	}
+
+	var requestRes launchtypes.MsgRequestAddAccountResponse
+	if err := res.Decode(&requestRes); err != nil {
+		return sdkerror.Unwrap(err)
+	}
+
+	if requestRes.AutoApproved {
+		n.ev.Send(events.New(events.StatusDone, "Account added to the network by the coordinator!"))
+	} else {
+		n.ev.Send(events.New(events.StatusDone,
+			fmt.Sprintf("Request %d to add account to the network has been submitted!",
+				requestRes.RequestID),
+		))
+	}
 	return nil
 }
 
@@ -132,7 +139,11 @@ func (n Network) sendValidatorRequest(
 	gentxInfo cosmosutil.GentxInfo,
 ) error {
 	// Check if the validator request already exist
-	if n.hasValidator(ctx, launchID, valAddress) {
+	hasValidator, err := n.hasValidator(ctx, launchID, valAddress)
+	if err != nil {
+		return err
+	}
+	if hasValidator {
 		return fmt.Errorf("validator %s already exist", valAddress)
 	}
 
@@ -150,12 +161,12 @@ func (n Network) sendValidatorRequest(
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return err
+		return sdkerror.Unwrap(err)
 	}
 
 	var requestRes launchtypes.MsgRequestAddValidatorResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return err
+		return sdkerror.Unwrap(err)
 	}
 
 	if requestRes.AutoApproved {
@@ -170,26 +181,42 @@ func (n Network) sendValidatorRequest(
 }
 
 // hasValidator verify if the validator already exist into the SPN store
-func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) bool {
+func (n Network) hasValidator(ctx context.Context, launchID uint64, address string) (bool, error) {
 	_, err := launchtypes.NewQueryClient(n.cosmos.Context).GenesisValidator(ctx, &launchtypes.QueryGetGenesisValidatorRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
-	return err == nil
+	err = sdkerror.Unwrap(err)
+	if err == sdkerror.ErrInvalidRequest {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	return true, nil
 }
 
 // hasAccount verify if the account already exist into the SPN store
-func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) bool {
+func (n Network) hasAccount(ctx context.Context, launchID uint64, address string) (bool, error) {
 	_, err := launchtypes.NewQueryClient(n.cosmos.Context).VestingAccount(ctx, &launchtypes.QueryGetVestingAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
-	if err == nil {
-		return true
+	err = sdkerror.Unwrap(err)
+	if err == sdkerror.ErrInvalidRequest {
+		return false, nil
+	} else if err != nil {
+		return false, err
 	}
+
 	_, err = launchtypes.NewQueryClient(n.cosmos.Context).GenesisAccount(ctx, &launchtypes.QueryGetGenesisAccountRequest{
 		LaunchID: launchID,
 		Address:  address,
 	})
-	return err == nil
+	err = sdkerror.Unwrap(err)
+	if err == sdkerror.ErrInvalidRequest {
+		return false, nil
+	} else if err != nil {
+		return false, err
+	}
+	return true, nil
 }
