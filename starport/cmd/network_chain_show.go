@@ -2,6 +2,7 @@ package starportcmd
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -160,8 +161,13 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
+			var prettyJSON bytes.Buffer
+			if err := json.Indent(&prettyJSON, genesisFile, "", "    "); err != nil {
+				return err
+			}
 			nb.Spinner.Stop()
-			fmt.Print(string(genesisFile))
+			fmt.Printf("Genesis: \n%s", prettyJSON.String())
 			return nil
 		},
 	}
