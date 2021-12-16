@@ -264,6 +264,11 @@ func (c *Chain) Binary() (string, error) {
 	return c.app.D(), nil
 }
 
+// SetHome sets the chain home directory.
+func (c *Chain) SetHome(home string) {
+	c.options.homePath = home
+}
+
 // Home returns the blockchain node's home dir.
 func (c *Chain) Home() (string, error) {
 	// check if home is explicitly defined for the app
