@@ -176,6 +176,10 @@ func (c Chain) Name() string {
 	return c.chain.Name()
 }
 
+func (c Chain) SetHome(home string) {
+	c.chain.SetHome(home)
+}
+
 func (c Chain) Home() (path string, err error) {
 	return c.chain.Home()
 }
