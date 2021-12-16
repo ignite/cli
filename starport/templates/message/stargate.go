@@ -23,10 +23,21 @@ func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator
 	g.RunFn(moduleSimulationModify(replacer, opts))
 
 	template := xgenny.NewEmbedWalker(
-		fsStargate,
-		"stargate/",
+		fsStargateMessage,
+		"stargate/message",
 		opts.AppPath,
 	)
+
+	if !opts.NoSimulation {
+		simappTemplate := xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp",
+			opts.AppPath,
+		)
+		if err := Box(simappTemplate, opts, g); err != nil {
+			return nil, err
+		}
+	}
 	return g, Box(template, opts, g)
 }
 
