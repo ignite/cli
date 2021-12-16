@@ -31,7 +31,7 @@ func (f Field) ProtoType(index int) string {
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return dt.ProtoType(f.Datatype, f.Name.Snake, index)
+	return dt.ProtoType(f.Datatype, f.Name.LowerCamel, index)
 }
 
 // DefaultTestValue returns the Datatype value default
