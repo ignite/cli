@@ -1,38 +1,12 @@
-package networkchain
+package networktypes
 
 import (
-	"context"
 	"fmt"
 
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
-	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
-
-// SimulateRequests simulates the genesis creation and the start of the network from the provided requests
-func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []launchtypes.Request) (err error) {
-	for _, req := range reqs {
-		// static verification of the request
-		if err := VerifyRequest(req); err != nil {
-			return err
-		}
-
-		// apply the request to the genesis information
-		gi, err = gi.ApplyRequest(req)
-		if err != nil {
-			return err
-		}
-	}
-
-	// prepare the chain with the requests
-	if err := c.Prepare(ctx, gi); err != nil {
-		return err
-	}
-
-	// TODO: execute chain
-	return nil
-}
 
 // VerifyRequest verifies the validity of the request from its content (static check)
 func VerifyRequest(request launchtypes.Request) error {
@@ -40,7 +14,7 @@ func VerifyRequest(request launchtypes.Request) error {
 	if ok {
 		err := VerifyAddValidatorRequest(req)
 		if err != nil {
-			return errors.Wrapf(networktypes.NewErrInvalidRequest(request.RequestID), err.Error())
+			return errors.Wrapf(NewErrInvalidRequest(request.RequestID), err.Error())
 		}
 	}
 

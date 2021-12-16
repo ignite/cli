@@ -7,7 +7,7 @@ import (
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/sdkerror"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Reviewal keeps a request's reviewal.
@@ -75,7 +75,7 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 	messages := make([]sdk.Msg, len(reviewal))
 	for i, reviewal := range reviewal {
 		messages[i] = launchtypes.NewMsgSettleRequest(
-			n.account.Address(networkchain.SPN),
+			n.account.Address(networktypes.SPN),
 			launchID,
 			reviewal.RequestID,
 			reviewal.IsApproved,

@@ -17,14 +17,6 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-const (
-	// SPN name used as an address prefix and as a home dir for chains to publish.
-	SPN = "spn"
-
-	// SPNDenom is the denom used for the spn chain native token
-	SPNDenom = "uspn"
-)
-
 // Chain represents a network blockchain and lets you interact with its source code and binary.
 type Chain struct {
 	id string
@@ -198,6 +190,14 @@ func (c Chain) GentxsPath() (path string, err error) {
 
 func (c Chain) DefaultGentxPath() (path string, err error) {
 	return c.chain.DefaultGentxPath()
+}
+
+func (c Chain) AppTOMLPath() (string, error) {
+	return c.chain.AppTOMLPath()
+}
+
+func (c Chain) ConfigTOMLPath() (string, error) {
+	return c.chain.ConfigTOMLPath()
 }
 
 func (c Chain) SourceURL() string {

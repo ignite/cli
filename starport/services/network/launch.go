@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/pkg/xtime"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // LaunchParams fetches the chain launch module params from SPN
@@ -32,7 +32,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	var (
 		minLaunch = xtime.Seconds(params.MinLaunchTime)
 		maxLaunch = xtime.Seconds(params.MaxLaunchTime)
-		address   = n.account.Address(networkchain.SPN)
+		address   = n.account.Address(networktypes.SPN)
 	)
 	switch {
 	case remainingTime == 0:

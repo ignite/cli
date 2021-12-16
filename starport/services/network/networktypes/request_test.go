@@ -1,13 +1,13 @@
-package networkchain_test
+package networktypes_test
 
 import (
 	"fmt"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
 	"testing"
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 func TestVerifyAddValidatorRequest(t *testing.T) {
@@ -141,7 +141,7 @@ func TestVerifyAddValidatorRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := networkchain.VerifyAddValidatorRequest(tt.req)
+			err := networktypes.VerifyAddValidatorRequest(tt.req)
 			if tt.want != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.want.Error(), err.Error())

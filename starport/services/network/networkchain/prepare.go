@@ -56,6 +56,14 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	if err != nil {
 		return err
 	}
+
+	// ensure genesis has a valid format
+	err = cmd.ValidateGenesis(ctx)
+	if err != nil {
+		return err
+	}
+
+	// reset the saved state in case the chain has been started before
 	return cmd.UnsafeReset(ctx)
 }
 
