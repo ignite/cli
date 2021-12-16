@@ -1,6 +1,7 @@
 package <%= moduleName %>
 
 import (
+	<%= if (len(params) > 0) { %>"fmt"<% } %>
 	"math/rand"
 
 	"<%= modulePath %>/testutil/sample"
