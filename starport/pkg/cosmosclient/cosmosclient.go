@@ -268,16 +268,16 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 		return 0, nil, err
 	}
 
-	context := c.Context.
+	ctx := c.Context.
 		WithFromName(accountName).
 		WithFromAddress(accountAddress)
 
-	txf, err := prepareFactory(context, c.Factory)
+	txf, err := prepareFactory(ctx, c.Factory)
 	if err != nil {
 		return 0, nil, err
 	}
 
-	_, gas, err = tx.CalculateGas(context, txf, msgs...)
+	_, gas, err = tx.CalculateGas(ctx, txf, msgs...)
 	if err != nil {
 		return 0, nil, err
 	}
@@ -296,14 +296,14 @@ func (c Client) BroadcastTxWithProvision(accountName string, msgs ...sdktypes.Ms
 			return Response{}, err
 		}
 
-		txBytes, err := context.TxConfig.TxEncoder()(txUnsigned.GetTx())
+		txBytes, err := ctx.TxConfig.TxEncoder()(txUnsigned.GetTx())
 		if err != nil {
 			return Response{}, err
 		}
 
-		resp, err := context.BroadcastTx(txBytes)
+		resp, err := ctx.BroadcastTx(txBytes)
 		return Response{
-			codec:      context.Codec,
+			codec:      ctx.Codec,
 			TxResponse: resp,
 		}, handleBroadcastResult(resp, err)
 	}, nil
