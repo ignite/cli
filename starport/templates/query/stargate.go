@@ -35,10 +35,20 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			return err
 		}
 
+		// if the query has request fields, they are appended to the rpc query
+		var reqPath string
+		if len(opts.ReqFields) > 0 {
+			var protoReqFields []string
+			for _, field := range opts.ReqFields {
+				protoReqFields = append(protoReqFields, fmt.Sprintf("{%s}", field.ProtoFieldName()))
+			}
+			reqPath = "/" + strings.Join(protoReqFields, "/")
+		}
+
 		// RPC service
 		templateRPC := `// Queries a list of %[2]v items.
 	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v%[7]v";
 	}
 
 %[1]v`
@@ -50,6 +60,7 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 			opts.AppName,
 			opts.ModuleName,
 			opts.QueryName.Snake,
+			reqPath,
 		)
 		content := replacer.Replace(f.String(), Placeholder2, replacementRPC)
 
