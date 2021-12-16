@@ -122,7 +122,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		_, genExist := gi.GenesisAccounts[ga.Address]
 		_, vestingExist := gi.VestingAccounts[ga.Address]
 		if genExist || vestingExist {
-			return gi, errors.Wrapf(NewErrInvalidRequest(request.RequestID), "genesis account %s already in genesis", ga.Address)
+			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis account already in genesis")
 		}
 		gi.GenesisAccounts[ga.Address] = ga
 
@@ -139,7 +139,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		_, genExist := gi.GenesisAccounts[va.Address]
 		_, vestingExist := gi.VestingAccounts[va.Address]
 		if genExist || vestingExist {
-			return gi, errors.Wrapf(NewErrInvalidRequest(request.RequestID), "vesting account %s already in genesis", va.Address)
+			return gi, NewWrappedErrInvalidRequest(request.RequestID, "vesting account already in genesis")
 		}
 		gi.VestingAccounts[va.Address] = va
 
@@ -149,7 +149,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		_, genExist := gi.GenesisAccounts[ar.Address]
 		_, vestingExist := gi.VestingAccounts[ar.Address]
 		if !genExist && !vestingExist {
-			return gi, errors.Wrapf(NewErrInvalidRequest(request.RequestID), "account %s can't be removed because it doesn't exist", ar.Address)
+			return gi, NewWrappedErrInvalidRequest(request.RequestID, "account can't be removed because it doesn't exist")
 		}
 		delete(gi.GenesisAccounts, ar.Address)
 		delete(gi.VestingAccounts, ar.Address)
@@ -158,7 +158,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		// new genesis validator in the genesis
 		gv := ToGenesisValidator(*requestContent.GenesisValidator)
 		if _, ok := gi.GenesisValidators[gv.Address]; ok {
-			return gi, errors.Wrapf(NewErrInvalidRequest(request.RequestID), "genesis validator %s already in genesis", gv.Address)
+			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator already in genesis")
 		}
 		gi.GenesisValidators[gv.Address] = gv
 
@@ -166,7 +166,7 @@ func (gi GenesisInformation) ApplyRequest(request launchtypes.Request) (GenesisI
 		// validator removed from the genesis
 		vr := requestContent.ValidatorRemoval
 		if _, ok := gi.GenesisValidators[vr.ValAddress]; !ok {
-			return gi, errors.Wrapf(NewErrInvalidRequest(request.RequestID), "genesis validator %s can't be removed because it doesn't exist", vr.ValAddress)
+			return gi, NewWrappedErrInvalidRequest(request.RequestID, "genesis validator can't be removed because it doesn't exist")
 		}
 	}
 

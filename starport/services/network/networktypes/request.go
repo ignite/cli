@@ -3,7 +3,6 @@ package networktypes
 import (
 	"fmt"
 
-	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 )
@@ -14,7 +13,7 @@ func VerifyRequest(request launchtypes.Request) error {
 	if ok {
 		err := VerifyAddValidatorRequest(req)
 		if err != nil {
-			return errors.Wrapf(NewErrInvalidRequest(request.RequestID), err.Error())
+			return NewWrappedErrInvalidRequest(request.RequestID, err.Error())
 		}
 	}
 
