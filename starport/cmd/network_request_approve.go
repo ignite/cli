@@ -2,7 +2,7 @@ package starportcmd
 
 import (
 	"fmt"
-
+	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
 	"github.com/tendermint/starport/starport/pkg/numbers"
@@ -63,8 +63,10 @@ func networkRequestApproveHandler(cmd *cobra.Command, args []string) error {
 
 	// if requests must be verified, we simulate the chain in a temporary directory with the requests
 	if !noVerification {
-		// add verify request
-		_ = noVerification
+		if err := verifyRequest(cmd.Context(), nb, n, launchID, ids...); err != nil {
+			return errors.Wrap(err, "request(s) not valid")
+		}
+		fmt.Printf("%s Request(s) %s verified\n", clispinner.OK, numbers.List(ids, "#"))
 	}
 
 	// Submit the approved requests
