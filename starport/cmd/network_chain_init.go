@@ -136,12 +136,14 @@ func askValidatorInfo(cmd *cobra.Command, stakeDenom string) (chain.Validator, e
 		identity, _        = cmd.Flags().GetString(flagValidatorIdentity)
 	)
 	v := chain.Validator{
-		Name:            account,
-		Website:         website,
-		Details:         details,
-		Moniker:         moniker,
-		Identity:        identity,
-		SecurityContact: securityContact,
+		Name:              account,
+		Website:           website,
+		Details:           details,
+		Moniker:           moniker,
+		Identity:          identity,
+		SecurityContact:   securityContact,
+		MinSelfDelegation: "1",
+		GasPrices:         "0" + stakeDenom,
 	}
 
 	questions := append([]cliquiz.Question{},
@@ -168,12 +170,10 @@ func askValidatorInfo(cmd *cobra.Command, stakeDenom string) (chain.Validator, e
 		cliquiz.NewQuestion("Min self delegation",
 			&v.MinSelfDelegation,
 			cliquiz.DefaultAnswer("1"),
-			cliquiz.Required(),
 		),
 		cliquiz.NewQuestion("Gas prices",
 			&v.GasPrices,
-			cliquiz.DefaultAnswer("0.025"+stakeDenom),
-			cliquiz.Required(),
+			cliquiz.DefaultAnswer("0"+stakeDenom),
 		),
 	)
 	return v, cliquiz.Ask(questions...)
