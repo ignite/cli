@@ -3,22 +3,22 @@ package networkchain
 import (
 	"context"
 	"fmt"
-	"github.com/pelletier/go-toml"
-	"github.com/tendermint/starport/starport/pkg/availableport"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/pelletier/go-toml"
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/availableport"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 const (
-	ListeningTimeout = time.Minute * 1
+	ListeningTimeout            = time.Minute * 1
 	ValidatorSetNilErrorMessage = "validator set is nil in genesis and still empty after InitChain"
 )
 
