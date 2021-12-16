@@ -12,6 +12,7 @@ import (
 	"github.com/pkg/errors"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 	"github.com/tendermint/starport/starport/pkg/availableport"
+	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/httpstatuschecker"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
@@ -24,6 +25,7 @@ const (
 
 // SimulateRequests simulates the genesis creation and the start of the network from the provided requests
 func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInformation, reqs []launchtypes.Request) (err error) {
+	c.ev.Send(events.New(events.StatusOngoing, "Verifying requests format"))
 	for _, req := range reqs {
 		// static verification of the request
 		if err := networktypes.VerifyRequest(req); err != nil {
@@ -36,18 +38,25 @@ func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInfo
 			return err
 		}
 	}
+	c.ev.Send(events.New(events.StatusDone, "Requests format verified"))
 
 	// prepare the chain with the requests
 	if err := c.Prepare(ctx, gi); err != nil {
 		return err
 	}
 
-	return c.SimulateChainStart(ctx)
+	c.ev.Send(events.New(events.StatusOngoing, "Trying starting the network with the requests"))
+	if err := c.simulateChainStart(ctx); err != nil {
+		return err
+	}
+	c.ev.Send(events.New(events.StatusDone, "The network can be started"))
+
+	return nil
 }
 
 // SimulateChainStart simulates and verify the chain start by starting it with a simulation config
 // and checking if the gentxs execution is successful
-func (c Chain) SimulateChainStart(ctx context.Context) error {
+func (c Chain) simulateChainStart(ctx context.Context) error {
 	cmd, err := c.chain.Commands(ctx)
 	if err != nil {
 		return err
@@ -71,9 +80,9 @@ func (c Chain) SimulateChainStart(ctx context.Context) error {
 
 	// routine chain start
 	go func() {
-		// If the error is validator set is nil, it means the genesis didn't get broken after a proposal
-		// The genesis was correctly generated but we don't have the necessary proposals to have a validator set
-		// after the execution of gentxs
+		// if the error is validator set is nil, it means the genesis didn't get broken after an applied request
+		// the genesis was correctly generated but there is no gentxs so far
+		// so we don't consider it as an error making requests to verify as invalid
 		err := cmd.Start(ctx)
 		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
 			err = nil

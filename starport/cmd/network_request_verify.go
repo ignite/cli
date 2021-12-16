@@ -56,6 +56,7 @@ func networkRequestVerifyHandler(cmd *cobra.Command, args []string) error {
 
 	// verify the requests
 	if err := verifyRequest(cmd.Context(), nb, n, launchID, ids...); err != nil {
+		fmt.Printf("%s Request(s) %s not valid\n", clispinner.NotOK, numbers.List(ids, "#"))
 		return err
 	}
 
@@ -83,8 +84,7 @@ func verifyRequest(
 	if err != nil {
 		return err
 	}
-	fmt.Println(homeDir)
-	// defer os.RemoveAll(homeDir)
+	defer os.RemoveAll(homeDir)
 
 	c, err := nb.Chain(
 		networkchain.SourceLaunch(chainLaunch),
