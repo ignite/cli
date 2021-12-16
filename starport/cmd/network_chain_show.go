@@ -122,6 +122,7 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			if err != nil {
 				return err
 			}
+
 			c, err := nb.Chain(networkchain.SourceLaunch(chainLaunch))
 			if err != nil {
 				return err
@@ -134,17 +135,13 @@ func newNetworkChainShowGenesis() *cobra.Command {
 			// check if the genesis already exist
 			if _, err = os.Stat(genesisPath); os.IsNotExist(err) {
 				// fetch the information to construct genesis
-				chainID, err := c.ID()
-				if err != nil {
-					return err
-				}
 				genesisInformation, err := n.GenesisInformation(cmd.Context(), launchID)
 				if err != nil {
 					return err
 				}
 
 				// create the chain into a temp dir
-				home := filepath.Join(os.TempDir(), "spn/temp", chainID)
+				home := filepath.Join(os.TempDir(), "spn/temp", chainLaunch.ChainID)
 				c.SetHome(home)
 				defer os.RemoveAll(home)
 
