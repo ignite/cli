@@ -1,7 +1,6 @@
 package <%= moduleName %>
 
 import (
-	<%= if (len(params) > 0) { %>"fmt"<% } %>
 	"math/rand"
 
 	"<%= modulePath %>/testutil/sample"
@@ -50,7 +49,7 @@ func (am AppModule) RandomizedParams(_ *rand.Rand) []simtypes.ParamChange {
 	<%= if (len(params) > 0) { %><%= moduleName %>Params := types.DefaultParams()<% } %>
 	return []simtypes.ParamChange{<%= for (param) in params { %>
 		simulation.NewSimParamChange(types.ModuleName, string(types.Key<%= param.Name.UpperCamel %>), func(r *rand.Rand) string {
-			return fmt.Sprintf("%s", types.Amino.MustMarshalJSON(<%= moduleName %>Params.<%= param.Name.UpperCamel %>))
+			return string(types.Amino.MustMarshalJSON(<%= moduleName %>Params.<%= param.Name.UpperCamel %>))
 		}),<% } %>
 	}
 }
