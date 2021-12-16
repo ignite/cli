@@ -30,6 +30,7 @@ func (c Chain) SimulateRequests(ctx context.Context, gi networktypes.GenesisInfo
 		return err
 	}
 
+	// TODO: execute chain
 	return nil
 }
 
