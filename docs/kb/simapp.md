@@ -47,13 +47,13 @@ For this example, change the `defaultWeightMsgDeleteUser` to 30 and the `default
 Run the `BenchmarkSimulation` method into `app/simulation_test.go` to run simulation tests for all modules:
 
 ```shell
-starport chain simulation
+starport chain simulate
 ```
 
 You can also define flags that are provided by the simulation. Flags are defined by the method `simapp.GetSimulatorFlags()`:
 
 ```shell
-starport chain simulation --NumBlocks 100 --BlockSize 200
+starport chain simulate -v --numBlocks 200 --blockSize 50 --seed 33
 ```
 
 Wait for the entire simulation to finish and check the result of the messages.
@@ -70,8 +70,61 @@ Use logic to avoid sending a message without returning an error. Return only `si
 
 ## Params
 
-Scaffolding a module with params automatically adds the module in the  `module_simulaton.go` file:
+Scaffolding a module with params automatically adds the module in the `module_simulaton.go` file:
 
 ```shell
 starport s module earth --params channel:string,minLaunch:uint,maxLaunch:int
+```
+
+After the parameters are scaffolded, change the `x/<module>/module_simulation.go` file to set the random parameters into the `RandomizedParams` method. The simulation will change the params randomly according to call the function. 
+
+## Invariants
+
+Simulating a chain can help you prevent [chain invariants errors](https://docs.cosmos.network/master/building-modules/invariants.html); an invariant is a function called by the chain to check if something broke, invalidating the chain data.
+To create a new invariant and check the chain integrity, you should create a method to validate the invariants and register all invariants.
+
+e.g.: `x/earth/keeper/invariants.go`
+```go
+package keeper
+
+import (
+	"fmt"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/tendermint/spn/x/launch/types"
+)
+
+const zeroLaunchTimestampRoute = "zero-launch-timestamp"
+
+// RegisterInvariants registers all module invariants
+func RegisterInvariants(ir sdk.InvariantRegistry, k Keeper) {
+	ir.RegisterRoute(types.ModuleName, zeroLaunchTimestampRoute,
+		ZeroLaunchTimestampInvariant(k))
+}
+
+// ZeroLaunchTimestampInvariant invariant that checks if the
+// `LaunchTimestamp is zero
+func ZeroLaunchTimestampInvariant(k Keeper) sdk.Invariant {
+	return func(ctx sdk.Context) (string, bool) {
+		all := k.GetAllChain(ctx)
+		for _, chain := range all {
+			if chain.LaunchTimestamp == 0 {
+				return sdk.FormatInvariant(
+					types.ModuleName, zeroLaunchTimestampRoute,
+					"LaunchTimestamp is not set while LaunchTriggered is set",
+				), true
+			}
+		}
+		return "", false
+	}
+}
+```
+
+Now you register the keeper invariants into the `x/earth/module.go`:
+
+```go
+// RegisterInvariants registers the capability module's invariants.
+func (am AppModule) RegisterInvariants(ir sdk.InvariantRegistry) {
+	keeper.RegisterInvariants(ir, am.keeper)
+}
 ```
