@@ -4,14 +4,14 @@ import launchtypes "github.com/tendermint/spn/x/launch/types"
 
 // ChainLaunch represents the launch of a chain on SPN
 type ChainLaunch struct {
-	ID          uint64
-	ChainID     string
-	SourceURL   string
-	SourceHash  string
-	GenesisURL  string
-	GenesisHash string
-	LaunchTime  int64
-	CampaignID  uint64
+	ID          uint64 `json:"ID"`
+	ChainID     string `json:"ChainID"`
+	SourceURL   string `json:"SourceURL"`
+	SourceHash  string `json:"SourceHash"`
+	GenesisURL  string `json:"GenesisURL"`
+	GenesisHash string `json:"GenesisHash"`
+	LaunchTime  int64  `json:"LaunchTime"`
+	CampaignID  uint64 `json:"CampaignID"`
 }
 
 // ToChainLaunch converts a chain launch data from SPN and returns a ChainLaunch object

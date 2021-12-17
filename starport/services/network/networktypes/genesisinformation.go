@@ -3,6 +3,7 @@ package networktypes
 import (
 	"errors"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
 )
 
@@ -30,8 +31,10 @@ type VestingAccount struct {
 
 // GenesisValidator represents a genesis validator associated with a gentx in the chain genesis
 type GenesisValidator struct {
-	Gentx []byte
-	Peer  string
+	Gentx          []byte
+	Peer           string
+	Address        string
+	SelfDelegation sdk.Coin
 }
 
 // NewGenesisInformation initializes a new GenesisInformation
@@ -73,7 +76,9 @@ func ToVestingAccount(acc launchtypes.VestingAccount) (VestingAccount, error) {
 // ToGenesisValidator converts genesis validator from SPN
 func ToGenesisValidator(val launchtypes.GenesisValidator) GenesisValidator {
 	return GenesisValidator{
-		Gentx: val.GenTx,
-		Peer:  val.Peer,
+		Gentx:          val.GenTx,
+		Address:        val.Address,
+		SelfDelegation: val.SelfDelegation,
+		Peer:           val.Peer,
 	}
 }
