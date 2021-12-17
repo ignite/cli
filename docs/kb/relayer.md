@@ -1,6 +1,6 @@
 ---
 description: IBC relayer to connect local and remote blockchains.
-order: 8
+order: 9
 ---
 
 # IBC Relayer

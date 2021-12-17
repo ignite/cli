@@ -1,6 +1,6 @@
 ---
 description: Protocol buffer file support in Starport
-order: 6
+order: 7
 ---
 
 # Protocol Buffer Files

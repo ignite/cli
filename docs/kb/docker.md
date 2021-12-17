@@ -1,6 +1,6 @@
 ---
 description: Run Starport CLI using a Docker container.
-order: 9
+order: 10
 ---
 
 # Run Starport in Docker
