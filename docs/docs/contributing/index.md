@@ -17,7 +17,7 @@ To set up your environment for success, follow the [technical setup](technical-s
 
 ## Using this repo
 
-Review existing [Starport issues](../../issues/) to see if your question has already been asked and answered.
+Review existing [Starport issues](https://github.com/tendermint/starport/issues) to see if your question has already been asked and answered.
 
 - To provide feedback, file an issue and provide generous details to help us understand how we can make it better.
 - To provide a fix, make a direct contribution. If you're not a member or maintainer, fork the repo and then submit a pull request (PR) from your forked repo to the `develop` branch.

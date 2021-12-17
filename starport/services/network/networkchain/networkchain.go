@@ -14,6 +14,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/events"
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/chain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 const (
@@ -21,7 +22,7 @@ const (
 	SPN = "spn"
 
 	// SPNDenom is the denom used for the spn chain native token
-	SPNDenom = "spn"
+	SPNDenom = "uspn"
 )
 
 // Chain represents a network blockchain and lets you interact with its source code and binary.
@@ -35,6 +36,7 @@ type Chain struct {
 	hash        string
 	genesisURL  string
 	genesisHash string
+	launchTime  int64
 
 	keyringBackend chaincmd.KeyringBackend
 
@@ -84,16 +86,8 @@ func SourceRemoteHash(url, hash string) SourceOption {
 	}
 }
 
-type Launch struct {
-	ID          uint64
-	ChainID     string
-	SourceURL   string
-	SourceHash  string
-	GenesisURL  string
-	GenesisHash string
-}
-
-func SourceLaunch(launch Launch) SourceOption {
+// SourceLaunch returns a source option for initializing a chain from a launch
+func SourceLaunch(launch networktypes.ChainLaunch) SourceOption {
 	return func(c *Chain) {
 		c.id = launch.ChainID
 		c.url = launch.SourceURL
@@ -101,6 +95,7 @@ func SourceLaunch(launch Launch) SourceOption {
 		c.genesisURL = launch.GenesisURL
 		c.genesisHash = launch.GenesisHash
 		c.home = ChainHome(launch.ID)
+		c.launchTime = launch.LaunchTime
 	}
 }
 
@@ -189,6 +184,10 @@ func (c Chain) Name() string {
 	return c.chain.Name()
 }
 
+func (c Chain) SetHome(home string) {
+	c.chain.SetHome(home)
+}
+
 func (c Chain) Home() (path string, err error) {
 	return c.chain.Home()
 }
@@ -197,8 +196,12 @@ func (c Chain) GenesisPath() (path string, err error) {
 	return c.chain.GenesisPath()
 }
 
-func (c Chain) GentxPath() (path string, err error) {
-	return c.chain.GentxPath()
+func (c Chain) GentxsPath() (path string, err error) {
+	return c.chain.GentxsPath()
+}
+
+func (c Chain) DefaultGentxPath() (path string, err error) {
+	return c.chain.DefaultGentxPath()
 }
 
 func (c Chain) SourceURL() string {

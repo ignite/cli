@@ -57,7 +57,10 @@ func NewNetwork() *cobra.Command {
 	c.PersistentFlags().StringVar(&spnFaucetAddress, flagSPNFaucetAddress, spnFaucetAddressAlpha, "SPN Faucet address")
 
 	// add sub commands.
-	c.AddCommand(NewNetworkChain())
+	c.AddCommand(
+		NewNetworkChain(),
+		NewNetworkRequest(),
+	)
 
 	return c
 }
