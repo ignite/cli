@@ -6,8 +6,8 @@ import (
 	"time"
 
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/pkg/xtime"
 	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
@@ -16,7 +16,7 @@ import (
 func (n Network) LaunchParams(ctx context.Context) (launchtypes.Params, error) {
 	res, err := launchtypes.NewQueryClient(n.cosmos.Context).Params(ctx, &launchtypes.QueryParamsRequest{})
 	if err != nil {
-		return launchtypes.Params{}, sdkerror.Unwrap(err)
+		return launchtypes.Params{}, cosmoserror.Unwrap(err)
 	}
 	return res.GetParams(), nil
 }
@@ -26,7 +26,7 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	n.ev.Send(events.New(events.StatusOngoing, fmt.Sprintf("Launching chain %d", launchID)))
 	params, err := n.LaunchParams(ctx)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	var (
@@ -52,12 +52,12 @@ func (n Network) TriggerLaunch(ctx context.Context, launchID uint64, remainingTi
 	n.ev.Send(events.New(events.StatusOngoing, "Setting launch time"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	var launchRes launchtypes.MsgTriggerLaunchResponse
 	if err := res.Decode(&launchRes); err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	n.ev.Send(events.New(events.StatusDone,
