@@ -121,11 +121,11 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
-		var snakeIndexes []string
+		var protoIndexes []string
 		for _, index := range opts.Indexes {
-			snakeIndexes = append(snakeIndexes, fmt.Sprintf("{%s}", index.Name.Snake))
+			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
 		}
-		indexPath := strings.Join(snakeIndexes, "/")
+		indexPath := strings.Join(protoIndexes, "/")
 
 		// Add the service
 		templateService := `// Queries a %[2]v by index.

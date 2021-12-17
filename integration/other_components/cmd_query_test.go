@@ -94,11 +94,19 @@ func TestGenerateAnAppWithQuery(t *testing.T) {
 		)),
 	))
 
-	env.Must(env.Exec("create a query with the custom field type",
+	env.Must(env.Exec("create a query with the custom field type as a response",
 		step.NewSteps(step.New(
-			step.Exec("starport", "s", "query", "foobaz", "bar:CustomType"),
+			step.Exec("starport", "s", "query", "foobaz", "-r", "bar:CustomType"),
 			step.Workdir(path),
 		)),
+	))
+
+	env.Must(env.Exec("should prevent using custom type in request params",
+		step.NewSteps(step.New(
+			step.Exec("starport", "s", "query", "bur", "bar:CustomType"),
+			step.Workdir(path),
+		)),
+		envtest.ExecShouldError(),
 	))
 
 	env.Must(env.Exec("create an empty query",
