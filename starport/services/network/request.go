@@ -6,9 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -40,7 +40,7 @@ func (n Network) Requests(ctx context.Context, launchID uint64) ([]launchtypes.R
 		LaunchID: launchID,
 	})
 	if err != nil {
-		return nil, sdkerror.Unwrap(err)
+		return nil, cosmoserror.Unwrap(err)
 	}
 	return res.Request, nil
 }
@@ -52,7 +52,7 @@ func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launc
 		RequestID: requestID,
 	})
 	if err != nil {
-		return launchtypes.Request{}, sdkerror.Unwrap(err)
+		return launchtypes.Request{}, cosmoserror.Unwrap(err)
 	}
 	return res.Request, nil
 }
@@ -73,13 +73,13 @@ func (n Network) SubmitRequest(launchID uint64, reviewal ...Reviewal) error {
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, messages...)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	var requestRes launchtypes.MsgSettleRequestResponse
 	err = res.Decode(&requestRes)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 	return nil
 }
