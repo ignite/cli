@@ -1,4 +1,4 @@
-package sdkerror
+package cosmoserror
 
 import (
 	"errors"
@@ -8,7 +8,7 @@ import (
 )
 
 var (
-	ErrSPNInternal    = errors.New("some invariants expected by the underlying system has been broken")
+	ErrInternal       = errors.New("some invariants expected by the underlying system has been broken")
 	ErrInvalidRequest = errors.New("invalid GRPC request argument or object not found")
 )
 
@@ -19,7 +19,7 @@ func Unwrap(err error) error {
 		case codes.InvalidArgument:
 			return ErrInvalidRequest
 		case codes.Internal:
-			return ErrSPNInternal
+			return ErrInternal
 		}
 	}
 	unwrapped := errors.Unwrap(err)

@@ -6,9 +6,9 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/pkg/sdkerror"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
@@ -110,12 +110,12 @@ func (n Network) sendAccountRequest(
 	n.ev.Send(events.New(events.StatusOngoing, "Broadcasting account transactions"))
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	var requestRes launchtypes.MsgRequestAddAccountResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	if requestRes.AutoApproved {
@@ -161,12 +161,12 @@ func (n Network) sendValidatorRequest(
 
 	res, err := n.cosmos.BroadcastTx(n.account.Name, msg)
 	if err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	var requestRes launchtypes.MsgRequestAddValidatorResponse
 	if err := res.Decode(&requestRes); err != nil {
-		return sdkerror.Unwrap(err)
+		return cosmoserror.Unwrap(err)
 	}
 
 	if requestRes.AutoApproved {
@@ -186,8 +186,8 @@ func (n Network) hasValidator(ctx context.Context, launchID uint64, address stri
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = sdkerror.Unwrap(err)
-	if err == sdkerror.ErrInvalidRequest {
+	err = cosmoserror.Unwrap(err)
+	if err == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -201,8 +201,8 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = sdkerror.Unwrap(err)
-	if err == sdkerror.ErrInvalidRequest {
+	err = cosmoserror.Unwrap(err)
+	if err == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
@@ -212,8 +212,8 @@ func (n Network) hasAccount(ctx context.Context, launchID uint64, address string
 		LaunchID: launchID,
 		Address:  address,
 	})
-	err = sdkerror.Unwrap(err)
-	if err == sdkerror.ErrInvalidRequest {
+	err = cosmoserror.Unwrap(err)
+	if err == cosmoserror.ErrInvalidRequest {
 		return false, nil
 	} else if err != nil {
 		return false, err
