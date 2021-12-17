@@ -37,12 +37,9 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 
 		// if the query has request fields, they are appended to the rpc query
 		var reqPath string
-		if len(opts.ReqFields) > 0 {
-			var protoReqFields []string
-			for _, field := range opts.ReqFields {
-				protoReqFields = append(protoReqFields, fmt.Sprintf("{%s}", field.ProtoFieldName()))
-			}
-			reqPath = "/" + strings.Join(protoReqFields, "/")
+		for _, field := range opts.ReqFields {
+			reqPath += "/"
+			reqPath = filepath.Join(reqPath, fmt.Sprintf("{%s}", field.ProtoFieldName()))
 		}
 
 		// RPC service
