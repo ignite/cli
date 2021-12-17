@@ -2,7 +2,7 @@ package starportcmd
 
 import (
 	"github.com/spf13/cobra"
-	"github.com/tendermint/starport/docs"
+	"github.com/tendermint/starport/docs/docs"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/markdownviewer"
 )

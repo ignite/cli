@@ -14,7 +14,7 @@ This tutorial builds on knowlege and skills developed in the earlier tutorials i
 
 - [Install Starport](../install.md)
 - [Hello, World](../hello.md)
-- [Module Basics](../blog.md)
+- [Module Basics](../blog/index.md)
 
 The goal of this tutorial is to build a functional nameservice app and a mapping of strings to other strings (`map[string]string`).
 
@@ -28,7 +28,7 @@ This tutorial guides you through these steps to build a blockchain for a nameser
 
 ## Prerequisites 
 
-- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../starport/install.md). 
+- A supported version of [Starport](https://docs.starport.com/). To install Starport, see [Install Starport](../install.md). 
 * A text editor like [Visual Studio Code](https://code.visualstudio.com/download) or [Atom](https://atom.io/). 
 * A web browser like [Chrome](https://www.google.com/chrome/) or [Firefox](https://www.mozilla.org/en-US/firefox/new/).
 - Familiarity with [Cosmos SDK modules](https://docs.cosmos.network/master/building-modules/intro.html) 
