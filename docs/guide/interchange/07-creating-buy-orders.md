@@ -1,24 +1,25 @@
 ---
 order: 7
+description: Implement the buy order logic.
 ---
 
 # Creating Buy Orders
 
-In this chapter you will be implementing creation of buy orders. The logic is very similar to the previous chapter.
+In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you implemented in the previous chapter.
 
 ## Modify the Proto Definition
 
-Add the buyer to the proto file definition
+Add the buyer to the proto file definition:
 
 ```proto
-// proto/ibcdex/packet.proto
+// proto/dex/packet.proto
 message BuyOrderPacketData {
   // ...
   string buyer = 5;
 }
 ```
 
-Now build the proto with the already known command.
+Now, use Starport CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
 
 ```bash
 starport generate proto-go
@@ -32,7 +33,7 @@ starport generate proto-go
 * Save the voucher received on the target chain to later resolve a denom
 
 ```go
-// x/ibcdex/keeper/msg_server_buy_order.go
+// x/dex/keeper/msg_server_buy_order.go
 import (
   //...
   "errors"
@@ -47,7 +48,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 		return &types.MsgSendBuyOrderResponse{}, errors.New("the pair doesn't exist")
 	}
 	// Lock the token to send
-	sender, err := sdk.AccAddressFromBech32(msg.Sender)
+	sender, err := sdk.AccAddressFromBech32(msg.Creator)
 	if err != nil {
 		return &types.MsgSendBuyOrderResponse{}, err
 	}
@@ -59,7 +60,7 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 	k.SaveVoucherDenom(ctx, msg.Port, msg.ChannelID, msg.PriceDenom)
 	// Construct the packet
 	var packet types.BuyOrderPacketData
-	packet.Buyer = msg.Sender
+	packet.Buyer = msg.Creator
   // Transmit an IBC packet...
 	return &types.MsgSendBuyOrderResponse{}, nil
 }
@@ -67,12 +68,12 @@ func (k msgServer) SendBuyOrder(goCtx context.Context, msg *types.MsgSendBuyOrde
 
 ## On Receiving a Buy Order
 
-- Update the buy order book
-- Distribute sold token to the buyer
-- Send to chain A the sell order after the fill attempt
+* Update the buy order book
+* Distribute sold token to the buyer
+* Send to chain A the sell order after the fill attempt
 
 ```go
-// x/ibcdex/keeper/buy_order.go
+// x/dex/keeper/buy_order.go
 func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) (packetAck types.BuyOrderPacketAck, err error) {
 	// validate packet data upon receiving
 	if err := data.ValidateBasic(); err != nil {
@@ -123,86 +124,114 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 }
 ```
 
-### Implement the FillBuyOrder Function
+### Implement the FillSellOrder Function
 
-`FillBuyOrder` try to fill the buy order with the order book and returns all the side effects.
+The `FillSellOrder` function tries to fill the buy order with the order book and returns all the side effects:
 
 ```go
-// x/ibcdex/types/sell_order_book.go
-func (s *SellOrderBook) FillBuyOrder(order Order) (remainingBuyOrder Order, liquidated []Order, purchase int32, filled bool) {
+// x/dex/types/buy_order_book.go
+func (b *BuyOrderBook) FillSellOrder(order Order) (
+	remainingSellOrder Order,
+	liquidated []Order,
+	gain int32,
+	filled bool,
+) {
 	var liquidatedList []Order
-	totalPurchase := int32(0)
-	remainingBuyOrder = order
+	totalGain := int32(0)
+	remainingSellOrder = order
+
 	// Liquidate as long as there is match
 	for {
 		var match bool
 		var liquidation Order
-		remainingBuyOrder, liquidation, purchase, match, filled = s.LiquidateFromBuyOrder(
-			remainingBuyOrder,
+		remainingSellOrder, liquidation, gain, match, filled = b.LiquidateFromSellOrder(
+			remainingSellOrder,
 		)
 		if !match {
 			break
 		}
+
 		// Update gains
-		totalPurchase += purchase
+		totalGain += gain
+
 		// Update liquidated
 		liquidatedList = append(liquidatedList, liquidation)
+
 		if filled {
 			break
 		}
 	}
-	return remainingBuyOrder, liquidatedList, totalPurchase, filled
+
+	return remainingSellOrder, liquidatedList, totalGain, filled
 }
 ```
 
-#### Implement The LiquidateFromBuyOrder Function
+### Implement The LiquidateFromSellOrder Function
 
-`LiquidateFromBuyOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
+The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is found, return false for match:
 
 ```go
-// x/ibcdex/types/sell_order_book.go
-func (s *SellOrderBook) LiquidateFromBuyOrder(order Order) (remainingBuyOrder Order, liquidatedSellOrder Order, purchase int32, match bool, filled bool) {
-	remainingBuyOrder = order
-	// No match if no order
-	orderCount := len(s.Book.Orders)
-	if orderCount == 0 {
-		return order, liquidatedSellOrder, purchase, false, false
-	}
-	// Check if match
-	lowestAsk := s.Book.Orders[orderCount-1]
-	if order.Price < lowestAsk.Price {
-		return order, liquidatedSellOrder, purchase, false, false
-	}
-	liquidatedSellOrder = *lowestAsk
-	// Check if buy order can be entirely filled
-	if lowestAsk.Amount >= order.Amount {
-		remainingBuyOrder.Amount = 0
-		liquidatedSellOrder.Amount = order.Amount
-		purchase = order.Amount
-		// Remove lowest ask if it has been entirely liquidated
-		lowestAsk.Amount -= order.Amount
-		if lowestAsk.Amount == 0 {
-			s.Book.Orders = s.Book.Orders[:orderCount-1]
-		} else {
-			s.Book.Orders[orderCount-1] = lowestAsk
-		}
-		return remainingBuyOrder, liquidatedSellOrder, purchase, true, true
-	}
-	// Not entirely filled
-	purchase = lowestAsk.Amount
-	s.Book.Orders = s.Book.Orders[:orderCount-1]
-	remainingBuyOrder.Amount -= lowestAsk.Amount
-	return remainingBuyOrder, liquidatedSellOrder, purchase, true, false
+// x/dex/types/buy_order_book.go
+func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
+	 remainingSellOrder Order,
+	 liquidatedBuyOrder Order,
+	 gain int32,
+	 match bool,
+	 filled bool,
+ ) {
+	 remainingSellOrder = order
+
+	 // No match if no order
+	 orderCount := len(b.Book.Orders)
+	 if orderCount == 0 {
+		 return order, liquidatedBuyOrder, gain, false, false
+	 }
+
+	 // Check if match
+	 highestBid := b.Book.Orders[orderCount-1]
+	 if order.Price > highestBid.Price {
+		 return order, liquidatedBuyOrder, gain, false, false
+	 }
+
+	 liquidatedBuyOrder = *highestBid
+
+	 // Check if sell order can be entirely filled
+	 if highestBid.Amount >= order.Amount {
+		 remainingSellOrder.Amount = 0
+		 liquidatedBuyOrder.Amount = order.Amount
+		 gain = order.Amount * highestBid.Price
+
+		 // Remove highest bid if it has been entirely liquidated
+		 highestBid.Amount -= order.Amount
+		 if highestBid.Amount == 0 {
+			 b.Book.Orders = b.Book.Orders[:orderCount-1]
+		 } else {
+			 b.Book.Orders[orderCount-1] = highestBid
+		 }
+		 return remainingSellOrder, liquidatedBuyOrder, gain, true, true
+	 }
+
+	 // Not entirely filled
+	 gain = highestBid.Amount * highestBid.Price
+	 b.Book.Orders = b.Book.Orders[:orderCount-1]
+	 remainingSellOrder.Amount -= highestBid.Amount
+
+	 return remainingSellOrder, liquidatedBuyOrder, gain, true, false
 }
 ```
 
 ## Receiving a Buy Order Acknowledgment
 
-- Chain `Mars` will store the remaining sell order in the sell order book and will distribute sold `MCX` to the buyers and will distribute to the seller the price of the amount sold
-- On error we mint back the burned tokens
+
+After a buy order acknowledgement is received, chain `Mars`:
+
+* Stores the remaining sell order in the sell order book.
+* Distributes sold `marscoin` to the buyers.
+* Distributes to the seller the price of the amount sold.
+* On error, mints back the burned tokens.
 
 ```go
-// x/ibcdex/keeper/buy_order.go
+// x/dex/keeper/buy_order.go
 func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData, ack channeltypes.Acknowledgement) error {
 	switch dispatchedAck := ack.Response.(type) {
 	case *channeltypes.Acknowledgement_Error:
@@ -280,9 +309,10 @@ func (k Keeper) OnAcknowledgementBuyOrderPacket(ctx sdk.Context, packet channelt
 ```
 
 `AppendOrder` appends an order in the buy order book.
+Add the following function to the `buy_order_book.go` file in the `types` directory.
 
 ```go
-// x/ibcdex/types/buy_order_book.go
+// x/dex/types/buy_order_book.go
 func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (int32, error) {
   return b.Book.appendOrder(creator, amount, price, Increasing)
 }
@@ -290,19 +320,39 @@ func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (i
 
 ## OnTimeout of a Buy Order Packet
 
-If a timeout occurs, we mint back the native token.
+If a timeout occurs, mint back the native token:
 
 ```go
-// x/ibcdex/keeper/buy_order.go
-func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.SellOrderPacketData) error {
+// x/dex/keeper/buy_order.go
+func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet, data types.BuyOrderPacketData) error {
 	// In case of error we mint back the native token
-	receiver, err := sdk.AccAddressFromBech32(data.Seller)
+	receiver, err := sdk.AccAddressFromBech32(data.Buyer)
 	if err != nil {
 		return err
 	}
-	if err := k.SafeMint(ctx, packet.SourcePort, packet.SourceChannel, receiver, data.AmountDenom, data.Amount); err != nil {
+
+	if err := k.SafeMint(
+		ctx,
+		packet.SourcePort,
+		packet.SourceChannel,
+		receiver,
+		data.PriceDenom,
+		data.Amount*data.Price,
+	); err != nil {
 		return err
 	}
+
 	return nil
 }
+```
+
+## Summary
+
+Congratulations, you implemented the buy order logic.
+
+Again, it's a good time to save your current state to your local GitHub repository:
+
+```bash
+git add .
+git commit -m "Add Buy Orders"
 ```

@@ -7,9 +7,9 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -34,7 +34,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 	// because we can't generate reliable tests for this type
 	var generateTest bool
 	for _, index := range opts.Indexes {
-		if index.DatatypeName != field.TypeBool {
+		if index.DatatypeName != datatype.Bool {
 			generateTest = true
 		}
 	}
@@ -79,6 +79,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -120,30 +121,31 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
-		var lowerCamelIndexes []string
+		var protoIndexes []string
 		for _, index := range opts.Indexes {
-			lowerCamelIndexes = append(lowerCamelIndexes, fmt.Sprintf("{%s}", index.Name.LowerCamel))
+			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
 		}
-		indexPath := strings.Join(lowerCamelIndexes, "/")
+		indexPath := strings.Join(protoIndexes, "/")
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/%[7]v";
 	}
 
-	// Queries a list of %[3]v items.
+	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
-		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
+		replacementService := fmt.Sprintf(templateService,
+			typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 			indexPath,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
@@ -151,22 +153,22 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		// Add the service messages
 		var queryIndexFields string
 		for i, index := range opts.Indexes {
-			queryIndexFields += fmt.Sprintf(
-				"  %s %s = %d;\n",
-				index.Datatype,
-				index.Name.LowerCamel,
-				i+1,
-			)
+			queryIndexFields += fmt.Sprintf("  %s;\n", index.ProtoType(i+1))
 		}
 
 		// Ensure custom types are imported
-		for _, f := range opts.Indexes.Custom() {
+		protoImports := opts.Fields.ProtoImports()
+		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
-
-			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
-			content = replacer.Replace(content, typed.PlaceholderProtoTxImport, replacementImport)
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.Placeholder, importModule)
+			content = replacer.Replace(content, typed.Placeholder, replacementImport)
 		}
 
 		templateMessage := `message QueryGet%[2]vRequest {
@@ -383,24 +385,17 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				switch index.DatatypeName {
-				case field.TypeString:
-					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
-				case field.TypeInt, field.TypeUint:
-					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
-				case field.TypeBool:
-					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i%2 == 0)
-				}
+				sampleIndexes[i] += index.GenesisArgs(i)
 			}
 		}
 
 		templateState := `%[2]vList: []types.%[2]v{
-	{
-		%[3]v},
-	{
-		%[4]v},
-},
-%[1]v`
+		{
+			%[3]v},
+		{
+			%[4]v},
+	},
+	%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -410,8 +405,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		)
 		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
 
-		templateAssert := `require.Len(t, got.%[2]vList, len(genesisState.%[2]vList))
-require.Subset(t, genesisState.%[2]vList, got.%[2]vList)
+		templateAssert := `require.ElementsMatch(t, genesisState.%[2]vList, got.%[2]vList)
 %[1]v`
 		replacementTests := fmt.Sprintf(
 			templateAssert,
@@ -437,14 +431,7 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 		sampleIndexes := make([]string, 2)
 		for i := 0; i < 2; i++ {
 			for _, index := range opts.Indexes {
-				switch index.DatatypeName {
-				case field.TypeString:
-					sampleIndexes[i] += fmt.Sprintf("%s: \"%d\",\n", index.Name.UpperCamel, i)
-				case field.TypeInt, field.TypeUint:
-					sampleIndexes[i] += fmt.Sprintf("%s: %d,\n", index.Name.UpperCamel, i)
-				case field.TypeBool:
-					sampleIndexes[i] += fmt.Sprintf("%s: %t,\n", index.Name.UpperCamel, i != 0)
-				}
+				sampleIndexes[i] += index.GenesisArgs(i)
 			}
 		}
 
@@ -522,29 +509,25 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var indexes string
 		for i, index := range opts.Indexes {
-			indexes += fmt.Sprintf(
-				"  %s %s = %d;\n",
-				index.Datatype,
-				index.Name.LowerCamel,
-				i+2,
-			)
+			indexes += fmt.Sprintf("  %s;\n", index.ProtoType(i+2))
 		}
 
 		var fields string
-		for i, field := range opts.Fields {
-			fields += fmt.Sprintf(
-				"  %s %s = %d;\n",
-				field.Datatype,
-				field.Name.LowerCamel,
-				i+2+len(opts.Indexes),
-			)
+		for i, f := range opts.Fields {
+			fields += fmt.Sprintf("  %s;\n", f.ProtoType(i+2+len(opts.Indexes)))
 		}
 
 		// Ensure custom types are imported
+		protoImports := append(opts.Fields.ProtoImports(), opts.Indexes.ProtoImports()...)
 		customFields := append(opts.Fields.Custom(), opts.Indexes.Custom()...)
 		for _, f := range customFields {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)

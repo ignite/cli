@@ -1,6 +1,6 @@
 # Technical Setup 
 
-To ensure you have a successful experience working with our Developer Guide content, Tendermint recommends this technical setup. 
+To ensure you have a successful experience working with our Developer Tutorials content, Tendermint recommends this technical setup. 
 
 ## Setting Up Visual Studio Code 
 
@@ -20,9 +20,9 @@ Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/
 
 Click the GitHub icon in the sidebar for GitHub integration and follow the prompts.
 
-## Clone the repos you work in
+## Clone the Repos You Work In
 
-- Fork or clone the <https://github.com/cosmos/sdk-tutorials/> repository. 
+- Fork or clone the <https://github.com/tendermint/starport/> repository. 
 
 Internal Tendermint users have different permissions, if you're not sure, fork the repo.
 

@@ -40,7 +40,7 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
   price, _ := sdk.ParseCoinsNormalized(whois.Price)
   bid, _ := sdk.ParseCoinsNormalized(msg.Bid)
   // Convert owner and buyer address strings to sdk.AccAddress
-  owner, _ := sdk.AccAddressFromBech32(whois.Creator)
+  owner, _ := sdk.AccAddressFromBech32(whois.Owner)
   buyer, _ := sdk.AccAddressFromBech32(msg.Creator)
   // If a name is found in store
   if isFound {
@@ -57,8 +57,8 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
       // Throw an error
       return nil, sdkerrors.Wrap(sdkerrors.ErrInsufficientFunds, "Bid is less than min amount")
     }
-    // Otherwise (when the bid is higher), burn tokens from the buyer's account (as a payment for the name)
-    k.bankKeeper.SubtractCoins(ctx, buyer, bid)
+		// Otherwise (when the bid is higher), send tokens from the buyer's account to the module's account (as a payment for the name)
+		k.bankKeeper.SendCoinsFromAccountToModule(ctx, buyer, types.ModuleName, bid)
   }
   // Create an updated whois record
   newWhois := types.Whois{
@@ -66,7 +66,7 @@ func (k msgServer) BuyName(goCtx context.Context, msg *types.MsgBuyName) (*types
     Name:    msg.Name,
     Value:   whois.Value,
     Price:   bid.String(),
-    Creator: buyer.String(),
+    Owner:   buyer.String(),
   }
   // Write whois information to the store
   k.SetWhois(ctx, newWhois)
@@ -89,7 +89,7 @@ import (
 )
 
 type BankKeeper interface {
-  SubtractCoins(ctx sdk.Context, addr sdk.AccAddress, amt sdk.Coins) error
+	SendCoinsFromAccountToModule(ctx sdk.Context, senderAddr sdk.AccAddress, recipientModule string, amt sdk.Coins) error
   SendCoins(ctx sdk.Context, fromAddr sdk.AccAddress, toAddr sdk.AccAddress, amt sdk.Coins) error
 }
 ```
@@ -112,7 +112,7 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
   // Try getting name information from the store
   whois, _ := k.GetWhois(ctx, msg.Name)
   // If the message sender address doesn't match the name owner, throw an error
-  if !(msg.Creator == whois.Creator) {
+  if !(msg.Creator == whois.Owner) {
     return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")
   }
   // Otherwise, create an updated whois record
@@ -120,7 +120,7 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
     Index:   msg.Name,
     Name:    msg.Name,
     Value:   msg.Value,
-    Creator: whois.Creator,
+    Owner:   whois.Owner,
     Price:   whois.Price,
   }
   // Write whois information to the store
@@ -131,7 +131,7 @@ func (k msgServer) SetName(goCtx context.Context, msg *types.MsgSetName) (*types
 
 ## Delete Name
 
-To define the keeper for the delete name transaction, add this code to the `msg_server_buy_name.go` file:
+To define the keeper for the delete name transaction, add this code to the `msg_server_delete_name.go` file:
 
 ```go
 // x/nameservice/keeper/msg_server_delete_name.go
@@ -151,7 +151,7 @@ func (k msgServer) DeleteName(goCtx context.Context, msg *types.MsgDeleteName) (
     return nil, sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "Name doesn't exist")
   }
   // If the message sender address doesn't match the name owner, throw an error
-  if !(whois.Creator == msg.Creator) {
+  if !(whois.Owner == msg.Creator) {
     return nil, sdkerrors.Wrap(sdkerrors.ErrUnauthorized, "Incorrect Owner")
   }
   // Otherwise, remove the name information from the store

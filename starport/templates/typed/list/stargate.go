@@ -52,6 +52,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(protoTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		// Messages template
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
@@ -130,17 +131,23 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 		// Messages
 		var createFields string
 		for i, field := range opts.Fields {
-			createFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+2)
+			createFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+2))
 		}
 		var updateFields string
 		for i, field := range opts.Fields {
-			updateFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name.LowerCamel, i+3)
+			updateFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+3))
 		}
 
 		// Ensure custom types are imported
+		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)
@@ -206,23 +213,23 @@ func protoQueryModify(replacer placeholder.Replacer, opts *typed.Options) genny.
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// RPC service
-		templateRPC := `// Queries a %[3]v by id.
+		templateRPC := `// Queries a %[2]v by id.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/{id}";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/{id}";
 	}
 
-	// Queries a list of %[3]v items.
+	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
 		replacementRPC := fmt.Sprintf(templateRPC, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementRPC)
 

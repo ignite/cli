@@ -11,7 +11,7 @@ This tutorial is a great place to start your journey into the Cosmos ecosystem. 
 
 In the previous chapter you've learned how to install [Starport](https://github.com/tendermint/starport), the tool that offers everything you need to build, test, and launch your blockchain with a decentralized worldwide community.
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.17.3 use the following command:
+This series of tutorials is based on a specific version of Starport, so to install Starport v0.18.0 use the following command:
 
 ```bash
 curl https://get.starport.network/starport@v0.18.0! | bash
@@ -31,10 +31,10 @@ This command creates a Cosmos SDK blockchain called Hello in a `hello` directory
 
 This new blockchain imports standard Cosmos SDK modules, including:
 
-- [`staking`](https://docs.cosmos.network/v0.42/modules/staking/) (for delegated proof of stake)
-- [`bank`](https://docs.cosmos.network/v0.42/modules/bank/) (for fungible token transfers between accounts)
-- [`gov`](https://docs.cosmos.network/v0.42/modules/gov/) (for on-chain governance)
-- And [other modules](https://docs.cosmos.network/v0.42/modules/)
+- [`staking`](https://docs.cosmos.network/master/modules/staking/) (for delegated proof of stake)
+- [`bank`](https://docs.cosmos.network/master/modules/bank/) (for fungible token transfers between accounts)
+- [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
+- And [other modules](https://docs.cosmos.network/master/modules/)
 
 Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
 
@@ -98,12 +98,12 @@ To get your Cosmos SDK blockchain to say "Hello", you need to make these changes
 
 Protocol buffer files contain proto rpc calls that define Cosmos SDK queries and message handlers, and proto messages that define Cosmos SDK types. rpc calls are also responsible for exposing an HTTP API.
 
-For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/v0.42/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, you must register the query. You only need to register a query once.
+For each Cosmos SDK module, the [Keeper](https://docs.cosmos.network/master/building-modules/keeper.html) is an abstraction for modifying the state of the blockchain. Keeper functions let you query or write to the state. After you add the first query to your chain, you must register the query. You only need to register a query once.
 
 In terms of workflow, developers typically follow this sequence:
 
-- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/v0.42/building-modules/msg-services.html)
-- Define and register [queries](https://docs.cosmos.network/v0.42/building-modules/query-services.html)
+- Start with proto files to define Cosmos SDK [messages](https://docs.cosmos.network/master/building-modules/msg-services.html)
+- Define and register [queries](https://docs.cosmos.network/master/building-modules/query-services.html)
 - Define message handlers logic
 - Finally, implement the logic of these queries and message handlers in keeper functions.
 
@@ -230,7 +230,7 @@ After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/h
 }
 ```
 
-The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command `x/hello/client/cli/query_posts.go` . Run the following command and get the same JSON response:
+The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
 ```go
 hellod q hello posts

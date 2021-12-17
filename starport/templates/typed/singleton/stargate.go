@@ -8,7 +8,6 @@ import (
 	"strings"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/templates/module"
@@ -56,6 +55,7 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+		g.RunFn(moduleSimulationModify(replacer, opts))
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -105,17 +105,17 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 %[1]v`
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
 
@@ -247,20 +247,13 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateState := `%[2]v: &types.%[2]v{
 		%[3]v},
-%[1]v`
+		%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,
@@ -293,15 +286,8 @@ func genesisTypesTestsModify(replacer placeholder.Replacer, opts *typed.Options)
 
 		// Create a fields
 		sampleFields := ""
-		for _, f := range opts.Fields {
-			switch f.DatatypeName {
-			case field.TypeString:
-				sampleFields += fmt.Sprintf("%s: \"%s\",\n", f.Name.UpperCamel, f.Name.LowerCamel)
-			case field.TypeInt, field.TypeUint:
-				sampleFields += fmt.Sprintf("%s: %d,\n", f.Name.UpperCamel, rand.Intn(100))
-			case field.TypeBool:
-				sampleFields += fmt.Sprintf("%s: %t,\n", f.Name.UpperCamel, rand.Intn(2) == 0)
-			}
+		for _, field := range opts.Fields {
+			sampleFields += field.GenesisArgs(rand.Intn(100) + 1)
 		}
 
 		templateValid := `%[2]v: &types.%[2]v{
@@ -390,12 +376,20 @@ func protoTxModify(replacer placeholder.Replacer, opts *typed.Options) genny.Run
 
 		// Messages
 		var fields string
-		for i, f := range opts.Fields {
-			fields += fmt.Sprintf("  %s %s = %d;\n", f.Datatype, f.Name.LowerCamel, i+3)
+		for i, field := range opts.Fields {
+			fields += fmt.Sprintf("  %s;\n", field.ProtoType(i+3))
 		}
+
+		// Ensure custom types are imported
+		protoImports := opts.Fields.ProtoImports()
 		for _, f := range opts.Fields.Custom() {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
 			importModule := fmt.Sprintf(`
-import "%[1]v/%[2]v.proto";`, opts.ModuleName, f)
+import "%[1]v";`, f)
 			content = strings.ReplaceAll(content, importModule, "")
 
 			replacementImport := fmt.Sprintf("%[1]v%[2]v", typed.PlaceholderProtoTxImport, importModule)

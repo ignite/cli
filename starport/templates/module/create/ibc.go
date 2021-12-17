@@ -9,9 +9,9 @@ import (
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
-	"github.com/tendermint/starport/starport/pkg/plushhelpers"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
 	"github.com/tendermint/starport/starport/pkg/xstrings"
+	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
 	"github.com/tendermint/starport/starport/templates/module"
 	"github.com/tendermint/starport/starport/templates/typed"
 )
@@ -26,8 +26,6 @@ func NewIBC(replacer placeholder.Replacer, opts *CreateOptions) (*genny.Generato
 	g.RunFn(genesisModify(replacer, opts))
 	g.RunFn(genesisTypesModify(replacer, opts))
 	g.RunFn(genesisProtoModify(replacer, opts))
-	g.RunFn(genesisTestsModify(replacer, opts))
-	g.RunFn(genesisTypesTestsModify(replacer, opts))
 	g.RunFn(keysModify(replacer, opts))
 
 	if err := g.Box(template); err != nil {
@@ -130,45 +128,10 @@ func genesisProtoModify(replacer placeholder.Replacer, opts *CreateOptions) genn
 		// Determine the new field number
 		content := f.String()
 
-		template := `string port_id = 1;
+		template := `string port_id = 2;
   %s`
 		replacement := fmt.Sprintf(template, typed.PlaceholderGenesisProtoState)
 		content = replacer.Replace(content, typed.PlaceholderGenesisProtoState, replacement)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func genesisTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "genesis_test.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		replacementState := fmt.Sprintf("PortId: types.PortID,\n%s", module.PlaceholderGenesisTestState)
-		content := replacer.Replace(f.String(), module.PlaceholderGenesisTestState, replacementState)
-
-		replacementAssert := fmt.Sprintf("require.Equal(t, genesisState.PortId, got.PortId)\n%s", module.PlaceholderGenesisTestAssert)
-		content = replacer.Replace(content, module.PlaceholderGenesisTestAssert, replacementAssert)
-
-		newFile := genny.NewFileS(path, content)
-		return r.File(newFile)
-	}
-}
-
-func genesisTypesTestsModify(replacer placeholder.Replacer, opts *CreateOptions) genny.RunFn {
-	return func(r *genny.Runner) error {
-		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "types/genesis_test.go")
-		f, err := r.Disk.Find(path)
-		if err != nil {
-			return err
-		}
-
-		replacement := fmt.Sprintf("PortId: types.PortID,\n%s", module.PlaceholderTypesGenesisValidField)
-		content := replacer.Replace(f.String(), module.PlaceholderTypesGenesisValidField, replacement)
 
 		newFile := genny.NewFileS(path, content)
 		return r.File(newFile)

@@ -1,11 +1,9 @@
 package cli
 
 import (
-	<%= if (Fields.IsComplex()) { %> "encoding/json" <% } %>
-
+	<%= for (goImport) in mergeGoImports(Fields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
     "github.com/spf13/cobra"
-	<%= if (Fields.NeedCastImport()) { %> "github.com/spf13/cast" <% } %>
-
 	"github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"github.com/cosmos/cosmos-sdk/client/tx"
@@ -18,7 +16,7 @@ func CmdCreate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Create <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i) %>
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
@@ -44,7 +42,7 @@ func CmdUpdate<%= TypeName.UpperCamel %>() *cobra.Command {
 		Short: "Update <%= TypeName.Original %>",
 		Args:  cobra.ExactArgs(<%= len(Fields) %>),
 		RunE: func(cmd *cobra.Command, args []string) (err error) {
-		<%= for (i, field) in Fields { %> <%= castArg("arg", field, i) %>
+		<%= for (i, field) in Fields { %> <%= field.CLIArgs("arg", i) %>
 		<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {

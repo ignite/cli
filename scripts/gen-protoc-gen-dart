@@ -9,7 +9,7 @@
 [[ ${dep_check} = "false" ]] && { echo "Some dependencie(s) isn't installed yet. Please install that dependencie(s)" ; exit 1 ;}
 
 ## Variables
-protobuf_src="https://github.com/google/protobuf.dart/archive/refs/tags/protoc_plugin-19.2.0+1.tar.gz"
+protobuf_src="https://github.com/google/protobuf.dart/archive/refs/tags/protoc_plugin-v20.0.0.tar.gz"
 setdir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd)" # this line powered by stackoverflow
 kernelname="$(uname -s | tr '[:upper:]' '[:lower:]' || { echo 'kernel name can not definied' ; exit 1 ;})"
 

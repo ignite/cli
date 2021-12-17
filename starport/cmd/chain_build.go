@@ -30,12 +30,13 @@ source. Specify the release targets with GOOS:GOARCH build tags.
 If the optional --release.targets is not specified, a binary is created for your current environment.
 
 Sample usages:
-	- starport build
-	- starport build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
-		Args: cobra.ExactArgs(0),
+	- starport chain build
+	- starport chain build --release -t linux:amd64 -t darwin:amd64 -t darwin:arm64`,
+		Args: cobra.NoArgs,
 		RunE: chainBuildHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")

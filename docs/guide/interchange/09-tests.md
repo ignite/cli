@@ -1,18 +1,23 @@
 ---
 order: 9
+description: Add test files.
 ---
 
-# Write tests
+# Write Test Files
 
 To test your application, add the test files to your code.
 
-After you add the test files below, change into the `interchange` directory with your terminal, then run
+After you add the test files, change into the `interchange` directory with your terminal, then run:
 
 ```bash
-go test -timeout 30s ./x/ibcdex/types
+go test -timeout 30s ./x/dex/types
 ```
 
 ## Order Book Tests
+
+Create a new `order_book_test.go` file in the `types` directory.
+
+Add the following testsuite:
 
 ```go
 // types/order_book_test.go
@@ -25,7 +30,7 @@ import (
 	"github.com/cosmos/cosmos-sdk/crypto/keys/ed25519"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func GenString(n int) string {
@@ -130,6 +135,8 @@ func TestRemoveOrderFromID(t *testing.T) {
 
 ## Buy Order Tests
 
+Create a new `buy_order_book_test.go` file in the `types` directory to add the tests for the Buy Order Book:
+
 ```go
 // types/buy_order_book_test.go
 package types_test
@@ -139,7 +146,7 @@ import (
 	"sort"
 
 	"github.com/stretchr/testify/require"
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/cosmonaut/interchange/x/dex/types"
 )
 
 func OrderListToBuyOrderBook(list []types.Order) types.BuyOrderBook {
@@ -420,12 +427,14 @@ func TestFillSellOrder(t *testing.T) {
 
 ## Sell Order Tests
 
+Create a new testsuite for Sell Orders in a new file `types/sell_order_book_test.go`:
+
 ```go
 // types/sell_order_book_test.go
 package types_test
 
 import (
-	"github.com/tendermint/interchange/x/ibcdex/types"
+	"github.com/tendermint/interchange/x/dex/types"
 	"testing"
 	"github.com/stretchr/testify/require"
 	"sort"
@@ -704,8 +713,10 @@ func TestFillBuyOrder(t *testing.T) {
 }
 ```
 
-When the tests are successful, your output should be 
+## Successful Test Output
+
+When the tests are successful, your output is:
 
 ```go
-ok      github.com/username/interchange/x/ibcdex/types       0.550s
+ok      github.com/cosmonaut/interchange/x/dex/types       0.550s
 ```

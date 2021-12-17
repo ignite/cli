@@ -7,10 +7,11 @@ import (
 	"path/filepath"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/field"
 	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
+	"github.com/tendermint/starport/starport/templates/field/datatype"
 	"github.com/tendermint/starport/starport/templates/ibc"
 )
 
@@ -93,11 +94,16 @@ func (s Scaffolder) AddPacket(
 		return sm, fmt.Errorf("the module %s doesn't implement IBC module interface", moduleName)
 	}
 
+	signer := ""
+	if !o.withoutMessage {
+		signer = o.signer
+	}
+
 	// Check and parse packet fields
 	if err := checkCustomTypes(ctx, s.path, moduleName, packetFields); err != nil {
 		return sm, err
 	}
-	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField)
+	parsedPacketFields, err := field.ParseFields(packetFields, checkForbiddenPacketField, signer)
 	if err != nil {
 		return sm, err
 	}
@@ -106,7 +112,7 @@ func (s Scaffolder) AddPacket(
 	if err := checkCustomTypes(ctx, s.path, moduleName, ackFields); err != nil {
 		return sm, err
 	}
-	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord)
+	parsedAcksFields, err := field.ParseFields(ackFields, checkGoReservedWord, signer)
 	if err != nil {
 		return sm, err
 	}
@@ -157,11 +163,17 @@ func isIBCModule(appPath string, moduleName string) (bool, error) {
 
 // checkForbiddenPacketField returns true if the name is forbidden as a packet name
 func checkForbiddenPacketField(name string) error {
-	switch name {
+	mfName, err := multiformatname.NewName(name)
+	if err != nil {
+		return err
+	}
+
+	switch mfName.LowerCase {
 	case
 		"sender",
 		"port",
-		"channelID":
+		"channelid",
+		datatype.TypeCustom:
 		return fmt.Errorf("%s is used by the packet scaffolder", name)
 	}
 
