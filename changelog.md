@@ -4,9 +4,20 @@
 
 ### Features:
 
+- `starport scaffold` commands support `ints`, `uints`, `strings`, `coin`, `coins` as field types (#1579)
+- Simulation testing with `simapp` has been added to the default template (#1731)
 - Added `starport generate dart` to generate a Dart client from protocol buffer files
 - Added `starport scaffold flutter` to scaffold a Flutter mobile app template
-- `starport scaffold` commands support `ints`, `uints`, `strings`, `coin`, `coins` as field types [#1579](https://github.com/tendermint/starport/pull/1579)
+- Parameters can be specified with a new `--params` flag when scaffolding modules (#1716)
+- Simulations can be run with `starport chain simulate`
+- `cointype` for accounts can be set in the `config.yml` (#1663)
+
+### Fixes:
+
+- Allow using a `creator` field when scaffolding a model with a `--no-message` flag (#1730)
+- Improved error handling when generating code (#1907)
+- Ensure account has funds after faucet transfer when using `cosmosclient` (#1846)
+- Move from `io/ioutil` to `io` and `os` package (refactoring) (#1746)
 
 ## `v0.18.0`
 
