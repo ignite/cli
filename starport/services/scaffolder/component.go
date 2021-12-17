@@ -223,3 +223,18 @@ func checkCustomTypes(ctx context.Context, path, module string, fields []string)
 	}
 	return protoanalysis.HasMessages(ctx, protoPath, customFields...)
 }
+
+// containCustomTypes returns true if the list of fields contains at least one custom type
+func containCustomTypes(fields []string) bool {
+	for _, name := range fields {
+		fieldSplit := strings.Split(name, datatype.Separator)
+		if len(fieldSplit) <= 1 {
+			continue
+		}
+		fieldType := datatype.Name(fieldSplit[1])
+		if _, ok := datatype.SupportedTypes[fieldType]; !ok {
+			return true
+		}
+	}
+	return false
+}
