@@ -4,7 +4,7 @@
 
 ## What is Starport?
 
-Starport is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Starport includes a command line interface that lets you manage keys, create validators, and send tokens.
+Starport is an easy-to-use CLI tool for creating and maintaining sovereign application-specific blockchains. Blockchains created with Starport use Cosmos SDK and Tendermint. Starport and the Cosmos SDK modules are written in the Go programming language. The scaffolded blockchain that is created with Starport includes a command-line interface that lets you manage keys, create validators, and send tokens.
 
 With just a few commands, you can use Starport to:
 
