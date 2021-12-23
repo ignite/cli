@@ -44,7 +44,7 @@ Many projects already showcase the Tendermint BFT consensus engine and the Cosmo
 * [Zenchain](https://github.com/zenchainprotocol/zenchain)
 * [Onomy Protocol](https://github.com/onomyprotocol/ochain)
 * [Interchain accounts demo](https://github.com/cosmos/interchain-accounts)
-* [Lazy Ledger](https://github.com/lazyledger/lazyledger-app)
+* [Celestia](https://github.com/celestiaorg/celestia-app)
 * [Umee: decentralized universal capital facility](https://github.com/umee-network/umee)
 * [Starport Network](https://github.com/tendermint/spn)
 * [Juno interoperable smart contract hub](https://github.com/CosmosContracts/Juno)
