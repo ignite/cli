@@ -5,7 +5,7 @@
 [Starport](https://starport.com) is the all-in-one platform to build, launch, and maintain any crypto application on a sovereign and secured blockchain. It is a developer-friendly interface to the [Cosmos SDK](https://github.com/cosmos/cosmos-sdk), the world's most widely-used blockchain application framework. Starport generates boilerplate code for you, so you can focus on writing business logic.
 
 * [**Build a blockchain with Starport in a web-based IDE** (stable)](https://gitpod.io/#https://github.com/tendermint/starport/tree/master) or use [nightly version](https://gitpod.io/#https://github.com/tendermint/starport/)
-* [Check out the latest features in v0.18](https://medium.com/tendermint/starport-v0-18-cosmos-sdk-updates-and-scaffolding-enhancements-5ea5654bcd0c)
+* [Check out the latest features in v0.19](https://starport.com/blog/starport-v0-19)
 
 ## Quick start
 
@@ -37,7 +37,8 @@ Blockchains created with Starport use the [Cosmos SDK](https://github.com/cosmos
 
 | Starport | Cosmos SDK | Notes                                            |
 | -------- | ---------- | ------------------------------------------------ |
-| v0.18    | v0.44      | `starport chain serve` works with v0.44.x chains | |                                                  |
+| v0.19    | v0.44      | |
+| v0.18    | v0.44      | `starport chain serve` works with v0.44.x chains |
 | v0.17    | v0.42      | |
 
 To upgrade your blockchain to the newer version of Cosmos SDK, see the [Migration guide](https://docs.starport.com/migration/).
