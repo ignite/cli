@@ -342,6 +342,8 @@ By following these steps, you have implemented all of the code required to creat
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 
+--------------------------------------------------------------------------
+
 ## Create a new message called delete-comment
 
 To create a new message, use the `message` command:
@@ -375,7 +377,7 @@ You need to do two things:
 - Check if the post Id exist for which comment was deleted.
 - Delete the comment from the store.
 
-```bash
+```go
 package keeper
 
  import (
@@ -401,11 +403,26 @@ package keeper
  }
 ```
 
-### Define Keeper methods
+## Write Data to the Store
 
+Inside the `x/blog/keeper/comment.go` make modifications to implement `GetComment`
 
+```go
+func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
+ 	// Get the store using storeKey (which is "blog") and PostKey (which is "Post-")
+ 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.CommentKey))
+ 	// Convert the post ID into bytes
+ 	byteKey := make([]byte, 8)
+ 	binary.BigEndian.PutUint64(byteKey, id)
+ 	// Get the post bytes using post ID as a key
+ 	bz := store.Get(byteKey)
+ 	// Unmarshal the post bytes into the post object
+ 	k.cdc.MustUnmarshal(bz, &comment)
+ 	return comment
+}
+``` 
 
-
+--------------------------------------------------------------------------
 
 
 
