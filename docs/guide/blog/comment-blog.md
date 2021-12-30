@@ -342,6 +342,71 @@ By following these steps, you have implemented all of the code required to creat
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 
+## Create a new message called delete-comment
+
+To create a new message, use the `message` command:
+
+```bash
+starport scaffold message delete-comment commentID:uint postID:uint 
+```
+
+The `message` commands accepts `commentID` and `postID` as arguments.
+Here, `commentID` and `postID` are the references to previously created comment and blog post respectively.
+
+The `message` command has created and modified several files:
+
+modify proto/blog/tx.proto
+modify x/blog/client/cli/tx.go
+create x/blog/client/cli/tx_delete_comment.go
+modify x/blog/handler.go
+create x/blog/keeper/msg_server_delete_comment.go
+modify x/blog/types/codec.go
+create x/blog/types/message_delete_comment.go
+create x/blog/types/message_delete_comment_test.go
+
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. `MsgCreateResponse` should be left blank as we don't return any value for it. 
+
+## Process Messages
+
+In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want to delete the contents of the comment.
+
+You need to do two things:
+
+- Check if the post Id exist for which comment was deleted.
+- Delete the comment from the store.
+
+```bash
+package keeper
+
+ import (
+	//...
+ 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+ )
+
+ func (k msgServer) DeleteComment(goCtx context.Context, msg *types.MsgDeleteComment) (*types.MsgDeleteCommentResponse, error) {
+ 	ctx := sdk.UnwrapSDKContext(goCtx)
+
+ 	comment := k.GetComment(ctx, msg.Id)
+
+ 	if msg.PostID != comment.PostID {
+ 		return nil, sdkerrors.Wrapf(types.ErrID, "Post Blog Id does not exist for which comment with Blog Id %d was made", msg.PostID)
+ 	}
+
+ 	store := prefix.NewStore(ctx.KVStore(k.storeKey), types.KeyPrefix(types.CommentKey))
+ 	bz := make([]byte, 8)
+ 	binary.BigEndian.PutUint64(bz, comment.Id)
+ 	store.Delete(bz)
+
+ 	return &types.MsgDeleteCommentResponse{}, nil
+ }
+```
+
+### Define Keeper methods
+
+
+
+
+
 
 
 ## Display Posts
