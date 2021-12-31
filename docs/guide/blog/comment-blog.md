@@ -101,24 +101,6 @@ message MsgCreatePost {
 }
 ```
 
-Next, look at the `x/blog/handler.go` file. Starport has added a `case` to the `switch` statement inside the `NewHandler` function. This switch statement is responsible for routing messages and calling specific keeper methods based on the type of the message. `case *types.MsgCreateComment` has been added along with previously added `case *types.MsgCreatePost`
-
-```go
-func NewHandler(k keeper.Keeper) sdk.Handler {
-	//...
-		switch msg := msg.(type) {
-		//...
-		case *types.MsgCreateComment:
-			res, err := msgServer.CreateComment(sdk.WrapSDKContext(ctx), msg)
-			return sdk.WrapServiceResult(ctx, res, err)
-			//...
-		}
-	}
-}
-```
-
-The `case *types.MsgCreateComment` statement handles messages of type `MsgCreateComment`, calls the `CreateComment` method, and returns back the response.
-
 
 ## Process Messages
 
