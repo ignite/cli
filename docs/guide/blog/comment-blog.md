@@ -16,17 +16,33 @@ You can only add comments to a post that is no older than 100 blocks.
 - This tutorial is an extension of previously written blog tutorial. Make sure you complete that first before proceeding with this tutorial.
 - This tutorial also assumes basic knowledge of blog tutorial implementation.
 - Make sure you are inside the `blog` directory created in the previous blog tutorial.
+- In this chapter, we will use the command - `starport scaffold list comment --no-message` to get all the useful functions.
 
-## Create a new type called comment
-
-To create a new type, use the `type` command:
+## Fetch functions using list command:
 
 ```bash
-starport scaffold type comment
+starport scaffold list comment --no-message
 ```
 
-The `type` command scaffolds a type definition and creates `comment.proto` file. 
+create proto/blog/comment.proto
+modify proto/blog/genesis.proto
+modify proto/blog/query.proto
+modify vue/src/views/Types.vue
+modify x/blog/client/cli/query.go
+create x/blog/client/cli/query_comment.go
+create x/blog/client/cli/query_comment_test.go
+modify x/blog/genesis.go
+modify x/blog/genesis_test.go
+create x/blog/keeper/comment.go
+create x/blog/keeper/comment_test.go
+create x/blog/keeper/grpc_query_comment.go
+create x/blog/keeper/grpc_query_comment_test.go
+modify x/blog/module.go
+modify x/blog/types/genesis.go
+modify x/blog/types/genesis_test.go
+modify x/blog/types/keys.go
 
+🎉 comment added.
 
 ## Create a new message called comment
 
@@ -342,7 +358,6 @@ By following these steps, you have implemented all of the code required to creat
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 
---------------------------------------------------------------------------
 
 ## Create a new message called delete-comment
 
@@ -421,8 +436,6 @@ func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
  	return comment
 }
 ``` 
-
---------------------------------------------------------------------------
 
 
 
