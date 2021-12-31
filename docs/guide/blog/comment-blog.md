@@ -226,23 +226,10 @@ message Post {
 
 ### Define Keeper Methods
 
-To keep a list of comments in what is essentially a key-value store, you need to keep track of the index of the comments you insert. Since both comment values and comment count (index) values are kept in the store, you can use different prefixes: `Comment-value-` and `Comment-count-`. 
+The function `starport scaffold list comment --no-message` has fetched all necessary functions for keeper. 
 
-Add these prefixes to the `x/blog/types/keys.go` file:
+Inside `x/blog/types/keys.go` file, you can find comment-value and comment-count key added.
 
-```go
-const (
-  CommentKey      = "Comment-value-"
-  CommentCountKey = "Comment-count-"
-)
-```
-
-When a `Comment` message is sent to the `AppendComment` function, four actions occur: 
-
-- Get the number of comments in the store (count)
-- Add a comment by using the count as an ID
-- Increment the count
-- Return the count
 
 ## Write Data to the Store
 
