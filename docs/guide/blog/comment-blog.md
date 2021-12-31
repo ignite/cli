@@ -513,6 +513,53 @@ Post:
   title: Uno
 ```
 
+## Delete Comment
+
+```bash
+blogd tx blog delete-comment 0 0 --from alice -y
+```
+
+```bash
+code: 0
+codespace: ""
+data: 0A270A252F636F736D6F6E6175742E626C6F672E626C6F672E4D736744656C657465436F6D6D656E74
+gas_used: "40125"
+gas_wanted: "200000"
+height: "253"
+info: ""
+logs:
+- events:
+  - attributes:
+    - key: action
+      value: DeleteComment
+    type: message
+  log: ""
+  msg_index: 0
+raw_log: '[{"events":[{"type":"message","attributes":[{"key":"action","value":"DeleteComment"}]}]}]'
+timestamp: ""
+tx: null
+txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
+```
+
+### Display
+
+```bash
+blogd q blog comments 0
+```
+
+```bash
+Comment:
+[]
+Post:
+  body: This is the first post
+  createdAt: "14046"
+  creator: cosmos1g7x9cpj6w0jklshe3se57tlwydx6yfl8ex5g7n
+  id: "0"
+  title: Uno
+```
+
+
+
 ## Edge Cases
 
 1. Add comment to non existent Blog Id 
