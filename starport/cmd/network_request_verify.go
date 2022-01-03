@@ -13,8 +13,7 @@ import (
 	"github.com/tendermint/starport/starport/services/network/networkchain"
 )
 
-// NewNetworkRequestVerify creates a new request approve
-// command to approve requests for a chain.
+// NewNetworkRequestVerify verify the request and simulate the chain.
 func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "verify [launch-id] [number<,...>]",
