@@ -72,6 +72,10 @@ func chainServeHandler(cmd *cobra.Command, args []string) error {
 	if resetOnce {
 		serveOptions = append(serveOptions, chain.ServeResetOnce())
 	}
+	ldFlags, err := cmd.Flags().GetStringSlice(flagLDFlags)
+	if err != nil {
+		return err
+	}
 
-	return c.Serve(cmd.Context(), serveOptions...)
+	return c.Serve(cmd.Context(), ldFlags, serveOptions...)
 }
