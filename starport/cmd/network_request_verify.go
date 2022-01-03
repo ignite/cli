@@ -18,7 +18,6 @@ import (
 func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
 		Use:     "verify [launch-id] [number<,...>]",
-		Aliases: []string{"accept"},
 		Short:   "Verify the request and simulate the chain genesis from them",
 		RunE:    networkRequestVerifyHandler,
 		Args:    cobra.ExactArgs(2),
