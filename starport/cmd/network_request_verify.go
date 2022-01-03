@@ -16,10 +16,10 @@ import (
 // NewNetworkRequestVerify verify the request and simulate the chain.
 func NewNetworkRequestVerify() *cobra.Command {
 	c := &cobra.Command{
-		Use:     "verify [launch-id] [number<,...>]",
-		Short:   "Verify the request and simulate the chain genesis from them",
-		RunE:    networkRequestVerifyHandler,
-		Args:    cobra.ExactArgs(2),
+		Use:   "verify [launch-id] [number<,...>]",
+		Short: "Verify the request and simulate the chain genesis from them",
+		RunE:  networkRequestVerifyHandler,
+		Args:  cobra.ExactArgs(2),
 	}
 	c.Flags().AddFlagSet(flagNetworkFrom())
 	c.Flags().AddFlagSet(flagSetHome())
