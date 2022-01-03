@@ -14,6 +14,7 @@ const (
 	flagRelease        = "release"
 	flagReleaseTargets = "release.targets"
 	flagReleasePrefix  = "release.prefix"
+	flagLDFlags        = "ldFlags"
 )
 
 // NewChainBuild returns a new build command to build a blockchain app.
@@ -41,6 +42,7 @@ Sample usages:
 	c.Flags().AddFlagSet(flagSetProto3rdParty("Available only without the --release flag"))
 	c.Flags().Bool(flagRelease, false, "build for a release")
 	c.Flags().StringSliceP(flagReleaseTargets, "t", []string{}, "release targets. Available only with --release flag")
+	c.Flags().StringSliceP(flagLDFlags, "l", []string{}, "ldflags to set version information for go applications")
 	c.Flags().String(flagReleasePrefix, "", "tarball prefix for each release target. Available only with --release flag")
 	c.Flags().StringP(flagOutput, "o", "", "binary output path")
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
@@ -52,6 +54,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 	var (
 		isRelease, _      = cmd.Flags().GetBool(flagRelease)
 		releaseTargets, _ = cmd.Flags().GetStringSlice(flagReleaseTargets)
+		ldFlags, _        = cmd.Flags().GetStringSlice(flagLDFlags)
 		releasePrefix, _  = cmd.Flags().GetString(flagReleasePrefix)
 		output, _         = cmd.Flags().GetString(flagOutput)
 	)
@@ -71,7 +74,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	if isRelease {
-		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, releaseTargets...)
+		releasePath, err := c.BuildRelease(cmd.Context(), output, releasePrefix, ldFlags, releaseTargets...)
 		if err != nil {
 			return err
 		}
@@ -81,7 +84,7 @@ func chainBuildHandler(cmd *cobra.Command, args []string) error {
 		return nil
 	}
 
-	binaryName, err := c.Build(cmd.Context(), output)
+	binaryName, err := c.Build(cmd.Context(), output, ldFlags...)
 	if err != nil {
 		return err
 	}
