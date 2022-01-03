@@ -55,7 +55,7 @@ func (n Network) Request(ctx context.Context, launchID, requestID uint64) (launc
 	return res.Request, nil
 }
 
-// RequestFromIDs fetches the chain requestd from SPN by launch and ptovided request IDs
+// RequestFromIDs fetches the chain requested from SPN by launch and provided request IDs
 // TODO: once implemented, use the SPN query from https://github.com/tendermint/spn/issues/420
 func (n Network) RequestFromIDs(ctx context.Context, launchID uint64, requestIDs ...uint64) (reqs []launchtypes.Request, err error) {
 	for _, id := range requestIDs {
