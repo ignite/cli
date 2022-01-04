@@ -104,9 +104,5 @@ func verifyRequest(
 		return err
 	}
 
-	if err := c.SimulateRequests(ctx, genesisInformation, requests); err != nil {
-		return err
-	}
-
-	return nil
+	return c.SimulateRequests(ctx, genesisInformation, requests)
 }

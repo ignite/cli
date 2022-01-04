@@ -58,8 +58,7 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	}
 
 	// ensure genesis has a valid format
-	err = cmd.ValidateGenesis(ctx)
-	if err != nil {
+	if err := cmd.ValidateGenesis(ctx); err != nil {
 		return err
 	}
 
