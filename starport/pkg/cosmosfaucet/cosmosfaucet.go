@@ -3,10 +3,10 @@ package cosmosfaucet
 
 import (
 	"context"
-	"fmt"
 	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
 
 const (
@@ -47,7 +47,7 @@ type Faucet struct {
 	coinType string
 
 	// coins keeps a list of coins that can be distributed by the faucet.
-	coins []coin
+	coins []cosmoscoin.Coin
 
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
@@ -57,18 +57,6 @@ type Faucet struct {
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
-}
-
-type coin struct {
-	// amount is the amount of the coin can be distributed per request.
-	amount uint64
-
-	// denom is denomination of the coin to be distributed by the faucet.
-	denom string
-}
-
-func (c coin) String() string {
-	return fmt.Sprintf("%d%s", c.amount, c.denom)
 }
 
 // Option configures the faucetOptions.
@@ -92,7 +80,7 @@ func Account(name, mnemonic string, coinType string) Option {
 // denom is denomination of the coin to be distributed by the faucet.
 func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
-		f.coins = append(f.coins, coin{amount, denom})
+		f.coins = append(f.coins, cosmoscoin.Coin{Amount: amount, Denom: denom})
 		f.coinsMax[denom] = maxAmount
 	}
 }

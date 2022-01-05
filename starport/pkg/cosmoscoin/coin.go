@@ -20,20 +20,34 @@ var (
 	parseRe     = regexp.MustCompile(pattern)
 )
 
-// Parse parses a coin into amount and denom.
-func Parse(c string) (amount uint64, denom string, err error) {
+// Coin represents a SDK coin
+type Coin struct {
+	// Amount of coins
+	Amount uint64
+
+	// Denom of the coin
+	Denom string
+}
+
+// String stringifies the coin
+func (c Coin) String() string {
+	return fmt.Sprintf("%d%s", c.Amount, c.Denom)
+}
+
+// Parse parses a string into a coin containing an amount and a denom.
+func Parse(c string) (coin Coin, err error) {
 	parsed := parseRe.FindStringSubmatch(c)
 
 	if len(parsed) != 3 {
-		return 0, "", errInvalidCoin
+		return coin, errInvalidCoin
 	}
 
 	amountStr := parsed[1]
-	denom = parsed[2]
+	coin.Denom = parsed[2]
 
-	amount, err = strconv.ParseUint(amountStr, 10, 64)
+	coin.Amount, err = strconv.ParseUint(amountStr, 10, 64)
 	if err != nil {
-		return 0, "", errInvalidCoin
+		return coin, errInvalidCoin
 	}
 
 	return
