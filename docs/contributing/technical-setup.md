@@ -20,9 +20,9 @@ Be sure to set up [Visual Studio Code](https://code.visualstudio.com/docs/setup/
 
 Click the GitHub icon in the sidebar for GitHub integration and follow the prompts.
 
-## Clone the repos you work in
+## Clone the Repos You Work In
 
-- Fork or clone the <https://github.com/cosmos/sdk-tutorials/> repository. 
+- Fork or clone the <https://github.com/tendermint/starport/> repository. 
 
 Internal Tendermint users have different permissions, if you're not sure, fork the repo.
 

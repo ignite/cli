@@ -41,6 +41,7 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 		chaincmd.GentxWithDetails(v.Details),
 		chaincmd.GentxWithIdentity(v.Identity),
 		chaincmd.GentxWithWebsite(v.Website),
+		chaincmd.GentxWithSecurityContact(v.SecurityContact),
 	)
 }
 

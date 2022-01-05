@@ -223,6 +223,7 @@ type Validator struct {
 	Details                 string
 	Identity                string
 	Website                 string
+	SecurityContact         string
 }
 
 // Account represents an account in the chain.
