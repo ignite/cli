@@ -25,16 +25,16 @@ Unique and scarce digital assets are key promises that blockchains deliver. For 
 
 The Token Factory module allows you to create native denoms on your blockchain at will. A denom is the name of a token that can be used for all purposes with Starport and in the Cosmos ecosystem. To learn more, see [Denom](../kb/denom.md).
 
-Basically, denoms describe token on a blockchain. Denom and token are also to referred as Coins, see [ADR 024: Coin Metadata](https://docs.cosmos.network/master/architecture/adr-024-coin-metadata.html).
+Basically, denoms describe token on a blockchain. Denom and token are also to referred as coins, see the Cosmos SDK [ADR 024: Coin Metadata](https://docs.cosmos.network/master/architecture/adr-024-coin-metadata.html).
 
 A denom in this module always has an owner. An owner is allowed to issue new tokens, change the denoms name, and transfer the ownership to a different account.
 
 The denom has a name (`denom`) and a property (`ticker`).
 
 - The exponential of the denom is held in the `precision` property that defines how many decimal places the denom has.
-- To describe the circulating supply, the token has the parameters `maxSupply` and `supply` as current supply. 
-- The `canChangeMaxSupply` boolean parameter defines if a token can have an increasing `maxSupply` after issuance.
-- The denom has a `description` and a `url` that contains details about the token.
+- The `maxSupply` and `supply` parameters describe the circulating supply. 
+- The `canChangeMaxSupply` boolean parameter allows a token to increase `maxSupply` after issuance.
+- The denom `description` and a `url` contain details about the token.
 
 The resulting proto definition looks like:
 
@@ -52,7 +52,7 @@ message Denom {
 }
 ```
 
-To bring these tokens into existence, you require functions to:
+To bring new tokens into existence, you must create functions to:
 
 * Issue new token
 * Change the ownership of token
@@ -62,51 +62,102 @@ Get started by scaffolding the blockchain and the module of the token factory.
 
 ## Scaffold a Blockchain
 
-Scaffold a new `tokenfactory` blockchain and use the `--no-module` flag because you want to add the token factory module with certain dependencies:
+Scaffold a new `tokenfactory` blockchain. For your new chain, use the `--no-module` flag so you can add the token factory module with certain dependencies:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/tokenfactory --no-module
 ```
 
-Change directory to the new scaffolded blockchain:
+This command creates a Cosmos SDK blockchain called `tokenfactory` in a `tokenfactory` directory. The source code inside the `tokenfactory` directory contains a fully functional ready-to-use blockchain. 
+
+Change directory to the newly scaffolded blockchain:
 
 ```bash
 cd tokenfactory
 ```
 
-## Scaffold a Module
+## Scaffold a New Module
 
-Next, scaffold a new module with dependencies on the Cosmos SDK [bank](https://docs.cosmos.network/master/modules/bank/) and [auth](https://docs.cosmos.network/master/modules/auth/) modules:
+Next, scaffold a new module with dependencies on the Cosmos SDK [bank](https://docs.cosmos.network/master/modules/bank/) and [auth](https://docs.cosmos.network/master/modules/auth/) modules. 
+
+The `--dep` flag creates dependencies on the `auth` (account access) and `bank` modules that are wired into the right places.
+
 
 ```bash
 starport scaffold module tokenfactory --dep account,bank
 ```
 
-The `--dep` flag is for `dependencies` so that dependencies on the `auth` (account access) and `bank` modules are wired into the right places.
+The command output confirms:
 
-To scaffold the CRUD operations for a denom in the token factory, use a Starport `map` for data stored as key-value pairs that define the data format:
+```bash
+🎉 Module created tokenfactory.
+```
+
+To scaffold the CRUD operations for a denom in the token factory, you must define the data format. For this case, use a Starport `map` for data stored as key-value pairs:
 
 ```bash
 starport scaffold map Denom description:string ticker:string precision:int url:string maxSupply:int supply:int canChangeMaxSupply:bool --signer owner --index denom --module tokenfactory
 ```
 
-Check the `proto/tokenfactory/denom.proto` file to see the result.
+This powerful command has completed a lot of the work for your new denom. The command output shows the modified and created files: 
 
-Congratulations, you have scaffolded an entire CRUD application. While the purpose of the token factory is to create denoms, you want to prevent an initialized denom from being deleted. You remove the delete function for denoms in the following steps.
+```text
+create proto/tokenfactory/denom.proto
+modify proto/tokenfactory/genesis.proto
+modify proto/tokenfactory/query.proto
+modify proto/tokenfactory/tx.proto
+modify x/tokenfactory/client/cli/query.go
+create x/tokenfactory/client/cli/query_denom.go
+create x/tokenfactory/client/cli/query_denom_test.go
+modify x/tokenfactory/client/cli/tx.go
+create x/tokenfactory/client/cli/tx_denom.go
+create x/tokenfactory/client/cli/tx_denom_test.go
+modify x/tokenfactory/genesis.go
+modify x/tokenfactory/genesis_test.go
+modify x/tokenfactory/handler.go
+create x/tokenfactory/keeper/denom.go
+create x/tokenfactory/keeper/denom_test.go
+create x/tokenfactory/keeper/grpc_query_denom.go
+create x/tokenfactory/keeper/grpc_query_denom_test.go
+create x/tokenfactory/keeper/msg_server_denom.go
+create x/tokenfactory/keeper/msg_server_denom_test.go
+modify x/tokenfactory/module.go
+modify x/tokenfactory/module_simulation.go
+create x/tokenfactory/simulation/denom.go
+modify x/tokenfactory/types/codec.go
+modify x/tokenfactory/types/genesis.go
+modify x/tokenfactory/types/genesis_test.go
+create x/tokenfactory/types/key_denom.go
+create x/tokenfactory/types/messages_denom.go
+create x/tokenfactory/types/messages_denom_test.go
+
+🎉 Denom added.
+```
+
+Open and review the `proto/tokenfactory/denom.proto` file to see the result.
+
+Congratulations, you have scaffolded an entire CRUD application. While the purpose of the token factory is to create denoms, you also want to prevent an initialized denom from being deleted. To restrict this action, remove the delete function for denoms in the following steps.
 
 After scaffolding the denom map, it is a good time to make a first git commit:
 
 ```bash
 git add .
-git commit -m "Add token factory module and denom map"
+git commit -m "Add tokenfactory module and denom map"
 ```
-You can come back to this step in case something goes wrong with the following steps.
+
+This git commit saves all staged changes. This commit captures a snapshot of the project that you can come back to in case something goes wrong with the following steps.
 
 ## Remove Delete Messages Functionality
 
 Since a created denom is subsequently handled by the `bank` module like any other native denom, the denom must not be deletable. To prevent the denom from being deleted, remove all references to the delete action of the scaffolded CRUD type.
 
-In order to remove the functionality to delete token, you must remove these delete functions from proto, client, keeper, and handler as shown in the next sections:
+In order to remove the functionality to delete token, you must remove these delete functions from proto, client, keeper, and handler files as shown in the next sections.
+
+Take care to retain comments that were created by Starport. For example:
+
+```
+// this line is used by starport scaffolding #1
+```
 
 ### Proto
 
@@ -124,7 +175,7 @@ Navigate to the client in `x/tokenfactory/client` and make these changes:
 
 - In the `x/tokenfactory/client/cli/tx_denom_test.go` file, remove the entire `TestDeleteDenom()` function.
 - In the `x/tokenfactory/client/cli/tx_denom.go` file, remove the entire `CmdDeleteDenom()` function.
-- In the `x/tokenfactory/client/cli/tx.go` file, remove the line that has the delete command:
+- In the `x/tokenfactory/client/cli/tx.go` file, remove the line that adds the delete command:
 
     ```go
     cmd.AddCommand(CmdDeleteDenom())
@@ -132,7 +183,7 @@ Navigate to the client in `x/tokenfactory/client` and make these changes:
 
 ### Keeper
 
-In the `keeper` directory, there are a few files contain the delete denom functionality:
+In the `x/tokenfactory/keeper` directory, update the files that contain the delete denom functionality:
 
 - In the `x/tokenfactory/keeper/denom_test.go` file, remove the `TestDenomRemove()` function.
 - In the `x/tokenfactory/keeper/denom.go` file, remove the entire `RemoveDenom()` function.
@@ -143,9 +194,9 @@ In the `keeper` directory, there are a few files contain the delete denom functi
 
 The `types` directory defines functions and validations that describe the format of the blockchain data. You must remove the delete denom functionality from the codec, the message denom test, and the message denom file.
 
-- Start with the codec in `x/tokenfactory/types/codec.go`, and remove the codec and interface registrations for `MsgDeleteDenom`.
+- In the `x/tokenfactory/types/codec.go` file, remove the codec and interface registrations for `MsgDeleteDenom`.
 - In the `x/tokenfactory/types/messages_denom_test.go` test, remove the `TestMsgDeleteDenom_ValidateBasic()` function.
-- In the message denom `x/tokenfactory/types/messages_denom.go` file, remove the entire part that references `MsgDeleteDenom()`.
+- In the `x/tokenfactory/types/messages_denom.go` file, remove the entire part that references `MsgDeleteDenom()`.
 
 ### Handler
 
@@ -153,16 +204,16 @@ In the handler, update the switch file for all of the messages.
 
 - Open the `x/tokenfactory/handler.go` file and remove `MsgDeleteDenom` case from `NewHandler` function.
 
-Good job, this step finishes all of the updates required to remove the delete denom functionality.
+Good job. This step finishes all of the updates required to remove the delete denom functionality.
 
-In the next chapter, you implement the custom logic for the token factory.
-
-This is a good time to make another git commit, before moving to the application logic:
+This is a good time to make another git commit before moving to the application logic:
 
 ```bash
 git add .
 git commit -m "Remove the delete denom functionality"
 ```
+
+In the next chapter, you implement the custom logic for the token factory.
 
 ## Add Application Logic
 
@@ -175,7 +226,7 @@ Define the format of a new token denom in `proto/tokenfactory/tx.proto`.
 For the `MsgCreateDenom` message:
 
 - Remove `int32 supply = 8;`
-- Change the field order accordingly, so `canChangeMaxSupply` changes from 9 to 8
+- Change the field order accordingly, to update `canChangeMaxSupply` field order from 9 to 8
 
 These changes result in the following `MsgCreateDenom` message:
 
@@ -216,7 +267,7 @@ Application logic for the client is in the `x/tokenfactory/client/cli/tx_denom.g
 
 For the  `CmdCreateDenom()` message:
 
-- Change the number of args to 7 from 8 in
+- Change the number of args from 8 to 7
 - Remove references to the supply argument
 - Reorder the args accordingly
 - Change the usage descriptions
@@ -339,13 +390,13 @@ In the `x/tokenfactory/client/cli/tx_denom_test.go` file, adjust tests to match 
 
 ### Types
 
-When creating new denoms, the denom does not have an initial supply. The supply is updated only when tokens are minted, and is based on the amount that is minted.
+When creating new denoms, the denom does not have an initial supply. The supply is updated only when tokens are minted and is based on the amount that is minted.
 
 In `x/tokenfactory/types/messages_denom.go`:
 
 - Remove the `supply` parameter from `NewMsgCreateDenom` 
 
-- A few modifications are also required in `NewMsgUpdateDenom` to ensure that parameters that cannot be changed, remove `ticker`, `precision`, and `supply` from the function
+- A few modifications are also required in `NewMsgUpdateDenom` to ensure that these parameters that cannot be changed. Remove `ticker`, `precision`, and `supply` from the function.
 
 Before you start implementing the custom logic for creating and updating denoms, add some basic validation to the inputs in `x/tokenfactory/types/messages_denom.go`:
 
@@ -393,9 +444,7 @@ func (msg *MsgUpdateDenom) ValidateBasic() error {
 
 Define the business logic in the keeper. These changes are where you make changes to the database and actually write to the key-value store.
 
-In `x/tokenfactory/keeper/msg_server_denom.go`:
-
-- Modify the `CreateDenom()` function to define the logic for creating unique new denoms
+- In `x/tokenfactory/keeper/msg_server_denom.go`, modify the `CreateDenom()` function to define the logic for creating unique new denoms:
 
 ```go
 func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom) (*types.MsgCreateDenomResponse, error) {
@@ -429,7 +478,7 @@ func (k msgServer) CreateDenom(goCtx context.Context, msg *types.MsgCreateDenom)
 }
 ```
 
-- Modify the `UpdateDenom()` function to check whether the owner is correct and check if the owner is allowed to change the max supply:
+- Also in `x/tokenfactory/keeper/msg_server_denom.go`, modify the `UpdateDenom()` function to check whether the owner is correct and check if the owner is allowed to change the max supply:
 
 ```go
 func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom) (*types.MsgUpdateDenomResponse, error) {
@@ -475,11 +524,11 @@ func (k msgServer) UpdateDenom(goCtx context.Context, msg *types.MsgUpdateDenom)
 
 ### Expected Keepers
 
-As you learned in previous tutorials, when you work closely with other modules, you must define the functions you want to use from the other modules in the `expected_keepers.go` file. 
+As you learned in previous tutorials, when you work closely with other modules, the `expected_keepers.go` file is where you define the functions you want to use from the other modules. 
 
-Initially, you scaffolded the module with dependencies on `auth` and `bank` module. Here you can define which functions of these modules can be accessed by your module.
+Initially, you scaffolded the module with dependencies on `auth` and `bank` module. Here, you can define which functions of these modules can be accessed by your module.
 
-Use the following code in `x/tokenfactory/types/expected_keepers.go`:
+Replace the code in `x/tokenfactory/types/expected_keepers.go` with:
 
 ```go
 package types
@@ -505,7 +554,7 @@ Before you scaffold new messages and move on to minting and sending tokens, this
 
 ```bash
 git add .
-git commit -m "Add Token Factory Create and Update logic"
+git commit -m "Add token factory create and update logic"
 ```
 
 You can see the work you have done with:
@@ -517,7 +566,7 @@ git log
 Be proud! The command output shows what you have already accomplished:
 
 ```bash
-Add token factory Create and Update logic
+Add token factory create and update logic
 ...
 Remove the delete denom functionality
 ...
@@ -554,7 +603,7 @@ The `UpdateOwner` message requires this input:
 starport scaffold message UpdateOwner denom:string newOwner:string --module tokenfactory --signer owner
 ```
 
-The two new messages are now available in the newly created file `x/tokenfactory/keeper/msg_server_mint_and_send_tokens.go`. 
+The two new messages are now available in the newly created `x/tokenfactory/keeper/msg_server_mint_and_send_tokens.go` file. 
 
 - Add the details of the logic to mint new tokens:
 
@@ -630,8 +679,8 @@ In the `x/tokenfactory/keeper/msg_server_update_owner.go` file, make updates to 
 
 - Update the appropriate fields of the denom
 - Add a check for the existence of the denom
-- Add a check for and the right owner
-- Then you can save the updated demon in the keeper
+- Add a check for the right owner
+- Save the updated demon in the keeper
 
 ```go
 package keeper
@@ -703,7 +752,7 @@ Leave this terminal window open.
 
 ### Create Denom
 
-After the chain starts, in a different terminal, run:
+After the chain starts, run this command in a different terminal to create a new denom `ustarport`:
 
 ```bash
 tokenfactoryd tx tokenfactory create-denom ustarport "My denom" STARPORT 6 "some/url" 1000000000 true --from alice
@@ -777,7 +826,7 @@ tokenfactoryd query tokenfactory list-denom
 
 ### Confirm Minting Restrictions
 
-To confirm that the `alice` is no longer able to mint and send tokens and is no longer the owner, test with the command:
+To confirm that the `alice` account can no longer mint and send tokens and is no longer the owner, test with the command:
 
 ```bash
 tokenfactoryd tx tokenfactory mint-and-send-tokens ustarport 1200 cosmos16x46rxvtkmgph6jnkqs80tzlzk6wpy6ftrgh6t --from alice
