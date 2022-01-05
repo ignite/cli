@@ -68,7 +68,7 @@ Scaffold a new `tokenfactory` blockchain and use the `--no-module` flag because 
 starport scaffold chain github.com/cosmonaut/tokenfactory --no-module
 ```
 
-Change directory to the new scaffolded blockchain
+Change directory to the new scaffolded blockchain:
 
 ```bash
 cd tokenfactory
