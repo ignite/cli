@@ -8,6 +8,7 @@ import (
 	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
 
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
@@ -47,28 +48,33 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount uint64, denom string) error {
-	amountStr := fmt.Sprintf("%d%s", amount, denom)
+func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+	var coinsStr []string
 
-	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, denom)
-	if err != nil {
-		return err
-	}
-
-	if f.coinsMax[denom] != 0 {
-		if totalSent >= f.coinsMax[denom] {
-			return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
+	// check for each coin, the max transferred amount hasn't been reached
+	for _, c := range coins {
+		totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, c.Denom)
+		if err != nil {
+			return err
 		}
 
-		if (totalSent + amount) >= f.coinsMax[denom] {
-			return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[denom])
+		if f.coinsMax[c.Denom] != 0 {
+			if totalSent >= f.coinsMax[c.Denom] {
+				return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[c.Denom])
+			}
+
+			if (totalSent + c.Amount) >= f.coinsMax[c.Denom] {
+				return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[c.Denom])
+			}
 		}
+
+		coinsStr = append(coinsStr, c.String())
 	}
 
+	// perform transfer for all coins
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return err
 	}
-
-	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, amountStr)
+	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
 }

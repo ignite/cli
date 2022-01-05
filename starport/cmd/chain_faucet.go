@@ -47,14 +47,20 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	// parse provided coins
+	var parsedCoins []cosmoscoin.Coin
 	for _, coin := range strings.Split(coins, ",") {
-		amount, denom, err := cosmoscoin.Parse(coin)
+		parsedCoin, err := cosmoscoin.Parse(coin)
 		if err != nil {
 			return fmt.Errorf("%s: %s", err, coin)
 		}
-		if err := faucet.Transfer(cmd.Context(), toAddress, amount, denom); err != nil {
-			return err
-		}
+
+		parsedCoins = append(parsedCoins, parsedCoin)
+	}
+
+	// perform transfer from faucet
+	if err := faucet.Transfer(cmd.Context(), toAddress, parsedCoins); err != nil {
+		return err
 	}
 
 	fmt.Println("📨 Coins sent.")
