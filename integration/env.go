@@ -247,10 +247,21 @@ func (e Env) EnsureAppIsSteady(appPath string) {
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
 func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
+	return isURLServed(ctx, xurl.HTTP(host.API)+"/node_info")
+}
+
+// IsFaucetServed checks that faucet of the app is served properly
+func (e Env) IsFaucetServed(ctx context.Context, faucet string) error {
+	return isURLServed(ctx, faucet+"/info")
+}
+
+
+// isURLServed checks if a server started listening on the provided URL
+func isURLServed(ctx context.Context, url string) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
+		ok, err := httpstatuschecker.Check(ctx, url)
 		if err == nil && !ok {
-			err = errors.New("app is not online")
+			err = errors.New("not online")
 		}
 		return err
 	}
@@ -304,6 +315,34 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
 
 	return servers
+}
+
+// ConfigureFaucet finds a random port for the app faucet and updates config.yml with this port and provided coins options
+func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []string) string {
+	if configFile == "" {
+		configFile = "config.yml"
+	}
+
+	// find a random available port
+	port, err := availableport.Find(1)
+	require.NoError(e.t, err)
+
+	configyml, err := os.OpenFile(filepath.Join(path, configFile), os.O_RDWR|os.O_CREATE, 0755)
+	require.NoError(e.t, err)
+	defer configyml.Close()
+
+	var conf chainconfig.Config
+	require.NoError(e.t, yaml.NewDecoder(configyml).Decode(&conf))
+
+	conf.Faucet.Port = port[0]
+	conf.Faucet.Coins = coins
+	conf.Faucet.CoinsMax = coinsMax
+	require.NoError(e.t, configyml.Truncate(0))
+	_, err = configyml.Seek(0, 0)
+	require.NoError(e.t, err)
+	require.NoError(e.t, yaml.NewEncoder(configyml).Encode(conf))
+
+	return xurl.HTTP(fmt.Sprintf("0.0.0.0:%d", port[0]))
 }
 
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
