@@ -189,8 +189,8 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	out := struct {
-		Code  int    `json:"code"`
-		Error string `json:"raw_log"`
+		Code   int    `json:"code"`
+		Error  string `json:"raw_log"`
 		TxHash string `json:"txhash"`
 	}{}
 

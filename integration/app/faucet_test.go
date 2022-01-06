@@ -5,6 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"io"
+	"net/http"
+	"strings"
+	"testing"
+	"time"
+
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	envtest "github.com/tendermint/starport/integration"
@@ -12,11 +18,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
-	"io"
-	"net/http"
-	"strings"
-	"testing"
-	"time"
 )
 
 const (
@@ -25,7 +26,7 @@ const (
 
 var (
 	defaultCoins = []string{"10token", "1stake"}
-	maxCoins = []string{"102token", "100000000stake"}
+	maxCoins     = []string{"102token", "100000000stake"}
 )
 
 type QueryAllBalancesResponse struct {
@@ -34,11 +35,11 @@ type QueryAllBalancesResponse struct {
 
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
-		env               = envtest.New(t)
-		apath             = env.Scaffold("faucet")
-		servers           = env.RandomizeServerPorts(apath, "")
-		faucetURL            = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
-		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		env         = envtest.New(t)
+		apath       = env.Scaffold("faucet")
+		servers     = env.RandomizeServerPorts(apath, "")
+		faucetURL   = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
+		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 	)
 	// serve the app
 	go func() {
@@ -54,7 +55,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	require.NoError(t, err)
 
 	// error "account doesn't have any balances" occurs if a sleep is not included
-	time.Sleep(time.Second*1)
+	time.Sleep(time.Second * 1)
 
 	// the faucet sends the default faucet coins value when not specified
 	resp, err := faucetRequest(faucetURL, addr, nil)
@@ -84,8 +85,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// send several request in parallel and check max coins is not overflown
 	g, ctx := errgroup.WithContext(ctx)
-	for i := 0; i<10; i++ {
-		i := i
+	for i := 0; i < 10; i++ {
 		g.Go(func() error {
 			resp, err := faucetRequest(faucetURL, addr, nil)
 			if err != nil {
@@ -101,13 +101,13 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 func faucetRequest(faucetURL string, accAddr string, coins []string) (*http.Response, error) {
 	req := cosmosfaucet.TransferRequest{
 		AccountAddress: accAddr,
-		Coins: coins,
+		Coins:          coins,
 	}
 	mReq, err := json.Marshal(req)
 	if err != nil {
 		return nil, err
 	}
-	resp, err := http.Post(faucetURL,  "application/json", bytes.NewBuffer(mReq))
+	resp, err := http.Post(faucetURL, "application/json", bytes.NewBuffer(mReq))
 	return resp, err
 }
 

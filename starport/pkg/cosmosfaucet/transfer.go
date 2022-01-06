@@ -3,11 +3,11 @@ package cosmosfaucet
 import (
 	"context"
 	"fmt"
-	sdk "github.com/cosmos/cosmos-sdk/types"
 	"strings"
 	"sync"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
@@ -52,7 +52,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f* Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
 	transferMutex.Lock()
 	defer transferMutex.Unlock()
 
