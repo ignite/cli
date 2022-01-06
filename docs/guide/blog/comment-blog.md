@@ -1,5 +1,5 @@
 ---
-description: Add comment on Blog
+description: Write a query that returns a blog post by ID with associated comments.
 order: 2
 ---
 
