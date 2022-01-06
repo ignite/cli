@@ -11,6 +11,7 @@ import (
 	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"github.com/tendermint/starport/starport/pkg/xurl"
+	"golang.org/x/sync/errgroup"
 	"io"
 	"net/http"
 	"strings"
@@ -23,8 +24,8 @@ const (
 )
 
 var (
-	defaultFaucetCoins = []string{"5token", "100000stake"}
-	sampleCoins = []string{"5token", "5stake"}
+	defaultCoins = []string{"10token", "1stake"}
+	maxCoins = []string{"102token", "100000000stake"}
 )
 
 type QueryAllBalancesResponse struct {
@@ -36,7 +37,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		env               = envtest.New(t)
 		apath             = env.Scaffold("faucet")
 		servers           = env.RandomizeServerPorts(apath, "")
-		faucetURL            = env.ConfigureFaucet(apath, "")
+		faucetURL            = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
 		ctx, cancel       = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 	)
 	// serve the app
@@ -56,48 +57,80 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	time.Sleep(time.Second*1)
 
 	// the faucet sends the default faucet coins value when not specified
-	resp := faucetRequest(t, faucetURL, addr, nil)
+	resp, err := faucetRequest(faucetURL, addr, nil)
+	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
-	resp.Body.Close()
-	time.Sleep(time.Second*1)
-	checkAccountBalance(t, servers, addr, defaultFaucetCoins)
+	require.NoError(t, resp.Body.Close())
+	checkAccountBalance(t, servers, addr, defaultCoins)
 
 	// the faucet can send a specified amount of coins
-	resp = faucetRequest(t, faucetURL, addr, sampleCoins)
+	resp, err = faucetRequest(faucetURL, addr, []string{"20token", "2stake"})
+	require.NoError(t, err)
 	require.Equal(t, http.StatusOK, resp.StatusCode)
-	resp.Body.Close()
-	time.Sleep(time.Second*1)
-	checkAccountBalance(t, servers, addr, []string{"10token", "100005stake"})
+	require.NoError(t, resp.Body.Close())
+	checkAccountBalance(t, servers, addr, []string{"30token", "3stake"})
 
 	// faucet request fails on malformed coins
-	resp = faucetRequest(t, faucetURL, addr, []string{"no-token"})
+	resp, err = faucetRequest(faucetURL, addr, []string{"no-token"})
+	require.NoError(t, err)
 	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-	resp.Body.Close()
+	require.NoError(t, resp.Body.Close())
 
+	// faucet request fails when requesting more than max coins
+	resp, err = faucetRequest(faucetURL, addr, []string{"500token"})
+	require.NoError(t, err)
+	require.Equal(t, http.StatusInternalServerError, resp.StatusCode)
+	require.NoError(t, resp.Body.Close())
 
+	// send several request in parallel and check max coins is not overflown
+	g, ctx := errgroup.WithContext(ctx)
+	for i := 0; i<20; i++ {
+		i := i
+		g.Go(func() error {
+			resp, err := faucetRequest(faucetURL, addr, nil)
+			if err != nil {
+				return err
+			}
+
+			res, err := io.ReadAll(resp.Body)
+			var r cosmosfaucet.TransferResponse
+			json.Unmarshal(res, &r)
+			fmt.Printf("%d: %v\n", i, r.Error)
+
+			return resp.Body.Close()
+		})
+	}
+	require.NoError(t, g.Wait())
+	checkAccountBalance(t, servers, addr, []string{"100token", "10stake"})
 }
 
-func faucetRequest(t *testing.T, faucetURL string, accAddr string, coins []string) *http.Response {
+func faucetRequest(faucetURL string, accAddr string, coins []string) (*http.Response, error) {
 	req := cosmosfaucet.TransferRequest{
 		AccountAddress: accAddr,
 		Coins: coins,
 	}
 	mReq, err := json.Marshal(req)
-	require.NoError(t, err)
-	resp, err := http.Post(faucetURL, "application/json", bytes.NewBuffer(mReq))
-	require.NoError(t, err)
-	return resp
+	if err != nil {
+		return nil, err
+	}
+	resp, err := http.Post(faucetURL,  "application/json", bytes.NewBuffer(mReq))
+	return resp, err
 }
 
 func checkAccountBalance(t *testing.T, servers chainconfig.Host, accAddr string, coins []string) {
+	// delay for the balance to be updated after faucet request
+	time.Sleep(time.Second*1)
+
 	balanceResp, err := http.Get(xurl.HTTP(servers.API) + fmt.Sprintf("/cosmos/bank/v1beta1/balances/%s", accAddr))
 	require.NoError(t, err)
 	defer balanceResp.Body.Close()
+
 	var balanceRes QueryAllBalancesResponse
 	res, err := io.ReadAll(balanceResp.Body)
 	require.NoError(t, err)
 	require.NoError(t, json.Unmarshal(res, &balanceRes))
+	require.Len(t, balanceRes.Balances, len(coins))
 	expectedCoins, err := sdk.ParseCoinsNormalized(strings.Join(coins, ","))
 	require.NoError(t, err)
-	require.True(t, balanceRes.Balances.IsEqual(expectedCoins))
+	require.True(t, balanceRes.Balances.IsEqual(expectedCoins), fmt.Sprintf("%s should be equals to %s", balanceRes.Balances.String(), expectedCoins.String()))
 }
