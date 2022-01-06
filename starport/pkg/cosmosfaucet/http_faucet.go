@@ -23,7 +23,7 @@ type TransferResponse struct {
 	Coins  []cosmoscoin.Coin `json:"coins"`
 }
 
-func (f *Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
+func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 	var req TransferRequest
 
 	// decode request into req.

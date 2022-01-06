@@ -3,16 +3,20 @@ package cosmosfaucet
 import (
 	"context"
 	"fmt"
-	"strconv"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"strings"
+	"sync"
 	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
 
+// transferMutex is a mutex used for transfer request
+var transferMutex = &sync.Mutex{}
+
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
-func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (amount uint64, err error) {
+func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount uint64, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return 0, err
@@ -29,28 +33,28 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 		if event.Type == "transfer" {
 			for _, attr := range event.Attributes {
 				if attr.Key == "amount" {
-					if !strings.HasSuffix(attr.Value, denom) {
-						continue
+					coins, err := sdk.ParseCoinsNormalized(attr.Value)
+					if err != nil {
+						return 0, err
 					}
 
-					if time.Since(event.Time) < f.limitRefreshWindow {
-						amountStr := strings.TrimRight(attr.Value, denom)
-						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
-							amount += a
-						}
+					amount := coins.AmountOf(denom).Uint64()
+
+					if amount > 0 && time.Since(event.Time) < f.limitRefreshWindow {
+						totalAmount += amount
 					}
 				}
 			}
 		}
 	}
 
-	return amount, nil
+	return totalAmount, nil
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
-	f.transferMutex.Lock()
-	defer f.transferMutex.Unlock()
+func (f* Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+	transferMutex.Lock()
+	defer transferMutex.Unlock()
 
 	var coinsStr []string
 
@@ -79,5 +83,13 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []
 	if err != nil {
 		return err
 	}
-	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
+	if err != nil {
+		return err
+	}
+
+
+
+
+	return nil
 }

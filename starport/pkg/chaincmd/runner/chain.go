@@ -163,7 +163,7 @@ func (r Runner) Status(ctx context.Context) (NodeStatus, error) {
 }
 
 // BankSend sends amount from fromAccount to toAccount.
-func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) error {
+func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount string) (string, error) {
 	b := newBuffer()
 	opt := []step.Option{
 		r.chainCmd.BankSendCommand(fromAccount, toAccount, amount),
@@ -181,30 +181,31 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 		if strings.Contains(err.Error(), "key not found") || // stargate
 			strings.Contains(err.Error(), "unknown address") || // launchpad
 			strings.Contains(b.String(), "item could not be found") { // launchpad
-			return errors.New("account doesn't have any balances")
+			return "", errors.New("account doesn't have any balances")
 		}
 
-		return err
+		return "", err
 	}
 
 	out := struct {
 		Code  int    `json:"code"`
 		Error string `json:"raw_log"`
+		TxHash string `json:"txhash"`
 	}{}
 
 	data, err := b.JSONEnsuredBytes()
 	if err != nil {
-		return err
+		return "", err
 	}
 	if err := json.Unmarshal(data, &out); err != nil {
-		return err
+		return "", err
 	}
 
 	if out.Code > 0 {
-		return fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
+		return "", fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
 	}
 
-	return nil
+	return out.TxHash, nil
 }
 
 // Export exports the state of the chain into the specified file
