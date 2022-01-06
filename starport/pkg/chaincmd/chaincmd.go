@@ -534,6 +534,18 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 	return c.cliCommand(command)
 }
 
+// QueryTxCommand returns the command to query tx
+func (c ChainCmd) QueryTxCommand(txHash string) step.Option {
+	command := []string{
+		commandQuery,
+		"tx",
+		txHash,
+	}
+
+	command = c.attachNode(command)
+	return c.cliCommand(command)
+}
+
 // QueryTxEventsCommand returns the command to query events.
 func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 	command := []string{

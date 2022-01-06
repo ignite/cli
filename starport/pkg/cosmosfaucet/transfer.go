@@ -88,8 +88,6 @@ func (f* Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []
 		return err
 	}
 
-
-
-
-	return nil
+	// wait for the send tx to be confirmed
+	return f.runner.WaitTx(ctx, txHash, time.Second, 30)
 }
