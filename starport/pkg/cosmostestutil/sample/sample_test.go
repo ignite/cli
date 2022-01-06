@@ -1,4 +1,4 @@
-package sample
+package cosmostestutilsample
 
 import (
 	"testing"
