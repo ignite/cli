@@ -5,26 +5,34 @@ order: 2
 
 # Add Associated Comments to a Blog Post
 
-In this tutorial, you will create a new message to add a comment to a blog post. You will be implementing logic for writing comments to the blockchain as well as querying for blog posts with associated comments.
+In this tutorial, you will create a new message using list to add comments to a blog post. You will be implementing logic for writing comments to the blockchain as well as querying for blog posts with associated comments and deleting them.
 
-You can only add comments to a post that is no older than 100 blocks. 
+You can only add comments to a blog post that is no older than 100 blocks. 
 
-**Note:** This value has been hard coded to a low number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is stopped.
+**Note:** This value has been hard coded to a lower number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is disabled.
 
 ### Prerequisites:
 
 - This tutorial is an extension of previously written blog tutorial. Make sure you complete that first before proceeding with this tutorial.
-- This tutorial also assumes basic knowledge of blog tutorial implementation.
+- This tutorial assumes basic knowledge of blog tutorial implementation.
 - Make sure you are inside the `blog` directory created in the previous blog tutorial.
-- In this chapter, we will use the command - `starport scaffold list comment --no-message` to get all the useful functions.
+- In this chapter, you will use the command - `starport scaffold list comment --no-message` to get all the useful functions. Make sure to familiarize yourself with the command.
 
-## Fetch functions using list command:
+By completing this tutorial, you will learn about:
+
+* Scaffolding a new `list` with proto functions and keeper functions
+* Add comments to existing blog post
+* Display the blog post by ID with associated comments
+* Delete comments from a given blog post
+
+
+## Fetch functions using list command
 
 ```bash
 starport scaffold list comment --no-message
 ```
 
-create proto/blog/comment.proto
+```create proto/blog/comment.proto
 modify proto/blog/genesis.proto
 modify proto/blog/query.proto
 modify vue/src/views/Types.vue
@@ -43,6 +51,8 @@ modify x/blog/types/genesis_test.go
 modify x/blog/types/keys.go
 
 🎉 comment added.
+```
+
 
 ## Create a new message called comment
 
@@ -55,6 +65,7 @@ starport scaffold message create-comment postID:uint title body
 The `message` commands accepts `postID` and a list of fields (`title` and `body` as arguments )
 Here, `postID` is the reference to previously created blog post.
 
+```
 The `message` command has created and modified several files:
 
 modify proto/blog/tx.proto
@@ -65,6 +76,7 @@ create x/blog/keeper/msg_server_create_comment.go
 modify x/blog/types/codec.go
 create x/blog/types/message_create_comment.go
 create x/blog/types/message_create_comment_test.go
+```
 
 
 As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to add `createdAt` and define the id for `message MsgCreateCommentResponse`:
@@ -106,7 +118,7 @@ message MsgCreatePost {
 
 In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
 
-You need to do three things:
+You need to do the following things:
 
 - Create a variable of type `Comment` with title and body from the message
 - Check if the the comment posted for the respective blog id exists and comment is not older than 100 blocks.
@@ -249,12 +261,12 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
 	return post
 }
 ```
-Very similar to implementation done in `x/blog/keeper/post.go` we will implement `x/blog/keeper/comment.go`
+Very similar to implementation done in `x/blog/keeper/post.go` you will implement `x/blog/keeper/comment.go`
 
 List function of starport implements functions like `GetCommentCount`, `SetCommentCount` and `AppendCommentCount` inside `x/blog/keeper/comment.go` 
 
 
-By following these steps, you have implemented all of the code required to create new comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
+By following these steps, you have implemented all of the code required to create new comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcasted, the message is routed to your blog module.
 
 - `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
@@ -272,6 +284,7 @@ starport scaffold message delete-comment commentID:uint postID:uint
 The `message` commands accepts `commentID` and `postID` as arguments.
 Here, `commentID` and `postID` are the references to previously created comment and blog post respectively.
 
+```
 The `message` command has created and modified several files:
 
 modify proto/blog/tx.proto
@@ -282,14 +295,15 @@ create x/blog/keeper/msg_server_delete_comment.go
 modify x/blog/types/codec.go
 create x/blog/types/message_delete_comment.go
 create x/blog/types/message_delete_comment_test.go
+```
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. `MsgCreateResponse` should be left blank as we don't return any value for it. 
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. `MsgCreateResponse` should be left blank as there is no value returned for it. 
 
 ## Process Messages
 
 In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want to delete the contents of the comment.
 
-You need to do two things:
+You need to do the following things:
 
 - Check if the post Id exist for which comment was deleted.
 - Delete the comment from the store.
@@ -347,7 +361,7 @@ func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
 starport scaffold query comments id:uint --response title,body
 ```
 
-Very similar to previous blog tutorial, we will make changes to `proto/blog/query.proto`
+Very similar to previous blog tutorial, you need to make changes to `proto/blog/query.proto`
 
 In the `proto/blog/query.proto` file:
 
@@ -399,7 +413,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 	// Get context with the information about the environment
 	ctx := sdk.UnwrapSDKContext(c)
 	
-	// Get the key-value module store using the store key (in our case store key is "chain")
+	// Get the key-value module store using the store key (in this case store key is "chain")
 	store := ctx.KVStore(k.storeKey)
 	
 	// Get the part of the store that keeps posts (using post key, which is "Post-value-")
@@ -435,7 +449,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 }
 ```
 
-Note: Since we have already gRPC to module handler in previous tutorial, we will not add it again.
+Note: Since gRPC has been already added to module handler in previous tutorial, you don't need to add it again.
 
 ## Create Post and Comment
 
@@ -491,8 +505,6 @@ txhash: 0CAFC113D1C73BC0210EFEA5964EBD2EB530311169FB442C5CBF0B5E92521C41
 
 ## Display Post and Comment
 
-Display post:
-
 ```bash
 blogd q blog comments 0
 ```
@@ -541,7 +553,7 @@ tx: null
 txhash: 0312234CBB9EEA1A59D474496E100AFC5A460A0E60E7D009D3E9417530148A75
 ```
 
-### Display
+## Display
 
 ```bash
 blogd q blog comments 0
@@ -606,10 +618,11 @@ txhash: A87AAD5E2E6A26F9B80796D013139E9A18DB286D9CF769BC6AA6601DD64C6A35
 
 ## Conclusion
 
-Congratulations. You have added comments to blog blockchain! 
+Congratulations. You have added comments to your blog blockchain! 
 
 You have successfully completed these steps:
 
-* Add comment to existing blog
-* Check if the comment is valid
-* Use CLI to write and display comment for each respective post
+* Scaffolding a new `list` with proto functions and keeper functions
+* Add comments to existing blog post
+* Display the blog post by ID with associated comments
+* Delete comments from a given blog post
