@@ -14,7 +14,7 @@ import (
 
 type (
 	Keeper struct {
-		<%= if (isIBC) { %>*ibckeeper.Keeper<% } %>
+		<%= if (isIBC) { %>*cosmosibckeeper.Keeper<% } %>
 		cdc      	codec.BinaryCodec
 		storeKey 	sdk.StoreKey
 		memKey   	sdk.StoreKey
@@ -29,9 +29,9 @@ func NewKeeper(
     storeKey,
     memKey sdk.StoreKey,
 	ps paramtypes.Subspace,
-    <%= if (isIBC) { %>channelKeeper ibckeeper.ChannelKeeper,
-    portKeeper ibckeeper.PortKeeper,
-    scopedKeeper ibckeeper.ScopedKeeper,<% } %>
+    <%= if (isIBC) { %>channelKeeper cosmosibckeeper.ChannelKeeper,
+    portKeeper cosmosibckeeper.PortKeeper,
+    scopedKeeper cosmosibckeeper.ScopedKeeper,<% } %>
     <%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper,<% } %>
 ) *Keeper {
 	// set KeyTable if it has not already been set
@@ -40,7 +40,7 @@ func NewKeeper(
 	}
 
 	return &Keeper{
-		<%= if (isIBC) { %>Keeper: ibckeeper.NewKeeper(
+		<%= if (isIBC) { %>Keeper: cosmosibckeeper.NewKeeper(
 			types.PortKey,
 			storeKey,
 			channelKeeper,
