@@ -3,7 +3,7 @@ description: Write a query that returns a blog post by ID with associated commen
 order: 2
 ---
 
-# Add comments to Blog
+# Add Associated Comments to a Blog Post
 
 In this tutorial, you will create a new message to add a comment to a blog post. You will be implementing logic for writing comments to the blockchain as well as querying for blog posts with associated comments.
 
