@@ -20,7 +20,6 @@ type TransferRequest struct {
 
 type TransferResponse struct {
 	Error  string            `json:"error,omitempty"`
-	Status string            `json:"status"`
 	Coins  []cosmoscoin.Coin `json:"coins"`
 }
 
