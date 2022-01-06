@@ -1493,8 +1493,6 @@ github.com/tendermint/flutter/v2 v2.0.1/go.mod h1:hnaVhWhzv2Od1LqZFWrRKwiOHeMons
 github.com/tendermint/go-amino v0.16.0 h1:GyhmgQKvqF82e2oZeuMSp9JTN0N09emoSZlb2lyGa2E=
 github.com/tendermint/go-amino v0.16.0/go.mod h1:TQU0M1i/ImAo+tYpZi73AU3V/dKeCoMC9Sphe2ZwGME=
 github.com/tendermint/spm v0.1.8/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
-github.com/tendermint/spm v0.1.9 h1:O1DJF4evS8wgk5SZqRcO29irNNtKQmTpvQ0xFzUiczI=
-github.com/tendermint/spm v0.1.9/go.mod h1:iHgfQ5YOI6ONc9E7ugGQolVdfSMHpeXfZ/OpXuN/42Q=
 github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57 h1:+QwioCbnSZ+bwYDkSP6siMv1CLKLu4AHPFN/6JFtzwM=
 github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57/go.mod h1:p4BO8YC6kOKSKqMfySqaLHfwBmuPE/QcLwnnVhh7H9M=
 github.com/tendermint/tendermint v0.34.0-rc4/go.mod h1:yotsojf2C1QBOw4dZrTcxbyxmPUrT4hNuOQWX9XUwB4=
