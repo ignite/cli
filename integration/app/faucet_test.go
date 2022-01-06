@@ -91,12 +91,6 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 			if err != nil {
 				return err
 			}
-
-			res, err := io.ReadAll(resp.Body)
-			var r cosmosfaucet.TransferResponse
-			json.Unmarshal(res, &r)
-			fmt.Printf("%d: %v\n", i, r.Error)
-
 			return resp.Body.Close()
 		})
 	}
@@ -118,9 +112,6 @@ func faucetRequest(faucetURL string, accAddr string, coins []string) (*http.Resp
 }
 
 func checkAccountBalance(t *testing.T, servers chainconfig.Host, accAddr string, coins []string) {
-	// delay for the balance to be updated after faucet request
-	time.Sleep(time.Second*1)
-
 	balanceResp, err := http.Get(xurl.HTTP(servers.API) + fmt.Sprintf("/cosmos/bank/v1beta1/balances/%s", accAddr))
 	require.NoError(t, err)
 	defer balanceResp.Body.Close()

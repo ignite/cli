@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/cenkalti/backoff"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
@@ -206,6 +207,29 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	}
 
 	return out.TxHash, nil
+}
+
+// WaitTx waits until a tx is added to a block and can be queried
+func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Duration, maxRetry int) error {
+	retry := 0
+
+	// retry querying the request
+	checkTx := func() error {
+		if err := r.run(ctx, runOptions{}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
+			// filter not found error and check for max retry
+			if !strings.Contains(err.Error(), "not found") {
+				return backoff.Permanent(err)
+			}
+			retry++
+			if retry == maxRetry {
+				return backoff.Permanent(fmt.Errorf("can't retrieve tx %s", txHash))
+			}
+			return err
+		}
+
+		return nil
+	}
+	return backoff.Retry(checkTx, backoff.WithContext(backoff.NewConstantBackOff(retryDelay), ctx))
 }
 
 // Export exports the state of the chain into the specified file
