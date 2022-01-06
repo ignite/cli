@@ -29,6 +29,7 @@ import (
 const (
 	ServeTimeout = time.Minute * 15
 	StarportApp  = "starport"
+	ConfigYML    = "config.yml"
 )
 
 var isCI, _ = strconv.ParseBool(os.Getenv("CI"))
@@ -233,7 +234,7 @@ func (e Env) Simulate(appPath string, numBlocks, blockSize int) {
 // EnsureAppIsSteady ensures that app living at the path can compile and its tests
 // are passing.
 func (e Env) EnsureAppIsSteady(appPath string) {
-	_, statErr := os.Stat(filepath.Join(appPath, "config.yml"))
+	_, statErr := os.Stat(filepath.Join(appPath, ConfigYML))
 	require.False(e.t, os.IsNotExist(statErr), "config.yml cannot be found")
 
 	e.Exec("make sure app is steady",
@@ -254,7 +255,6 @@ func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
 func (e Env) IsFaucetServed(ctx context.Context, faucet string) error {
 	return isURLServed(ctx, faucet+"/info")
 }
-
 
 // isURLServed checks if a server started listening on the provided URL
 func isURLServed(ctx context.Context, url string) error {
@@ -280,7 +280,7 @@ func (e Env) TmpDir() (path string) {
 // its config.yml and returns new values.
 func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Host {
 	if configFile == "" {
-		configFile = "config.yml"
+		configFile = ConfigYML
 	}
 
 	// generate random server ports and servers list.
@@ -320,7 +320,7 @@ func (e Env) RandomizeServerPorts(path string, configFile string) chainconfig.Ho
 // ConfigureFaucet finds a random port for the app faucet and updates config.yml with this port and provided coins options
 func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []string) string {
 	if configFile == "" {
-		configFile = "config.yml"
+		configFile = ConfigYML
 	}
 
 	// find a random available port
@@ -348,7 +348,7 @@ func (e Env) ConfigureFaucet(path string, configFile string, coins, coinsMax []s
 // SetRandomHomeConfig sets in the blockchain config files generated temporary directories for home directories
 func (e Env) SetRandomHomeConfig(path string, configFile string) {
 	if configFile == "" {
-		configFile = "config.yml"
+		configFile = ConfigYML
 	}
 
 	// update config.yml with the generated temporary directories

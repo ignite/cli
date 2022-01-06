@@ -19,8 +19,8 @@ type TransferRequest struct {
 }
 
 type TransferResponse struct {
-	Error  string            `json:"error,omitempty"`
-	Coins  []cosmoscoin.Coin `json:"coins"`
+	Error string            `json:"error,omitempty"`
+	Coins []cosmoscoin.Coin `json:"coins"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
