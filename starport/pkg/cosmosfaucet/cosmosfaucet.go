@@ -3,6 +3,7 @@ package cosmosfaucet
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
@@ -57,6 +58,9 @@ type Faucet struct {
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
+
+	// transferMutex is a mutex used for transfer request
+	transferMutex sync.Mutex
 }
 
 // Option configures the faucetOptions.

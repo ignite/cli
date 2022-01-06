@@ -48,7 +48,10 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+	f.transferMutex.Lock()
+	defer f.transferMutex.Unlock()
+
 	var coinsStr []string
 
 	// check for each coin, the max transferred amount hasn't been reached
