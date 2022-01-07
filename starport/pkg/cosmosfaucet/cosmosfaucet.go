@@ -5,8 +5,8 @@ import (
 	"context"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
 
 const (
@@ -47,7 +47,7 @@ type Faucet struct {
 	coinType string
 
 	// coins keeps a list of coins that can be distributed by the faucet.
-	coins []cosmoscoin.Coin
+	coins sdk.Coins
 
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
@@ -80,7 +80,7 @@ func Account(name, mnemonic string, coinType string) Option {
 // denom is denomination of the coin to be distributed by the faucet.
 func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
-		f.coins = append(f.coins, cosmoscoin.Coin{Amount: amount, Denom: denom})
+		f.coins = append(f.coins, sdk.NewCoin(denom, sdk.NewIntFromUint64(amount)))
 		f.coinsMax[denom] = maxAmount
 	}
 }

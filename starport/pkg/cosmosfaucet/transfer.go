@@ -9,7 +9,6 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 )
 
 // transferMutex is a mutex used for transfer request
@@ -52,7 +51,7 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []cosmoscoin.Coin) error {
+func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sdk.Coins) error {
 	transferMutex.Lock()
 	defer transferMutex.Unlock()
 
@@ -70,7 +69,7 @@ func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins []
 				return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[c.Denom])
 			}
 
-			if (totalSent + c.Amount) >= f.coinsMax[c.Denom] {
+			if (totalSent + c.Amount.Uint64()) >= f.coinsMax[c.Denom] {
 				return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[c.Denom])
 			}
 		}
