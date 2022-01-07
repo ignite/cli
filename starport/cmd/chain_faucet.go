@@ -2,11 +2,10 @@ package starportcmd
 
 import (
 	"fmt"
-	"strings"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
 	"github.com/tendermint/starport/starport/services/chain"
 )
 
@@ -48,14 +47,9 @@ func chainFaucetHandler(cmd *cobra.Command, args []string) error {
 	}
 
 	// parse provided coins
-	var parsedCoins []cosmoscoin.Coin
-	for _, coin := range strings.Split(coins, ",") {
-		parsedCoin, err := cosmoscoin.Parse(coin)
-		if err != nil {
-			return fmt.Errorf("%s: %s", err, coin)
-		}
-
-		parsedCoins = append(parsedCoins, parsedCoin)
+	parsedCoins, err := sdk.ParseCoinsNormalized(coins)
+	if err != nil {
+		return err
 	}
 
 	// perform transfer from faucet

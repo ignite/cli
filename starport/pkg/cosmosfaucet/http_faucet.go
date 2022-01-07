@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/tendermint/starport/starport/pkg/cosmoscoin"
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/tendermint/starport/starport/pkg/xhttp"
 )
 
@@ -21,13 +21,13 @@ type TransferRequest struct {
 func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
 	return TransferRequest{
 		AccountAddress: accountAddress,
-		Coins: coins,
+		Coins:          coins,
 	}
 }
 
 type TransferResponse struct {
-	Error string            `json:"error,omitempty"`
-	Coins []cosmoscoin.Coin `json:"coins"`
+	Error string    `json:"error,omitempty"`
+	Coins sdk.Coins `json:"coins"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
@@ -75,14 +75,14 @@ func (f Faucet) faucetInfoHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 // coinsFromRequest determines tokens to transfer from transfer request.
-func (f Faucet) coinsFromRequest(req TransferRequest) ([]cosmoscoin.Coin, error) {
+func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 	if len(req.Coins) == 0 {
 		return f.coins, nil
 	}
 
-	var coins []cosmoscoin.Coin
+	var coins []sdk.Coin
 	for _, c := range req.Coins {
-		coin, err := cosmoscoin.Parse(c)
+		coin, err := sdk.ParseCoinNormalized(c)
 		if err != nil {
 			return nil, err
 		}
@@ -92,7 +92,7 @@ func (f Faucet) coinsFromRequest(req TransferRequest) ([]cosmoscoin.Coin, error)
 	return coins, nil
 }
 
-func responseSuccess(w http.ResponseWriter, coins []cosmoscoin.Coin) {
+func responseSuccess(w http.ResponseWriter, coins sdk.Coins) {
 	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{
 		Coins: coins,
 	})
