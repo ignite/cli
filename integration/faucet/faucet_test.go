@@ -1,4 +1,7 @@
-package faucet
+//go:build !relayer
+// +build !relayer
+
+package faucet_test
 
 import (
 	"context"
@@ -35,15 +38,15 @@ type QueryAllBalancesResponse struct {
 
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
-		env         = envtest.New(t)
-		apath       = env.Scaffold("faucet")
-		servers     = env.RandomizeServerPorts(apath, "")
-		faucetURL   = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
-		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		env          = envtest.New(t)
+		apath        = env.Scaffold("faucet")
+		servers      = env.RandomizeServerPorts(apath, "")
+		faucetURL    = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
+		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 		faucetClient = cosmosfaucet.NewClient(faucetURL)
 	)
 
-	isErrTransferRequest := func (err error, expectedCode int) {
+	isErrTransferRequest := func(err error, expectedCode int) {
 		require.ErrorAs(t, err, &cosmosfaucet.ErrTransferRequest{})
 		errTransfer := err.(cosmosfaucet.ErrTransferRequest)
 		require.EqualValues(t, expectedCode, errTransfer.StatusCode)
@@ -59,7 +62,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	err := env.IsAppServed(ctx, servers)
 	require.NoError(t, err)
 
-	err = env.IsFaucetServed(ctx, faucetURL)
+	err = env.IsFaucetServed(ctx, faucetClient)
 	require.NoError(t, err)
 
 	// error "account doesn't have any balances" occurs if a sleep is not included

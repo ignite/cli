@@ -5,6 +5,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
 	"io"
 	"os"
 	"path/filepath"
@@ -248,21 +249,20 @@ func (e Env) EnsureAppIsSteady(appPath string) {
 // IsAppServed checks that app is served properly and servers are started to listening
 // before ctx canceled.
 func (e Env) IsAppServed(ctx context.Context, host chainconfig.Host) error {
-	return isURLServed(ctx, xurl.HTTP(host.API)+"/node_info")
+	checkAlive := func() error {
+		ok, err := httpstatuschecker.Check(ctx, xurl.HTTP(host.API)+"/node_info")
+		if err == nil && !ok {
+			err = errors.New("app is not online")
+		}
+		return err
+	}
+	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
 }
 
 // IsFaucetServed checks that faucet of the app is served properly
-func (e Env) IsFaucetServed(ctx context.Context, faucet string) error {
-	return isURLServed(ctx, faucet+"/info")
-}
-
-// isURLServed checks if a server started listening on the provided URL
-func isURLServed(ctx context.Context, url string) error {
+func (e Env) IsFaucetServed(ctx context.Context, faucetClient cosmosfaucet.HTTPClient) error {
 	checkAlive := func() error {
-		ok, err := httpstatuschecker.Check(ctx, url)
-		if err == nil && !ok {
-			err = errors.New("not online")
-		}
+		_, err := faucetClient.FaucetInfo(ctx)
 		return err
 	}
 	return backoff.Retry(checkAlive, backoff.WithContext(backoff.NewConstantBackOff(time.Second), ctx))
