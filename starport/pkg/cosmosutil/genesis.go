@@ -6,11 +6,12 @@ import (
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 	"os"
 	"time"
+
+	"github.com/pkg/errors"
 )
 
 const genesisTimeField = "genesis_time"
@@ -52,7 +53,7 @@ func (g Genesis) HasAccount(address string) bool {
 func ParseGenesis(genesisPath string) (Genesis, error) {
 	genesisFile, err := os.ReadFile(genesisPath)
 	if err != nil {
-		return Genesis{}, errors.New("cannot open genesis file: " + err.Error())
+		return Genesis{}, errors.Wrap(err, "cannot open genesis file")
 	}
 	var chainGenesis ChainGenesis
 	err = json.Unmarshal(genesisFile, &chainGenesis)
