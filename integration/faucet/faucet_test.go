@@ -5,10 +5,11 @@ package faucet_test
 
 import (
 	"context"
-	"encoding/json"
 	"errors"
 	"fmt"
-	"io"
+	banktypes "github.com/cosmos/cosmos-sdk/x/bank/types"
+	"github.com/tendermint/starport/starport/pkg/cosmosclient"
+	"github.com/tendermint/starport/starport/pkg/xurl"
 	"net/http"
 	"strings"
 	"testing"
@@ -17,9 +18,7 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	envtest "github.com/tendermint/starport/integration"
-	"github.com/tendermint/starport/starport/chainconfig"
 	"github.com/tendermint/starport/starport/pkg/cosmosfaucet"
-	"github.com/tendermint/starport/starport/pkg/xurl"
 	"golang.org/x/sync/errgroup"
 )
 
@@ -32,10 +31,6 @@ var (
 	maxCoins     = []string{"102token", "100000000stake"}
 )
 
-type QueryAllBalancesResponse struct {
-	Balances sdk.Coins `json:"balances"`
-}
-
 func TestRequestCoinsFromFaucet(t *testing.T) {
 	var (
 		env          = envtest.New(t)
@@ -45,7 +40,6 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		ctx, cancel  = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
 		faucetClient = cosmosfaucet.NewClient(faucetURL)
 	)
-
 	isErrTransferRequest := func(err error, expectedCode int) {
 		require.ErrorAs(t, err, &cosmosfaucet.ErrTransferRequest{})
 		errTransfer := err.(cosmosfaucet.ErrTransferRequest)
@@ -68,15 +62,18 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	// error "account doesn't have any balances" occurs if a sleep is not included
 	time.Sleep(time.Second * 1)
 
+	cosmosClient, err := cosmosclient.New(ctx, cosmosclient.WithNodeAddress(xurl.HTTP(servers.RPC)))
+	require.NoError(t, err)
+
 	// the faucet sends the default faucet coins value when not specified
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
 	require.NoError(t, err)
-	checkAccountBalance(t, servers, addr, defaultCoins)
+	checkAccountBalance(t, ctx, cosmosClient, addr, defaultCoins)
 
 	// the faucet can send a specified amount of coins
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"20token", "2stake"}))
 	require.NoError(t, err)
-	checkAccountBalance(t, servers, addr, []string{"30token", "3stake"})
+	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"30token", "3stake"})
 
 	// faucet request fails on malformed coins
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"no-token"}))
@@ -98,20 +95,19 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		})
 	}
 	require.NoError(t, g.Wait())
-	checkAccountBalance(t, servers, addr, []string{"100token", "10stake"})
+	checkAccountBalance(t, ctx, cosmosClient, addr, []string{"100token", "10stake"})
 }
 
-func checkAccountBalance(t *testing.T, servers chainconfig.Host, accAddr string, coins []string) {
-	balanceResp, err := http.Get(xurl.HTTP(servers.API) + fmt.Sprintf("/cosmos/bank/v1beta1/balances/%s", accAddr))
+func checkAccountBalance(t *testing.T, ctx context.Context, c cosmosclient.Client, accAddr string, coins []string) {
+	resp, err := banktypes.NewQueryClient(c.Context).AllBalances(ctx, &banktypes.QueryAllBalancesRequest{
+		Address: accAddr,
+	})
 	require.NoError(t, err)
-	defer balanceResp.Body.Close()
 
-	var balanceRes QueryAllBalancesResponse
-	res, err := io.ReadAll(balanceResp.Body)
-	require.NoError(t, err)
-	require.NoError(t, json.Unmarshal(res, &balanceRes))
-	require.Len(t, balanceRes.Balances, len(coins))
+	require.Len(t, resp.Balances, len(coins))
 	expectedCoins, err := sdk.ParseCoinsNormalized(strings.Join(coins, ","))
 	require.NoError(t, err)
-	require.True(t, balanceRes.Balances.IsEqual(expectedCoins), fmt.Sprintf("%s should be equals to %s", balanceRes.Balances.String(), expectedCoins.String()))
+	require.True(t, resp.Balances.IsEqual(expectedCoins),
+		fmt.Sprintf("%s should be equals to %s", resp.Balances.String(), expectedCoins.String()),
+	)
 }
