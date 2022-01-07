@@ -12,6 +12,7 @@ require (
 	github.com/containerd/containerd v1.5.8 // indirect
 	github.com/cosmos/cosmos-sdk v0.44.5
 	github.com/cosmos/go-bip39 v1.0.0
+	github.com/cosmos/ibc-go v1.2.2
 	github.com/docker/docker v20.10.7+incompatible
 	github.com/emicklei/proto v1.9.0
 	github.com/fatih/color v1.12.0
@@ -41,13 +42,14 @@ require (
 	github.com/radovskyb/watcher v1.0.7
 	github.com/rdegges/go-ipify v0.0.0-20150526035502-2d94a6a86c40
 	github.com/rs/cors v1.7.0
+	github.com/spf13/cast v1.3.1
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/pflag v1.0.5
 	github.com/stretchr/testify v1.7.0
 	github.com/tendermint/flutter/v2 v2.0.1
-	github.com/tendermint/spm v0.1.9
 	github.com/tendermint/spn v0.1.1-0.20211210094128-4ca78a240c57
 	github.com/tendermint/tendermint v0.34.14
+	github.com/tendermint/tm-db v0.6.4
 	github.com/tendermint/vue v0.1.55
 	golang.org/x/mod v0.4.2
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
