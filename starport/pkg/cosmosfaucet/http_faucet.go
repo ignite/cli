@@ -18,6 +18,13 @@ type TransferRequest struct {
 	Coins []string `json:"coins"`
 }
 
+func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
+	return TransferRequest{
+		AccountAddress: accountAddress,
+		Coins: coins,
+	}
+}
+
 type TransferResponse struct {
 	Error string            `json:"error,omitempty"`
 	Coins []cosmoscoin.Coin `json:"coins"`
