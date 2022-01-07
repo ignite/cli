@@ -1,9 +1,9 @@
 package app
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -40,7 +40,15 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 		servers     = env.RandomizeServerPorts(apath, "")
 		faucetURL   = env.ConfigureFaucet(apath, "", defaultCoins, maxCoins)
 		ctx, cancel = context.WithTimeout(env.Ctx(), envtest.ServeTimeout)
+		faucetClient = cosmosfaucet.NewClient(faucetURL)
 	)
+
+	isErrTransferRequest := func (err error, expectedCode int) {
+		require.ErrorAs(t, err, &cosmosfaucet.ErrTransferRequest{})
+		errTransfer := err.(cosmosfaucet.ErrTransferRequest)
+		require.EqualValues(t, expectedCode, errTransfer.StatusCode)
+	}
+
 	// serve the app
 	go func() {
 		env.Must(env.Serve("should serve app", apath, "", "", envtest.ExecCtx(ctx)))
@@ -58,57 +66,36 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	time.Sleep(time.Second * 1)
 
 	// the faucet sends the default faucet coins value when not specified
-	resp, err := faucetRequest(faucetURL, addr, nil)
+	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
 	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-	require.NoError(t, resp.Body.Close())
 	checkAccountBalance(t, servers, addr, defaultCoins)
 
 	// the faucet can send a specified amount of coins
-	resp, err = faucetRequest(faucetURL, addr, []string{"20token", "2stake"})
+	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"20token", "2stake"}))
 	require.NoError(t, err)
-	require.Equal(t, http.StatusOK, resp.StatusCode)
-	require.NoError(t, resp.Body.Close())
 	checkAccountBalance(t, servers, addr, []string{"30token", "3stake"})
 
 	// faucet request fails on malformed coins
-	resp, err = faucetRequest(faucetURL, addr, []string{"no-token"})
-	require.NoError(t, err)
-	require.Equal(t, http.StatusBadRequest, resp.StatusCode)
-	require.NoError(t, resp.Body.Close())
+	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"no-token"}))
+	isErrTransferRequest(err, http.StatusBadRequest)
 
 	// faucet request fails when requesting more than max coins
-	resp, err = faucetRequest(faucetURL, addr, []string{"500token"})
-	require.NoError(t, err)
-	require.Equal(t, http.StatusInternalServerError, resp.StatusCode)
-	require.NoError(t, resp.Body.Close())
+	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"500token"}))
+	isErrTransferRequest(err, http.StatusInternalServerError)
 
 	// send several request in parallel and check max coins is not overflown
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < 10; i++ {
 		g.Go(func() error {
-			resp, err := faucetRequest(faucetURL, addr, nil)
-			if err != nil {
+			_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, nil))
+			if err != nil && !errors.As(err, &cosmosfaucet.ErrTransferRequest{}) {
 				return err
 			}
-			return resp.Body.Close()
+			return nil
 		})
 	}
 	require.NoError(t, g.Wait())
 	checkAccountBalance(t, servers, addr, []string{"100token", "10stake"})
-}
-
-func faucetRequest(faucetURL string, accAddr string, coins []string) (*http.Response, error) {
-	req := cosmosfaucet.TransferRequest{
-		AccountAddress: accAddr,
-		Coins:          coins,
-	}
-	mReq, err := json.Marshal(req)
-	if err != nil {
-		return nil, err
-	}
-	resp, err := http.Post(faucetURL, "application/json", bytes.NewBuffer(mReq))
-	return resp, err
 }
 
 func checkAccountBalance(t *testing.T, servers chainconfig.Host, accAddr string, coins []string) {

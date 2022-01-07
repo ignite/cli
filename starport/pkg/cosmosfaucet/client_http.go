@@ -8,6 +8,16 @@ import (
 	"net/http"
 )
 
+// ErrTransferRequest is a error that occurs when a transfer request fails
+type ErrTransferRequest struct {
+	StatusCode int
+}
+
+// Error implement error
+func (err ErrTransferRequest) Error() string {
+	return http.StatusText(err.StatusCode)
+}
+
 // HTTPClient is a faucet client.
 type HTTPClient struct {
 	addr string
@@ -37,7 +47,7 @@ func (c HTTPClient) Transfer(ctx context.Context, req TransferRequest) (Transfer
 	defer hres.Body.Close()
 
 	if hres.StatusCode != http.StatusOK {
-		return TransferResponse{}, errors.New(http.StatusText(hres.StatusCode))
+		return TransferResponse{}, ErrTransferRequest{hres.StatusCode}
 	}
 
 	var res TransferResponse
