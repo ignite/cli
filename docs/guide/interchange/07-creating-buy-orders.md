@@ -1,14 +1,15 @@
 ---
 order: 7
+description: Implement the buy order logic.
 ---
 
 # Creating Buy Orders
 
-In this chapter you will be implementing creation of buy orders. The logic is very similar to the previous chapter.
+In this chapter, you implement the creation of buy orders. The logic is very similar to the sell order logic you implemented in the previous chapter.
 
 ## Modify the Proto Definition
 
-Add the buyer to the proto file definition
+Add the buyer to the proto file definition:
 
 ```proto
 // proto/dex/packet.proto
@@ -18,7 +19,7 @@ message BuyOrderPacketData {
 }
 ```
 
-Now build the proto with the already known command.
+Now, use Starport CLI to build the proto files for the `send-buy-order` command. You used this command in previous chapters. 
 
 ```bash
 starport generate proto-go
@@ -125,7 +126,7 @@ func (k Keeper) OnRecvBuyOrderPacket(ctx sdk.Context, packet channeltypes.Packet
 
 ### Implement the FillSellOrder Function
 
-`FillSellOrder` try to fill the buy order with the order book and returns all the side effects.
+The `FillSellOrder` function tries to fill the buy order with the order book and returns all the side effects:
 
 ```go
 // x/dex/types/buy_order_book.go
@@ -165,9 +166,9 @@ func (b *BuyOrderBook) FillSellOrder(order Order) (
 }
 ```
 
-#### Implement The LiquidateFromSellOrder Function
+### Implement The LiquidateFromSellOrder Function
 
-`LiquidateFromSellOrder` liquidates the first sell order of the book from the buy order. If no match is found, return false for match
+The `LiquidateFromSellOrder` function liquidates the first sell order of the book from the buy order. If no match is found, return false for match:
 
 ```go
 // x/dex/types/buy_order_book.go
@@ -221,8 +222,13 @@ func (b *BuyOrderBook) LiquidateFromSellOrder(order Order) (
 
 ## Receiving a Buy Order Acknowledgment
 
-* Chain `Mars` will store the remaining sell order in the sell order book and will distribute sold `MCX` to the buyers and will distribute to the seller the price of the amount sold
-* On error we mint back the burned tokens
+
+After a buy order acknowledgement is received, chain `Mars`:
+
+* Stores the remaining sell order in the sell order book.
+* Distributes sold `marscoin` to the buyers.
+* Distributes to the seller the price of the amount sold.
+* On error, mints back the burned tokens.
 
 ```go
 // x/dex/keeper/buy_order.go
@@ -314,7 +320,7 @@ func (b *BuyOrderBook) AppendOrder(creator string, amount int32, price int32) (i
 
 ## OnTimeout of a Buy Order Packet
 
-If a timeout occurs, we mint back the native token.
+If a timeout occurs, mint back the native token:
 
 ```go
 // x/dex/keeper/buy_order.go
@@ -340,9 +346,11 @@ func (k Keeper) OnTimeoutBuyOrderPacket(ctx sdk.Context, packet channeltypes.Pac
 }
 ```
 
-This concludes the buy order logic.
+## Summary
 
-Save your current state to your local GitHub repository.
+Congratulations, you implemented the buy order logic.
+
+Again, it's a good time to save your current state to your local GitHub repository:
 
 ```bash
 git add .

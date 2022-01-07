@@ -1,19 +1,26 @@
 package starportcmd
 
-import "github.com/spf13/cobra"
+import (
+	"github.com/spf13/cobra"
+)
 
 // NewNetworkChain creates a new chain command that holds some other
 // sub commands related to launching a network for a chain.
 func NewNetworkChain() *cobra.Command {
 	c := &cobra.Command{
-		Use:               "chain",
-		Short:             "Build networks",
-		PersistentPreRunE: ensureSPNAccountHook,
+		Use:   "chain",
+		Short: "Build networks",
 	}
-	c.AddCommand(NewNetworkChainCreate())
-	c.AddCommand(NewNetworkChainJoin())
-	c.AddCommand(NewNetworkChainStart())
-	c.AddCommand(NewNetworkChainShow())
-	c.AddCommand(NewNetworkChainList())
+
+	c.AddCommand(
+		NewNetworkChainList(),
+		NewNetworkChainPublish(),
+		NewNetworkChainInit(),
+		NewNetworkChainJoin(),
+		NewNetworkChainPrepare(),
+		NewNetworkChainShow(),
+		NewNetworkChainLaunch(),
+	)
+
 	return c
 }

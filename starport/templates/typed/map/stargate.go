@@ -26,6 +26,9 @@ var (
 
 	//go:embed stargate/tests/messages/* stargate/tests/messages/**/*
 	fsStargateTestsMessages embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new map type in a Stargate module
@@ -62,6 +65,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 			"stargate/tests/component/",
 			opts.AppPath,
 		)
+		simappTemplate = xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp/",
+			opts.AppPath,
+		)
 	)
 
 	g.RunFn(protoRPCModify(replacer, opts))
@@ -79,6 +87,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+
+		if !opts.NoSimulation {
+			g.RunFn(moduleSimulationModify(replacer, opts))
+			if err := typed.Box(simappTemplate, opts, g); err != nil {
+				return nil, err
+			}
+		}
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -120,30 +135,31 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		replacementGogoImport := typed.EnsureGogoProtoImported(path, typed.Placeholder)
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
-		var lowerCamelIndexes []string
+		var protoIndexes []string
 		for _, index := range opts.Indexes {
-			lowerCamelIndexes = append(lowerCamelIndexes, fmt.Sprintf("{%s}", index.Name.LowerCamel))
+			protoIndexes = append(protoIndexes, fmt.Sprintf("{%s}", index.ProtoFieldName()))
 		}
-		indexPath := strings.Join(lowerCamelIndexes, "/")
+		indexPath := strings.Join(protoIndexes, "/")
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v/%[7]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v/%[7]v";
 	}
 
-	// Queries a list of %[3]v items.
+	// Queries a list of %[2]v items.
 	rpc %[2]vAll(QueryAll%[2]vRequest) returns (QueryAll%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 
 %[1]v`
-		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
+		replacementService := fmt.Sprintf(templateService,
+			typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 			indexPath,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
@@ -388,12 +404,12 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		templateState := `%[2]vList: []types.%[2]v{
-	{
-		%[3]v},
-	{
-		%[4]v},
-},
-%[1]v`
+		{
+			%[3]v},
+		{
+			%[4]v},
+	},
+	%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,

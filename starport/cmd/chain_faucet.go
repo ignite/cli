@@ -19,6 +19,7 @@ func NewChainFaucet() *cobra.Command {
 		RunE:  chainFaucetHandler,
 	}
 
+	flagSetPath(c)
 	c.Flags().AddFlagSet(flagSetHome())
 	c.Flags().BoolP("verbose", "v", false, "Verbose output")
 

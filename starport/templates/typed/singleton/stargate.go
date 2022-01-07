@@ -20,6 +20,9 @@ var (
 
 	//go:embed stargate/messages/* stargate/messages/**/*
 	fsStargateMessages embed.FS
+
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 // NewStargate returns the generator to scaffold a new indexed type in a Stargate module
@@ -35,6 +38,11 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		componentTemplate = xgenny.NewEmbedWalker(
 			fsStargateComponent,
 			"stargate/component/",
+			opts.AppPath,
+		)
+		simappTemplate = xgenny.NewEmbedWalker(
+			fsStargateSimapp,
+			"stargate/simapp/",
 			opts.AppPath,
 		)
 	)
@@ -55,6 +63,13 @@ func NewStargate(replacer placeholder.Replacer, opts *typed.Options) (*genny.Gen
 		g.RunFn(handlerModify(replacer, opts))
 		g.RunFn(clientCliTxModify(replacer, opts))
 		g.RunFn(typesCodecModify(replacer, opts))
+
+		if !opts.NoSimulation {
+			g.RunFn(moduleSimulationModify(replacer, opts))
+			if err := typed.Box(simappTemplate, opts, g); err != nil {
+				return nil, err
+			}
+		}
 
 		if err := typed.Box(messagesTemplate, opts, g); err != nil {
 			return nil, err
@@ -104,17 +119,17 @@ func protoRPCModify(replacer placeholder.Replacer, opts *typed.Options) genny.Ru
 		content = replacer.Replace(content, typed.Placeholder, replacementGogoImport)
 
 		// Add the service
-		templateService := `// Queries a %[3]v by index.
+		templateService := `// Queries a %[2]v by index.
 	rpc %[2]v(QueryGet%[2]vRequest) returns (QueryGet%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v";
 	}
 %[1]v`
 		replacementService := fmt.Sprintf(templateService, typed.Placeholder2,
 			opts.TypeName.UpperCamel,
-			opts.TypeName.LowerCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.TypeName.Snake,
 		)
 		content = replacer.Replace(content, typed.Placeholder2, replacementService)
 
@@ -252,7 +267,7 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 
 		templateState := `%[2]v: &types.%[2]v{
 		%[3]v},
-%[1]v`
+		%[1]v`
 		replacementState := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,

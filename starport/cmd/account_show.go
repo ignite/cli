@@ -22,7 +22,9 @@ func NewAccountShow() *cobra.Command {
 func accountShowHandler(cmd *cobra.Command, args []string) error {
 	name := args[0]
 
-	ca, err := cosmosaccount.New(getKeyringBackend(cmd))
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
 	if err != nil {
 		return err
 	}
@@ -32,6 +34,5 @@ func accountShowHandler(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
-	printAccounts(cmd, acc)
-	return nil
+	return printAccounts(cmd, acc)
 }

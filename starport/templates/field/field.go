@@ -25,13 +25,18 @@ func (f Field) DataType() string {
 	return dt.DataType(f.Datatype)
 }
 
+// ProtoFieldName returns the field name used in proto
+func (f Field) ProtoFieldName() string {
+	return f.Name.LowerCamel
+}
+
 // ProtoType returns the field proto Datatype
 func (f Field) ProtoType(index int) string {
 	dt, ok := datatype.SupportedTypes[f.DatatypeName]
 	if !ok {
 		panic(fmt.Sprintf("unknown type %s", f.DatatypeName))
 	}
-	return dt.ProtoType(f.Datatype, f.Name.LowerCamel, index)
+	return dt.ProtoType(f.Datatype, f.ProtoFieldName(), index)
 }
 
 // DefaultTestValue returns the Datatype value default

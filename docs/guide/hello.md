@@ -53,7 +53,7 @@ The `hello` directory contains a number of generated files and directories that 
 | app/           | Files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it. |
 | cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                            |
 | docs/          | Directory for project's documentation. By default, an OpenAPI spec is generated.                                                                                        |
-| proto/         | Protocol buffer files describing the data structure>                                                                                                                    |
+| proto/         | Protocol buffer files describing the data structure.                                                                                                                    |
 | testutil/      | Helper functions for testing.                                                                                                                                           |
 | vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
@@ -230,7 +230,7 @@ After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/h
 }
 ```
 
-The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command `x/hello/client/cli/query_posts.go` . Run the following command and get the same JSON response:
+The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
 ```go
 hellod q hello posts

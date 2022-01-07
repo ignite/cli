@@ -160,15 +160,15 @@ func genesisTestsModify(replacer placeholder.Replacer, opts *typed.Options) genn
 		}
 
 		templateState := `%[2]vList: []types.%[2]v{
-	{
-		Id: 0,
+		{
+			Id: 0,
+		},
+		{
+			Id: 1,
+		},
 	},
-	{
-		Id: 1,
-	},
-},
-%[2]vCount: 2,
-%[1]v`
+	%[2]vCount: 2,
+	%[1]v`
 		replacementValid := fmt.Sprintf(
 			templateState,
 			module.PlaceholderGenesisTestState,

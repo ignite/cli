@@ -36,12 +36,20 @@ const (
 	optionValidatorCommissionMaxChangeRate = "--commission-max-change-rate"
 	optionValidatorMinSelfDelegation       = "--min-self-delegation"
 	optionValidatorGasPrices               = "--gas-prices"
+	optionValidatorDetails                 = "--details"
+	optionValidatorIdentity                = "--identity"
+	optionValidatorWebsite                 = "--website"
+	optionValidatorSecurityContact         = "--security-contact"
 	optionYes                              = "--yes"
 	optionHomeClient                       = "--home-client"
 	optionCoinType                         = "--coin-type"
+	optionVestingAmount                    = "--vesting-amount"
+	optionVestingEndTime                   = "--vesting-end-time"
+	optionBroadcastMode                    = "--broadcast-mode"
 
 	constTendermint = "tendermint"
 	constJSON       = "json"
+	constSync       = "sync"
 )
 
 type KeyringBackend string
@@ -193,7 +201,7 @@ func (c ChainCmd) InitCommand(moniker string) step.Option {
 }
 
 // AddKeyCommand returns the command to add a new key in the chain keyring
-func (c ChainCmd) AddKeyCommand(accountName string, coinType string) step.Option {
+func (c ChainCmd) AddKeyCommand(accountName, coinType string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -209,8 +217,8 @@ func (c ChainCmd) AddKeyCommand(accountName string, coinType string) step.Option
 	return c.cliCommand(command)
 }
 
-// ImportKeyCommand returns the command to import a key into the chain keyring from a mnemonic
-func (c ChainCmd) ImportKeyCommand(accountName string, coinType string) step.Option {
+// RecoverKeyCommand returns the command to recover a key into the chain keyring from a mnemonic
+func (c ChainCmd) RecoverKeyCommand(accountName, coinType string) step.Option {
 	command := []string{
 		commandKeys,
 		"add",
@@ -219,6 +227,19 @@ func (c ChainCmd) ImportKeyCommand(accountName string, coinType string) step.Opt
 	}
 	if coinType != "" {
 		command = append(command, optionCoinType, coinType)
+	}
+	command = c.attachKeyringBackend(command)
+
+	return c.cliCommand(command)
+}
+
+// ImportKeyCommand returns the command to import a key into the chain keyring from a key file
+func (c ChainCmd) ImportKeyCommand(accountName, keyFile string) step.Option {
+	command := []string{
+		commandKeys,
+		"import",
+		accountName,
+		keyFile,
 	}
 	command = c.attachKeyringBackend(command)
 
@@ -252,11 +273,26 @@ func (c ChainCmd) ListKeysCommand() step.Option {
 }
 
 // AddGenesisAccountCommand returns the command to add a new account in the genesis file of the chain
-func (c ChainCmd) AddGenesisAccountCommand(address string, coins string) step.Option {
+func (c ChainCmd) AddGenesisAccountCommand(address, coins string) step.Option {
 	command := []string{
 		commandAddGenesisAccount,
 		address,
 		coins,
+	}
+
+	return c.daemonCommand(command)
+}
+
+// AddVestingAccountCommand returns the command to add a delayed vesting account in the genesis file of the chain
+func (c ChainCmd) AddVestingAccountCommand(address, originalCoins, vestingCoins string, vestingEndTime int64) step.Option {
+	command := []string{
+		commandAddGenesisAccount,
+		address,
+		originalCoins,
+		optionVestingAmount,
+		vestingCoins,
+		optionVestingEndTime,
+		fmt.Sprintf("%d", vestingEndTime),
 	}
 
 	return c.daemonCommand(command)
@@ -320,6 +356,46 @@ func GentxWithGasPrices(gasPrices string) GentxOption {
 	return func(command []string) []string {
 		if len(gasPrices) > 0 {
 			return append(command, optionValidatorGasPrices, gasPrices)
+		}
+		return command
+	}
+}
+
+// GentxWithDetails provides validator details option for the gentx command
+func GentxWithDetails(details string) GentxOption {
+	return func(command []string) []string {
+		if len(details) > 0 {
+			return append(command, optionValidatorDetails, details)
+		}
+		return command
+	}
+}
+
+// GentxWithIdentity provides validator identity option for the gentx command
+func GentxWithIdentity(identity string) GentxOption {
+	return func(command []string) []string {
+		if len(identity) > 0 {
+			return append(command, optionValidatorIdentity, identity)
+		}
+		return command
+	}
+}
+
+// GentxWithWebsite provides validator website option for the gentx command
+func GentxWithWebsite(website string) GentxOption {
+	return func(command []string) []string {
+		if len(website) > 0 {
+			return append(command, optionValidatorWebsite, website)
+		}
+		return command
+	}
+}
+
+// GentxWithSecurityContact provides validator security contact option for the gentx command
+func GentxWithSecurityContact(securityContact string) GentxOption {
+	return func(command []string) []string {
+		if len(securityContact) > 0 {
+			return append(command, optionValidatorSecurityContact, securityContact)
 		}
 		return command
 	}
@@ -442,6 +518,8 @@ func (c ChainCmd) BankSendCommand(fromAddress, toAddress, amount string) step.Op
 		fromAddress,
 		toAddress,
 		amount,
+		optionBroadcastMode,
+		constSync,
 		optionYes,
 	)
 
@@ -478,7 +556,7 @@ func (c ChainCmd) QueryTxEventsCommand(query string) step.Option {
 }
 
 // LaunchpadSetConfigCommand returns the command to set config value
-func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Option {
+func (c ChainCmd) LaunchpadSetConfigCommand(name, value string) step.Option {
 	// Check version
 	if c.isStargate() {
 		panic("config command doesn't exist for Stargate")
@@ -487,7 +565,7 @@ func (c ChainCmd) LaunchpadSetConfigCommand(name string, value string) step.Opti
 }
 
 // LaunchpadRestServerCommand returns the command to start the CLI REST server
-func (c ChainCmd) LaunchpadRestServerCommand(apiAddress string, rpcAddress string) step.Option {
+func (c ChainCmd) LaunchpadRestServerCommand(apiAddress, rpcAddress string) step.Option {
 	// Check version
 	if c.isStargate() {
 		panic("rest-server command doesn't exist for Stargate")
