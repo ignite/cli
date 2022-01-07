@@ -5,34 +5,45 @@ order: 2
 
 # Add Associated Comments to a Blog Post
 
-In this tutorial, you will create a new message using list to add comments to a blog post. You will be implementing logic for writing comments to the blockchain as well as querying for blog posts with associated comments and deleting them.
-
-You can only add comments to a blog post that is no older than 100 blocks. 
-
-**Note:** This value has been hard coded to a lower number for rapid testing. You can increase it to a greater number to achieve longer period of time before commenting is disabled.
-
-### Prerequisites:
-
-- This tutorial is an extension of previously written blog tutorial. Make sure you complete that first before proceeding with this tutorial.
-- This tutorial assumes basic knowledge of blog tutorial implementation.
-- Make sure you are inside the `blog` directory created in the previous blog tutorial.
-- In this chapter, you will use the command - `starport scaffold list comment --no-message` to get all the useful functions. Make sure to familiarize yourself with the command.
+In this tutorial, you create a new message to add comments to a blog post. These tutorial steps 
 
 By completing this tutorial, you will learn about:
 
 * Scaffolding a new `list` with proto functions and keeper functions
-* Add comments to existing blog post
-* Display the blog post by ID with associated comments
-* Delete comments from a given blog post
+* Adding comments to existing blog posts
+* Querying for blog posts that have associated comments
+* Deleting comments from a blog post
+* Implementing logic for writing comments to the blockchain
+
+**Note:** For this tutorial, adding comments is available only to blog posts that are no older than 100 blocks. The 100 block value has been hard coded for rapid testing. You can increase the block count to a larger number to achieve a longer time period before commenting is disabled.
+
+## Prerequisites
+
+- This tutorial is an extension of and requires completion of the [Module Basics: Build a Blog](index.md) tutorial. 
+
+## Core Concepts 
+
+This tutorial relies on the `blog` blockchain that you built in the build a blog tutorial. 
+
+To get the useful functions for this tutorial, you use the `starport scaffold list comment --no-message` command. Make sure to familiarize yourself with the command.
 
 
-## Fetch functions using list command
+## Fetch Functions Using List Command
+
+1. Navigate to the `blog` directory that you created in the build a blog tutorial.
+
+2. To create the source code files to add CRUD (create, read, update, and delete) funcationality for data stored as an array, run:
 
 ```bash
 starport scaffold list comment --no-message
 ```
 
-```create proto/blog/comment.proto
+The `--no-message` flag disables CRUD interaction messages scaffolding.
+
+The command output shows the files that were created and modified:
+
+```text
+create proto/blog/comment.proto
 modify proto/blog/genesis.proto
 modify proto/blog/query.proto
 modify vue/src/views/Types.vue
@@ -54,20 +65,21 @@ modify x/blog/types/keys.go
 ```
 
 
-## Create a new message called comment
+## Create a Message Called Comment
 
-To create a new message, use the `message` command:
+To create a new message, run:
 
 ```bash
 starport scaffold message create-comment postID:uint title body
 ```
 
-The `message` commands accepts `postID` and a list of fields (`title` and `body` as arguments )
+The `starport scaffold message` command accepts `postID` and a list of fields as arguments. The fields are `title` and `body`.
+
 Here, `postID` is the reference to previously created blog post.
 
-```
 The `message` command has created and modified several files:
 
+```text
 modify proto/blog/tx.proto
 modify x/blog/client/cli/tx.go
 create x/blog/client/cli/tx_create_comment.go
@@ -78,8 +90,10 @@ create x/blog/types/message_create_comment.go
 create x/blog/types/message_create_comment_test.go
 ```
 
+As always, start your development with a proto file. 
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `MsgCreateComment` message has been created. Edit the file to add `createdAt` and define the id for `message MsgCreateCommentResponse`:
+- In the `proto/blog/tx.proto` file, edit the `MsgCreateComment.go` file.
+- Add `createdAt` and define the `id` for `message MsgCreateCommentResponse`:
 
 ```go
 message MsgCreateComment {
