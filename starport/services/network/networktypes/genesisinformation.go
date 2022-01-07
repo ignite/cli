@@ -8,6 +8,7 @@ import (
 )
 
 // GenesisInformation represents all information for a chain to construct the genesis.
+// This structure indexes accounts and validators by their address for better performance
 type GenesisInformation struct {
 	GenesisAccounts   map[string]GenesisAccount
 	VestingAccounts   map[string]VestingAccount

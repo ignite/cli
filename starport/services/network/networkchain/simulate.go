@@ -86,10 +86,8 @@ func (c Chain) simulateChainStart(ctx context.Context) error {
 		err := cmd.Start(ctx)
 		if err != nil && strings.Contains(err.Error(), ValidatorSetNilErrorMessage) {
 			err = nil
-		} else {
-			err = errors.Wrap(err, "the chain failed to start")
 		}
-		exit <- err
+		exit <- errors.Wrap(err, "the chain failed to start")
 	}()
 
 	return <-exit
