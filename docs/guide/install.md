@@ -4,7 +4,6 @@ description: Steps to install Starport on your local computer.
 ---
 
 [Install Starport](#install-starport)
-  - [Prerequisites](#prerequisites)
     - [Operating Systems](#operating-systems)
     - [Go](#go)
   - [Verify Your Starport Version](#verify-your-starport-version)
@@ -25,7 +24,7 @@ You can run [Starport](https://github.com/tendermint/starport) in a web-based Gi
 
 Be sure you have met the prerequisites before you install and use Starport. 
 
-### Operating System
+### Operating Systems
 
 Starport is supported for the following operating systems:
 

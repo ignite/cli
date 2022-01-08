@@ -11,7 +11,7 @@ func NewDocs() *cobra.Command {
 	c := &cobra.Command{
 		Use:   "docs",
 		Short: "Show Starport docs",
-		Args:  cobra.ExactArgs(0),
+		Args:  cobra.NoArgs,
 		RunE:  docsHandler,
 	}
 	return c
