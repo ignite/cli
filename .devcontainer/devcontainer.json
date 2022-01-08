@@ -3,6 +3,8 @@
     "dockerfile": "${localWorkspaceFolder}/.gitpod.Dockerfile"
   },
   "forwardPorts": ["26657:443", 1317, 8080, 7575, 4500],
+  "containerUser": "gitpod",
+  "features": {"github-cli": "latest"},
   "containerEnv": {
     "GOMODCACHE": "/var/cache/go/modules",
     "GOCACHE": "/var/cache/go/build",
@@ -18,13 +20,8 @@
     "VUE_APP_WS_TENDERMINT": "wss://localhost:26657/websocket",
   },
   "waitFor": "postCreateCommand",
-  "onCreateCommand": "mkdir -p /var/cache/go",
-  "postAttachCommand": "make -C ${containerWorkspaceFolder} install",
-  "mounts": [
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/modules,target=/var/cache/go/modules,type=bind,consistency=cache",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/build,target=/var/cache/go/build,type=bind,consistency=cache",
-    "source=${localEnv:HOME}${localEnv:USERPROFILE}/.cache/starport/go/path,target=/workspace/go,type=bind,consistency=cache"
-  ],
+  "onCreateCommand": "mkdir --parents /var/cache/go",
+  "postAttachCommand": "make --directory ${containerWorkspaceFolder} install",
   "settings": {
     "files.encoding": "utf8",
     "files.autoGuessEncoding": false,
