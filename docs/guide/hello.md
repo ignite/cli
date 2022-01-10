@@ -14,7 +14,7 @@ In the previous chapter you've learned how to install [Starport](https://github.
 This series of tutorials is based on a specific version of Starport, so to install Starport v0.18.0 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.18.0! | bash
+curl https://get.starport.network/starport@v0.19.0! | bash
 ```
 
 Starport comes with a number of scaffolding commands that are designed to make development easier by creating everything that's required to start working on a particular task.
@@ -36,7 +36,7 @@ This new blockchain imports standard Cosmos SDK modules, including:
 - [`gov`](https://docs.cosmos.network/master/modules/gov/) (for on-chain governance)
 - And [other modules](https://docs.cosmos.network/master/modules/)
 
-Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use --help on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
+Now that you have run your first command, take a minute to see all of the command line options for the `scaffold` command. You can use `--help` on any command. Run the `starport scaffold chain --help` command to learn about the command you just used.
 
 ## Blockchain Directory Structure
 
@@ -71,6 +71,8 @@ starport chain serve
 
 This command downloads dependencies and compiles the source code into a binary called `hellod`. By default, Starport uses the name of the repo + `d`. From now on, use this binary to run all of your chain commands. For example, to initialize a single validator node and start a node.
 
+Leave this terminal window open.
+
 ## HTTP API Console
 
 By default a validator node exposes two API endpoints:
@@ -90,7 +92,7 @@ In the development environment, you don't have to restart the blockchain after y
 
 ## Say "Hello, Starport"
 
-To get your Cosmos SDK blockchain to say "Hello", you need to make these changes:
+To get your Cosmos SDK blockchain to say `Hello! Starport`, you need to make these changes:
 
 - Modify a protocol buffer file
 - Create a keeper query function that returns data
@@ -108,6 +110,10 @@ In terms of workflow, developers typically follow this sequence:
 - Finally, implement the logic of these queries and message handlers in keeper functions.
 
 ## Create a Query
+
+For all subsequent commands, you will use a the terminal window that is different from the window you started the chain is. 
+
+In a different terminal window, navigate to your `hello` directory.
 
 Create a `posts` query:
 
@@ -128,7 +134,8 @@ Let's examine some of these changes. For clarity, the following code blocks do n
 
 ### Updates to the Query Service  
 
-In the `proto/hello/query.proto` file, the `Posts` rpc has been added to the `Query` service.
+In the `proto/
+/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 
 ```proto
 service Query {
@@ -187,7 +194,10 @@ Right now the response is empty.
 
 ### Update Keeper Function
 
-From the `query.proto` file we know that response accepts `title` and `body`, so use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. On the last line of the keeper function, change the line to return a "Hello!":
+In the `query.proto` file, the response accepts `title` and `body`. 
+
+- Use a text editor to modify the `x/hello/keeper/grpc_query_posts.go` file that contains the keeper function. 
+- On the last line of the keeper function, change the line to return a "Hello!":
 
 ```go
 func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.QueryPostsResponse, error) {
@@ -196,7 +206,10 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Save the file to restart your chain. Visit the [posts endpoint](http://localhost:1317/cosmonaut/hello/hello/posts), you see a `Not Implemented` error. This message is expected behavior, because you still need to register the query handlers with gRPC.
+- Save the file to restart your chain. 
+- In a web browser, visit the posts endpoint [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts).
+
+  Because the query handlers are not yet registered with gRPC, you see a not implemented or localhost cannot connect error. This error is expected behavior, because you still need to register the query handlers.
 
 ## Register Query Handlers
 
