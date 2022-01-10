@@ -214,33 +214,42 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 
 Make the required changes to the `x/hello/module.go` file. 
 
-As shown in the following example, add `"context"` to the list of packages in the import statement, search for `RegisterGRPCGatewayRoutes`, and register the query handlers:
+1. Add `"context"` to the list of packages in the import statement.
 
-```go
-import (
-  //...
-  "context"
-)
+    ```go
+    import (
+      "encoding/json"
+      "fmt"
+      //...
+      "context"
+    ```
 
-func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
-  types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
-}
-```
+    Do not save the file yet, you need to continue with these modifications.
 
-Now you're ready to start your blockchain:
+2. Search for `RegisterGRPCGatewayRoutes`.
 
-```go
-starport chain serve
-```
+3. Register the query handlers:
 
-After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed!
+    ```go
+    func (AppModuleBasic) RegisterGRPCGatewayRoutes(clientCtx client.Context, mux *runtime.ServeMux) {
+      types.RegisterQueryHandlerClient(context.Background(), mux, types.NewQueryClient(clientCtx))
+    }
+    ```
 
-```go
-{
-  "title": "Hello!",
-  "body": "Starport"
-}
-```
+5. Now you're ready to start your blockchain:
+
+    ```go
+    starport chain serve
+    ```
+
+6. After the chain has been started, visit [http://localhost:1317/cosmonaut/hello/hello/posts](http://localhost:1317/cosmonaut/hello/hello/posts) and see your text displayed:
+
+    ```go
+    {
+      "title": "Hello!",
+      "body": "Starport"
+    }
+    ```
 
 The `query` command has also scaffolded `x/hello/client/cli/query_posts.go` that implements a CLI equivalent of the posts query and mounted this command in `x/hello/client/cli/query.go` . Run the following command and get the same JSON response:
 
