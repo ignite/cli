@@ -134,8 +134,7 @@ Let's examine some of these changes. For clarity, the following code blocks do n
 
 ### Updates to the Query Service  
 
-In the `proto/
-/query.proto` file, the `Posts` rpc has been added to the `Query` service.
+In the `proto/query.proto` file, the `Posts` rpc has been added to the `Query` service.
 
 ```proto
 service Query {
