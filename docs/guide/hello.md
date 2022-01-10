@@ -111,7 +111,7 @@ In terms of workflow, developers typically follow this sequence:
 
 ## Create a Query
 
-For all subsequent commands, you will use a the terminal window that is different from the window you started the chain is. 
+For all subsequent commands, you use a terminal window that is different from the window you started the chain in. 
 
 In a different terminal window, navigate to your `hello` directory.
 
