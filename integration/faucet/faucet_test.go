@@ -1,4 +1,3 @@
-//go:build !relayer
 // +build !relayer
 
 package faucet_test
