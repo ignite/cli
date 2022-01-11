@@ -1,4 +1,3 @@
-// +build !relayer
 
 package faucet_test
 
