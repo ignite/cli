@@ -25,20 +25,19 @@ By completing this tutorial, you will learn about:
 
 This tutorial relies on the `blog` blockchain that you built in the build a blog tutorial. 
 
-To get the useful functions for this tutorial, you use the `starport scaffold list comment --no-message` command. Make sure to familiarize yourself with the command.
-
-
 ## Fetch Functions Using List Command
+
+To get the useful functions for this tutorial, you use the `starport scaffold list comment --no-message` command. Make sure to familiarize yourself with the command.
 
 1. Navigate to the `blog` directory that you created in the build a blog tutorial.
 
-2. To create the source code files to add CRUD (create, read, update, and delete) funcationality for data stored as an array, run:
+2. To create the source code files to add CRUD (create, read, update, and delete) functionality for data stored as an array, run:
 
 ```bash
 starport scaffold list comment --no-message
 ```
 
-The `--no-message` flag disables CRUD interaction messages scaffolding.
+The `--no-message` flag disables CRUD interaction messages scaffolding because you will write your own messages.
 
 The command output shows the files that were created and modified:
 
@@ -65,9 +64,9 @@ modify x/blog/types/keys.go
 ```
 
 
-## Create a Message Called Comment
+## Add a Comment to a Post
 
-To create a new message, run:
+To create a new message that adds a comment to the existing post, run:
 
 ```bash
 starport scaffold message create-comment postID:uint title body
@@ -88,12 +87,16 @@ create x/blog/keeper/msg_server_create_comment.go
 modify x/blog/types/codec.go
 create x/blog/types/message_create_comment.go
 create x/blog/types/message_create_comment_test.go
+
+🎉 Created a message `create-comment`.
 ```
 
 As always, start your development with a proto file. 
 
-- In the `proto/blog/tx.proto` file, edit the `MsgCreateComment.go` file.
-- Add `createdAt` and define the `id` for `message MsgCreateCommentResponse`:
+In the `proto/blog/tx.proto` file, edit `MsgCreateComment.go` to:
+
+- Add `createdAt`
+- Define the `id` for `message MsgCreateCommentResponse`:
 
 ```go
 message MsgCreateComment {
@@ -110,13 +113,13 @@ message MsgCreateCommentResponse {
 }
 ```
 
- The `MsgCreateComment` has five fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```go
-  rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
+rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
-Also, make a small modification in `MsgCreatePost` to add `createAt`
+Now, add the `createdAt` field to `MsgCreatePost`: 
 
 ```go
 message MsgCreatePost {
@@ -130,7 +133,7 @@ message MsgCreatePost {
 
 ## Process Messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
+In the newly scaffolded `x/blog/keeper/msg_server_create_comment.go` file, you can see a placeholder implementation of the `CreateComment` function (marked with `//TODO`). Right now it does nothing and returns an empty response. For your blog chain, you want the contents of the message (title and body) to be written to the state as a new comment.
 
 You need to do the following things:
 
@@ -175,7 +178,7 @@ func (k msgServer) CreateComment(goCtx context.Context, msg *types.MsgCreateComm
 }
 ```
 
-When Comment's validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messaged by adding it to errors definition in x/blog/types/errors.go
+When Comment's validity is checked, it throws 2 error messages - `ErrID` and `ErrCommendOld`. You can define the error messages by adding error definitions to `x/blog/types/errors.go`:
 
 ```go
 //...
@@ -189,7 +192,7 @@ var (
 ```
 
 
-In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a few modification.
+In the existing `x/blog/keeper/msg_server_create_post.go` file, you need to make a few modifications.
 
 ```go
 func (k msgServer) CreatePost(goCtx context.Context, msg *types.MsgCreatePost) (*types.MsgCreatePostResponse, error) {
@@ -238,7 +241,7 @@ The contents of the `comment.proto` file are fairly standard and similar to `pos
 
 Each file save triggers an automatic rebuild.  Now, after you build and start your chain with Starport, the `Comment` type is available.
 
-Also, make a small modification in `post.proto` to add `createdAt`
+Also, make a small modification in `post.proto` to add `createdAt`:
 
 ```go
 //...
@@ -252,14 +255,14 @@ message Post {
 
 ### Define Keeper Methods
 
-The function `starport scaffold list comment --no-message` has fetched all necessary functions for keeper. 
+The function `starport scaffold list comment --no-message` has fetched all of the required functions for keeper. 
 
-Inside `x/blog/types/keys.go` file, you can find comment-value and comment-count key added.
+Inside `x/blog/types/keys.go` file, you can see that the `comment-value` and `comment-count` keys are added.
 
 
 ## Write Data to the Store
 
-Before you add code to `comment.go`, make a small modification in `post.go` to get the post
+In `x/blog/keeper/post.go`, add a new function to get the post:
 
 ```go
 func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
@@ -275,30 +278,35 @@ func (k Keeper) GetPost(ctx sdk.Context, id uint64) (post types.Post) {
 	return post
 }
 ```
-Very similar to implementation done in `x/blog/keeper/post.go` you will implement `x/blog/keeper/comment.go`
 
-List function of starport implements functions like `GetCommentCount`, `SetCommentCount` and `AppendCommentCount` inside `x/blog/keeper/comment.go` 
+You have manually added the functions to `x/blog/keeper/post.go`. 
 
+When you ran the `starport scaffold list comment --no-message` command, these functions are automatically implemented in `x/blog/keeper/comment.go`:
 
-By following these steps, you have implemented all of the code required to create new comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcasted, the message is routed to your blog module.
+- `GetCommentCount`
+- `SetCommentCount`
+- `AppendCommentCount`
+
+By following these steps, you have implemented all of the code required to create comments and store them on-chain. Now, when a transaction that contains a message of type `MsgCreateComment` is broadcast, the message is routed to your blog module.
 
 - `x/blog/handler.go` calls `k.CreateComment` which in turn calls `AppendComment`.
 - `AppendComment` gets the number of comments from the store, adds a comment using the count as an ID, increments the count, and returns the ID.
 
 
 
-## Create a new message called delete-comment
+## Create the delete-comment Message
 
-To create a new message, use the `message` command:
+To create a message, use the `message` command:
 
 ```bash
 starport scaffold message delete-comment commentID:uint postID:uint 
 ```
 
 The `message` commands accepts `commentID` and `postID` as arguments.
-Here, `commentID` and `postID` are the references to previously created comment and blog post respectively.
 
-```
+Here, `commentID` and `postID` are the references to previously created comment and blog post.
+
+```bash
 The `message` command has created and modified several files:
 
 modify proto/blog/tx.proto
@@ -311,15 +319,15 @@ create x/blog/types/message_delete_comment.go
 create x/blog/types/message_delete_comment_test.go
 ```
 
-As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. `MsgCreateResponse` should be left blank as there is no value returned for it. 
+As always, start with a proto file. Inside the `proto/blog/tx.proto` file, the `message MsgDeleteComment` message has been created. Leave `MsgCreateResponse` blank as there is no value returned for it. 
 
 ## Process Messages
 
-In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. For your blog chain, you want to delete the contents of the comment.
+In the newly scaffolded `x/blog/keeper/msg_server_delete_comment.go` file, you can see a placeholder implementation of the `DeleteComment` function. Right now it does nothing and returns an empty response. 
 
-You need to do the following things:
+For your blog chain, you want to delete the contents of the comment. Add the code to:
 
-- Check if the post Id exist for which comment was deleted.
+- Check if the post Id exists to see which comment was deleted.
 - Delete the comment from the store.
 
 ```go
@@ -350,7 +358,7 @@ package keeper
 
 ## Write Data to the Store
 
-Inside the `x/blog/keeper/comment.go` make modifications to implement `GetComment`
+Inside the `x/blog/keeper/comment.go`, make modifications to implement `GetComment`:
 
 ```go
 func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
@@ -367,22 +375,25 @@ func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
 }
 ``` 
 
-
-
 ## Display Posts
+
+Implement logic to query existing posts:
 
 ```bash
 starport scaffold query comments id:uint --response title,body
 ```
 
-Very similar to previous blog tutorial, you need to make changes to `proto/blog/query.proto`
+Very similar to the previous blog tutorial, you need to make changes to `proto/blog/query.proto`.
 
-In the `proto/blog/query.proto` file:
+Verify that the comment proto is in `import`:
 
 ```go
-// Import the Comment message
 import "blog/comment.proto";
+```
 
+Also in `proto/blog/query.proto`, make these updates:
+
+```go
 message QueryCommentsRequest {
 	uint64 id = 1;
     // Adding pagination to request
@@ -398,22 +409,9 @@ message QueryCommentsResponse {
 }
 ```
 
-After the types are defined in proto files, you can implement post querying logic. In `grpc_query_comments.go`:
+After the types are defined in proto files, you can implement post querying logic in `grpc_query_comments.go` by registering the `Comments` function:
 
 ```go
-package keeper
-
-import (
-	"context"
-
-	"github.com/cosmonaut/blog/x/blog/types"
-	"github.com/cosmos/cosmos-sdk/store/prefix"
-	sdk "github.com/cosmos/cosmos-sdk/types"
-	"github.com/cosmos/cosmos-sdk/types/query"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
-)
-
 func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*types.QueryCommentsResponse, error) {
 
 	// Throw an error if request is nil
@@ -463,7 +461,7 @@ func (k Keeper) Comments(c context.Context, req *types.QueryCommentsRequest) (*t
 }
 ```
 
-Note: Since gRPC has been already added to module handler in previous tutorial, you don't need to add it again.
+**Note:** Since gRPC has been already added to module handler in the previous tutorial, you don't need to add it again.
 
 ## Create Post and Comment
 
@@ -475,10 +473,16 @@ Create a post:
 blogd tx blog create-post Uno "This is the first post" --from alice
 ```
 
+As before, you are prompted to confirm the transaction:
+
 ```bash
 "body":{"messages":[{"@type":"/cosmonaut.blog.blog.MsgCreatePost","creator":"cosmos1dad8xvsj3dse928r52yayygghwvsggvzlm730p","title":"foo","body":"bar"}],"memo":"","timeout_height":"0","extension_options":[],"non_critical_extension_options":[]},"auth_info":{"signer_infos":[],"fee":{"amount":[],"gas_limit":"200000","payer":"","granter":""}},"signatures":[]}
-```
+
 confirm transaction before signing and broadcasting [y/N]: y
+```
+
+The transaction output:
+
 ```bash
 {"height":"6861","txhash":"6086372860704F5F88F4D0A3CF23523CF6DAD2F637E4068B92582E3BB13800DA","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
 ```
