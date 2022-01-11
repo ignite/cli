@@ -48,7 +48,7 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 
 	// serve the app
 	go func() {
-		env.Must(env.Serve("should serve app", apath, "", "", envtest.ExecCtx(ctx)))
+		env.Serve("should serve app", apath, "", "", envtest.ExecCtx(ctx))
 	}()
 
 	// wait servers to be online
