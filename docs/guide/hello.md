@@ -53,7 +53,7 @@ The `hello` directory contains a number of generated files and directories that 
 | app/           | Files that wire together the blockchain. The most important file is `app.go` that contains type definition of the blockchain and functions to create and initialize it. |
 | cmd/           | The main package responsible for the CLI of compiled binary.                                                                                                            |
 | docs/          | Directory for project's documentation. By default, an OpenAPI spec is generated.                                                                                        |
-| proto/         | Protocol buffer files describing the data structure.                                                                                                                    |
+| proto/         | Protocol buffer files describing the data structure>                                                                                                                    |
 | testutil/      | Helper functions for testing.                                                                                                                                           |
 | vue/           | A Vue 3 web app template.                                                                                                                                               |
 | x/             | Cosmos SDK modules and custom modules.                                                                                                                                  |
