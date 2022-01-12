@@ -4,7 +4,7 @@ title: v0.18
 parent:
   title: Migration
   order: 3
-description: For chains that were scaffolded with Starport versions lower than v0.18, changes are required to use Starport v0.18. 
+description: For chains that were scaffolded with Starport versions lower than v0.18, changes are required to use Starport v0.18.
 ---
 
 # Upgrading a Blockchain to use Starport v0.18
@@ -34,7 +34,7 @@ go 1.16
 
 require (
 	github.com/cosmos/cosmos-sdk v0.44.0
-	github.com/cosmos/ibc-go v1.2.0
+	github.com/cosmos/ibc-go v2.0.2
 	github.com/gogo/protobuf v1.3.3
 	github.com/google/go-cmp v0.5.6 // indirect
 	github.com/gorilla/mux v1.8.0
@@ -66,15 +66,15 @@ import (
   feegrantkeeper "github.com/cosmos/cosmos-sdk/x/feegrant/keeper"
   feegrantmodule "github.com/cosmos/cosmos-sdk/x/feegrant/module"
 
-  "github.com/cosmos/ibc-go/modules/apps/transfer"
-  ibctransferkeeper "github.com/cosmos/ibc-go/modules/apps/transfer/keeper"
-  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
-  ibc "github.com/cosmos/ibc-go/modules/core"
-  ibcclient "github.com/cosmos/ibc-go/modules/core/02-client"
-  ibcporttypes "github.com/cosmos/ibc-go/modules/core/05-port/types"
-  ibchost "github.com/cosmos/ibc-go/modules/core/24-host"
-  ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
-  
+  "github.com/cosmos/ibc-go/v2/modules/apps/transfer"
+  ibctransferkeeper "github.com/cosmos/ibc-go/v2/modules/apps/transfer/keeper"
+  ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
+  ibc "github.com/cosmos/ibc-go/v2/modules/core"
+  ibcclient "github.com/cosmos/ibc-go/v2/modules/core/02-client"
+  ibcporttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"
+  ibchost "github.com/cosmos/ibc-go/v2/modules/core/24-host"
+  ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
+
   // Remove the following packages:
   // transfer "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer"
   // ibctransferkeeper "github.com/cosmos/cosmos-sdk/x/ibc/applications/transfer/keeper"
@@ -123,7 +123,7 @@ func New(...) {
   app.FeeGrantKeeper = feegrantkeeper.NewKeeper(appCodec, keys[feegrant.StoreKey], app.AccountKeeper)  // <--
   // Add app.BaseApp as the last argument to upgradekeeper.NewKeeper
   app.UpgradeKeeper = upgradekeeper.NewKeeper(skipUpgradeHeights, keys[upgradetypes.StoreKey], appCodec, homePath, app.BaseApp)
-  
+
   app.IBCKeeper = ibckeeper.NewKeeper(
     // Add app.UpgradeKeeper
     appCodec, keys[ibchost.StoreKey], app.GetSubspace(ibchost.ModuleName), app.StakingKeeper, app.UpgradeKeeper, scopedIBCKeeper,
@@ -149,7 +149,7 @@ func New(...) {
 
   // Add app.appCodec as an argument to module.NewConfigurator:
   app.mm.RegisterServices(module.NewConfigurator(app.appCodec, app.MsgServiceRouter(), app.GRPCQueryRouter()))
-  
+
   // Replace:
   // app.SetAnteHandler(
   // 	ante.NewAnteHandler(
@@ -270,7 +270,7 @@ import (
   sdk "github.com/cosmos/cosmos-sdk/types"
   capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
   typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
-  ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
+  ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
   "github.com/stretchr/testify/require"
   "github.com/tendermint/tendermint/libs/log"
   tmproto "github.com/tendermint/tendermint/proto/tendermint/types"
