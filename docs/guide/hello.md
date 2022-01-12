@@ -183,7 +183,7 @@ func (k Keeper) Posts(c context.Context, req *types.QueryPostsRequest) (*types.Q
 }
 ```
 
-Here's all of the actions the `Posts` function does:
+The `Posts` function performs these actions:
 
 - Makes a basic check on the request and throws an error if it's `nil`
 - Stores context in a `ctx` variable that contains information about the environment of the request
