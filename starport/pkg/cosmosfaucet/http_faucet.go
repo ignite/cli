@@ -27,7 +27,6 @@ func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
 
 type TransferResponse struct {
 	Error string    `json:"error,omitempty"`
-	Coins sdk.Coins `json:"coins"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
@@ -53,7 +52,7 @@ func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {
 		}
 		responseError(w, http.StatusInternalServerError, err)
 	} else {
-		responseSuccess(w, coins)
+		responseSuccess(w)
 	}
 }
 
@@ -92,10 +91,8 @@ func (f Faucet) coinsFromRequest(req TransferRequest) (sdk.Coins, error) {
 	return coins, nil
 }
 
-func responseSuccess(w http.ResponseWriter, coins sdk.Coins) {
-	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{
-		Coins: coins,
-	})
+func responseSuccess(w http.ResponseWriter) {
+	xhttp.ResponseJSON(w, http.StatusOK, TransferResponse{})
 }
 
 func responseError(w http.ResponseWriter, code int, err error) {
