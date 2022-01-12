@@ -55,6 +55,7 @@ require (
 	golang.org/x/sync v0.0.0-20210220032951-036812b2e83c
 	golang.org/x/term v0.0.0-20201210144234-2321bbc49cbf
 	google.golang.org/grpc v1.42.0
+	gopkg.in/yaml.v2 v2.4.0 // indirect
 )
 
 replace (

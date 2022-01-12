@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"os"
 	"regexp"
@@ -12,9 +11,11 @@ import (
 	"time"
 
 	"github.com/cenkalti/backoff"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"gopkg.in/yaml.v2"
 )
 
 // Start starts the blockchain.
@@ -209,13 +210,14 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 	return out.TxHash, nil
 }
 
-// WaitTx waits until a tx is added to a block and can be queried
+// WaitTx waits until a tx is successfully added to a block and can be queried
 func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Duration, maxRetry int) error {
 	retry := 0
 
 	// retry querying the request
 	checkTx := func() error {
-		if err := r.run(ctx, runOptions{}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
+		stdout := &bytes.Buffer{}
+		if err := r.run(ctx, runOptions{stdout: stdout}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
 			// filter not found error and check for max retry
 			if !strings.Contains(err.Error(), "not found") {
 				return backoff.Permanent(err)
@@ -225,6 +227,19 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 				return backoff.Permanent(fmt.Errorf("can't retrieve tx %s", txHash))
 			}
 			return err
+		}
+
+		// parse tx and check code
+		txResult := struct {
+			Code int `yaml:"code"`
+			RawLog string `yaml:"raw_log"`
+		}{}
+		err := yaml.Unmarshal(stdout.Bytes(), &txResult)
+		if err != nil {
+			return backoff.Permanent(errors.Wrap(err, "failed to parse tx result"))
+		}
+		if txResult.Code != 0 {
+			return backoff.Permanent(fmt.Errorf("tx %s failed: %s", txHash, txResult.RawLog))
 		}
 
 		return nil
