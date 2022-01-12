@@ -56,6 +56,13 @@ func (c Chain) Prepare(ctx context.Context, gi networktypes.GenesisInformation) 
 	if err != nil {
 		return err
 	}
+
+	// ensure genesis has a valid format
+	if err := cmd.ValidateGenesis(ctx); err != nil {
+		return err
+	}
+
+	// reset the saved state in case the chain has been started before
 	return cmd.UnsafeReset(ctx)
 }
 
@@ -69,13 +76,13 @@ func (c Chain) buildGenesis(ctx context.Context, gi networktypes.GenesisInformat
 	}
 
 	// apply genesis information to the genesis
-	if err := c.applyGenesisAccounts(ctx, gi.GenesisAccounts, addressPrefix); err != nil {
+	if err := c.applyGenesisAccounts(ctx, gi.GetGenesisAccounts(), addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying genesis accounts to genesis")
 	}
-	if err := c.applyVestingAccounts(ctx, gi.VestingAccounts, addressPrefix); err != nil {
+	if err := c.applyVestingAccounts(ctx, gi.GetVestingAccounts(), addressPrefix); err != nil {
 		return errors.Wrap(err, "error applying vesting accounts to genesis")
 	}
-	if err := c.applyGenesisValidators(ctx, gi.GenesisValidators); err != nil {
+	if err := c.applyGenesisValidators(ctx, gi.GetGenesisValidators()); err != nil {
 		return errors.Wrap(err, "error applying genesis validators to genesis")
 	}
 

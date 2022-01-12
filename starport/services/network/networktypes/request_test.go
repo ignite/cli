@@ -1,4 +1,4 @@
-package network
+package networktypes_test
 
 import (
 	"fmt"
@@ -7,9 +7,10 @@ import (
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	"github.com/stretchr/testify/require"
 	launchtypes "github.com/tendermint/spn/x/launch/types"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
-func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
+func TestVerifyAddValidatorRequest(t *testing.T) {
 	gentx := []byte(`{
   "body": {
     "messages": [
@@ -140,8 +141,7 @@ func TestBuilderVerifyAddValidatorRequest(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			n := Network{}
-			err := n.verifyAddValidatorRequest(tt.req)
+			err := networktypes.VerifyAddValidatorRequest(tt.req)
 			if tt.want != nil {
 				require.Error(t, err)
 				require.Equal(t, tt.want.Error(), err.Error())

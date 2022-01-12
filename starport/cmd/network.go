@@ -12,6 +12,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/gitpod"
 	"github.com/tendermint/starport/starport/services/network"
 	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 var (
@@ -143,8 +144,8 @@ func getNetworkCosmosClient(cmd *cobra.Command) (cosmosclient.Client, error) {
 	cosmosOptions := []cosmosclient.Option{
 		cosmosclient.WithHome(cosmosaccount.KeyringHome),
 		cosmosclient.WithNodeAddress(spnNodeAddress),
-		cosmosclient.WithAddressPrefix(networkchain.SPN),
-		cosmosclient.WithUseFaucet(spnFaucetAddress, networkchain.SPNDenom, 5),
+		cosmosclient.WithAddressPrefix(networktypes.SPN),
+		cosmosclient.WithUseFaucet(spnFaucetAddress, networktypes.SPNDenom, 5),
 		cosmosclient.WithKeyringServiceName(cosmosaccount.KeyringServiceName),
 	}
 
