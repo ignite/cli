@@ -81,6 +81,10 @@ func TestRequestCoinsFromFaucet(t *testing.T) {
 	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"500token"}))
 	isErrTransferRequest(err, http.StatusInternalServerError)
 
+	// faucet request fails when transfer should fail
+	_, err = faucetClient.Transfer(ctx, cosmosfaucet.NewTransferRequest(addr, []string{"500nonexistent"}))
+	isErrTransferRequest(err, http.StatusInternalServerError)
+
 	// send several request in parallel and check max coins is not overflown
 	g, ctx := errgroup.WithContext(ctx)
 	for i := 0; i < 10; i++ {
