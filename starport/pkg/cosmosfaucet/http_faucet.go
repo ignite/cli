@@ -26,7 +26,7 @@ func NewTransferRequest(accountAddress string, coins []string) TransferRequest {
 }
 
 type TransferResponse struct {
-	Error string    `json:"error,omitempty"`
+	Error string `json:"error,omitempty"`
 }
 
 func (f Faucet) faucetHandler(w http.ResponseWriter, r *http.Request) {

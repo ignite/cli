@@ -1,4 +1,3 @@
-
 package faucet_test
 
 import (

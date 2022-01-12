@@ -231,7 +231,7 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 
 		// parse tx and check code
 		txResult := struct {
-			Code int `yaml:"code"`
+			Code   int    `yaml:"code"`
 			RawLog string `yaml:"raw_log"`
 		}{}
 		err := yaml.Unmarshal(stdout.Bytes(), &txResult)
