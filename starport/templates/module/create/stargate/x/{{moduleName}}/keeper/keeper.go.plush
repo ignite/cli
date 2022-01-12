@@ -7,30 +7,51 @@ import (
 
 	"github.com/cosmos/cosmos-sdk/codec"
 	sdk "github.com/cosmos/cosmos-sdk/types"
+	paramtypes "github.com/cosmos/cosmos-sdk/x/params/types"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
-	// this line is used by starport scaffolding # ibc/keeper/import
+	<%= if (isIBC) { %>"github.com/tendermint/spm/ibckeeper"<% } %>
 )
 
 type (
 	Keeper struct {
-		cdc      codec.Marshaler
-		storeKey sdk.StoreKey
-		memKey   sdk.StoreKey
-		// this line is used by starport scaffolding # ibc/keeper/attribute
+		<%= if (isIBC) { %>*ibckeeper.Keeper<% } %>
+		cdc      	codec.BinaryCodec
+		storeKey 	sdk.StoreKey
+		memKey   	sdk.StoreKey
+		paramstore	paramtypes.Subspace
+		<%= for (dependency) in dependencies { %>
+        <%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper<% } %>
 	}
 )
 
 func NewKeeper(
-    cdc codec.Marshaler,
+    cdc codec.BinaryCodec,
     storeKey,
     memKey sdk.StoreKey,
-    // this line is used by starport scaffolding # ibc/keeper/parameter
+	ps paramtypes.Subspace,
+    <%= if (isIBC) { %>channelKeeper ibckeeper.ChannelKeeper,
+    portKeeper ibckeeper.PortKeeper,
+    scopedKeeper ibckeeper.ScopedKeeper,<% } %>
+    <%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper types.<%= title(dependency.Name) %>Keeper,<% } %>
 ) *Keeper {
+	// set KeyTable if it has not already been set
+	if !ps.HasKeyTable() {
+		ps = ps.WithKeyTable(types.ParamKeyTable())
+	}
+
 	return &Keeper{
-		cdc:      cdc,
-		storeKey: storeKey,
-		memKey:   memKey,
-		// this line is used by starport scaffolding # ibc/keeper/return
+		<%= if (isIBC) { %>Keeper: ibckeeper.NewKeeper(
+			types.PortKey,
+			storeKey,
+			channelKeeper,
+			portKeeper,
+			scopedKeeper,
+		),<% } %>
+		cdc:      	cdc,
+		storeKey: 	storeKey,
+		memKey:   	memKey,
+		paramstore:	ps,
+		<%= for (dependency) in dependencies { %><%= dependency.Name %>Keeper: <%= dependency.Name %>Keeper,<% } %>
 	}
 }
 

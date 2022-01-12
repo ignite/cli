@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strconv"
 	"strings"
+	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -31,9 +32,11 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 						continue
 					}
 
-					amountStr := strings.TrimRight(attr.Value, denom)
-					if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
-						amount += a
+					if time.Since(event.Time) < f.limitRefreshWindow {
+						amountStr := strings.TrimRight(attr.Value, denom)
+						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
+							amount += a
+						}
 					}
 				}
 			}
@@ -52,8 +55,14 @@ func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount ui
 		return err
 	}
 
-	if f.coinsMax[denom] != 0 && totalSent >= f.coinsMax[denom] {
-		return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
+	if f.coinsMax[denom] != 0 {
+		if totalSent >= f.coinsMax[denom] {
+			return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
+		}
+
+		if (totalSent + amount) >= f.coinsMax[denom] {
+			return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[denom])
+		}
 	}
 
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)

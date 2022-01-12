@@ -1,10 +1,112 @@
 # Changelog
 
-## Unreleased
+## `v0.19.0`
 
 ### Features:
 
-- Added the flag `--no-default-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
+- `starport scaffold` commands support `ints`, `uints`, `strings`, `coin`, `coins` as field types (#1579)
+- Simulation testing with `simapp` has been added to the default template (#1731)
+- Added `starport generate dart` to generate a Dart client from protocol buffer files
+- Added `starport scaffold flutter` to scaffold a Flutter mobile app template
+- Parameters can be specified with a new `--params` flag when scaffolding modules (#1716)
+- Simulations can be run with `starport chain simulate`
+- `cointype` for accounts can be set in the `config.yml` (#1663)
+
+### Fixes:
+
+- Allow using a `creator` field when scaffolding a model with a `--no-message` flag (#1730)
+- Improved error handling when generating code (#1907)
+- Ensure account has funds after faucet transfer when using `cosmosclient` (#1846)
+- Move from `io/ioutil` to `io` and `os` package (refactoring) (#1746)
+
+## `v0.18.0`
+
+### Breaking Changes:
+
+- Starport v0.18 comes with Cosmos SDK v0.44 that introduced changes that are not compatible with chains that were scaffolded with Starport versions lower than v0.18. After upgrading from Starport v0.17.3 to Starport v0.18, you must update the default blockchain template to use blockchains that were scaffolded with earlier versions. See [Migration](./docs/migration/index.md).
+
+### Features:
+
+- Scaffold commands allow using previously scaffolded types as fields
+- Added `--signer` flag to `message`, `list`, `map`, and `single` scaffolding to allow customizing the name of the signer of the message
+- Added `--index` flag to `scaffold map` to provide a custom list of indices
+- Added `scaffold type` to scaffold a protocol buffer definition of a type
+- Automatically check for new Starport versions
+- Added `starport tools completions` to generate CLI completions
+- Added `starport account` commands to manage accounts (key pairs)
+- `starport version` now prints detailed information about OS, Go version, and more
+- Modules are scaffolded with genesis validation tests
+- Types are scaffolded with tests for `ValidateBasic` methods
+- `cosmosclient` has been refactored and can be used as a library for interacting with Cosmos SDK chains
+- `starport relayer` uses `starport account`
+- Added `--path` flag for all `scaffold`, `generate` and `chain` commands
+- Added `--output` flag to the `build` command
+- Port of gRPC web can be configured with in `config.yml` with the `host.grpc-web` property
+- Added `build.main` field to `config.yml` for apps to specify the path of their chain's main package. This is only required to be set when an app contains multiple main packages.
+
+### Fixes:
+
+- Scaffolding a message no longer prevents scaffolding a map, list, or single that has the same type name when using the `--no-message` flag
+- Generate Go code from proto files only from default directories or directories specified in `config.yml`
+- Fixed faucet token transfer calculation
+- Removed `creator` field for types scaffolded with the `--no-message` flag
+- Encode the count value in the store with `BigEndian`
+
+## `v0.17.3`
+
+### Fixes:
+
+- oracle: add a specific BandChain pkg version to avoid Cosmos SDK version conflicts
+
+## `v0.17.2`
+
+### Features:
+
+- `client.toml` is initialized and used by node's CLI, can be configured through `config.yml` with the `init.client` property
+- Support serving Cosmos SDK `v0.43.x` based chains.
+
+## `v0.17.1`
+
+### Fixes:
+
+- Set visibility to `public` on Gitpod's port 7575 to enable peer discovery for SPN
+- Fixed GitHub action that releases blockchain node's binary
+- Fixed an error in chain scaffolding due to "unknown revision"
+- Fixed an error in `starport chain serve` by limiting the scope where proto files are searched for
+
+## `v0.17`
+
+### Features:
+
+- Added GitHub action that automatically builds and releases a binary
+- The `--release` flag for the `build` command adds the ability to release binaries in a tarball with a checksum file.
+- Added the flag `--no-module` to the command `starport app` to prevent scaffolding a default module when creating a new app
+- Added `--dep` flag to specify module dependency when scaffolding a module
+- Added support for multiple naming conventions for component names and field names
+- Print created and modified files when scaffolding a new component
+- Added `starport generate` namespace with commands to generate Go, Vuex and OpenAPI
+- Added `starport chain init` command to initialize a chain without starting a node
+- Scaffold a type that contains a single instance in the store
+- Introduced `starport tools` command for advanced users. Existing `starport relayer lowlevel *` commands are also moved under `tools`.
+- Added `faucet.rate_limit_window` property to `config.yml`
+- Simplified the `cmd` package in the template
+- Added `starport scaffold band` oracle query scaffolding
+- Updated TypeScript relayer to 0.2.0
+- Added customizable gas limits for the relayer
+
+### Fixes:
+
+- Use snake case for generated files
+- Prevent using incorrect module name
+- Fixed permissions issue when using Starport in Docker
+- Ignore hidden directories when building a chain
+- Fix error when scaffolding an IBC module in non-Starport chains
+
+## `v0.16.2`
+
+### Fix:
+
+- Prevent indirect Buf dependency.
 
 ## `v0.16.1`
 
@@ -75,7 +177,8 @@
 - Integrated Stargate app's `scripts/protocgen` into Starport as a native feature. Running `starport build/serve` will automatically take care of building proto files without a need of script in the app's source code.
 - Integrated third-party proto-files used by Cosmos SDK modules into Starport CLI
 - Added ability to customize binary name with `build.binary` in `config.yml`
-- Added ability to change path to home directory with `init.home` in `config.yml`
+- Added ability to change path to home directory with `
+.home` in `config.yml`
 - Added ability to add accounts by `address` with in `config.yml`
 - Added faucet functionality available on port 4500 and configurable with `faucet` in `config.yml`
 - Added `starport faucet [address] [coins]` command

@@ -1,14 +1,13 @@
 package cosmosgen
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"sort"
 
 	"github.com/iancoleman/strcase"
 	"github.com/tendermint/starport/starport/pkg/cosmosanalysis/module"
-	swaggercombine "github.com/tendermint/starport/starport/pkg/nodetime/swagger-combine"
+	swaggercombine "github.com/tendermint/starport/starport/pkg/nodetime/programs/swagger-combine"
 	"github.com/tendermint/starport/starport/pkg/protoc"
 )
 
@@ -43,7 +42,7 @@ func generateOpenAPISpec(g *generator) error {
 			return err
 		}
 
-		dir, err := ioutil.TempDir("", "gen-openapi-module-spec")
+		dir, err := os.MkdirTemp("", "gen-openapi-module-spec")
 		if err != nil {
 			return err
 		}
@@ -94,7 +93,7 @@ func generateOpenAPISpec(g *generator) error {
 
 	// ensure out dir exists.
 	outDir := filepath.Dir(out)
-	if err := os.MkdirAll(outDir, 0755); err != nil {
+	if err := os.MkdirAll(outDir, 0766); err != nil {
 		return err
 	}
 

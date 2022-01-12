@@ -1,0 +1,38 @@
+package keeper_test
+
+import (
+	"testing"
+
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
+    "<%= ModulePath %>/testutil/nullify"
+)
+
+func createTest<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context) types.<%= TypeName.UpperCamel %> {
+	item := types.<%= TypeName.UpperCamel %>{}
+	keeper.Set<%= TypeName.UpperCamel %>(ctx, item)
+	return item
+}
+
+func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	item := createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    require.True(t, found)
+	require.Equal(t,
+		nullify.Fill(&item),
+		nullify.Fill(&rst),
+	)
+}
+
+func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	createTest<%= TypeName.UpperCamel %>(keeper, ctx)
+	keeper.Remove<%= TypeName.UpperCamel %>(ctx)
+    _, found := keeper.Get<%= TypeName.UpperCamel %>(ctx)
+    require.False(t, found)
+}

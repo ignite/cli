@@ -2,35 +2,28 @@ package cosmosver
 
 import (
 	"github.com/tendermint/starport/starport/pkg/gomodule"
-	"golang.org/x/mod/semver"
 )
 
 const (
-	cosmosModulePath            = "github.com/cosmos/cosmos-sdk"
-	cosmosModuleMaxLaunchpadTag = "v0.39.99"
-	cosmosModuleStargateTag     = "v0.40.0"
+	cosmosModulePath = "github.com/cosmos/cosmos-sdk"
 )
 
-// Detect dedects major version of Cosmos.
-func Detect(appPath string) (Version, error) {
+// Detect detects major version of Cosmos.
+func Detect(appPath string) (version Version, err error) {
 	parsed, err := gomodule.ParseAt(appPath)
 	if err != nil {
-		return 0, err
+		return version, err
 	}
+
 	for _, r := range parsed.Require {
 		v := r.Mod
+
 		if v.Path == cosmosModulePath {
-			switch {
-			case semver.Compare(v.Version, cosmosModuleStargateTag) >= 0:
-				return StargateZeroFourtyAndAbove, nil
-
-			case semver.Compare(v.Version, cosmosModuleMaxLaunchpadTag) <= 0:
-				return LaunchpadAny, nil
-
-			default:
-				return StargateBelowZeroFourty, nil
+			if version, err = Parse(v.Version); err != nil {
+				return version, err
 			}
 		}
 	}
-	return 0, nil
+
+	return
 }

@@ -33,15 +33,15 @@ RUN --mount=type=cache,target=/root/.cache/go-build go install -v ./...
 #
 FROM base
 
-COPY --from=builder /go/bin/starport /usr/bin
-
 RUN useradd -ms /bin/bash tendermint
 USER tendermint
+
+COPY --from=builder /go/bin/starport /usr/bin
 
 WORKDIR /apps
 
 # see docs for exposed ports:
-#   https://docs.starport.network/configure/reference.html#host 
+#   https://docs.starport.network/kb/config.html#host
 EXPOSE 26657
 EXPOSE 26656
 EXPOSE 6060 

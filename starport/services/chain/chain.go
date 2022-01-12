@@ -2,20 +2,19 @@ package chain
 
 import (
 	"context"
-	"fmt"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/gookit/color"
-	conf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
 	sperrors "github.com/tendermint/starport/starport/errors"
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
+	"github.com/tendermint/starport/starport/pkg/confile"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
+	"github.com/tendermint/starport/starport/pkg/repoversion"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
 
@@ -133,7 +132,7 @@ func EnableThirdPartyModuleCodegen() Option {
 }
 
 // New initializes a new Chain with options that its source lives at path.
-func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
+func New(path string, options ...Option) (*Chain, error) {
 	app, err := NewAppAt(path)
 	if err != nil {
 		return nil, err
@@ -143,8 +142,8 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		app:            app,
 		logLevel:       LogSilent,
 		serveRefresher: make(chan struct{}, 1),
-		stdout:         ioutil.Discard,
-		stderr:         ioutil.Discard,
+		stdout:         io.Discard,
+		stderr:         io.Discard,
 	}
 
 	// Apply the options
@@ -167,7 +166,7 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 		return nil, err
 	}
 
-	if !c.Version.Major().Is(cosmosver.Stargate) {
+	if !c.Version.IsFamily(cosmosver.Stargate) {
 		return nil, sperrors.ErrOnlyStargateSupported
 	}
 
@@ -178,20 +177,15 @@ func New(ctx context.Context, path string, options ...Option) (*Chain, error) {
 }
 
 func (c *Chain) appVersion() (v version, err error) {
-	repo, err := git.PlainOpen(c.app.Path)
+
+	ver, err := repoversion.Determine(c.app.Path)
 	if err != nil {
 		return version{}, err
 	}
-	iter, err := repo.Tags()
-	if err != nil {
-		return version{}, err
-	}
-	ref, err := iter.Next()
-	if err != nil {
-		return version{}, nil
-	}
-	v.tag = strings.TrimPrefix(ref.Name().Short(), "v")
-	v.hash = ref.Hash().String()
+
+	v.hash = ver.Hash
+	v.tag = ver.Tag
+
 	return v, nil
 }
 
@@ -215,7 +209,7 @@ func (c *Chain) ConfigPath() string {
 	if c.options.ConfigFile != "" {
 		return c.options.ConfigFile
 	}
-	path, err := conf.LocateDefault(c.app.Path)
+	path, err := chainconfig.LocateDefault(c.app.Path)
 	if err != nil {
 		return ""
 	}
@@ -223,12 +217,12 @@ func (c *Chain) ConfigPath() string {
 }
 
 // Config returns the config of the chain
-func (c *Chain) Config() (conf.Config, error) {
+func (c *Chain) Config() (chainconfig.Config, error) {
 	configPath := c.ConfigPath()
 	if configPath == "" {
-		return conf.DefaultConf, nil
+		return chainconfig.DefaultConf, nil
 	}
-	return conf.ParseFile(configPath)
+	return chainconfig.ParseFile(configPath)
 }
 
 // ID returns the chain's id.
@@ -252,6 +246,10 @@ func (c *Chain) ID() (string, error) {
 	return c.app.N(), nil
 }
 
+func (c *Chain) Name() string {
+	return c.app.N()
+}
+
 // Binary returns the name of app's default (appd) binary.
 func (c *Chain) Binary() (string, error) {
 	conf, err := c.Config()
@@ -264,6 +262,11 @@ func (c *Chain) Binary() (string, error) {
 	}
 
 	return c.app.D(), nil
+}
+
+// SetHome sets the chain home directory.
+func (c *Chain) SetHome(home string) {
+	c.options.homePath = home
 }
 
 // Home returns the blockchain node's home dir.
@@ -300,13 +303,31 @@ func (c *Chain) DefaultHome() (string, error) {
 	return c.plugin.Home(), nil
 }
 
+// DefaultGentxPath returns default gentx.json path of the app.
+func (c *Chain) DefaultGentxPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx/gentx.json"), nil
+}
+
 // GenesisPath returns genesis.json path of the app.
 func (c *Chain) GenesisPath() (string, error) {
 	home, err := c.Home()
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/genesis.json", home), nil
+	return filepath.Join(home, "config/genesis.json"), nil
+}
+
+// GentxsPath returns the directory where gentxs are stored for the app.
+func (c *Chain) GentxsPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/gentx"), nil
 }
 
 // AppTOMLPath returns app.toml path of the app.
@@ -315,7 +336,7 @@ func (c *Chain) AppTOMLPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/app.toml", home), nil
+	return filepath.Join(home, "config/app.toml"), nil
 }
 
 // ConfigTOMLPath returns config.toml path of the app.
@@ -324,7 +345,62 @@ func (c *Chain) ConfigTOMLPath() (string, error) {
 	if err != nil {
 		return "", err
 	}
-	return fmt.Sprintf("%s/config/config.toml", home), nil
+	return filepath.Join(home, "config/config.toml"), nil
+}
+
+// ClientTOMLPath returns client.toml path of the app.
+func (c *Chain) ClientTOMLPath() (string, error) {
+	home, err := c.Home()
+	if err != nil {
+		return "", err
+	}
+	return filepath.Join(home, "config/client.toml"), nil
+}
+
+// KeyringBackend returns the keyring backend chosen for the chain.
+func (c *Chain) KeyringBackend() (chaincmd.KeyringBackend, error) {
+	// 1st.
+	if c.options.keyringBackend != "" {
+		return c.options.keyringBackend, nil
+	}
+
+	config, err := c.Config()
+	if err != nil {
+		return "", err
+	}
+
+	// 2nd.
+	if config.Init.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
+	}
+
+	// 3rd.
+	if config.Init.Client != nil {
+		if backend, ok := config.Init.Client["keyring-backend"]; ok {
+			if backendStr, ok := backend.(string); ok {
+				return chaincmd.KeyringBackendFromString(backendStr)
+			}
+		}
+	}
+
+	// 4th.
+	configTOMLPath, err := c.ClientTOMLPath()
+	if err != nil {
+		return "", err
+	}
+	cf := confile.New(confile.DefaultTOMLEncodingCreator, configTOMLPath)
+	var conf struct {
+		KeyringBackend string `toml:"keyring-backend"`
+	}
+	if err := cf.Load(&conf); err != nil {
+		return "", err
+	}
+	if conf.KeyringBackend != "" {
+		return chaincmd.KeyringBackendFromString(conf.KeyringBackend)
+	}
+
+	// 5th.
+	return chaincmd.KeyringBackendTest, nil
 }
 
 // Commands returns the runner execute commands on the chain's binary
@@ -344,6 +420,11 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		return chaincmdrunner.Runner{}, err
 	}
 
+	backend, err := c.KeyringBackend()
+	if err != nil {
+		return chaincmdrunner.Runner{}, err
+	}
+
 	config, err := c.Config()
 	if err != nil {
 		return chaincmdrunner.Runner{}, err
@@ -354,35 +435,19 @@ func (c *Chain) Commands(ctx context.Context) (chaincmdrunner.Runner, error) {
 		chaincmd.WithHome(home),
 		chaincmd.WithVersion(c.Version),
 		chaincmd.WithNodeAddress(xurl.TCP(config.Host.RPC)),
-	}
-
-	// use keyring backend if specified
-	if c.options.keyringBackend != chaincmd.KeyringBackendUnspecified {
-		chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(c.options.keyringBackend))
-	} else {
-		// check if keyring backend is specified in config
-		if config.Init.KeyringBackend != "" {
-			configKeyringBackend, err := chaincmd.KeyringBackendFromString(config.Init.KeyringBackend)
-			if err != nil {
-				return chaincmdrunner.Runner{}, err
-			}
-			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(configKeyringBackend))
-		} else {
-			// default keyring backend used is OS
-			chainCommandOptions = append(chainCommandOptions, chaincmd.WithKeyringBackend(chaincmd.KeyringBackendOS))
-		}
+		chaincmd.WithKeyringBackend(backend),
 	}
 
 	cc := chaincmd.New(binary, chainCommandOptions...)
 
-	ccroptions := []chaincmdrunner.Option{}
+	ccrOptions := make([]chaincmdrunner.Option, 0)
 	if c.logLevel == LogVerbose {
-		ccroptions = append(ccroptions,
+		ccrOptions = append(ccrOptions,
 			chaincmdrunner.Stdout(os.Stdout),
 			chaincmdrunner.Stderr(os.Stderr),
 			chaincmdrunner.DaemonLogPrefix(c.genPrefix(logAppd)),
 		)
 	}
 
-	return chaincmdrunner.New(ctx, cc, ccroptions...)
+	return chaincmdrunner.New(ctx, cc, ccrOptions...)
 }

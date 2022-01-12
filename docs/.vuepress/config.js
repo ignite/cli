@@ -1,7 +1,31 @@
 module.exports = {
   theme: "cosmos",
   title: "Starport",
+  head: [
+    [
+      "script",
+      {
+        async: true,
+        src: "https://www.googletagmanager.com/gtag/js?id=G-XL9GNV1KHW",
+      },
+    ],
+    [
+      "script",
+      {},
+      [
+        "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-XL9GNV1KHW');",
+      ],
+    ],
+  ],
   themeConfig: {
+    logo: {
+      src: "/logo.png",
+    },
+    algolia: {
+      id: "BH4D9OD16A",
+      key: "d6908a9436133e03e9b0131bad808775",
+      index: "docs-startport",
+    },
     sidebar: {
       auto: true,
       nav: [
@@ -13,11 +37,7 @@ module.exports = {
               path: "https://github.com/tendermint/starport",
             },
             {
-              title: "Tutorials",
-              path: "https://tutorials.cosmos.network",
-            },
-            {
-              title: "Cosmos SDK docs",
+              title: "Cosmos SDK Docs",
               path: "https://docs.cosmos.network",
             },
           ],
@@ -31,37 +51,33 @@ module.exports = {
     footer: {
       question: {
         text:
-          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/W8trcGV' target='_blank'>Discord</a>.",
+          "Chat with Starport and Cosmos SDK developers in <a href='https://discord.gg/starport' target='_blank'>Discord</a>.",
       },
       logo: "/logo.svg",
       textLink: {
-        text: "cosmos.network/starport",
-        url: "https://cosmos.network/starport",
+        text: "starport.com",
+        url: "https://starport.com/",
       },
       services: [
         {
           service: "medium",
-          url: "https://blog.cosmos.network/",
+          url: "https://medium.com/tendermint",
         },
         {
           service: "twitter",
-          url: "https://twitter.com/cosmos",
+          url: "https://twitter.com/starportHQ",
         },
         {
           service: "linkedin",
           url: "https://www.linkedin.com/company/tendermint/",
         },
         {
-          service: "reddit",
-          url: "https://reddit.com/r/cosmosnetwork",
-        },
-        {
           service: "discord",
-          url: "https://discord.gg/vcExX9T",
+          url: "https://discord.gg/starport",
         },
         {
           service: "youtube",
-          url: "https://www.youtube.com/c/CosmosProject",
+          url: "https://www.youtube.com/channel/UCXMndYLK7OuvjvElSeSWJ1Q",
         },
       ],
 
@@ -98,7 +114,7 @@ module.exports = {
             },
             {
               title: "Chat",
-              url: "https://discord.gg/W8trcGV",
+              url: "https://discord.gg/starport",
             },
           ],
         },

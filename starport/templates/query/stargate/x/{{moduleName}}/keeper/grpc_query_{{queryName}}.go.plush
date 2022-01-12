@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func (k Keeper) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query<%= title(QueryName) %>Request) (*types.Query<%= title(QueryName) %>Response, error) {
+func (k Keeper) <%= QueryName.UpperCamel %>(goCtx context.Context,  req *types.Query<%= QueryName.UpperCamel %>Request) (*types.Query<%= QueryName.UpperCamel %>Response, error) {
 	if req == nil {
         return nil, status.Error(codes.InvalidArgument, "invalid request")
     }
@@ -19,5 +19,5 @@ func (k Keeper) <%= title(QueryName) %>(goCtx context.Context,  req *types.Query
     // TODO: Process the query
     _ = ctx
 
-	return &types.Query<%= title(QueryName) %>Response{}, nil
+	return &types.Query<%= QueryName.UpperCamel %>Response{}, nil
 }

@@ -2,8 +2,9 @@ package cli
 
 import (
     "strconv"
+	<%= for (goImport) in mergeGoImports(ReqFields) { %>
+	<%= goImport.Alias %> "<%= goImport.Name %>"<% } %>
 	"github.com/spf13/cobra"
-
     "github.com/cosmos/cosmos-sdk/client"
 	"github.com/cosmos/cosmos-sdk/client/flags"
 	"<%= ModulePath %>/x/<%= ModuleName %>/types"
@@ -11,14 +12,14 @@ import (
 
 var _ = strconv.Itoa(0)
 
-func Cmd<%= title(QueryName) %>() *cobra.Command {
+func Cmd<%= QueryName.UpperCamel %>() *cobra.Command {
 	cmd := &cobra.Command{
-		Use:   "<%= QueryName %><%= for (i, field) in ReqFields { %> [<%= field.Name %>]<% } %>",
+		Use:   "<%= QueryName.Kebab %><%= ReqFields.String() %>",
 		Short: "<%= Description %>",
 		Args:  cobra.ExactArgs(<%= len(ReqFields) %>),
-		RunE: func(cmd *cobra.Command, args []string) error {
-      <%= for (i, field) in ReqFields { %>req<%= title(field.Name) %><%= if (field.DatatypeName != "string") {%>, _<%}%> := <%= if (field.DatatypeName == "string") {%>string<%} else {%>strconv.Parse<%= title(field.DatatypeName) %><%}%>(args[<%= i %>]<%= if (field.DatatypeName == "int" || field.DatatypeName == "uint") {%>, 10, 64<%}%>)
-      <% } %>
+		RunE: func(cmd *cobra.Command, args []string) (err error) {
+			<%= for (i, field) in ReqFields { %> <%= field.CLIArgs("req", i) %>
+			<% } %>
 			clientCtx, err := client.GetClientTxContext(cmd)
 			if err != nil {
 				return err
@@ -26,9 +27,9 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
 
 			queryClient := types.NewQueryClient(clientCtx)
 
-			params := &types.Query<%= title(QueryName) %>Request{
-                <%= for (i, field) in ReqFields { %>
-                <%= title(field.Name) %>: <%= field.Datatype %>(req<%= title(field.Name) %>),<% } %>
+			params := &types.Query<%= QueryName.UpperCamel %>Request{
+				<%= for (i, field) in ReqFields { %>
+                <%= field.Name.UpperCamel %>: req<%= field.Name.UpperCamel %>, <% } %>
             }
 
             <%= if (Paginated) { %>pageReq, err := client.ReadPageRequest(cmd.Flags())
@@ -37,7 +38,7 @@ func Cmd<%= title(QueryName) %>() *cobra.Command {
             }
             params.Pagination = pageReq<% } %>
 
-			res, err := queryClient.<%= title(QueryName) %>(cmd.Context(), params)
+			res, err := queryClient.<%= QueryName.UpperCamel %>(cmd.Context(), params)
             if err != nil {
                 return err
             }

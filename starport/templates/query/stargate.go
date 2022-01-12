@@ -2,53 +2,69 @@ package query
 
 import (
 	"fmt"
+	"path/filepath"
 	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
+	"github.com/tendermint/starport/starport/pkg/xgenny"
 )
 
 // NewStargate returns the generator to scaffold a empty query in a Stargate module
 func NewStargate(replacer placeholder.Replacer, opts *Options) (*genny.Generator, error) {
-	g := genny.New()
+	var (
+		g        = genny.New()
+		template = xgenny.NewEmbedWalker(
+			fsStargate,
+			"stargate/",
+			opts.AppPath,
+		)
+	)
 
 	g.RunFn(protoQueryModify(replacer, opts))
 	g.RunFn(cliQueryModify(replacer, opts))
 
-	return g, Box(stargateTemplate, opts, g)
+	return g, Box(template, opts, g)
 }
 
 func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("proto/%s/query.proto", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "proto", opts.ModuleName, "query.proto")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		// RPC service
-		templateRPC := `%[1]v
+		// if the query has request fields, they are appended to the rpc query
+		var reqPath string
+		for _, field := range opts.ReqFields {
+			reqPath += "/"
+			reqPath = filepath.Join(reqPath, fmt.Sprintf("{%s}", field.ProtoFieldName()))
+		}
 
-	// Queries a list of %[3]v items.
+		// RPC service
+		templateRPC := `// Queries a list of %[2]v items.
 	rpc %[2]v(Query%[2]vRequest) returns (Query%[2]vResponse) {
-		option (google.api.http).get = "/%[4]v/%[5]v/%[6]v/%[3]v";
+		option (google.api.http).get = "/%[3]v/%[4]v/%[5]v/%[6]v%[7]v";
 	}
-`
+
+%[1]v`
 		replacementRPC := fmt.Sprintf(
 			templateRPC,
 			Placeholder2,
-			strings.Title(opts.QueryName),
-			opts.QueryName,
+			opts.QueryName.UpperCamel,
 			opts.OwnerName,
 			opts.AppName,
 			opts.ModuleName,
+			opts.QueryName.Snake,
+			reqPath,
 		)
 		content := replacer.Replace(f.String(), Placeholder2, replacementRPC)
 
 		// Fields for request
 		var reqFields string
 		for i, field := range opts.ReqFields {
-			reqFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			reqFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
 		}
 		if opts.Paginated {
 			reqFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageRequest pagination = %d;\n", len(opts.ReqFields)+1)
@@ -57,24 +73,41 @@ func protoQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn 
 		// Fields for response
 		var resFields string
 		for i, field := range opts.ResFields {
-			resFields += fmt.Sprintf("  %s %s = %d;\n", field.Datatype, field.Name, i+1)
+			resFields += fmt.Sprintf("  %s;\n", field.ProtoType(i+1))
 		}
 		if opts.Paginated {
 			resFields += fmt.Sprintf("cosmos.base.query.v1beta1.PageResponse pagination = %d;\n", len(opts.ResFields)+1)
 		}
 
+		// Ensure custom types are imported
+		protoImports := append(opts.ResFields.ProtoImports(), opts.ReqFields.ProtoImports()...)
+		customFields := append(opts.ResFields.Custom(), opts.ReqFields.Custom()...)
+		for _, f := range customFields {
+			protoImports = append(protoImports,
+				fmt.Sprintf("%[1]v/%[2]v.proto", opts.ModuleName, f),
+			)
+		}
+		for _, f := range protoImports {
+			importModule := fmt.Sprintf(`
+import "%[1]v";`, f)
+			content = strings.ReplaceAll(content, importModule, "")
+
+			replacementImport := fmt.Sprintf("%[1]v%[2]v", Placeholder, importModule)
+			content = replacer.Replace(content, Placeholder, replacementImport)
+		}
+
 		// Messages
-		templateMessages := `%[1]v
-message Query%[2]vRequest {
+		templateMessages := `message Query%[2]vRequest {
 %[3]v}
 
 message Query%[2]vResponse {
 %[4]v}
-`
+
+%[1]v`
 		replacementMessages := fmt.Sprintf(
 			templateMessages,
 			Placeholder3,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 			reqFields,
 			resFields,
 		)
@@ -87,20 +120,19 @@ message Query%[2]vResponse {
 
 func cliQueryModify(replacer placeholder.Replacer, opts *Options) genny.RunFn {
 	return func(r *genny.Runner) error {
-		path := fmt.Sprintf("x/%s/client/cli/query.go", opts.ModuleName)
+		path := filepath.Join(opts.AppPath, "x", opts.ModuleName, "client/cli/query.go")
 		f, err := r.Disk.Find(path)
 		if err != nil {
 			return err
 		}
 
-		template := `%[1]v
+		template := `cmd.AddCommand(Cmd%[2]v())
 
-	cmd.AddCommand(Cmd%[2]v())
-`
+%[1]v`
 		replacement := fmt.Sprintf(
 			template,
 			Placeholder,
-			strings.Title(opts.QueryName),
+			opts.QueryName.UpperCamel,
 		)
 		content := replacer.Replace(f.String(), Placeholder, replacement)
 

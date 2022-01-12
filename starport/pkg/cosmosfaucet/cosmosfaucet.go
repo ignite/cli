@@ -4,6 +4,7 @@ package cosmosfaucet
 import (
 	"context"
 	"fmt"
+	"time"
 
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
@@ -22,6 +23,10 @@ const (
 	// DefaultMaxAmount specifies the maximum amount that can be tranffered to an
 	// account in all times.
 	DefaultMaxAmount = 100000000
+
+	// DefaultLimitRefreshWindow specifies the time after which the max amount limit
+	// is refreshed for an account [1 year]
+	DefaultRefreshWindow = time.Hour * 24 * 365
 )
 
 // Faucet represents a faucet.
@@ -38,12 +43,17 @@ type Faucet struct {
 	// accountMnemonic is the mnemonic of the account.
 	accountMnemonic string
 
+	// coinType registered coin type number for HD derivation (BIP-0044).
+	coinType string
+
 	// coins keeps a list of coins that can be distributed by the faucet.
 	coins []coin
 
 	// coinsMax is a denom-max pair.
 	// it holds the maximum amounts of coins that can be sent to a single account.
 	coinsMax map[string]uint64
+
+	limitRefreshWindow time.Duration
 
 	// openAPIData holds template data customizations for serving OpenAPI page & spec.
 	openAPIData openAPIData
@@ -66,10 +76,11 @@ type Option func(*Faucet)
 
 // Account provides the account information to transfer tokens from.
 // when mnemonic isn't provided, account assumed to be exists in the keyring.
-func Account(name, mnemonic string) Option {
+func Account(name, mnemonic string, coinType string) Option {
 	return func(f *Faucet) {
 		f.accountName = name
 		f.accountMnemonic = mnemonic
+		f.coinType = coinType
 	}
 }
 
@@ -83,6 +94,13 @@ func Coin(amount, maxAmount uint64, denom string) Option {
 	return func(f *Faucet) {
 		f.coins = append(f.coins, coin{amount, denom})
 		f.coinsMax[denom] = maxAmount
+	}
+}
+
+// RefreshWindow adds the duration to refresh the transfer limit to the faucet
+func RefreshWindow(refreshWindow time.Duration) Option {
+	return func(f *Faucet) {
+		f.limitRefreshWindow = refreshWindow
 	}
 }
 
@@ -117,9 +135,13 @@ func New(ctx context.Context, ccr chaincmdrunner.Runner, options ...Option) (Fau
 		Coin(DefaultAmount, DefaultMaxAmount, DefaultDenom)(&f)
 	}
 
+	if f.limitRefreshWindow == 0 {
+		RefreshWindow(DefaultRefreshWindow)(&f)
+	}
+
 	// import the account if mnemonic is provided.
 	if f.accountMnemonic != "" {
-		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic)
+		_, err := f.runner.AddAccount(ctx, f.accountName, f.accountMnemonic, f.coinType)
 		if err != nil && err != chaincmdrunner.ErrAccountAlreadyExists {
 			return Faucet{}, err
 		}

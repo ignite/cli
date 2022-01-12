@@ -5,7 +5,6 @@ import (
 	"os"
 	"strings"
 
-	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/lineprefixer"
 	"github.com/tendermint/starport/starport/pkg/prefixgen"
 )
@@ -29,24 +28,15 @@ const (
 	logAppd
 )
 
-// std returns the cmdrunner steps to configure stdout and stderr to output logs by logType.
-func (c *Chain) stdSteps(logType logType) []step.Option {
-	std := c.stdLog(logType)
-	return []step.Option{
-		step.Stdout(std.out),
-		step.Stderr(std.err),
-	}
-}
-
 type std struct {
 	out, err io.Writer
 }
 
 // std returns the stdout and stderr to output logs by logType.
-func (c *Chain) stdLog(logType logType) std {
+func (c *Chain) stdLog() std {
 	prefixed := func(w io.Writer) *lineprefixer.Writer {
 		var (
-			prefix    = prefixes[logType]
+			prefix    = prefixes[logStarport]
 			prefixStr string
 			options   = prefixgen.Common(prefixgen.Color(prefix.Color))
 			gen       = prefixgen.New(prefix.Name, options...)
@@ -62,7 +52,7 @@ func (c *Chain) stdLog(logType logType) std {
 		stdout io.Writer = prefixed(c.stdout)
 		stderr io.Writer = prefixed(c.stderr)
 	)
-	if logType == logStarport && c.logLevel == LogRegular {
+	if c.logLevel == LogRegular {
 		stdout = os.Stdout
 		stderr = os.Stderr
 	}

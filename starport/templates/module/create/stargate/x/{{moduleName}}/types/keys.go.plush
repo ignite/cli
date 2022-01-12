@@ -16,10 +16,10 @@ const (
 	// MemStoreKey defines the in-memory store key
 	MemStoreKey = "mem_<%= moduleName %>"
 
-    // this line is used by starport scaffolding # ibc/keys/name
+    <%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/name<% } %>
 )
 
-// this line is used by starport scaffolding # ibc/keys/port
+<%= if (isIBC) { %>// this line is used by starport scaffolding # ibc/keys/port<% } %>
 
 func KeyPrefix(p string) []byte {
     return []byte(p)

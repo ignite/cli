@@ -3,25 +3,25 @@ package protoc
 
 import (
 	"context"
-	"embed"
-	"io/fs"
+	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/exec"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 	"github.com/tendermint/starport/starport/pkg/protoanalysis"
+	"github.com/tendermint/starport/starport/pkg/protoc/data"
 )
-
-//go:embed data/include/* data/include/**/*
-var include embed.FS
 
 // Option configures Generate configs.
 type Option func(*configs)
 
 // configs holds Generate configs.
 type configs struct {
-	pluginPath string
+	pluginPath             string
+	isGeneratedDepsEnabled bool
 }
 
 // Plugin configures a plugin for code generation.
@@ -31,52 +31,82 @@ func Plugin(path string) Option {
 	}
 }
 
+// GenerateDependencies enables code generation for the proto files that your protofile depends on.
+// use this if your protoc plugin does not give you an option to enable the same feature.
+func GenerateDependencies() Option {
+	return func(c *configs) {
+		c.isGeneratedDepsEnabled = true
+	}
+}
+
+type Cmd struct {
+	Command  []string
+	Included []string
+}
+
+// Command sets the protoc binary up and returns the command needed to execute c.
+func Command() (command Cmd, cleanup func(), err error) {
+	path, cleanupProto, err := localfs.SaveBytesTemp(data.Binary(), "protoc", 0755)
+	if err != nil {
+		return Cmd{}, nil, err
+	}
+
+	include, cleanupInclude, err := localfs.SaveTemp(data.Include())
+	if err != nil {
+		cleanupProto()
+		return Cmd{}, nil, err
+	}
+
+	cleanup = func() {
+		cleanupProto()
+		cleanupInclude()
+	}
+
+	command = Cmd{
+		Command:  []string{path, "-I", include},
+		Included: []string{include},
+	}
+
+	return command, cleanup, nil
+}
+
 // Generate generates code into outDir from protoPath and its includePaths by using plugins provided with protocOuts.
 func Generate(ctx context.Context, outDir, protoPath string, includePaths, protocOuts []string, options ...Option) error {
-	c := &configs{}
+	c := configs{}
 	for _, o := range options {
-		o(c)
+		o(&c)
 	}
 
-	// setup protoc and global protos.
-	protocPath, cleanup, err := localfs.SaveBytesTemp(binary, "protoc", 0755)
+	cmd, cleanup, err := Command()
 	if err != nil {
 		return err
 	}
 	defer cleanup()
 
-	fsInInclude, err := fs.Sub(include, "data/include")
-	if err != nil {
-		return err
-	}
-
-	globalIncludePath, cleanup, err := localfs.SaveTemp(fsInInclude)
-	if err != nil {
-		return err
-	}
-	defer cleanup()
-
-	includePaths = append(includePaths, globalIncludePath)
-
-	// start preparing the protoc command for execution.
-	command := []string{protocPath}
+	command := cmd.Command
 
 	// add plugin if set.
 	if c.pluginPath != "" {
 		command = append(command, "--plugin", c.pluginPath)
 	}
 
-	// append third party proto locations to the command.
-	for _, importPath := range includePaths {
-		// skip if a third party proto source actually doesn't exist on the filesystem.
-		if _, err := os.Stat(importPath); os.IsNotExist(err) {
+	var existentIncludePaths []string
+
+	// skip if a third party proto source actually doesn't exist on the filesystem.
+	for _, path := range includePaths {
+		if _, err := os.Stat(path); os.IsNotExist(err) {
 			continue
 		}
+		existentIncludePaths = append(existentIncludePaths, path)
+	}
+
+	// append third party proto locations to the command.
+	for _, importPath := range existentIncludePaths {
 		command = append(command, "-I", importPath)
 	}
 
-	// find out the list of proto files under the app and generate code for them.
-	files, err := protoanalysis.SearchRecursive(protoPath)
+	// find out the list of proto files to generate code for and perform code generation.
+	files, err := discoverFiles(ctx, c, protoPath, append(cmd.Included, existentIncludePaths...), protoanalysis.NewCache())
 	if err != nil {
 		return err
 	}
@@ -95,4 +125,88 @@ func Generate(ctx context.Context, outDir, protoPath string, includePaths, proto
 	}
 
 	return nil
+}
+
+// discoverFiles discovers .proto files to do code generation for. .proto files of the app
+// (everything under protoPath) will always be a part of the discovered files.
+//
+// when .proto files of the app depends on another proto package under includePaths (dependencies), those
+// ones may need to be discovered as well. some protoc plugins already do this discovery internally but
+// for the ones that don't, it needs to be handled here if GenerateDependencies() is enabled.
+func discoverFiles(ctx context.Context, c configs, protoPath string, includePaths []string, cache protoanalysis.Cache) (
+	discovered []string, err error) {
+	packages, err := protoanalysis.Parse(ctx, cache, protoPath)
+	if err != nil {
+		return nil, err
+	}
+
+	discovered = packages.Files().Paths()
+
+	if !c.isGeneratedDepsEnabled {
+		return discovered, nil
+	}
+
+	for _, file := range packages.Files() {
+		d, err := searchFile(file, protoPath, includePaths)
+		if err != nil {
+			return nil, err
+		}
+		discovered = append(discovered, d...)
+	}
+
+	return discovered, nil
+}
+
+func searchFile(file protoanalysis.File, protoPath string, includePaths []string) (discovered []string, err error) {
+	dir := filepath.Dir(file.Path)
+
+	for _, dep := range file.Dependencies {
+		// try to locate imported .proto file relative to the this .proto file.
+		guessedPath := filepath.Join(dir, dep)
+		_, err := os.Stat(guessedPath)
+		if err == nil {
+			discovered = append(discovered, guessedPath)
+			continue
+		}
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+
+		// otherwise, search by absolute path in includePaths.
+		var found bool
+		for _, included := range includePaths {
+			guessedPath := filepath.Join(included, dep)
+			_, err := os.Stat(guessedPath)
+			if err == nil {
+				// found the dependency.
+				// if it's under protoPath, it is already discovered so, skip it.
+				if !strings.HasPrefix(guessedPath, protoPath) {
+					discovered = append(discovered, guessedPath)
+
+					// perform a complete search on this one to discover its dependencies as well.
+					depFile, err := protoanalysis.ParseFile(guessedPath)
+					if err != nil {
+						return nil, err
+					}
+					d, err := searchFile(depFile, protoPath, includePaths)
+					if err != nil {
+						return nil, err
+					}
+					discovered = append(discovered, d...)
+				}
+
+				found = true
+				break
+			}
+			if !os.IsNotExist(err) {
+				return nil, err
+			}
+		}
+
+		if !found {
+			return nil, fmt.Errorf("cannot locate dependency %q for %q", dep, file.Path)
+		}
+	}
+
+	return discovered, nil
 }

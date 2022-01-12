@@ -23,19 +23,22 @@ func New() *Spinner {
 	s := &Spinner{
 		sp: sp,
 	}
-	s.SetText("Initializing...")
-	return s
+	return s.SetText("Initializing...")
 }
 
 // SetText sets the text for spinner.
 func (s *Spinner) SetText(text string) *Spinner {
+	s.sp.Lock()
 	s.sp.Suffix = " " + text
+	s.sp.Unlock()
 	return s
 }
 
 // SetPrefix sets the prefix for spinner.
 func (s *Spinner) SetPrefix(text string) *Spinner {
+	s.sp.Lock()
 	s.sp.Prefix = text + " "
+	s.sp.Unlock()
 	return s
 }
 
@@ -60,9 +63,9 @@ func (s *Spinner) Start() *Spinner {
 // Stop stops spinning.
 func (s *Spinner) Stop() *Spinner {
 	s.sp.Stop()
-	s.SetColor(spinnerColor)
-	s.SetPrefix("")
-	s.SetCharset(charset)
+	s.sp.Prefix = ""
+	s.sp.Color(spinnerColor)
+	s.sp.UpdateCharSet(charset)
 	s.sp.Stop()
 	return s
 }

@@ -1,0 +1,3 @@
+#!/bin/bash
+
+go run starport/internal/tools/gen-cli-docs/*.go --out docs/cli/index.md

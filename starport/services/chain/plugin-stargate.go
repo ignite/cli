@@ -5,12 +5,10 @@ import (
 	"os"
 	"path/filepath"
 
-	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
-
-	"github.com/tendermint/starport/starport/pkg/chaincmd"
-
 	"github.com/pelletier/go-toml"
-	starportconf "github.com/tendermint/starport/starport/chainconf"
+	"github.com/tendermint/starport/starport/chainconfig"
+	"github.com/tendermint/starport/starport/pkg/chaincmd"
+	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
 	"github.com/tendermint/starport/starport/pkg/xurl"
 )
@@ -29,14 +27,6 @@ func (p *stargatePlugin) Name() string {
 	return "Stargate"
 }
 
-func (p *stargatePlugin) Setup(ctx context.Context) error {
-	return nil
-}
-
-func (p *stargatePlugin) Configure(_ context.Context, _ chaincmdrunner.Runner, _ string) error {
-	return nil
-}
-
 func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner, v Validator) (path string, err error) {
 	return runner.Gentx(
 		ctx,
@@ -48,17 +38,24 @@ func (p *stargatePlugin) Gentx(ctx context.Context, runner chaincmdrunner.Runner
 		chaincmd.GentxWithCommissionMaxChangeRate(v.CommissionMaxChangeRate),
 		chaincmd.GentxWithMinSelfDelegation(v.MinSelfDelegation),
 		chaincmd.GentxWithGasPrices(v.GasPrices),
+		chaincmd.GentxWithDetails(v.Details),
+		chaincmd.GentxWithIdentity(v.Identity),
+		chaincmd.GentxWithWebsite(v.Website),
+		chaincmd.GentxWithSecurityContact(v.SecurityContact),
 	)
 }
 
-func (p *stargatePlugin) PostInit(homePath string, conf starportconf.Config) error {
-	if err := p.apptoml(homePath, conf); err != nil {
+func (p *stargatePlugin) Configure(homePath string, conf chainconfig.Config) error {
+	if err := p.appTOML(homePath, conf); err != nil {
 		return err
 	}
-	return p.configtoml(homePath, conf)
+	if err := p.clientTOML(homePath); err != nil {
+		return err
+	}
+	return p.configTOML(homePath, conf)
 }
 
-func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) error {
+func (p *stargatePlugin) appTOML(homePath string, conf chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/app.toml")
 	config, err := toml.LoadFile(path)
@@ -70,6 +67,7 @@ func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) erro
 	config.Set("rpc.cors_allowed_origins", []string{"*"})
 	config.Set("api.address", xurl.TCP(conf.Host.API))
 	config.Set("grpc.address", conf.Host.GRPC)
+	config.Set("grpc-web.address", conf.Host.GRPCWeb)
 	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
 	if err != nil {
 		return err
@@ -79,7 +77,7 @@ func (p *stargatePlugin) apptoml(homePath string, conf starportconf.Config) erro
 	return err
 }
 
-func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) error {
+func (p *stargatePlugin) configTOML(homePath string, conf chainconfig.Config) error {
 	// TODO find a better way in order to not delete comments in the toml.yml
 	path := filepath.Join(homePath, "config/config.toml")
 	config, err := toml.LoadFile(path)
@@ -101,7 +99,27 @@ func (p *stargatePlugin) configtoml(homePath string, conf starportconf.Config) e
 	return err
 }
 
-func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf starportconf.Config) error {
+func (p *stargatePlugin) clientTOML(homePath string) error {
+	path := filepath.Join(homePath, "config/client.toml")
+	config, err := toml.LoadFile(path)
+	if os.IsNotExist(err) {
+		return nil
+	}
+	if err != nil {
+		return err
+	}
+	config.Set("keyring-backend", "test")
+	config.Set("broadcast-mode", "block")
+	file, err := os.OpenFile(path, os.O_RDWR|os.O_TRUNC, 0644)
+	if err != nil {
+		return err
+	}
+	defer file.Close()
+	_, err = config.WriteTo(file)
+	return err
+}
+
+func (p *stargatePlugin) Start(ctx context.Context, runner chaincmdrunner.Runner, conf chainconfig.Config) error {
 	err := runner.Start(ctx,
 		"--pruning",
 		"nothing",
@@ -117,9 +135,9 @@ func (p *stargatePlugin) Home() string {
 
 func stargateHome(app App) string {
 	home, _ := os.UserHomeDir()
-	return filepath.Join(home, "."+app.N())
+	return filepath.Join(home, "."+app.Name)
 }
 
-func (p *stargatePlugin) Version() cosmosver.MajorVersion { return cosmosver.Stargate }
+func (p *stargatePlugin) Version() cosmosver.Family { return cosmosver.Stargate }
 
 func (p *stargatePlugin) SupportsIBC() bool { return true }

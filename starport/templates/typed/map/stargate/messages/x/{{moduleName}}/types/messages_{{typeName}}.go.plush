@@ -1,0 +1,144 @@
+package types
+
+import (
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
+)
+
+const (
+	TypeMsgCreate<%= TypeName.UpperCamel %> = "create_<%= TypeName.Snake %>"
+	TypeMsgUpdate<%= TypeName.UpperCamel %> = "update_<%= TypeName.Snake %>"
+	TypeMsgDelete<%= TypeName.UpperCamel %> = "delete_<%= TypeName.Snake %>"
+)
+
+var _ sdk.Msg = &MsgCreate<%= TypeName.UpperCamel %>{}
+
+func NewMsgCreate<%= TypeName.UpperCamel %>(
+    <%= MsgSigner.LowerCamel %> string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
+    <% } %>
+) *MsgCreate<%= TypeName.UpperCamel %> {
+  return &MsgCreate<%= TypeName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %> : <%= MsgSigner.LowerCamel %>,
+		<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+		<% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
+        <% } %>
+	}
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) Type() string {
+  return TypeMsgCreate<%= TypeName.UpperCamel %>
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgCreate<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  	if err != nil {
+  		return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+  	}
+  return nil
+}
+
+var _ sdk.Msg = &MsgUpdate<%= TypeName.UpperCamel %>{}
+
+func NewMsgUpdate<%= TypeName.UpperCamel %>(
+    <%= MsgSigner.LowerCamel %> string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+    <% } %><%= for (field) in Fields { %><%= field.Name.LowerCamel %> <%= field.DataType() %>,
+    <% } %>
+) *MsgUpdate<%= TypeName.UpperCamel %> {
+  return &MsgUpdate<%= TypeName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+        <%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+        <% } %><%= for (field) in Fields { %><%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,
+        <% } %>
+	}
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) Type() string {
+  return TypeMsgUpdate<%= TypeName.UpperCamel %>
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgUpdate<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+  }
+   return nil
+}
+
+var _ sdk.Msg = &MsgDelete<%= TypeName.UpperCamel %>{}
+
+func NewMsgDelete<%= TypeName.UpperCamel %>(
+    <%= MsgSigner.LowerCamel %> string,
+    <%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+    <% } %>
+) *MsgDelete<%= TypeName.UpperCamel %> {
+  return &MsgDelete<%= TypeName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
+		<%= for (index) in Indexes { %><%= index.Name.UpperCamel %>: <%= index.Name.LowerCamel %>,
+        <% } %>
+	}
+}
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) Route() string {
+  return RouterKey
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) Type() string {
+  return TypeMsgDelete<%= TypeName.UpperCamel %>
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+  <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    panic(err)
+  }
+  return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) GetSignBytes() []byte {
+  bz := ModuleCdc.MustMarshalJSON(msg)
+  return sdk.MustSortJSON(bz)
+}
+
+func (msg *MsgDelete<%= TypeName.UpperCamel %>) ValidateBasic() error {
+  _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
+  if err != nil {
+    return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
+  }
+  return nil
+}

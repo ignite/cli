@@ -219,7 +219,7 @@ func (r *Runner) newCommand(step *step.Step) Executor {
 	command.Stderr = stderr
 	command.Dir = dir
 	command.Env = append(os.Environ(), step.Env...)
-	command.Env = append(command.Env, fmt.Sprintf("PATH=%s", goenv.Path()))
+	command.Env = append(command.Env, Env("PATH", goenv.Path()))
 
 	// If a custom stdin is provided it will be as the stdin for the command
 	if stdin != nil {
@@ -234,4 +234,9 @@ func (r *Runner) newCommand(step *step.Step) Executor {
 		panic(err)
 	}
 	return &cmdSignalWithWriter{command, writer}
+}
+
+// Env returns a new env var value from key and val.
+func Env(key, val string) string {
+	return fmt.Sprintf("%s=%s", key, val)
 }

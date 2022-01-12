@@ -1,0 +1,67 @@
+package cli
+
+import (
+	"context"
+	"strconv"
+
+	"github.com/cosmos/cosmos-sdk/client"
+	"github.com/cosmos/cosmos-sdk/client/flags"
+	"github.com/spf13/cobra"
+	"<%= ModulePath %>/x/<%= moduleName %>/types"
+)
+
+// Cmd<%= queryName.UpperCamel %>Result queries request result by reqID
+func Cmd<%= queryName.UpperCamel %>Result() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "<%= queryName.Kebab %>-result [request-id]",
+		Short: "Query the <%= queryName.UpperCamel %> result data by id",
+		Args:  cobra.ExactArgs(1),
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			id, err := strconv.ParseInt(args[0], 10, 64)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.<%= queryName.UpperCamel %>Result(context.Background(), &types.Query<%= queryName.UpperCamel %>Request{RequestId: id})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}
+
+// CmdLast<%= queryName.UpperCamel %>ID queries latest request
+func CmdLast<%= queryName.UpperCamel %>ID() *cobra.Command {
+	cmd := &cobra.Command{
+		Use:   "last-<%= queryName.Kebab %>-id",
+		Short: "Query the last request id returned by <%= queryName.UpperCamel %> ack packet",
+		Args:  cobra.NoArgs,
+		RunE: func(cmd *cobra.Command, args []string) error {
+			clientCtx, err := client.GetClientQueryContext(cmd)
+			if err != nil {
+				return err
+			}
+			queryClient := types.NewQueryClient(clientCtx)
+			r, err := queryClient.Last<%= queryName.UpperCamel %>Id(context.Background(), &types.QueryLast<%= queryName.UpperCamel %>IdRequest{})
+			if err != nil {
+				return err
+			}
+
+			return clientCtx.PrintProto(r)
+		},
+	}
+
+	flags.AddQueryFlagsToCmd(cmd)
+
+	return cmd
+}

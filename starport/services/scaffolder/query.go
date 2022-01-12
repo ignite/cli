@@ -1,17 +1,20 @@
 package scaffolder
 
 import (
-	"os"
+	"context"
+	"errors"
 
 	"github.com/gobuffalo/genny"
-	"github.com/tendermint/starport/starport/pkg/gomodulepath"
+	"github.com/tendermint/starport/starport/pkg/multiformatname"
 	"github.com/tendermint/starport/starport/pkg/placeholder"
 	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field"
 	"github.com/tendermint/starport/starport/templates/query"
 )
 
 // AddQuery adds a new query to scaffolded app
-func (s *Scaffolder) AddQuery(
+func (s Scaffolder) AddQuery(
+	ctx context.Context,
 	tracer *placeholder.Tracer,
 	moduleName,
 	queryName,
@@ -19,38 +22,53 @@ func (s *Scaffolder) AddQuery(
 	reqFields,
 	resFields []string,
 	paginated bool,
-) error {
-	path, err := gomodulepath.ParseAt(s.path)
-	if err != nil {
-		return err
-	}
-
+) (sm xgenny.SourceModification, err error) {
 	// If no module is provided, we add the type to the app's module
 	if moduleName == "" {
-		moduleName = path.Package
+		moduleName = s.modpath.Package
 	}
-	if err := checkComponentValidity(s.path, moduleName, queryName); err != nil {
-		return err
+	mfName, err := multiformatname.NewName(moduleName, multiformatname.NoNumber)
+	if err != nil {
+		return sm, err
+	}
+	moduleName = mfName.LowerCase
+
+	name, err := multiformatname.NewName(queryName)
+	if err != nil {
+		return sm, err
 	}
 
-	// Parse provided fields
-	parsedReqFields, err := parseFields(reqFields, checkGoReservedWord)
-	if err != nil {
-		return err
+	if err := checkComponentValidity(s.path, moduleName, name, true); err != nil {
+		return sm, err
 	}
-	parsedResFields, err := parseFields(resFields, checkGoReservedWord)
+
+	// Check and parse provided request fields
+	if ok := containCustomTypes(reqFields); ok {
+		return sm, errors.New("query request params can't contain custom type")
+	}
+	parsedReqFields, err := field.ParseFields(reqFields, checkGoReservedWord)
 	if err != nil {
-		return err
+		return sm, err
+	}
+
+	// Check and parse provided response fields
+	if err := checkCustomTypes(ctx, s.path, moduleName, resFields); err != nil {
+		return sm, err
+	}
+	parsedResFields, err := field.ParseFields(resFields, checkGoReservedWord)
+	if err != nil {
+		return sm, err
 	}
 
 	var (
 		g    *genny.Generator
 		opts = &query.Options{
-			AppName:     path.Package,
-			ModulePath:  path.RawPath,
+			AppName:     s.modpath.Package,
+			AppPath:     s.path,
+			ModulePath:  s.modpath.RawPath,
 			ModuleName:  moduleName,
-			OwnerName:   owner(path.RawPath),
-			QueryName:   queryName,
+			OwnerName:   owner(s.modpath.RawPath),
+			QueryName:   name,
 			ReqFields:   parsedReqFields,
 			ResFields:   parsedResFields,
 			Description: description,
@@ -61,14 +79,11 @@ func (s *Scaffolder) AddQuery(
 	// Scaffold
 	g, err = query.NewStargate(tracer, opts)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	if err := xgenny.RunWithValidation(tracer, g); err != nil {
-		return err
-	}
-	pwd, err := os.Getwd()
+	sm, err = xgenny.RunWithValidation(tracer, g)
 	if err != nil {
-		return err
+		return sm, err
 	}
-	return s.finish(pwd, path.RawPath)
+	return sm, finish(opts.AppPath, s.modpath.RawPath)
 }

@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 
 	"github.com/emicklei/proto"
+	"github.com/pkg/errors"
 	"github.com/tendermint/starport/starport/pkg/localfs"
 )
 
@@ -18,10 +19,10 @@ type parser struct {
 
 // parse parses proto files in the fs that matches with pattern and returns
 // the low level representations of proto packages.
-func parse(ctx context.Context, pattern string) ([]*pkg, error) {
+func parse(ctx context.Context, path, pattern string) ([]*pkg, error) {
 	pr := &parser{}
 
-	paths, err := localfs.Search(pattern)
+	paths, err := localfs.Search(path, pattern)
 	if err != nil {
 		return nil, err
 	}
@@ -31,7 +32,7 @@ func parse(ctx context.Context, pattern string) ([]*pkg, error) {
 			return nil, ctx.Err()
 		}
 		if err := pr.parseFile(path); err != nil {
-			return nil, err
+			return nil, errors.Wrapf(err, "file: %s", path)
 		}
 	}
 
@@ -57,6 +58,7 @@ type file struct {
 
 	// parsed data.
 	pkg      *proto.Package
+	imports  []string // imported protos.
 	options  []*proto.Option
 	messages []*proto.Message
 	services []*proto.Service
@@ -127,6 +129,7 @@ func (p *parser) parseFile(path string) error {
 	proto.Walk(
 		def,
 		proto.WithPackage(func(p *proto.Package) { pf.pkg = p }),
+		proto.WithImport(func(s *proto.Import) { pf.imports = append(pf.imports, s.Filename) }),
 		proto.WithOption(func(o *proto.Option) { pf.options = append(pf.options, o) }),
 		proto.WithMessage(func(m *proto.Message) { pf.messages = append(pf.messages, m) }),
 		proto.WithService(func(s *proto.Service) { pf.services = append(pf.services, s) }),

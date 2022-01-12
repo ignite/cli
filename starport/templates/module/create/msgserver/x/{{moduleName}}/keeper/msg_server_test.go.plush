@@ -1,4 +1,4 @@
-package keeper
+package keeper_test
 
 import (
 	"context"
@@ -6,9 +6,11 @@ import (
 
 	sdk "github.com/cosmos/cosmos-sdk/types"
     "<%= modulePath %>/x/<%= moduleName %>/types"
+    "<%= modulePath %>/x/<%= moduleName %>/keeper"
+    keepertest "<%= modulePath %>/testutil/keeper"
 )
 
 func setupMsgServer(t testing.TB) (types.MsgServer, context.Context) {
-	keeper, ctx := setupKeeper(t)
-	return NewMsgServerImpl(*keeper), sdk.WrapSDKContext(ctx)
+	k, ctx := keepertest.<%= title(moduleName) %>Keeper(t)
+	return keeper.NewMsgServerImpl(*k), sdk.WrapSDKContext(ctx)
 }

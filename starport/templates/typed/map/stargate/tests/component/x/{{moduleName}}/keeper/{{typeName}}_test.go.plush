@@ -1,0 +1,66 @@
+package keeper_test
+
+import (
+	"strconv"
+	"testing"
+
+	"<%= ModulePath %>/x/<%= ModuleName %>/keeper"
+	"<%= ModulePath %>/x/<%= ModuleName %>/types"
+	keepertest "<%= ModulePath %>/testutil/keeper"
+	"<%= ModulePath %>/testutil/nullify"
+	sdk "github.com/cosmos/cosmos-sdk/types"
+	"github.com/stretchr/testify/require"
+)
+
+// Prevent strconv unused error
+var _ = strconv.IntSize
+
+func createN<%= TypeName.UpperCamel %>(keeper *keeper.Keeper, ctx sdk.Context, n int) []types.<%= TypeName.UpperCamel %> {
+	items := make([]types.<%= TypeName.UpperCamel %>, n)
+	for i := range items {
+		<%= for (i, index) in Indexes { %>items[i].<%= index.Name.UpperCamel %> = <%= index.ValueLoop() %>
+        <% } %>
+		keeper.Set<%= TypeName.UpperCamel %>(ctx, items[i])
+	}
+	return items
+}
+
+func Test<%= TypeName.UpperCamel %>Get(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
+	for _, item := range items {
+		rst, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
+		require.True(t, found)
+		require.Equal(t,
+			nullify.Fill(&item),
+			nullify.Fill(&rst),
+		)
+	}
+}
+func Test<%= TypeName.UpperCamel %>Remove(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
+	for _, item := range items {
+		keeper.Remove<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
+		_, found := keeper.Get<%= TypeName.UpperCamel %>(ctx,
+		    <%= for (i, index) in Indexes { %>item.<%= index.Name.UpperCamel %>,
+            <% } %>
+		)
+		require.False(t, found)
+	}
+}
+
+func Test<%= TypeName.UpperCamel %>GetAll(t *testing.T) {
+	keeper, ctx := keepertest.<%= title(ModuleName) %>Keeper(t)
+	items := createN<%= TypeName.UpperCamel %>(keeper, ctx, 10)
+	require.ElementsMatch(t,
+		nullify.Fill(items),
+		nullify.Fill(keeper.GetAll<%= TypeName.UpperCamel %>(ctx)),
+	)
+}

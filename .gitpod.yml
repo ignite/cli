@@ -6,12 +6,15 @@ checkoutLocation: "starport"
 workspaceLocation: "./starport/.gitpod"
 
 tasks:
+  - name: Open the Readme
+    command: gp open readme.md
+
   - name: Setup
 
     init: |
       ##
       ## install Starport
-      go install /workspace/starport/...
+      make -C /workspace/starport install
 
     command: |
       ##
@@ -46,4 +49,5 @@ ports:
   - port: 26657
   - port: 8080
   - port: 7575
+    visibility: public
   - port: 4500

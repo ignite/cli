@@ -9,11 +9,14 @@ import (
 	"github.com/spf13/cobra"
 	"github.com/tendermint/starport/starport/pkg/cliquiz"
 	"github.com/tendermint/starport/starport/pkg/clispinner"
-	"github.com/tendermint/starport/starport/pkg/xrelayer"
+	"github.com/tendermint/starport/starport/pkg/cosmosaccount"
+	"github.com/tendermint/starport/starport/pkg/relayer"
 )
 
 const (
 	flagAdvanced            = "advanced"
+	flagSourceAccount       = "source-account"
+	flagTargetAccount       = "target-account"
 	flagSourceRPC           = "source-rpc"
 	flagTargetRPC           = "target-rpc"
 	flagSourceFaucet        = "source-faucet"
@@ -24,6 +27,8 @@ const (
 	flagTargetVersion       = "target-version"
 	flagSourceGasPrice      = "source-gasprice"
 	flagTargetGasPrice      = "target-gasprice"
+	flagSourceGasLimit      = "source-gaslimit"
+	flagTargetGasLimit      = "target-gaslimit"
 	flagSourceAddressPrefix = "source-prefix"
 	flagTargetAddressPrefix = "target-prefix"
 	flagOrdered             = "ordered"
@@ -36,6 +41,8 @@ const (
 
 	defautSourceGasPrice      = "0.00025stake"
 	defautTargetGasPrice      = "0.025uatom"
+	defautSourceGasLimit      = 300000
+	defautTargetGasLimit      = 300000
 	defautSourceAddressPrefix = "cosmos"
 	defautTargetAddressPrefix = "cosmos"
 )
@@ -61,14 +68,34 @@ func NewRelayerConfigure() *cobra.Command {
 	c.Flags().String(flagTargetVersion, "", "Module version on the target chain")
 	c.Flags().String(flagSourceGasPrice, "", "Gas price used for transactions on source chain")
 	c.Flags().String(flagTargetGasPrice, "", "Gas price used for transactions on target chain")
+	c.Flags().Int64(flagSourceGasLimit, 0, "Gas limit used for transactions on source chain")
+	c.Flags().Int64(flagTargetGasLimit, 0, "Gas limit used for transactions on target chain")
 	c.Flags().String(flagSourceAddressPrefix, "", "Address prefix of the source chain")
 	c.Flags().String(flagTargetAddressPrefix, "", "Address prefix of the target chain")
+	c.Flags().String(flagSourceAccount, "", "Source Account")
+	c.Flags().String(flagTargetAccount, "", "Target Account")
 	c.Flags().Bool(flagOrdered, false, "Set the channel as ordered")
+	c.Flags().AddFlagSet(flagSetKeyringBackend())
 
 	return c
 }
 
-func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
+func relayerConfigureHandler(cmd *cobra.Command, args []string) (err error) {
+	defer func() {
+		err = handleRelayerAccountErr(err)
+	}()
+
+	ca, err := cosmosaccount.New(
+		cosmosaccount.WithKeyringBackend(getKeyringBackend(cmd)),
+	)
+	if err != nil {
+		return err
+	}
+
+	if err := ca.EnsureDefaultAccount(); err != nil {
+		return err
+	}
+
 	s := clispinner.New().Stop()
 	defer s.Stop()
 
@@ -76,12 +103,16 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	// basic configuration
 	var (
+		sourceAccount       string
+		targetAccount       string
 		sourceRPCAddress    string
 		targetRPCAddress    string
 		sourceFaucetAddress string
 		targetFaucetAddress string
 		sourceGasPrice      string
 		targetGasPrice      string
+		sourceGasLimit      int64
+		targetGasLimit      int64
 		sourceAddressPrefix string
 		targetAddressPrefix string
 	)
@@ -96,6 +127,18 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	// questions
 	var (
+		questionSourceAccount = cliquiz.NewQuestion(
+			"Source Account",
+			&sourceAccount,
+			cliquiz.DefaultAnswer(cosmosaccount.DefaultAccount),
+			cliquiz.Required(),
+		)
+		questionTargetAccount = cliquiz.NewQuestion(
+			"Target Account",
+			&targetAccount,
+			cliquiz.DefaultAnswer(cosmosaccount.DefaultAccount),
+			cliquiz.Required(),
+		)
 		questionSourceRPCAddress = cliquiz.NewQuestion(
 			"Source RPC",
 			&sourceRPCAddress,
@@ -119,25 +162,25 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		questionSourcePort = cliquiz.NewQuestion(
 			"Source Port",
 			&sourcePort,
-			cliquiz.DefaultAnswer(xrelayer.TransferPort),
+			cliquiz.DefaultAnswer(relayer.TransferPort),
 			cliquiz.Required(),
 		)
 		questionSourceVersion = cliquiz.NewQuestion(
 			"Source Version",
 			&sourceVersion,
-			cliquiz.DefaultAnswer(xrelayer.TransferVersion),
+			cliquiz.DefaultAnswer(relayer.TransferVersion),
 			cliquiz.Required(),
 		)
 		questionTargetPort = cliquiz.NewQuestion(
 			"Target Port",
 			&targetPort,
-			cliquiz.DefaultAnswer(xrelayer.TransferPort),
+			cliquiz.DefaultAnswer(relayer.TransferPort),
 			cliquiz.Required(),
 		)
 		questionTargetVersion = cliquiz.NewQuestion(
 			"Target Version",
 			&targetVersion,
-			cliquiz.DefaultAnswer(xrelayer.TransferVersion),
+			cliquiz.DefaultAnswer(relayer.TransferVersion),
 			cliquiz.Required(),
 		)
 		questionSourceGasPrice = cliquiz.NewQuestion(
@@ -150,6 +193,18 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 			"Target Gas Price",
 			&targetGasPrice,
 			cliquiz.DefaultAnswer(defautTargetGasPrice),
+			cliquiz.Required(),
+		)
+		questionSourceGasLimit = cliquiz.NewQuestion(
+			"Source Gas Limit",
+			&sourceGasLimit,
+			cliquiz.DefaultAnswer(defautSourceGasLimit),
+			cliquiz.Required(),
+		)
+		questionTargetGasLimit = cliquiz.NewQuestion(
+			"Target Gas Limit",
+			&targetGasLimit,
+			cliquiz.DefaultAnswer(defautTargetGasLimit),
 			cliquiz.Required(),
 		)
 		questionSourceAddressPrefix = cliquiz.NewQuestion(
@@ -168,6 +223,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	// Get flags
 	advanced, err := cmd.Flags().GetBool(flagAdvanced)
+	if err != nil {
+		return err
+	}
+	sourceAccount, err = cmd.Flags().GetString(flagSourceAccount)
+	if err != nil {
+		return err
+	}
+	targetAccount, err = cmd.Flags().GetString(flagTargetAccount)
 	if err != nil {
 		return err
 	}
@@ -211,6 +274,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	if err != nil {
 		return err
 	}
+	sourceGasLimit, err = cmd.Flags().GetInt64(flagSourceGasLimit)
+	if err != nil {
+		return err
+	}
+	targetGasLimit, err = cmd.Flags().GetInt64(flagTargetGasLimit)
+	if err != nil {
+		return err
+	}
 	sourceAddressPrefix, err = cmd.Flags().GetString(flagSourceAddressPrefix)
 	if err != nil {
 		return err
@@ -227,6 +298,12 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	var questions []cliquiz.Question
 
 	// get information from prompt if flag not provided
+	if sourceAccount == "" {
+		questions = append(questions, questionSourceAccount)
+	}
+	if targetAccount == "" {
+		questions = append(questions, questionTargetAccount)
+	}
 	if sourceRPCAddress == "" {
 		questions = append(questions, questionSourceRPCAddress)
 	}
@@ -244,6 +321,12 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	}
 	if targetGasPrice == "" {
 		questions = append(questions, questionTargetGasPrice)
+	}
+	if sourceGasLimit == 0 {
+		questions = append(questions, questionSourceGasLimit)
+	}
+	if targetGasLimit == 0 {
+		questions = append(questions, questionTargetGasLimit)
 	}
 	if sourceAddressPrefix == "" {
 		questions = append(questions, questionSourceAddressPrefix)
@@ -273,17 +356,22 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 		}
 	}
 
+	r := relayer.New(ca)
+
 	fmt.Println()
 	s.SetText("Fetching chain info...")
 
 	// initialize the chains
 	sourceChain, err := initChain(
 		cmd,
+		r,
 		s,
 		relayerSource,
+		sourceAccount,
 		sourceRPCAddress,
 		sourceFaucetAddress,
 		sourceGasPrice,
+		sourceGasLimit,
 		sourceAddressPrefix,
 	)
 	if err != nil {
@@ -292,11 +380,14 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 
 	targetChain, err := initChain(
 		cmd,
+		r,
 		s,
 		relayerTarget,
+		targetAccount,
 		targetRPCAddress,
 		targetFaucetAddress,
 		targetGasPrice,
+		targetGasLimit,
 		targetAddressPrefix,
 	)
 	if err != nil {
@@ -306,65 +397,67 @@ func relayerConfigureHandler(cmd *cobra.Command, args []string) error {
 	s.SetText("Configuring...").Start()
 
 	// sets advanced channel options
-	var channelOptions []xrelayer.ChannelOption
+	var channelOptions []relayer.ChannelOption
 	if advanced {
 		channelOptions = append(channelOptions,
-			xrelayer.SourcePort(sourcePort),
-			xrelayer.SourceVersion(sourceVersion),
-			xrelayer.TargetPort(targetPort),
-			xrelayer.TargetVersion(targetVersion),
+			relayer.SourcePort(sourcePort),
+			relayer.SourceVersion(sourceVersion),
+			relayer.TargetPort(targetPort),
+			relayer.TargetVersion(targetVersion),
 		)
 
 		if ordered {
-			channelOptions = append(channelOptions, xrelayer.Ordered())
+			channelOptions = append(channelOptions, relayer.Ordered())
 		}
 	}
 
 	// create the connection configuration
-	path, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
+	id, err := sourceChain.Connect(cmd.Context(), targetChain, channelOptions...)
 	if err != nil {
 		return err
 	}
 
 	s.Stop()
 
-	info, err := xrelayer.Info(cmd.Context())
-	if err != nil {
-		return err
-	}
-
-	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(path.ID))
-	fmt.Printf(`Note: mnemonics for relayer accounts are stored in %s unencrypted.
-This may change in the future. Until then, use them only for small amounts of tokens.
-`, info.ConfigPath)
+	fmt.Printf("⛓  Configured chains: %s\n\n", color.Green.Sprint(id))
 
 	return nil
 }
 
 // initChain initializes chain information for the relayer connection
-func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetAddr, gasPrice, addressPrefix string) (*xrelayer.Chain, error) {
+func initChain(
+	cmd *cobra.Command,
+	r relayer.Relayer,
+	s *clispinner.Spinner,
+	name,
+	accountName,
+	rpcAddr,
+	faucetAddr,
+	gasPrice string,
+	gasLimit int64,
+	addressPrefix string,
+) (*relayer.Chain, error) {
 	defer s.Stop()
 	s.SetText("Initializing chain...").Start()
 
-	c, err := xrelayer.NewChain(
+	c, account, err := r.NewChain(
 		cmd.Context(),
+		accountName,
 		rpcAddr,
-		xrelayer.WithFaucet(faucetAddr),
-		xrelayer.WithGasPrice(gasPrice),
-		xrelayer.WithAddressPrefix(addressPrefix),
+		relayer.WithFaucet(faucetAddr),
+		relayer.WithGasPrice(gasPrice),
+		relayer.WithGasLimit(gasLimit),
+		relayer.WithAddressPrefix(addressPrefix),
 	)
 	if err != nil {
 		return nil, errors.Wrapf(err, "cannot resolve %s", name)
 	}
 
-	account, err := c.Account(cmd.Context())
-	if err != nil {
-		return nil, err
-	}
-
 	s.Stop()
 
-	fmt.Printf("🔐  Account on %q is %q\n \n", name, account.Address)
+	accountAddr := account.Address(addressPrefix)
+
+	fmt.Printf("🔐  Account on %q is %s(%s)\n \n", name, accountName, accountAddr)
 	s.
 		SetCharset(spinner.CharSets[9]).
 		SetColor("white").
@@ -372,7 +465,7 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 		SetText(color.Yellow.Sprintf("trying to receive tokens from a faucet...")).
 		Start()
 
-	err = c.TryFaucet(cmd.Context())
+	coins, err := c.TryRetrieve(cmd.Context())
 	s.Stop()
 
 	fmt.Print(" |· ")
@@ -382,10 +475,6 @@ func initChain(cmd *cobra.Command, s *clispinner.Spinner, name, rpcAddr, faucetA
 		fmt.Println(color.Green.Sprintf("received coins from a faucet"))
 	}
 
-	coins, err := c.Balance(cmd.Context())
-	if err != nil {
-		return nil, err
-	}
 	balance := coins.String()
 	if balance == "" {
 		balance = "-"

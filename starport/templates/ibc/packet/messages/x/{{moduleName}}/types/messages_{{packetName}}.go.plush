@@ -5,49 +5,60 @@ import (
 	sdkerrors "github.com/cosmos/cosmos-sdk/types/errors"
 )
 
-var _ sdk.Msg = &MsgSend<%= title(packetName) %>{}
+const TypeMsgSend<%= packetName.UpperCamel %> = "send_<%= packetName.Snake %>"
 
-func NewMsgSend<%= title(packetName) %>(
-    sender string,
+var _ sdk.Msg = &MsgSend<%= packetName.UpperCamel %>{}
+
+func NewMsgSend<%= packetName.UpperCamel %>(
+    <%= MsgSigner.LowerCamel %> string,
     port string,
     channelID string,
     timeoutTimestamp uint64,<%= for (field) in fields { %>
-    <%= field.Name %> <%= field.Datatype %>,<% } %>
-) *MsgSend<%= title(packetName) %> {
-    return &MsgSend<%= title(packetName) %>{
-		Sender: sender,
+    <%= field.Name.LowerCamel %> <%= field.DataType() %>,<% } %>
+) *MsgSend<%= packetName.UpperCamel %> {
+    return &MsgSend<%= packetName.UpperCamel %>{
+		<%= MsgSigner.UpperCamel %>: <%= MsgSigner.LowerCamel %>,
 		Port: port,
 		ChannelID: channelID,
 		TimeoutTimestamp: timeoutTimestamp,<%= for (field) in fields { %>
-        <%= title(field.Name) %>: <%= field.Name %>,<% } %>
+        <%= field.Name.UpperCamel %>: <%= field.Name.LowerCamel %>,<% } %>
 	}
 }
 
-func (msg *MsgSend<%= title(packetName) %>) Route() string {
+func (msg *MsgSend<%= packetName.UpperCamel %>) Route() string {
     return RouterKey
 }
 
-func (msg *MsgSend<%= title(packetName) %>) Type() string {
-    return "Send<%= title(packetName) %>"
+func (msg *MsgSend<%= packetName.UpperCamel %>) Type() string {
+    return TypeMsgSend<%= packetName.UpperCamel %>
 }
 
-func (msg *MsgSend<%= title(packetName) %>) GetSigners() []sdk.AccAddress {
-    sender, err := sdk.AccAddressFromBech32(msg.Sender)
+func (msg *MsgSend<%= packetName.UpperCamel %>) GetSigners() []sdk.AccAddress {
+    <%= MsgSigner.LowerCamel %>, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {
         panic(err)
     }
-    return []sdk.AccAddress{sender}
+    return []sdk.AccAddress{<%= MsgSigner.LowerCamel %>}
 }
 
-func (msg *MsgSend<%= title(packetName) %>) GetSignBytes() []byte {
+func (msg *MsgSend<%= packetName.UpperCamel %>) GetSignBytes() []byte {
     bz := ModuleCdc.MustMarshalJSON(msg)
     return sdk.MustSortJSON(bz)
 }
 
-func (msg *MsgSend<%= title(packetName) %>) ValidateBasic() error {
-    _, err := sdk.AccAddressFromBech32(msg.Sender)
+func (msg *MsgSend<%= packetName.UpperCamel %>) ValidateBasic() error {
+    _, err := sdk.AccAddressFromBech32(msg.<%= MsgSigner.UpperCamel %>)
     if err != nil {
-        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid sender address (%s)", err)
+        return sdkerrors.Wrapf(sdkerrors.ErrInvalidAddress, "invalid <%= MsgSigner.LowerCamel %> address (%s)", err)
     }
+	if msg.Port == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet port")
+	}
+	if msg.ChannelID == "" {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet channel")
+	}
+	if msg.TimeoutTimestamp == 0 {
+		return sdkerrors.Wrap(sdkerrors.ErrInvalidRequest, "invalid packet timeout")
+	}
     return nil
 }

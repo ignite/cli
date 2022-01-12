@@ -2,20 +2,21 @@ package message
 
 import (
 	"embed"
-	"strings"
 
 	"github.com/gobuffalo/genny"
 	"github.com/gobuffalo/packd"
 	"github.com/gobuffalo/plush"
 	"github.com/gobuffalo/plushgen"
-	"github.com/tendermint/starport/starport/pkg/xgenny"
+	"github.com/tendermint/starport/starport/templates/field/plushhelpers"
+	"github.com/tendermint/starport/starport/templates/testutil"
 )
 
 var (
-	//go:embed stargate/* stargate/**/*
-	fsStargate embed.FS
+	//go:embed stargate/message/* stargate/message/**/*
+	fsStargateMessage embed.FS
 
-	stargateTemplate = xgenny.NewEmbedWalker(fsStargate, "stargate/")
+	//go:embed stargate/simapp/* stargate/simapp/**/*
+	fsStargateSimapp embed.FS
 )
 
 func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
@@ -27,14 +28,21 @@ func Box(box packd.Walker, opts *Options, g *genny.Generator) error {
 	ctx.Set("AppName", opts.AppName)
 	ctx.Set("MsgName", opts.MsgName)
 	ctx.Set("MsgDesc", opts.MsgDesc)
+	ctx.Set("MsgSigner", opts.MsgSigner)
 	ctx.Set("OwnerName", opts.OwnerName)
 	ctx.Set("ModulePath", opts.ModulePath)
 	ctx.Set("Fields", opts.Fields)
 	ctx.Set("ResFields", opts.ResFields)
-	ctx.Set("title", strings.Title)
+
+	plushhelpers.ExtendPlushContext(ctx)
 	g.Transformer(plushgen.Transformer(ctx))
 	g.Transformer(genny.Replace("{{moduleName}}", opts.ModuleName))
-	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName))
-	g.Transformer(genny.Replace("{{MsgName}}", strings.Title(opts.MsgName)))
+	g.Transformer(genny.Replace("{{msgName}}", opts.MsgName.Snake))
+
+	// Create the 'testutil' package with the test helpers
+	if err := testutil.Register(g, opts.AppPath); err != nil {
+		return err
+	}
+
 	return nil
 }

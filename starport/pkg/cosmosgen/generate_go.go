@@ -1,7 +1,6 @@
 package cosmosgen
 
 import (
-	"io/ioutil"
 	"os"
 	"path/filepath"
 
@@ -27,7 +26,7 @@ func (g *generator) generateGo() error {
 	// created a temporary dir to locate generated code under which later only some of them will be moved to the
 	// app's source code. this also prevents having leftover files in the app's source code or its parent dir -when
 	// command executed directly there- in case of an interrupt.
-	tmp, err := ioutil.TempDir("", "")
+	tmp, err := os.MkdirTemp("", "")
 	if err != nil {
 		return err
 	}
@@ -35,7 +34,7 @@ func (g *generator) generateGo() error {
 
 	// discover proto packages in the app.
 	pp := filepath.Join(g.appPath, g.protoDir)
-	pkgs, err := protoanalysis.Parse(g.ctx, protoanalysis.PatternRecursive(pp))
+	pkgs, err := protoanalysis.Parse(g.ctx, nil, pp)
 	if err != nil {
 		return err
 	}
@@ -53,10 +52,12 @@ func (g *generator) generateGo() error {
 	_, err = os.Stat(generatedPath)
 	if err == nil {
 		err = copy.Copy(generatedPath, g.appPath)
-		return errors.Wrap(err, "cannot copy path")
-	}
-	if !os.IsNotExist(err) {
+		if err != nil {
+			return errors.Wrap(err, "cannot copy path")
+		}
+	} else if !os.IsNotExist(err) {
 		return err
 	}
+
 	return nil
 }

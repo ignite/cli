@@ -1,0 +1,23 @@
+package types
+
+import "encoding/binary"
+
+var _ binary.ByteOrder
+
+const (
+    // <%= TypeName.UpperCamel %>KeyPrefix is the prefix to retrieve all <%= TypeName.UpperCamel %>
+	<%= TypeName.UpperCamel %>KeyPrefix = "<%= TypeName.UpperCamel %>/value/"
+)
+
+// <%= TypeName.UpperCamel %>Key returns the store key to retrieve a <%= TypeName.UpperCamel %> from the index fields
+func <%= TypeName.UpperCamel %>Key(
+<%= for (i, index) in Indexes { %><%= index.Name.LowerCamel %> <%= index.DataType() %>,
+<% } %>) []byte {
+	var key []byte
+    <%= for (i, index) in Indexes { %>
+    <%= index.ToBytes(index.Name.LowerCamel) %>
+    key = append(key, <%= index.Name.LowerCamel %>Bytes...)
+    key = append(key, []byte("/")...)
+    <% } %>
+	return key
+}
