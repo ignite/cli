@@ -22,6 +22,14 @@ By completing this tutorial, you will learn about:
 
 **Note:** All the functions in this chapter can be scaffolded with a single command but instead we will learn how to add each functionality individually. 
 
+## Prerequisites 
+
+This series of tutorials is based on a specific version of Starport, so to install Starport v0.19.1 use the following command:
+
+```bash
+curl https://get.starport.network/starport@v0.19.1! | bash
+```
+
 ## Create Your Blog Chain
 
 First, create a new blockchain.
@@ -342,7 +350,7 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 2. Add pagination to the post request:
 
-    ```
+    ```go
     message QueryPostsRequest {
       // Adding pagination to request
       cosmos.base.query.v1beta1.PageRequest pagination = 1;
@@ -351,7 +359,7 @@ To define the types in proto files, make the following updates in `proto/blog/qu
 
 3. Add pagination to the post response:
 
-    ```
+    ```go
     message QueryPostsResponse {
       // Returning a list of posts
       repeated Post Post = 1;
@@ -360,7 +368,7 @@ To define the types in proto files, make the following updates in `proto/blog/qu
     }
     ```
 
-To implement post querying logic in the `grpc_query_posts.go` file, delete the contents of that file and replace with:
+To implement post querying logic in the `grpc_query_posts.go` file, delete the contents of that file and replace it with:
 
 ```go
 package keeper
@@ -429,6 +437,7 @@ In the `x/blog/module.go` file:
     }
     ```
 
+3. Now that you've modified the file with the two updates, now it's safe to save the file. 
 
 ## Use the CLI to Create a Post
 
@@ -454,7 +463,7 @@ Type `y` to sign the transaction:
 {"height":"2828","txhash":"E04A712E65B0F6F30F5DC291A6552B69F6CB3F77761F28AFFF8EAA535EC4C589","codespace":"","code":0,"data":"0A100A0A437265617465506F737412020801","raw_log":"[{\"events\":[{\"type\":\"message\",\"attributes\":[{\"key\":\"action\",\"value\":\"CreatePost\"}]}]}]","logs":[{"msg_index":0,"log":"","events":[{"type":"message","attributes":[{"key":"action","value":"CreatePost"}]}]}],"info":"","gas_wanted":"200000","gas_used":"44674","tx":null,"timestamp":""}
 ```
 
-Congratulations, you built a chain binary and used it to create a blog post.
+Congratulations, you built a chain binary and used the `blogd` binary CLI to create a blog post.
 
 ## Use the CLI to Query a Post
 
@@ -464,13 +473,8 @@ To query the list of all on-chain posts:
 blogd q blog posts
 ```
 
-The result: <!--what I see-->
+The result: 
 
-```
-Post: []
-pagination: null
-```
-<!-- what was expected?
 ```bash
 Post:
 - body: bar
@@ -481,7 +485,6 @@ pagination:
   next_key: null
   total: "1"
 ```
--->
 
 ## Conclusion
 
