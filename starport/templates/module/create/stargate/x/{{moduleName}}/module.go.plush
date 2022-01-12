@@ -19,7 +19,7 @@ import (
 	"<%= modulePath %>/x/<%= moduleName %>/keeper"
 	"<%= modulePath %>/x/<%= moduleName %>/types"
 	"<%= modulePath %>/x/<%= moduleName %>/client/cli"
-	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/modules/core/05-port/types"<% } %>
+	<%= if (isIBC) { %>porttypes "github.com/cosmos/ibc-go/v2/modules/core/05-port/types"<% } %>
 )
 
 var (
@@ -174,4 +174,18 @@ func (am AppModule) BeginBlock(_ sdk.Context, _ abci.RequestBeginBlock) {}
 // returns no validator updates.
 func (am AppModule) EndBlock(_ sdk.Context, _ abci.RequestEndBlock) []abci.ValidatorUpdate {
 	return []abci.ValidatorUpdate{}
+}
+
+// NegotiateAppVersion performs application version negotiation given the provided channel ordering, connectionID, portID, counterparty and proposed version.
+// An error is returned if version negotiation cannot be performed. For example, an application module implementing this interface
+// may decide to return an error in the event of the proposed version being incompatible with it's own
+func (am AppModule) NegotiateAppVersion(
+	ctx sdk.Context,
+	order channeltypes.Order,
+	connectionID string,
+	portID string,
+	counterparty channeltypes.Counterparty,
+	proposedVersion string,
+) (version string, err error) {
+	return "", nil
 }

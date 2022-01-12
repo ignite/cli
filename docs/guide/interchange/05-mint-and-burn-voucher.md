@@ -28,7 +28,7 @@ package keeper
 import (
   "fmt"
   sdk "github.com/cosmos/cosmos-sdk/types"
-  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+  ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
   "github.com/cosmonaut/interchange/x/dex/types"
   "strings"
 )
@@ -79,7 +79,7 @@ func (k Keeper) BurnTokens(ctx sdk.Context, sender sdk.AccAddress, tokens sdk.Co
 }
 ```
 
-Implement the `LockTokens` keeper method. 
+Implement the `LockTokens` keeper method.
 
 To lock token from a native chain, you can send the native token to the Escrow Address:
 
@@ -98,7 +98,7 @@ func (k Keeper) LockTokens(ctx sdk.Context, sourcePort string, sourceChannel str
 }
 ```
 
-`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the `bank` module. 
+`BurnTokens` and `LockTokens` use `SendCoinsFromAccountToModule`, `BurnCoins`, and `SendCoins` keeper methods of the `bank` module.
 
 To start using these function from the `dex` module, first add them to the `BankKeeper` interface in the `expected_keepers.go` file.
 
@@ -116,7 +116,7 @@ type BankKeeper interface {
 }
 ```
 
-## SaveVoucherDenom 
+## SaveVoucherDenom
 
 The `SaveVoucherDenom` function saves the voucher denom to be able to convert it back later.
 
@@ -148,7 +148,7 @@ Finally, the last function to implement is the `VoucherDenom` function that retu
 // x/dex/keeper/denom.go
 import (
   // ...
-  ibctransfertypes "github.com/cosmos/ibc-go/modules/apps/transfer/types"
+  ibctransfertypes "github.com/cosmos/ibc-go/v2/modules/apps/transfer/types"
 )
 
 func VoucherDenom(port string, channel string, denom string) string {
@@ -165,7 +165,7 @@ func VoucherDenom(port string, channel string, denom string) string {
 
 ### Implement an OriginalDenom Function
 
-The `OriginalDenom` function returns back the original denom of the voucher. 
+The `OriginalDenom` function returns back the original denom of the voucher.
 
 False is returned if the port ID and channel ID provided are not the origins of the voucher:
 
