@@ -15,7 +15,6 @@ import (
 	"github.com/tendermint/starport/starport/pkg/chaincmd"
 	"github.com/tendermint/starport/starport/pkg/cmdrunner/step"
 	"github.com/tendermint/starport/starport/pkg/cosmosver"
-	"gopkg.in/yaml.v2"
 )
 
 // Start starts the blockchain.
@@ -189,25 +188,16 @@ func (r Runner) BankSend(ctx context.Context, fromAccount, toAccount, amount str
 		return "", err
 	}
 
-	out := struct {
-		Code   int    `json:"code"`
-		Error  string `json:"raw_log"`
-		TxHash string `json:"txhash"`
-	}{}
-
-	data, err := b.JSONEnsuredBytes()
+	txResult, err := decodeTxResult(b)
 	if err != nil {
 		return "", err
 	}
-	if err := json.Unmarshal(data, &out); err != nil {
-		return "", err
+
+	if txResult.Code > 0 {
+		return "", fmt.Errorf("cannot send tokens (SDK code %d): %s", txResult.Code, txResult.RawLog)
 	}
 
-	if out.Code > 0 {
-		return "", fmt.Errorf("cannot send tokens (SDK code %d): %s", out.Code, out.Error)
-	}
-
-	return out.TxHash, nil
+	return txResult.TxHash, nil
 }
 
 // WaitTx waits until a tx is successfully added to a block and can be queried
@@ -216,8 +206,8 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 
 	// retry querying the request
 	checkTx := func() error {
-		stdout := &bytes.Buffer{}
-		if err := r.run(ctx, runOptions{stdout: stdout}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
+		b := newBuffer()
+		if err := r.run(ctx, runOptions{stdout: b}, r.chainCmd.QueryTxCommand(txHash)); err != nil {
 			// filter not found error and check for max retry
 			if !strings.Contains(err.Error(), "not found") {
 				return backoff.Permanent(err)
@@ -230,13 +220,9 @@ func (r Runner) WaitTx(ctx context.Context, txHash string, retryDelay time.Durat
 		}
 
 		// parse tx and check code
-		txResult := struct {
-			Code   int    `yaml:"code"`
-			RawLog string `yaml:"raw_log"`
-		}{}
-		err := yaml.Unmarshal(stdout.Bytes(), &txResult)
+		txResult, err := decodeTxResult(b)
 		if err != nil {
-			return backoff.Permanent(errors.Wrap(err, "failed to parse tx result"))
+			return backoff.Permanent(err)
 		}
 		if txResult.Code != 0 {
 			return backoff.Permanent(fmt.Errorf("tx %s failed: %s", txHash, txResult.RawLog))
