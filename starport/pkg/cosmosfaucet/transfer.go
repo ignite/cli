@@ -3,15 +3,19 @@ package cosmosfaucet
 import (
 	"context"
 	"fmt"
-	"strconv"
 	"strings"
+	"sync"
 	"time"
 
+	sdk "github.com/cosmos/cosmos-sdk/types"
 	chaincmdrunner "github.com/tendermint/starport/starport/pkg/chaincmd/runner"
 )
 
+// transferMutex is a mutex used for keeping transfer requests in a queue so checking account balance and sending tokens is atomic
+var transferMutex = &sync.Mutex{}
+
 // TotalTransferredAmount returns the total transferred amount from faucet account to toAccountAddress.
-func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (amount uint64, err error) {
+func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, denom string) (totalAmount uint64, err error) {
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return 0, err
@@ -28,47 +32,61 @@ func (f Faucet) TotalTransferredAmount(ctx context.Context, toAccountAddress, de
 		if event.Type == "transfer" {
 			for _, attr := range event.Attributes {
 				if attr.Key == "amount" {
-					if !strings.HasSuffix(attr.Value, denom) {
-						continue
+					coins, err := sdk.ParseCoinsNormalized(attr.Value)
+					if err != nil {
+						return 0, err
 					}
 
-					if time.Since(event.Time) < f.limitRefreshWindow {
-						amountStr := strings.TrimRight(attr.Value, denom)
-						if a, err := strconv.ParseUint(amountStr, 10, 64); err == nil {
-							amount += a
-						}
+					amount := coins.AmountOf(denom).Uint64()
+
+					if amount > 0 && time.Since(event.Time) < f.limitRefreshWindow {
+						totalAmount += amount
 					}
 				}
 			}
 		}
 	}
 
-	return amount, nil
+	return totalAmount, nil
 }
 
 // Transfer transfer amount of tokens from the faucet account to toAccountAddress.
-func (f Faucet) Transfer(ctx context.Context, toAccountAddress string, amount uint64, denom string) error {
-	amountStr := fmt.Sprintf("%d%s", amount, denom)
+func (f *Faucet) Transfer(ctx context.Context, toAccountAddress string, coins sdk.Coins) error {
+	transferMutex.Lock()
+	defer transferMutex.Unlock()
 
-	totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, denom)
-	if err != nil {
-		return err
-	}
+	var coinsStr []string
 
-	if f.coinsMax[denom] != 0 {
-		if totalSent >= f.coinsMax[denom] {
-			return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[denom])
+	// check for each coin, the max transferred amount hasn't been reached
+	for _, c := range coins {
+		totalSent, err := f.TotalTransferredAmount(ctx, toAccountAddress, c.Denom)
+		if err != nil {
+			return err
 		}
 
-		if (totalSent + amount) >= f.coinsMax[denom] {
-			return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[denom])
+		if f.coinsMax[c.Denom] != 0 {
+			if totalSent >= f.coinsMax[c.Denom] {
+				return fmt.Errorf("account has reached maximum credit allowed per account (%d)", f.coinsMax[c.Denom])
+			}
+
+			if (totalSent + c.Amount.Uint64()) >= f.coinsMax[c.Denom] {
+				return fmt.Errorf("account is about to reach maximum credit allowed per account. it can only receive up to (%d) in total", f.coinsMax[c.Denom])
+			}
 		}
+
+		coinsStr = append(coinsStr, c.String())
 	}
 
+	// perform transfer for all coins
 	fromAccount, err := f.runner.ShowAccount(ctx, f.accountName)
 	if err != nil {
 		return err
 	}
+	txHash, err := f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, strings.Join(coinsStr, ","))
+	if err != nil {
+		return err
+	}
 
-	return f.runner.BankSend(ctx, fromAccount.Address, toAccountAddress, amountStr)
+	// wait for the send tx to be confirmed
+	return f.runner.WaitTx(ctx, txHash, time.Second, 30)
 }
