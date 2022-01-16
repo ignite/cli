@@ -93,7 +93,7 @@ create x/blog/types/message_create_comment_test.go
 
 As always, start your development with a proto file. 
 
-In the `proto/blog/tx.proto` file, edit `MsgCreateComment.go` to:
+In the `proto/blog/tx.proto` file, edit `MsgCreateComment` to:
 
 - Add `createdAt`
 - Define the `id` for `message MsgCreateCommentResponse`:
@@ -104,8 +104,7 @@ message MsgCreateComment {
   int32 blogID = 2;
   string title = 3;
   string body = 4;
-  int64 createdAt = 5;
-  uint64 id = 6;
+  uint64 id = 5;
 }
 
 message MsgCreateCommentResponse {
@@ -113,20 +112,20 @@ message MsgCreateCommentResponse {
 }
 ```
 
- You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, blogID and createdAt. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
+ You see in the `proto/blog/tx.proto` file that the `MsgCreateComment` has five fields: creator, title, body, blogID, and id. Since the purpose of the `MsgCreateComment` message is to create new comments in the store, the only thing the message needs to return is an ID of a created comments. The `CreateComment` rpc was already added to the `Msg` service:
 
 ```go
 rpc CreateComment(MsgCreateComment) returns (MsgCreateCommentResponse);
 ```
 
-Now, add the `createdAt` field to `MsgCreatePost`: 
+Now, add the `id` field to `MsgCreatePost`: 
 
 ```go
 message MsgCreatePost {
   string creator = 1;
   string title = 2;
   string body = 3;
-  int64 createdAt = 4;
+  uint64 id = 4;
 }
 ```
 
@@ -356,24 +355,6 @@ package keeper
  }
 ```
 
-## Write Data to the Store
-
-Inside the `x/blog/keeper/comment.go`, make modifications to implement `GetComment`:
-
-```go
-func (k Keeper) GetComment(ctx sdk.Context, id uint64) (comment types.Comment) {
- 	// Get the store using storeKey (which is "blog") and PostKey (which is "Post-")
- 	store := prefix.NewStore(ctx.KVStore(k.storeKey), []byte(types.CommentKey))
- 	// Convert the post ID into bytes
- 	byteKey := make([]byte, 8)
- 	binary.BigEndian.PutUint64(byteKey, id)
- 	// Get the post bytes using post ID as a key
- 	bz := store.Get(byteKey)
- 	// Unmarshal the post bytes into the post object
- 	k.cdc.MustUnmarshal(bz, &comment)
- 	return comment
-}
-``` 
 
 ## Display Posts
 
@@ -381,14 +362,6 @@ Implement logic to query existing posts:
 
 ```bash
 starport scaffold query comments id:uint --response title,body
-```
-
-Very similar to the previous blog tutorial, you need to make changes to `proto/blog/query.proto`.
-
-Verify that the comment proto is in `import`:
-
-```go
-import "blog/comment.proto";
 ```
 
 Also in `proto/blog/query.proto`, make these updates:
