@@ -11,7 +11,7 @@ import (
 	storetypes "github.com/cosmos/cosmos-sdk/store/types"
 	sdk "github.com/cosmos/cosmos-sdk/types"
 	capabilitykeeper "github.com/cosmos/cosmos-sdk/x/capability/keeper"
-	ibckeeper "github.com/cosmos/ibc-go/modules/core/keeper"
+	ibckeeper "github.com/cosmos/ibc-go/v2/modules/core/keeper"
 	typesparams "github.com/cosmos/cosmos-sdk/x/params/types"
 	"github.com/stretchr/testify/require"
 	"github.com/tendermint/tendermint/libs/log"

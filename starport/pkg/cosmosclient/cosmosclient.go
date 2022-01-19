@@ -350,11 +350,6 @@ func (c *Client) makeSureAccountHasTokens(ctx context.Context, address string) e
 	if faucetResp.Error != "" {
 		return errors.Wrap(errCannotRetrieveFundsFromFaucet, faucetResp.Error)
 	}
-	for _, transfer := range faucetResp.Transfers {
-		if transfer.Error != "" {
-			return errors.Wrap(errCannotRetrieveFundsFromFaucet, transfer.Error)
-		}
-	}
 
 	// make sure funds are retrieved.
 	ctx, cancel := context.WithTimeout(ctx, FaucetTransferEnsureDuration)
