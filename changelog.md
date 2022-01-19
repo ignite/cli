@@ -1,6 +1,29 @@
 # Changelog
 
-## Unreleased
+## [`v0.19.2`](https://github.com/tendermint/starport/milestone/14)
+
+### Fixes:
+
+- Fixed race condition during faucet transfer.
+- Fixed account sequence mistmatch issue on faucet and relayer.
+- Fixed templates for IBC code scaffolding.
+
+### Features:
+
+- Upgraded templates to use IBC v2.0.2. 
+
+### Breaking Changes:
+
+- Deprecated `tendermint/spm` and moved its content to this repo under `pkg/`.
+- Updated faucet's HTTP API schema, see changes on the API from [here](https://github.com/tendermint/starport/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd).
+
+## `v0.19.1`
+
+### Fixes:
+
+- Enabled `scaffold flutter` cmd.
+
+## `v0.19.0`
 
 ### Features:
 
