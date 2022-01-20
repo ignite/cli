@@ -21,6 +21,7 @@
     - `spm/ibckeeper` is now `pkg/cosmosibckeeper`
     - `spm/cosmoscmd` is now `pkg/cosmoscmd` 
     - `spm/openapiconsole` is now `pkg/openapiconsole`
+    - `testutil/sample` is now `cosmostestutil/sample`
 
 - Updated the faucet HTTP API schema. See API changes in [fix: improve faucet reliability #1974](https://github.com/tendermint/starport/pull/1974/files#diff-0e157f4f60d6fbd95e695764df176c8978d85f1df61475fbfa30edef62fe35cd)
 
@@ -288,7 +289,7 @@
 
 - Added experimental [Stargate](https://stargate.cosmos.network/) scaffolding option with `--sdk-version stargate` flag on `starport app` command
 - Pi Image Generation for chains generated with Starport
-- Github action with capture of binary artifacts for chains generted with starport
+- Github action with capture of binary artifacts for chains generated with Starport
 - Gitpod: added guidelines and changed working directory into `docs`
 - Updated web scaffold with an improved sign in, balance list and a simple wallet
 - Added CRUD actions for scaffolded types: delete, update, and get

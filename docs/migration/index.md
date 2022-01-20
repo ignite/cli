@@ -17,4 +17,4 @@ To migrate your chain that was scaffolded with Starport versions lower than v0.1
 
 1. **IBC upgrade**: Apply the changes that are introduced in PR [#1975](https://github.com/tendermint/starport/pull/1975/files) to your chain.
 
-2. Upgrade your chain's `go.mod` file to remove `tendermint/spm` and addn the v0.19.2 version of `tendermint/starport`.
+2. Upgrade your chain's `go.mod` file to remove `tendermint/spm` and add the v0.19.2 version of `tendermint/starport`.
