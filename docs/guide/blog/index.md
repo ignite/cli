@@ -24,10 +24,10 @@ By completing this tutorial, you will learn about:
 
 ## Prerequisites 
 
-This series of tutorials is based on a specific version of Starport, so to install Starport v0.19.1 use the following command:
+This series of blog tutorials is based on a specific version of Starport, so to install Starport v0.19.2 use the following command:
 
 ```bash
-curl https://get.starport.network/starport@v0.19.1! | bash
+curl https://get.starport.network/starport@v0.19.2! | bash
 ```
 
 ## Create Your Blog Chain
