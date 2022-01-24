@@ -1,7 +1,7 @@
 ---
 order: 4
 description: Primary configuration file to describe the development environment for your blockchain.
-title: "config.yml Reference"
+title: config.yml reference
 ---
 
 # config.yml reference

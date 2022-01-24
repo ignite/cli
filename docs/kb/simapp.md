@@ -4,17 +4,17 @@ description: Test different scenarios for your chain.
 
 ---
 
-# Chain Simulation
+# Chain simulation
 
-The Starport chain simulator can help you to run your chain based in randomized inputs for you can make fuzz testing and also benchmark test for your chain, simulating the messages, blocks, and accounts. You can scaffold a template to perform simulation testing in each module along with a boilerplate simulation methods for each scaffolded message.
+The Starport chain simulator can help you to run your chain based on randomized inputs so you can conduct fuzz testing. You can also conduct benchmark tests for your chain, simulating the messages, blocks, and accounts. You can scaffold a template to perform simulation testing in each module along with boilerplate simulation methods for each scaffolded message.
 
-## Module Simulation
+## Module simulation
 
 Every new module that is scaffolded with Starport implements the Cosmos SDK [Module Simulation](https://docs.cosmos.network/master/building-modules/simulator.html). 
 
 - Each new message creates a file with the simulation methods required for the tests. 
-- Scaffolding a `CRUD` like a `list` or `map` creates a simulation file with `create`, `update`, and `delete` simulation methods in the `x/<module>/simulation` folder and registers these methods in `x/<module>/module_simulation.go`. 
-- Scaffolding a single message creates an empty simulation method to be implemented by the user. 
+- Scaffolding a `CRUD` type like a `list` or `map` creates a simulation file with `create`, `update`, and `delete` simulation methods in the `x/<module>/simulation` folder and registers these methods in `x/<module>/module_simulation.go`. 
+- Scaffolding a single message creates an empty simulation method to be implemented by the user.
 
 We recommend that you maintain the simulation methods for each new modification into the message keeper methods.
 
@@ -22,7 +22,7 @@ Every simulation is weighted because the sender of the operation is assigned ran
 
 For better randomizations, you can define a random seed. The simulation with the same random seed is deterministic with the same output.
 
-## Scaffold a Simulation
+## Scaffold a simulation
 
 To create a new chain:
 
@@ -64,7 +64,7 @@ The default `go test` command works to run the simulation:
 go test -v -benchmem -run=^$ -bench ^BenchmarkSimulation -cpuprofile cpu.out ./app -Commit=true
 ```
 
-### Skip Message
+### Skip message
 
 Use logic to avoid sending a message without returning an error. Return only `simtypes.NoOpMsg(...)` into the simulation message handler.
 
@@ -80,10 +80,11 @@ After the parameters are scaffolded, change the `x/<module>/module_simulation.go
 
 ## Invariants
 
-Simulating a chain can help you prevent [chain invariants errors](https://docs.cosmos.network/master/building-modules/invariants.html); an invariant is a function called by the chain to check if something broke, invalidating the chain data.
-To create a new invariant and check the chain integrity, you should create a method to validate the invariants and register all invariants.
+Simulating a chain can help you prevent [chain invariants errors](https://docs.cosmos.network/master/building-modules/invariants.html). An invariant is a function called by the chain to check if something broke, invalidating the chain data.
+To create a new invariant and check the chain integrity, you must create a method to validate the invariants and register all invariants.
 
-e.g.: `x/earth/keeper/invariants.go`
+For example, in `x/earth/keeper/invariants.go`:
+
 ```go
 package keeper
 
@@ -120,7 +121,7 @@ func ZeroLaunchTimestampInvariant(k Keeper) sdk.Invariant {
 }
 ```
 
-Now you register the keeper invariants into the `x/earth/module.go`:
+Now, register the keeper invariants into the `x/earth/module.go` file:
 
 ```go
 // RegisterInvariants registers the capability module's invariants.
