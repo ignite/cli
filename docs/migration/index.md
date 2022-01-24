@@ -17,10 +17,32 @@ To migrate your chain that was scaffolded with Starport versions lower than v0.1
 
 1. IBC upgrade: Apply the changes that are introduced in PR [#1975](https://github.com/tendermint/starport/pull/1975/files) to your chain.
    
-2. In your chain's `go.mod` file, remove `tendermint/spm` and add the v0.19.2 version of `tendermint/starport`. If your chain uses these packages, change the import paths as shown: 
+2. In your chain's `go.mod` file, remove `tendermint/spm` and add the v0.19.2 version of `tendermint/starport`. If your chain uses these packages, change the import paths as shown:
 
-    - `spm/ibckeeper` moved to `pkg/cosmosibckeeper`
-    - `spm/cosmoscmd` moved to `pkg/cosmoscmd` 
-    - `spm/openapiconsole` moved to `pkg/openapiconsole`
-    - `testutil/sample` moved to `cosmostestutil/sample`
+
+- <https://github.com/tendermint/spm/tree/master/ibckeeper> 
+
+  moved to 
+
+  <https://github.com/tendermint/starport/tree/develop/starport/pkg/cosmosibckeeper>
+
+- <https://github.com/tendermint/spm/tree/master/cosmoscmd> 
+
+  moved to 
+  
+  <https://github.com/tendermint/starport/tree/develop/starport/pkg/cosmoscmd>
+
+
+- <https://github.com/tendermint/spm/tree/master/openapiconsole> 
+
+  moved to 
+  
+  <https://github.com/tendermint/starport/tree/develop/starport/pkg/openapiconsole>
+
+
+- <https://github.com/tendermint/spm/tree/master/testutil/sample> 
+
+  moved to 
+  
+  <https://github.com/tendermint/starport/tree/develop/starport/pkg/cosmostestutil/sample>
 
