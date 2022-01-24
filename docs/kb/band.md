@@ -3,11 +3,11 @@ order: 12
 description: IBC oracle integration with BandChain
 ---
 
-# BandChain Oracle scaffold
+# BandChain oracle scaffold
 
-BandChain’s Oracle module is a communication module built-in compliance with IBC protocol that can query data points of various types from BandChain. 
+The BandChain oracle module is a communication module with built-in compliance using IBC protocol that can query data points of various types from BandChain. 
 
-Other chains can query this Oracle module for real-time information.
+Other chains can query this oracle module for real-time information.
 
 BandChain has multiple scripts deployed into the network. You can request any data using the script id.
 
@@ -27,7 +27,7 @@ The BandChain oracle returns the ack messages with the request id. The last requ
 
 ## Files and directories
 
-When you scaffold a BandChain oracle, the following files and directories are created and modified:
+When you scaffold a BandChain oracle module, the following files and directories are created and modified:
 
 - `proto`: oracle request and response data.
 - `x/module_name/keeper`: IBC hooks, gRPC message server.
@@ -37,20 +37,20 @@ When you scaffold a BandChain oracle, the following files and directories are cr
 
 ## BandChain Oracle scaffold example
 
-The following command scaffolds an IBC-enabled oracle:
+First, scaffold a chain but don't scaffold a default module:
 
 ```bash
 starport scaffold chain github.com/cosmonaut/oracle --no-module 
 ```
 
-To scaffold an IBC-enabled module named `consuming`: 
+Next, scaffold an IBC-enabled module named `consuming`: 
 
 ```bash
 cd oracle 
 starport scaffold module consuming --ibc
 ```
 
-To scaffold an IBC BandChain query oracle that can request real-time data:
+Finally, scaffold an IBC BandChain query oracle that can request real-time data:
 
 ```
 starport scaffold band coinRates --module consuming
