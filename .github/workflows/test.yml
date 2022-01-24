@@ -24,4 +24,3 @@ jobs:
           go-version: 1.16
       - run: ./scripts/test-unit
         if: env.GIT_DIFF
-

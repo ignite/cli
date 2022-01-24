@@ -9,7 +9,7 @@ import (
 	"github.com/tendermint/starport/starport/pkg/cosmoserror"
 	"github.com/tendermint/starport/starport/pkg/cosmosutil"
 	"github.com/tendermint/starport/starport/pkg/events"
-	"github.com/tendermint/starport/starport/services/network/networkchain"
+	"github.com/tendermint/starport/starport/services/network/networktypes"
 )
 
 // Join to the network.
@@ -49,7 +49,7 @@ func (n Network) Join(
 	}
 
 	// change the chain address prefix to spn
-	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networkchain.SPN)
+	accountAddress, err := cosmosutil.ChangeAddressPrefix(gentxInfo.DelegatorAddress, networktypes.SPN)
 	if err != nil {
 		return err
 	}
@@ -77,7 +77,7 @@ func (n Network) sendAccountRequest(
 	accountAddress string,
 	amount sdk.Coin,
 ) (err error) {
-	address := n.account.Address(networkchain.SPN)
+	address := n.account.Address(networktypes.SPN)
 	n.ev.Send(events.New(events.StatusOngoing, "Verifying account already exists "+address))
 
 	// if is custom gentx path, avoid to check account into genesis from the home folder
@@ -101,7 +101,7 @@ func (n Network) sendAccountRequest(
 	}
 
 	msg := launchtypes.NewMsgRequestAddAccount(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		launchID,
 		accountAddress,
 		sdk.NewCoins(amount),
@@ -148,7 +148,7 @@ func (n Network) sendValidatorRequest(
 	}
 
 	msg := launchtypes.NewMsgRequestAddValidator(
-		n.account.Address(networkchain.SPN),
+		n.account.Address(networktypes.SPN),
 		launchID,
 		valAddress,
 		gentx,

@@ -25,6 +25,8 @@ type Chain interface {
 	GenesisPath() (string, error)
 	GentxsPath() (string, error)
 	DefaultGentxPath() (string, error)
+	AppTOMLPath() (string, error)
+	ConfigTOMLPath() (string, error)
 	Peer(ctx context.Context, addr string) (string, error)
 }
 
