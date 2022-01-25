@@ -400,6 +400,8 @@ starport relayer configure -a \
 --target-gaslimit 300000
 ```
 
+After you hit enter, it will ask for the `Source Account` and `Target Account`. Use default for both accounts.
+
 The output looks like:
 
 ```bash
@@ -429,19 +431,17 @@ starport relayer connect
 Results:
 
 ```bash
-🔌  Linked chains with 1 paths.
-
----------------------------------------------
-Chains by paths
----------------------------------------------
+------
+Paths
+------
 
 earth-mars:
     earth > (port: blog) (channel: channel-0)
     mars  > (port: blog) (channel: channel-0)
 
----------------------------------------------
+------
 Listening and relaying packets between chains...
----------------------------------------------
+------
 ```
 
 ### Send packets
